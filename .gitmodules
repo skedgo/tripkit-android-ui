@@ -1,0 +1,3 @@
+[submodule "tripkit-android"]
+	path = tripkit-android
+	url = https://gitlab.com/SkedGo/Android/tripkit-android.git
