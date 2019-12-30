@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools">
+    <data>
+        <variable
+                name="viewModel"
+                type="com.skedgo.tripkit.ui.search.LocationSearchViewModel" />
+    </data>
+
+
+<LinearLayout
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:background="#ffffff"
+              android:layout_height="match_parent">
+    <include
+            android:id="@+id/searchLayout"
+            layout="@layout/location_search_input_box"
+            app:viewModel="@{viewModel}" />
+
+    <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+        <View
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/shadow_height"
+                android:background="@drawable/below_shadow" />
+
+        <ProgressBar
+                style="@style/Base.Widget.AppCompat.ProgressBar.Horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/shadow_height"
+                android:indeterminate="true"
+                android:visibility="@{viewModel.showRefreshing}" />
+
+    </FrameLayout>
+
+    <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+        <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/resultView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginBottom="32dp"
+                android:scrollbarStyle="outsideOverlay"
+                android:visibility="@{viewModel.showList}"
+                app:itemBinding="@{viewModel.itemBinding}"
+                app:items="@{viewModel.allSuggestions}"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                tools:listitem="@android:layout/simple_list_item_1" />
+
+        <!-- "Powered By Google" at the bottom -->
+        <LinearLayout
+                android:id="@+id/google"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom"
+                android:background="@color/light_grey_2"
+                android:orientation="horizontal"
+                android:visibility="@{viewModel.showGoogleAttribution}">
+
+            <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0"
+                    android:paddingBottom="@dimen/half_content_padding"
+                    android:paddingLeft="@dimen/content_padding"
+                    android:paddingTop="@dimen/half_content_padding"
+                    android:src="@drawable/ic_googleresult" />
+
+            <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0"
+                    android:padding="@dimen/half_content_padding"
+                    android:src="@drawable/powered_by_google_on_non_white" />
+        </LinearLayout>
+
+
+        <include
+                layout="@layout/location_search_error"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:viewModel="@{viewModel.errorViewModel}"
+                app:visibility="@{viewModel.showError}" />
+
+        <ProgressBar
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:visibility="@{viewModel.showMiddleProgressBar}" />
+    </FrameLayout>
+</LinearLayout>
+</layout>

@@ -1,0 +1,44 @@
+include ':TripKitAndroidUI'
+include ':TripKitAndroidUIModules:TripKitAndroidUIData'
+include ':TripKitAndroidUIModules:TripKitAndroidUIDomain'
+
+include ':AccountDomain'
+project(':AccountDomain').projectDir = new File('tripkit-android/AccountDomain')
+
+include ':AccountData'
+project(':AccountData').projectDir = new File('tripkit-android/AccountData')
+
+include ':trip-kit-booking'
+project(':trip-kit-booking').projectDir = new File('tripkit-android/trip-kit-booking')
+
+include ':trip-kit-booking-ui'
+project(':trip-kit-booking-ui').projectDir = new File('tripkit-android/trip-kit-booking-ui')
+
+include ':CommonCoreLegacy'
+project(':CommonCoreLegacy').projectDir = new File('tripkit-android/CommonCoreLegacy')
+
+include ':TripKitDomain'
+project(':TripKitDomain').projectDir = new File('tripkit-android/TripKitDomain')
+
+include ':TripKitData'
+project(':TripKitData').projectDir = new File('tripkit-android/TripKitData')
+include ':TripKitDomainLegacy'
+project(':TripKitDomainLegacy').projectDir = new File('tripkit-android/TripKitDomainLegacy')
+
+include ':TripKitAndroid'
+project(':TripKitAndroid').projectDir = new File('tripkit-android/TripKitAndroid')
+
+include ':ValidBookingCountDomain'
+project(':ValidBookingCountDomain').projectDir = new File('tripkit-android/ValidBookingCountDomain')
+
+include ':ValidBookingCountData'
+project(':ValidBookingCountData').projectDir = new File('tripkit-android/ValidBookingCountData')
+
+include ':route-persistence'
+project(':route-persistence').projectDir = new File('tripkit-android/route-persistence')
+
+include ':sqliteutils'
+project(':sqliteutils').projectDir = new File('tripkit-android/sqliteutils')
+
+include ':rxlifecyclecomponents'
+project(':rxlifecyclecomponents').projectDir = new File('tripkit-android/rxlifecyclecomponents')

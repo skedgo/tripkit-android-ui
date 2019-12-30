@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools">
+    <data>
+        <variable
+                name="viewModel"
+                type="com.skedgo.tripkit.ui.servicedetail.ServiceDetailItemViewModel" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout android:layout_width="match_parent"
+                                                   android:layout_height="wrap_content"
+                                                       android:background="?android:attr/selectableItemBackground"
+                                                       android:onClick="@{() -> viewModel.onItemClick.perform()}"
+    >
+    <TextView
+            tools:text="11:03"
+            android:layout_width="64dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/time"
+            android:text="@{viewModel.scheduledTime}"
+            android:gravity="end|center_vertical"
+            android:layout_marginStart="8dp"
+            android:textColor="@{viewModel.scheduledTimeTextColor}"
+            style="@style/TextAppearance.MaterialComponents.Caption"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+
+        <ImageView android:layout_height="0dp"
+              android:layout_width="wrap_content"
+              android:scaleType="fitXY"
+                   android:layout_marginLeft="8dp"
+              android:id="@+id/lineView"
+              android:src="@{viewModel.lineDrawable}"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/time"
+                app:layout_constraintBottom_toBottomOf="parent"/>
+        <TextView
+                tools:text="Stop Name"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/stopName"
+                android:text="@{viewModel.stopName}"
+                android:gravity="center|start"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                android:layout_marginEnd="8dp"
+                android:textColor="@{viewModel.stopNameColor}"
+                style="@style/TextAppearance.MaterialComponents.Body1"
+                app:layout_constraintStart_toEndOf="@+id/lineView"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"/>
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

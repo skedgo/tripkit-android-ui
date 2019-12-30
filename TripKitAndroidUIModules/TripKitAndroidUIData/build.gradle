@@ -1,0 +1,100 @@
+apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
+apply plugin: "kotlin-kapt"
+apply plugin: 'digital.wup.android-maven-publish'
+
+android {
+    compileSdkVersion 29
+    buildToolsVersion "29.0.1"
+
+
+    defaultConfig {
+        minSdkVersion versions.proMinSdkVersion
+        targetSdkVersion versions.targetSdkVersion
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+}
+
+dependencies {
+    implementation libs.kotlin
+    implementation libs.rxjava2
+    implementation libs.rxrelay2
+    implementation libs.rxAndroid2
+
+    implementation libs.timber
+    implementation libs.dagger
+    implementation libs.daggerAndroid
+    implementation libs.daggerAndroidSupport
+    implementation libs.okHttp
+    implementation libs.retrofit
+    implementation libs.gson
+    implementation libs.retrofitConverterGson
+    implementation libs.immutablesGson
+    implementation libs.jodaTime
+
+    kapt libs.value
+    kapt libs.daggerCompiler
+    compileOnly libs.valueAnnotations
+    compileOnly libs.builderAnnotations
+
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation 'com.android.support.test:runner:1.0.2'
+    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation "com.google.android.libraries.places:places-compat:2.0.0"
+
+    implementation project(':TripKitAndroid')
+    implementation project(':TripKitAndroidUIModules:TripKitAndroidUIDomain')
+    implementation project(':sqliteutils')
+}
+repositories {
+    mavenCentral()
+}
+androidExtensions {
+    experimental = true
+}
+
+group = tripkitGroup
+version = tripkitVersion
+
+publishing {
+    repositories {
+        maven {
+//      url = "file://${localMaven}"
+            url = publishMavenUrl
+            credentials {
+                username = publishMavenUsername
+                password = publishMavenToken
+            }
+        }
+    }
+
+    publications {
+        mavenAar(MavenPublication) {
+            groupId = group
+            version = version
+            from components.android
+            pom {
+                licenses {
+                    license {
+                        name = 'Commercial'
+                    }
+                }
+
+            }
+        }
+    }
+}
+

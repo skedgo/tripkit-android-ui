@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
+    <data>
+        <variable
+                name="viewModel"
+                type="com.skedgo.tripkit.ui.tripresults.TripResultTransportItemViewModel" />
+    </data>
+
+    <com.skedgo.tripkit.ui.views.CheckableImageButton android:layout_width="wrap_content"
+                                                      android:layout_height="wrap_content"
+                                                      android:padding="4dp"
+                                                      android:layout_marginEnd="16dp"
+                                                      android:layout_marginBottom="8dp"
+                                                      android:background="@drawable/trip_result_transport_mode_selector_background"
+                                                      app:modeIconId="@{viewModel.modeIconId}"
+                                                      app:modeId="@{viewModel.modeId}"
+                                                      android:onClick="@{viewModel::onItemClick}"
+                                                      android:checked="@{viewModel.checked}"/>
+
+</layout>

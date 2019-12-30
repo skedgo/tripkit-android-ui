@@ -1,0 +1,10 @@
+<com.google.android.material.floatingactionbutton.FloatingActionButton android:id="@+id/myLocationButton"
+                                                                       xmlns:android="http://schemas.android.com/apk/res/android"
+                                                                       xmlns:app="http://schemas.android.com/apk/res-auto"
+                                                                       android:layout_width="56dp"
+                                                                       android:layout_height="56dp"
+                                                                       android:layout_gravity="bottom|end"
+                                                                       android:layout_margin="@dimen/fab_spacing_normal"
+                                                                       android:src="@drawable/ic_nav_my_location"
+                                                                       app:backgroundTint="@android:color/white"
+                                                                       app:elevation="2dp" />

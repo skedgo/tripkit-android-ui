@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools"
+          package="com.skedgo.tripkit.ui">
+
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <application>
+        <provider
+                android:priority="99999"
+                android:initOrder="99999"
+                tools:replace="android:authorities"
+                android:name=".core.InitializerContentProvider"
+                android:authorities="${applicationId}.tripkit.initializer"
+                android:enabled="true"
+                android:exported="false">
+        </provider>
+        <provider
+                android:name="com.skedgo.tripkit.ui.provider.ServiceStopsProvider"
+                tools:replace="android:authorities"
+                android:authorities="${applicationId}.com.skedgo.tripkit.ui.ServiceStopsProvider"
+                android:enabled="true"
+                android:exported="false">
+        </provider>
+        <provider
+                android:name="com.skedgo.tripkit.ui.provider.TimetableProvider"
+                tools:replace="android:authorities"
+                android:authorities="${applicationId}.com.skedgo.tripkit.ui.TimetableProvider"
+                android:enabled="true"
+                android:exported="false">
+        </provider>
+        <provider
+                android:name="com.skedgo.tripkit.ui.provider.ScheduledStopsProvider"
+                tools:replace="android:authorities"
+                android:authorities="${applicationId}.com.skedgo.tripkit.ui.ScheduledStopsProvider"
+                android:enabled="true"
+                android:exported="false">
+        </provider>
+    </application>
+
+</manifest>

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <variable
+                name="viewModel"
+                type="com.skedgo.tripkit.ui.trip.options.InterCityTimePickerViewModel" />
+
+        <variable
+                name="handlers"
+                type="com.skedgo.tripkit.ui.dialog.TripKitDateTimePickerDialogFragment" />
+    </data>
+
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+        <RadioGroup
+                android:id="@+id/time_options"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+            <RadioButton
+                    android:id="@+id/radio_leave_after"
+                    style="@style/FlatRadioButtonStyle"
+                    android:checked="@{viewModel.isLeaveAfter}"
+                    android:onClick="@{handlers::onClickLeaveAfter}"
+                    android:text="@string/leave_at" />
+
+            <RadioButton
+                    android:id="@+id/radio_arrive_by"
+                    style="@style/FlatRadioButtonStyle"
+                    android:checked="@{!viewModel.isLeaveAfter}"
+                    android:onClick="@{handlers::onClickArriveBy}"
+                    android:text="@string/arrive_by" />
+        </RadioGroup>
+
+        <!-- Why specify 'timePickerMode'? See https://redmine.buzzhives.com/issues/4328. -->
+        <!-- Credit to http://stackoverflow.com/a/26961308/2563009. -->
+        <!-- See https://code.google.com/p/android/issues/detail?id=81360. -->
+        <TimePicker
+                android:id="@+id/time_picker"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginLeft="24dp"
+                android:layout_marginRight="24dp"
+                android:timePickerMode="spinner" />
+
+        <Spinner
+                android:id="@+id/date_spinner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp"
+                android:layout_marginLeft="24dp"
+                android:layout_marginRight="24dp"
+                android:spinnerMode="dropdown"
+                app:selection="@{viewModel.selectedPosition}" />
+    </LinearLayout>
+</layout>

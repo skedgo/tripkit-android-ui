@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools">
+    <data>
+        <variable
+                name="viewModel"
+                type="com.skedgo.tripkit.ui.tripresults.TripSegmentViewModel" />
+    </data>
+    <androidx.constraintlayout.widget.ConstraintLayout android:layout_width="wrap_content"
+                                                       android:layout_height="wrap_content"
+                                                        android:layout_marginEnd="4dp">
+        <ImageView
+                android:id="@+id/icon"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@{viewModel.icon}"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"/>
+        <TextView
+            android:id="@+id/primary"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:text="14"
+            style="@style/TextAppearance.MaterialComponents.Caption"
+            android:textColor="@color/black"
+            android:layout_marginStart="4dp"
+            android:text="@{viewModel.primaryText}"
+            android:visibility="@{viewModel.showPrimary}"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/icon"
+            app:layout_constraintBottom_toTopOf="@+id/secondary"/>
+        <TextView android:id="@+id/secondary"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  tools:text="10:15"
+                  android:layout_marginStart="4dp"
+                  style="@style/TextAppearance.MaterialComponents.Caption"
+                  android:textColor="@color/black1"
+                  android:text="@{viewModel.secondaryText}"
+                  android:visibility="@{viewModel.showSecondary}"
+                  app:layout_constraintTop_toBottomOf="@+id/primary"
+                  app:layout_constraintStart_toEndOf="@+id/icon"
+                  app:layout_constraintBottom_toBottomOf="parent"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

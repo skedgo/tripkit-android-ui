@@ -1,0 +1,87 @@
+apply plugin: 'com.android.library'
+apply plugin: "kotlin-android"
+apply plugin: "kotlin-kapt"
+apply plugin: 'kotlin-android-extensions'
+apply plugin: 'digital.wup.android-maven-publish'
+
+android {
+    compileSdkVersion 29
+    buildToolsVersion "29.0.1"
+
+
+    defaultConfig {
+        minSdkVersion versions.proMinSdkVersion
+        targetSdkVersion versions.targetSdkVersion
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+}
+
+androidExtensions {
+    // For @Parcelize
+    experimental = true
+}
+
+dependencies {
+    implementation libs.kotlin
+    implementation libs.rxjava2
+    implementation libs.rxrelay2
+    implementation libs.jodaTimeAndroid
+
+    implementation libs.dagger
+    implementation libs.timber
+    kapt libs.daggerCompiler
+    kapt libs.value
+    compileOnly libs.valueAnnotations
+
+    implementation libs.koptional
+
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation 'com.android.support.test:runner:1.0.2'
+    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+    implementation project(':TripKitAndroid')
+}
+
+group = tripkitGroup
+version = tripkitVersion
+
+publishing {
+    repositories {
+        maven {
+//      url = "file://${localMaven}"
+            url = publishMavenUrl
+            credentials {
+                username = publishMavenUsername
+                password = publishMavenToken
+            }
+        }
+    }
+
+    publications {
+        mavenAar(MavenPublication) {
+            groupId = group
+            version = version
+            from components.android
+            pom {
+                licenses {
+                    license {
+                        name = 'Commercial'
+                    }
+                }
+
+            }
+        }
+    }
+}
+

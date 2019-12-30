@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools">
+    <data>
+        <variable
+                name="viewModel"
+                type="com.skedgo.tripkit.ui.timetables.TimetableViewModel" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#ffffff"
+            tools:context=".timetables.TimetableFragment">
+
+        <TextView
+                tools:text="Town Hall Station"
+                style="@style/TextAppearance.MaterialComponents.Headline6"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/nameOfStation"
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp"
+                android:layout_marginTop="8dp"
+                android:text="@{viewModel.stationName}"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+        />
+        <!-- Commenting out until the backend supports giving us the names of stations -->
+<!--        <TextView-->
+<!--                tools:text="Train Station"-->
+<!--                style="@style/TextAppearance.MaterialComponents.Subtitle1"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:text="@{viewModel.stationType}"-->
+<!--                android:id="@+id/description"-->
+<!--                app:layout_constraintTop_toBottomOf="@+id/nameOfStation"-->
+<!--                app:layout_constraintStart_toStartOf="@+id/nameOfStation"-->
+<!--        />-->
+        <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/serviceLineRecyclerView"
+                tools:listitem="@layout/timetable_header_line_item"
+                android:paddingLeft="8dp"
+                android:paddingRight="8dp"
+                app:layout_constraintTop_toBottomOf="@+id/nameOfStation"
+                app:layout_constraintStart_toStartOf="@+id/nameOfStation"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:itemBinding="@{viewModel.serviceItemBinding}"
+                app:items="@{viewModel.serviceNumbers}"
+                app:layoutManager="com.google.android.flexbox.FlexboxLayoutManager">
+        </androidx.recyclerview.widget.RecyclerView>
+        <com.google.android.flexbox.FlexboxLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/buttonsFlexboxLayout"
+                android:paddingLeft="8dp"
+                android:paddingRight="8dp"
+                app:layout_constraintStart_toStartOf="@+id/nameOfStation"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:flexDirection="row"
+                app:layout_constraintTop_toBottomOf="@+id/serviceLineRecyclerView"/>
+
+        <include android:layout_width="match_parent"
+                 android:layout_height="wrap_content"
+                 android:layout_marginTop="12dp"
+                 android:id="@+id/departuresSearchSetTime"
+                 layout="@layout/timetable_search_set_time"
+                 app:layout_constraintTop_toBottomOf="@+id/buttonsFlexboxLayout"
+                 app:layout_constraintStart_toStartOf="parent"/>
+
+        <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerView"
+                tools:listitem="@layout/timetable_fragment_list_item"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/departuresSearchSetTime"
+                app:itemBinding="@{viewModel.itemBinding}"
+                app:items="@{viewModel.services}"
+                app:layout_behavior="@string/appbar_scrolling_view_behavior"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager">
+        </androidx.recyclerview.widget.RecyclerView>
+        <ProgressBar
+                android:id="@+id/progressBar"
+                style="@style/Base.Widget.AppCompat.ProgressBar.Horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:indeterminate="true"
+                app:fadeVisible="@{viewModel.showLoading}"
+                app:layout_constraintTop_toBottomOf="@+id/departuresSearchSetTime"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"/>
+
+        <Button
+                android:id="@+id/goToNowButton"
+                style="@style/ToNowButtonStyle"
+                app:layout_constraintTop_toBottomOf="@+id/progressBar"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="48dp"
+                android:text="@string/go_to_now"
+                android:visibility="gone" />
+        <!--</androidx.constraintlayout.motion.widget.MotionLayout>-->
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

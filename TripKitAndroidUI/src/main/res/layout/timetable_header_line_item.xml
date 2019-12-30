@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools">
+    <data>
+        <variable name="data" type="com.skedgo.tripkit.ui.model.TimetableHeaderLineItem"/>
+    </data>
+
+    <androidx.cardview.widget.CardView
+            xmlns:card_view="http://schemas.android.com/apk/res-auto"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            card_view:cardBackgroundColor="@{data.serviceColor}"
+            card_view:cardElevation="0dp"
+            android:paddingLeft="4dp"
+            android:paddingRight="4dp"
+            android:layout_marginEnd="4dp"
+            android:layout_marginBottom="2dp"
+            card_view:cardCornerRadius="4dp">
+
+        <TextView
+                tools:text="U1"
+                android:text="@{data.serviceNumber}"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/serviceLine"
+                android:textColor="@android:color/white"
+                android:paddingLeft="4dp"
+                android:paddingRight="4dp"
+                style="@style/TextAppearance.MaterialComponents.Caption"/>
+    </androidx.cardview.widget.CardView>
+</layout>

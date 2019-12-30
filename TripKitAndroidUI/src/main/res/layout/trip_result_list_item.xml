@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools">
+    <data>
+        <variable
+                name="viewModel"
+                type="com.skedgo.tripkit.ui.tripresults.TripResultViewModel" />
+    </data>
+    <androidx.cardview.widget.CardView android:layout_width="match_parent"
+                                       android:layout_height="wrap_content"
+                                       android:layout_marginBottom="8dp">
+        <androidx.constraintlayout.widget.ConstraintLayout android:layout_width="match_parent"
+                                                           android:layout_height="wrap_content"
+                                                           android:background="?selectableItemBackground"
+                                                           android:onClick="@{() -> viewModel.onItemClicked.perform()}">
+            <ImageView android:id="@+id/badgeIcon"
+                       android:layout_height="16dp"
+                       android:layout_width="16dp"
+                       android:layout_marginTop="16dp"
+                       android:layout_marginBottom="10dp"
+                       android:layout_marginStart="16dp"
+                       android:layout_marginEnd="16dp"
+                       android:visibility="@{viewModel.badgeVisible}"
+                       android:src="@{viewModel.badgeDrawable}"
+                       app:layout_constraintStart_toStartOf="parent"
+                       app:layout_constraintTop_toTopOf="parent"/>
+            <TextView android:id="@+id/badgeText"
+                      android:layout_height="wrap_content"
+                      android:layout_width="wrap_content"
+                      tools:text="FASTEST"
+                      android:visibility="@{viewModel.badgeVisible}"
+                      android:text="@{viewModel.badgeText}"
+                      android:textColor="@{viewModel.badgeTextColor}"
+                      style="@style/TextAppearance.MaterialComponents.Overline"
+                      app:layout_constraintTop_toTopOf="@+id/badgeIcon"
+                      app:layout_constraintBottom_toBottomOf="@+id/badgeIcon"
+                      app:layout_constraintStart_toEndOf="@+id/badgeIcon"
+                      android:layout_marginStart="4dp"/>
+            <TextView android:id="@+id/title"
+                      style="@style/TextAppearance.MaterialComponents.Body1"
+                      android:layout_width="wrap_content"
+                      android:layout_height="wrap_content"
+                      android:text="@{viewModel.title}"
+                      app:layout_goneMarginTop="16dp"
+                      app:layout_goneMarginStart="16dp"
+                      android:visibility="@{viewModel.titleVisible}"
+                      app:layout_constraintStart_toStartOf="@+id/badgeIcon"
+                      app:layout_constraintTop_toBottomOf="@+id/badgeIcon"/>
+            <TextView android:id="@+id/subtitle"
+                      style="@style/TextAppearance.MaterialComponents.Body2"
+                      android:textColor="@color/black1"
+                      android:layout_width="wrap_content"
+                      android:layout_height="wrap_content"
+                      android:layout_marginEnd="16dp"
+                      android:text="@{viewModel.subtitle}"
+                      app:layout_constraintEnd_toEndOf="parent"
+                      app:layout_constraintTop_toTopOf="@+id/title"
+                      app:layout_constraintBottom_toBottomOf="@+id/title"/>
+            <com.google.android.flexbox.FlexboxLayout android:layout_width="match_parent"
+                                                      android:layout_height="wrap_content"
+                                                      android:id="@+id/segmentsLayout"
+                                                      android:layout_marginEnd="16dp"
+                                                      android:layout_marginStart="16dp"
+                                                      android:layout_marginTop="12dp"
+                                                      app:layout_constraintTop_toBottomOf="@+id/title"
+                                                      app:layout_constraintStart_toStartOf="parent"
+                                                      app:layout_constraintEnd_toEndOf="parent"
+                                                      app:flexWrap="wrap"
+                                                      app:flexDirection="row"
+                                                      app:entries="@{viewModel.segments}"
+                                                      app:layout="@{@layout/trip_result_segment_item}">
+
+                <!--            <Space android:layout_width="1dp"    android:layout_height="1dp" app:layout_flexGrow="1" app:layout_flexShrink="1"/>-->
+                <!--            <com.google.android.material.button.MaterialButton-->
+                <!--                    android:id="@+id/ctaButton"-->
+                <!--                    android:layout_width="wrap_content"-->
+                <!--                    android:layout_height="wrap_content"-->
+                <!--                    android:theme="@style/Theme.MaterialComponents"-->
+                <!--                    style="@style/Widget.MaterialComponents.Button.TextButton"-->
+                <!--                    tools:text="CTA"-->
+                <!--                    app:layout_alignSelf="flex_end"/>-->
+            </com.google.android.flexbox.FlexboxLayout>
+            <View android:id="@+id/innerDividerLine"
+                  android:layout_width="match_parent"
+                  android:layout_height="1dp"
+                  android:background="@color/black3"
+                  android:layout_marginTop="12dp"
+                  android:layout_marginBottom="12dp"
+                  android:layout_marginStart="16dp"
+                  android:layout_marginEnd="16dp"
+                  android:visibility="@{viewModel.alternateTripVisible}"
+                  app:layout_constraintStart_toStartOf="@+id/segmentsLayout"
+                  app:layout_constraintEnd_toEndOf="@+id/segmentsLayout"
+                  app:layout_constraintTop_toBottomOf="@+id/segmentsLayout"/>
+
+            <TextView android:id="@+id/alternateTitle"
+                      style="@style/TextAppearance.MaterialComponents.Body1"
+                      android:layout_width="wrap_content"
+                      android:layout_height="wrap_content"
+                      android:text="@{viewModel.alternateTitle}"
+                      android:layout_marginTop="12dp"
+                      android:visibility="@{viewModel.alternateTripVisible}"
+                      app:layout_constraintStart_toStartOf="@+id/title"
+                      app:layout_constraintTop_toBottomOf="@+id/innerDividerLine"/>
+            <TextView android:id="@+id/alternateSubtitle"
+                      style="@style/TextAppearance.MaterialComponents.Body2"
+                      android:textColor="@color/black1"
+                      android:layout_width="wrap_content"
+                      android:layout_height="wrap_content"
+                      android:layout_marginEnd="16dp"
+                      android:visibility="@{viewModel.alternateTripVisible}"
+                      android:text="@{viewModel.subtitle}"
+                      app:layout_constraintEnd_toEndOf="parent"
+                      app:layout_constraintTop_toTopOf="@+id/alternateTitle"
+                      app:layout_constraintBottom_toBottomOf="@+id/alternateTitle"/>
+            <com.google.android.flexbox.FlexboxLayout android:layout_width="match_parent"
+                                                      android:layout_height="wrap_content"
+                                                      android:id="@+id/alternateSegmentsLayout"
+                                                      android:layout_marginEnd="16dp"
+                                                      android:layout_marginStart="16dp"
+                                                      android:layout_marginTop="12dp"
+                                                      app:layout_constraintTop_toBottomOf="@+id/alternateTitle"
+                                                      app:layout_constraintStart_toStartOf="parent"
+                                                      app:layout_constraintEnd_toEndOf="parent"
+                                                      android:visibility="@{viewModel.alternateTripVisible}"
+                                                      app:flexWrap="wrap"
+                                                      app:flexDirection="row"
+                                                      app:entries="@{viewModel.alternateSegments}"
+                                                      app:layout="@{@layout/trip_result_segment_item}"/>
+            <View android:id="@+id/footerLine"
+                  android:layout_width="match_parent"
+                  android:layout_height="1dp"
+                  android:background="@color/black3"
+                  android:layout_marginTop="12dp"
+                  android:visibility="@{viewModel.alternateTripVisible}"
+                  app:layout_constraintStart_toStartOf="parent"
+                  app:layout_constraintEnd_toEndOf="parent"
+                  app:layout_constraintTop_toBottomOf="@+id/alternateSegmentsLayout"/>
+            <TextView android:layout_width="wrap_content"
+                      android:layout_height="wrap_content"
+                      android:id="@+id/cost"
+                      tools:text="0kg CO2"
+                      android:layout_marginStart="16dp"
+                      android:layout_marginTop="12dp"
+                      android:layout_marginBottom="12dp"
+                      android:visibility="@{viewModel.costVisible}"
+                      android:text="@{viewModel.cost}"
+                      style="@style/TextAppearance.MaterialComponents.Caption"
+                      app:layout_constraintTop_toBottomOf="@+id/footerLine"
+                      app:layout_constraintBottom_toBottomOf="parent"
+                      app:layout_constraintStart_toStartOf="parent"/>
+            <com.google.android.material.button.MaterialButton android:id="@+id/moreButton"
+                                                               android:layout_width="wrap_content"
+                                                               android:layout_height="wrap_content"
+                                                               android:layout_marginEnd="2dp"
+                                                               android:layout_marginTop="2dp"
+                                                               android:theme="@style/Theme.MaterialComponents"
+                                                               style="@style/Widget.MaterialComponents.Button.TextButton"
+                                                               android:text="@{viewModel.moreButtonText}"
+                                                               android:background="@android:color/transparent"
+                                                               android:visibility="@{viewModel.moreButtonVisible}"
+                                                               android:onClick="@{() -> viewModel.moreButtonClicked()}"
+                                                               app:layout_constraintTop_toBottomOf="@+id/footerLine"
+                                                               app:layout_constraintEnd_toEndOf="parent"/>
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.cardview.widget.CardView>
+
+
+</layout>

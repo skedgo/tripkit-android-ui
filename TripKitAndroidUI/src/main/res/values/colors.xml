@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- "New" colors from design mockups-->
+    <color name="tripKitPrimary">#23b15e</color>
+    <color name="black">#212A33</color>
+    <color name="black1">#99212A33</color>
+    <color name="black2">#4D212A33</color>
+    <color name="black3">#2E212A33</color>
+    <color name="black4">#1F212A33</color>
+    <color name="grey1">#E6EFF2</color>
+    <color name="grey2">#f5f6f7</color>
+    <color name="tripKitSuccess">#23B15E</color>
+    <color name="tripKitWarning">#FCBA1E</color>
+    <color name="tripKitError">#E34040</color>
+
+    <color name="tripKitCardBackground">#ffffff</color>
+
+    <color name="classification_easiest">#23b15e</color>
+    <color name="classification_cheapest">#ff8d1b</color>
+    <color name="classification_fastest">#f5a300</color>
+    <color name="classification_greenest">#00a88f</color>
+    <color name="classification_healthiest">#e15b72</color>
+    <color name="classification_recommended">#1880e7</color>
+
+    <!-- Colors imported from TripGo -->
+    <color name="main_color">#23b15e</color>
+    <color name="workDay">@color/main_color</color>
+    <color name="offDay">#f2f2f2</color>
+    <color name="time_label_bg">#a3000000</color>
+
+    <color name="divider">#f5f5f5</color>
+    <color name="light_grey_2">#bdbdbd</color>
+    <color name="light_grey_4">#9B9B9B</color>
+    <color name="dark_grey_2">#FF333333</color>
+    <color name="light_grey_6">#959595</color>
+    <color name="light_grey_5">#D8D8D8</color>
+    <color name="dark_grey_3">#333333</color>
+    <color name="light_blue">#009bdf</color>
+
+    <color name="title_text">#212121</color>
+    <color name="description_text">#8A8A8A</color>
+
+    <color name="secondary_text">#747474</color>
+    <color name="tertiary_text">#b7b7b7</color>
+    <color name="occupancyManySeats">#23B15E</color>
+    <color name="occupancyFewSeats">#FFB500</color>
+    <color name="occupancyStandingOnly">#FF9600</color>
+    <color name="occupancyAlmostFull">#FF9600</color>
+    <color name="occupancyFull">#FF4B47</color>
+    <color name="alert">#E34040</color>
+    <color name="v4_back_to_top_stroke">#344E6D</color>
+    <color name="v4_back_to_top_bg">#CC344E6D</color>
+
+    <color name="v4_title_text">#212121</color>
+    <color name="v4_color">#00CC66</color>
+    <color name="v4_btn_radio_off_flat">#edeef2</color>
+    <color name="v4_btn_radio_on_flat">@color/v4_color</color>
+    <color name="v4_btn_radio_pressed_flat">#00a653</color>
+    <color name="v4_btn_radio_text_flat">#808080</color>
+
+</resources>

@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <bool name="trip_kit_use_service_color">false</bool>
+
+</resources>

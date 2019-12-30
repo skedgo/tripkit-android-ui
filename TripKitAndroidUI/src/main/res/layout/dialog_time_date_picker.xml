@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:divider="@drawable/v4_shape_divider_trip_summary"
+              android:orientation="horizontal"
+              android:padding="@dimen/v4_content_padding"
+              android:showDividers="middle">
+
+    <!-- Having minWidth 120dp helps fixing truncated text, such as, 'Wed Oct...'. -->
+    <!-- 120dp was calculated from Matt's mockup. -->
+    <kankan.wheel.widget.WheelView
+            android:id="@+id/daysView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minWidth="120dp" />
+
+    <kankan.wheel.widget.WheelView
+            android:id="@+id/hoursView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+    <kankan.wheel.widget.WheelView
+            android:id="@+id/minutesView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+    <kankan.wheel.widget.WheelView
+            android:id="@+id/amPmView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+</LinearLayout>

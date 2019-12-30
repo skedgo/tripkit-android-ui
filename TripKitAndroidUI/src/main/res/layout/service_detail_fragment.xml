@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools">
+    <data>
+        <variable
+                name="viewModel"
+                type="com.skedgo.tripkit.ui.servicedetail.ServiceDetailViewModel" />
+        <import type="androidx.recyclerview.widget.LinearLayoutManager" />
+
+    </data>
+
+
+    <androidx.constraintlayout.widget.ConstraintLayout android:layout_width="match_parent"
+                                                       android:layout_height="match_parent"
+                                                       android:background="#ffffff">
+
+        <TextView
+                tools:text="Stop Name"
+                style="@style/TextAppearance.MaterialComponents.Headline6"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/stopName"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:text="@{viewModel.stationName}"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                android:layout_marginBottom="8dp"
+        />
+        <LinearLayout
+                android:id="@+id/iconLayout"
+                android:orientation="horizontal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintStart_toStartOf="@+id/stopName"
+                app:layout_constraintTop_toBottomOf="@+id/stopName">
+            <androidx.cardview.widget.CardView
+                    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    card_view:cardBackgroundColor="@{viewModel.serviceColor}"
+                    card_view:cardElevation="0dp"
+                    android:paddingLeft="4dp"
+                    android:paddingRight="4dp"
+                    card_view:cardCornerRadius="4dp">
+                <TextView
+                        tools:text="U1"
+                        android:text="@{viewModel.serviceNumber}"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/serviceLine"
+                        android:textColor="@android:color/white"
+                        android:paddingLeft="4dp"
+                        android:paddingRight="4dp"
+                        style="@style/TextAppearance.MaterialComponents.Caption"/>
+            </androidx.cardview.widget.CardView>
+            <TextView
+                    tools:text="Scheduled"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/status"
+                    android:layout_marginStart="4dp"
+                    android:textColor="@{viewModel.secondaryTextColor}"
+                    android:text="@{viewModel.secondaryText}"
+                    style="@style/TextAppearance.MaterialComponents.Body2"/>
+        </LinearLayout>
+        <TextView
+                tools:text="Fürth"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/details"
+                android:text="@{viewModel.tertiaryText}"
+                android:layout_marginTop="4dp"
+                android:textColor="@color/black1"
+                style="@style/TextAppearance.MaterialComponents.Caption"
+                app:layout_constraintStart_toStartOf="@+id/iconLayout"
+                app:layout_constraintTop_toBottomOf="@+id/iconLayout"/>
+        <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:id="@+id/firstDividingLine"
+                android:background="@color/black4"
+                android:layout_marginTop="8dp"
+                app:layout_constraintTop_toBottomOf="@+id/details"
+                app:layout_constraintStart_toStartOf="parent"/>
+
+    <androidx.constraintlayout.motion.widget.MotionLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:id="@+id/motionLayout"
+            app:layoutDescription="@xml/service_detail_motion"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/firstDividingLine">
+
+        <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="8dp"
+                android:src="@{viewModel.wheelchairIcon}"
+                android:tint="@color/black2"
+                android:visibility="@{viewModel.showWheelchairAccessible}"
+                android:id="@+id/wheelchair"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"/>
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                  android:text="@{viewModel.wheelchairAccessibleText}"
+                  android:id="@+id/wheelchairLabel"
+                  android:layout_marginStart="32dp"
+                  android:visibility="@{viewModel.showWheelchairAccessible}"
+                  style="@style/TextAppearance.MaterialComponents.Body1"
+                  app:layout_constraintTop_toTopOf="@+id/wheelchair"
+                  app:layout_constraintStart_toEndOf="@id/wheelchair"/>
+        <ImageView
+                android:id="@+id/occupancyView"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@{viewModel.occupancyViewModel.drawableLeft}"
+            android:visibility="@{viewModel.showOccupancyInfo}"
+            app:layout_constraintTop_toTopOf="@id/wheelchair"
+            app:layout_constraintStart_toEndOf="@id/wheelchair"/>
+
+        <TextView android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:text="@{viewModel.occupancyViewModel.occupancyText}"
+                  android:id="@+id/occupancyLabel"
+                  android:layout_marginStart="32dp"
+                  android:visibility="@{viewModel.showOccupancyInfo}"
+                  style="@style/TextAppearance.MaterialComponents.Body1"
+                  app:layout_constraintTop_toTopOf="@+id/occupancyView"
+                  app:layout_constraintStart_toEndOf="@id/occupancyView"/>
+
+        <ImageView
+                android:src="@drawable/chevron_down"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:clickable="true"
+                android:focusable="true"
+                android:id="@+id/expandButton"
+                android:layout_marginEnd="16dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"/>
+        <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/occupancyList"
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:layout_marginTop="10dp"
+                android:layout_gravity="center"
+                android:visibility="@{viewModel.showOccupancyInfo}"
+                app:itemBinding="@{viewModel.occupancyViewModel.itemBinding}"
+                app:items="@{viewModel.occupancyViewModel.items}"
+
+                app:layout_constraintTop_toBottomOf="@+id/occupancyView"
+                app:layout_constraintStart_toStartOf="@+id/occupancyLabel"
+                app:layout_constraintHorizontal_chainStyle="packed"/>
+
+    </androidx.constraintlayout.motion.widget.MotionLayout>
+        <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:id="@+id/secondDividingLine"
+                android:background="@color/black4"
+                android:layout_marginTop="8dp"
+                app:layout_constraintTop_toBottomOf="@+id/motionLayout"
+                app:layout_constraintStart_toStartOf="parent"/>
+
+        <androidx.recyclerview.widget.RecyclerView android:layout_width="match_parent"
+                                                   android:layout_height="0dp"
+                                                   android:id="@+id/recyclerView"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/secondDividingLine"
+                app:layout_constraintBottom_toBottomOf="parent"
+               app:itemBinding="@{viewModel.itemBinding}"
+               app:layout_behavior="@string/appbar_scrolling_view_behavior"
+                app:items="@{viewModel.items}"
+               app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"/>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</layout>

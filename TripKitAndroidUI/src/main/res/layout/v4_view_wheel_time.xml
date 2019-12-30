@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+          xmlns:tools="http://schemas.android.com/tools"
+          android:id="@+id/text"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_gravity="center"
+          android:padding="@dimen/v4_half_content_padding"
+          android:singleLine="true"
+          android:textColor="@color/v4_title_text"
+          android:textSize="16sp"
+          tools:text="Tue May 20" />
