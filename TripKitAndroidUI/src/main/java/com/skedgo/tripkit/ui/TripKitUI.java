@@ -1,6 +1,7 @@
 package com.skedgo.tripkit.ui;
 
 import android.content.Context;
+import android.content.pm.ApplicationInfo;
 import com.skedgo.TripKit;
 import com.skedgo.routepersistence.RouteStore;
 import com.skedgo.tripkit.Configs;
@@ -25,6 +26,7 @@ import skedgo.tripgo.agenda.legacy.GetRoutingConfigModule;
 import skedgo.tripgo.agenda.legacy.WalkingSpeedRepositoryModule;
 import com.skedgo.tripkit.configuration.Key;
 import com.skedgo.tripkit.logging.ErrorLogger;
+import timber.log.Timber;
 
 import javax.inject.Singleton;
 
@@ -79,13 +81,18 @@ public abstract class TripKitUI {
         RxDogTag.install();
         if (!TripKit.isInitialized()) {
             AUTHORITY =  context.getPackageName() + ".com.skedgo.tripkit.ui.";
+            boolean isDebuggable = (0 != (context.getApplicationInfo().flags
+                    & ApplicationInfo.FLAG_DEBUGGABLE ) || BuildConfig.DEBUG);
+
             Configs configs = Configs.builder()
                     .context(context)
-                    .debuggable(BuildConfig.DEBUG) // FIXME: True temporarily for TripKit to pick up custom server from Developer options.
+                    .debuggable(isDebuggable)
                     .key(() -> key)
                     .build();
             TripKit.initialize(configs);
-
+        if (isDebuggable) {
+            Timber.plant(new Timber.DebugTree());
+        }
         instance = DaggerTripKitUI.builder()
                 .contextModule(new ContextModule(context))
                 .build();
