@@ -12,9 +12,11 @@
     <color name="tripKitSuccess">#23B15E</color>
     <color name="tripKitWarning">#FCBA1E</color>
     <color name="tripKitError">#E34040</color>
-
+    <color name="tripKitWarning60">#99FCBA1E</color>
+    <color name="tripKitWarning30">#4DFCBA1E</color>
+    <color name="tripKitWarning12">#1FFCBA1E</color>
     <color name="tripKitCardBackground">#ffffff</color>
-
+    <color name="tripKitDivider">#1F212A33</color>
     <color name="classification_easiest">#23b15e</color>
     <color name="classification_cheapest">#ff8d1b</color>
     <color name="classification_fastest">#f5a300</color>

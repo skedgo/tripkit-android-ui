@@ -6,8 +6,11 @@ import android.view.ViewGroup;
 import androidx.databinding.BindingAdapter;
 import androidx.databinding.DataBindingUtil;
 import androidx.databinding.ViewDataBinding;
+import com.skedgo.tripkit.common.model.RealtimeAlert;
 import com.skedgo.tripkit.ui.BR;
+import com.skedgo.tripkit.ui.views.TripSegmentAlertView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public final class ArrayBindingAdapter {
@@ -28,4 +31,11 @@ public final class ArrayBindingAdapter {
         }
     }
 
+    @BindingAdapter({"alerts"})
+    public static void setAlertEntries(ViewGroup viewGroup, ArrayList<RealtimeAlert> alerts) {
+        if (viewGroup instanceof TripSegmentAlertView) {
+            TripSegmentAlertView view = (TripSegmentAlertView) viewGroup;
+            view.setAlerts(alerts);
+        }
+    }
 }

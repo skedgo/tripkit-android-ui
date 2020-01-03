@@ -203,8 +203,6 @@ public class StopsPersistor implements StopsFetcher.IStopsPersistor {
 
       int rowCount = scheduledStopRepository.bulkInsert(valArr);
 
-      Timber.d("Inserted %d stops", rowCount);
-
       Arrays.fill(valArr, null);
       subList = locationValues.subList(startIndex, endIndex);
       valArr = new ContentValues[subList.size()];
@@ -212,8 +210,6 @@ public class StopsPersistor implements StopsFetcher.IStopsPersistor {
       rowCount = appContext.getContentResolver().bulkInsert(
           ScheduledStopsProvider.LOCATIONS_BY_SCHEDULED_STOP_URI,
           valArr);
-
-      Timber.d("Inserted %d locations", rowCount);
 
       if (sleep > 0) {
         try {

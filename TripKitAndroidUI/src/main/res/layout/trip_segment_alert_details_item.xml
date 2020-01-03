@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout  xmlns:android="http://schemas.android.com/apk/res/android"
+         xmlns:app="http://schemas.android.com/apk/res-auto"
+         xmlns:tools="http://schemas.android.com/tools">
+    <data>
+        <variable
+                name="viewModel"
+                type="com.skedgo.tripkit.ui.tripresult.TripSegmentAlertsItemViewModel" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout android:layout_width="match_parent"
+                                                       android:layout_height="wrap_content"
+                                                       android:padding="16dp">
+        <ImageView android:layout_width="24dp" android:layout_height="24dp"
+                   android:id="@+id/warningIcon"
+                   android:src="@drawable/ic_action_warning"
+                   android:tint="@color/tripKitWarning"
+                   app:layout_constraintStart_toStartOf="parent"
+                   app:layout_constraintTop_toTopOf="parent"/>
+        <TextView
+                android:id="@+id/title"
+                tools:text="Alerts"
+                android:text="@{viewModel.titleText}"
+                android:layout_marginStart="12dp"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/warningIcon"
+                android:textStyle="bold"
+                style="@style/TextAppearance.MaterialComponents.Body1"/>
+
+        <TextView
+                android:id="@+id/description"
+                tools:text="Some ipso text here"
+                android:text="@{viewModel.descriptionText}"
+                android:layout_marginStart="12dp"
+                android:layout_marginTop="8dp"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toBottomOf="@+id/title"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/warningIcon"
+                style="@style/TextAppearance.MaterialComponents.Body2"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>
