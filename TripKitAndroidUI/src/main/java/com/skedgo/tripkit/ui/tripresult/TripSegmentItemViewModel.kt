@@ -5,25 +5,29 @@ import android.graphics.Color
 import android.graphics.PorterDuff
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
-import android.text.TextUtils
+import android.view.View
 import androidx.core.content.ContextCompat
 import androidx.databinding.ObservableBoolean
 import androidx.databinding.ObservableField
+import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.jakewharton.rxrelay2.BehaviorRelay
+import com.jakewharton.rxrelay2.PublishRelay
+import com.skedgo.tripkit.common.model.RealtimeAlert
+import com.skedgo.tripkit.datetime.PrintTime
+import com.skedgo.tripkit.routing.SegmentType
+import com.skedgo.tripkit.routing.TripSegment
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.TripKitUI
 import com.skedgo.tripkit.ui.core.RxViewModel
 import com.skedgo.tripkit.ui.core.fetchAsync
 import com.skedgo.tripkit.ui.tripresults.GetTransportIconTintStrategy
 import com.skedgo.tripkit.ui.tripresults.TripSegmentHelper
-import com.skedgo.tripkit.ui.utils.TripSegmentActionProcessor
 import com.skedgo.tripkit.ui.utils.tint
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
-import com.skedgo.tripkit.datetime.PrintTime
-import com.skedgo.tripkit.routing.SegmentType
-import com.skedgo.tripkit.routing.TripSegment
 import timber.log.Timber
 import javax.inject.Inject
+
 
 class TripSegmentItemViewModel @Inject internal constructor(private val context: Context,
                                                     private val getTransportIconTintStrategy: GetTransportIconTintStrategy,
@@ -54,6 +58,11 @@ class TripSegmentItemViewModel @Inject internal constructor(private val context:
     val bottomLineTint = ObservableField<Int>(Color.TRANSPARENT)
     val showTopLine = ObservableBoolean(false)
     val showBottomLine = ObservableBoolean(false)
+
+    val showAlerts = ObservableBoolean(false)
+    val alerts = ObservableField<ArrayList<RealtimeAlert>>()
+
+    val alertsClicked = BehaviorRelay.create<ArrayList<RealtimeAlert>>()
     var tripSegment: TripSegment? = null
 
     fun setupSegment(viewType: SegmentViewType,
@@ -65,6 +74,7 @@ class TripSegmentItemViewModel @Inject internal constructor(private val context:
                      topConnectionColor: Int = lineColor,
                      bottomConnectionColor: Int = lineColor) {
         var tintWhite = false
+
         tripSegment?.let {
             this.title.set(title)
             if (description != null) {
@@ -123,6 +133,11 @@ class TripSegmentItemViewModel @Inject internal constructor(private val context:
                     showSegmentIcon(it, tintWhite)
                 }
             }
+
+            if (!it.alerts.isNullOrEmpty()) {
+                alerts.set(it.alerts)
+                showAlerts.set(true)
+            }
         }
     }
     private fun serviceColor(): Int {
@@ -133,23 +148,14 @@ class TripSegmentItemViewModel @Inject internal constructor(private val context:
             }
         }
         return Color.TRANSPARENT
+
     }
 
-    private fun showSegmentDescription(segment: TripSegment, processor: TripSegmentActionProcessor) {
-        if (!TextUtils.isEmpty(segment.notes)) {
-            showDescription.set(true)
-            description.set(processor.processText(context, segment, segment.getDisplayNotes(context.resources)!!, true))
-        } else {
-            showDescription.set(false)
-        }
+    fun onAlertClick(view: View) {
+        alertsClicked.accept(alerts.get())
     }
-//    private fun processedActionTitle(segment: TripSegment, processor: TripSegmentActionProcessor): String {
-//        return if (!segment.action.isNullOrBlank()) {
-//            processor.processText(context, segment, segment.action!!, false)
-//        } else {
-//            String()
-//        }
-//    }
+
+
     protected fun showSegmentIcon(segment: TripSegment, tintWhite: Boolean) {
         if (segment.type == SegmentType.ARRIVAL || segment.type == SegmentType.DEPARTURE) {
             icon.set(ContextCompat.getDrawable(context, R.drawable.v4_ic_map_location))

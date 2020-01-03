@@ -4,12 +4,15 @@ package com.skedgo.tripkit.ui.tripresult
 import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
-import android.util.Log
 import androidx.databinding.ObservableField
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.jakewharton.rxrelay2.BehaviorRelay
-import com.skedgo.tripkit.common.model.Location
-import com.skedgo.tripkit.common.util.TimeUtils
 import com.skedgo.tripkit.booking.BookingForm
+import com.skedgo.tripkit.common.model.Location
+import com.skedgo.tripkit.common.model.RealtimeAlert
+import com.skedgo.tripkit.common.util.TimeUtils
+import com.skedgo.tripkit.datetime.PrintTime
+import com.skedgo.tripkit.routing.*
 import com.skedgo.tripkit.ui.BR
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.core.RxViewModel
@@ -22,13 +25,11 @@ import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
 import io.reactivex.subjects.PublishSubject
 import me.tatarka.bindingcollectionadapter2.ItemBinding
 import me.tatarka.bindingcollectionadapter2.itembindings.OnItemBindClass
-import com.skedgo.tripkit.datetime.PrintTime
-import com.skedgo.tripkit.routing.*
-import timber.log.Timber
 import java.util.*
 import java.util.Collections.emptyList
 import javax.inject.Inject
 import javax.inject.Provider
+
 
 class TripSegmentsViewModel @Inject internal constructor(
         private val context: Context,
@@ -55,6 +56,7 @@ class TripSegmentsViewModel @Inject internal constructor(
   internal var itemsChangeEmitter = PublishSubject.create<List<TripSegmentItemViewModel>>()
   internal var bookingForm: BookingForm? = null
   private var internalBus: Bus? = null
+  val alertsClicked = BehaviorRelay.create<ArrayList<RealtimeAlert>>()
 
   var durationTitle = ObservableField<String>()
   var arriveAtTitle = ObservableField<String>()
@@ -229,11 +231,14 @@ class TripSegmentsViewModel @Inject internal constructor(
       val tripSegments = tripGroup.displayTrip!!.segments
       segmentViewModels.clear()
       tripSegments.forEachIndexed { index, segment ->
-        Timber.d("Segment alerts is null or empty: %s", segment.alerts.isNullOrEmpty())
         var previousSegment = tripSegments.elementAtOrNull(index - 1)
         val nextSegment = tripSegments.elementAtOrNull(index + 1)
 
         var viewModel = segmentViewModelProvider.get()
+        viewModel.alertsClicked.subscribe {
+          alertsClicked.accept(it)
+        }.autoClear()
+        
         viewModel.tripSegment = segment
 
         if (segment.type == SegmentType.ARRIVAL || segment.type == SegmentType.DEPARTURE) {

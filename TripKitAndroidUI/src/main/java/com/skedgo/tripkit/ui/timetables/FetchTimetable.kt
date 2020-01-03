@@ -44,10 +44,8 @@ open class FetchTimetable @Inject constructor(
               error(RuntimeException("Failed to fetch timetable"))
             }
 
-              Timber.d("Alerts: ${response.alerts.isNullOrEmpty()}")
             // Save alerts
             if (!response.alerts.isNullOrEmpty()) {
-                Timber.d("addAlerts")
                 realtimeAlertRepository.addAlerts(response.alerts!!)
             }
 
@@ -76,7 +74,6 @@ open class FetchTimetable @Inject constructor(
             // TODO: remove when refactoring TimetablePager
             val serviceValuesList = timetableEntriesMapper.toContentValues(response.serviceList.orEmpty())
             context.contentResolver.bulkInsert(TimetableProvider.SCHEDULED_SERVICES_URI, serviceValuesList)
-              Timber.d("saving alerts")
             saveAlerts(response)
 
             response.serviceList.orEmpty() to Optional<ScheduledStop>(response.parentInfo)
@@ -84,14 +81,12 @@ open class FetchTimetable @Inject constructor(
           .map {
             it.first.forEach { timetable ->
               val savedAlerts = realtimeAlertRepository.getAlerts(timetable.serviceTripId)
-                Timber.d("in FetchTimetable")
                 timetable.alerts = ArrayList(savedAlerts.orEmpty())
             }
             it
           }
 
   private fun saveAlerts(response: DeparturesResponse) {
-      Timber.d("in saveAlerts")
       val alertHashCodesToAlerts = response.alerts.orEmpty()
         .map { it.remoteHashCode() to it }
         .toMap()
@@ -114,7 +109,6 @@ open class FetchTimetable @Inject constructor(
         }
         .flatMapCompletable {
           Completable.fromAction {
-              Timber.d("in inserting alerts")
               serviceAlertsDao.insertAlerts(it)
           }
         }

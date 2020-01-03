@@ -76,7 +76,6 @@ open class FetchAndLoadTimetable @Inject constructor(
                 serviceAlertsDao.getAlertForService(service.serviceTripId)
                     .map { it.map { serviceAlertsMapper.toModel(it) } }
                     .map {
-                        Timber.d("in FetchAndLoadTimetable")
                       service.alerts = ArrayList(it)
                       service
                     }

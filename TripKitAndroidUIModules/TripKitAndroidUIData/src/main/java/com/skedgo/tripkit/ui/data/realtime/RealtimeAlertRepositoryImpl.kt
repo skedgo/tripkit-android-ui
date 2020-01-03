@@ -16,7 +16,6 @@ class RealtimeAlertRepositoryImpl @Inject constructor() : RealtimeAlertRepositor
 
   override fun addAlerts(alerts: List<RealtimeAlert>) {
     alerts.forEach {
-      Timber.d("Alert: ${it.remoteHashCode()}")
       this.alerts.put(it.remoteHashCode(), it)
       whenRealtimeAlertAdded.accept(Pair(it.remoteHashCode(), it))
     }

@@ -4,13 +4,16 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.InflateException
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AlertDialog
+import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.skedgo.tripkit.logging.ErrorLogger
+import com.skedgo.tripkit.routing.TripGroup
 import com.skedgo.tripkit.ui.ARG_TRIP_GROUP_ID
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.TripKitUI
@@ -18,8 +21,6 @@ import com.skedgo.tripkit.ui.core.rxlifecyclecomponents.RxFragment
 import com.skedgo.tripkit.ui.databinding.TripSegmentListFragmentBinding
 import com.skedgo.tripkit.ui.model.TripKitButton
 import com.squareup.otto.Bus
-import com.skedgo.tripkit.logging.ErrorLogger
-import com.skedgo.tripkit.routing.TripGroup
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -121,6 +122,20 @@ class TripSegmentListFragment : RxFragment(), View.OnClickListener {
         tripGroupId?.let {
             viewModel.loadTripGroup(it, savedInstanceState)
         }
+
+        viewModel.alertsClicked
+                .compose(bindToLifecycle())
+                .subscribe {
+                    var list = mutableListOf<TripSegmentAlertsItemViewModel>()
+                    it.forEach { alert ->
+                        val vm = TripSegmentAlertsItemViewModel()
+                        vm.titleText.set(alert.title())
+                        vm.descriptionText.set(alert.text())
+                        list.add(vm)
+                    }
+                    val dialog = TripSegmentAlertsSheet.newInstance(list)
+                    dialog.show(fragmentManager!!, "alerts_sheet")
+                }
 
 
         //    viewModel.getOnStreetViewTapped()
