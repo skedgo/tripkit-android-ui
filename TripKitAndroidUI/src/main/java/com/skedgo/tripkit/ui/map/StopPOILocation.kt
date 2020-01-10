@@ -12,7 +12,7 @@ import io.reactivex.Single
 
 class StopPOILocation(
     val scheduledStop: ScheduledStop,
-    private val stopInfoWindowAdapter: StopInfoWindowAdapter) : POILocation {
+    private val stopInfoWindowAdapter: StopInfoWindowAdapter) : IMapPoiLocation {
 
   override fun createMarkerOptions(resources: Resources, picasso: Picasso): Single<MarkerOptions> {
     return scheduledStop.createStopMarkerOptions()

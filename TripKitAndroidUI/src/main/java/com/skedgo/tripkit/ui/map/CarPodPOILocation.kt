@@ -12,7 +12,7 @@ import com.squareup.picasso.Picasso
 import io.reactivex.Single
 import com.skedgo.tripkit.locations.CarPod
 
-class CarPodPOILocation(private val carPod: CarPod) : POILocation {
+class CarPodPOILocation(private val carPod: CarPod) : IMapPoiLocation {
 
   override fun createMarkerOptions(resources: Resources, picasso: Picasso): Single<MarkerOptions> {
     return CreateMarkerForCarPod.execute(resources, picasso, carPod)
