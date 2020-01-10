@@ -10,7 +10,7 @@ class DefaultLoadPOILocationsByViewPort @Inject constructor(
         private val loadBikePodsByViewPort: LoadBikePodsByViewPort,
         private val loadCarPodByViewPort: LoadCarPodByViewPort) : LoadPOILocationsByViewPort {
 
-  override fun execute(viewPort: ViewPort): Observable<List<POILocation>> {
+  override fun execute(viewPort: ViewPort): Observable<List<IMapPoiLocation>> {
     return Observable
         .just(loadBikePodsByViewPort.execute(viewPort).map { it.map { BikePodPOILocation(it) } },
             loadStopsByViewPort.execute(viewPort).map { it.map { StopPOILocation(it, stopInfoWindowAdapter) } },
@@ -20,7 +20,7 @@ class DefaultLoadPOILocationsByViewPort @Inject constructor(
         .flatMap {
           Observable.combineLatest(it)
           { (a, b, c) ->
-            a as List<POILocation> + b as List<POILocation> + c as List<POILocation>
+            a as List<IMapPoiLocation> + b as List<IMapPoiLocation> + c as List<IMapPoiLocation>
           }
         }
         .defaultIfEmpty(emptyList())

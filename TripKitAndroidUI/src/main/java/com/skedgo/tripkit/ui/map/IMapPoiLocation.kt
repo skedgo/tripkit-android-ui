@@ -9,7 +9,7 @@ import com.squareup.otto.Bus
 import com.squareup.picasso.Picasso
 import io.reactivex.Single
 
-interface POILocation {
+interface IMapPoiLocation {
   fun createMarkerOptions(resources: Resources, picasso: Picasso): Single<MarkerOptions>
   fun getInfoWindowAdapter(context: Context): StopInfoWindowAdapter?
   fun toLocation(): Location

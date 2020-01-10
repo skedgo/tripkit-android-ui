@@ -22,7 +22,7 @@ import com.skedgo.tripkit.ui.data.cameraposition.toCameraPosition
 import com.skedgo.tripkit.ui.data.cameraposition.toMapCameraPosition
 import com.skedgo.tripkit.ui.data.places.LatLngBounds
 import com.skedgo.tripkit.ui.map.LoadPOILocationsByViewPort
-import com.skedgo.tripkit.ui.map.POILocation
+import com.skedgo.tripkit.ui.map.IMapPoiLocation
 import com.squareup.picasso.Picasso
 import io.reactivex.Completable
 import io.reactivex.Observable
@@ -64,7 +64,7 @@ class MapViewModel @Inject internal constructor(
       .map { it.first }
       .observeOn(Schedulers.io())
       .switchMap { loadPOILocationsByViewPort.execute(it) }
-      .compose(DiffTransformer<POILocation, MarkerOptions>({ it.identifier }, { it.createMarkerOptions(resources, picasso) }))
+      .compose(DiffTransformer<IMapPoiLocation, MarkerOptions>({ it.identifier }, { it.createMarkerOptions(resources, picasso) }))
       .autoClear()
 
 

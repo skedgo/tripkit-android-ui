@@ -12,7 +12,7 @@ import com.squareup.picasso.Picasso
 import io.reactivex.Single
 
 class BikePodPOILocation(
-    val bikePodEntity: BikePodLocationEntity) : POILocation {
+    val bikePodEntity: BikePodLocationEntity) : IMapPoiLocation {
   override fun createMarkerOptions(resources: Resources, picasso: Picasso): Single<MarkerOptions> =
       CreateMarkerForBikePod.execute(resources, bikePodEntity)
 
