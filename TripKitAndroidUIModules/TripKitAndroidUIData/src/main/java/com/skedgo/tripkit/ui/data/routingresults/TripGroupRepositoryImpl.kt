@@ -5,7 +5,6 @@ import com.jakewharton.rxrelay2.PublishRelay
 import com.skedgo.routepersistence.GroupQueries
 import com.skedgo.routepersistence.RouteStore
 import com.skedgo.routepersistence.WhereClauses
-import com.skedgo.tripkit.ui.routingresults.WhenToRefreshRoutingResults
 import com.skedgo.tripkit.time.GetNow
 import com.skedgo.tripkit.ui.routingresults.TripGroupId
 import com.skedgo.tripkit.ui.routingresults.TripGroupRepository
@@ -25,8 +24,7 @@ typealias A2bRoutingRequestId = String
 
 class TripGroupRepositoryImpl(
         private val routeStore: RouteStore,
-        private val getNow: GetNow,
-        private val whenToRefreshRoutingResults: WhenToRefreshRoutingResults
+        private val getNow: GetNow
 ) : TripGroupRepository {
     private val onNewTripGroupsAvailable = PublishSubject.create<A2bRoutingRequestId>()
     private val _whenTripGroupIsUpdated = PublishRelay.create<TripGroupId>()
@@ -44,7 +42,6 @@ class TripGroupRepositoryImpl(
                         onNewTripGroupsAvailable()
                                 .filter { a2bRoutingRequestId == it }
                                 .map { Unit }
-                                .mergeWith(whenToRefreshRoutingResults.execute())
                                 .observeOn(io())
                     }
                     .switchMap {

@@ -5,6 +5,7 @@ import com.skedgo.tripkit.ui.routingresults.TripGroupRepository
 import com.skedgo.tripkit.ui.tripresults.GetTransportModePreferencesByRegion
 import io.reactivex.Observable
 import com.skedgo.tripkit.routing.TripGroup
+import com.skedgo.tripkit.ui.tripresults.TripResultTransportViewFilter
 import javax.inject.Inject
 import javax.inject.Provider
 
@@ -14,11 +15,11 @@ open class GetSortedTripGroups @Inject internal constructor(
         private val getLeastRecentlyUsedRegion: GetLeastRecentlyUsedRegion,
         private val getTransportModePreferencesByRegion: GetTransportModePreferencesByRegion
 ) {
-  open fun execute(queryId: String, arriveBy: Long, sortOrder: Int): Observable<List<TripGroup>> =
+  open fun execute(queryId: String, arriveBy: Long, sortOrder: Int, filter: TripResultTransportViewFilter): Observable<List<TripGroup>> =
       tripGroupRepository.getTripGroupsByA2bRoutingRequestId(queryId)
           .switchMap { groups ->
             getLeastRecentlyUsedRegion.execute()
-                .flatMap { getTransportModePreferencesByRegion.execute(it) }
+                .flatMap { getTransportModePreferencesByRegion.execute(it, filter) }
                 .toList()
                 .map { Pair(groups, it) }.toObservable()
           }

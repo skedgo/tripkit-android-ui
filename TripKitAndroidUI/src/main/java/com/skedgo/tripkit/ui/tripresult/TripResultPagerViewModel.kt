@@ -1,4 +1,5 @@
 package com.skedgo.tripkit.ui.tripresult
+import android.content.Context
 import android.os.Bundle
 import androidx.databinding.ObservableBoolean
 import androidx.databinding.ObservableField
@@ -20,12 +21,15 @@ import io.reactivex.rxkotlin.Observables
 import io.reactivex.schedulers.Schedulers
 import com.skedgo.tripkit.logging.ErrorLogger
 import com.skedgo.tripkit.routing.TripGroup
+import com.skedgo.tripkit.ui.tripresults.PermissiveTransportViewFilter
+import com.skedgo.tripkit.ui.tripresults.PrefsBasedTransportViewFilter
 import java.util.concurrent.atomic.AtomicReference
 import javax.inject.Inject
 
 const val KEY_TRIP_GROUP_ID = "tripGroupId"
 
 class TripResultPagerViewModel @Inject internal constructor(
+        private val context: Context,
         private val getSortedTripGroups: GetSortedTripGroups,
 //        private val reportPlannedTrip: ReportPlannedTrip,
 //        private val userInfoRepository: UserInfoRepository,
@@ -53,6 +57,7 @@ class TripResultPagerViewModel @Inject internal constructor(
   val tripSource = BehaviorRelay.create<TripSource>()
   private val currentTripGroupId = AtomicReference<String?>(null)
   private var updateTripProgressSubscription: Disposable? = null
+  private val tripResultTransportViewFilter = PermissiveTransportViewFilter()
 
   fun onCreate(savedInstanceState: Bundle?) {
     savedInstanceState?.getString(KEY_TRIP_GROUP_ID)?.let {
@@ -68,7 +73,7 @@ class TripResultPagerViewModel @Inject internal constructor(
 
   fun getSortedTripGroups(args: PagerFragmentArguments): Observable<Unit> {
     if (args is FromRoutes) {
-      return getSortedTripGroups.execute(args.requestId, args.arriveBy, args.sortOrder)
+      return getSortedTripGroups.execute(args.requestId, args.arriveBy, args.sortOrder, tripResultTransportViewFilter)
           .subscribeOn(schedulers.ioScheduler)
           .doOnNext {
             tripGroups.accept(it)
