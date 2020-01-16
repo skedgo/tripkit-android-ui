@@ -1,7 +1,6 @@
 package com.skedgo.tripkit.ui.tripresults
 
 import android.content.Context
-import android.util.Log
 import android.view.View
 import androidx.databinding.ObservableBoolean
 import androidx.databinding.ObservableField
@@ -9,7 +8,7 @@ import com.jakewharton.rxrelay2.PublishRelay
 import com.skedgo.tripkit.common.model.Query
 import com.skedgo.tripkit.common.model.TimeTag
 import com.skedgo.tripkit.RoutingError
-import com.skedgo.tripkit.TransitModeFilter
+import com.skedgo.tripkit.TransportModeFilter
 import com.skedgo.tripkit.a2brouting.RouteService
 import com.skedgo.tripkit.data.regions.RegionService
 import com.skedgo.tripkit.model.ViewTrip
@@ -17,8 +16,6 @@ import com.skedgo.tripkit.ui.BR
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.core.RxViewModel
 import com.skedgo.tripkit.ui.routing.GetSortedTripGroupsWithRoutingStatus
-import com.skedgo.tripkit.ui.routing.PerformRouting
-import com.skedgo.tripkit.ui.routingresults.IsModeIncludedInTripsRepository
 import com.skedgo.tripkit.ui.routingresults.TripGroupRepository
 import com.skedgo.tripkit.ui.trip.options.RoutingTimeViewModelMapper
 import com.skedgo.tripkit.ui.trip.toRoutingTime
@@ -34,6 +31,7 @@ import com.skedgo.tripkit.routing.dateTimeZone
 import com.skedgo.tripkit.routingstatus.RoutingStatus
 import com.skedgo.tripkit.routingstatus.RoutingStatusRepository
 import com.skedgo.tripkit.routingstatus.Status
+import com.skedgo.tripkit.ui.routing.SimpleTransportModeFilter
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Provider
@@ -47,12 +45,7 @@ class TripResultListViewModel @Inject constructor(
         private val tripResultTransportItemViewModelProvider: Provider<TripResultTransportItemViewModel>,
         private val regionService: RegionService,
         private val routeService: RouteService,
-        private val transitModeFilter: TransitModeFilter,
         private val errorLogger: ErrorLogger,
-        private val getTransportModePreferencesByRegion: GetTransportModePreferencesByRegion,
-        private val sorterProvider: Provider<TripGroupsSorter>,
-        private val isModeIncludedInTripsRepository: IsModeIncludedInTripsRepository,
-        private val performRouting: PerformRouting,
         private val routingTimeViewModelMapper: RoutingTimeViewModelMapper): RxViewModel() {
     val fromName = ObservableField<String>()
     val toName = ObservableField<String>()
@@ -67,11 +60,15 @@ class TripResultListViewModel @Inject constructor(
     val transportBinding = ItemBinding.of<TripResultTransportItemViewModel>(BR.viewModel, R.layout.trip_result_list_transport_item)
     val transportModes: ObservableField<List<TripResultTransportItemViewModel>> = ObservableField(emptyList())
     val showTransport = ObservableBoolean(false)
+    val showTransportModeSelection = ObservableBoolean(true)
     val isLoading = ObservableBoolean(false)
 
     private val transportModeChangeThrottle = PublishSubject.create<Unit>()
 
     lateinit var query: Query
+    private var transportModeFilter: TransportModeFilter? = null
+    private var transportVisibilityFilter: TripResultTransportViewFilter? = null
+
     init {
         transportModeChangeThrottle.debounce(500, TimeUnit.MILLISECONDS)
                 .subscribe(
@@ -80,11 +77,14 @@ class TripResultListViewModel @Inject constructor(
                 .autoClear()
 
     }
+
     fun transportLayoutClicked(view: View) {
         showTransport.set(!showTransport.get())
     }
 
-    fun setup(_query: Query) {
+    fun setup(_query: Query,
+              showTransportSelectionView: Boolean,
+              transportModeFilter: TransportModeFilter?) {
         this.query = _query
         _query.fromLocation?.let {
             fromName.set(it.displayName)
@@ -92,34 +92,50 @@ class TripResultListViewModel @Inject constructor(
         _query.toLocation?.let {
             toName.set(it.displayName)
         }
+
+        showTransportModeSelection.set(showTransportSelectionView)
+        transportVisibilityFilter = if (showTransportSelectionView) {
+            PrefsBasedTransportViewFilter(context)
+        } else {
+            PermissiveTransportViewFilter()
+        }
+
+        if (transportModeFilter == null) {
+            this.transportModeFilter = SimpleTransportModeFilter()
+        } else {
+            this.transportModeFilter = transportModeFilter
+        }
+
         setTimeLabel()
         getTransport()
     }
 
 
-    fun getTransport() {
+    private fun getTransport() {
         isLoading.set(true)
         regionService.getTransportModesByLocationAsync(query.fromLocation!!)
                 .observeOn(AndroidSchedulers.mainThread())
-                .flatMapIterable { item -> item }
+                .flatMapIterable { value -> value }
+                .filter {
+                    transportModeFilter!!.useTransportMode(it.id)
+                }
                 .map { mode ->
                     tripResultTransportItemViewModelProvider.get().apply {
                         this.setup(mode)
                     }
                 }
                 .map { viewModel ->
-                    isModeIncludedInTripsRepository.isModeIncludedForRouting(viewModel.modeId.get()!!)
-                            .subscribe { isIncluded -> viewModel.checked.set(isIncluded) }
+                    viewModel.checked.set(transportVisibilityFilter!!.isSelected(viewModel.modeId.get()!!))
                     viewModel
                 }
                 .map {
                     it.clicked
                             .observeOn(AndroidSchedulers.mainThread())
                             .subscribe {
-                                isModeIncludedInTripsRepository.setModeIncluded(it.first, it.second)
-                                        .doOnComplete {
-                                            transportModeChangeThrottle.onNext(Unit)
-                                        }.subscribe().autoClear()
+                                transportVisibilityFilter!!.setSelected(it.first, it.second)
+//                                transportModeChangeThrottle.onNext(Unit)
+                                loadFromStore()
+
                             }.autoClear()
                     it
                 }
@@ -132,7 +148,7 @@ class TripResultListViewModel @Inject constructor(
     }
 
 
-    fun setTimeLabel() {
+    private fun setTimeLabel() {
         query.timeTag?.let {timeTag ->
             query.fromLocation?.let {
                 routingTimeViewModelMapper.toText(timeTag.toRoutingTime(it.dateTimeZone)).toObservable()
@@ -148,7 +164,7 @@ class TripResultListViewModel @Inject constructor(
         query = query.clone(false)
 
         Observable.defer {
-            routeService.routeAsync(query = query, transitModeFilter = transitModeFilter)
+            routeService.routeAsync(query = query, transportModeFilter = transportModeFilter!!)
                     .flatMap {
                         tripGroupRepository.addTripGroups(query.uuid(), it)
                                 .toObservable<List<TripGroup>>()
@@ -188,8 +204,8 @@ class TripResultListViewModel @Inject constructor(
         load()
     }
 
-    fun loadFromStore() {
-        getSortedTripGroupsWithRoutingStatusProvider.get().execute(query, 1)
+    private fun loadFromStore() {
+        getSortedTripGroupsWithRoutingStatusProvider.get().execute(query, 1, transportVisibilityFilter!!)
                 .observeOn(AndroidSchedulers.mainThread())
                 .map {
                     val list = it.first
@@ -220,7 +236,7 @@ class TripResultListViewModel @Inject constructor(
 
     fun changeQuery(newQuery: Query) {
         results.update(emptyList())
-        setup(newQuery)
+        setup(newQuery, showTransportModeSelection.get(), transportModeFilter)
     }
 
     fun updateQueryTime(timeTag: TimeTag) {

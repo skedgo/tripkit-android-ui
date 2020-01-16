@@ -2,12 +2,12 @@ package com.skedgo.tripkit.ui.tripresults
 
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.google.android.flexbox.FlexDirection
 import com.google.android.flexbox.FlexboxLayoutManager
+import com.skedgo.tripkit.TransportModeFilter
 import com.skedgo.tripkit.common.model.Query
 import com.skedgo.tripkit.common.model.TimeTag
 import com.skedgo.tripkit.model.ViewTrip
@@ -69,6 +69,8 @@ class TripResultListFragment : AbstractTripKitFragment() {
     lateinit var viewModel: TripResultListViewModel
     lateinit var binding: TripResultListFragmentBinding
     private var query: Query? = null
+    private var transportModeFilter: TransportModeFilter? = null
+    private var showTransportSelectionView = true
 
     fun query(): Query {
         return viewModel.query
@@ -149,24 +151,44 @@ class TripResultListFragment : AbstractTripKitFragment() {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        query?.let { viewModel.setup(it) }
+        query?.let { viewModel.setup(it, showTransportSelectionView, transportModeFilter) }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         query = arguments?.getParcelable<Query>(ARG_QUERY) as Query
+        arguments?.getParcelable<TransportModeFilter>(ARG_TRANSPORT_MODE_FILTER)?.let {
+            transportModeFilter = it
+        }
+        showTransportSelectionView = arguments?.getBoolean(ARG_SHOW_TRANSPORT_MODE_SELECTION, true)!!
     }
 
     class Builder {
         private var query: Query? = null
+        private var transportModeFilter: TransportModeFilter? = null
+        private var showTransportModeSelection = true
+
         fun withQuery(query: Query): Builder {
             this.query = query
             return this
         }
+
+        fun withTransportModeFilter(transportModeFilter: TransportModeFilter): Builder {
+            this.transportModeFilter = transportModeFilter
+            return this
+        }
+
+        fun showTransportModeSelection(showSelection: Boolean): Builder {
+            this.showTransportModeSelection = showSelection
+            return this
+        }
+
         fun build(): TripResultListFragment {
             val args = Bundle()
             val fragment = TripResultListFragment()
             args.putParcelable(ARG_QUERY, query)
+            args.putParcelable(ARG_TRANSPORT_MODE_FILTER, transportModeFilter)
+            args.putBoolean(ARG_SHOW_TRANSPORT_MODE_SELECTION, showTransportModeSelection)
             fragment.arguments = args
             return fragment
         }

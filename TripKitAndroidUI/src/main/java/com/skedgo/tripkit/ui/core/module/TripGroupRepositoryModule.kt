@@ -3,7 +3,6 @@ import com.skedgo.routepersistence.RouteStore
 import com.skedgo.tripkit.time.GetNow
 import com.skedgo.tripkit.ui.data.routingresults.TripGroupRepositoryImpl
 import com.skedgo.tripkit.ui.routingresults.TripGroupRepository
-import com.skedgo.tripkit.ui.routingresults.WhenToRefreshRoutingResults
 import dagger.Module
 import dagger.Provides
 import javax.inject.Singleton
@@ -14,12 +13,10 @@ class TripGroupRepositoryModule {
   @Singleton
   fun tripGroupRepository(
           routeStore: RouteStore,
-          getNow: GetNow,
-          whenToRefreshRoutingResults: WhenToRefreshRoutingResults
+          getNow: GetNow
   ): TripGroupRepository = TripGroupRepositoryImpl(
       routeStore,
-      getNow,
-      whenToRefreshRoutingResults
+      getNow
   )
 
 //  @Provides
