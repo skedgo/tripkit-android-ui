@@ -21,7 +21,6 @@ class SimpleTransportModeFilter() : TransportModeFilter {
     override fun useTransportMode(mode: String): Boolean {
         return when {
             transportModes.isEmpty() -> true
-            mode == TransportMode.ID_WALK -> true
             else -> transportModes.contains(mode)
         }
     }
@@ -29,7 +28,6 @@ class SimpleTransportModeFilter() : TransportModeFilter {
     override fun avoidTransportMode(mode: String): Boolean {
         return when {
             avoidTransportModes.isEmpty() -> false
-            mode == TransportMode.ID_WALK -> false
             else -> avoidTransportModes.contains(mode)
         }
     }
