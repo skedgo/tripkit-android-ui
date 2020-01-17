@@ -1,11 +1,9 @@
 package com.skedgo.tripkit.ui.tripresults
 
 import com.skedgo.tripkit.common.model.Region
-import com.skedgo.tripkit.common.model.TransportMode
 import com.skedgo.tripkit.data.regions.RegionService
 import com.skedgo.tripkit.ui.core.modeprefs.TransportModePreference
 import io.reactivex.Observable
-import io.reactivex.functions.Function3
 import javax.inject.Inject
 
 open class GetTransportModePreferencesByRegion @Inject internal constructor(

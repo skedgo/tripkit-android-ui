@@ -3,7 +3,6 @@ package com.skedgo.tripkit.ui.servicedetail
 import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.Drawable
-import android.util.Log
 import androidx.core.content.ContextCompat
 import androidx.databinding.ObservableBoolean
 import androidx.databinding.ObservableField
@@ -11,6 +10,8 @@ import androidx.databinding.ObservableInt
 import com.jakewharton.rxrelay2.PublishRelay
 import com.skedgo.tripkit.common.model.ScheduledStop
 import com.skedgo.tripkit.common.model.ServiceStop
+import com.skedgo.tripkit.logging.ErrorLogger
+import com.skedgo.tripkit.routing.dateTimeZone
 import com.skedgo.tripkit.ui.BR
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.core.RxViewModel
@@ -23,8 +24,6 @@ import com.skedgo.tripkit.ui.trip.details.viewmodel.OccupancyViewModel
 import com.skedgo.tripkit.ui.trip.details.viewmodel.ServiceAlertViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers
 import me.tatarka.bindingcollectionadapter2.ItemBinding
-import com.skedgo.tripkit.logging.ErrorLogger
-import com.skedgo.tripkit.routing.dateTimeZone
 import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Provider

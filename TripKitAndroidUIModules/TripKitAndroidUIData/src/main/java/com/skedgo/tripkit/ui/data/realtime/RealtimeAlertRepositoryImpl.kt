@@ -1,11 +1,9 @@
 package com.skedgo.tripkit.ui.data.realtime
 
-import android.util.Log
 import com.jakewharton.rxrelay2.PublishRelay
 import com.skedgo.tripkit.common.model.RealtimeAlert
 import com.skedgo.tripkit.ui.realtime.RealtimeAlertRepository
 import io.reactivex.Observable
-import timber.log.Timber
 import javax.inject.Inject
 
 class RealtimeAlertRepositoryImpl @Inject constructor() : RealtimeAlertRepository {

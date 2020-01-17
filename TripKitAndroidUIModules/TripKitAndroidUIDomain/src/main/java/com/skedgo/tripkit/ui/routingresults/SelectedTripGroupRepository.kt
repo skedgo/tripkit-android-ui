@@ -1,10 +1,9 @@
 package com.skedgo.tripkit.ui.routingresults
 
-import android.util.Log
 import com.jakewharton.rxrelay2.BehaviorRelay
+import com.skedgo.tripkit.routing.TripGroup
 import io.reactivex.Observable
 import io.reactivex.schedulers.Schedulers
-import com.skedgo.tripkit.routing.TripGroup
 
 open class SelectedTripGroupRepository constructor(
     private val tripGroupRepository: TripGroupRepository

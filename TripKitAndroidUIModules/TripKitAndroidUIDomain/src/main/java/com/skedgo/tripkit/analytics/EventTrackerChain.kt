@@ -1,5 +1,4 @@
 package com.skedgo.tripkit.analytics
-import android.util.Log
 import com.skedgo.tripkit.ui.tracking.Event
 import com.skedgo.tripkit.ui.tracking.EventTracker
 import timber.log.Timber

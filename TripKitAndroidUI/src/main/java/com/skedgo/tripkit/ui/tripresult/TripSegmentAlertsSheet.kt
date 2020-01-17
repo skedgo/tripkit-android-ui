@@ -2,7 +2,6 @@ package com.skedgo.tripkit.ui.tripresult
 
 import android.app.Activity
 import android.app.Dialog
-import android.content.DialogInterface
 import android.os.Bundle
 import android.util.DisplayMetrics
 import android.view.LayoutInflater
@@ -17,9 +16,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.skedgo.tripkit.ui.BR
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.databinding.TripSegmentAlertDetailsBottomSheetBinding
-import com.skedgo.tripkit.ui.search.SuggestionViewModel
 import me.tatarka.bindingcollectionadapter2.ItemBinding
-import timber.log.Timber
 
 class TripSegmentAlertsSheet : BottomSheetDialogFragment() {
     var viewModels = emptyList<TripSegmentAlertsItemViewModel>()

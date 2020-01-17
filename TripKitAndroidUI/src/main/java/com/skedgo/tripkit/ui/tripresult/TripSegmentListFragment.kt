@@ -9,9 +9,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AlertDialog
-import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.skedgo.tripkit.logging.ErrorLogger
 import com.skedgo.tripkit.routing.TripGroup
 import com.skedgo.tripkit.ui.ARG_TRIP_GROUP_ID

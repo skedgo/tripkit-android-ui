@@ -2,12 +2,11 @@ package com.skedgo.tripkit.ui.data.realtime
 
 import com.skedgo.tripkit.common.agenda.IRealTimeElement
 import com.skedgo.tripkit.data.regions.RegionService
+import com.skedgo.tripkit.routing.RealTimeVehicle
 import com.skedgo.tripkit.ui.realtime.RealTimeRepository
 import io.reactivex.Observable
 import io.reactivex.Single
-import okhttp3.HttpUrl
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
-import com.skedgo.tripkit.routing.RealTimeVehicle
 import javax.inject.Inject
 
 private const val LATEST_ENDPOINT = "latest.json"

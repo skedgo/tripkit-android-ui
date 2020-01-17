@@ -1,7 +1,6 @@
 package com.skedgo.tripkit.ui.routingresults
-import android.util.Log
-import io.reactivex.Observable
 import com.skedgo.tripkit.routing.Trip
+import io.reactivex.Observable
 import javax.inject.Inject
 
 open class GetSelectedTrip @Inject internal constructor(

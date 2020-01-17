@@ -1,9 +1,8 @@
 package com.skedgo.tripkit.location
 import com.jakewharton.rxrelay2.PublishRelay
-import io.reactivex.Observable
 import com.skedgo.rxtry.Try
 import com.skedgo.rxtry.toTry
-import com.skedgo.tripkit.location.GeoPoint
+import io.reactivex.Observable
 import javax.inject.Inject
 
 open class GoToMyLocationRepository @Inject internal constructor(

@@ -1,10 +1,12 @@
 package com.skedgo.tripkit.ui.data.routingresults
 
-import android.util.Log
 import com.jakewharton.rxrelay2.PublishRelay
 import com.skedgo.routepersistence.GroupQueries
 import com.skedgo.routepersistence.RouteStore
 import com.skedgo.routepersistence.WhereClauses
+import com.skedgo.tripkit.routing.Trip
+import com.skedgo.tripkit.routing.TripGroup
+import com.skedgo.tripkit.routing.TripSegment
 import com.skedgo.tripkit.time.GetNow
 import com.skedgo.tripkit.ui.routingresults.TripGroupId
 import com.skedgo.tripkit.ui.routingresults.TripGroupRepository
@@ -14,10 +16,6 @@ import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers.io
 import io.reactivex.subjects.PublishSubject
 import org.joda.time.Days
-
-import com.skedgo.tripkit.routing.Trip
-import com.skedgo.tripkit.routing.TripGroup
-import com.skedgo.tripkit.routing.TripSegment
 import java.util.concurrent.ConcurrentHashMap
 
 typealias A2bRoutingRequestId = String

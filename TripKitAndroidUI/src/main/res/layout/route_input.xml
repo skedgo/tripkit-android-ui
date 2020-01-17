@@ -39,7 +39,6 @@
                    app:layout_constraintBottom_toBottomOf="@+id/swap"/>
         <ImageView android:layout_width="10dp" android:layout_height="10dp"
                    android:src="@drawable/small_circle"
-                   android:id="@+id/circle"
                    android:tint="@color/black4"
                    app:layout_constraintStart_toStartOf="@+id/dots"
                    app:layout_constraintEnd_toEndOf="@+id/dots"

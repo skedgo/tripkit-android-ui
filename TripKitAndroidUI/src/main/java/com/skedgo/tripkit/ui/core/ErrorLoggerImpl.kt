@@ -1,7 +1,6 @@
 package com.skedgo.tripkit.ui.core
-import android.util.Log
-import com.skedgo.tripkit.ui.BuildConfig
 import com.skedgo.tripkit.logging.ErrorLogger
+import com.skedgo.tripkit.ui.BuildConfig
 import timber.log.Timber
 import javax.inject.Inject
 

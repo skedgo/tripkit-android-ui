@@ -6,6 +6,8 @@ import androidx.databinding.ObservableField
 import androidx.databinding.ObservableInt
 import com.jakewharton.rxrelay2.BehaviorRelay
 import com.skedgo.tripkit.analytics.TripSource
+import com.skedgo.tripkit.logging.ErrorLogger
+import com.skedgo.tripkit.routing.TripGroup
 import com.skedgo.tripkit.ui.core.RxViewModel
 import com.skedgo.tripkit.ui.core.SchedulerFactory
 import com.skedgo.tripkit.ui.core.rxproperty.asObservable
@@ -14,15 +16,12 @@ import com.skedgo.tripkit.ui.routingresults.FetchingRealtimeStatusRepository
 import com.skedgo.tripkit.ui.routingresults.TrackViewingTrip
 import com.skedgo.tripkit.ui.routingresults.TripGroupRepository
 import com.skedgo.tripkit.ui.tripprogress.UpdateTripProgressWithUserLocation
+import com.skedgo.tripkit.ui.tripresults.PermissiveTransportViewFilter
 import io.reactivex.Observable
 import io.reactivex.disposables.Disposable
 import io.reactivex.functions.BiFunction
 import io.reactivex.rxkotlin.Observables
 import io.reactivex.schedulers.Schedulers
-import com.skedgo.tripkit.logging.ErrorLogger
-import com.skedgo.tripkit.routing.TripGroup
-import com.skedgo.tripkit.ui.tripresults.PermissiveTransportViewFilter
-import com.skedgo.tripkit.ui.tripresults.PrefsBasedTransportViewFilter
 import java.util.concurrent.atomic.AtomicReference
 import javax.inject.Inject
 

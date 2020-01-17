@@ -9,9 +9,7 @@ import android.view.View
 import androidx.core.content.ContextCompat
 import androidx.databinding.ObservableBoolean
 import androidx.databinding.ObservableField
-import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.jakewharton.rxrelay2.BehaviorRelay
-import com.jakewharton.rxrelay2.PublishRelay
 import com.skedgo.tripkit.common.model.RealtimeAlert
 import com.skedgo.tripkit.datetime.PrintTime
 import com.skedgo.tripkit.routing.SegmentType

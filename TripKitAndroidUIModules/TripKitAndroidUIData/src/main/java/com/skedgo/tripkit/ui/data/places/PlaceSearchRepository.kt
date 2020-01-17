@@ -1,6 +1,5 @@
 package com.skedgo.tripkit.ui.data.places
 
-import io.reactivex.Flowable
 import io.reactivex.Observable
 
 interface PlaceSearchRepository {

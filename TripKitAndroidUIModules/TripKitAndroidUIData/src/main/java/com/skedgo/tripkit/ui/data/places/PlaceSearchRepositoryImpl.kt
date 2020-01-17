@@ -1,16 +1,11 @@
 package com.skedgo.tripkit.ui.data.places
 
+import com.google.android.gms.maps.model.LatLngBounds.builder
 import com.google.android.libraries.places.compat.AutocompletePrediction
 import com.google.android.libraries.places.compat.GeoDataClient
-import com.google.android.gms.maps.model.LatLngBounds.builder
 import com.google.android.libraries.places.compat.PlaceBufferResponse
-import io.reactivex.BackpressureStrategy
-
 import io.reactivex.Observable
-import io.reactivex.Emitter
-import io.reactivex.Flowable
 import io.reactivex.schedulers.Schedulers.io
-
 import javax.inject.Inject
 import javax.inject.Provider
 

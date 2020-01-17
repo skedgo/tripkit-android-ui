@@ -2,9 +2,6 @@ package com.skedgo.tripkit.ui.tripresults
 
 import android.content.Context
 import android.content.SharedPreferences
-import android.os.Parcel
-import android.os.Parcelable
-import com.skedgo.tripkit.ui.R
 
 
 /**

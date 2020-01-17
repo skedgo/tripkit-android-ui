@@ -1,5 +1,4 @@
 package com.skedgo.tripkit.ui.data.tripprogress
-import android.util.Log
 import com.skedgo.rxtry.Failure
 import com.skedgo.rxtry.Success
 import com.skedgo.rxtry.Try

@@ -5,7 +5,6 @@ import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
 import androidx.databinding.ObservableField
-import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.jakewharton.rxrelay2.BehaviorRelay
 import com.skedgo.tripkit.booking.BookingForm
 import com.skedgo.tripkit.common.model.Location
@@ -238,7 +237,7 @@ class TripSegmentsViewModel @Inject internal constructor(
         viewModel.alertsClicked.subscribe {
           alertsClicked.accept(it)
         }.autoClear()
-        
+
         viewModel.tripSegment = segment
 
         if (segment.type == SegmentType.ARRIVAL || segment.type == SegmentType.DEPARTURE) {

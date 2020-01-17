@@ -8,7 +8,6 @@ import android.database.Cursor
 import android.database.SQLException
 import android.database.sqlite.SQLiteQueryBuilder
 import android.net.Uri
-import android.util.Log
 import com.skedgo.sqlite.DatabaseField
 import com.skedgo.sqlite.DatabaseTable
 import com.skedgo.tripkit.data.database.DbFields

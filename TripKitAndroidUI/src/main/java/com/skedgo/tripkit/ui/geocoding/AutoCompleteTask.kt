@@ -1,6 +1,5 @@
 package com.skedgo.tripkit.ui.geocoding
 
-import android.util.Log
 import com.skedgo.geocoding.agregator.GCResultInterface
 import com.skedgo.tripkit.data.connectivity.ConnectivityService
 import com.skedgo.tripkit.ui.search.*

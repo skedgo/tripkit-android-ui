@@ -1,7 +1,6 @@
 package com.skedgo.tripkit.ui.timetables
 
 import android.content.Context
-import android.util.Log
 import com.skedgo.tripkit.common.model.Region
 import com.skedgo.tripkit.common.model.ScheduledStop
 import com.skedgo.tripkit.data.database.timetables.ServiceAlertMapper
@@ -17,7 +16,6 @@ import io.reactivex.Observable
 import io.reactivex.Single
 import skedgo.tripgo.data.timetables.ParentStopDao
 import skedgo.tripgo.data.timetables.ParentStopEntity
-import timber.log.Timber
 import javax.inject.Inject
 
 open class FetchTimetable @Inject constructor(

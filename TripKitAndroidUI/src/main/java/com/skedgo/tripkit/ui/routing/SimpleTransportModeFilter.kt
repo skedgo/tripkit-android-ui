@@ -3,7 +3,6 @@ package com.skedgo.tripkit.ui.routing
 import android.os.Parcel
 import android.os.Parcelable
 import com.skedgo.tripkit.TransportModeFilter
-import com.skedgo.tripkit.common.model.TransportMode
 
 
 class SimpleTransportModeFilter() : TransportModeFilter {

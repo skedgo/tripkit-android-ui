@@ -1,19 +1,12 @@
 package com.skedgo.tripkit.ui.views
 
 import android.content.Context
-import android.text.Layout
 import android.util.AttributeSet
-import android.util.TypedValue
 import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
-import androidx.core.content.ContextCompat
 import com.skedgo.tripkit.common.model.RealtimeAlert
 import com.skedgo.tripkit.ui.R
-import kotlinx.android.synthetic.main.v4_view_wheel_time.view.*
-import timber.log.Timber
 
 
 class TripSegmentAlertView : LinearLayout {
