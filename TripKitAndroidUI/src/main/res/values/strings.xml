@@ -4,12 +4,6 @@
     <string name="no_realtime_available">No realtime available</string>
     <string name="from_with_colon">From:</string>
     <string name="more">More</string>
-    <string name="easiest">easiest</string>
-    <string name="cheapest">cheapest</string>
-    <string name="fastest">fastest</string>
-    <string name="greenest">greenest</string>
-    <string name="healthiest">healthiest</string>
-    <string name="recommended">recommended</string>
     <string name="connect_to_internet_to_get_trips">Connect to the internet to get trips</string>
     <string name="pref_transfer_time">transfer_time</string>
     <string name="pref_cycling_speed">cycling_speed</string>
@@ -20,4 +14,8 @@
     <string name="pref_hassle">hassle</string>
     <string name="pref_exercise">exercise</string>
     <string name="less">Less</string>
+    <!--Format for a service's real-time indicator for a service which is early, e.g., 'Arriving 1 min early'. This means #1 is replaced with something like '1 min'.-->
+    <string name="realtime_early">Arriving %1$s early</string>
+    <!--Format for a service's real-time indicator for a service which is late, e.g., 'Delayed 1 min late'. This means #1 is replaced with something like '1 min'.-->
+    <string name="realtime_late">Delayed %1$s late</string>
 </resources>

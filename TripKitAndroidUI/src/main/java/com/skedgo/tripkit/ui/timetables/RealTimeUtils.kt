@@ -1,6 +1,7 @@
 package com.skedgo.tripkit.ui.timetables
 
 
+import com.skedgo.tripkit.common.model.RealTimeStatus
 import com.skedgo.tripkit.ui.model.TimetableEntry
 import io.reactivex.Observable
 import com.skedgo.tripkit.routing.RealTimeVehicle
@@ -14,10 +15,6 @@ fun realTimeArrival(service: TimetableEntry, vehicle: RealTimeVehicle? = null): 
 fun realTimeDeparture(service: TimetableEntry, vehicle: RealTimeVehicle? = null): Long {
   return listOf(vehicle?.arriveAtStartStopTime, service.realTimeDeparture.toLong(), service.startTimeInSecs)
       .firstOrNull { it != null && it > 0L } ?: 0
-}
-
-fun realTimeNotAvailable(service: TimetableEntry, vehicle: RealTimeVehicle?): Boolean {
-  return realTimeDeparture(service, vehicle) <= 0L
 }
 
 fun TimetableEntry.getTimeLeftToDepartInterval(period: Long, timeUnit: TimeUnit): Observable<Long> {
