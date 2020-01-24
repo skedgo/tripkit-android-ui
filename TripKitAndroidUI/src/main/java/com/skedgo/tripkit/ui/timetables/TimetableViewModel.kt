@@ -29,7 +29,9 @@ import io.reactivex.rxkotlin.withLatestFrom
 import me.tatarka.bindingcollectionadapter2.ItemBinding
 import org.joda.time.DateTimeZone
 import com.skedgo.tripkit.routing.toSeconds
+import com.skedgo.tripkit.ui.views.MultiStateView
 import timber.log.Timber
+import java.security.InvalidKeyException
 import java.util.concurrent.atomic.AtomicLong
 import javax.inject.Inject
 import javax.inject.Provider
@@ -56,6 +58,9 @@ class TimetableViewModel  @Inject constructor(
 
     val downloadTimetable: PublishRelay<Long> = PublishRelay.create<Long>()
     val onDateChanged: PublishRelay<Long> = PublishRelay.create<Long>()
+
+    val stateChange = PublishRelay.create<MultiStateView.ViewState>()
+    val onError = PublishRelay.create<String>()
 
     val filter: BehaviorRelay<String> = BehaviorRelay.createDefault<String>("")
 
@@ -95,7 +100,6 @@ class TimetableViewModel  @Inject constructor(
             .doOnError { throwable: Throwable ->
                 Timber.e("An error occurred", throwable)
             }
-
             .replay(1)
             .refCount()
 
@@ -115,6 +119,7 @@ class TimetableViewModel  @Inject constructor(
             .flatMap {
                 val services = it.first
                 val region = it.second
+
                 realTimeChoreographer.getRealTimeResultsFromCleanElements(region, elements = services)
                         .map { vehicles ->
                             services.forEach { service : TimetableEntry ->
@@ -175,13 +180,17 @@ class TimetableViewModel  @Inject constructor(
                 .map { Triple(it, parentStop, minStartTime) }
             }
 
-    val showError: PublishRelay<String> = PublishRelay.create<String>()
     val scrollToNow: PublishRelay<Int> = PublishRelay.create<Int>()
 
     init {
         servicesVMs
                 .ignoreNetworkErrors()
-                .subscribe {
+                .subscribe ({
+                    if (it.isEmpty()) {
+                        stateChange.accept(MultiStateView.ViewState.EMPTY)
+                        return@subscribe
+                    }
+
                     services.get()!!.forEach {
                         it.onCleared()
                     }
@@ -192,25 +201,18 @@ class TimetableViewModel  @Inject constructor(
                         tmpServiceList.add(TimetableHeaderLineItem(it.serviceNumber.get(), it.serviceColor.get()))
                     }
                     serviceNumbers.set(tmpServiceList.distinctBy { it.serviceNumber }.sortedBy { it.serviceNumber })
-                }
-                .autoClear()
-
-        servicesVMs
-                .subscribe({
-                    if (it.isEmpty()) {
-                        showError.accept(resources.getString(R.string.no_services_found_for_this_stop))
-                    }
                 }, {
-                    showError.accept(resources.getString(R.string.an_unexpected_network_error_has_occurred_dot_please_retry_dot))
+                    Timber.e(it)
+                    onError.accept(it.message ?: resources.getString(R.string.an_unexpected_network_error_has_occurred_dot_please_retry_dot))
                 })
                 .autoClear()
 
         servicesVMs
                 .ignoreNetworkErrors()
                 .take(1)
-                .subscribe {
+                .subscribe ({
                     scrollToNow.accept(getFirstNowPosition(it))
-                }.autoClear()
+                }, {}).autoClear()
     }
 
     fun downloadMoreTimetableAsync() {

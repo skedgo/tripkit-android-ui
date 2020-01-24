@@ -18,4 +18,6 @@
     <string name="realtime_early">Arriving %1$s early</string>
     <!--Format for a service's real-time indicator for a service which is late, e.g., 'Delayed 1 min late'. This means #1 is replaced with something like '1 min'.-->
     <string name="realtime_late">Delayed %1$s late</string>
+    <string name="unknown_error">An unknown error has occurred</string>
+    <string name="no_results">No results</string>
 </resources>

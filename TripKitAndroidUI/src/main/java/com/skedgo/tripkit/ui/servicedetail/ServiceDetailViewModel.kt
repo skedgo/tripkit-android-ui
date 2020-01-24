@@ -104,7 +104,7 @@ class ServiceDetailViewModel  @Inject constructor(private val context: Context,
                         }
                     }
                 }
-                .subscribe {
+                .subscribe ({
                     list ->
                         items.get()!!.forEach {
                             vm -> vm.onCleared()
@@ -112,8 +112,8 @@ class ServiceDetailViewModel  @Inject constructor(private val context: Context,
                         list.first()?.setDrawable(context, ServiceDetailItemViewModel.LineDirection.START)
                         list.last()?.setDrawable(context, ServiceDetailItemViewModel.LineDirection.END)
                         items.set(list)
-                }
-        }, { Timber.d("Error")}).autoClear()
+                }, { Timber.e(it) })
+        }, { Timber.e(it) }).autoClear()
     }
 
     private fun setServiceColor() {

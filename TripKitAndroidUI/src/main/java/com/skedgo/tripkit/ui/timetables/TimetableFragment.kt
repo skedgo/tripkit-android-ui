@@ -9,6 +9,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
+import android.widget.TextView
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearSmoothScroller
 import androidx.recyclerview.widget.RecyclerView
@@ -19,14 +20,17 @@ import com.skedgo.tripkit.common.util.TimeUtils
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.TripKitUI
 import com.skedgo.tripkit.ui.core.AbstractTripKitFragment
+import com.skedgo.tripkit.ui.core.OnResultStateListener
 import com.skedgo.tripkit.ui.core.rxlifecyclecomponents.FragmentEvent
 import com.skedgo.tripkit.ui.databinding.TimetableFragmentBinding
 import com.skedgo.tripkit.ui.dialog.TimeDatePickerFragment
 import com.skedgo.tripkit.ui.model.TimetableEntry
 import com.skedgo.tripkit.ui.model.TripKitButton
 import com.skedgo.tripkit.ui.utils.Snackbars
+import com.skedgo.tripkit.ui.views.MultiStateView
 import com.trello.rxlifecycle3.RxLifecycle
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.PublishSubject
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
@@ -88,24 +92,31 @@ class TimetableFragment : AbstractTripKitFragment(), View.OnClickListener {
     private val filterThrottle = PublishSubject.create<String>()
     private lateinit var binding: TimetableFragmentBinding
     protected var buttons: List<TripKitButton> = emptyList()
+    private var subscriptions = CompositeDisposable()
 
     override fun onAttach(context: Context) {
         TripKitUI.getInstance().inject(this);
         super.onAttach(context)
     }
 
+    override fun onStop() {
+        super.onStop()
+        subscriptions.clear()
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        filterThrottle
-                .debounce(500, TimeUnit.MILLISECONDS)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe {
-                    viewModel.filter.accept(it)
-                }
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
+        subscriptions.add(filterThrottle
+                .debounce(500, TimeUnit.MILLISECONDS)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe {
+                    viewModel.filter.accept(it)
+                })
+
         binding = TimetableFragmentBinding.inflate(layoutInflater)
 
         val layoutManager = FlexboxLayoutManager(context)
@@ -114,14 +125,14 @@ class TimetableFragment : AbstractTripKitFragment(), View.OnClickListener {
 
         binding.viewModel = viewModel
 
-        viewModel.onServiceClick
+        subscriptions.add(viewModel.onServiceClick
                 .compose(RxLifecycle.bindUntilEvent(lifecycle(), FragmentEvent.DESTROY))
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe {
                     timetableEntrySelectedListener.forEach{listener ->
                         listener.onTimetableEntrySelected(it.first, it.second, it.third)
                     }
-                }
+                })
 
         binding.serviceLineRecyclerView.isNestedScrollingEnabled = false
         binding.recyclerView.isNestedScrollingEnabled = true
@@ -204,10 +215,30 @@ class TimetableFragment : AbstractTripKitFragment(), View.OnClickListener {
         viewModel.downloadTimetable.accept(System.currentTimeMillis() - TimeUtils.InMillis.MINUTE * 10)
 
 //        viewModel.stop.accept(stop)
-        viewModel.showError
-                .compose(RxLifecycle.bindUntilEvent(lifecycle(), FragmentEvent.DESTROY))
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe { message -> activity?.let { Snackbars.showShortly(it, message) } }
+        subscriptions.add(viewModel.onError.observeOn(AndroidSchedulers.mainThread()).subscribe { error ->
+            binding.multiStateView?.let { msv ->
+                if (activity is OnResultStateListener) {
+                    msv.setViewForState((activity as OnResultStateListener).provideErrorView(error),
+                            MultiStateView.ViewState.ERROR, true)
+                } else {
+                    val errorView = LayoutInflater.from(activity).inflate(R.layout.generic_error_view, null)
+                    errorView?.findViewById<TextView>(R.id.errorMessageView)?.text = error
+                    msv.setViewForState(errorView, MultiStateView.ViewState.ERROR, true)
+                }
+            }
+        })
+        subscriptions.add(viewModel.stateChange.observeOn(AndroidSchedulers.mainThread()).subscribe {
+            binding.multiStateView?.let { msv ->
+                if (it == MultiStateView.ViewState.EMPTY) {
+                    if (activity is OnResultStateListener) {
+                        msv.setViewForState((activity as OnResultStateListener).provideEmptyView(), MultiStateView.ViewState.EMPTY, true)
+                    } else {
+                        val emptyView = LayoutInflater.from(activity).inflate(R.layout.generic_empty_view, null)
+                        msv.setViewForState(emptyView, MultiStateView.ViewState.EMPTY, true)
+                    }
+                }
+            }
+        })
 
         val smoothScroller = object : LinearSmoothScroller(context) {
             override fun getVerticalSnapPreference(): Int {
@@ -215,13 +246,13 @@ class TimetableFragment : AbstractTripKitFragment(), View.OnClickListener {
             }
         }
 
-        viewModel.scrollToNow
+        subscriptions.add(viewModel.scrollToNow
                 .delay(500, TimeUnit.MILLISECONDS) // 500 ms is a guess, wait for the data to be set to the adapter.
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe { integer ->
                     smoothScroller.targetPosition = integer.toInt()
                     binding.recyclerView.layoutManager?.startSmoothScroll(smoothScroller)
-                }
+                })
 
     }
 

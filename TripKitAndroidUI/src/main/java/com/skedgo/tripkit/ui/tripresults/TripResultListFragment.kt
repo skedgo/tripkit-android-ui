@@ -5,21 +5,27 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
+import androidx.lifecycle.ViewModelProviders
 import com.google.android.flexbox.FlexDirection
 import com.google.android.flexbox.FlexboxLayoutManager
 import com.skedgo.tripkit.TransportModeFilter
 import com.skedgo.tripkit.common.model.Query
 import com.skedgo.tripkit.common.model.TimeTag
 import com.skedgo.tripkit.model.ViewTrip
-
+import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.TripKitUI
 import com.skedgo.tripkit.ui.core.AbstractTripKitFragment
+import com.skedgo.tripkit.ui.core.OnResultStateListener
 import com.skedgo.tripkit.ui.databinding.TripResultListFragmentBinding
 import com.skedgo.tripkit.ui.dialog.TripKitDateTimePickerDialogFragment
+import com.skedgo.tripkit.ui.views.MultiStateView
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
+
 
 class TripResultListFragment : AbstractTripKitFragment() {
     /**
@@ -29,6 +35,7 @@ class TripResultListFragment : AbstractTripKitFragment() {
         fun onTripSelected(viewTrip: ViewTrip)
     }
 
+    private var multiStateErrorTextId: Int = View.NO_ID
     private var tripSelectedListener: OnTripSelectedListener? = null
     fun setOnTripSelectedListener(callback: OnTripSelectedListener) {
         this.tripSelectedListener = callback
@@ -64,9 +71,9 @@ class TripResultListFragment : AbstractTripKitFragment() {
         }
     }
 
-
     @Inject
-    lateinit var viewModel: TripResultListViewModel
+    lateinit var viewModelProviderFactory: TripResultListViewModelFactory
+    private lateinit var viewModel: TripResultListViewModel
     lateinit var binding: TripResultListFragmentBinding
     private var query: Query? = null
     private var transportModeFilter: TransportModeFilter? = null
@@ -81,23 +88,63 @@ class TripResultListFragment : AbstractTripKitFragment() {
     }
 
     var shouldShowMoreButton = false
+    var subscriptions = CompositeDisposable()
 
     override fun onAttach(context: Context) {
         TripKitUI.getInstance().routesComponent().inject(this);
-        viewModel.onItemClicked
-                .observeOn(AndroidSchedulers.mainThread())
-                .compose(bindToLifecycle())
-                .doOnNext {
-                    viewTrip ->
-                        tripSelectedListener?.onTripSelected(viewTrip)
-                }.subscribe()
         super.onAttach(context)
+    }
+
+    override fun onStop() {
+        super.onStop()
+        subscriptions.clear()
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        viewModel = ViewModelProviders.of(this, viewModelProviderFactory)
+                .get(TripResultListViewModel::class.java);
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         binding = TripResultListFragmentBinding.inflate(layoutInflater)
+
+        subscriptions.add(viewModel.onError.observeOn(AndroidSchedulers.mainThread()).subscribe { error ->
+            binding.multiStateView?.let { msv ->
+                if (activity is OnResultStateListener) {
+                    val view = (activity as OnResultStateListener).provideErrorView(error)
+                    msv.setViewForState(view, MultiStateView.ViewState.ERROR, true)
+                } else {
+                    val view = LayoutInflater.from(activity).inflate(R.layout.generic_error_view, null)
+                    view?.findViewById<TextView>(R.id.errorMessageView)?.text = error
+                    msv.setViewForState(view, MultiStateView.ViewState.ERROR, true)
+                }
+            }
+        })
+
+        subscriptions.add(viewModel.onItemClicked
+                .observeOn(AndroidSchedulers.mainThread())
+                .doOnNext { viewTrip -> tripSelectedListener?.onTripSelected(viewTrip)
+                }.subscribe())
+
+        subscriptions.add(viewModel.stateChange.observeOn(AndroidSchedulers.mainThread()).subscribe {
+            binding.multiStateView?.let { msv ->
+                if (it == MultiStateView.ViewState.EMPTY) {
+                    if (activity is OnResultStateListener) {
+                        msv.setViewForState((activity as OnResultStateListener).provideEmptyView(), MultiStateView.ViewState.EMPTY, true)
+                    } else {
+                        val view = LayoutInflater.from(activity).inflate(R.layout.generic_empty_view, null)
+                        msv.setViewForState(view, MultiStateView.ViewState.EMPTY, true)
+                    }
+                } else if (it == MultiStateView.ViewState.CONTENT) {
+                    msv.viewState = MultiStateView.ViewState.CONTENT
+                }
+            }
+        })
+
         binding.viewModel = viewModel
+
         binding.toLocation.setOnClickListener {
             locationClickListener?.onDestinationLocationClicked()
         }
@@ -112,6 +159,7 @@ class TripResultListFragment : AbstractTripKitFragment() {
 
         return binding.root
     }
+
 
     private fun showDateTimePicker() {
         var departureTimezone: String? = null
@@ -156,6 +204,7 @@ class TripResultListFragment : AbstractTripKitFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
         query = arguments?.getParcelable<Query>(ARG_QUERY) as Query
         arguments?.getParcelable<TransportModeFilter>(ARG_TRANSPORT_MODE_FILTER)?.let {
             transportModeFilter = it
