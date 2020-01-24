@@ -31,7 +31,10 @@ import com.skedgo.tripkit.routing.dateTimeZone
 import com.skedgo.tripkit.routingstatus.RoutingStatus
 import com.skedgo.tripkit.routingstatus.RoutingStatusRepository
 import com.skedgo.tripkit.routingstatus.Status
+import com.skedgo.tripkit.ui.core.OnResultStateListener
 import com.skedgo.tripkit.ui.routing.SimpleTransportModeFilter
+import com.skedgo.tripkit.ui.views.MultiStateView
+import timber.log.Timber
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Provider
@@ -47,21 +50,25 @@ class TripResultListViewModel @Inject constructor(
         private val routeService: RouteService,
         private val errorLogger: ErrorLogger,
         private val routingTimeViewModelMapper: RoutingTimeViewModelMapper): RxViewModel() {
+
     val fromName = ObservableField<String>()
     val toName = ObservableField<String>()
     val timeLabel = ObservableField<String>()
 
     val onItemClicked = PublishRelay.create<ViewTrip>()
 
+    val stateChange = PublishRelay.create<MultiStateView.ViewState>()
+    val onError = PublishRelay.create<String>()
+
     val itemBinding = ItemBinding.of<TripResultViewModel>(BR.viewModel, R.layout.trip_result_list_item)
     val results = DiffObservableList<TripResultViewModel>(GroupDiffCallback)
-//val results = ObservableArrayList<TripResultViewModel>()
 
     val transportBinding = ItemBinding.of<TripResultTransportItemViewModel>(BR.viewModel, R.layout.trip_result_list_transport_item)
     val transportModes: ObservableField<List<TripResultTransportItemViewModel>> = ObservableField(emptyList())
     val showTransport = ObservableBoolean(false)
     val showTransportModeSelection = ObservableBoolean(true)
     val isLoading = ObservableBoolean(false)
+    val isError = ObservableBoolean(false)
 
     private val transportModeChangeThrottle = PublishSubject.create<Unit>()
 
@@ -133,9 +140,7 @@ class TripResultListViewModel @Inject constructor(
                             .observeOn(AndroidSchedulers.mainThread())
                             .subscribe {
                                 transportVisibilityFilter!!.setSelected(it.first, it.second)
-//                                transportModeChangeThrottle.onNext(Unit)
                                 loadFromStore()
-
                             }.autoClear()
                     it
                 }
@@ -171,20 +176,20 @@ class TripResultListViewModel @Inject constructor(
                     }
         }.doOnSubscribe {
             isLoading.set(true)
+            stateChange.accept(MultiStateView.ViewState.CONTENT)
             routingStatusRepositoryLazy.get().putRoutingStatus(RoutingStatus(
                     query.uuid(),
                     Status.InProgress()
             )).subscribe()
             loadFromStore()
         }.doOnError {
+            val message = when (it) {
+                is RoutingError -> it.message
+                else -> context.getString(R.string.error_encountered)
+            }
             routingStatusRepositoryLazy.get().putRoutingStatus(RoutingStatus(
                             query.uuid(),
-                            Status.Error(
-                                    when (it) {
-                                        is RoutingError -> it.message
-                                        else -> context.getString(R.string.error_encountered)
-                                    }
-                            )
+                            Status.Error(message)
                     )).subscribe()
         }
         .doOnComplete {
@@ -195,8 +200,15 @@ class TripResultListViewModel @Inject constructor(
         }
         .doFinally {
             isLoading.set(false)
-        }
-        .subscribe().autoClear()
+        }.subscribe({}, { error ->
+            isError.set(true)
+            if (error.message.isNullOrBlank()) {
+                onError.accept( context.getString(R.string.unknown_error))
+            } else {
+                onError.accept(error.message)
+            }
+            Timber.e(error, "An error in routing occurred")
+        }).autoClear()
     }
 
     fun reload() {
@@ -230,6 +242,9 @@ class TripResultListViewModel @Inject constructor(
                 }
                 .subscribe {
                     results.update(it.first, it.second)
+                    if (results.isEmpty() && !isLoading.get() && !isError.get()) {
+                        stateChange.accept(MultiStateView.ViewState.EMPTY)
+                    }
                 }.autoClear()
 
     }
