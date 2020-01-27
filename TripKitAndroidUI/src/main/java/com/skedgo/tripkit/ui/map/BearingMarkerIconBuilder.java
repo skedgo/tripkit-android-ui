@@ -28,7 +28,7 @@ public class BearingMarkerIconBuilder {
   private String mTimezone;
 
   public BearingMarkerIconBuilder(@NonNull Resources resources,
-                                  @NonNull TimeLabelMaker timeLabelMaker) {
+                                  TimeLabelMaker timeLabelMaker) {
     mResources = resources;
     mTimeLabelMaker = timeLabelMaker;
 
@@ -91,7 +91,7 @@ public class BearingMarkerIconBuilder {
     Bitmap vehiclePointerPinBitmap = createVehiclePointerPinBitmap(vehiclePointerBitmap);
     vehiclePointerBitmap.recycle();
 
-    if (mHasTime) {
+    if (mHasTime && mTimeLabelMaker != null) {
       Pair<Bitmap, Float> markerIcon = plusTimeLabel(vehiclePointerPinBitmap);
       vehiclePointerPinBitmap.recycle();
       return markerIcon;

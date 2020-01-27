@@ -16,6 +16,8 @@ import com.skedgo.tripkit.common.model.Region
 import com.skedgo.tripkit.common.model.Region.City
 import com.skedgo.tripkit.data.regions.RegionService
 import com.skedgo.tripkit.logging.ErrorLogger
+import com.skedgo.tripkit.routing.ModeInfo
+import com.skedgo.tripkit.routing.VehicleDrawables
 import com.skedgo.tripkit.tripplanner.NonCurrentType
 import com.skedgo.tripkit.tripplanner.PinUpdate
 import com.skedgo.tripkit.ui.R
@@ -99,6 +101,10 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
     private var tipZoomIsDeleted = false
     private var checkZoomOutFlag = false
     private var map: GoogleMap? = null
+
+    private var fromMarker: Marker? = null
+    private var toMarker: Marker? = null
+
     // There doesn't seem to be a way to show an info window when a POI is clicked, so work-around that
     // by using an invisible marker on the map that is moved to the POI's location when clicked.
     private var poiMarker: Marker? = null
@@ -139,6 +145,7 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
             this.map = map
             initMarkerCollections(map)
             initMap(map)
+            initFromAndToMarkers(map)
         })
         initStuff()
         setMyLocationEnabled()
@@ -539,6 +546,62 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
         setUpDepartureAndArrivalMarkers(markerManager!!)
         setUpCurrentLocationMarkers(markerManager!!)
         setUpPOIMarkers(markerManager!!, map)
+    }
+
+    fun setFromMarkerLocation(location: LatLng?) {
+        if (location == null) {
+            fromMarker?.isVisible = false
+        } else {
+            fromMarker?.let {
+                it.position = location
+                it.isVisible = true
+            }
+        }
+    }
+
+    fun setToMarkerLocation(location: LatLng?) {
+        if (location == null) {
+            toMarker?.isVisible = false
+        } else {
+            toMarker?.let {
+                it.position = location
+                it.isVisible = true
+            }
+        }
+    }
+
+    private fun initFromAndToMarkers(map: GoogleMap) {
+        var fromBitmap =  BearingMarkerIconBuilder(resources, null)
+                .hasBearing(false)
+                .vehicleIconScale(ModeInfo.MAP_LIST_SIZE_RATIO)
+                .baseIcon(R.drawable.ic_map_pin_base)
+                .vehicleIcon(VehicleDrawables.createLightDrawable(resources, com.skedgo.tripkit.common.R.drawable.v4_ic_map_location))
+                .pointerIcon(R.drawable.ic_map_pin_departure)
+                .hasBearingVehicleIcon(false)
+                .hasTime(false)
+                .build().first
+
+        var toBitmap =  BearingMarkerIconBuilder(resources, null)
+                .hasBearing(false)
+                .vehicleIconScale(ModeInfo.MAP_LIST_SIZE_RATIO)
+                .baseIcon(R.drawable.ic_map_pin_base)
+                .vehicleIcon(VehicleDrawables.createLightDrawable(resources, com.skedgo.tripkit.common.R.drawable.v4_ic_map_location))
+                // TODO I don't know why ic_map_pin_arrival is slightly larger than ic_map_pin_departure (48x48 vs 40x40 MDPI)
+                // but it is. If that's not necessary, it would be nice to not have two nearly identical ones.
+                .pointerIcon(R.drawable.ic_map_pin_arrival_small)
+                .hasBearingVehicleIcon(false)
+                .hasTime(false)
+                .build().first
+
+        fromMarker = map.addMarker(MarkerOptions()
+                .position(LatLng(0.0,0.0))
+                .visible(false)
+                .icon(BitmapDescriptorFactory.fromBitmap(fromBitmap)))
+
+        toMarker = map.addMarker(MarkerOptions()
+                .position(LatLng(0.0,0.0))
+                .visible(false)
+                .icon(BitmapDescriptorFactory.fromBitmap(toBitmap)))
     }
 
     private fun setUpCurrentLocationMarkers(markerManager: MarkerManager) {
