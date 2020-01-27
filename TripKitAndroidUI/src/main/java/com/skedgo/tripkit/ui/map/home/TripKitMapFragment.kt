@@ -141,11 +141,14 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        getMapAsync { map ->
+            initFromAndToMarkers(map)
+        }
+
         whenSafeToUseMap(Consumer { map: GoogleMap ->
             this.map = map
             initMarkerCollections(map)
             initMap(map)
-            initFromAndToMarkers(map)
         })
         initStuff()
         setMyLocationEnabled()
