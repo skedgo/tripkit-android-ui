@@ -197,11 +197,6 @@ class TripResultListFragment : AbstractTripKitFragment() {
 
     }
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-        query?.let { viewModel.setup(it, showTransportSelectionView, transportModeFilter) }
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -210,6 +205,7 @@ class TripResultListFragment : AbstractTripKitFragment() {
             transportModeFilter = it
         }
         showTransportSelectionView = arguments?.getBoolean(ARG_SHOW_TRANSPORT_MODE_SELECTION, true)!!
+        query?.let { viewModel.setup(it, showTransportSelectionView, transportModeFilter) }
     }
 
     class Builder {
