@@ -1,11 +1,13 @@
 package com.skedgo.tripkit.ui.data.places
 
+import android.util.Log
 import com.google.android.gms.maps.model.LatLngBounds.builder
 import com.google.android.libraries.places.compat.AutocompletePrediction
 import com.google.android.libraries.places.compat.GeoDataClient
 import com.google.android.libraries.places.compat.PlaceBufferResponse
 import io.reactivex.Observable
 import io.reactivex.schedulers.Schedulers.io
+import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Provider
 
@@ -29,7 +31,8 @@ class PlaceSearchRepositoryImpl
                             result?.release()
                             it.onComplete()
                         } else {
-                            it.onError(GooglePlacesException(task.toString(), task.exception!!))
+                            Timber.e(task.exception)
+                            it.tryOnError(GooglePlacesException(task.toString(), task.exception!!))
                         }
                     }
         }
@@ -57,7 +60,8 @@ class PlaceSearchRepositoryImpl
                             result?.release()
                             it.onComplete()
                         } else {
-                            it.onError(task.exception!!)
+                            Timber.e(task.exception)
+                            it.tryOnError(task.exception!!)
                         }
                     }
         }

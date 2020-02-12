@@ -98,25 +98,25 @@ class LocationSearchViewModel @Inject constructor(private val context: Context,
                 .switchMap {
                     Observable.merge(it)
                 }
-                .subscribe {
+                .subscribe ({
                     when (it.first) {
                         is CurrentLocationSuggestionViewModel -> onSuggestionItemClick(SearchSuggestionChoice.FixedChoice(it.second))
                         is DropNewPinSuggestionViewModel -> onSuggestionItemClick(SearchSuggestionChoice.FixedChoice(it.second))
                         is GoogleSuggestionViewModel -> onSuggestionItemClick(SearchSuggestionChoice.PlaceChoice(
                                 (it.first as GoogleSuggestionViewModel).place, it.second))
                     }
-                }
+                }, errorLogger::trackError)
                 .autoClear()
 
         queries
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe {
+                .subscribe( {
                     fixedSuggestions.clear()
                     if (it.term().isNullOrEmpty()) {
                         if (showCurrentLocation) fixedSuggestions.add(CurrentLocationSuggestionViewModel(context))
                         if (showDropPin) fixedSuggestions.add(DropNewPinSuggestionViewModel(context))
                     }
-                }
+                }, errorLogger::trackError)
                 .autoClear()
 
         val googlePlaces = queries.hide()
