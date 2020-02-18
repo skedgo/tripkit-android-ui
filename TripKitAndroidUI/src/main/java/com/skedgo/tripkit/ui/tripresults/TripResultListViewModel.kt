@@ -120,36 +120,39 @@ class TripResultListViewModel @Inject constructor(
 
     private fun getTransport() {
         isLoading.set(true)
-        regionService.getTransportModesByLocationAsync(query.fromLocation!!)
-                .observeOn(AndroidSchedulers.mainThread())
-                .flatMapIterable { value -> value }
-                .filter {
-                    transportModeFilter!!.useTransportMode(it.id)
-                }
-                .map { mode ->
-                    tripResultTransportItemViewModelProvider.get().apply {
-                        this.setup(mode)
-                    }
-                }
-                .map { viewModel ->
-                    viewModel.checked.set(transportVisibilityFilter!!.isSelected(viewModel.modeId.get()!!))
-                    viewModel
-                }
-                .map {
-                    it.clicked
-                            .observeOn(AndroidSchedulers.mainThread())
-                            .subscribe {
-                                transportVisibilityFilter!!.setSelected(it.first, it.second)
-                                loadFromStore()
-                            }.autoClear()
-                    it
-                }
-                .toList()
-                .subscribe { list ->
-                    transportModes.set(list)
-                    load()
-                }
-                .autoClear()
+        regionService.getTransportModesByLocationsAsync(query.fromLocation!!, query.toLocation!!)
+        .observeOn(AndroidSchedulers.mainThread())
+        .flatMapIterable { value -> value }
+        .filter {
+            transportModeFilter!!.useTransportMode(it.id)
+        }
+        .map { mode ->
+            tripResultTransportItemViewModelProvider.get().apply {
+                this.setup(mode)
+            }
+        }
+        .map { viewModel ->
+            viewModel.checked.set(transportVisibilityFilter!!.isSelected(viewModel.modeId.get()!!))
+            viewModel
+        }
+        .map {
+            it.clicked
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe {
+                        transportVisibilityFilter!!.setSelected(it.first, it.second)
+                        reload()
+                    }.autoClear()
+            it
+        }
+        .toList()
+        .subscribe ({ list ->
+            transportModes.set(list)
+            load()
+        }, {
+            Timber.e(it)
+            onError.accept(it.message)
+        })
+        .autoClear()
     }
 
 
@@ -169,7 +172,7 @@ class TripResultListViewModel @Inject constructor(
         query = query.clone(false)
 
         Observable.defer {
-            routeService.routeAsync(query = query, transportModeFilter = transportModeFilter!!)
+            routeService.routeAsync(query = query, transportModeFilter = TripResultListViewTransportModeFilter(transportModeFilter!!, transportVisibilityFilter!!))
                     .flatMap {
                         tripGroupRepository.addTripGroups(query.uuid(), it)
                                 .toObservable<List<TripGroup>>()
