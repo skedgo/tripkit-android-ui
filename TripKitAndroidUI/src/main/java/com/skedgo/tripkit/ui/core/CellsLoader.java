@@ -48,6 +48,11 @@ public class CellsLoader implements StopsFetcher.ICellsLoader {
           emitter.onNext(cursor);
         }
         emitter.onComplete();
+
+        if (cursor != null) {
+          cursor.close();
+        }
+
       }
     });
   }

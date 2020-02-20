@@ -46,12 +46,14 @@ open class ScheduledStopRepository @Inject constructor(
     }
 
     fun queryStops(projection: Array<String>?, selection: String?, selectionArgs: Array<String>?, order: String?): Observable<List<ScheduledStop>> {
-        return Observable
-                .fromCallable {
-                    queryStopsSync(projection, selection, selectionArgs, order)
+        return Observable.using({ queryStopsSync(projection, selection, selectionArgs, order) },
+                { Cursors.flattenCursor().apply(it) },
+                { it.close() })
+                .map {
+                    val stop = cursorToStopConverter.apply(it)
+                    it.close()
+                    stop
                 }
-                .flatMap(Cursors.flattenCursor())
-                .map { cursorToStopConverter.apply(it) }
                 .toList().toObservable()
                 .subscribeOn(Schedulers.io())
     }
