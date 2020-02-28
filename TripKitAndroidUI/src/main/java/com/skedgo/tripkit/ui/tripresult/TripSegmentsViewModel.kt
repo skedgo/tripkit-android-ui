@@ -169,12 +169,12 @@ class TripSegmentsViewModel @Inject internal constructor(
                               tripSegment: TripSegment,
                                 previousSegment: TripSegment? = null,
                                 nextSegment: TripSegment? = null) {
+
     val time = when(tripSegment.type) {
         SegmentType.DEPARTURE -> printTime.print(tripSegment.startDateTime)
         SegmentType.ARRIVAL -> printTime.print(tripSegment.endDateTime)
         else -> null
     }
-
     var connectionColor = if (tripSegment.type == SegmentType.DEPARTURE) {
       nextSegment?.lineColor() ?: Color.TRANSPARENT
     } else {
@@ -190,13 +190,40 @@ class TripSegmentsViewModel @Inject internal constructor(
                                 tripSegment: TripSegment,
                                 previousSegment: TripSegment? = null,
                                 nextSegment: TripSegment? = null) {
-    val startTime = if (tripSegment.from != null) printTime.print(tripSegment.startDateTime) else null
-    val endTime = if (tripSegment.to != null) printTime.print(tripSegment.endDateTime) else null
+    var startTime : String? = when {
+      nextSegment != null -> printTime.print(nextSegment.startDateTime)
+      else -> null
+    }
+
+    var endTime : String? = null
+    var delay = 0L
+
+    nextSegment?.let {
+      if (it.isRealTime) {
+        delay = it.startTimeInSecs - it.timetableStartTime
+        if (delay != 0L) {
+          startTime = printTime.print(it.timetableStartDateTime)
+        }
+
+        endTime = when {
+          delay == 0L -> null
+          else -> printTime.print(it.timetableStartDateTime)
+        }
+      }
+    }
+
+    val possibleDescription = when {
+      !nextSegment?.platform.isNullOrBlank() -> context.getString(R.string.platform, nextSegment!!.platform)
+      else -> null
+    }
+
     viewModel.setupSegment(viewType = TripSegmentItemViewModel.SegmentViewType.STATIONARY,
             title = tripSegment.singleLocation?.displayName ?: context.resources.getString(R.string.location),
-            description = processedText(tripSegment, tripSegment.action),
+            description = possibleDescription,
             startTime = startTime,
             endTime = endTime,
+            delay = delay,
+            hasRealtime = nextSegment?.isRealTime ?: false,
             topConnectionColor = previousSegment?.lineColor() ?: Color.TRANSPARENT,
             bottomConnectionColor = nextSegment?.lineColor() ?: Color.TRANSPARENT)
   }
@@ -205,12 +232,43 @@ class TripSegmentsViewModel @Inject internal constructor(
                                 tripSegment: TripSegment,
                                 nextSegment: TripSegment? = null) {
     val possibleTitle = nextSegment?.from?.displayName ?: tripSegment.to?.displayName
-    val endTime = if (nextSegment != null) printTime.print(nextSegment.startDateTime) else null
+    val possibleDescription = when {
+      !nextSegment?.platform.isNullOrBlank() -> context.getString(R.string.platform, nextSegment!!.platform)
+      else -> null
+    }
+
+    var endTime = if (nextSegment != null) printTime.print(nextSegment.startDateTime) else null
+
+    // If it's a real-time service, we show the time in green if it's on-time, yellow if it's early, and red if it's late.
+    // In both cases, we show the original time crossed out below the current real-time information.
+    var delay = 0L
+    var realtimeTripSegment = when {
+      tripSegment.isRealTime -> tripSegment
+      (nextSegment != null) && nextSegment.isRealTime -> nextSegment
+      else -> null
+    }
+
+    realtimeTripSegment?.let {
+      if (it.from != null) {
+        delay = it.startTimeInSecs - it.timetableStartTime
+        endTime = when {
+          delay == 0L -> null
+          else -> printTime.print(it.timetableStartDateTime) }
+      } else if (it.to != null) {
+        delay = it.endTimeInSecs - it.timetableEndTime
+        endTime = when {
+          delay == 0L -> null
+          else -> printTime.print(it.timetableEndDateTime) }
+      }
+    }
 
     viewModel.setupSegment(viewType = TripSegmentItemViewModel.SegmentViewType.STATIONARY_BRIDGE,
             title = possibleTitle ?: context.resources.getString(R.string.location),
+            description = possibleDescription,
             startTime = printTime.print(tripSegment.endDateTime),
             endTime = endTime,
+            delay = delay,
+            hasRealtime = (realtimeTripSegment != null),
             topConnectionColor = tripSegment.lineColor(),
             bottomConnectionColor = nextSegment?.lineColor() ?: Color.TRANSPARENT)
   }
@@ -219,7 +277,7 @@ class TripSegmentsViewModel @Inject internal constructor(
                                       tripSegment: TripSegment) {
     viewModel.setupSegment(viewType = TripSegmentItemViewModel.SegmentViewType.MOVING,
             title = processedText(tripSegment, tripSegment.action),
-            description = tripSegment.getDisplayNotes(context.resources),
+            description = tripSegment.getDisplayNotes(context.resources, false),
             lineColor = tripSegment.lineColor())
   }
   private fun setTripGroup(tripGroup: TripGroup, savedInstanceState: Bundle?) {

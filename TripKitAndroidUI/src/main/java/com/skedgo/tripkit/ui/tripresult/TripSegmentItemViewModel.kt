@@ -3,8 +3,15 @@ package com.skedgo.tripkit.ui.tripresult
 import android.content.Context
 import android.graphics.Color
 import android.graphics.PorterDuff
+import android.graphics.Typeface.BOLD
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
+import android.text.Spannable
+import android.text.SpannableString
+import android.text.style.ForegroundColorSpan
+import android.text.style.StrikethroughSpan
+import android.text.style.StyleSpan
+import android.util.Log
 import android.view.View
 import androidx.core.content.ContextCompat
 import androidx.databinding.ObservableBoolean
@@ -40,11 +47,11 @@ class TripSegmentItemViewModel @Inject internal constructor(private val context:
     }
 
     val title = ObservableField<String>()
-    val startTime = ObservableField<String>()
+    val startTime = ObservableField<SpannableString>()
     val showStartTime = ObservableBoolean(false)
-    val endTime = ObservableField<String>()
+    val endTime = ObservableField<SpannableString>()
     val showEndTime = ObservableBoolean(false)
-
+    val startTimeColor = ObservableField<Int>(ContextCompat.getColor(context, R.color.black1))
 
     val description = ObservableField<String>()
     val showDescription = ObservableBoolean(false)
@@ -68,6 +75,8 @@ class TripSegmentItemViewModel @Inject internal constructor(private val context:
                      description: String? = null,
                      startTime: String? = null,
                      endTime: String? = null,
+                     delay: Long = 0,
+                     hasRealtime: Boolean = false,
                      lineColor: Int = Color.TRANSPARENT,
                      topConnectionColor: Int = lineColor,
                      bottomConnectionColor: Int = lineColor) {
@@ -80,14 +89,51 @@ class TripSegmentItemViewModel @Inject internal constructor(private val context:
                 this.showDescription.set(true)
             }
 
-            if (startTime != null) {
-                this.startTime.set(startTime)
-                this.showStartTime.set(true)
-            }
+            if (hasRealtime) {
+                val startTimeSpannable = SpannableString(startTime)
+                startTimeSpannable.setSpan(StyleSpan(BOLD),
+                        0,
+                        startTimeSpannable.length,
+                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
 
-            if (endTime != null && endTime != startTime) {
-                this.endTime.set(endTime)
-                this.showEndTime.set(true)
+                if (delay > 0) {
+                    startTimeSpannable.setSpan(ForegroundColorSpan(ContextCompat.getColor(context, R.color.tripKitError)),
+                            0,
+                            startTimeSpannable.length,
+                            Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+
+                } else if (delay < 0) {
+                    startTimeSpannable.setSpan(ForegroundColorSpan(ContextCompat.getColor(context, R.color.tripKitWarning)),
+                            0,
+                            startTimeSpannable.length,
+                            Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+                } else {
+                    startTimeSpannable.setSpan(ForegroundColorSpan(ContextCompat.getColor(context, R.color.tripKitSuccess)),
+                            0,
+                            startTimeSpannable.length,
+                            Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+                }
+                this.startTime.set(startTimeSpannable)
+                this.showStartTime.set(true)
+                if (endTime != null) {
+                    val endTimeSpannable = SpannableString(endTime)
+                    endTimeSpannable.setSpan(StrikethroughSpan(),
+                            0,
+                            endTimeSpannable.length,
+                            Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+                    this.endTime.set(endTimeSpannable)
+                    this.showEndTime.set(true)
+                }
+            } else {
+                if (startTime != null) {
+                    this.startTime.set(SpannableString(startTime))
+                    this.showStartTime.set(true)
+                }
+
+                if (endTime != null && endTime != startTime) {
+                    this.endTime.set(SpannableString(endTime))
+                    this.showEndTime.set(true)
+                }
             }
 
             if (lineColor != Color.TRANSPARENT) {

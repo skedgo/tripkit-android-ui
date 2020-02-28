@@ -20,4 +20,5 @@
     <string name="realtime_late">Delayed %1$s late</string>
     <string name="unknown_error">An unknown error has occurred</string>
     <string name="no_results">No results</string>
+    <string name="platform">Platform %s</string>
 </resources>
