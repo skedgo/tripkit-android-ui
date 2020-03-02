@@ -4,6 +4,7 @@ package com.skedgo.tripkit.ui.tripresult
 import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
+import android.util.Log
 import androidx.databinding.ObservableField
 import com.jakewharton.rxrelay2.BehaviorRelay
 import com.skedgo.tripkit.booking.BookingForm
@@ -175,16 +176,25 @@ class TripSegmentsViewModel @Inject internal constructor(
         SegmentType.ARRIVAL -> printTime.print(tripSegment.endDateTime)
         else -> null
     }
+
+    var topConnectionColor : Int = Color.TRANSPARENT
+    var bottomConnectionColor : Int = Color.TRANSPARENT
+
     var connectionColor = if (tripSegment.type == SegmentType.DEPARTURE) {
       nextSegment?.lineColor() ?: Color.TRANSPARENT
     } else {
       previousSegment?.lineColor() ?: Color.TRANSPARENT
     }
 
+    if (tripSegment.type == SegmentType.DEPARTURE) { bottomConnectionColor = connectionColor }
+    if (tripSegment.type == SegmentType.ARRIVAL) { topConnectionColor = connectionColor }
+
     viewModel.setupSegment(viewType = TripSegmentItemViewModel.SegmentViewType.TERMINAL,
                             title = processedText(tripSegment, tripSegment.action),
                             startTime = time,
-                            lineColor = connectionColor)
+                            lineColor = connectionColor,
+                            topConnectionColor = topConnectionColor,
+                            bottomConnectionColor = bottomConnectionColor)
   }
   private fun addStationaryItem(viewModel: TripSegmentItemViewModel,
                                 tripSegment: TripSegment,
@@ -231,12 +241,12 @@ class TripSegmentsViewModel @Inject internal constructor(
   private fun addStationaryBridgeItem(viewModel: TripSegmentItemViewModel,
                                 tripSegment: TripSegment,
                                 nextSegment: TripSegment? = null) {
+
     val possibleTitle = nextSegment?.from?.displayName ?: tripSegment.to?.displayName
     val possibleDescription = when {
       !nextSegment?.platform.isNullOrBlank() -> context.getString(R.string.platform, nextSegment!!.platform)
       else -> null
     }
-
     var endTime = if (nextSegment != null) printTime.print(nextSegment.startDateTime) else null
 
     // If it's a real-time service, we show the time in green if it's on-time, yellow if it's early, and red if it's late.

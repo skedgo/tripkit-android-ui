@@ -11,7 +11,6 @@ import android.text.SpannableString
 import android.text.style.ForegroundColorSpan
 import android.text.style.StrikethroughSpan
 import android.text.style.StyleSpan
-import android.util.Log
 import android.view.View
 import androidx.core.content.ContextCompat
 import androidx.databinding.ObservableBoolean
@@ -81,7 +80,6 @@ class TripSegmentItemViewModel @Inject internal constructor(private val context:
                      topConnectionColor: Int = lineColor,
                      bottomConnectionColor: Int = lineColor) {
         var tintWhite = false
-
         tripSegment?.let {
             this.title.set(title)
             if (description != null) {
@@ -90,24 +88,29 @@ class TripSegmentItemViewModel @Inject internal constructor(private val context:
             }
 
             if (hasRealtime) {
+                // We show the realtime times differently than when they aren't real time. When a
+                // segment is on time, it is shown in bold green text. If it is early, the top text is a bold warning
+                // color showing the realtime arrival time, and the bottom text shows the planned time crossed out.
+                // Similarly, we do the same in red when a service is late.
+
                 val startTimeSpannable = SpannableString(startTime)
                 startTimeSpannable.setSpan(StyleSpan(BOLD),
                         0,
                         startTimeSpannable.length,
                         Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
 
-                if (delay > 0) {
+                if (delay > 0) { // Late
                     startTimeSpannable.setSpan(ForegroundColorSpan(ContextCompat.getColor(context, R.color.tripKitError)),
                             0,
                             startTimeSpannable.length,
                             Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
 
-                } else if (delay < 0) {
+                } else if (delay < 0) { // Early
                     startTimeSpannable.setSpan(ForegroundColorSpan(ContextCompat.getColor(context, R.color.tripKitWarning)),
                             0,
                             startTimeSpannable.length,
                             Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
-                } else {
+                } else { // On time
                     startTimeSpannable.setSpan(ForegroundColorSpan(ContextCompat.getColor(context, R.color.tripKitSuccess)),
                             0,
                             startTimeSpannable.length,
@@ -115,7 +118,10 @@ class TripSegmentItemViewModel @Inject internal constructor(private val context:
                 }
                 this.startTime.set(startTimeSpannable)
                 this.showStartTime.set(true)
+
                 if (endTime != null) {
+                    // This is not the end time, but rather the timetable time for realtime services. It is shown
+                    // crossed out.
                     val endTimeSpannable = SpannableString(endTime)
                     endTimeSpannable.setSpan(StrikethroughSpan(),
                             0,
@@ -136,7 +142,13 @@ class TripSegmentItemViewModel @Inject internal constructor(private val context:
                 }
             }
 
-            if (lineColor != Color.TRANSPARENT) {
+            // When showing transit lines, we draw a circle in the middle with the icon overlayed on it and lines connecting
+            // the top and/or bottom segments.
+            // For the start/destination parts, usually a STATIONARY_BRIDGE view, a small white circle with the line color's border is used.
+            // Those STATIONARY_BRIDGE views set the lineColor to transparent and just use a connection color, so
+            // we also handle the special case of a TERMINAL being the last segment.
+            if (lineColor != Color.TRANSPARENT
+                    && viewType != SegmentViewType.TERMINAL /* Don't show the circle background when it's a terminal */) {
                 tintWhite = true
                 backgroundCircleTint.set(lineColor)
                 showBackgroundCircle.set(true)
@@ -159,7 +171,8 @@ class TripSegmentItemViewModel @Inject internal constructor(private val context:
                 }
             }
 
-            if (segmentCircleColor != Color.TRANSPARENT && lineColor == Color.TRANSPARENT) {
+            // If the terminal segment is the end of a public transit line, end with that rather than a destination icon.
+            if (segmentCircleColor != Color.TRANSPARENT && (lineColor == Color.TRANSPARENT || viewType == SegmentViewType.TERMINAL)) {
                 val drawable = ContextCompat.getDrawable(context, R.drawable.segment_circle)
                 drawable?.let {
                     val d = it.mutate()
@@ -169,10 +182,12 @@ class TripSegmentItemViewModel @Inject internal constructor(private val context:
             }
 
             if (viewType == SegmentViewType.TERMINAL) {
+                // But terminal segments that are not part of a transit line show the map marker icon.
                 if (lineColor == Color.TRANSPARENT) {
                     showSegmentIcon(it, tintWhite)
                 }
             } else {
+                // Everything else with a linecolor shows the representative icon.
                 if (segmentCircleColor == Color.TRANSPARENT || lineColor != Color.TRANSPARENT){
                     showSegmentIcon(it, tintWhite)
                 }
