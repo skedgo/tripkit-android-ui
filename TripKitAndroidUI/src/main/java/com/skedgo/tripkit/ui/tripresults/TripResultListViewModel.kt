@@ -10,6 +10,7 @@ import com.skedgo.tripkit.common.model.TimeTag
 import com.skedgo.tripkit.RoutingError
 import com.skedgo.tripkit.TransportModeFilter
 import com.skedgo.tripkit.a2brouting.RouteService
+import com.skedgo.tripkit.common.model.TransportMode
 import com.skedgo.tripkit.data.regions.RegionService
 import com.skedgo.tripkit.model.ViewTrip
 import com.skedgo.tripkit.ui.BR
@@ -139,6 +140,14 @@ class TripResultListViewModel @Inject constructor(
             it.clicked
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe {
+                        // The transportVisibilityFilter will save walking vs wheelchair automatically,
+                        // but we need to manually fix the display, as walking and wheelchair are mutually exclusive.
+                        if (it.first == TransportMode.ID_WALK) {
+                            toggleTransportModeChecked(TransportMode.ID_WHEEL_CHAIR, false)
+                        } else if (it.first == TransportMode.ID_WHEEL_CHAIR) {
+                            toggleTransportModeChecked(TransportMode.ID_WALK, false)
+                        }
+
                         transportVisibilityFilter!!.setSelected(it.first, it.second)
                         reload()
                     }.autoClear()
@@ -155,6 +164,13 @@ class TripResultListViewModel @Inject constructor(
         .autoClear()
     }
 
+    private fun toggleTransportModeChecked (mode: String, checked: Boolean) {
+        transportModes.get()?.forEach { model ->
+            if (model.modeId.get() == mode) {
+                model.checked.set(checked)
+            }
+        }
+    }
 
     private fun setTimeLabel() {
         query.timeTag?.let {timeTag ->
@@ -170,7 +186,7 @@ class TripResultListViewModel @Inject constructor(
 
     fun load() {
         query = query.clone(false)
-
+        query.setUseWheelchair(transportVisibilityFilter!!.isSelected(TransportMode.ID_WHEEL_CHAIR))
         Observable.defer {
             routeService.routeAsync(query = query, transportModeFilter = TripResultListViewTransportModeFilter(transportModeFilter!!, transportVisibilityFilter!!))
                     .flatMap {

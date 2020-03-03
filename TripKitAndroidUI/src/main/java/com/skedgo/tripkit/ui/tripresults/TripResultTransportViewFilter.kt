@@ -2,6 +2,7 @@ package com.skedgo.tripkit.ui.tripresults
 
 import android.content.Context
 import android.content.SharedPreferences
+import com.skedgo.tripkit.common.model.TransportMode
 
 
 /**
@@ -18,6 +19,10 @@ internal class PrefsBasedTransportViewFilter(context: Context) : TripResultTrans
     val prefs: SharedPreferences = context.getSharedPreferences("TransportPreferences", Context.MODE_PRIVATE)
 
     override fun isSelected(mode: String): Boolean {
+        if (mode == TransportMode.ID_WHEEL_CHAIR) {
+            return !prefs.getBoolean(TransportMode.ID_WALK, true)
+        }
+
         return prefs.getBoolean(mode, true)
     }
 
@@ -26,7 +31,11 @@ internal class PrefsBasedTransportViewFilter(context: Context) : TripResultTrans
     }
 
     override fun setSelected(mode: String, selected: Boolean) {
-        prefs.edit().putBoolean(mode, selected).apply()
+        if (mode == TransportMode.ID_WHEEL_CHAIR) {
+            prefs.edit().putBoolean(TransportMode.ID_WALK, !selected).apply()
+        } else {
+            prefs.edit().putBoolean(mode, selected).apply()
+        }
     }
 
     override fun setMinimized(mode: String, minimized: Boolean) {
@@ -35,7 +44,11 @@ internal class PrefsBasedTransportViewFilter(context: Context) : TripResultTrans
 }
 
 internal class PermissiveTransportViewFilter() : TripResultTransportViewFilter {
+    var showWalking  = true;
+
     override fun isSelected(mode: String): Boolean {
+        if (mode == TransportMode.ID_WALK) return showWalking
+        if (mode == TransportMode.ID_WHEEL_CHAIR) return !showWalking
         return true
     }
 
@@ -43,6 +56,12 @@ internal class PermissiveTransportViewFilter() : TripResultTransportViewFilter {
         return false
     }
 
-    override fun setSelected(mode: String, selected: Boolean) {}
+    override fun setSelected(mode: String, selected: Boolean) {
+        if (mode == TransportMode.ID_WALK) {
+            showWalking = true
+        } else if (mode == TransportMode.ID_WHEEL_CHAIR) {
+            showWalking = false
+        }
+    }
     override fun setMinimized(mode: String, minimized: Boolean) {}
 }

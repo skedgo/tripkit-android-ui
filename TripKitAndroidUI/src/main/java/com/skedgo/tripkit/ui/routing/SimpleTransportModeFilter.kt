@@ -3,6 +3,7 @@ package com.skedgo.tripkit.ui.routing
 import android.os.Parcel
 import android.os.Parcelable
 import com.skedgo.tripkit.TransportModeFilter
+import com.skedgo.tripkit.common.model.TransportMode
 
 
 class SimpleTransportModeFilter() : TransportModeFilter {
@@ -20,7 +21,14 @@ class SimpleTransportModeFilter() : TransportModeFilter {
     override fun useTransportMode(mode: String): Boolean {
         return when {
             transportModes.isEmpty() -> true
-            else -> transportModes.contains(mode)
+            else -> {
+                // Wheelchair support comes with walking support.
+                if (mode == TransportMode.ID_WHEEL_CHAIR && transportModes.contains(TransportMode.ID_WALK)) {
+                    return true;
+                } else {
+                    transportModes.contains(mode)
+                }
+            }
         }
     }
 

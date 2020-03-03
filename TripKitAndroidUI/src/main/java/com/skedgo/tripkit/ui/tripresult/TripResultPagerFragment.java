@@ -2,6 +2,7 @@ package com.skedgo.tripkit.ui.tripresult;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -167,7 +168,7 @@ public class TripResultPagerFragment extends RxFragment implements ViewPager.OnP
     assert args != null;
     viewModel.getSortedTripGroups(args)
         .compose(bindToLifecycle())
-        .subscribe(__ -> {}, errorLogger::trackError);
+        .subscribe(tripGroup -> {}, errorLogger::trackError);
   }
 
   public void setArgs(@NonNull PagerFragmentArguments args) {
