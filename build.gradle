@@ -1,6 +1,6 @@
 buildscript {
     ext.kotlin_version = '1.3.50'
-    apply from: "../tripkit-android/dependencies.gradle"
+    apply from: "tripkit-android/dependencies.gradle"
     ext.kotlinVersion = versions.kotlinVersion
     ext.dokkaVersion = '0.10.0'
 
@@ -31,7 +31,7 @@ ext {
 }
 
 allprojects {
-    apply from: "${rootDir}/../tripkit-android/dependencies.gradle"
+    apply from: "${rootDir}/tripkit-android/dependencies.gradle"
 
     // A workaround for https://code.google.com/p/android/issues/detail?id=72430
     // and http://g.co/androidstudio/app-test-app-conflict.
