@@ -15,6 +15,7 @@ import com.skedgo.tripkit.ui.utils.StopMarkerUtils
 import com.skedgo.tripkit.ui.utils.TapAction
 import com.squareup.picasso.Picasso
 import io.reactivex.Observable
+import timber.log.Timber
 
 sealed class SuggestionViewModel(context: Context) {
     val icon: ObservableField<Drawable?> = ObservableField()
@@ -53,10 +54,11 @@ class DropNewPinSuggestionViewModel(context: Context) : SuggestionViewModel(cont
     }
 }
 
-class GoogleSuggestionViewModel(context: Context,
-                                val picasso: Picasso,
-                                val place: Place,
-                                val canOpenTimetable: Boolean) : SuggestionViewModel(context) {
+class GoogleAndTripGoSuggestionViewModel(context: Context,
+                                         val picasso: Picasso,
+                                         val place: Place,
+                                         val canOpenTimetable: Boolean,
+                                         val query: String?) : SuggestionViewModel(context) {
     override val titleTextColorRes: Int = R.color.title_text
     override val subtitleTextColorRes: Int = R.color.description_text
     override val onItemClicked: TapAction<SuggestionViewModel> = TapAction.create { this }
@@ -83,15 +85,29 @@ class GoogleSuggestionViewModel(context: Context,
         if (!location.address.isNullOrEmpty()) {
             return@lazy location.address
         }
-//        return@lazy context.getString(R.string.unknown_location)
-                return@lazy context.getString(R.string.api_waypoint)
+
+        return@lazy context.getString(R.string.unknown_location)
     }
 
     override val subtitle: String? by lazy {
-        if (!location.name.isNullOrEmpty()) {
-            return@lazy location.address
+        var subtitle = location.address
+
+        if (place is Place.TripGoPOI && location is ScheduledStop) {
+            val scheduledStop = location as ScheduledStop
+            if (!scheduledStop.services.isEmpty()) {
+                subtitle = scheduledStop.services
+            }
+
+            if (query == scheduledStop.code) {
+                subtitle = subtitle + " - " + scheduledStop.code
+            }
         }
-        return@lazy null
+
+        if (location.name != subtitle) {
+            return@lazy subtitle
+        } else {
+            return@lazy null
+        }
     }
 
     override val showTimetableIcon = canOpenTimetable && location is ScheduledStop

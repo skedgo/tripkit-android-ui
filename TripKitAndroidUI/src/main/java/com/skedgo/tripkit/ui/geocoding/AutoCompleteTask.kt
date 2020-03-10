@@ -45,7 +45,7 @@ open class AutoCompleteTask @Inject internal constructor(
     return if (!connectivityService.isNetworkConnected) {
         Timber.e("Network is not connected")
       if (parameters.term().orEmpty().isEmpty()) {
-        Observable.just<AutoCompleteResult>(HasResults(emptyList()))
+        Observable.just<AutoCompleteResult>(HasResults(parameters.term(), emptyList()))
       } else {
         Observable.just<AutoCompleteResult>(NoConnection)
       }
@@ -61,11 +61,11 @@ open class AutoCompleteTask @Inject internal constructor(
           .scan(emptyList<List<GCResultInterface>>()) { x, y -> x.plusElement(y) }
           .map { resultAggregator.aggregate(parameters, it) }
           .filter { it.isNotEmpty() }
-          .map { HasResults(it) as AutoCompleteResult }
+          .map { HasResults(parameters.term(), it) as AutoCompleteResult }
           .switchIfEmpty(
               Observable.defer {
-                if (parameters.term().isNullOrEmpty()) {
-                  Observable.just<AutoCompleteResult>(HasResults(emptyList()))
+                  if (parameters.term().isNullOrEmpty()) {
+                  Observable.just<AutoCompleteResult>(HasResults(String(), emptyList()))
                 } else {
                   Observable.just<AutoCompleteResult>(NoResult(parameters.term()))
                 }
