@@ -10,6 +10,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.widget.SearchView
+import androidx.recyclerview.widget.DividerItemDecoration
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
 import com.skedgo.tripkit.common.model.Location
@@ -184,6 +185,7 @@ class LocationSearchFragment : AbstractTripKitFragment() {
 
         binding.viewModel = viewModel
         searchView = binding.searchLayout.searchView
+        binding.resultView.addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
         initSearchView(binding.searchLayout.searchView)
         return binding.root
     }

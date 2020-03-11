@@ -69,7 +69,7 @@ class LocationSearchViewModel @Inject constructor(private val context: Context,
     val chosenCityName = ObservableField<String>()
 
     val fixedSuggestions: ObservableList<SuggestionViewModel> = ObservableArrayList()
-    val googleSuggestions: ObservableList<GoogleSuggestionViewModel> = ObservableArrayList()
+    val googleAndTripGoSuggestions: ObservableList<GoogleAndTripGoSuggestionViewModel> = ObservableArrayList()
     val allSuggestions = MergeObservableList<SuggestionViewModel>()
 
     val itemBinding = ItemBinding.of<SuggestionViewModel>(BR.viewModel, R.layout.list_item_search_result_item)
@@ -87,7 +87,7 @@ class LocationSearchViewModel @Inject constructor(private val context: Context,
 
     init {
         allSuggestions.insertList(fixedSuggestions)
-        allSuggestions.insertList(googleSuggestions)
+        allSuggestions.insertList(googleAndTripGoSuggestions)
         allSuggestions.asObservable()
                 .map {
                     it.mapIndexed { index, vm ->
@@ -102,8 +102,8 @@ class LocationSearchViewModel @Inject constructor(private val context: Context,
                     when (it.first) {
                         is CurrentLocationSuggestionViewModel -> onSuggestionItemClick(SearchSuggestionChoice.FixedChoice(it.second))
                         is DropNewPinSuggestionViewModel -> onSuggestionItemClick(SearchSuggestionChoice.FixedChoice(it.second))
-                        is GoogleSuggestionViewModel -> onSuggestionItemClick(SearchSuggestionChoice.PlaceChoice(
-                                (it.first as GoogleSuggestionViewModel).place, it.second))
+                        is GoogleAndTripGoSuggestionViewModel -> onSuggestionItemClick(SearchSuggestionChoice.PlaceChoice(
+                                (it.first as GoogleAndTripGoSuggestionViewModel).place, it.second))
                     }
                 }, errorLogger::trackError)
                 .autoClear()
@@ -152,19 +152,20 @@ class LocationSearchViewModel @Inject constructor(private val context: Context,
 
         googlePlaces
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({
-                    when (it) {
+                .subscribe({result->
+                    when (result) {
                         is NoConnection -> {
-                            googleSuggestions.clear()
+                            googleAndTripGoSuggestions.clear()
                             errorViewModel.updateError(SearchErrorType.NoConnection)
                         }
                         is HasResults -> {
-                            googleSuggestions.clear()
-                            googleSuggestions.addAll(it.suggestions.map { GoogleSuggestionViewModel(context, picasso, it, canOpenTimetable) })
+                            googleAndTripGoSuggestions.clear()
+                            googleAndTripGoSuggestions.addAll(result.suggestions.map { place ->
+                                GoogleAndTripGoSuggestionViewModel(context, picasso, place, canOpenTimetable, result.query) })
                             errorViewModel.updateError(null)
                         }
                         is NoResult -> {
-                            errorViewModel.updateError(SearchErrorType.NoResults(it.query))
+                            errorViewModel.updateError(SearchErrorType.NoResults(result.query))
                         }
                     }
                 }, errorLogger::trackError)
@@ -176,7 +177,7 @@ class LocationSearchViewModel @Inject constructor(private val context: Context,
                         { errorLogger.trackError(it) })
                 .autoClear()
 
-        observeGoogleAttribution(googleSuggestions.asObservable().map { it.map { it.place } })
+        observeGoogleAttribution(googleAndTripGoSuggestions.asObservable().map { it.map { it.place } })
                 .subscribe({}, { errorLogger.trackError(it) })
                 .autoClear()
 
@@ -229,8 +230,8 @@ class LocationSearchViewModel @Inject constructor(private val context: Context,
         onQueryTextChangeEventThrottle.onNext(query)
     }
     fun onTextSubmit(): Boolean = when {
-        googleSuggestions.isNotEmpty() -> {
-            onSuggestionItemClick(SearchSuggestionChoice.PlaceChoice(googleSuggestions.first().place, 0))
+        googleAndTripGoSuggestions.isNotEmpty() -> {
+            onSuggestionItemClick(SearchSuggestionChoice.PlaceChoice(googleAndTripGoSuggestions.first().place, 0))
             true
         }
         else -> false
