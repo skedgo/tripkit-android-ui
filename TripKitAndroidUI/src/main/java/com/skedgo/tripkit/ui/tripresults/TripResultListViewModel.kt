@@ -159,7 +159,11 @@ class TripResultListViewModel @Inject constructor(
             load()
         }, {
             Timber.e(it)
-            onError.accept(it.message)
+            if (it.message != null) {
+                onError.accept(it.message)
+            } else {
+                onError.accept("Invalid Response")
+            }
         })
         .autoClear()
     }
