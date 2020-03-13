@@ -83,7 +83,7 @@ dependencies {
     implementation libs.rxkotlin
     implementation libs.jodaTimeAndroid
     implementation 'com.github.skedgo:RxProperty:1.6'
-    implementation("com.uber.rxdogtag:rxdogtag:0.3.0")
+    api "com.uber.rxdogtag:rxdogtag:0.3.0"
     implementation 'com.jakewharton.rxbinding3:rxbinding:3.0.0'
     implementation 'androidx.viewpager:viewpager:1.0.0'
 

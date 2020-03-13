@@ -18,7 +18,6 @@ import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.TripKitUI
 import com.skedgo.tripkit.ui.core.AbstractTripKitFragment
 import com.skedgo.tripkit.ui.databinding.LocationSearchBinding
-import com.squareup.otto.Bus
 import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
 import com.skedgo.tripkit.logging.ErrorLogger
 import javax.inject.Inject
@@ -107,10 +106,6 @@ class LocationSearchFragment : AbstractTripKitFragment() {
     /**
      * @suppress
      */
-    @Inject lateinit var bus: Bus
-    /**
-     * @suppress
-     */
     @Inject lateinit var errorLogger: ErrorLogger
 
     private var searchView: SearchView? = null
@@ -195,7 +190,6 @@ class LocationSearchFragment : AbstractTripKitFragment() {
      */
     override fun onStart() {
         super.onStart()
-        bus.register(this)
     }
 
     /**
@@ -203,7 +197,6 @@ class LocationSearchFragment : AbstractTripKitFragment() {
      */
     override fun onStop() {
         super.onStop()
-        bus.unregister(this)
     }
 
     /**

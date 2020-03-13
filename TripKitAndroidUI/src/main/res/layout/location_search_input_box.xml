@@ -12,19 +12,21 @@
              android:layout_width="match_parent"
              android:layout_height="wrap_content">
 
-<androidx.cardview.widget.CardView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="@dimen/spacing_small"
-        app:cardBackgroundColor="@android:color/white"
-        app:cardCornerRadius="2dp"
-        app:cardElevation="2dp"
-        app:cardUseCompatPadding="true">
-
+    <!--
+         Intentionally NOT using a MaterialCardView here because it would force SDK users to use a MaterialTheme,
+         which they may not want
+     -->
+    <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/spacing_small"
+            app:cardBackgroundColor="@android:color/white"
+            app:cardElevation="0dp">
 
     <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:background="@drawable/location_search_input_box_background_unselected">
 
         <ImageView
                 android:id="@+id/back"
@@ -35,7 +37,7 @@
                 android:layout_alignParentTop="true"
                 android:onClick="@{() -> viewModel.goBack()}"
                 android:scaleType="center"
-                android:src="@drawable/back_green"/>
+                app:srcCompat="@drawable/back_green"/>
 
         <androidx.appcompat.widget.SearchView
                 android:id="@+id/searchView"
@@ -47,13 +49,13 @@
                 app:searchIcon="@null"
                 app:submitBackground="@null" />
 
-        <ImageView
-                android:id="@+id/divider"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_alignParentLeft="true"
-                android:layout_below="@id/searchView"
-                android:src="@drawable/horizontal_divider" />
+<!--        <ImageView-->
+<!--                android:id="@+id/divider"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_alignParentLeft="true"-->
+<!--                android:layout_below="@id/searchView"-->
+<!--                android:src="@drawable/horizontal_divider" />-->
 
 <!--        <LinearLayout-->
 <!--                android:layout_width="match_parent"-->
