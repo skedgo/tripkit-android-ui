@@ -51,7 +51,7 @@ dependencies {
     implementation libs.koptional
     implementation libs.kotlin
     implementation 'androidx.appcompat:appcompat:1.1.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.0.0-beta3'
+    implementation libs.constraintLayout
     implementation "com.google.android.libraries.places:places-compat:2.1.0"
     implementation("com.squareup.okhttp3:logging-interceptor:4.2.0")
 

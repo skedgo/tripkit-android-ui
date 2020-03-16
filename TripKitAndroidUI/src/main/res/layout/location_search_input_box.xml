@@ -26,7 +26,7 @@
     <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/location_search_input_box_background_unselected">
+            android:background="@drawable/location_search_input_box_background">
 
         <ImageView
                 android:id="@+id/back"
@@ -35,6 +35,7 @@
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentStart="true"
                 android:layout_alignParentTop="true"
+                android:visibility="@{viewModel.showBackButton}"
                 android:onClick="@{() -> viewModel.goBack()}"
                 android:scaleType="center"
                 app:srcCompat="@drawable/back_green"/>
@@ -48,47 +49,6 @@
                 app:queryBackground="@null"
                 app:searchIcon="@null"
                 app:submitBackground="@null" />
-
-<!--        <ImageView-->
-<!--                android:id="@+id/divider"-->
-<!--                android:layout_width="match_parent"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:layout_alignParentLeft="true"-->
-<!--                android:layout_below="@id/searchView"-->
-<!--                android:src="@drawable/horizontal_divider" />-->
-
-<!--        <LinearLayout-->
-<!--                android:layout_width="match_parent"-->
-<!--                android:layout_height="48dp"-->
-<!--                android:layout_alignLeft="@id/searchView"-->
-<!--                android:layout_below="@id/divider"-->
-<!--                android:orientation="horizontal">-->
-
-<!--            <ImageView-->
-<!--                    android:layout_width="16dp"-->
-<!--                    android:layout_height="16dp"-->
-<!--                    android:layout_gravity="center"-->
-<!--                    android:layout_marginLeft="@dimen/spacing_normal"-->
-<!--                    android:scaleType="centerInside"-->
-<!--                    android:src="@drawable/ic_city" />-->
-
-<!--            <TextView-->
-<!--                    android:layout_width="0dp"-->
-<!--                    android:layout_height="match_parent"-->
-<!--                    android:layout_marginLeft="@dimen/spacing_normal"-->
-<!--                    android:layout_weight="1"-->
-<!--                    android:gravity="center_vertical"-->
-<!--                    android:text="@{viewModel.chosenCityName}"-->
-<!--                    android:textSize="14sp"-->
-<!--                    tools:text="Sydney, NSW, Australia" />-->
-
-<!--            <Button-->
-<!--                    android:id="@+id/changeButton"-->
-<!--                    style="?attr/borderlessButtonStyle"-->
-<!--                    android:layout_width="wrap_content"-->
-<!--                    android:layout_height="match_parent"-->
-<!--                    android:text="@string/change"/>-->
-<!--        </LinearLayout>-->
     </RelativeLayout>
 </androidx.cardview.widget.CardView>
 </FrameLayout>

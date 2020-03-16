@@ -65,6 +65,7 @@ class LocationSearchViewModel @Inject constructor(private val context: Context,
     val showGoogleAttribution = ObservableBoolean(false)
     val showError = ObservableBoolean()
     val showMiddleProgressBar = ObservableBoolean()
+    val showBackButton = ObservableBoolean(true)
 
     val chosenCityName = ObservableField<String>()
 
@@ -314,6 +315,7 @@ class LocationSearchViewModel @Inject constructor(private val context: Context,
             canOpenTimetable = it.getBoolean(ARG_CAN_OPEN_TIMETABLE, false)
             showCurrentLocation = it.getBoolean(ARG_WITH_CURRENT_LOCATION, false)
             showDropPin = it.getBoolean(ARG_WITH_DROP_PIN, false)
+            showBackButton.set(it.getBoolean(ARG_SHOW_BACK_BUTTON, true))
         }
     }
 

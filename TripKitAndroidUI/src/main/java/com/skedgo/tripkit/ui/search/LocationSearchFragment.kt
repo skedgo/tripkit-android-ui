@@ -1,6 +1,7 @@
 package com.skedgo.tripkit.ui.search
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.app.SearchManager
 import android.content.Context
 import android.os.Bundle
@@ -8,19 +9,21 @@ import android.text.TextUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.appcompat.widget.SearchView
 import androidx.recyclerview.widget.DividerItemDecoration
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
 import com.skedgo.tripkit.common.model.Location
+import com.skedgo.tripkit.logging.ErrorLogger
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.TripKitUI
 import com.skedgo.tripkit.ui.core.AbstractTripKitFragment
 import com.skedgo.tripkit.ui.databinding.LocationSearchBinding
 import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
-import com.skedgo.tripkit.logging.ErrorLogger
 import javax.inject.Inject
+
 
 /**
  * This is a self-contained location search component which merges search results from both SkedGo's search
@@ -244,10 +247,9 @@ class LocationSearchFragment : AbstractTripKitFragment() {
         }
     }
 
-    private fun dismissKeyboard() {
+    fun dismissKeyboard() {
         searchView?.clearFocus()
     }
-
 
     /**
      * Used to create a new instance of the fragment.
@@ -260,7 +262,7 @@ class LocationSearchFragment : AbstractTripKitFragment() {
         private var canOpenTimetable: Boolean = false
         private var withCurrentLocation: Boolean = false
         private var withDropPin: Boolean = false
-
+        private var showBackButton: Boolean = true
         /**
          * Used for Google Places searches. For example, a map's visible boundaries.
          *
@@ -329,6 +331,16 @@ class LocationSearchFragment : AbstractTripKitFragment() {
 
 
         /**
+         * Should the search box include a back button?
+         * @param showBackButton When **true**, show a back button which dismisses the fragment when clicked.
+         * @return this Builder
+         */
+        fun showBackButton(showBackButton: Boolean = true): Builder {
+            this.showBackButton = showBackButton
+            return this
+        }
+
+        /**
          * Finalize and build the Fragment
          *
          * @return A usable LocationSearchFragment
@@ -342,6 +354,7 @@ class LocationSearchFragment : AbstractTripKitFragment() {
             args.putBoolean(ARG_CAN_OPEN_TIMETABLE, canOpenTimetable)
             args.putBoolean(ARG_WITH_CURRENT_LOCATION, withCurrentLocation)
             args.putBoolean(ARG_WITH_DROP_PIN, withDropPin)
+            args.putBoolean(ARG_SHOW_BACK_BUTTON, showBackButton)
 
             val fragment = LocationSearchFragment()
             fragment.setArguments(args)
