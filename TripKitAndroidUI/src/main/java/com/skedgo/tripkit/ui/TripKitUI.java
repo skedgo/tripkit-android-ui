@@ -2,6 +2,7 @@ package com.skedgo.tripkit.ui;
 
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
+import android.util.Log;
 import com.skedgo.TripKit;
 import com.skedgo.routepersistence.RouteStore;
 import com.skedgo.tripkit.Configs;

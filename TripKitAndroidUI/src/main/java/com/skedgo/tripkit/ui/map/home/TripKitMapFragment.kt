@@ -1,5 +1,6 @@
 package com.skedgo.tripkit.ui.map.home
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
@@ -43,6 +44,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.functions.Action
 import io.reactivex.functions.Consumer
 import io.reactivex.schedulers.Schedulers
+import timber.log.Timber
 import java.io.InvalidClassException
 import java.util.*
 import javax.inject.Inject
@@ -81,8 +83,7 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
     lateinit var myLocationWindowAdapter: NoActionWindowAdapter
     @Inject
     lateinit var stopMarkerIconFetcherLazy: Lazy<StopMarkerIconFetcher>
-    @Inject
-    lateinit var errorLogger: ErrorLogger
+
     @Inject
     lateinit var eventTracker: EventTracker
     private val cityMarkerMap = HashMap<String, Marker>()
@@ -371,15 +372,17 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
         })
     }
 
+    @SuppressLint("CheckResult")
     private fun setMyLocationEnabled() {
         if (activity is CanRequestPermission) {
-            whenSafeToUseMap(Consumer { map: GoogleMap -> map.isMyLocationEnabled = true })
+            val host = activity as CanRequestPermission
+            host.checkSelfPermissionReactively(Manifest.permission.ACCESS_FINE_LOCATION)
+                    .filter { result -> result }
+                    .compose(bindToLifecycle())
+                    .subscribe( {
+                        whenSafeToUseMap(Consumer { map: GoogleMap -> map.isMyLocationEnabled = true }) },
+                            { Timber.e(it) })
         }
-        //    ((BaseActivity) getActivity())
-//        .checkSelfPermissionReactively(Manifest.permission.ACCESS_FINE_LOCATION)
-//        .filter(result -> result)
-//            .compose(bindToLifecycle())
-//        .subscribe(__ -> whenSafeToUseMap(map -> map.setMyLocationEnabled(true)));
     }
 
     private fun requestLocationPermission(): Single<PermissionResult> {
