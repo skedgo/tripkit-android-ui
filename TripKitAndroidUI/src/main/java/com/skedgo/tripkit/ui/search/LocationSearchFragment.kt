@@ -12,6 +12,7 @@ import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.appcompat.widget.SearchView
+import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.DividerItemDecoration
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
@@ -21,6 +22,7 @@ import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.TripKitUI
 import com.skedgo.tripkit.ui.core.AbstractTripKitFragment
 import com.skedgo.tripkit.ui.databinding.LocationSearchBinding
+import com.skedgo.tripkit.ui.tripresults.TripResultListViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
 import javax.inject.Inject
 
@@ -105,19 +107,27 @@ class LocationSearchFragment : AbstractTripKitFragment() {
     /**
      * @suppress
      */
-    @Inject lateinit var viewModel: LocationSearchViewModel
+    @Inject lateinit var viewModelFactory: LocationSearchViewModelFactory
+    private lateinit var viewModel: LocationSearchViewModel
     /**
      * @suppress
      */
     @Inject lateinit var errorLogger: ErrorLogger
-
     private var searchView: SearchView? = null
+
+    var locationSearchIconProvider: LocationSearchIconProvider? = null
+    set(value) {
+        field = value
+        if (::viewModel.isInitialized) {
+            viewModel.locationSearchIconProvider = value
+        }
+    }
 
     /**
      * @suppress
      */
     override fun onAttach(context: Context) {
-        TripKitUI.getInstance().inject(this);
+        TripKitUI.getInstance().locationSearchComponent().inject(this);
         super.onAttach(context)
     }
 
@@ -127,6 +137,10 @@ class LocationSearchFragment : AbstractTripKitFragment() {
     @SuppressLint("CheckResult")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        viewModel = ViewModelProviders.of(this, viewModelFactory)
+                .get(LocationSearchViewModel::class.java);
+        viewModel.locationSearchIconProvider = locationSearchIconProvider
+
         viewModel.locationChosen.compose(bindToLifecycle())
                 .observeOn(mainThread())
                 .subscribe({
@@ -263,6 +277,7 @@ class LocationSearchFragment : AbstractTripKitFragment() {
         private var withCurrentLocation: Boolean = false
         private var withDropPin: Boolean = false
         private var showBackButton: Boolean = true
+        private var locationSearchIconProvider: LocationSearchIconProvider? = null
         /**
          * Used for Google Places searches. For example, a map's visible boundaries.
          *
@@ -341,6 +356,14 @@ class LocationSearchFragment : AbstractTripKitFragment() {
         }
 
         /**
+         * If you want to use your own [LocationSearchIconProvider], provide it here.
+         * @param locationSearchIconProvider An instance of a [LocationSearchIconProvider]
+         * @return this Builder
+         */
+        fun withLocationSearchIconProvider(locationSearchIconProvider: LocationSearchIconProvider): Builder {
+            return this
+        }
+        /**
          * Finalize and build the Fragment
          *
          * @return A usable LocationSearchFragment
@@ -358,6 +381,7 @@ class LocationSearchFragment : AbstractTripKitFragment() {
 
             val fragment = LocationSearchFragment()
             fragment.setArguments(args)
+            fragment.locationSearchIconProvider = locationSearchIconProvider
             return fragment
         }
     }

@@ -3,6 +3,7 @@ package com.skedgo.tripkit.ui.search
 import android.content.Context
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
+import android.util.Log
 import androidx.core.content.ContextCompat
 import androidx.databinding.ObservableField
 import com.skedgo.tripkit.common.model.Location
@@ -58,6 +59,7 @@ class GoogleAndTripGoSuggestionViewModel(context: Context,
                                          val picasso: Picasso,
                                          val place: Place,
                                          val canOpenTimetable: Boolean,
+                                         val iconProvider: LocationSearchIconProvider,
                                          val query: String?) : SuggestionViewModel(context) {
     override val titleTextColorRes: Int = R.color.title_text
     override val subtitleTextColorRes: Int = R.color.description_text
@@ -114,48 +116,36 @@ class GoogleAndTripGoSuggestionViewModel(context: Context,
 
     init {
         val iconRes = if (location is ScheduledStop) {
-            BindingConversions.convertStopTypeToMapIconRes((location as ScheduledStop).type)
+            iconProvider.iconForSearchResult(LocationSearchIconProvider.SearchResultType.SCHEDULED_STOP, (location as ScheduledStop).type)
         } else {
             if (location.locationType == Location.TYPE_CONTACT) {
-                R.drawable.ic_contact_search
+                iconProvider.iconForSearchResult(LocationSearchIconProvider.SearchResultType.CONTACT)
             } else if (location.locationType == Location.TYPE_CALENDAR) {
-                R.drawable.ic_calendar_search
+                iconProvider.iconForSearchResult(LocationSearchIconProvider.SearchResultType.CALENDAR)
             } else if (location.locationType == Location.TYPE_W3W) {
-                R.drawable.icon_what3word_gray
+                iconProvider.iconForSearchResult(LocationSearchIconProvider.SearchResultType.W3W)
             } else if (location.locationType == Location.TYPE_HOME) {
-                R.drawable.home
+                iconProvider.iconForSearchResult(LocationSearchIconProvider.SearchResultType.HOME)
             } else if (location.locationType == Location.TYPE_WORK) {
-                R.drawable.work
+                iconProvider.iconForSearchResult(LocationSearchIconProvider.SearchResultType.WORK)
             } else {
                 val source = location.source
                 if (Location.FOURSQUARE == source) {
-                    R.drawable.ic_foursquare_search
+                    iconProvider.iconForSearchResult(LocationSearchIconProvider.SearchResultType.FOURSQUARE)
                 } else if (Location.GOOGLE == source) {
-                    R.drawable.ic_googleresult
+                    iconProvider.iconForSearchResult(LocationSearchIconProvider.SearchResultType.GOOGLE)
                 } else {
                     0
                 }
             }
         }
+
         if (place.icon() != null) {
             icon.set(place.icon())
         } else if (iconRes == 0) {
             icon.set(null)
         } else {
             icon.set(ContextCompat.getDrawable(context, iconRes))
-        }
-
-        if (location is ScheduledStop) {
-            val stop = location as ScheduledStop
-            val url = StopMarkerUtils.getMapIconUrlForModeInfo(context.resources, stop.modeInfo)
-            if (url != null) {
-                picasso.fetchAsync(url)
-                        .toObservable()
-                        .onErrorResumeNext(Observable.empty())
-                        .subscribe {
-                            icon.set(BitmapDrawable(context.resources, it))
-                        }
-            }
         }
     }
 }

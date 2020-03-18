@@ -3,6 +3,7 @@ package com.skedgo.tripkit.ui.search
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.databinding.ObservableArrayList
 import androidx.databinding.ObservableBoolean
 import androidx.databinding.ObservableField
@@ -46,7 +47,6 @@ const val KEY_CENTER = "center"
 
 class LocationSearchViewModel @Inject constructor(private val context: Context,
                                                   private val regionService: RegionService,
-                                                  private val bus: Bus,
                                                   private val placeSearchRepository: PlaceSearchRepository,
                                                   private val fetchSuggestions: FetchSuggestions,
                                                   private val errorLogger: ErrorLogger,
@@ -54,6 +54,7 @@ class LocationSearchViewModel @Inject constructor(private val context: Context,
                                                   private val schedulerFactory: SchedulerFactory,
                                                   val errorViewModel: LocationSearchErrorViewModel)
     : RxViewModel() {
+    var locationSearchIconProvider: LocationSearchIconProvider? = null
     val unableToFindPlaceCoordinatesError: Observable<Throwable> get() = _unableToFindPlaceCoordinatesError.hide()
     val dismiss: PublishRelay<Unit> = PublishRelay.create<Unit>()
     val locationChosen: PublishRelay<Location> = PublishRelay.create<Location>()
@@ -160,9 +161,12 @@ class LocationSearchViewModel @Inject constructor(private val context: Context,
                             errorViewModel.updateError(SearchErrorType.NoConnection)
                         }
                         is HasResults -> {
+                            if (locationSearchIconProvider == null) {
+                                locationSearchIconProvider = LegacyLocationSearchIconProvider()
+                            }
                             googleAndTripGoSuggestions.clear()
                             googleAndTripGoSuggestions.addAll(result.suggestions.map { place ->
-                                GoogleAndTripGoSuggestionViewModel(context, picasso, place, canOpenTimetable, result.query) })
+                                GoogleAndTripGoSuggestionViewModel(context, picasso, place, canOpenTimetable, locationSearchIconProvider!!, result.query) })
                             errorViewModel.updateError(null)
                         }
                         is NoResult -> {

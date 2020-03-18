@@ -106,6 +106,7 @@ public abstract class TripKitUI {
     public abstract HomeMapFragmentComponent homeMapFragmentComponent(HomeMapFragmentModule module);
     public abstract ServiceStopMapComponent serviceStopMapComponent();
     public abstract RoutesComponent routesComponent();
+    public abstract LocationSearchComponent locationSearchComponent();
 
     public abstract Bus bus();
     public abstract OkHttpClient httpClient();
@@ -119,7 +120,6 @@ public abstract class TripKitUI {
     public abstract TripGroupRepository tripGroupRepository();
     public abstract RouteStore routeStore();
 
-    public abstract void inject(LocationSearchFragment fragment);
     public abstract void inject(TimetableFragment fragment);
     public abstract void inject(ServiceStopsProvider provider);
     public abstract void inject(ServiceDetailFragment fragment);
