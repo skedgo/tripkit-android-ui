@@ -17,9 +17,10 @@
     <include
             android:id="@+id/searchLayout"
             layout="@layout/location_search_input_box"
-            app:viewModel="@{viewModel}" />
+            app:viewModel="@{viewModel}"/>
 
     <FrameLayout
+            android:visibility="@{viewModel.showSearchBox}"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 

@@ -112,6 +112,7 @@ class LocationSearchFragment : AbstractTripKitFragment() {
      */
     @Inject lateinit var errorLogger: ErrorLogger
     private var searchView: SearchView? = null
+    private var showSearchFieldBoolean = true
 
     var locationSearchIconProvider: LocationSearchIconProvider? = null
     set(value) {
@@ -207,7 +208,7 @@ class LocationSearchFragment : AbstractTripKitFragment() {
         val a = context!!.obtainStyledAttributes(ATTRS)
         val divider = a.getDrawable(0)
         val inset = resources.getDimensionPixelSize(R.dimen.tripkit_search_result_divider_inset)
-        val insetDivider = InsetDrawable(divider, inset, 0, inset, 0)
+        val insetDivider = InsetDrawable(divider, inset, 0, 0, 0)
         a.recycle()
 
         val itemDecoration = DividerItemDecoration(context, DividerItemDecoration.VERTICAL)
@@ -236,6 +237,15 @@ class LocationSearchFragment : AbstractTripKitFragment() {
         viewModel.onCleared()
     }
 
+    /**
+     * Sets the search query manually. It's primarily useful if you've turned off the search box.
+     *
+     * @param query
+     */
+    fun setQuery(query: String) {
+        viewModel.onQueryTextChanged(query)
+    }
+
     private fun initSearchView(searchView: SearchView) {
         val searchManager = activity?.getSystemService(Context.SEARCH_SERVICE) as SearchManager
         searchView.setSearchableInfo(searchManager.getSearchableInfo(activity?.componentName))
@@ -259,6 +269,7 @@ class LocationSearchFragment : AbstractTripKitFragment() {
             handleArguments(it, searchView)
         }
     }
+
 
     private fun handleArguments(arguments: Bundle, searchView: SearchView) {
         // Setting these queries will cause text changed,
@@ -290,6 +301,8 @@ class LocationSearchFragment : AbstractTripKitFragment() {
         private var withDropPin: Boolean = false
         private var showBackButton: Boolean = true
         private var locationSearchIconProvider: LocationSearchIconProvider? = null
+        private var showSearchField: Boolean = true
+
         /**
          * Used for Google Places searches. For example, a map's visible boundaries.
          *
@@ -376,6 +389,19 @@ class LocationSearchFragment : AbstractTripKitFragment() {
             this.locationSearchIconProvider = locationSearchIconProvider
             return this
         }
+
+        /**
+         * You can choose to not show the location search field, and instead orchestrate the search results on your own
+         * by calling [setQuery].
+         *
+         * @param showSearchField When **true**, show the search field.
+         * @return this Builder
+         */
+        fun showSearchField(showSearchField: Boolean): Builder {
+            this.showSearchField = showSearchField
+            return this
+        }
+
         /**
          * Finalize and build the Fragment
          *
@@ -391,7 +417,7 @@ class LocationSearchFragment : AbstractTripKitFragment() {
             args.putBoolean(ARG_WITH_CURRENT_LOCATION, withCurrentLocation)
             args.putBoolean(ARG_WITH_DROP_PIN, withDropPin)
             args.putBoolean(ARG_SHOW_BACK_BUTTON, showBackButton)
-
+            args.putBoolean(ARG_SHOW_SEARCH_FIELD, showSearchField)
             val fragment = LocationSearchFragment()
             fragment.setArguments(args)
             fragment.locationSearchIconProvider = locationSearchIconProvider

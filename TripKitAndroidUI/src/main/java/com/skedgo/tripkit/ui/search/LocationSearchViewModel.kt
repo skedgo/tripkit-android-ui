@@ -4,10 +4,8 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import androidx.databinding.ObservableArrayList
-import androidx.databinding.ObservableBoolean
-import androidx.databinding.ObservableField
-import androidx.databinding.ObservableList
+import android.view.View
+import androidx.databinding.*
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
 import com.jakewharton.rxrelay2.PublishRelay
@@ -67,6 +65,7 @@ class LocationSearchViewModel @Inject constructor(private val context: Context,
     val showError = ObservableBoolean()
     val showMiddleProgressBar = ObservableBoolean()
     val showBackButton = ObservableBoolean(true)
+    val showSearchBox = ObservableBoolean(true)
 
     val chosenCityName = ObservableField<String>()
 
@@ -323,6 +322,7 @@ class LocationSearchViewModel @Inject constructor(private val context: Context,
             showCurrentLocation = it.getBoolean(ARG_WITH_CURRENT_LOCATION, false)
             showDropPin = it.getBoolean(ARG_WITH_DROP_PIN, false)
             showBackButton.set(it.getBoolean(ARG_SHOW_BACK_BUTTON, true))
+            showSearchBox.set(it.getBoolean(ARG_SHOW_SEARCH_FIELD, true))
         }
     }
 
