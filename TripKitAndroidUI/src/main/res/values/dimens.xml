@@ -20,5 +20,4 @@
     <dimen name="routing_card_height">208dp</dimen>
     <dimen name="map_icon_size">20dp</dimen>
     <dimen name="v4_half_content_padding">6dp</dimen>
-
 </resources>

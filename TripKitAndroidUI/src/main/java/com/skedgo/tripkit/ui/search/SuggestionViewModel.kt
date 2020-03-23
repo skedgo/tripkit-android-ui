@@ -33,25 +33,25 @@ sealed class SuggestionViewModel(context: Context) {
     abstract val onItemClicked: TapAction<SuggestionViewModel>
 }
 
-class CurrentLocationSuggestionViewModel(context: Context) : SuggestionViewModel(context) {
+class CurrentLocationSuggestionViewModel(context: Context, iconProvider: LocationSearchIconProvider) : SuggestionViewModel(context) {
     override val title = context.getString(R.string.current_location)
-    override val titleTextColorRes: Int = R.color.main_color
-    override val subtitleTextColorRes: Int = R.color.main_color
+    override val titleTextColorRes: Int = R.color.title_text
+    override val subtitleTextColorRes: Int = R.color.description_text
     override val onItemClicked: TapAction<SuggestionViewModel> = TapAction.create { this }
 
     init {
-        icon.set(ContextCompat.getDrawable(context, R.drawable.ic_currentlocation))
+        icon.set(ContextCompat.getDrawable(context, iconProvider.iconForSearchResult(LocationSearchIconProvider.SearchResultType.CURRENT_LOCATION)))
     }
 }
 
-class DropNewPinSuggestionViewModel(context: Context) : SuggestionViewModel(context) {
-    override val title = context.getString(R.string.drop_new_pin)
-    override val titleTextColorRes: Int = R.color.main_color
-    override val subtitleTextColorRes: Int = R.color.main_color
+class DropNewPinSuggestionViewModel(context: Context, iconProvider: LocationSearchIconProvider) : SuggestionViewModel(context) {
+    override val title = context.getString(R.string.choose_on_map)
+    override val titleTextColorRes: Int = R.color.title_text
+    override val subtitleTextColorRes: Int = R.color.description_text
     override val onItemClicked: TapAction<SuggestionViewModel> = TapAction.create { this }
 
     init {
-        icon.set(ContextCompat.getDrawable(context, R.drawable.ic_chooseonmap))
+        icon.set(ContextCompat.getDrawable(context, iconProvider.iconForSearchResult(LocationSearchIconProvider.SearchResultType.DROP_PIN)))
     }
 }
 

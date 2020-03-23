@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Begin of styles that users can override -->
+    <style name="tripkit_search_result_title">
+        <item name="android:textSize">22sp</item>
+    </style>
+    <style name="tripkit_search_result_subtitle">
+        <item name="android:textSize">12sp</item>
+    </style>
+
+</resources>

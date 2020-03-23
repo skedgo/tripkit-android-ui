@@ -18,8 +18,8 @@
                                                        android:paddingEnd="12dp">
         <ImageView
                 android:id="@+id/icon"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
+                android:layout_width="@dimen/tripkit_search_result_icon_size"
+                android:layout_height="@dimen/tripkit_search_result_icon_size"
                 android:src="@{viewModel.icon}"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
@@ -33,9 +33,12 @@
                 android:text="@{viewModel.title}"
                 android:textColor="@{viewModel.titleTextColor}"
                 tools:text="Awesome train station"
+                style="@style/tripkit_search_result_title"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/icon"
-                app:layout_constraintEnd_toStartOf="@+id/suggestionActionIconView"/>
+                app:layout_constraintEnd_toStartOf="@+id/suggestionActionIconView"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintBottom_toTopOf="@+id/v4_item_subtitle"/>
 
         <TextView
                 android:id="@+id/v4_item_subtitle"
@@ -45,12 +48,15 @@
                 android:text="@{viewModel.subtitle}"
                 android:textColor="@{viewModel.subtitleTextColor}"
                 android:textSize="12sp"
+                style="@style/tripkit_search_result_subtitle"
                 android:visibility="@{viewModel.subtitle != null}"
                 app:layout_constraintTop_toBottomOf="@+id/v4_item_content"
                 app:layout_constraintStart_toStartOf="@+id/v4_item_content"
                 app:layout_constraintEnd_toStartOf="@+id/suggestionActionIconView"
                 tools:text="12 Vale street"
-                tools:visibility="visible" />
+                tools:visibility="visible"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"/>
         <ImageView
                 android:id="@+id/suggestionActionIconView"
                 android:layout_width="wrap_content"
@@ -61,7 +67,7 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintTop_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                tools:visibility="visible" />
+                tools:visibility="visible"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

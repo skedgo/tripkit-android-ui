@@ -21,4 +21,5 @@
     <string name="unknown_error">An unknown error has occurred</string>
     <string name="no_results">No results</string>
     <string name="platform">Platform %s</string>
+    <string name="choose_on_map">Choose on map</string>
 </resources>

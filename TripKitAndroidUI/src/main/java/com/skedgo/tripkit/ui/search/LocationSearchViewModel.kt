@@ -115,8 +115,8 @@ class LocationSearchViewModel @Inject constructor(private val context: Context,
                 .subscribe( {
                     fixedSuggestions.clear()
                     if (it.term().isNullOrEmpty()) {
-                        if (showCurrentLocation) fixedSuggestions.add(CurrentLocationSuggestionViewModel(context))
-                        if (showDropPin) fixedSuggestions.add(DropNewPinSuggestionViewModel(context))
+                        if (showCurrentLocation) fixedSuggestions.add(CurrentLocationSuggestionViewModel(context, iconProvider()))
+                        if (showDropPin) fixedSuggestions.add(DropNewPinSuggestionViewModel(context, iconProvider()))
                     }
                 }, errorLogger::trackError)
                 .autoClear()
@@ -161,12 +161,9 @@ class LocationSearchViewModel @Inject constructor(private val context: Context,
                             errorViewModel.updateError(SearchErrorType.NoConnection)
                         }
                         is HasResults -> {
-                            if (locationSearchIconProvider == null) {
-                                locationSearchIconProvider = LegacyLocationSearchIconProvider()
-                            }
                             googleAndTripGoSuggestions.clear()
                             googleAndTripGoSuggestions.addAll(result.suggestions.map { place ->
-                                GoogleAndTripGoSuggestionViewModel(context, picasso, place, canOpenTimetable, locationSearchIconProvider!!, result.query) })
+                                GoogleAndTripGoSuggestionViewModel(context, picasso, place, canOpenTimetable, iconProvider(), result.query) })
                             errorViewModel.updateError(null)
                         }
                         is NoResult -> {
@@ -191,6 +188,13 @@ class LocationSearchViewModel @Inject constructor(private val context: Context,
                     pinDropChosen.accept(Unit)
                 }, { errorLogger.trackError(it) })
                 .autoClear()
+    }
+
+    private fun iconProvider(): LocationSearchIconProvider {
+        if (locationSearchIconProvider == null) {
+            locationSearchIconProvider = LegacyLocationSearchIconProvider()
+        }
+        return locationSearchIconProvider!!
     }
 
     fun observeGoogleAttribution(suggestions: Observable<List<Place>>): Observable<Unit> =
@@ -300,7 +304,6 @@ class LocationSearchViewModel @Inject constructor(private val context: Context,
                 pinDropChosen.accept(Unit)
             }
         }
-        dismiss.accept(Unit)
     }
 
     fun goBack() {

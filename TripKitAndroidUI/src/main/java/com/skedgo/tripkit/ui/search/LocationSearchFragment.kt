@@ -1,15 +1,14 @@
 package com.skedgo.tripkit.ui.search
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.app.SearchManager
 import android.content.Context
+import android.graphics.drawable.InsetDrawable
 import android.os.Bundle
 import android.text.TextUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.appcompat.widget.SearchView
 import androidx.lifecycle.ViewModelProviders
@@ -22,7 +21,6 @@ import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.TripKitUI
 import com.skedgo.tripkit.ui.core.AbstractTripKitFragment
 import com.skedgo.tripkit.ui.databinding.LocationSearchBinding
-import com.skedgo.tripkit.ui.tripresults.TripResultListViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
 import javax.inject.Inject
 
@@ -197,11 +195,25 @@ class LocationSearchFragment : AbstractTripKitFragment() {
 
         binding.viewModel = viewModel
         searchView = binding.searchLayout.searchView
-        binding.resultView.addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
+
+        binding.resultView.addItemDecoration(buildItemDecoration())
+
         initSearchView(binding.searchLayout.searchView)
         return binding.root
     }
 
+    private fun buildItemDecoration(): DividerItemDecoration {
+        val ATTRS = intArrayOf(android.R.attr.listDivider)
+        val a = context!!.obtainStyledAttributes(ATTRS)
+        val divider = a.getDrawable(0)
+        val inset = resources.getDimensionPixelSize(R.dimen.tripkit_search_result_divider_inset)
+        val insetDivider = InsetDrawable(divider, inset, 0, inset, 0)
+        a.recycle()
+
+        val itemDecoration = DividerItemDecoration(context, DividerItemDecoration.VERTICAL)
+        itemDecoration.setDrawable(insetDivider)
+        return itemDecoration
+    }
     /**
      * @suppress
      */
@@ -361,6 +373,7 @@ class LocationSearchFragment : AbstractTripKitFragment() {
          * @return this Builder
          */
         fun withLocationSearchIconProvider(locationSearchIconProvider: LocationSearchIconProvider): Builder {
+            this.locationSearchIconProvider = locationSearchIconProvider
             return this
         }
         /**
