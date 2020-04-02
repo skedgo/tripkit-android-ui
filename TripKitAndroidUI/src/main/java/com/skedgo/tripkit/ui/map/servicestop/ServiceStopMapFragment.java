@@ -79,6 +79,7 @@ public class ServiceStopMapFragment
 
     final RealTimeChoreographerViewModel realTimeViewModel = ViewModelProviders.of(getActivity(), realTimeViewModelFactory)
         .get(RealTimeChoreographerViewModel.class);
+
     viewModel.setRealtimeViewModel(realTimeViewModel);
     TextView timeTextView = (TextView) getActivity().getLayoutInflater().inflate(R.layout.view_time_label, null);
     TimeLabelMaker timeLabelMaker = new TimeLabelMaker(timeTextView);
@@ -86,52 +87,52 @@ public class ServiceStopMapFragment
     viewModel.setServiceStopMarkerCreator(serviceStopMarkerCreator);
 
     setMyLocationEnabled();
-    viewModel.getDrawStops()
-        .subscribe((newMarkerOptionsAndRemovedStopIdsPair) -> {
-          List<Pair<MarkerOptions, String>> newMarkerOptions = newMarkerOptionsAndRemovedStopIdsPair.getFirst();
-          Set<String> removedStopIds = newMarkerOptionsAndRemovedStopIdsPair.getSecond();
-          for (String id : removedStopIds) {
-            stopCodesToMarkerMap.get(id).remove();
-            stopCodesToMarkerMap.remove(id);
-          }
-          whenSafeToUseMap(googleMap -> {
-            for (Pair<MarkerOptions, String> markerOptionsAndStopCodes : newMarkerOptions) {
-              Marker marker = googleMap.addMarker(markerOptionsAndStopCodes.getFirst());
-              stopCodesToMarkerMap.put(markerOptionsAndStopCodes.getSecond(), marker);
-            }
-          });
-        });
-
-    viewModel.getViewPort()
-        .subscribe(this::centerMapOver);
-
-    List<Polyline> serviceLines = new ArrayList<>();
-
-    viewModel.getDrawServiceLine()
-        .subscribe(polylineOptions -> whenSafeToUseMap(googleMap -> {
-          for (Polyline line : serviceLines) {
-            line.remove();
-          }
-          serviceLines.clear();
-          for (PolylineOptions polylineOption : polylineOptions) {
-            serviceLines.add(googleMap.addPolyline(polylineOption));
-          }
-        }));
-
-    viewModel.getRealtimeVehicle()
-        .subscribe(realTimeVehicleOptional -> {
-          if (realTimeVehicleOptional instanceof Some) {
-            setRealTimeVehicle(((Some<RealTimeVehicle>) realTimeVehicleOptional).getValue());
-          } else {
-            setRealTimeVehicle(null);
-          }
-        });
   }
 
   @Override
   public void onStart() {
     super.onStart();
     bus.register(this);
+    getAutoDisposable().add(viewModel.getDrawStops()
+            .subscribe((newMarkerOptionsAndRemovedStopIdsPair) -> {
+              List<Pair<MarkerOptions, String>> newMarkerOptions = newMarkerOptionsAndRemovedStopIdsPair.getFirst();
+              Set<String> removedStopIds = newMarkerOptionsAndRemovedStopIdsPair.getSecond();
+              for (String id : removedStopIds) {
+                stopCodesToMarkerMap.get(id).remove();
+                stopCodesToMarkerMap.remove(id);
+              }
+              whenSafeToUseMap(googleMap -> {
+                for (Pair<MarkerOptions, String> markerOptionsAndStopCodes : newMarkerOptions) {
+                  Marker marker = googleMap.addMarker(markerOptionsAndStopCodes.getFirst());
+                  stopCodesToMarkerMap.put(markerOptionsAndStopCodes.getSecond(), marker);
+                }
+              });
+            }));
+
+    getAutoDisposable().add(viewModel.getViewPort()
+            .subscribe(this::centerMapOver));
+
+    List<Polyline> serviceLines = new ArrayList<>();
+
+    getAutoDisposable().add(viewModel.getDrawServiceLine()
+            .subscribe(polylineOptions -> whenSafeToUseMap(googleMap -> {
+              for (Polyline line : serviceLines) {
+                line.remove();
+              }
+              serviceLines.clear();
+              for (PolylineOptions polylineOption : polylineOptions) {
+                serviceLines.add(googleMap.addPolyline(polylineOption));
+              }
+            })));
+
+    getAutoDisposable().add(viewModel.getRealtimeVehicle()
+            .subscribe(realTimeVehicleOptional -> {
+              if (realTimeVehicleOptional instanceof Some) {
+                setRealTimeVehicle(((Some<RealTimeVehicle>) realTimeVehicleOptional).getValue());
+              } else {
+                setRealTimeVehicle(null);
+              }
+            }));
   }
 
   @Override

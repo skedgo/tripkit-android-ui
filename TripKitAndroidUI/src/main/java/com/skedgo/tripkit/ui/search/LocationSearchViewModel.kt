@@ -36,6 +36,7 @@ import io.reactivex.subjects.PublishSubject
 import me.tatarka.bindingcollectionadapter2.ItemBinding
 import me.tatarka.bindingcollectionadapter2.collections.MergeObservableList
 import com.skedgo.tripkit.logging.ErrorLogger
+import timber.log.Timber
 import java.util.Collections.min
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -52,13 +53,14 @@ class LocationSearchViewModel @Inject constructor(private val context: Context,
                                                   private val schedulerFactory: SchedulerFactory,
                                                   val errorViewModel: LocationSearchErrorViewModel)
     : RxViewModel() {
+
     var locationSearchIconProvider: LocationSearchIconProvider? = null
+    var fixedSuggestionsProvider: FixedSuggestionsProvider? = null
+
     val unableToFindPlaceCoordinatesError: Observable<Throwable> get() = _unableToFindPlaceCoordinatesError.hide()
     val dismiss: PublishRelay<Unit> = PublishRelay.create<Unit>()
     val locationChosen: PublishRelay<Location> = PublishRelay.create<Location>()
-    val currentLocationChosen: PublishRelay<Unit> = PublishRelay.create<Unit>()
-    val pinDropChosen: PublishRelay<Unit> = PublishRelay.create<Unit>()
-
+    val fixedLocationChosen: PublishRelay<Any> = PublishRelay.create<Any>()
     val showRefreshing = ObservableBoolean()
     val showList = ObservableBoolean()
     val showGoogleAttribution = ObservableBoolean(false)
@@ -101,10 +103,9 @@ class LocationSearchViewModel @Inject constructor(private val context: Context,
                 }
                 .subscribe ({
                     when (it.first) {
-                        is CurrentLocationSuggestionViewModel -> onSuggestionItemClick(SearchSuggestionChoice.FixedChoice(it.second))
-                        is DropNewPinSuggestionViewModel -> onSuggestionItemClick(SearchSuggestionChoice.FixedChoice(it.second))
+                        is FixedSuggestionViewModel -> onSuggestionItemClick(SearchSuggestionChoice.FixedChoice(it.second))
                         is GoogleAndTripGoSuggestionViewModel -> onSuggestionItemClick(SearchSuggestionChoice.PlaceChoice(
-                                (it.first as GoogleAndTripGoSuggestionViewModel).place, it.second))
+                                (it.first as GoogleAndTripGoSuggestionViewModel).place))
                     }
                 }, errorLogger::trackError)
                 .autoClear()
@@ -113,9 +114,10 @@ class LocationSearchViewModel @Inject constructor(private val context: Context,
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe( {
                     fixedSuggestions.clear()
-                    if (it.term().isNullOrEmpty()) {
-                        if (showCurrentLocation) fixedSuggestions.add(CurrentLocationSuggestionViewModel(context, iconProvider()))
-                        if (showDropPin) fixedSuggestions.add(DropNewPinSuggestionViewModel(context, iconProvider()))
+                    if (it.term().isEmpty()) {
+                        fixedSuggestionsProvider().fixedSuggestions(context, iconProvider()).forEach { suggestion ->
+                            fixedSuggestions.add(FixedSuggestionViewModel(context, suggestion))
+                        }
                     }
                 }, errorLogger::trackError)
                 .autoClear()
@@ -182,11 +184,6 @@ class LocationSearchViewModel @Inject constructor(private val context: Context,
                 .subscribe({}, { errorLogger.trackError(it) })
                 .autoClear()
 
-        errorViewModel.chooseOnMapObservable
-                .subscribe({
-                    pinDropChosen.accept(Unit)
-                }, { errorLogger.trackError(it) })
-                .autoClear()
     }
 
     private fun iconProvider(): LocationSearchIconProvider {
@@ -194,6 +191,14 @@ class LocationSearchViewModel @Inject constructor(private val context: Context,
             locationSearchIconProvider = LegacyLocationSearchIconProvider()
         }
         return locationSearchIconProvider!!
+    }
+
+    private fun fixedSuggestionsProvider(): FixedSuggestionsProvider {
+        if (fixedSuggestionsProvider == null) {
+            fixedSuggestionsProvider = DefaultFixedSuggestionsProvider(showCurrentLocation, showDropPin)
+        }
+
+        return fixedSuggestionsProvider!!
     }
 
     fun observeGoogleAttribution(suggestions: Observable<List<Place>>): Observable<Unit> =
@@ -224,22 +229,13 @@ class LocationSearchViewModel @Inject constructor(private val context: Context,
                 .autoClear()
     }
 
-    fun changeCity(data: Intent) {
-        bounds = data.getParcelableExtra("bounds")
-        center = data.getParcelableExtra("center")
-        val city = data.getParcelableExtra<Location>("city")
-        chosenCityName.set(city.name)
-        // TODO
-//        bus.post(ImmutableCitySelectedEvent.of(bounds))
-    }
-
     fun onQueryTextChanged(query: String) {
         showRefreshing.set(true)
         onQueryTextChangeEventThrottle.onNext(query)
     }
     fun onTextSubmit(): Boolean = when {
         googleAndTripGoSuggestions.isNotEmpty() -> {
-            onSuggestionItemClick(SearchSuggestionChoice.PlaceChoice(googleAndTripGoSuggestions.first().place, 0))
+            onSuggestionItemClick(SearchSuggestionChoice.PlaceChoice(googleAndTripGoSuggestions.first().place))
             true
         }
         else -> false
@@ -277,9 +273,9 @@ class LocationSearchViewModel @Inject constructor(private val context: Context,
     fun onSuggestionItemClick(choice: SearchSuggestionChoice) {
         when (choice) {
             is SearchSuggestionChoice.FixedChoice ->
-                onFixedLocationSuggestionItemClick(choice.position)
+                onFixedLocationSuggestionItemClick(choice.id)
             is SearchSuggestionChoice.PlaceChoice -> {
-                val (place, position) = choice
+                val (place) = choice
                 onPlaceClicked(place)
                         .observeOn(mainThread())
                         .subscribe({
@@ -294,15 +290,8 @@ class LocationSearchViewModel @Inject constructor(private val context: Context,
         }
     }
 
-    private fun onFixedLocationSuggestionItemClick(itemPosition: Int) {
-        when (itemPosition) {
-            0 -> {
-                currentLocationChosen.accept(Unit)
-            }
-            else -> {
-                pinDropChosen.accept(Unit)
-            }
-        }
+    private fun onFixedLocationSuggestionItemClick(id: Any) {
+        fixedLocationChosen.accept(id)
     }
 
     fun goBack() {

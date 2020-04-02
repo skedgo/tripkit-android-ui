@@ -6,17 +6,24 @@ import com.gojuno.koptional.None
 import com.gojuno.koptional.Optional
 import com.gojuno.koptional.Some
 import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.SupportMapFragment
 import com.jakewharton.rxrelay2.BehaviorRelay
+import com.skedgo.tripkit.ui.core.AutoDisposable
 import com.skedgo.tripkit.ui.core.afterMeasured
 import com.skedgo.tripkit.ui.core.filterSome
-import com.skedgo.tripkit.ui.core.rxlifecyclecomponents.RxMapFragment
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
 import io.reactivex.FlowableOnSubscribe
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.functions.Consumer
 
-abstract class BaseMapFragment : RxMapFragment() {
+abstract class BaseMapFragment : SupportMapFragment() {
+    protected val autoDisposable = AutoDisposable()
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        autoDisposable.bindTo(this.lifecycle)
+    }
+
   private val whenViewIsMeasured: BehaviorRelay<Optional<Unit>> = BehaviorRelay.create()
   private var subscription: CompositeDisposable = CompositeDisposable()
 

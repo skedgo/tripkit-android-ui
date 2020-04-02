@@ -98,7 +98,6 @@ public class TripResultMapFragment extends LocationEnhancedMapFragment {
     }
 
     whenSafeToUseMap(map -> {
-
       final MarkerManager markerManager = new MarkerManager(map);
 
       final MarkerManager.Collection travelledStopMarkers = markerManager.newCollection("travelledStopMarkers");
@@ -135,56 +134,49 @@ public class TripResultMapFragment extends LocationEnhancedMapFragment {
       });
       map.setIndoorEnabled(false);
       map.getUiSettings().setRotateGesturesEnabled(true);
-      viewModel.getSegments()
-          .flatMap(it -> createSegmentMarkers.execute(it))
-          .subscribeOn(computation())
-          .observeOn(mainThread())
-              .compose(bindToLifecycle())
-          .subscribe(
-              it -> showSegmentMarkers(it, segmentMarkers),
-              errorLogger::trackError);
+      getAutoDisposable().add(viewModel.getSegments()
+              .flatMap(it -> createSegmentMarkers.execute(it))
+              .subscribeOn(computation())
+              .observeOn(mainThread())
+              .subscribe(
+                      it -> showSegmentMarkers(it, segmentMarkers),
+                      errorLogger::trackError));
 
-      viewModel.getVehicleMarkerViewModels()
-              .compose(bindToLifecycle())
-          .subscribe(
-              it -> showVehicleMarkers(it, vehicleMarkers),
-              errorLogger::trackError);
+      getAutoDisposable().add(viewModel.getVehicleMarkerViewModels()
+              .subscribe(
+                      it -> showVehicleMarkers(it, vehicleMarkers),
+                      errorLogger::trackError));
 
-      viewModel.getAlertMarkerViewModels()
-              .compose(bindToLifecycle())
-          .subscribe(
-              it -> showAlertMarkers(it, alertMarkers),
-              errorLogger::trackError);
+      getAutoDisposable().add(viewModel.getAlertMarkerViewModels()
+              .subscribe(
+                      it -> showAlertMarkers(it, alertMarkers),
+                      errorLogger::trackError));
 
-      viewModel.getTravelledStopMarkerViewModels()
-              .compose(bindToLifecycle())
-          .subscribe(
-              it -> showStopMarkers(it, travelledStopMarkers),
-              errorLogger::trackError);
+      getAutoDisposable().add(viewModel.getTravelledStopMarkerViewModels()
+              .subscribe(
+                      it -> showStopMarkers(it, travelledStopMarkers),
+                      errorLogger::trackError));
 
-      viewModel.getNonTravelledStopMarkerViewModels()
-              .compose(bindToLifecycle())
-          .subscribe(
-              it -> showStopMarkers(it, nonTravelledStopMarkers),
-              errorLogger::trackError);
+      getAutoDisposable().add(viewModel.getNonTravelledStopMarkerViewModels()
+              .subscribe(
+                      it -> showStopMarkers(it, nonTravelledStopMarkers),
+                      errorLogger::trackError));
 
+      getAutoDisposable().add(viewModel.getSegments()
+              .flatMap(segments -> getTripLineLazy.get().execute(segments))
+              .subscribeOn(computation())
+              .observeOn(mainThread())
+              .subscribe(
+                      polylineOptionsList -> showTripLines(map, polylineOptionsList),
+                      errorLogger::trackError));
 
-      viewModel.getSegments()
-          .flatMap(segments -> getTripLineLazy.get().execute(segments))
-          .subscribeOn(computation())
-          .observeOn(mainThread())
-              .compose(bindToLifecycle())
-          .subscribe(
-              polylineOptionsList -> showTripLines(map, polylineOptionsList),
-              errorLogger::trackError);
+      getAutoDisposable().add(viewModel.onTripSegmentTapped()
+              .observeOn(mainThread())
+              .subscribe(x -> {
+                map.animateCamera(x.getFirst());
+                showMarkerForSegment(map, x.getSecond());
+              }, errorLogger::trackError));
 
-      viewModel.onTripSegmentTapped()
-          .observeOn(mainThread())
-          .compose(bindToLifecycle())
-          .subscribe(x -> {
-            map.animateCamera(x.getFirst());
-            showMarkerForSegment(map, x.getSecond());
-          }, errorLogger::trackError);
 
 //      viewModel.getTripCameraUpdate()
 //              .compose(bindToLifecycle())
@@ -295,15 +287,14 @@ public class TripResultMapFragment extends LocationEnhancedMapFragment {
 
     final String url = getIconUrlForModeInfo(getResources(), segment.getModeInfo());
     if (url != null) {
-      RxPicassoKt.fetchAsync(picasso, url)
+      getAutoDisposable().add(RxPicassoKt.fetchAsync(picasso, url)
           .map(it -> new BitmapDrawable(getResources(), it))
           .map(it -> segmentMarkerIconMaker.make(segment, it))
           .compose(toTrySingle(error -> error instanceof UnableToFetchBitmapError))
           .toObservable()
-          .compose(bindToLifecycle())
           .subscribeOn(Schedulers.io())
           .observeOn(mainThread())
-          .subscribe(new SetSegmentMarkerIcon(marker), errorLogger::trackError);
+          .subscribe(new SetSegmentMarkerIcon(marker), errorLogger::trackError));
     }
   }
 

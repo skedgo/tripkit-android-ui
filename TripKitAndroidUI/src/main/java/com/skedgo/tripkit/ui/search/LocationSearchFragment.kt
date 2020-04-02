@@ -19,9 +19,11 @@ import com.skedgo.tripkit.common.model.Location
 import com.skedgo.tripkit.logging.ErrorLogger
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.TripKitUI
-import com.skedgo.tripkit.ui.core.AbstractTripKitFragment
+import com.skedgo.tripkit.ui.core.BaseTripKitFragment
+import com.skedgo.tripkit.ui.core.addTo
 import com.skedgo.tripkit.ui.databinding.LocationSearchBinding
 import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
+import timber.log.Timber
 import javax.inject.Inject
 
 
@@ -41,7 +43,7 @@ import javax.inject.Inject
  *          .build()
  * ```
  */
-class LocationSearchFragment : AbstractTripKitFragment() {
+class LocationSearchFragment : BaseTripKitFragment() {
     /**
      * This callback will be invoked when a search result is clicked.
      */
@@ -65,39 +67,19 @@ class LocationSearchFragment : AbstractTripKitFragment() {
     /**
      * This callback will be invoked when the user chooses "Current Location"
      */
-    interface OnCurrentLocationSelectedListener {
-        fun onCurrentLocationSelected()
+    interface OnFixedSuggestionSelectedListener {
+        fun onFixedSuggestionSelected(id: Any)
     }
 
-    private var currentLocationSelectedListener: OnCurrentLocationSelectedListener? = null
-    fun setOnCurrentLocationSelectedListener(callback: OnCurrentLocationSelectedListener) {
-        this.currentLocationSelectedListener = callback
+    private var fixedSuggestionSelectedListener: OnFixedSuggestionSelectedListener? = null
+    fun setOnFixedSuggestionSelectedListener(callback: OnFixedSuggestionSelectedListener) {
+        this.fixedSuggestionSelectedListener = callback
     }
 
-    fun setOnCurrentLocationSelectedListener(listener:() -> Unit) {
-        this.currentLocationSelectedListener = object: OnCurrentLocationSelectedListener {
-            override fun onCurrentLocationSelected() {
-                listener()
-            }
-        }
-    }
-
-    /**
-     * This callback will be invoked when the user chooses "Choose on Map"
-     */
-    interface OnDropPinSelectedListener {
-        fun onDropPinSelected()
-    }
-
-    private var dropPinSelectedListener: OnDropPinSelectedListener? = null
-    fun setOnDropPinSelectedListener(callback: OnDropPinSelectedListener) {
-        this.dropPinSelectedListener = callback
-    }
-
-    fun setOnDropPinSelectedListener(listener:() -> Unit) {
-        this.dropPinSelectedListener = object: OnDropPinSelectedListener {
-            override fun onDropPinSelected() {
-                listener()
+    fun setOnFixedSuggestionSelectedListener(listener:(Any) -> Unit) {
+        this.fixedSuggestionSelectedListener = object: OnFixedSuggestionSelectedListener {
+            override fun onFixedSuggestionSelected(id: Any) {
+                listener(id)
             }
         }
     }
@@ -122,6 +104,14 @@ class LocationSearchFragment : AbstractTripKitFragment() {
         }
     }
 
+    var fixedSuggestionsProvider: FixedSuggestionsProvider? = null
+    set(value) {
+        field = value
+        if (::viewModel.isInitialized) {
+            viewModel.fixedSuggestionsProvider = value
+        }
+    }
+
     /**
      * @suppress
      */
@@ -139,26 +129,19 @@ class LocationSearchFragment : AbstractTripKitFragment() {
         viewModel = ViewModelProviders.of(this, viewModelFactory)
                 .get(LocationSearchViewModel::class.java);
         viewModel.locationSearchIconProvider = locationSearchIconProvider
-
-        viewModel.locationChosen.compose(bindToLifecycle())
+        viewModel.fixedSuggestionsProvider = fixedSuggestionsProvider
+        viewModel.locationChosen
                 .observeOn(mainThread())
                 .subscribe({
                     locationSelectedListener?.onLocationSelected(it)
-                }, errorLogger::trackError)
-        viewModel.currentLocationChosen.compose(bindToLifecycle())
+                }, errorLogger::trackError).addTo(autoDisposable)
+        viewModel.fixedLocationChosen
                 .observeOn(mainThread())
                 .subscribe({
-                    currentLocationSelectedListener?.onCurrentLocationSelected()
-                }, errorLogger::trackError)
-
-        viewModel.pinDropChosen.compose(bindToLifecycle())
-                .observeOn(mainThread())
-                .subscribe({
-                    dropPinSelectedListener?.onDropPinSelected()
-                }, errorLogger::trackError)
+                    fixedSuggestionSelectedListener?.onFixedSuggestionSelected(it)
+                }, errorLogger::trackError).addTo(autoDisposable)
 
         viewModel.dismiss
-                .compose(bindToLifecycle())
                 .observeOn(mainThread())
                 .subscribe({
                     dismissKeyboard()
@@ -175,9 +158,8 @@ class LocationSearchFragment : AbstractTripKitFragment() {
                     fragmentManager?.let {
                         if (!fragmentManager.isStateSaved) fragmentManager.popBackStackImmediate()
                     }
-                }, errorLogger::trackError)
+                }, errorLogger::trackError).addTo(autoDisposable)
         viewModel.unableToFindPlaceCoordinatesError
-                .compose(bindToLifecycle())
                 .observeOn(mainThread())
                 .subscribe({
                     Toast.makeText(
@@ -185,7 +167,7 @@ class LocationSearchFragment : AbstractTripKitFragment() {
                             R.string.failed_to_resolve_location,
                             Toast.LENGTH_SHORT
                     ).show()
-                }, errorLogger::trackError)
+                }, errorLogger::trackError).addTo(autoDisposable)
     }
 
     /**
@@ -301,6 +283,7 @@ class LocationSearchFragment : AbstractTripKitFragment() {
         private var withDropPin: Boolean = false
         private var showBackButton: Boolean = true
         private var locationSearchIconProvider: LocationSearchIconProvider? = null
+        private var fixedSuggestionsProvider: FixedSuggestionsProvider? = null
         private var showSearchField: Boolean = true
 
         /**
@@ -348,7 +331,8 @@ class LocationSearchFragment : AbstractTripKitFragment() {
         }
 
         /**
-         * The fragment can optionally show a static option of "Current Location".
+         * The fragment can optionally show a static option of "Current Location". This will be ignored if you specify
+         * your own [FixedSuggestionsProvider].
          *
          * @param withCurrentLocation When **true**, show the "Current Location" option
          * @return this Builder
@@ -359,7 +343,8 @@ class LocationSearchFragment : AbstractTripKitFragment() {
         }
 
         /**
-         * The fragment can optionally show a static option of "Choose on Map".
+         * The fragment can optionally show a static option of "Choose on Map". This will be ignored if you specify
+         * your own [FixedSuggestionsProvider].
          *
          * @param withDropPin When **true**, show the "Choose on Map" option
          * @return this Builder
@@ -391,6 +376,18 @@ class LocationSearchFragment : AbstractTripKitFragment() {
         }
 
         /**
+         * Fixed search results (such as Choose on Map and Current Location) are shown when the search results are empty.
+         * If you'd like to provide your own list of fixed results, you can speficy a [FixedSuggestionsProvider] which
+         * will be queried. This is mutually exclusive with [allowCurrentLocation] and [allowDropPin].
+         *
+         * @param fixedSuggestionsProvider An instance of a [FixedSuggestionsProvider]
+         * @return this Builder
+         */
+        fun withFixedSuggestionsProvider(fixedSuggestionsProvider: FixedSuggestionsProvider): Builder {
+            this.fixedSuggestionsProvider = fixedSuggestionsProvider
+            return this
+        }
+        /**
          * You can choose to not show the location search field, and instead orchestrate the search results on your own
          * by calling [setQuery].
          *
@@ -421,6 +418,7 @@ class LocationSearchFragment : AbstractTripKitFragment() {
             val fragment = LocationSearchFragment()
             fragment.setArguments(args)
             fragment.locationSearchIconProvider = locationSearchIconProvider
+            fragment.fixedSuggestionsProvider = fixedSuggestionsProvider
             return fragment
         }
     }

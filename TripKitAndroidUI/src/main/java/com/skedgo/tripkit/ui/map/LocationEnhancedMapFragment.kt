@@ -12,6 +12,7 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.material.button.MaterialButton
 import com.skedgo.tripkit.logging.ErrorLogger
 import com.skedgo.tripkit.ui.R
+import com.skedgo.tripkit.ui.core.addTo
 import com.skedgo.tripkit.ui.core.permissions.*
 import com.skedgo.tripkit.ui.core.permissions.PermissionResult.Granted
 import com.skedgo.tripkit.ui.map.home.TripKitMapFragment
@@ -74,12 +75,13 @@ open class LocationEnhancedMapFragment : BaseMapFragment() {
                         return@flatMapObservable Observable.error<Location>(PermissionDenialError())
                     }
                 }
-                .take(1).singleOrError()
+                .take(1)
+                .singleOrError()
                 .map { location: Location -> LatLng(location.latitude, location.longitude) }
                 .map { latLng: LatLng? -> CameraUpdateFactory.newLatLng(latLng) }
-                .compose(bindToLifecycle())
                 .subscribe(
                         { cameraUpdate: CameraUpdate? -> whenSafeToUseMap(Consumer { map: GoogleMap -> map.animateCamera(cameraUpdate) }) }) { error: Throwable? -> errorLogger!!.logError(error!!) }
+                .addTo(autoDisposable)
     }
 
     private fun applyDefaultSettings(googleMap: GoogleMap) {

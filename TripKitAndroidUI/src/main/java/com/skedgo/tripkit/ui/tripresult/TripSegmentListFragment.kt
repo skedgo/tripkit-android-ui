@@ -16,7 +16,8 @@ import com.skedgo.tripkit.routing.TripGroup
 import com.skedgo.tripkit.ui.ARG_TRIP_GROUP_ID
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.TripKitUI
-import com.skedgo.tripkit.ui.core.rxlifecyclecomponents.RxFragment
+import com.skedgo.tripkit.ui.core.BaseTripKitFragment
+import com.skedgo.tripkit.ui.core.addTo
 import com.skedgo.tripkit.ui.databinding.TripSegmentListFragmentBinding
 import com.skedgo.tripkit.ui.model.TripKitButton
 import com.squareup.otto.Bus
@@ -24,7 +25,7 @@ import timber.log.Timber
 import javax.inject.Inject
 
 
-class TripSegmentListFragment : RxFragment(), View.OnClickListener {
+class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
     private val RQ_VIEW_TIMETABLE = 0
     private val RQ_VIEW_ALERTS = 1
 
@@ -122,19 +123,6 @@ class TripSegmentListFragment : RxFragment(), View.OnClickListener {
             viewModel.loadTripGroup(it, savedInstanceState)
         }
 
-        viewModel.alertsClicked
-                .compose(bindToLifecycle())
-                .subscribe {
-                    var list = mutableListOf<TripSegmentAlertsItemViewModel>()
-                    it.forEach { alert ->
-                        val vm = TripSegmentAlertsItemViewModel()
-                        vm.titleText.set(alert.title())
-                        vm.descriptionText.set(alert.text())
-                        list.add(vm)
-                    }
-                    val dialog = TripSegmentAlertsSheet.newInstance(list)
-                    dialog.show(fragmentManager!!, "alerts_sheet")
-                }
 
 
         //    viewModel.getOnStreetViewTapped()
@@ -210,7 +198,19 @@ class TripSegmentListFragment : RxFragment(), View.OnClickListener {
 
     override fun onStart() {
         super.onStart()
-        viewModel!!.onStart()
+        viewModel.onStart()
+        viewModel.alertsClicked
+                .subscribe {
+                    var list = mutableListOf<TripSegmentAlertsItemViewModel>()
+                    it.forEach { alert ->
+                        val vm = TripSegmentAlertsItemViewModel()
+                        vm.titleText.set(alert.title())
+                        vm.descriptionText.set(alert.text())
+                        list.add(vm)
+                    }
+                    val dialog = TripSegmentAlertsSheet.newInstance(list)
+                    dialog.show(fragmentManager!!, "alerts_sheet")
+                }.addTo(autoDisposable)
     }
 
     override fun onStop() {

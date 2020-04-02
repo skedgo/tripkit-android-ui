@@ -33,28 +33,18 @@ sealed class SuggestionViewModel(context: Context) {
     abstract val onItemClicked: TapAction<SuggestionViewModel>
 }
 
-class CurrentLocationSuggestionViewModel(context: Context, iconProvider: LocationSearchIconProvider) : SuggestionViewModel(context) {
-    override val title = context.getString(R.string.current_location)
-    override val titleTextColorRes: Int = R.color.title_text
-    override val subtitleTextColorRes: Int = R.color.description_text
+class FixedSuggestionViewModel(context: Context, suggestion: FixedSuggestion) : SuggestionViewModel(context) {
+    val id = suggestion.id()
+    override val title = suggestion.title()
+    override val titleTextColorRes = suggestion.titleColor()
+    override val subtitle = suggestion.subtitle()
+    override val subtitleTextColorRes = suggestion.subtitleColor()
     override val onItemClicked: TapAction<SuggestionViewModel> = TapAction.create { this }
 
     init {
-        icon.set(ContextCompat.getDrawable(context, iconProvider.iconForSearchResult(LocationSearchIconProvider.SearchResultType.CURRENT_LOCATION)))
+        icon.set(suggestion.icon())
     }
 }
-
-class DropNewPinSuggestionViewModel(context: Context, iconProvider: LocationSearchIconProvider) : SuggestionViewModel(context) {
-    override val title = context.getString(R.string.choose_on_map)
-    override val titleTextColorRes: Int = R.color.title_text
-    override val subtitleTextColorRes: Int = R.color.description_text
-    override val onItemClicked: TapAction<SuggestionViewModel> = TapAction.create { this }
-
-    init {
-        icon.set(ContextCompat.getDrawable(context, iconProvider.iconForSearchResult(LocationSearchIconProvider.SearchResultType.DROP_PIN)))
-    }
-}
-
 class GoogleAndTripGoSuggestionViewModel(context: Context,
                                          val picasso: Picasso,
                                          val place: Place,

@@ -2,7 +2,6 @@ package com.skedgo.tripkit.ui.tripresult;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,7 +13,7 @@ import biz.laenger.android.vpbs.BottomSheetUtils;
 import com.skedgo.tripkit.model.ViewTrip;
 import com.skedgo.tripkit.ui.TripKitUI;
 import com.skedgo.tripkit.ui.booking.BookViewClickEventHandler;
-import com.skedgo.tripkit.ui.core.rxlifecyclecomponents.RxFragment;
+import com.skedgo.tripkit.ui.core.BaseTripKitFragment;
 import com.skedgo.tripkit.ui.databinding.TripResultPagerBinding;
 import com.skedgo.tripkit.ui.model.TripKitButton;
 import com.squareup.otto.Bus;
@@ -26,7 +25,7 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TripResultPagerFragment extends RxFragment implements ViewPager.OnPageChangeListener, TripSegmentListFragment.OnTripKitButtonClickListener {
+public class TripResultPagerFragment extends BaseTripKitFragment implements ViewPager.OnPageChangeListener, TripSegmentListFragment.OnTripKitButtonClickListener {
 
   public interface OnTripKitButtonClickListener {
     void onTripKitButtonClicked(String id, TripGroup tripGroup);
@@ -83,6 +82,25 @@ public class TripResultPagerFragment extends RxFragment implements ViewPager.OnP
     super.onStart();
     viewModel.onStart();
     this.binding.tripGroupsPager.addOnPageChangeListener(this);
+    getAutoDisposable().add(viewModel.trackViewingTrip()
+            .subscribe());
+
+    getAutoDisposable().add(viewModel.observeTripGroups()
+            .subscribe());
+
+    getAutoDisposable().add(viewModel.observeInitialPage()
+            .subscribe());
+
+    getAutoDisposable().add(viewModel.updateSelectedTripGroup()
+            .subscribe());
+
+    getAutoDisposable().add(viewModel.loadFetchingRealtimeStatus()
+            .subscribe());
+
+    assert args != null;
+    getAutoDisposable().add(viewModel.getSortedTripGroups(args)
+            .subscribe(tripGroup -> {}, errorLogger::trackError));
+
   }
 
   @Override public void onStop() {
@@ -110,7 +128,6 @@ public class TripResultPagerFragment extends RxFragment implements ViewPager.OnP
         currentPage == -1 ? binding.tripGroupsPager.getCurrentItem() : currentPage
     );
   }
-
   @Override
   public void onAttach(Context context) {
     TripKitUI.getInstance().tripDetailsComponent().inject(this);
@@ -145,30 +162,6 @@ public class TripResultPagerFragment extends RxFragment implements ViewPager.OnP
 //        .compose(bindToLifecycle())
 //        .subscribe();
 //
-    viewModel.trackViewingTrip()
-        .compose(bindToLifecycle())
-        .subscribe();
-
-    viewModel.observeTripGroups()
-        .compose(bindToLifecycle())
-        .subscribe();
-
-    viewModel.observeInitialPage()
-        .compose(bindToLifecycle())
-        .subscribe();
-
-    viewModel.updateSelectedTripGroup()
-        .compose(bindToLifecycle())
-        .subscribe();
-
-    viewModel.loadFetchingRealtimeStatus()
-        .compose(bindToLifecycle())
-        .subscribe();
-
-    assert args != null;
-    viewModel.getSortedTripGroups(args)
-        .compose(bindToLifecycle())
-        .subscribe(tripGroup -> {}, errorLogger::trackError);
   }
 
   public void setArgs(@NonNull PagerFragmentArguments args) {

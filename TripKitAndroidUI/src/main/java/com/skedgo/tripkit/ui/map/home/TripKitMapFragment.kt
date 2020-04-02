@@ -23,6 +23,7 @@ import com.skedgo.tripkit.tripplanner.NonCurrentType
 import com.skedgo.tripkit.tripplanner.PinUpdate
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.TripKitUI
+import com.skedgo.tripkit.ui.core.addTo
 import com.skedgo.tripkit.ui.core.module.HomeMapFragmentModule
 import com.skedgo.tripkit.ui.core.permissions.*
 import com.skedgo.tripkit.ui.core.permissions.PermissionResult.Granted
@@ -43,6 +44,7 @@ import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.functions.Action
 import io.reactivex.functions.Consumer
+import io.reactivex.observers.DisposableSingleObserver
 import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
 import java.io.InvalidClassException
@@ -153,16 +155,20 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
         })
         initStuff()
         setMyLocationEnabled()
-        viewModel!!.getOriginPinUpdate()
-                .compose(bindToLifecycle())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe { pinUpdate: PinUpdate -> updateDepartureMarker(pinUpdate) }
-        viewModel!!.getDestinationPinUpdate()
-                .compose(bindToLifecycle())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe { pinUpdate: PinUpdate -> updateArrivalMarker(pinUpdate) }
     }
 
+    override fun onStart() {
+        super.onStart()
+        viewModel.getOriginPinUpdate()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe { pinUpdate: PinUpdate -> updateDepartureMarker(pinUpdate) }
+                .addTo(autoDisposable)
+        viewModel.getDestinationPinUpdate()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe { pinUpdate: PinUpdate -> updateArrivalMarker(pinUpdate) }
+                .addTo(autoDisposable)
+
+    }
     override fun onPause() { //    bus.unregister(this);
         super.onPause()
         // Warning: If we obtain GoogleMap via getMapAsync() right here, when onPause() is called in
@@ -331,13 +337,13 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
     }
 
     private fun initStuff() {
-        regionService!!.getRegionsAsync()
-                .compose(bindToLifecycle())
+        regionService.getRegionsAsync()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({ regions: List<Region> ->
                     this.regions = regions
                     whenSafeToUseMap(Consumer { m: GoogleMap -> showCities(m, regions) })
-                }) { error: Throwable? -> errorLogger!!.logError(error!!) }
+                }) { error: Throwable? -> errorLogger.logError(error!!) }
+                .addTo(autoDisposable)
     }
 
     private fun updateArrivalMarker(pinUpdate: PinUpdate) {
@@ -378,10 +384,10 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
             val host = activity as CanRequestPermission
             host.checkSelfPermissionReactively(Manifest.permission.ACCESS_FINE_LOCATION)
                     .filter { result -> result }
-                    .compose(bindToLifecycle())
                     .subscribe( {
                         whenSafeToUseMap(Consumer { map: GoogleMap -> map.isMyLocationEnabled = true }) },
                             { Timber.e(it) })
+                    .addTo(autoDisposable)
         }
     }
 
@@ -469,12 +475,12 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
         if (activity is CanRequestPermission) {
             requestLocationPermission()
                     .toObservable()
-                    .compose(bindToLifecycle())
                     .subscribe({ result: PermissionResult? ->
                         if (result is Granted) {
                             viewModel!!.goToMyLocation()
                         }
                     }) { error: Throwable? -> errorLogger!!.trackError(error!!) }
+                    .addTo(autoDisposable)
         }
     }
 
@@ -500,21 +506,22 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
                 .defer {
                     requestLocationPermission()
                             .map { it: PermissionResult? -> it is Granted }
-                }
-                .toObservable()
-                .compose(bindToLifecycle())
-        viewModel!!.getInitialCameraUpdate { requestLocationPermission }
-                .compose(bindToLifecycle())
+                }.toObservable()
+
+        viewModel.getInitialCameraUpdate { requestLocationPermission }
                 .subscribe({ cameraUpdate: CameraUpdate? -> map.moveCamera(cameraUpdate) }) { error: Throwable? -> errorLogger!!.trackError(error!!) }
-        viewModel!!.myLocation
-                .compose(bindToLifecycle())
+                .addTo(autoDisposable)
+        viewModel.myLocation
                 .subscribeOn(AndroidSchedulers.mainThread())
                 .subscribe({ myLocation: Location -> showMyLocation(myLocation) }) { error: Throwable? -> errorLogger!!.trackError(error!!) }
-        viewModel!!.myLocationError
-                .compose(bindToLifecycle())
+                .addTo(autoDisposable)
+
+        viewModel.myLocationError
                 .subscribeOn(AndroidSchedulers.mainThread())
                 .subscribe({ _: Throwable? -> showMyLocationError() }) { error: Throwable? -> errorLogger!!.trackError(error!!) }
-        viewModel!!.markers
+                .addTo(autoDisposable)
+
+        viewModel.markers
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe { (first, second) ->
@@ -535,6 +542,8 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
                         marker.tag = second1
                     }
                 }
+                .addTo(autoDisposable)
+
     }
 
     private fun showMyLocationError() {
@@ -552,6 +561,10 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
         setUpDepartureAndArrivalMarkers(markerManager!!)
         setUpCurrentLocationMarkers(markerManager!!)
         setUpPOIMarkers(markerManager!!, map)
+    }
+
+    fun focusOnLocation(location: LatLng) {
+        map?.moveCamera(CameraUpdateFactory.newLatLng(location))
     }
 
     fun setFromMarkerLocation(location: LatLng?) {

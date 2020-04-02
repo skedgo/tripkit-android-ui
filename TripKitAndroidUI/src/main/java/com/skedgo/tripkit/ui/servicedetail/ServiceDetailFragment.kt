@@ -10,14 +10,15 @@ import androidx.recyclerview.widget.RecyclerView
 import com.skedgo.tripkit.common.model.ScheduledStop
 import com.skedgo.tripkit.common.model.ServiceStop
 import com.skedgo.tripkit.ui.TripKitUI
-import com.skedgo.tripkit.ui.core.AbstractTripKitFragment
+import com.skedgo.tripkit.ui.core.BaseTripKitFragment
+import com.skedgo.tripkit.ui.core.addTo
 import com.skedgo.tripkit.ui.databinding.ServiceDetailFragmentBinding
 import com.skedgo.tripkit.ui.model.TimetableEntry
 import com.skedgo.tripkit.ui.timetables.ARG_TIMETABLE_ENTRY
 import io.reactivex.android.schedulers.AndroidSchedulers
 import javax.inject.Inject
 
-class ServiceDetailFragment : AbstractTripKitFragment() {
+class ServiceDetailFragment : BaseTripKitFragment() {
     interface OnScheduledStopClickListener {
         fun onScheduledStopClicked(stop: ServiceStop)
     }
@@ -44,18 +45,18 @@ class ServiceDetailFragment : AbstractTripKitFragment() {
 
     override fun onAttach(context: Context) {
         TripKitUI.getInstance().inject(this);
+        super.onAttach(context)
+    }
+
+    override fun onStart() {
+        super.onStart()
         viewModel.onItemClicked
                 .observeOn(AndroidSchedulers.mainThread())
-                .compose(bindToLifecycle())
-                .doOnNext {
-                    stop ->
+                .doOnNext { stop ->
                     this.clickListener.forEach{
                         it.onScheduledStopClicked(stop)
                     }
-                }.subscribe()
-
-
-        super.onAttach(context)
+                }.subscribe().addTo(autoDisposable)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
