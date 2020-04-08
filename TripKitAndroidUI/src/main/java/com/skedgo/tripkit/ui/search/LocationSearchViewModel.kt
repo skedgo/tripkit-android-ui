@@ -103,7 +103,7 @@ class LocationSearchViewModel @Inject constructor(private val context: Context,
                 }
                 .subscribe ({
                     when (it.first) {
-                        is FixedSuggestionViewModel -> onSuggestionItemClick(SearchSuggestionChoice.FixedChoice(it.second))
+                        is FixedSuggestionViewModel -> onSuggestionItemClick(SearchSuggestionChoice.FixedChoice((it.first as FixedSuggestionViewModel).id))
                         is GoogleAndTripGoSuggestionViewModel -> onSuggestionItemClick(SearchSuggestionChoice.PlaceChoice(
                                 (it.first as GoogleAndTripGoSuggestionViewModel).place))
                     }
