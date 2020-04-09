@@ -52,7 +52,7 @@ dependencies {
     implementation libs.kotlin
     implementation 'androidx.appcompat:appcompat:1.1.0'
     implementation libs.constraintLayout
-    implementation "com.google.android.libraries.places:places-compat:2.1.0"
+    implementation libs.places
     implementation("com.squareup.okhttp3:logging-interceptor:4.2.0")
 
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'

@@ -3,6 +3,7 @@ package com.skedgo.tripkit.ui;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.util.Log;
+import com.google.android.libraries.places.api.Places;
 import com.skedgo.TripKit;
 import com.skedgo.routepersistence.RouteStore;
 import com.skedgo.tripkit.Configs;
@@ -87,7 +88,14 @@ public abstract class TripKitUI {
                     .key(() -> key)
                     .build();
             TripKit.initialize(configs);
-        if (isDebuggable) {
+            if (!Places.isInitialized()) {
+                String placesApiKey = context.getString(R.string.google_places_api_key);
+                if (placesApiKey != "GOOGLE_PLACES_API_KEY") {
+                    Places.initialize(context, placesApiKey);
+                }
+            }
+
+            if (isDebuggable) {
             Timber.plant(new Timber.DebugTree());
         }
         instance = DaggerTripKitUI.builder()

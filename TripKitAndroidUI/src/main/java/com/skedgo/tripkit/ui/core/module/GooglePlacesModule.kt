@@ -11,5 +11,5 @@ import javax.inject.Provider
 class GooglePlacesModule {
   @Provides
   internal fun placeSearchRepository(context: Context): PlaceSearchRepository =
-      PlaceSearchRepositoryImpl(Provider { com.google.android.libraries.places.compat.Places.getGeoDataClient(context, null) })
+      PlaceSearchRepositoryImpl(Provider { com.google.android.libraries.places.api.Places.createClient(context) })
 }

@@ -1,34 +1,40 @@
 package com.skedgo.tripkit.ui.data.places
 
-import android.util.Log
-import com.google.android.gms.maps.model.LatLngBounds.builder
-import com.google.android.libraries.places.compat.AutocompletePrediction
-import com.google.android.libraries.places.compat.GeoDataClient
-import com.google.android.libraries.places.compat.PlaceBufferResponse
+import com.google.android.libraries.places.api.model.AutocompletePrediction
+import com.google.android.libraries.places.api.model.RectangularBounds
+import com.google.android.libraries.places.api.model.TypeFilter
+import com.google.android.libraries.places.api.net.FetchPlaceRequest
+import com.google.android.libraries.places.api.net.FindAutocompletePredictionsRequest
+import com.google.android.libraries.places.api.net.PlacesClient
 import io.reactivex.Observable
 import io.reactivex.schedulers.Schedulers.io
 import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Provider
 
+
 class PlaceSearchRepositoryImpl
-@Inject constructor(private val geoDataClient: Provider<GeoDataClient>) : PlaceSearchRepository {
+@Inject constructor(private val geoDataClient: Provider<PlacesClient>) : PlaceSearchRepository {
   override fun searchForPlaces(query: String, latLngBounds: LatLngBounds): Observable<GooglePlacePrediction> {
       // TODO This should be a Flowable
-    return Observable
+      val bounds = RectangularBounds.newInstance(
+              com.google.android.gms.maps.model.LatLng(latLngBounds.southwest.latitude, latLngBounds.southwest.longitude),
+              com.google.android.gms.maps.model.LatLng(latLngBounds.northeast.latitude, latLngBounds.northeast.longitude))
+      return Observable
         .create<List<AutocompletePrediction>> {
             geoDataClient.get()
-                    .getAutocompletePredictions(query, builder()
-                            .include(com.google.android.gms.maps.model.LatLng(latLngBounds.southwest.latitude, latLngBounds.southwest.longitude))
-                            .include(com.google.android.gms.maps.model.LatLng(latLngBounds.northeast.latitude, latLngBounds.northeast.longitude))
-                            .build()
-                            , null)
+                    .findAutocompletePredictions(FindAutocompletePredictionsRequest.builder()
+                            .setLocationBias(bounds)
+                            .setQuery(query)
+                            .setTypeFilter(TypeFilter.ADDRESS)
+                            .build())
                     .addOnCompleteListener { task ->
+                        Timber.d("searchForPlaces for $query complete: ${task.isSuccessful}")
+
                         if (task.isSuccessful) {
                             val result = task.result
-                            val list = result?.toList().orEmpty()
+                            val list = result?.autocompletePredictions.orEmpty()
                             it.onNext(list)
-                            result?.release()
                             it.onComplete()
                         } else {
                             Timber.e(task.exception)
@@ -49,15 +55,19 @@ class PlaceSearchRepositoryImpl
 
   override fun getPlaceDetails(placeId: String): Observable<GooglePlace> {
     return Observable
-        .create<com.google.android.libraries.places.compat.Place> {
-            geoDataClient.get().getPlaceById(placeId)
+        .create<com.google.android.libraries.places.api.model.Place> {
+            val placeFields = listOf(com.google.android.libraries.places.api.model.Place.Field.ID,
+                    com.google.android.libraries.places.api.model.Place.Field.NAME,
+                    com.google.android.libraries.places.api.model.Place.Field.ADDRESS,
+                    com.google.android.libraries.places.api.model.Place.Field.LAT_LNG)
+
+            geoDataClient.get().fetchPlace(FetchPlaceRequest.builder(placeId, placeFields).build())
                     .addOnCompleteListener { task ->
                         if (task.isSuccessful) {
-                            val result: PlaceBufferResponse? = task.result
-                            if (result != null) {
-                                it.onNext(result.get(0))
+                            val result = task.result
+                            result?.let { response ->
+                                it.onNext(response.place)
                             }
-                            result?.release()
                             it.onComplete()
                         } else {
                             Timber.e(task.exception)
@@ -68,10 +78,10 @@ class PlaceSearchRepositoryImpl
             .map {
           GooglePlace(
               name = it.name.toString(),
-              lat = it.latLng.latitude,
-              lng = it.latLng.longitude,
+              lat = it.latLng!!.latitude,
+              lng = it.latLng!!.longitude,
               address = it.address.toString(),
-              placeId = it.id,
+              placeId = it.id!!,
               attribution = it.attributions?.toString())
         }
   }

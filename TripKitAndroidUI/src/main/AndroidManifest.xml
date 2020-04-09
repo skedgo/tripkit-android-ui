@@ -3,6 +3,9 @@
           package="com.skedgo.tripkit.ui">
 
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
+
     <application>
         <provider
                 android:priority="99999"
