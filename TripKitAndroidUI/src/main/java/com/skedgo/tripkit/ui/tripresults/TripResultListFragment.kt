@@ -113,8 +113,9 @@ class TripResultListFragment : BaseTripKitFragment() {
         binding.from.setOnClickListener {
             locationClickListener?.onStartLocationClicked()
         }
+
         binding.leaveNowLayout.setOnClickListener { showDateTimePicker() }
-        binding.swipeRefreshLayout.setOnRefreshListener { viewModel.reload() }
+//        binding.swipeRefreshLayout.setOnRefreshListener { viewModel.reload() }
         val layoutManager = FlexboxLayoutManager(context)
         layoutManager.flexDirection = FlexDirection.ROW
         binding.transportItemsView.layoutManager = layoutManager
