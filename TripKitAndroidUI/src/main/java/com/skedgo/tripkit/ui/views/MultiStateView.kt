@@ -67,8 +67,8 @@ class MultiStateView(context: Context, attrs: AttributeSet? = null, defStyle: In
      * Sets the view for the given view state
      *
      * @param view          The [View] to use
-     * @param state         The [com.kennyc.view.MultiStateView.ViewState]to set
-     * @param switchToState If the [com.kennyc.view.MultiStateView.ViewState] should be switched to
+     * @param state         The [com.skedgo.tripkit.ui.views.MultiStateView.ViewState]to set
+     * @param switchToState If the [com.skedgo.tripkit.ui.views.MultiStateView.ViewState] should be switched to
      */
     fun setViewForState(view: View, state: ViewState, switchToState: Boolean = false) {
         when (state) {

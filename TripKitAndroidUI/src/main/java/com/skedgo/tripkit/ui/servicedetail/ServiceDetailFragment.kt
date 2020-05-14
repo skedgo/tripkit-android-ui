@@ -13,9 +13,13 @@ import com.skedgo.tripkit.ui.TripKitUI
 import com.skedgo.tripkit.ui.core.BaseTripKitFragment
 import com.skedgo.tripkit.ui.core.addTo
 import com.skedgo.tripkit.ui.databinding.ServiceDetailFragmentBinding
+import com.skedgo.tripkit.ui.map.home.TripKitMapContributor
+import com.skedgo.tripkit.ui.map.home.TripKitMapFragment
 import com.skedgo.tripkit.ui.model.TimetableEntry
 import com.skedgo.tripkit.ui.timetables.ARG_TIMETABLE_ENTRY
+import com.skedgo.tripkit.ui.timetables.TimetableMapContributor
 import io.reactivex.android.schedulers.AndroidSchedulers
+import timber.log.Timber
 import javax.inject.Inject
 
 class ServiceDetailFragment : BaseTripKitFragment() {
@@ -43,8 +47,12 @@ class ServiceDetailFragment : BaseTripKitFragment() {
     private var stop: ScheduledStop? = null
     private var timetableEntry: TimetableEntry? = null
 
+    private var mapContributor = TimetableMapContributor(this)
+    fun contributor(): TripKitMapContributor = mapContributor
+
     override fun onAttach(context: Context) {
         TripKitUI.getInstance().inject(this);
+        mapContributor.initialize()
         super.onAttach(context)
     }
 
@@ -56,6 +64,7 @@ class ServiceDetailFragment : BaseTripKitFragment() {
                     this.clickListener.forEach{
                         it.onScheduledStopClicked(stop)
                     }
+                    mapContributor.serviceStopClick(stop)
                 }.subscribe().addTo(autoDisposable)
     }
 
@@ -79,12 +88,13 @@ class ServiceDetailFragment : BaseTripKitFragment() {
         super.onActivityCreated(savedInstanceState)
         if (stop != null && timetableEntry != null) {
             viewModel.setup(stop!!, timetableEntry!!)
+            mapContributor.setStop(stop)
+            mapContributor.setService(timetableEntry)
         }
     }
         class Builder {
         private var stop: ScheduledStop? = null
         private var timetableEntry: TimetableEntry? = null
-
         fun withTimetableEntry(timetableEntry: TimetableEntry?): Builder {
             this.timetableEntry = timetableEntry
             return this

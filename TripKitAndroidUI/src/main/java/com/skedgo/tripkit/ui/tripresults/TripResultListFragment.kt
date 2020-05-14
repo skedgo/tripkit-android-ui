@@ -106,7 +106,9 @@ class TripResultListFragment : BaseTripKitFragment() {
         binding = TripResultListFragmentBinding.inflate(layoutInflater)
 
         binding.viewModel = viewModel
-
+        val showCloseButton = arguments?.getBoolean(ARG_SHOW_CLOSE_BUTTON, false) ?: false
+        viewModel.showCloseButton.set(showCloseButton)
+        binding.closeButton.setOnClickListener(onCloseButtonListener)
         binding.toLocation.setOnClickListener {
             locationClickListener?.onDestinationLocationClicked()
         }
@@ -210,6 +212,7 @@ class TripResultListFragment : BaseTripKitFragment() {
         private var query: Query? = null
         private var transportModeFilter: TransportModeFilter? = null
         private var showTransportModeSelection = true
+        private var showCloseButton = false
 
         fun withQuery(query: Query): Builder {
             this.query = query
@@ -226,12 +229,18 @@ class TripResultListFragment : BaseTripKitFragment() {
             return this
         }
 
+        fun showCloseButton(): Builder {
+            this.showCloseButton = true
+            return this
+        }
+
         fun build(): TripResultListFragment {
             val args = Bundle()
             val fragment = TripResultListFragment()
             args.putParcelable(ARG_QUERY, query)
             args.putParcelable(ARG_TRANSPORT_MODE_FILTER, transportModeFilter)
             args.putBoolean(ARG_SHOW_TRANSPORT_MODE_SELECTION, showTransportModeSelection)
+            args.putBoolean(ARG_SHOW_CLOSE_BUTTON, showCloseButton)
             fragment.arguments = args
             return fragment
         }

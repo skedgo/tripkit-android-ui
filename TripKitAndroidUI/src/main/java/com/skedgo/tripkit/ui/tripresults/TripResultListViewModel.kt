@@ -2,8 +2,10 @@ package com.skedgo.tripkit.ui.tripresults
 
 import android.content.Context
 import android.view.View
+import android.widget.ProgressBar
 import androidx.databinding.ObservableBoolean
 import androidx.databinding.ObservableField
+import androidx.loader.content.Loader
 import com.jakewharton.rxrelay2.PublishRelay
 import com.skedgo.tripkit.common.model.Query
 import com.skedgo.tripkit.common.model.TimeTag
@@ -33,8 +35,12 @@ import com.skedgo.tripkit.routingstatus.RoutingStatus
 import com.skedgo.tripkit.routingstatus.RoutingStatusRepository
 import com.skedgo.tripkit.routingstatus.Status
 import com.skedgo.tripkit.ui.core.OnResultStateListener
+import com.skedgo.tripkit.ui.creditsources.CreditSourcesOfDataViewModel
 import com.skedgo.tripkit.ui.routing.SimpleTransportModeFilter
+import com.skedgo.tripkit.ui.tripresult.TripSegmentItemViewModel
 import com.skedgo.tripkit.ui.views.MultiStateView
+import me.tatarka.bindingcollectionadapter2.collections.MergeObservableList
+import me.tatarka.bindingcollectionadapter2.itembindings.OnItemBindClass
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -51,7 +57,7 @@ class TripResultListViewModel @Inject constructor(
         private val routeService: RouteService,
         private val errorLogger: ErrorLogger,
         private val routingTimeViewModelMapper: RoutingTimeViewModelMapper): RxViewModel() {
-
+    val loadingItem = LoaderPlaceholder()
     val fromName = ObservableField<String>()
     val toName = ObservableField<String>()
     val timeLabel = ObservableField<String>()
@@ -61,16 +67,20 @@ class TripResultListViewModel @Inject constructor(
     val stateChange = PublishRelay.create<MultiStateView.ViewState>()
     val onError = PublishRelay.create<String>()
 
-    val itemBinding = ItemBinding.of<TripResultViewModel>(BR.viewModel, R.layout.trip_result_list_item)
+//    val itemBinding = ItemBinding.of<TripResultViewModel>(BR.viewModel, R.layout.trip_result_list_item)
+    val itemBinding = ItemBinding.of(
+        OnItemBindClass<Any>()
+                .map(TripResultViewModel::class.java, BR.viewModel, R.layout.trip_result_list_item)
+                .map(LoaderPlaceholder::class.java, ItemBinding.VAR_NONE, R.layout.circular_progress_loader))
     val results = DiffObservableList<TripResultViewModel>(GroupDiffCallback)
+    val mergedList = MergeObservableList<Any>().insertList(results)
 
     val transportBinding = ItemBinding.of<TripResultTransportItemViewModel>(BR.viewModel, R.layout.trip_result_list_transport_item)
     val transportModes: ObservableField<List<TripResultTransportItemViewModel>> = ObservableField(emptyList())
     val showTransport = ObservableBoolean(false)
     val showTransportModeSelection = ObservableBoolean(true)
-    val isLoading = ObservableBoolean(false)
     val isError = ObservableBoolean(false)
-
+    val showCloseButton = ObservableBoolean(false)
     private val transportModeChangeThrottle = PublishSubject.create<Unit>()
 
     lateinit var query: Query
@@ -90,9 +100,17 @@ class TripResultListViewModel @Inject constructor(
         showTransport.set(!showTransport.get())
     }
 
+    private fun setLoading(loading: Boolean) {
+        if (loading && !mergedList.contains(loadingItem)) {
+            mergedList.insertItem(loadingItem)
+        } else if (!loading && mergedList.contains(loadingItem)) {
+            mergedList.removeItem(loadingItem)
+        }
+    }
     fun setup(_query: Query,
               showTransportSelectionView: Boolean,
               transportModeFilter: TransportModeFilter?) {
+
         this.query = _query
         _query.fromLocation?.let {
             fromName.set(it.displayName)
@@ -120,7 +138,7 @@ class TripResultListViewModel @Inject constructor(
 
 
     private fun getTransport() {
-        isLoading.set(true)
+        setLoading(true)
         regionService.getTransportModesByLocationsAsync(query.fromLocation!!, query.toLocation!!)
         .observeOn(AndroidSchedulers.mainThread())
         .flatMapIterable { value -> value }
@@ -197,8 +215,9 @@ class TripResultListViewModel @Inject constructor(
                         tripGroupRepository.addTripGroups(query.uuid(), it)
                                 .toObservable<List<TripGroup>>()
                     }
-        }.doOnSubscribe {
-            isLoading.set(true)
+        }.observeOn(AndroidSchedulers.mainThread())
+         .doOnSubscribe {
+            setLoading(true)
             stateChange.accept(MultiStateView.ViewState.CONTENT)
             routingStatusRepositoryLazy.get().putRoutingStatus(RoutingStatus(
                     query.uuid(),
@@ -222,7 +241,7 @@ class TripResultListViewModel @Inject constructor(
                     )).subscribe()
         }
         .doFinally {
-            isLoading.set(false)
+            setLoading(false)
         }.subscribe({}, { error ->
             isError.set(true)
             if (error.message.isNullOrBlank()) {
@@ -265,7 +284,7 @@ class TripResultListViewModel @Inject constructor(
                 }
                 .subscribe {
                     results.update(it.first, it.second)
-                    if (results.isEmpty() && !isLoading.get() && !isError.get()) {
+                    if (results.isEmpty() && !mergedList.contains(loadingItem) && !isError.get()) {
                         stateChange.accept(MultiStateView.ViewState.EMPTY)
                     }
                 }.autoClear()

@@ -5,6 +5,7 @@ import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
+import androidx.databinding.ObservableBoolean
 import androidx.databinding.ObservableField
 import com.jakewharton.rxrelay2.BehaviorRelay
 import com.skedgo.tripkit.booking.BookingForm
@@ -48,6 +49,7 @@ class TripSegmentsViewModel @Inject internal constructor(
                   .map(CreditSourcesOfDataViewModel::class.java, BR.viewModel, R.layout.credit_sources_of_data)
                   .map(TripSegmentItemViewModel::class.java, BR.viewModel, R.layout.trip_segment)
   )
+  val showCloseButton = ObservableBoolean(false)
 
   internal val onStreetViewTapped = PublishSubject.create<Location>()
   private val creditSourcesOfDataViewModel = BehaviorRelay.create<CreditSourcesOfDataViewModel>()

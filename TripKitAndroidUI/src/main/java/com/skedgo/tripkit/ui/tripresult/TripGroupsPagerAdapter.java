@@ -1,6 +1,7 @@
 package com.skedgo.tripkit.ui.tripresult;
 
 import android.util.Log;
+import android.view.View;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentStatePagerAdapter;
@@ -12,6 +13,9 @@ import java.util.List;
 public class TripGroupsPagerAdapter extends FragmentStatePagerAdapter {
   private List<TripGroup> tripGroups;
   private List<TripKitButton> buttons;
+  private boolean showCloseButton;
+
+  public View.OnClickListener closeListener = null;
   public TripSegmentListFragment.OnTripKitButtonClickListener listener = null;
 
   public TripGroupsPagerAdapter(FragmentManager fragmentManager) {
@@ -29,14 +33,19 @@ public class TripGroupsPagerAdapter extends FragmentStatePagerAdapter {
     notifyDataSetChanged();
   }
 
+  public void setShowCloseButton(boolean showCloseButton) {
+    this.showCloseButton = showCloseButton;
+  }
   @Override
   public Fragment getItem(int position) {
     TripGroup tripGroup = tripGroups.get(position);
     TripSegmentListFragment fragment = new TripSegmentListFragment.Builder()
                                               .withTripGroupId(tripGroup.uuid())
                                               .withButtons(buttons)
+                                              .showCloseButton(showCloseButton)
                                               .build();
     fragment.setOnTripKitButtonClickListener(listener);
+    fragment.setOnCloseButtonListener(closeListener);
     return fragment;
   }
 

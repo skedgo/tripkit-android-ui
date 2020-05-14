@@ -18,6 +18,7 @@ import com.skedgo.tripkit.ui.search.FetchSuggestions;
 import com.skedgo.tripkit.ui.search.LocationSearchFragment;
 import com.skedgo.tripkit.ui.servicedetail.ServiceDetailFragment;
 import com.skedgo.tripkit.ui.timetables.TimetableFragment;
+import com.skedgo.tripkit.ui.timetables.TimetableMapContributor;
 import com.squareup.otto.Bus;
 import com.squareup.picasso.Picasso;
 import com.uber.rxdogtag.RxDogTag;

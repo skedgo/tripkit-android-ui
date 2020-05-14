@@ -286,7 +286,6 @@ public class ServiceStopMapFragment
     super.onDestroy();
     viewModel.onCleared();
   }
-
   @Override
   public void onTimetableEntrySelected(@NotNull TimetableEntry service, @NotNull ScheduledStop stop, long minStartTime) {
     setService(service);

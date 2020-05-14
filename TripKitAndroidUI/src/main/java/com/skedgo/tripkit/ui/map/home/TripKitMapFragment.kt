@@ -16,7 +16,6 @@ import com.skedgo.tripkit.common.model.Location
 import com.skedgo.tripkit.common.model.Region
 import com.skedgo.tripkit.common.model.Region.City
 import com.skedgo.tripkit.data.regions.RegionService
-import com.skedgo.tripkit.logging.ErrorLogger
 import com.skedgo.tripkit.routing.ModeInfo
 import com.skedgo.tripkit.routing.VehicleDrawables
 import com.skedgo.tripkit.tripplanner.NonCurrentType
@@ -44,7 +43,6 @@ import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.functions.Action
 import io.reactivex.functions.Consumer
-import io.reactivex.observers.DisposableSingleObserver
 import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
 import java.io.InvalidClassException
@@ -108,6 +106,8 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
     private var fromMarker: Marker? = null
     private var toMarker: Marker? = null
 
+    private var contributor: TripKitMapContributor? = null
+
     // There doesn't seem to be a way to show an info window when a POI is clicked, so work-around that
     // by using an invisible marker on the map that is moved to the POI's location when clicked.
     private var poiMarker: Marker? = null
@@ -152,9 +152,22 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
             this.map = map
             initMarkerCollections(map)
             initMap(map)
+            contributor?.safeToUseMap(context!!, map)
         })
         initStuff()
         setMyLocationEnabled()
+    }
+
+    fun setContributor(newContributor: TripKitMapContributor?) {
+        contributor?.let {
+            it.cleanup()
+        }
+        contributor = newContributor
+        contributor?.let {
+            whenSafeToUseMap(Consumer { map: GoogleMap ->
+                contributor?.safeToUseMap(context!!, map)
+            })
+        }
     }
 
     override fun onStart() {
@@ -453,7 +466,10 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
             }
 
             override fun getInfoContents(marker: Marker): View? {
-                return markerManager!!.getInfoContents(marker)
+                return when (val result = contributor?.getInfoContents(marker)) {
+                    null -> markerManager!!.getInfoContents(marker)
+                    else -> result
+                }
             }
         })
         map.setOnCameraChangeListener(this)

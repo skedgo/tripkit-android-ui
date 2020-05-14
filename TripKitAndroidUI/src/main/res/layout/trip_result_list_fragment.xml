@@ -13,15 +13,26 @@
                                                            android:background="#ffffff">
             <TextView
                     tools:text="To Location"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:id="@+id/toLocation"
                     android:text="@{viewModel.toName}"
                     style="@style/TextAppearance.MaterialComponents.Headline6"
-                    android:layout_marginTop="16dp"
                     android:layout_marginStart="16dp"
                     app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toStartOf="@+id/closeButton"
                     app:layout_constraintTop_toTopOf="parent"/>
+            <ImageButton
+                    android:id="@+id/closeButton"
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:layout_marginEnd="16dp"
+                    app:srcCompat="@drawable/close"
+                    android:visibility="@{viewModel.showCloseButton}"
+                    app:layout_constraintTop_toTopOf="@+id/toLocation"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintBottom_toBottomOf="@+id/toLocation"/>
+
             <TextView
                     android:text="@string/from_with_colon"
                     android:layout_width="wrap_content"
@@ -31,6 +42,7 @@
                     app:layout_constraintStart_toStartOf="@id/toLocation"
                     style="@style/TextAppearance.MaterialComponents.Body2"
                     android:textColor="@color/black1"/>
+
             <TextView android:layout_width="wrap_content"
                       android:layout_height="wrap_content"
                       android:layout_marginStart="4dp"
@@ -142,7 +154,7 @@
                                                            android:id="@+id/recyclerView"
                                                            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                                                            app:itemBinding="@{viewModel.itemBinding}"
-                                                           app:items="@{viewModel.results}"
+                                                           app:items="@{viewModel.mergedList}"
                                                            android:background="@color/grey2"/>
 
             </com.skedgo.tripkit.ui.views.MultiStateView>

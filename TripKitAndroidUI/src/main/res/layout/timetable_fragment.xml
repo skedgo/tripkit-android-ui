@@ -17,7 +17,7 @@
         <TextView
                 tools:text="Town Hall Station"
                 style="@style/TextAppearance.MaterialComponents.Headline6"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:id="@+id/nameOfStation"
                 android:layout_marginLeft="8dp"
@@ -25,8 +25,22 @@
                 android:layout_marginTop="8dp"
                 android:text="@{viewModel.stationName}"
                 app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/closeButton"
                 app:layout_constraintStart_toStartOf="parent"
         />
+
+        <ImageButton
+                android:id="@+id/closeButton"
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:layout_marginEnd="16dp"
+                app:srcCompat="@drawable/close"
+                android:visibility="@{viewModel.showCloseButton}"
+                app:layout_constraintTop_toTopOf="@+id/nameOfStation"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintBottom_toBottomOf="@+id/nameOfStation"/>
+
+
         <!-- Commenting out until the backend supports giving us the names of stations -->
 <!--        <TextView-->
 <!--                tools:text="Train Station"-->

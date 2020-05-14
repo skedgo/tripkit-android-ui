@@ -89,11 +89,6 @@ class TimetableFragment : BaseTripKitFragment(), View.OnClickListener {
     private val filterThrottle = PublishSubject.create<String>()
     private lateinit var binding: TimetableFragmentBinding
     protected var buttons: List<TripKitButton> = emptyList()
-    val smoothScroller = object : LinearSmoothScroller(context) {
-        override fun getVerticalSnapPreference(): Int {
-            return SNAP_TO_START
-        }
-    }
 
     override fun onAttach(context: Context) {
         TripKitUI.getInstance().inject(this);
@@ -109,47 +104,7 @@ class TimetableFragment : BaseTripKitFragment(), View.OnClickListener {
                     viewModel.filter.accept(it)
                 }.addTo(autoDisposable)
 
-        viewModel.onServiceClick
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe {
-                    timetableEntrySelectedListener.forEach{listener ->
-                        listener.onTimetableEntrySelected(it.first, it.second, it.third)
-                    }
-                }.addTo(autoDisposable)
 
-        viewModel.onError.observeOn(AndroidSchedulers.mainThread()).subscribe { error ->
-            binding.multiStateView?.let { msv ->
-                if (activity is OnResultStateListener) {
-                    msv.setViewForState((activity as OnResultStateListener).provideErrorView(error),
-                            MultiStateView.ViewState.ERROR, true)
-                } else {
-                    val errorView = LayoutInflater.from(activity).inflate(R.layout.generic_error_view, null)
-                    errorView?.findViewById<TextView>(R.id.errorMessageView)?.text = error
-                    msv.setViewForState(errorView, MultiStateView.ViewState.ERROR, true)
-                }
-            }
-        }.addTo(autoDisposable)
-
-        viewModel.stateChange.observeOn(AndroidSchedulers.mainThread()).subscribe {
-            binding.multiStateView?.let { msv ->
-                if (it == MultiStateView.ViewState.EMPTY) {
-                    if (activity is OnResultStateListener) {
-                        msv.setViewForState((activity as OnResultStateListener).provideEmptyView(), MultiStateView.ViewState.EMPTY, true)
-                    } else {
-                        val emptyView = LayoutInflater.from(activity).inflate(R.layout.generic_empty_view, null)
-                        msv.setViewForState(emptyView, MultiStateView.ViewState.EMPTY, true)
-                    }
-                }
-            }
-        }.addTo(autoDisposable)
-
-        viewModel.scrollToNow
-                .delay(500, TimeUnit.MILLISECONDS) // 500 ms is a guess, wait for the data to be set to the adapter.
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe { integer ->
-                    smoothScroller.targetPosition = integer.toInt()
-                    binding.recyclerView.layoutManager?.startSmoothScroll(smoothScroller)
-        }.addTo(autoDisposable)
 
     }
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -213,6 +168,53 @@ class TimetableFragment : BaseTripKitFragment(), View.OnClickListener {
                 Timber.e("Invalid button layout ${it.layoutResourceId}", e)
             }
         }
+
+        viewModel.onServiceClick
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe {
+                    timetableEntrySelectedListener.forEach{listener ->
+                        listener.onTimetableEntrySelected(it.first, it.second, it.third)
+                    }
+                }.addTo(autoDisposable)
+        viewModel.onError.observeOn(AndroidSchedulers.mainThread()).subscribe { error ->
+            binding.multiStateView?.let { msv ->
+                if (activity is OnResultStateListener) {
+                    msv.setViewForState((activity as OnResultStateListener).provideErrorView(error),
+                            MultiStateView.ViewState.ERROR, true)
+                } else {
+                    val errorView = LayoutInflater.from(activity).inflate(R.layout.generic_error_view, null)
+                    errorView?.findViewById<TextView>(R.id.errorMessageView)?.text = error
+                    msv.setViewForState(errorView, MultiStateView.ViewState.ERROR, true)
+                }
+            }
+        }.addTo(autoDisposable)
+
+        viewModel.stateChange.observeOn(AndroidSchedulers.mainThread()).subscribe {
+            binding.multiStateView?.let { msv ->
+                if (it == MultiStateView.ViewState.EMPTY) {
+                    if (activity is OnResultStateListener) {
+                        msv.setViewForState((activity as OnResultStateListener).provideEmptyView(), MultiStateView.ViewState.EMPTY, true)
+                    } else {
+                        val emptyView = LayoutInflater.from(activity).inflate(R.layout.generic_empty_view, null)
+                        msv.setViewForState(emptyView, MultiStateView.ViewState.EMPTY, true)
+                    }
+                }
+            }
+        }.addTo(autoDisposable)
+
+        viewModel.scrollToNow
+                .delay(500, TimeUnit.MILLISECONDS) // 500 ms is a guess, wait for the data to be set to the adapter.
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe { integer ->
+                    val smoothScroller = object : LinearSmoothScroller(context) {
+                        override fun getVerticalSnapPreference(): Int {
+                            return SNAP_TO_START
+                        }
+                    }
+
+                    smoothScroller.targetPosition = integer.toInt()
+                    binding.recyclerView.layoutManager?.startSmoothScroll(smoothScroller)
+                }.addTo(autoDisposable)
         return binding.root
     }
 
@@ -236,13 +238,12 @@ class TimetableFragment : BaseTripKitFragment(), View.OnClickListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         stop = arguments?.getParcelable(ARG_STOP)
-
         binding.goToNowButton.setOnClickListener { binding.recyclerView.scrollToPosition(viewModel.getFirstNowPosition()) }
+        val showCloseButton = arguments?.getBoolean(ARG_SHOW_CLOSE_BUTTON, false) ?: false
+        viewModel.showCloseButton.set(showCloseButton)
+        binding.closeButton.setOnClickListener(onCloseButtonListener)
 
         viewModel.downloadTimetable.accept(System.currentTimeMillis() - TimeUtils.InMillis.MINUTE * 10)
-
-//        viewModel.stop.accept(stop)
-
     }
 
     override fun onDestroy() {
@@ -267,6 +268,7 @@ class TimetableFragment : BaseTripKitFragment(), View.OnClickListener {
     }
 
     class Builder {
+        private var showCloseButton = false
         private var stop: ScheduledStop? = null
         private var buttons: MutableList<TripKitButton> = mutableListOf()
 
@@ -281,10 +283,15 @@ class TimetableFragment : BaseTripKitFragment(), View.OnClickListener {
             return this
         }
 
+        fun showCloseButton(): Builder {
+            showCloseButton = true
+            return this
+        }
         fun build(): TimetableFragment {
             val args = Bundle()
             val fragment = TimetableFragment()
             args.putParcelable(ARG_STOP, stop)
+            args.putBoolean(ARG_SHOW_CLOSE_BUTTON, showCloseButton)
             fragment.arguments = args
             fragment.buttons = buttons
 

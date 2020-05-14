@@ -17,7 +17,7 @@ internal class SetSegmentMarkerIcon(segmentMarker: Marker) : Consumer<Try<Pair<B
     try {
       when (result) {
         is Success<Pair<Bitmap, Float>> -> {
-          segmentMarkerRef.get()?.setIcon(BitmapDescriptorFactory.fromBitmap(result().first))
+           segmentMarkerRef.get()?.setIcon(BitmapDescriptorFactory.fromBitmap(result().first))
           segmentMarkerRef.get()?.setAnchor(result().second, 1.0f)
         }
         is Failure<Pair<Bitmap, Float>> -> Timber.e(result())

@@ -13,6 +13,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.RecyclerView
 import com.skedgo.tripkit.logging.ErrorLogger
 import com.skedgo.tripkit.routing.TripGroup
+import com.skedgo.tripkit.ui.ARG_SHOW_CLOSE_BUTTON
 import com.skedgo.tripkit.ui.ARG_TRIP_GROUP_ID
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.TripKitUI
@@ -21,6 +22,7 @@ import com.skedgo.tripkit.ui.core.addTo
 import com.skedgo.tripkit.ui.databinding.TripSegmentListFragmentBinding
 import com.skedgo.tripkit.ui.model.TripKitButton
 import com.squareup.otto.Bus
+import kotlinx.android.synthetic.main.trip_segment_list_fragment.view.*
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -62,11 +64,6 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
 
     lateinit var binding: TripSegmentListFragmentBinding
     private var tripGroupId: String? = null
-
-    /* TODO: Replace with RxJava-based approach. */
-    @Deprecated("")
-    private var internalBus: Bus? = null
-    private val itemsView: RecyclerView? = null
 
     override fun onAttach(context: Context) {
         TripKitUI.getInstance().tripDetailsComponent().inject(this)
@@ -181,6 +178,10 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
 
         binding = TripSegmentListFragmentBinding.inflate(inflater)
         binding.viewModel = viewModel
+        val showCloseButton = arguments?.getBoolean(ARG_SHOW_CLOSE_BUTTON, false) ?: false
+        viewModel.showCloseButton.set(showCloseButton)
+        binding.closeButton.setOnClickListener(onCloseButtonListener)
+
         binding.itemsView.isNestedScrollingEnabled = true
         buttons.forEach {
             try {
@@ -341,7 +342,7 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
     class Builder {
         private var tripGroupId : String? = null
         private var buttons: List<TripKitButton>? = null
-
+        private var showCloseButton = false
         fun withTripGroupId(tripGroupId: String): Builder {
             this.tripGroupId = tripGroupId
             return this
@@ -352,11 +353,17 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
             return this
         }
 
+        fun showCloseButton(showCloseButton: Boolean): Builder {
+            this.showCloseButton = showCloseButton
+            return this
+        }
+
         fun build(): TripSegmentListFragment {
             assert(tripGroupId != null)
 
             val args = Bundle()
             args.putString(ARG_TRIP_GROUP_ID, tripGroupId)
+            args.putBoolean(ARG_SHOW_CLOSE_BUTTON, showCloseButton)
 
             // Initialize fragment
             val fragment = TripSegmentListFragment()

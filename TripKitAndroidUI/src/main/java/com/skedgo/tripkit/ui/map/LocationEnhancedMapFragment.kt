@@ -15,7 +15,6 @@ import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.core.addTo
 import com.skedgo.tripkit.ui.core.permissions.*
 import com.skedgo.tripkit.ui.core.permissions.PermissionResult.Granted
-import com.skedgo.tripkit.ui.map.home.TripKitMapFragment
 import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.functions.Consumer

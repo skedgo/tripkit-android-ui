@@ -47,6 +47,7 @@ class TimetableViewModel  @Inject constructor(
         private val resources: Resources
 ): RxViewModel() {
     var stop: BehaviorRelay<ScheduledStop> = BehaviorRelay.create<ScheduledStop>()
+
     val stationName = ObservableField<String>()
     val stationType = ObservableField<String>()
     val itemBinding = ItemBinding.of<ServiceViewModel>(BR.viewModel, R.layout.timetable_fragment_list_item)
@@ -55,6 +56,7 @@ class TimetableViewModel  @Inject constructor(
     val services: ObservableField<List<ServiceViewModel>> = ObservableField(emptyList())
     val serviceNumbers: ObservableField<List<TimetableHeaderLineItem>> = ObservableField(emptyList())
     val showLoading = ObservableBoolean(false)
+    val showCloseButton = ObservableBoolean(false)
 
     val downloadTimetable: PublishRelay<Long> = PublishRelay.create<Long>()
     val onDateChanged: PublishRelay<Long> = PublishRelay.create<Long>()
@@ -168,12 +170,14 @@ class TimetableViewModel  @Inject constructor(
                         }
             }
 
+
     val onServiceClick = services
             .asObservable()
             .withLatestFrom(parentStop, minStartTime) { vMs, parentStop : ScheduledStop, minStartTime -> Triple(vMs, parentStop, minStartTime) }
             .switchMap { (vMs, parentStop, minStartTime) ->
                 vMs.map {
-                    it.onItemClick.observable }
+                    it.onItemClick.observable
+                }
                 .let {
                             Observable.merge(it)
                         }
