@@ -19,15 +19,22 @@ import com.skedgo.tripkit.common.model.ScheduledStop
 import com.skedgo.tripkit.common.util.TimeUtils
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.TripKitUI
+import com.skedgo.tripkit.ui.core.AutoDisposable
 import com.skedgo.tripkit.ui.core.BaseTripKitFragment
 import com.skedgo.tripkit.ui.core.OnResultStateListener
 import com.skedgo.tripkit.ui.core.addTo
+import com.skedgo.tripkit.ui.core.rxproperty.asObservable
 import com.skedgo.tripkit.ui.databinding.TimetableFragmentBinding
 import com.skedgo.tripkit.ui.dialog.TimeDatePickerFragment
 import com.skedgo.tripkit.ui.model.TimetableEntry
 import com.skedgo.tripkit.ui.model.TripKitButton
 import com.skedgo.tripkit.ui.views.MultiStateView
+import io.reactivex.BackpressureStrategy
+import io.reactivex.Flowable
+import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.functions.BiFunction
 import io.reactivex.subjects.PublishSubject
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
@@ -89,14 +96,15 @@ class TimetableFragment : BaseTripKitFragment(), View.OnClickListener {
     private val filterThrottle = PublishSubject.create<String>()
     private lateinit var binding: TimetableFragmentBinding
     protected var buttons: List<TripKitButton> = emptyList()
+    val clickDisposable = CompositeDisposable()
 
     override fun onAttach(context: Context) {
         TripKitUI.getInstance().inject(this);
         super.onAttach(context)
     }
 
-    override fun onStart() {
-        super.onStart()
+    override fun onResume() {
+        super.onResume()
         filterThrottle
                 .debounce(500, TimeUnit.MILLISECONDS)
                 .observeOn(AndroidSchedulers.mainThread())
@@ -104,78 +112,6 @@ class TimetableFragment : BaseTripKitFragment(), View.OnClickListener {
                     viewModel.filter.accept(it)
                 }.addTo(autoDisposable)
 
-
-
-    }
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
-        binding = TimetableFragmentBinding.inflate(layoutInflater)
-
-        val layoutManager = FlexboxLayoutManager(context)
-        layoutManager.flexDirection = FlexDirection.ROW
-        binding.serviceLineRecyclerView.layoutManager = layoutManager
-
-        binding.viewModel = viewModel
-        binding.serviceLineRecyclerView.isNestedScrollingEnabled = false
-        binding.recyclerView.isNestedScrollingEnabled = true
-        binding.recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-
-            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                super.onScrolled(recyclerView, dx, dy)
-                if (dy >= 0) {
-                    binding.goToNowButton.setVisibility(View.GONE)
-                } else {
-                    binding.goToNowButton.setVisibility(View.VISIBLE)
-                }
-            }
-
-            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
-                super.onScrollStateChanged(recyclerView, newState)
-
-                if (!recyclerView.canScrollVertically(1) && !viewModel.showLoading.get()) {
-                    viewModel.downloadMoreTimetableAsync()
-                }
-            }
-        })
-        binding.recyclerView.addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
-
-        binding.departuresSearchSetTime.timeSet.setOnClickListener {
-            selectTime()
-        }
-        val search =  binding.departuresSearchSetTime.stationSearch
-        search.isSelected = false
-        search.addTextChangedListener(object : TextWatcher {
-            override fun afterTextChanged(p0: Editable?) {
-            }
-
-            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-            }
-
-            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-                p0?.let {
-                    filterThrottle.onNext(it.toString())
-                }
-            }
-        })
-
-        buttons.forEach {
-            try {
-                val button = layoutInflater.inflate(it.layoutResourceId, null, false)
-                button.tag = it.id
-                button.setOnClickListener(this)
-                binding.buttonsFlexboxLayout.addView(button)
-            } catch (e: InflateException) {
-                Timber.e("Invalid button layout ${it.layoutResourceId}", e)
-            }
-        }
-
-        viewModel.onServiceClick
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe {
-                    timetableEntrySelectedListener.forEach{listener ->
-                        listener.onTimetableEntrySelected(it.first, it.second, it.third)
-                    }
-                }.addTo(autoDisposable)
         viewModel.onError.observeOn(AndroidSchedulers.mainThread()).subscribe { error ->
             binding.multiStateView?.let { msv ->
                 if (activity is OnResultStateListener) {
@@ -215,6 +151,93 @@ class TimetableFragment : BaseTripKitFragment(), View.OnClickListener {
                     smoothScroller.targetPosition = integer.toInt()
                     binding.recyclerView.layoutManager?.startSmoothScroll(smoothScroller)
                 }.addTo(autoDisposable)
+        viewModel.downloadTimetable.accept(System.currentTimeMillis() - TimeUtils.InMillis.MINUTE * 10)
+    }
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
+                              savedInstanceState: Bundle?): View? {
+        binding = TimetableFragmentBinding.inflate(layoutInflater)
+
+        val layoutManager = FlexboxLayoutManager(context)
+        layoutManager.flexDirection = FlexDirection.ROW
+        binding.serviceLineRecyclerView.layoutManager = layoutManager
+
+        binding.viewModel = viewModel
+        binding.serviceLineRecyclerView.isNestedScrollingEnabled = false
+        binding.recyclerView.isNestedScrollingEnabled = true
+        binding.recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+                if (dy >= 0) {
+                    binding.goToNowButton.setVisibility(View.GONE)
+                } else {
+                    binding.goToNowButton.setVisibility(View.VISIBLE)
+                }
+            }
+
+            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                super.onScrollStateChanged(recyclerView, newState)
+
+                if (!recyclerView.canScrollVertically(1) && !viewModel.showLoading.get()) {
+                    viewModel.downloadMoreTimetableAsync()
+                }
+            }
+        })
+        binding.recyclerView.addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
+
+        binding.departuresSearchSetTime.timeSet.setOnClickListener {
+            selectTime()
+        }
+
+        val search =  binding.departuresSearchSetTime.stationSearch
+        search.isSelected = false
+        search.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(p0: Editable?) {
+            }
+
+            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+            }
+
+            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+                p0?.let {
+                    filterThrottle.onNext(it.toString())
+                }
+            }
+        })
+
+        buttons.forEach {
+            try {
+                val button = layoutInflater.inflate(it.layoutResourceId, null, false)
+                button.tag = it.id
+                button.setOnClickListener(this)
+                binding.buttonsFlexboxLayout.addView(button)
+            } catch (e: InflateException) {
+                Timber.e("Invalid button layout ${it.layoutResourceId}", e)
+            }
+        }
+
+        // For some reason, subscribing to this in onResume() loses click events after resuming.
+        // Doing so here, in onCreateView(), works.
+        clickDisposable.add(viewModel.services.asObservable()
+                .map {
+                    it.map {vm ->
+                        vm.onItemClick.observable
+                    }
+                }
+                .switchMap {
+                    Observable.merge(it)
+                }
+                .subscribe { timetableEntry ->
+                    Observable.combineLatest(viewModel.stopRelay, viewModel.startTimeRelay,
+                            BiFunction { one: ScheduledStop, two: Long -> one to two })
+                            .take(1).subscribe { pair ->
+                                timetableEntrySelectedListener.forEach { listener ->
+                                    listener.onTimetableEntrySelected(timetableEntry, pair.first, pair.second)
+                                }
+                            }
+                })
+
         return binding.root
     }
 
@@ -243,12 +266,12 @@ class TimetableFragment : BaseTripKitFragment(), View.OnClickListener {
         viewModel.showCloseButton.set(showCloseButton)
         binding.closeButton.setOnClickListener(onCloseButtonListener)
 
-        viewModel.downloadTimetable.accept(System.currentTimeMillis() - TimeUtils.InMillis.MINUTE * 10)
     }
 
     override fun onDestroy() {
         super.onDestroy()
         viewModel.onCleared()
+        clickDisposable.clear()
     }
 
     fun selectTime() {

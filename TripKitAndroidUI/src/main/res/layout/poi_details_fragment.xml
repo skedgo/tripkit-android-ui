@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <variable
+                name="viewModel"
+                type="com.skedgo.tripkit.ui.poidetails.PoiDetailsViewModel" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#ffffff">
+        <TextView android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  tools:text="Some POI"
+                  android:id="@+id/title"
+                  android:layout_marginTop="16dp"
+                  android:layout_marginStart="16dp"
+                  android:layout_marginEnd="16dp"
+                  android:text="@{viewModel.locationTitle}"
+                  style="@style/TextAppearance.MaterialComponents.Headline6"
+                  app:layout_constraintStart_toStartOf="parent"
+                  app:layout_constraintTop_toTopOf="parent"/>
+
+        <ImageButton
+                android:id="@+id/closeButton"
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:layout_marginEnd="16dp"
+                app:srcCompat="@drawable/close"
+                android:visibility="@{viewModel.showCloseButton}"
+                app:layout_constraintTop_toTopOf="@+id/title"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintBottom_toBottomOf="@+id/title"/>
+
+        <View android:layout_width="0dp"
+              android:layout_height="1dp"
+              android:id="@+id/firstDividingLine"
+              android:background="@color/black3"
+              app:layout_constraintTop_toBottomOf="@+id/title"
+              app:layout_constraintStart_toStartOf="parent"
+              app:layout_constraintEnd_toEndOf="parent"
+              android:layout_marginTop="16dp"/>
+
+<!--        <MaterialButton android:layout_width="36dp" android:layout_height="36dp"-->
+<!--                        android:id="@+id/goButton"-->
+<!--                        style="@style/Widget.MaterialComponents.Button.Icon"-->
+<!--                        app:shapeAppearanceOverlay="@style/CircularMaterialButton"-->
+<!--                        app:icon="@drawable/ic_nav_my_location"-->
+<!--                        app:iconSize="22dp"-->
+<!--                        app:iconGravity="textStart"/>-->
+<!--        -->
+<!--        <MaterialButton android:layout_width="36dp" android:layout_height="36dp"-->
+<!--                        android:id="@+id/favoriteButton"-->
+<!--                        style="@style/Widget.MaterialComponents.Button.Icon"-->
+<!--                        app:shapeAppearanceOverlay="@style/CircularMaterialButton"-->
+<!--                        app:icon="@drawable/ic_nav_my_location"-->
+<!--                        app:iconSize="22dp"-->
+<!--                        app:iconGravity="textStart"/>-->
+
+<!--        <MaterialButton android:layout_width="36dp" android:layout_height="36dp"-->
+<!--                        android:id="@+id/shareButton"-->
+<!--                        style="@style/Widget.MaterialComponents.Button.Icon"-->
+<!--                        app:shapeAppearanceOverlay="@style/CircularMaterialButton"-->
+<!--                        app:icon="@drawable/ic_nav_my_location"-->
+<!--                        app:iconSize="22dp"-->
+<!--                        app:iconGravity="textStart"/>-->
+
+        <View android:layout_width="0dp"
+              android:layout_height="1dp"
+              android:id="@+id/secondDividingLine"
+              android:background="@color/black3"
+              app:layout_constraintTop_toBottomOf="@+id/firstDividingLine"
+              app:layout_constraintStart_toStartOf="parent"
+              app:layout_constraintEnd_toEndOf="parent"
+              android:layout_marginTop="16dp"/>
+    <ImageView android:layout_width="24dp"
+               android:layout_height="24dp"
+               android:layout_marginTop="24dp"
+               app:srcCompat="@drawable/ic_pin"
+               android:id="@+id/addressIcon"
+               app:layout_constraintStart_toStartOf="parent"
+               app:layout_constraintTop_toBottomOf="@+id/secondDividingLine"
+               android:layout_marginStart="16dp"/>
+    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+              android:id="@+id/address"
+              style="@style/TextAppearance.MaterialComponents.Subtitle1"
+              tools:text="Address"
+              android:text="@{viewModel.address}"
+              android:layout_marginStart="48dp"
+              app:layout_constraintStart_toEndOf="@+id/addressIcon"
+              app:layout_constraintTop_toTopOf="@+id/addressIcon"
+              app:layout_constraintBottom_toBottomOf="@+id/addressIcon"/>
+
+        <ImageView android:layout_width="24dp"
+                   android:layout_height="24dp"
+                   android:layout_marginTop="24dp"
+                   app:srcCompat="@drawable/ic_globe"
+                   android:id="@+id/websiteIcon"
+                   android:tint="@color/tripKitSuccess"
+                   app:layout_constraintStart_toStartOf="@+id/addressIcon"
+                   app:layout_constraintTop_toBottomOf="@+id/addressIcon"/>
+
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                  android:id="@+id/website"
+                  style="@style/TextAppearance.MaterialComponents.Subtitle1"
+                  tools:text="www.somesite"
+                  android:text="@{viewModel.website}"
+                  android:autoLink="web"
+                  android:textColor="@color/tripKitSuccess"
+                  android:layout_marginStart="48dp"
+                  app:layout_constraintStart_toEndOf="@+id/websiteIcon"
+                  app:layout_constraintTop_toTopOf="@+id/websiteIcon"
+                  app:layout_constraintBottom_toBottomOf="@+id/websiteIcon"/>
+
+        <ImageView android:layout_width="24dp"
+                   android:layout_height="24dp"
+                   android:layout_marginTop="24dp"
+                   app:srcCompat="@drawable/ic_what3word"
+                   android:id="@+id/what3wordIcon"
+                   android:tint="@color/tripKitSuccess"
+                   app:layout_constraintStart_toStartOf="@+id/addressIcon"
+                   app:layout_constraintTop_toBottomOf="@+id/websiteIcon"/>
+
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                  android:id="@+id/what3word"
+                  style="@style/TextAppearance.MaterialComponents.Subtitle1"
+                  tools:text="something.something.something"
+                  android:text="@{viewModel.what3words}"
+                  android:layout_marginStart="48dp"
+                  app:layout_constraintStart_toEndOf="@+id/what3wordIcon"
+                  app:layout_constraintTop_toTopOf="@+id/what3wordIcon"
+                  app:layout_constraintBottom_toBottomOf="@+id/what3wordIcon"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

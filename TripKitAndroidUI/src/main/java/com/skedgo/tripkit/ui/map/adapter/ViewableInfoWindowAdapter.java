@@ -34,7 +34,11 @@ public final class ViewableInfoWindowAdapter implements StopInfoWindowAdapter {
   }
 
   @Override public int windowInfoHeightInPixel(@NotNull Marker marker) {
-    return view.getHeight();
+    if (view != null) {
+      return view.getHeight();
+    } else {
+      return 0;
+    }
   }
 
   @Override public void onInfoWindowClosed(@NotNull Marker marker) { }

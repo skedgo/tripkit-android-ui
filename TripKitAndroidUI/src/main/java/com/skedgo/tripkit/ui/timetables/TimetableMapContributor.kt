@@ -33,6 +33,7 @@ import com.skedgo.tripkit.ui.servicedetail.GetStopDisplayText
 import dagger.Lazy
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.functions.Consumer
+import timber.log.Timber
 import java.util.*
 import javax.inject.Inject
 
@@ -122,9 +123,9 @@ class TimetableMapContributor(val fragment: Fragment) : TripKitMapContributor {
     }
 
     override fun cleanup() {
-        autoDisposable.clear()
-        serviceLines.forEach { it.remove() }
         stopCodesToMarkerMap.forEach { it.value.remove() }
+        serviceLines.forEach { it.remove() }
+        autoDisposable.clear()
     }
 
 

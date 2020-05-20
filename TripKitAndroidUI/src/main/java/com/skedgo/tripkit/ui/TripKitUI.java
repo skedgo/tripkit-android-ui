@@ -11,6 +11,7 @@ import com.skedgo.tripkit.data.database.DbHelper;
 import com.skedgo.tripkit.data.regions.RegionService;
 import com.skedgo.tripkit.ui.core.module.*;
 import com.skedgo.tripkit.ui.data.places.PlaceSearchRepository;
+import com.skedgo.tripkit.ui.poidetails.PoiDetailsFragment;
 import com.skedgo.tripkit.ui.provider.ScheduledStopsProvider;
 import com.skedgo.tripkit.ui.provider.ServiceStopsProvider;
 import com.skedgo.tripkit.ui.routingresults.TripGroupRepository;
@@ -133,4 +134,5 @@ public abstract class TripKitUI {
     public abstract void inject(ServiceStopsProvider provider);
     public abstract void inject(ServiceDetailFragment fragment);
     public abstract void inject(ScheduledStopsProvider provider);
+    public abstract void inject(PoiDetailsFragment fragment);
 }

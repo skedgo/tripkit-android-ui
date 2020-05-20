@@ -30,6 +30,8 @@ import me.tatarka.bindingcollectionadapter2.ItemBinding
 import org.joda.time.DateTimeZone
 import com.skedgo.tripkit.routing.toSeconds
 import com.skedgo.tripkit.ui.views.MultiStateView
+import io.reactivex.rxkotlin.combineLatest
+import io.reactivex.subjects.BehaviorSubject
 import timber.log.Timber
 import java.security.InvalidKeyException
 import java.util.concurrent.atomic.AtomicLong
@@ -47,6 +49,7 @@ class TimetableViewModel  @Inject constructor(
         private val resources: Resources
 ): RxViewModel() {
     var stop: BehaviorRelay<ScheduledStop> = BehaviorRelay.create<ScheduledStop>()
+    var serviceClick = PublishRelay.create<TimetableEntry>()
 
     val stationName = ObservableField<String>()
     val stationType = ObservableField<String>()
@@ -54,6 +57,7 @@ class TimetableViewModel  @Inject constructor(
     val serviceItemBinding = ItemBinding.of<TimetableHeaderLineItem>(BR.data, R.layout.timetable_header_line_item)
 
     val services: ObservableField<List<ServiceViewModel>> = ObservableField(emptyList())
+
     val serviceNumbers: ObservableField<List<TimetableHeaderLineItem>> = ObservableField(emptyList())
     val showLoading = ObservableBoolean(false)
     val showCloseButton = ObservableBoolean(false)
@@ -72,7 +76,7 @@ class TimetableViewModel  @Inject constructor(
         regionService.getRegionByLocationAsync(it)
     }
 
-    val minStartTime = onDateChanged.mergeWith(downloadTimetable).map {it / 1000 }
+    val minStartTime = onDateChanged.mergeWith(downloadTimetable).map { it / 1000 }
 
     private val servicesAndParentStop = Observables
             .combineLatest(minStartTime, regionObservable, stop)
@@ -170,23 +174,22 @@ class TimetableViewModel  @Inject constructor(
                         }
             }
 
-
-    val onServiceClick = services
-            .asObservable()
-            .withLatestFrom(parentStop, minStartTime) { vMs, parentStop : ScheduledStop, minStartTime -> Triple(vMs, parentStop, minStartTime) }
-            .switchMap { (vMs, parentStop, minStartTime) ->
-                vMs.map {
-                    it.onItemClick.observable
-                }
-                .let {
-                            Observable.merge(it)
-                        }
-                .map { Triple(it, parentStop, minStartTime) }
+    val stopRelay = BehaviorRelay.create<ScheduledStop>()
+    val startTimeRelay = BehaviorRelay.create<Long>()
+    val onServiceClick = services.asObservable()
+            .switchMap { vMs ->
+                vMs.map { it.onItemClick.observable }
+                .let { Observable.merge(it) }
+//                .map { Triple(it, stopRelay.value, minStartTime) }
             }
+
 
     val scrollToNow: PublishRelay<Int> = PublishRelay.create<Int>()
 
     init {
+
+        parentStop.subscribe(stopRelay::accept)
+        minStartTime.subscribe(startTimeRelay::accept)
         servicesVMs
                 .ignoreNetworkErrors()
                 .subscribe ({

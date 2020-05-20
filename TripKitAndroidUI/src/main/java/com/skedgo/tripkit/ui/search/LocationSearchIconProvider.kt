@@ -40,7 +40,7 @@ class LegacyLocationSearchIconProvider : LocationSearchIconProvider {
     override fun iconForSearchResult(resultType: LocationSearchIconProvider.SearchResultType, stopType: StopType?): Int {
         return when (resultType) {
             LocationSearchIconProvider.SearchResultType.CURRENT_LOCATION -> R.drawable.ic_currentlocation
-            LocationSearchIconProvider.SearchResultType.DROP_PIN -> R.drawable.ic_chooseonmap
+            LocationSearchIconProvider.SearchResultType.DROP_PIN -> R.drawable.ic_pin
             LocationSearchIconProvider.SearchResultType.SCHEDULED_STOP -> getIconForScheduledStop(stopType)
             LocationSearchIconProvider.SearchResultType.CONTACT -> R.drawable.ic_contact_search
             LocationSearchIconProvider.SearchResultType.CALENDAR -> R.drawable.ic_calendar_search
