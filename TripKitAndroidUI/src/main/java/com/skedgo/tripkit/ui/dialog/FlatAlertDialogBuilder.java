@@ -70,12 +70,7 @@ public class FlatAlertDialogBuilder {
   }
 
   public Dialog create() {
-    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
-      // Falls back to ordinary AlertDialog.Builder
-      return createPreHoneycombDialog();
-    } else {
-      return createDialog();
-    }
+    return createDialog();
   }
 
   private Dialog createDialog() {
@@ -143,21 +138,4 @@ public class FlatAlertDialogBuilder {
     }
   }
 
-  private Dialog createPreHoneycombDialog() {
-    mContentView = LayoutInflater.from(mContext).inflate(mContentViewResourceId, null);
-    AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(mContext)
-            .setInverseBackgroundForced(true)
-            .setTitle(mTitle)
-            .setView(mContentView);
-
-    if (mNegativeTextResourceId != -1) {
-      dialogBuilder.setNegativeButton(mNegativeTextResourceId, mOnNegativeClickListener);
-    }
-
-    if (mPositiveTextResourceId != -1) {
-      dialogBuilder.setPositiveButton(mPositiveTextResourceId, mOnPositiveClickListener);
-    }
-
-    return dialogBuilder.create();
-  }
 }

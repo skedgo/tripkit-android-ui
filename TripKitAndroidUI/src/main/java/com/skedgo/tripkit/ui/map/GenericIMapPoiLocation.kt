@@ -13,10 +13,11 @@ import com.squareup.picasso.Picasso
 import io.reactivex.Single
 
 
-class GenericIMapPoiLocation(private val poiLocation: PointOfInterest, private val stopInfoWindowAdapter: StopInfoWindowAdapter) : IMapPoiLocation {
+class GenericIMapPoiLocation(private val poiLocation: PointOfInterest, private val placeId: String, private val stopInfoWindowAdapter: StopInfoWindowAdapter) : IMapPoiLocation {
     private val location: Location
     init {
         location = PoiLocation()
+        location.placeId = placeId
         location.lat = poiLocation.latLng.latitude
         location.lon = poiLocation.latLng.longitude
         location.name = poiLocation.name

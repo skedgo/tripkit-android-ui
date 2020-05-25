@@ -6,7 +6,7 @@
     <data>
         <variable
                 name="viewModel"
-                type="com.skedgo.tripkit.ui.poidetails.PoiDetailsViewModel" />
+                type="com.skedgo.tripkit.ui.poidetails.PoiDetailsViewModel"/>
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -45,81 +45,102 @@
               app:layout_constraintEnd_toEndOf="parent"
               android:layout_marginTop="16dp"/>
 
-<!--        <MaterialButton android:layout_width="36dp" android:layout_height="36dp"-->
-<!--                        android:id="@+id/goButton"-->
-<!--                        style="@style/Widget.MaterialComponents.Button.Icon"-->
-<!--                        app:shapeAppearanceOverlay="@style/CircularMaterialButton"-->
-<!--                        app:icon="@drawable/ic_nav_my_location"-->
-<!--                        app:iconSize="22dp"-->
-<!--                        app:iconGravity="textStart"/>-->
-<!--        -->
-<!--        <MaterialButton android:layout_width="36dp" android:layout_height="36dp"-->
-<!--                        android:id="@+id/favoriteButton"-->
-<!--                        style="@style/Widget.MaterialComponents.Button.Icon"-->
-<!--                        app:shapeAppearanceOverlay="@style/CircularMaterialButton"-->
-<!--                        app:icon="@drawable/ic_nav_my_location"-->
-<!--                        app:iconSize="22dp"-->
-<!--                        app:iconGravity="textStart"/>-->
+        <com.google.android.material.button.MaterialButton
+                android:layout_width="wrap_content"
+                android:layout_marginTop="16dp"
+                android:theme="@style/Theme.MaterialComponents"
+                style="@style/Widget.MaterialComponents.Button.Icon"
+                android:layout_height="wrap_content"
+                android:textColor="@android:color/white"
+                app:layout_constraintTop_toBottomOf="@+id/firstDividingLine"
+                android:id="@+id/goButton"
+                android:text="@string/go"
+                app:icon="@drawable/ic_go"
+                app:iconTint="@android:color/white"
+                app:backgroundTint="@color/tripKitSuccess"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintHorizontal_bias="0.5" app:layout_constraintEnd_toStartOf="@+id/favoriteButton"/>
 
-<!--        <MaterialButton android:layout_width="36dp" android:layout_height="36dp"-->
-<!--                        android:id="@+id/shareButton"-->
-<!--                        style="@style/Widget.MaterialComponents.Button.Icon"-->
-<!--                        app:shapeAppearanceOverlay="@style/CircularMaterialButton"-->
-<!--                        app:icon="@drawable/ic_nav_my_location"-->
-<!--                        app:iconSize="22dp"-->
-<!--                        app:iconGravity="textStart"/>-->
+        <com.google.android.material.button.MaterialButton
+                android:layout_width="wrap_content"
+                android:layout_marginTop="16dp"
+                android:theme="@style/Theme.MaterialComponents"
+                android:id="@+id/favoriteButton"
+                android:text="@string/favourite"
+                app:icon="@drawable/ic_favorite"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton.Icon"
+                android:layout_height="wrap_content"
+                android:textColor="@color/black"
+                app:iconTint="@color/black"
+                app:strokeColor="@color/black4"
+                app:layout_constraintTop_toBottomOf="@+id/firstDividingLine"
+                app:layout_constraintStart_toEndOf="@+id/goButton" app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintEnd_toEndOf="parent"/>
 
         <View android:layout_width="0dp"
               android:layout_height="1dp"
               android:id="@+id/secondDividingLine"
               android:background="@color/black3"
-              app:layout_constraintTop_toBottomOf="@+id/firstDividingLine"
+              app:layout_constraintTop_toBottomOf="@+id/goButton"
               app:layout_constraintStart_toStartOf="parent"
               app:layout_constraintEnd_toEndOf="parent"
               android:layout_marginTop="16dp"/>
-    <ImageView android:layout_width="24dp"
-               android:layout_height="24dp"
-               android:layout_marginTop="24dp"
-               app:srcCompat="@drawable/ic_pin"
-               android:id="@+id/addressIcon"
-               app:layout_constraintStart_toStartOf="parent"
-               app:layout_constraintTop_toBottomOf="@+id/secondDividingLine"
-               android:layout_marginStart="16dp"/>
-    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-              android:id="@+id/address"
-              style="@style/TextAppearance.MaterialComponents.Subtitle1"
-              tools:text="Address"
-              android:text="@{viewModel.address}"
-              android:layout_marginStart="48dp"
-              app:layout_constraintStart_toEndOf="@+id/addressIcon"
-              app:layout_constraintTop_toTopOf="@+id/addressIcon"
-              app:layout_constraintBottom_toBottomOf="@+id/addressIcon"/>
+        <ImageView android:layout_width="24dp"
+                   android:layout_height="24dp"
+                   android:layout_marginTop="24dp"
+                   app:srcCompat="@drawable/ic_pin"
+                   android:id="@+id/addressIcon"
+                   android:visibility="@{viewModel.showAddress}"
+                   app:layout_constraintStart_toStartOf="parent"
+                   app:layout_constraintTop_toBottomOf="@+id/secondDividingLine"
+                   android:layout_marginStart="16dp"/>
+        <TextView android:layout_width="0dp"
+                  android:layout_height="wrap_content"
+                  android:id="@+id/address"
+                  style="@style/TextAppearance.MaterialComponents.Subtitle1"
+                  tools:text="Address Address Address Address Address Address Address"
+                  android:text="@{viewModel.address}"
+                  android:visibility="@{viewModel.showAddress}"
+                  android:layout_marginStart="48dp"
+                  android:layout_marginEnd="16dp"
+                  app:layout_constraintStart_toEndOf="@+id/addressIcon"
+                  app:layout_constraintEnd_toEndOf="parent"
+                  app:layout_constraintTop_toTopOf="@+id/addressIcon"
+                  app:layout_constraintBottom_toBottomOf="@+id/addressIcon"
+                  android:textAlignment="viewStart"/>
 
         <ImageView android:layout_width="24dp"
                    android:layout_height="24dp"
                    android:layout_marginTop="24dp"
                    app:srcCompat="@drawable/ic_globe"
+                   android:visibility="@{viewModel.showWebsite}"
                    android:id="@+id/websiteIcon"
                    android:tint="@color/tripKitSuccess"
                    app:layout_constraintStart_toStartOf="@+id/addressIcon"
                    app:layout_constraintTop_toBottomOf="@+id/addressIcon"/>
 
-        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+        <TextView android:layout_width="0dp"
+                  android:layout_height="wrap_content"
                   android:id="@+id/website"
                   style="@style/TextAppearance.MaterialComponents.Subtitle1"
                   tools:text="www.somesite"
                   android:text="@{viewModel.website}"
+                  android:visibility="@{viewModel.showWebsite}"
                   android:autoLink="web"
                   android:textColor="@color/tripKitSuccess"
                   android:layout_marginStart="48dp"
+                  android:layout_marginEnd="16dp"
                   app:layout_constraintStart_toEndOf="@+id/websiteIcon"
+                  app:layout_constraintEnd_toEndOf="parent"
                   app:layout_constraintTop_toTopOf="@+id/websiteIcon"
-                  app:layout_constraintBottom_toBottomOf="@+id/websiteIcon"/>
+                  app:layout_constraintBottom_toBottomOf="@+id/websiteIcon"
+                  android:textAlignment="viewStart"/>
 
         <ImageView android:layout_width="24dp"
                    android:layout_height="24dp"
                    android:layout_marginTop="24dp"
                    app:srcCompat="@drawable/ic_what3word"
+                   android:visibility="@{viewModel.showWhat3words}"
                    android:id="@+id/what3wordIcon"
                    android:tint="@color/tripKitSuccess"
                    app:layout_constraintStart_toStartOf="@+id/addressIcon"
@@ -130,6 +151,7 @@
                   style="@style/TextAppearance.MaterialComponents.Subtitle1"
                   tools:text="something.something.something"
                   android:text="@{viewModel.what3words}"
+                  android:visibility="@{viewModel.showWhat3words}"
                   android:layout_marginStart="48dp"
                   app:layout_constraintStart_toEndOf="@+id/what3wordIcon"
                   app:layout_constraintTop_toTopOf="@+id/what3wordIcon"

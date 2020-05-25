@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
+import com.jakewharton.rxrelay2.PublishRelay
 import com.skedgo.tripkit.common.model.Location
 import com.skedgo.tripkit.ui.ARG_LOCATION
 import com.skedgo.tripkit.ui.ARG_SHOW_CLOSE_BUTTON
@@ -17,10 +18,13 @@ import timber.log.Timber
 import javax.inject.Inject
 
 
+const val BUTTON_GO = 1
+const val BUTTON_FAVORITE = 2
 class PoiDetailsFragment : BaseTripKitFragment()  {
     @Inject lateinit var viewModelFactory: PoiDetailsViewModelFactory
     lateinit var viewModel: PoiDetailsViewModel
 
+    val buttonClick = PublishRelay.create<Int>()
     override fun onAttach(context: Context) {
         TripKitUI.getInstance().inject(this)
         super.onAttach(context)
@@ -41,10 +45,16 @@ class PoiDetailsFragment : BaseTripKitFragment()  {
         val binding = PoiDetailsFragmentBinding.inflate(inflater)
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
+        binding.goButton.setOnClickListener { buttonClick.accept(BUTTON_GO) }
+        binding.favoriteButton.setOnClickListener { buttonClick.accept(BUTTON_FAVORITE) }
+
         binding.closeButton.setOnClickListener(onCloseButtonListener)
         return binding.root
     }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+    }
     class Builder(val location: Location) {
         private var showCloseButton = false
 

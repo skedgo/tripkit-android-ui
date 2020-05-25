@@ -216,7 +216,7 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
         poiMarker?.let { marker ->
             marker.title = pointOfInterest.name
             marker.position = pointOfInterest.latLng
-            marker.tag = GenericIMapPoiLocation(pointOfInterest, ViewableInfoWindowAdapter(layoutInflater))
+            marker.tag = GenericIMapPoiLocation(pointOfInterest, pointOfInterest.placeId, ViewableInfoWindowAdapter(layoutInflater))
             if (markerManager != null) {
                 marker.showInfoWindow()
             }
