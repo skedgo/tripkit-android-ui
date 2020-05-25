@@ -59,6 +59,7 @@ class PlaceSearchRepositoryImpl
             val placeFields = listOf(com.google.android.libraries.places.api.model.Place.Field.ID,
                     com.google.android.libraries.places.api.model.Place.Field.NAME,
                     com.google.android.libraries.places.api.model.Place.Field.ADDRESS,
+                    com.google.android.libraries.places.api.model.Place.Field.WEBSITE_URI,
                     com.google.android.libraries.places.api.model.Place.Field.LAT_LNG)
 
             geoDataClient.get().fetchPlace(FetchPlaceRequest.builder(placeId, placeFields).build())
@@ -82,6 +83,7 @@ class PlaceSearchRepositoryImpl
               lng = it.latLng!!.longitude,
               address = it.address.toString(),
               placeId = it.id!!,
+              website = it.websiteUri,
               attribution = it.attributions?.toString())
         }
   }
