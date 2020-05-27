@@ -27,6 +27,7 @@ class CarPodPOILocation(private val carPod: CarPod) : IMapPoiLocation {
     location.name = carPod.name
     location.address = carPod.address
     location.phoneNumber = carPod.operator.phone
+    location.url = carPod.operator.website
     return location
   }
 

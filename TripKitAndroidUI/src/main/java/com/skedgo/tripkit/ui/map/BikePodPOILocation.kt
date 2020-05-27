@@ -1,6 +1,7 @@
 package com.skedgo.tripkit.ui.map
 import android.content.Context
 import android.content.res.Resources
+import com.gojuno.koptional.toOptional
 import com.google.android.gms.maps.model.MarkerOptions
 import com.skedgo.tripkit.common.model.Location
 import com.skedgo.tripkit.data.database.locations.bikepods.BikePodLocationEntity
@@ -26,7 +27,7 @@ class BikePodPOILocation(
     location.phoneNumber = bikePodEntity.bikePod.operator.phone
     location.name = bikePodEntity.bikePod.operator.name
     location.address = bikePodEntity.address
-    location.phoneNumber = bikePodEntity.bikePod.operator.phone
+    location.url = bikePodEntity.bikePod.operator.website
     return location
   }
 
