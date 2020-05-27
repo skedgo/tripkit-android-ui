@@ -25,15 +25,11 @@ import io.reactivex.Flowable
 import io.reactivex.Observable
 import io.reactivex.functions.BiFunction
 import io.reactivex.rxkotlin.Observables
-import io.reactivex.rxkotlin.withLatestFrom
 import me.tatarka.bindingcollectionadapter2.ItemBinding
 import org.joda.time.DateTimeZone
 import com.skedgo.tripkit.routing.toSeconds
 import com.skedgo.tripkit.ui.views.MultiStateView
-import io.reactivex.rxkotlin.combineLatest
-import io.reactivex.subjects.BehaviorSubject
 import timber.log.Timber
-import java.security.InvalidKeyException
 import java.util.concurrent.atomic.AtomicLong
 import javax.inject.Inject
 import javax.inject.Provider
@@ -44,7 +40,7 @@ class TimetableViewModel  @Inject constructor(
         private val fetchAndLoadTimetable: FetchAndLoadTimetable,
         private val serviceViewModelProvider: Provider<ServiceViewModel>,
         private val regionService: RegionService,
-//        private val createShareUrl: CreateShareUrl,
+        private val createShareContent: CreateShareContent,
         private val getNow: GetNow,
         private val resources: Resources
 ): RxViewModel() {
@@ -247,4 +243,8 @@ class TimetableViewModel  @Inject constructor(
             stationType.set(this.stop.value?.type.toString())
         }
     }
+
+    fun getShareUrl(stop: ScheduledStop) =
+            createShareContent.execute(stop, services.get()!!.map { it.service })
+
 }

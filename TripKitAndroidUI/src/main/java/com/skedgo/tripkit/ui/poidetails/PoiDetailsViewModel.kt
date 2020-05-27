@@ -26,6 +26,8 @@ class PoiDetailsViewModel @Inject constructor(private val locationInfoService: L
     fun start(location: Location) {
         this.locationTitle.set(location.displayName)
         this.address.set(location.address)
+        this.website.set(location.url)
+
         locationInfoService.getLocationInfoAsync(location)
                 .take(1)
                 .subscribe {
@@ -36,6 +38,9 @@ class PoiDetailsViewModel @Inject constructor(private val locationInfoService: L
                     }
                 }
                 .autoClear()
+        showAddress.set(!location.address.isNullOrBlank())
+        showWebsite.set(!location.url.isNullOrBlank())
+
         if (location is PoiLocation) {
             location.placeId?.let {placeId ->
                 placeSearchRepository.getPlaceDetails(placeId)

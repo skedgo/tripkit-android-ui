@@ -52,9 +52,6 @@ class PoiDetailsFragment : BaseTripKitFragment()  {
         return binding.root
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-    }
     class Builder(val location: Location) {
         private var showCloseButton = false
 

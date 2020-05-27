@@ -5,10 +5,12 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.databinding.ObservableBoolean
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.skedgo.tripkit.common.model.ScheduledStop
 import com.skedgo.tripkit.common.model.ServiceStop
+import com.skedgo.tripkit.ui.ARG_SHOW_CLOSE_BUTTON
 import com.skedgo.tripkit.ui.TripKitUI
 import com.skedgo.tripkit.ui.core.BaseTripKitFragment
 import com.skedgo.tripkit.ui.core.addTo
@@ -16,6 +18,7 @@ import com.skedgo.tripkit.ui.databinding.ServiceDetailFragmentBinding
 import com.skedgo.tripkit.ui.map.home.TripKitMapContributor
 import com.skedgo.tripkit.ui.model.TimetableEntry
 import com.skedgo.tripkit.ui.timetables.ARG_TIMETABLE_ENTRY
+import com.skedgo.tripkit.ui.timetables.TimetableFragment
 import com.skedgo.tripkit.ui.timetables.TimetableMapContributor
 import io.reactivex.android.schedulers.AndroidSchedulers
 import javax.inject.Inject
@@ -59,7 +62,6 @@ class ServiceDetailFragment : BaseTripKitFragment() {
         mapContributor.cleanup()
     }
 
-
     override fun onStart() {
         super.onStart()
         viewModel.onItemClicked
@@ -86,6 +88,10 @@ class ServiceDetailFragment : BaseTripKitFragment() {
         super.onViewCreated(view, savedInstanceState)
         stop = arguments?.getParcelable(ARG_STOP)
         timetableEntry = arguments?.getParcelable(ARG_TIMETABLE_ENTRY)
+        val showCloseButton = arguments?.getBoolean(com.skedgo.tripkit.ui.timetables.ARG_SHOW_CLOSE_BUTTON, false) ?: false
+        viewModel.showCloseButton.set(showCloseButton)
+        binding.closeButton.setOnClickListener(onCloseButtonListener)
+
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
@@ -97,26 +103,33 @@ class ServiceDetailFragment : BaseTripKitFragment() {
         }
     }
         class Builder {
-        private var stop: ScheduledStop? = null
-        private var timetableEntry: TimetableEntry? = null
-        fun withTimetableEntry(timetableEntry: TimetableEntry?): Builder {
-            this.timetableEntry = timetableEntry
-            return this
-        }
+            private var stop: ScheduledStop? = null
+            private var timetableEntry: TimetableEntry? = null
+            private var showCloseButton = false
+            fun withTimetableEntry(timetableEntry: TimetableEntry?): Builder {
+                this.timetableEntry = timetableEntry
+                return this
+            }
 
-        fun withStop(stop: ScheduledStop?): Builder {
-            this.stop = stop
-            return this
-        }
+            fun showCloseButton(): Builder {
+                showCloseButton = true
+                return this
+            }
 
-        fun build(): ServiceDetailFragment {
-            val args = Bundle()
-            val fragment = ServiceDetailFragment()
-            args.putParcelable(ARG_STOP, stop)
-            args.putParcelable(ARG_TIMETABLE_ENTRY, timetableEntry)
-            fragment.arguments = args
-            return fragment
+            fun withStop(stop: ScheduledStop?): Builder {
+                this.stop = stop
+                return this
+            }
+
+            fun build(): ServiceDetailFragment {
+                val args = Bundle()
+                val fragment = ServiceDetailFragment()
+                args.putParcelable(ARG_STOP, stop)
+                args.putParcelable(ARG_TIMETABLE_ENTRY, timetableEntry)
+                args.putBoolean(ARG_SHOW_CLOSE_BUTTON, showCloseButton)
+                fragment.arguments = args
+                return fragment
+            }
         }
-    }
 
 }

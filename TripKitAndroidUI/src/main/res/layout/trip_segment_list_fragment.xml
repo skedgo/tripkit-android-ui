@@ -53,7 +53,9 @@
                   android:paddingStart="8dp"
                   android:paddingEnd="8dp"
                   android:orientation="horizontal"
-                  app_layout_constraintStart_toStartOf="@parent"
+                  android:divider="@drawable/empty_space"
+                  android:showDividers="middle"
+                  app:layout_constraintStart_toStartOf="parent"
                   app:layout_constraintTop_toBottomOf="@+id/arrive"/>
 
   <View android:layout_width="match_parent" android:layout_height="1dp"

@@ -1,17 +1,17 @@
 package com.skedgo.tripkit.ui.tripresult
 
-import android.app.AlertDialog
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.drawable.BitmapDrawable
-import android.os.Bundle
 import android.view.View
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
-import com.google.android.gms.maps.model.*
+import com.google.android.gms.maps.model.Marker
+import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.gms.maps.model.Polyline
+import com.google.android.gms.maps.model.PolylineOptions
 import com.google.maps.android.MarkerManager
 import com.skedgo.rxtry.toTrySingle
-import com.skedgo.tripkit.common.model.RealtimeAlert
 import com.skedgo.tripkit.common.util.TransportModeUtils
 import com.skedgo.tripkit.logging.ErrorLogger
 import com.skedgo.tripkit.routing.TripSegment
@@ -21,7 +21,6 @@ import com.skedgo.tripkit.ui.core.fetchAsync
 import com.skedgo.tripkit.ui.map.*
 import com.skedgo.tripkit.ui.map.adapter.SegmentInfoWindowAdapter
 import com.skedgo.tripkit.ui.map.adapter.ServiceStopInfoWindowAdapter
-import com.skedgo.tripkit.ui.map.adapter.SimpleInfoWindowAdapter
 import com.skedgo.tripkit.ui.map.home.TripKitMapContributor
 import com.skedgo.tripkit.ui.routing.updateCamera
 import com.squareup.picasso.Picasso
@@ -121,10 +120,12 @@ class TripResultMapContributor : TripKitMapContributor {
                         map.animateCamera(first)
                         showMarkerForSegment(map, second)
                     }) { error: Throwable? -> errorLogger!!.trackError(error!!) })
-            val update = viewModel!!.getCameraUpdate()
-            if (update != null) {
-                map.updateCamera(MapCameraUpdate.Move(update))
-            }
+
+            autoDisposable.add(viewModel.tripCameraUpdate
+                    .subscribe({ cameraUpdate ->
+                        map.updateCamera(cameraUpdate)
+                    }, { Timber.e(it) }))
+
         }
     }
 

@@ -22,6 +22,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:id="@+id/stopName"
+                android:layout_marginTop="8dp"
                 android:layout_marginStart="16dp"
                 android:layout_marginEnd="16dp"
                 android:text="@{viewModel.stationName}"
@@ -29,6 +30,17 @@
                 app:layout_constraintTop_toTopOf="parent"
                 android:layout_marginBottom="8dp"
         />
+        <ImageButton
+                android:id="@+id/closeButton"
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:layout_marginEnd="16dp"
+                app:srcCompat="@drawable/close"
+                android:visibility="@{viewModel.showCloseButton}"
+                app:layout_constraintTop_toTopOf="@+id/stopName"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintBottom_toBottomOf="@+id/stopName"/>
+
         <LinearLayout
                 android:id="@+id/iconLayout"
                 android:orientation="horizontal"

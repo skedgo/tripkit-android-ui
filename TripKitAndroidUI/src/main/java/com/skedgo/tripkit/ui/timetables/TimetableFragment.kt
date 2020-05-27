@@ -1,6 +1,7 @@
 package com.skedgo.tripkit.ui.timetables
 
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -10,6 +11,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.TextView
+import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearSmoothScroller
 import androidx.recyclerview.widget.RecyclerView
@@ -19,7 +21,6 @@ import com.skedgo.tripkit.common.model.ScheduledStop
 import com.skedgo.tripkit.common.util.TimeUtils
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.TripKitUI
-import com.skedgo.tripkit.ui.core.AutoDisposable
 import com.skedgo.tripkit.ui.core.BaseTripKitFragment
 import com.skedgo.tripkit.ui.core.OnResultStateListener
 import com.skedgo.tripkit.ui.core.addTo
@@ -29,8 +30,6 @@ import com.skedgo.tripkit.ui.dialog.TimeDatePickerFragment
 import com.skedgo.tripkit.ui.model.TimetableEntry
 import com.skedgo.tripkit.ui.model.TripKitButton
 import com.skedgo.tripkit.ui.views.MultiStateView
-import io.reactivex.BackpressureStrategy
-import io.reactivex.Flowable
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -84,8 +83,9 @@ class TimetableFragment : BaseTripKitFragment(), View.OnClickListener {
         }
     }
 
-    @Inject
     lateinit var viewModel: TimetableViewModel
+    @Inject lateinit var viewModelFactory: TimetableViewModelFactory
+
     var stop: ScheduledStop? = null
         set(value) {
             if (value != null) {
@@ -101,6 +101,11 @@ class TimetableFragment : BaseTripKitFragment(), View.OnClickListener {
     override fun onAttach(context: Context) {
         TripKitUI.getInstance().inject(this);
         super.onAttach(context)
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        viewModel = ViewModelProviders.of(this, viewModelFactory).get(TimetableViewModel::class.java)
     }
 
     override fun onResume() {
@@ -211,7 +216,7 @@ class TimetableFragment : BaseTripKitFragment(), View.OnClickListener {
                 val button = layoutInflater.inflate(it.layoutResourceId, null, false)
                 button.tag = it.id
                 button.setOnClickListener(this)
-                binding.buttonsFlexboxLayout.addView(button)
+                binding.buttonLayout.addView(button)
             } catch (e: InflateException) {
                 Timber.e("Invalid button layout ${it.layoutResourceId}", e)
             }
@@ -268,10 +273,14 @@ class TimetableFragment : BaseTripKitFragment(), View.OnClickListener {
 
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        clickDisposable.clear()
+    }
+
     override fun onDestroy() {
         super.onDestroy()
         viewModel.onCleared()
-        clickDisposable.clear()
     }
 
     fun selectTime() {
@@ -288,6 +297,19 @@ class TimetableFragment : BaseTripKitFragment(), View.OnClickListener {
         if (p0 != null) {
             tripButtonClickListener?.onTripButtonClicked(p0.tag as String, viewModel.stop.value!!)
         }
+    }
+
+
+    fun showShareDialog() {
+        viewModel.getShareUrl(stop!!)
+                .take(1)
+                .subscribe({ url: String? ->
+                    val intentPartager = Intent(Intent.ACTION_SEND)
+                    intentPartager.type = "text/plain"
+                    intentPartager.putExtra(Intent.EXTRA_TEXT, url)
+                    val startingIntent = Intent.createChooser(intentPartager, "Share this using...")
+                    startActivity(startingIntent)
+                }, { Timber.e(it) })
     }
 
     class Builder {

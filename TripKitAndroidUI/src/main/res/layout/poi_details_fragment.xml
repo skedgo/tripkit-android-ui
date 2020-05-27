@@ -116,8 +116,9 @@
                    android:visibility="@{viewModel.showWebsite}"
                    android:id="@+id/websiteIcon"
                    android:tint="@color/tripKitSuccess"
-                   app:layout_constraintStart_toStartOf="@+id/addressIcon"
-                   app:layout_constraintTop_toBottomOf="@+id/addressIcon"/>
+                   app:layout_constraintStart_toStartOf="parent"
+                   app:layout_constraintTop_toBottomOf="@+id/addressIcon"
+                   android:layout_marginStart="16dp"/>
 
         <TextView android:layout_width="0dp"
                   android:layout_height="wrap_content"
@@ -143,8 +144,9 @@
                    android:visibility="@{viewModel.showWhat3words}"
                    android:id="@+id/what3wordIcon"
                    android:tint="@color/tripKitSuccess"
-                   app:layout_constraintStart_toStartOf="@+id/addressIcon"
-                   app:layout_constraintTop_toBottomOf="@+id/websiteIcon"/>
+                   app:layout_constraintStart_toStartOf="parent"
+                   app:layout_constraintTop_toBottomOf="@+id/websiteIcon"
+                   android:layout_marginStart="16dp"/>
 
         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                   android:id="@+id/what3word"

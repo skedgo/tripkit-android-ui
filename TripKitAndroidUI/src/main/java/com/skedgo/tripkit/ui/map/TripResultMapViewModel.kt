@@ -21,6 +21,7 @@ import io.reactivex.functions.BiFunction
 import com.skedgo.tripkit.datetime.PrintTime
 import com.skedgo.tripkit.routing.Trip
 import com.skedgo.tripkit.routing.TripSegment
+import io.reactivex.android.schedulers.AndroidSchedulers
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -33,39 +34,19 @@ class TripResultMapViewModel @Inject internal constructor(
         private val schedulers: SchedulerFactory
 ): RxViewModel() {
   private val selectedTrip: BehaviorRelay<Trip> = BehaviorRelay.create()
-
-    // This was an observable, but it kept hanging and I don't have time to figure it out.
-    // TODO: Figure out why it was hanging
-    fun getCameraUpdate(): CameraUpdate? = selectedTrip.value?.let {
-                val points = it.segments.getVisibleGeoPointsOnMap()
-                points.toCameraUpdate()
-            }
-
-  val tripCameraUpdate: Observable<MapCameraUpdate>  = selectedTrip
+    
+  val tripCameraUpdate: Observable<MapCameraUpdate>
+      get() = selectedTrip
         .distinctUntilChanged { x, y ->
             x.uuid() == y.uuid() }
-        .doOnNext {
-            if (!it.progressURL.isNullOrEmpty()) {
-            Timber.i("Selected progress URL: ${it.progressURL}")
-          }
-        }
         .map { it.segments }
         .flatMap {
             Observable.fromCallable { it.getVisibleGeoPointsOnMap() }
               .map {
-                  it.toCameraUpdate() }
+                  MapCameraUpdate.Anim(it.toCameraUpdate()) }
         }
-        .zipWith(Observable.range(0, Int.MAX_VALUE),
-                BiFunction<CameraUpdate, Int, MapCameraUpdate>
-                { cameraUpdate: CameraUpdate, index: Int ->
-               when (index) {
-            0 -> MapCameraUpdate.Move(cameraUpdate)
-            else -> MapCameraUpdate.Anim(cameraUpdate)
-              }
-        })
-        .observeOn(mainThread())
 
-  val segments: Observable<List<TripSegment>>
+    val segments: Observable<List<TripSegment>>
     get() = selectedTrip.map {
       it.segments
     }

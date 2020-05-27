@@ -66,23 +66,24 @@
                 app:items="@{viewModel.serviceNumbers}"
                 app:layoutManager="com.google.android.flexbox.FlexboxLayoutManager">
         </androidx.recyclerview.widget.RecyclerView>
-        <com.google.android.flexbox.FlexboxLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/buttonsFlexboxLayout"
-                android:paddingLeft="8dp"
-                android:paddingRight="8dp"
-                app:layout_constraintStart_toStartOf="@+id/nameOfStation"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:flexDirection="row"
-                app:layout_constraintTop_toBottomOf="@+id/serviceLineRecyclerView"/>
+        <LinearLayout android:layout_width="match_parent"
+                      android:layout_height="wrap_content"
+                      android:id="@+id/buttonLayout"
+                      android:paddingStart="8dp"
+                      android:paddingEnd="8dp"
+                      android:orientation="horizontal"
+                      android:divider="@drawable/empty_space"
+                      android:showDividers="middle"
+                      app:layout_constraintStart_toStartOf="@+id/nameOfStation"
+                      app:layout_constraintEnd_toEndOf="parent"
+                      app:layout_constraintTop_toBottomOf="@+id/serviceLineRecyclerView"/>
 
         <include android:layout_width="match_parent"
                  android:layout_height="wrap_content"
                  android:layout_marginTop="12dp"
                  android:id="@+id/departuresSearchSetTime"
                  layout="@layout/timetable_search_set_time"
-                 app:layout_constraintTop_toBottomOf="@+id/buttonsFlexboxLayout"
+                 app:layout_constraintTop_toBottomOf="@+id/buttonLayout"
                  app:layout_constraintStart_toStartOf="parent"/>
 
         <com.skedgo.tripkit.ui.views.MultiStateView android:layout_width="0dp"

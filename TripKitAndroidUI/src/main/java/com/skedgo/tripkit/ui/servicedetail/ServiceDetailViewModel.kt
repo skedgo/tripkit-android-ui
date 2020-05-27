@@ -59,6 +59,7 @@ class ServiceDetailViewModel  @Inject constructor(private val context: Context,
     val itemBinding = ItemBinding.of<ServiceDetailItemViewModel>(BR.viewModel, R.layout.service_detail_fragment_list_item)
     val items: ObservableField<List<ServiceDetailItemViewModel>> = ObservableField(emptyList())
     val onItemClicked = PublishRelay.create<ServiceStop>()
+    var showCloseButton = ObservableBoolean(false)
 
     fun setup(_stop: ScheduledStop, _entry: TimetableEntry) {
         stop = _stop
