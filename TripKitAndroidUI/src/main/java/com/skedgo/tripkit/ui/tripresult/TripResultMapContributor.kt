@@ -3,6 +3,7 @@ package com.skedgo.tripkit.ui.tripresult
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.drawable.BitmapDrawable
+import android.os.Handler
 import android.view.View
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -123,9 +124,8 @@ class TripResultMapContributor : TripKitMapContributor {
 
             autoDisposable.add(viewModel.tripCameraUpdate
                     .subscribe({ cameraUpdate ->
-                        map.updateCamera(cameraUpdate)
+                        map.animateCamera(cameraUpdate)
                     }, { Timber.e(it) }))
-
         }
     }
 

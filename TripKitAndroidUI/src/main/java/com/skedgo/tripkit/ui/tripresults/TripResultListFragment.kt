@@ -125,8 +125,8 @@ class TripResultListFragment : BaseTripKitFragment() {
         return binding.root
     }
 
-    override fun onStart() {
-        super.onStart()
+    override fun onResume() {
+        super.onResume()
         viewModel.onError.observeOn(AndroidSchedulers.mainThread()).subscribe { error ->
             binding.multiStateView?.let { msv ->
                 if (activity is OnResultStateListener) {

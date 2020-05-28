@@ -6,6 +6,7 @@ import androidx.lifecycle.OnLifecycleEvent
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
+import timber.log.Timber
 
 class AutoDisposable : LifecycleObserver {
     lateinit var compositeDisposable: CompositeDisposable
@@ -24,6 +25,11 @@ class AutoDisposable : LifecycleObserver {
 
     @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
     fun onPause() {
+        compositeDisposable.clear()
+    }
+
+    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+    fun onDestroy() {
         compositeDisposable.dispose()
     }
 }

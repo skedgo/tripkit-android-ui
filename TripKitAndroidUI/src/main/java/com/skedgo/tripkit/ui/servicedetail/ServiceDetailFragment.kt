@@ -62,8 +62,8 @@ class ServiceDetailFragment : BaseTripKitFragment() {
         mapContributor.cleanup()
     }
 
-    override fun onStart() {
-        super.onStart()
+    override fun onResume() {
+        super.onResume()
         viewModel.onItemClicked
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe { stop ->

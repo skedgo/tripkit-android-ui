@@ -75,22 +75,6 @@ public class TripResultPagerFragment extends BaseTripKitFragment implements View
     super.onResume();
     bus.register(this);
     bus.register(bookViewClickEventHandler);
-  }
-
-  public TripKitMapContributor contributor() {
-    return mapContributor;
-  }
-
-  @Override public void onDestroy() {
-    super.onDestroy();
-    mapContributor.cleanup();
-  }
-
-  @Override public void onStart() {
-    super.onStart();
-    viewModel.onStart();
-    mapContributor.setup();
-    this.binding.tripGroupsPager.addOnPageChangeListener(this);
     getAutoDisposable().add(viewModel.trackViewingTrip()
             .subscribe());
 
@@ -109,6 +93,23 @@ public class TripResultPagerFragment extends BaseTripKitFragment implements View
     assert args != null;
     getAutoDisposable().add(viewModel.getSortedTripGroups(args)
             .subscribe(tripGroup -> {}, errorLogger::trackError));
+
+  }
+
+  public TripKitMapContributor contributor() {
+    return mapContributor;
+  }
+
+  @Override public void onDestroy() {
+    super.onDestroy();
+    mapContributor.cleanup();
+  }
+
+  @Override public void onStart() {
+    super.onStart();
+    viewModel.onStart();
+    mapContributor.setup();
+    this.binding.tripGroupsPager.addOnPageChangeListener(this);
 
   }
 

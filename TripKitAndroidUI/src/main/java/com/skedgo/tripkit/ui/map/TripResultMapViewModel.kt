@@ -34,16 +34,15 @@ class TripResultMapViewModel @Inject internal constructor(
         private val schedulers: SchedulerFactory
 ): RxViewModel() {
   private val selectedTrip: BehaviorRelay<Trip> = BehaviorRelay.create()
-    
-  val tripCameraUpdate: Observable<MapCameraUpdate>
+
+  val tripCameraUpdate: Observable<CameraUpdate>
       get() = selectedTrip
         .distinctUntilChanged { x, y ->
             x.uuid() == y.uuid() }
         .map { it.segments }
         .flatMap {
             Observable.fromCallable { it.getVisibleGeoPointsOnMap() }
-              .map {
-                  MapCameraUpdate.Anim(it.toCameraUpdate()) }
+              .map { it.toCameraUpdate() }
         }
 
     val segments: Observable<List<TripSegment>>

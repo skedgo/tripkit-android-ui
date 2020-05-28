@@ -200,6 +200,10 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
     override fun onStart() {
         super.onStart()
         viewModel.onStart()
+    }
+
+    override fun onResume() {
+        super.onResume()
         viewModel.alertsClicked
                 .subscribe {
                     var list = mutableListOf<TripSegmentAlertsItemViewModel>()
@@ -213,7 +217,6 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
                     dialog.show(fragmentManager!!, "alerts_sheet")
                 }.addTo(autoDisposable)
     }
-
     override fun onStop() {
         super.onStop()
         viewModel!!.onStop()

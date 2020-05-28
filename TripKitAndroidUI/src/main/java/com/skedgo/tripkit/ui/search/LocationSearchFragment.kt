@@ -130,6 +130,38 @@ class LocationSearchFragment : BaseTripKitFragment() {
                 .get(LocationSearchViewModel::class.java);
         viewModel.locationSearchIconProvider = locationSearchIconProvider
         viewModel.fixedSuggestionsProvider = fixedSuggestionsProvider
+    }
+
+    /**
+     * @suppress
+     */
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        val binding = LocationSearchBinding.inflate(inflater)
+
+        binding.viewModel = viewModel
+        searchView = binding.searchLayout.searchView
+
+        binding.resultView.addItemDecoration(buildItemDecoration())
+
+        initSearchView(binding.searchLayout.searchView)
+        return binding.root
+    }
+
+    private fun buildItemDecoration(): DividerItemDecoration {
+        val ATTRS = intArrayOf(android.R.attr.listDivider)
+        val a = context!!.obtainStyledAttributes(ATTRS)
+        val divider = a.getDrawable(0)
+        val inset = resources.getDimensionPixelSize(R.dimen.tripkit_search_result_divider_inset)
+        val insetDivider = InsetDrawable(divider, inset, 0, 0, 0)
+        a.recycle()
+
+        val itemDecoration = DividerItemDecoration(context, DividerItemDecoration.VERTICAL)
+        itemDecoration.setDrawable(insetDivider)
+        return itemDecoration
+    }
+
+    override fun onResume() {
+        super.onResume()
         viewModel.locationChosen
                 .observeOn(mainThread())
                 .subscribe({
@@ -169,48 +201,6 @@ class LocationSearchFragment : BaseTripKitFragment() {
                     ).show()
                 }, errorLogger::trackError).addTo(autoDisposable)
     }
-
-    /**
-     * @suppress
-     */
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val binding = LocationSearchBinding.inflate(inflater)
-
-        binding.viewModel = viewModel
-        searchView = binding.searchLayout.searchView
-
-        binding.resultView.addItemDecoration(buildItemDecoration())
-
-        initSearchView(binding.searchLayout.searchView)
-        return binding.root
-    }
-
-    private fun buildItemDecoration(): DividerItemDecoration {
-        val ATTRS = intArrayOf(android.R.attr.listDivider)
-        val a = context!!.obtainStyledAttributes(ATTRS)
-        val divider = a.getDrawable(0)
-        val inset = resources.getDimensionPixelSize(R.dimen.tripkit_search_result_divider_inset)
-        val insetDivider = InsetDrawable(divider, inset, 0, 0, 0)
-        a.recycle()
-
-        val itemDecoration = DividerItemDecoration(context, DividerItemDecoration.VERTICAL)
-        itemDecoration.setDrawable(insetDivider)
-        return itemDecoration
-    }
-    /**
-     * @suppress
-     */
-    override fun onStart() {
-        super.onStart()
-    }
-
-    /**
-     * @suppress
-     */
-    override fun onStop() {
-        super.onStop()
-    }
-
     /**
      * @suppress
      */
