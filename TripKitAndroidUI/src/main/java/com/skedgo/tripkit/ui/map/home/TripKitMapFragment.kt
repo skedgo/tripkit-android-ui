@@ -64,7 +64,7 @@ import javax.inject.Inject
  * Your app **must** provide a TripGo API token as `R.string.skedgo_api_key`.
  *
  */
-class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListener, OnMapLongClickListener, OnPoiClickListener, OnCameraChangeListener, OnMarkerClickListener {
+class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListener, OnMapLongClickListener, OnPoiClickListener, OnCameraChangeListener, OnMarkerClickListener, OnCameraIdleListener {
     /* TODO: Replace with RxJava-based approach. */
     @Deprecated("")
     @Inject
@@ -137,6 +137,22 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
         }
     }
 
+    interface OnZoomLevelChangedListener {
+        fun onZoomLevelChanged(zoomLevel: Float)
+    }
+    private var onZoomLevelChangedListener: OnZoomLevelChangedListener? = null
+    fun setOnZoomLevelChangedListener(listener: OnZoomLevelChangedListener?) {
+        onZoomLevelChangedListener = listener
+    }
+    fun setOnZoomLevelChangedListener(listener:(Float) -> Unit) {
+        onZoomLevelChangedListener = object: OnZoomLevelChangedListener {
+            override fun onZoomLevelChanged(zoomLevel: Float) {
+                listener(zoomLevel)
+            }
+
+        }
+    }
+
     override fun onAttach(context: Context) {
         TripKitUI.getInstance().homeMapFragmentComponent(HomeMapFragmentModule(this)).inject(this)
         super.onAttach(context)
@@ -146,6 +162,8 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
         super.onCreate(savedInstanceState)
         getMapAsync { map ->
             initFromAndToMarkers(map)
+            map.setOnCameraIdleListener(this)
+            lastZoomLevel = map.cameraPosition.zoom
         }
 
         whenSafeToUseMap(Consumer { map: GoogleMap ->
@@ -195,7 +213,6 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
 
     override fun onResume() {
         super.onResume()
-        bus.register(this)
     }
 
     override fun onDestroy() {
@@ -742,6 +759,17 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
                 BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)
             } else {
                 BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)
+            }
+        }
+    }
+
+    // Keep track of the last zoom level since we don't want to misleadingly call the OnZoomLevelChangedListener.
+    private var lastZoomLevel = 0f
+    override fun onCameraIdle() {
+        map?.let {
+            if (it.cameraPosition.zoom != lastZoomLevel) {
+                lastZoomLevel = it.cameraPosition.zoom
+                onZoomLevelChangedListener?.onZoomLevelChanged(lastZoomLevel)
             }
         }
     }
