@@ -338,6 +338,12 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
 //  public void onEvent(LocationSelectedEvent event) {
 //    whenSafeToUseMap(map -> cameraController.moveToLatLng(map, toLatLng(event.getLocation())));
 //  }
+
+    fun moveToLatLng(latLng: com.skedgo.geocoding.LatLng) {
+        whenSafeToUseMap (Consumer { map ->
+            cameraController.moveToLatLng(map, LatLng(latLng.lat, latLng.lng))
+        })
+    }
     fun onLocationAddressDecoded(locationTag: LocationTag) {
         val selectionType = locationTag.type
         val location = locationTag.location
