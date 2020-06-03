@@ -91,7 +91,7 @@ class MapViewModel @Inject internal constructor(
         .switchMapDelayError {
           fetchStopsByViewport.execute(it).toObservable<Unit>()
         }
-        .subscribe()
+        .subscribe({}, {errorLogger.logError(it) })
         .autoClear()
   }
 
