@@ -3,13 +3,11 @@ package com.skedgo.tripkit.ui.core
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.OnLifecycleEvent
-import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
-import timber.log.Timber
 
 class AutoDisposable : LifecycleObserver {
-    lateinit var compositeDisposable: CompositeDisposable
+    private lateinit var compositeDisposable: CompositeDisposable
     fun bindTo(lifecycle: Lifecycle) {
         lifecycle.addObserver(this)
         compositeDisposable = CompositeDisposable()
