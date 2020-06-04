@@ -4,6 +4,7 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.Toast
 import com.google.android.gms.maps.CameraUpdate
@@ -41,6 +42,7 @@ import com.squareup.otto.Bus
 import dagger.Lazy
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.functions.Action
 import io.reactivex.functions.Consumer
 import io.reactivex.schedulers.Schedulers
@@ -107,7 +109,6 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
     private var toMarker: Marker? = null
 
     private var contributor: TripKitMapContributor? = null
-
     // There doesn't seem to be a way to show an info window when a POI is clicked, so work-around that
     // by using an invisible marker on the map that is moved to the POI's location when clicked.
     private var poiMarker: Marker? = null
@@ -188,8 +189,8 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
         }
     }
 
-    override fun onStart() {
-        super.onStart()
+    override fun onResume() {
+        super.onResume()
         viewModel.getOriginPinUpdate()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe { pinUpdate: PinUpdate -> updateDepartureMarker(pinUpdate) }
@@ -197,6 +198,38 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
         viewModel.getDestinationPinUpdate()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe { pinUpdate: PinUpdate -> updateArrivalMarker(pinUpdate) }
+                .addTo(autoDisposable)
+        viewModel.myLocation
+                .subscribeOn(AndroidSchedulers.mainThread())
+                .subscribe({ myLocation: Location -> showMyLocation(myLocation) }) { error: Throwable? -> errorLogger!!.trackError(error!!) }
+                .addTo(autoDisposable)
+
+        viewModel.myLocationError
+                .subscribeOn(AndroidSchedulers.mainThread())
+                .subscribe({ _: Throwable? -> showMyLocationError() }) { error: Throwable? -> errorLogger!!.trackError(error!!) }
+                .addTo(autoDisposable)
+
+        viewModel.markers
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe( { (first, second) ->
+                    val toRemove: MutableList<Marker> = ArrayList()
+                    for (marker in poiMarkers!!.markers) {
+                        marker.tag?.let {tag ->
+                            val identifier = (tag as IMapPoiLocation?)!!.identifier
+                            if (second.contains(identifier)) {
+                                toRemove.add(marker)
+                            }
+                        }
+                    }
+                    for (marker in toRemove) {
+                        poiMarkers!!.remove(marker)
+                    }
+                    for ((first1, second1) in first) {
+                        val marker = poiMarkers!!.addMarker(first1)
+                        marker.tag = second1
+                    }
+                }, { errorLogger.logError(it) })
                 .addTo(autoDisposable)
 
     }
@@ -211,9 +244,6 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
         }
     }
 
-    override fun onResume() {
-        super.onResume()
-    }
 
     override fun onDestroy() {
         if (currentLocationMarkers != null) {
@@ -379,7 +409,6 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
                     this.regions = regions
                     whenSafeToUseMap(Consumer { m: GoogleMap -> showCities(m, regions) })
                 }) { error: Throwable? -> errorLogger.logError(error!!) }
-                .addTo(autoDisposable)
     }
 
     private fun updateArrivalMarker(pinUpdate: PinUpdate) {
@@ -549,38 +578,6 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
 
         viewModel.getInitialCameraUpdate { requestLocationPermission }
                 .subscribe({ cameraUpdate: CameraUpdate? -> map.moveCamera(cameraUpdate) }) { error: Throwable? -> errorLogger!!.trackError(error!!) }
-                .addTo(autoDisposable)
-        viewModel.myLocation
-                .subscribeOn(AndroidSchedulers.mainThread())
-                .subscribe({ myLocation: Location -> showMyLocation(myLocation) }) { error: Throwable? -> errorLogger!!.trackError(error!!) }
-                .addTo(autoDisposable)
-
-        viewModel.myLocationError
-                .subscribeOn(AndroidSchedulers.mainThread())
-                .subscribe({ _: Throwable? -> showMyLocationError() }) { error: Throwable? -> errorLogger!!.trackError(error!!) }
-                .addTo(autoDisposable)
-
-        viewModel.markers
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe { (first, second) ->
-                    val toRemove: MutableList<Marker> = ArrayList()
-                    for (marker in poiMarkers!!.markers) {
-                        marker.tag?.let {tag ->
-                            val identifier = (tag as IMapPoiLocation?)!!.identifier
-                            if (second.contains(identifier)) {
-                                toRemove.add(marker)
-                            }
-                        }
-                    }
-                    for (marker in toRemove) {
-                        poiMarkers!!.remove(marker)
-                    }
-                    for ((first1, second1) in first) {
-                        val marker = poiMarkers!!.addMarker(first1)
-                        marker.tag = second1
-                    }
-                }
                 .addTo(autoDisposable)
 
     }
