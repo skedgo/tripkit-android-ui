@@ -184,8 +184,8 @@ class TimetableViewModel  @Inject constructor(
 
     init {
 
-        parentStop.subscribe(stopRelay::accept)
-        minStartTime.subscribe(startTimeRelay::accept)
+        parentStop.subscribe(stopRelay::accept) { onError.accept(it.message)}
+        minStartTime.subscribe(startTimeRelay::accept) { onError.accept(it.message)}
         servicesVMs
                 .ignoreNetworkErrors()
                 .subscribe ({

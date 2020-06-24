@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:bind="http://schemas.android.com/apk/res-auto">
+
+    <data>
+        <variable
+                name="viewModel"
+                type="com.skedgo.tripkit.ui.trippreview.TripPreviewPagerItemViewModel" />
+    </data>
+
+<androidx.constraintlayout.widget.ConstraintLayout
+                                                   android:layout_width="match_parent"
+                                                   android:layout_height="match_parent">
+
+    <include layout="@layout/trip_preview_pager_item_header" bind:viewModel="@{viewModel}"/>
+    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+              app:layout_constraintTop_toBottomOf="@+id/textBarrier"
+              android:layout_marginTop="16dp"
+              app:layout_constraintStart_toStartOf="parent"
+              android:layout_marginStart="16dp"
+              style="@style/TextAppearance.MaterialComponents.Body1"
+              android:text="@{viewModel.notes}"/>
+</androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

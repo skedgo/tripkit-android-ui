@@ -7,6 +7,7 @@ import com.skedgo.tripkit.common.model.Location
 import com.skedgo.tripkit.common.model.PoiLocation
 import com.skedgo.tripkit.ui.core.RxViewModel
 import com.skedgo.tripkit.ui.data.places.PlaceSearchRepository
+import timber.log.Timber
 import javax.inject.Inject
 
 
@@ -30,13 +31,13 @@ class PoiDetailsViewModel @Inject constructor(private val locationInfoService: L
 
         locationInfoService.getLocationInfoAsync(location)
                 .take(1)
-                .subscribe {
+                .subscribe({
                     val w3w = it.details()?.w3w()
                     if (!w3w.isNullOrBlank()) {
                         this.what3words.set(w3w)
                         this.showWhat3words.set(true)
                     }
-                }
+                }, { Timber.e(it)} )
                 .autoClear()
         showAddress.set(!location.address.isNullOrBlank())
         showWebsite.set(!location.url.isNullOrBlank())

@@ -59,7 +59,7 @@ class TripSegmentsViewModel @Inject internal constructor(
   internal var bookingForm: BookingForm? = null
   private var internalBus: Bus? = null
   val alertsClicked = BehaviorRelay.create<ArrayList<RealtimeAlert>>()
-
+  val segmentClicked = BehaviorRelay.create<TripSegment>()
   var durationTitle = ObservableField<String>()
   var arriveAtTitle = ObservableField<String>()
 
@@ -307,7 +307,11 @@ class TripSegmentsViewModel @Inject internal constructor(
         viewModel.alertsClicked.subscribe {
           alertsClicked.accept(it)
         }.autoClear()
-
+        viewModel.onClick.observable.subscribe {
+          it.tripSegment?.let {
+            segmentClicked.accept(it)
+          }
+        }.autoClear()
         viewModel.tripSegment = segment
 
         if (segment.type == SegmentType.ARRIVAL || segment.type == SegmentType.DEPARTURE) {

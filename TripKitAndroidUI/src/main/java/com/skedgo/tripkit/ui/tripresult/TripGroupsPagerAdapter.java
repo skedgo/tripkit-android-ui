@@ -17,6 +17,7 @@ public class TripGroupsPagerAdapter extends FragmentStatePagerAdapter {
 
   public View.OnClickListener closeListener = null;
   public TripSegmentListFragment.OnTripKitButtonClickListener listener = null;
+  public TripSegmentListFragment.OnTripSegmentClickListener segmentClickListener = null;
 
   public TripGroupsPagerAdapter(FragmentManager fragmentManager) {
     super(fragmentManager);
@@ -46,6 +47,7 @@ public class TripGroupsPagerAdapter extends FragmentStatePagerAdapter {
                                               .build();
     fragment.setOnTripKitButtonClickListener(listener);
     fragment.setOnCloseButtonListener(closeListener);
+    fragment.setOnTripSegmentClickListener(segmentClickListener);
     return fragment;
   }
 

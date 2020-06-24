@@ -9,7 +9,8 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout android:layout_width="match_parent"
                                                        android:layout_height="wrap_content"
-                                                       android:paddingStart="16dp">
+                                                       android:paddingStart="16dp"
+                                                        android:onClick="@{() -> viewModel.onClick.perform()}">
 
         <androidx.constraintlayout.widget.Guideline
                 android:layout_width="wrap_content"

@@ -16,6 +16,7 @@ import io.reactivex.functions.BiFunction
 import org.joda.time.DateTime
 import com.skedgo.tripkit.datetime.PrintTime
 import com.skedgo.tripkit.routing.*
+import timber.log.Timber
 import javax.inject.Inject
 
 
@@ -56,9 +57,6 @@ class TripResultViewModel  @Inject constructor(private val context: Context,
     val moreButtonText = ObservableField<String>()
 
     var otherTripGroups : List<Trip>? = null
-    fun moreButtonClicked() {
-        moreButtonText.set(context.resources.getString(R.string.less))
-    }
 
     fun setTripGroup(context: Context, tripgroup: TripGroup, classification: TripGroupClassifier.Classification) {
         moreButtonText.set(context.resources.getString(R.string.more))
@@ -85,6 +83,24 @@ class TripResultViewModel  @Inject constructor(private val context: Context,
             alternateTripVisible.set(true)
         }
         setCost()
+        val bookingSegment = trip.segments.find { segment -> segment.booking?.quickBookingsUrl != null }
+        if (group.frequency > 0) {
+            moreButtonText.set(context.getString(R.string.view_times))
+            moreButtonVisible.set(true)
+        } else if (bookingSegment != null){
+            val booking = bookingSegment.booking
+            moreButtonText.set(booking.title)
+            moreButtonVisible.set(true)
+        } else {
+            val mainSegment = trip.getMainTripSegment()
+            if (mainSegment != null && mainSegment.miniInstruction != null && mainSegment.miniInstruction.instruction != null) {
+                moreButtonText.set(mainSegment.miniInstruction.instruction)
+                moreButtonVisible.set(true)
+            }
+        }
+        // External booking is missing
+        // Turn by turn is missing
+        // Main Segment?
     }
 
     private fun setBadge(classification: TripGroupClassifier.Classification) {

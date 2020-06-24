@@ -127,7 +127,7 @@ class LocationSearchFragment : BaseTripKitFragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         viewModel = ViewModelProviders.of(this, viewModelFactory)
-                .get(LocationSearchViewModel::class.java);
+                .get(LocationSearchViewModel::class.java)
         viewModel.locationSearchIconProvider = locationSearchIconProvider
         viewModel.fixedSuggestionsProvider = fixedSuggestionsProvider
     }

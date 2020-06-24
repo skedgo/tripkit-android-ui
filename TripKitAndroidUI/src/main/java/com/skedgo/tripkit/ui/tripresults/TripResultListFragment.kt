@@ -13,6 +13,7 @@ import com.skedgo.tripkit.TransportModeFilter
 import com.skedgo.tripkit.common.model.Query
 import com.skedgo.tripkit.common.model.TimeTag
 import com.skedgo.tripkit.model.ViewTrip
+import com.skedgo.tripkit.routing.Trip
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.TripKitUI
 import com.skedgo.tripkit.ui.core.BaseTripKitFragment
@@ -50,6 +51,20 @@ class TripResultListFragment : BaseTripKitFragment() {
         }
     }
 
+    interface OnTripActionButtonClickListener {
+        fun onTripActionButtonClicked(trip: Trip)
+    }
+    private var tripActionButtonClickListener: OnTripActionButtonClickListener? = null
+    fun setOnTripActionButtonClickListener(callback: OnTripActionButtonClickListener) {
+        this.tripActionButtonClickListener = callback
+    }
+    fun setOnTripActionButtonClickListener(callback:(Trip) -> Unit) {
+        this.tripActionButtonClickListener = object : OnTripActionButtonClickListener {
+            override fun onTripActionButtonClicked(trip: Trip) {
+                callback(trip)
+            }
+        }
+    }
     interface OnLocationClickListener {
         fun onStartLocationClicked()
         fun onDestinationLocationClicked()
@@ -145,6 +160,9 @@ class TripResultListFragment : BaseTripKitFragment() {
                 .doOnNext { viewTrip -> tripSelectedListener?.onTripSelected(viewTrip)
                 }.subscribe().addTo(autoDisposable)
 
+        viewModel.onMoreButtonClicked
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe { trip -> tripActionButtonClickListener?.onTripActionButtonClicked(trip) }.addTo(autoDisposable)
         viewModel.stateChange.observeOn(AndroidSchedulers.mainThread()).subscribe {
             binding.multiStateView?.let { msv ->
                 if (it == MultiStateView.ViewState.EMPTY) {

@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        xmlns:bind="http://schemas.android.com/apk/res-auto">
+
+<data>
+    <variable name="viewModel" type="com.skedgo.tripkit.ui.trippreview.nearby.ModeLocationTripPreviewViewModel"/>
+        <variable name="sharedViewModel" type="com.skedgo.tripkit.ui.trippreview.nearby.SharedNearbyTripPreviewItemViewModel"/>
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+        <include layout="@layout/trip_preview_pager_item_header" bind:viewModel="@{sharedViewModel}"/>
+
+        <com.google.android.flexbox.FlexboxLayout android:layout_width="0dp"
+                                                  android:layout_height="wrap_content"
+                                                  android:id="@+id/buttonLayout"
+                                                  app:layout_constraintStart_toStartOf="parent"
+                                                  app:layout_constraintEnd_toEndOf="parent"
+                                                  app:layout_constraintTop_toBottomOf="@+id/textBarrier"/>
+
+        <ImageView android:layout_width="24dp"
+                   android:layout_height="24dp"
+                   android:layout_marginTop="40dp"
+                   app:srcCompat="@drawable/ic_pin"
+                   android:id="@+id/addressIcon"
+                   android:visibility="@{viewModel.showAddress}"
+                   app:layout_constraintStart_toStartOf="parent"
+                   app:layout_constraintTop_toBottomOf="@+id/buttonLayout"
+                   android:layout_marginStart="16dp"/>
+        <TextView android:layout_width="0dp"
+                  android:layout_height="wrap_content"
+                  android:id="@+id/address"
+                  style="@style/TextAppearance.MaterialComponents.Subtitle1"
+                  tools:text="Address Address Address Address Address Address Address"
+                  android:text="@{viewModel.address}"
+                  android:visibility="@{viewModel.showAddress}"
+                  android:layout_marginStart="48dp"
+                  android:layout_marginEnd="16dp"
+                  app:layout_constraintStart_toEndOf="@+id/addressIcon"
+                  app:layout_constraintEnd_toEndOf="parent"
+                  app:layout_constraintTop_toTopOf="@+id/addressIcon"
+                  app:layout_constraintBottom_toBottomOf="@+id/addressIcon"
+                  android:textAlignment="viewStart"/>
+
+        <ImageView android:layout_width="24dp"
+                   android:layout_height="24dp"
+                   android:layout_marginTop="24dp"
+                   app:srcCompat="@drawable/ic_globe"
+                   android:visibility="@{viewModel.showWebsite}"
+                   android:id="@+id/websiteIcon"
+                   android:tint="@color/tripKitSuccess"
+                   app:layout_constraintStart_toStartOf="parent"
+                   app:layout_constraintTop_toBottomOf="@+id/addressIcon"
+                   android:layout_marginStart="16dp"/>
+
+        <TextView android:layout_width="0dp"
+                  android:layout_height="wrap_content"
+                  android:id="@+id/website"
+                  style="@style/TextAppearance.MaterialComponents.Subtitle1"
+                  tools:text="www.somesite"
+                  android:text="@{viewModel.website}"
+                  android:visibility="@{viewModel.showWebsite}"
+                  android:autoLink="web"
+                  android:textColor="@color/tripKitSuccess"
+                  android:layout_marginStart="48dp"
+                  android:layout_marginEnd="16dp"
+                  app:layout_constraintStart_toEndOf="@+id/websiteIcon"
+                  app:layout_constraintEnd_toEndOf="parent"
+                  app:layout_constraintTop_toTopOf="@+id/websiteIcon"
+                  app:layout_constraintBottom_toBottomOf="@+id/websiteIcon"
+                  android:textAlignment="viewStart"/>
+
+        <ImageView android:layout_width="24dp"
+                   android:layout_height="24dp"
+                   android:layout_marginTop="24dp"
+                   app:srcCompat="@drawable/ic_what3word"
+                   android:visibility="@{viewModel.showWhat3words}"
+                   android:id="@+id/what3wordIcon"
+                   android:tint="@color/tripKitSuccess"
+                   app:layout_constraintStart_toStartOf="parent"
+                   app:layout_constraintTop_toBottomOf="@+id/websiteIcon"
+                   android:layout_marginStart="16dp"/>
+
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                  android:id="@+id/what3word"
+                  style="@style/TextAppearance.MaterialComponents.Subtitle1"
+                  tools:text="something.something.something"
+                  android:text="@{viewModel.what3words}"
+                  android:visibility="@{viewModel.showWhat3words}"
+                  android:layout_marginStart="48dp"
+                  app:layout_constraintStart_toEndOf="@+id/what3wordIcon"
+                  app:layout_constraintTop_toTopOf="@+id/what3wordIcon"
+                  app:layout_constraintBottom_toBottomOf="@+id/what3wordIcon"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

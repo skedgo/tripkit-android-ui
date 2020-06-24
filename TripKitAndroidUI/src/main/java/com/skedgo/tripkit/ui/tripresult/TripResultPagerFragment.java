@@ -53,6 +53,7 @@ public class TripResultPagerFragment extends BaseTripKitFragment implements View
   private TripGroupsPagerAdapter tripGroupsPagerAdapter;
   private TripResultPagerBinding binding;
   private TripResultMapContributor mapContributor = new TripResultMapContributor();
+  public TripSegmentListFragment.OnTripSegmentClickListener tripSegmentClickListener = null;
 
   @Nullable private PagerFragmentArguments args;
   private int currentPage = -1;
@@ -167,6 +168,7 @@ public class TripResultPagerFragment extends BaseTripKitFragment implements View
 
     tripGroupsPagerAdapter = new TripGroupsPagerAdapter(getChildFragmentManager());
     tripGroupsPagerAdapter.listener = this;
+    tripGroupsPagerAdapter.segmentClickListener = tripSegmentClickListener;
     tripGroupsPagerAdapter.closeListener = getOnCloseButtonListener();
     tripGroupsPagerAdapter.setButtons(buttons);
     Bundle b = getArguments();

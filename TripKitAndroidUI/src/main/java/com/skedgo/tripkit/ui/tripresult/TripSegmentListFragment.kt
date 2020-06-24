@@ -12,7 +12,9 @@ import android.view.ViewGroup
 import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.RecyclerView
 import com.skedgo.tripkit.logging.ErrorLogger
+import com.skedgo.tripkit.routing.Trip
 import com.skedgo.tripkit.routing.TripGroup
+import com.skedgo.tripkit.routing.TripSegment
 import com.skedgo.tripkit.ui.ARG_SHOW_CLOSE_BUTTON
 import com.skedgo.tripkit.ui.ARG_TRIP_GROUP_ID
 import com.skedgo.tripkit.ui.R
@@ -54,6 +56,23 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
         }
     }
 
+
+    interface OnTripSegmentClickListener {
+        fun tripSegmentClicked(tripSegment: TripSegment)
+    }
+    private var onTripSegmentClickListener: OnTripSegmentClickListener? = null
+    fun setOnTripSegmentClickListener(callback: OnTripSegmentClickListener) {
+        this.onTripSegmentClickListener = callback
+    }
+
+    fun setOnTripSegmentClickListener(callback:(TripSegment) -> Unit) {
+        this.onTripSegmentClickListener = object: OnTripSegmentClickListener {
+            override fun tripSegmentClicked(tripSegment: TripSegment) {
+                callback(tripSegment)
+            }
+
+        }
+    }
     var buttons = emptyList<TripKitButton>()
 
     @Inject
@@ -79,6 +98,7 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
             tripGroupId = savedInstanceState.getString(ARG_TRIP_GROUP_ID)
         }
     }
+
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
@@ -204,6 +224,10 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
 
     override fun onResume() {
         super.onResume()
+        viewModel.segmentClicked
+                .subscribe {
+                    onTripSegmentClickListener?.tripSegmentClicked(it)
+                }.addTo(autoDisposable)
         viewModel.alertsClicked
                 .subscribe {
                     var list = mutableListOf<TripSegmentAlertsItemViewModel>()

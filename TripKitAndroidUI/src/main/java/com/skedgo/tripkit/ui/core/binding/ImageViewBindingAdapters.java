@@ -88,6 +88,11 @@ public final class ImageViewBindingAdapters {
         }
     }
 
+    @BindingAdapter("android:src")
+    public static void setImageResource(ImageView imageView, int resource){
+        imageView.setImageResource(resource);
+    }
+
     @BindingAdapter("modeIconId")
     public static void bindModeIconId(ImageView view, String modeIconId) {
         final int resId = TransportMode.getLocalIconResId(modeIconId);

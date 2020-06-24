@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools" xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+        <variable
+                name="viewModel"
+                type="com.skedgo.tripkit.ui.trippreview.TripPreviewPagerItemViewModel" />
+    </data>
+
+    <merge>
+    <ImageView android:layout_width="24dp" android:layout_height="24dp"
+               app:layout_constraintStart_toStartOf="parent"
+               app:layout_constraintTop_toTopOf="parent"
+               app:layout_constraintBottom_toBottomOf="@+id/textBarrier"
+               android:id="@+id/icon"
+               android:src="@{viewModel.icon}"
+               android:layout_marginLeft="8dp"
+               android:layout_marginRight="8dp"
+               android:layout_marginTop="8dp"/>
+    <TextView
+            tools:text="Walk Somewhere"
+            style="@style/TextAppearance.MaterialComponents.Headline6"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/actionText"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginTop="8dp"
+            android:text="@{viewModel.title}"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/closeButton"
+            app:layout_constraintStart_toEndOf="@+id/icon"/>
+    <TextView
+            tools:text="Soem city"
+            style="@style/TextAppearance.MaterialComponents.Subtitle1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/descriptionText"
+            android:visibility="@{viewModel.showDescription}"
+            android:text="@{viewModel.description}"
+            app:layout_constraintTop_toBottomOf="@+id/actionText"
+            app:layout_constraintEnd_toStartOf="@+id/closeButton"
+            app:layout_constraintStart_toStartOf="@+id/actionText"/>
+
+    <ImageButton
+            android:id="@+id/closeButton"
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:layout_marginEnd="16dp"
+            app:srcCompat="@drawable/close"
+            app:layout_constraintTop_toTopOf="@+id/actionText"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:onClick="@{() -> viewModel.closeClicked.perform()}"
+            app:layout_constraintBottom_toBottomOf="@+id/actionText"/>
+    <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/textBarrier"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:barrierDirection="bottom"
+            app:constraint_referenced_ids="actionText,descriptionText" />
+    </merge>
+</layout>

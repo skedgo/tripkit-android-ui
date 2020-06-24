@@ -29,6 +29,7 @@ import io.reactivex.subjects.PublishSubject
 import me.tatarka.bindingcollectionadapter2.ItemBinding
 import me.tatarka.bindingcollectionadapter2.collections.DiffObservableList
 import com.skedgo.tripkit.logging.ErrorLogger
+import com.skedgo.tripkit.routing.Trip
 import com.skedgo.tripkit.routing.TripGroup
 import com.skedgo.tripkit.routing.dateTimeZone
 import com.skedgo.tripkit.routingstatus.RoutingStatus
@@ -63,6 +64,7 @@ class TripResultListViewModel @Inject constructor(
     val timeLabel = ObservableField<String>()
 
     val onItemClicked = PublishRelay.create<ViewTrip>()
+    val onMoreButtonClicked = PublishRelay.create<Trip>()
 
     val stateChange = PublishRelay.create<MultiStateView.ViewState>()
     val onError = PublishRelay.create<String>()
@@ -275,8 +277,13 @@ class TripResultListViewModel @Inject constructor(
                                             sortOrder = 1, /* TODO Proper sorting */
                                             displayTripID = viewModel.group.displayTripId)
                                     onItemClicked.accept(clickEvent)
-                                }
+                                }.autoClear()
+                        vm.onMoreButtonClicked.observable
+                                .subscribe {viewModel ->
+                                    onMoreButtonClicked.accept(viewModel.trip)
+                                }.autoClear()
                         vm
+
                     }
                 }
                 .map {

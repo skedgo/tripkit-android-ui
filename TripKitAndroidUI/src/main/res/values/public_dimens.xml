@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <dimen name="tripkit_trip_preview_icon_size">24dp</dimen>
     <dimen name="tripkit_search_result_icon_size">24dp</dimen>
     <dimen name="tripkit_search_result_divider_inset">0dp</dimen>
 </resources>

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+<!--        <variable-->
+<!--                name="viewModel"-->
+<!--                type="com.skedgo.tripkit.ui.trippreview.TripPreviewPagerFragmentViewModel" />-->
+    </data>
+
+    <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+<!--        <androidx.viewpager.widget.ViewPager-->
+<!--                android:id="@+id/tripSegmentPager"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="match_parent"-->
+<!--                android:background="@android:color/white"-->
+<!--                app:currentItem="@={viewModel.currentPage}"-->
+<!--                app:itemBinding="@{viewModel.itemBinding}"-->
+<!--                app:items="@{viewModel.items}"/>-->
+        <androidx.viewpager.widget.ViewPager
+                android:id="@+id/tripSegmentPager"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@android:color/white"/>
+    </FrameLayout>
+</layout>

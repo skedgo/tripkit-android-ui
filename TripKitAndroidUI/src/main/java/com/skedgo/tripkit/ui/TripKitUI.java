@@ -117,7 +117,7 @@ public abstract class TripKitUI {
     public abstract ServiceStopMapComponent serviceStopMapComponent();
     public abstract RoutesComponent routesComponent();
     public abstract LocationSearchComponent locationSearchComponent();
-
+    public abstract TripPreviewComponent tripPreviewComponent();
     public abstract Bus bus();
     public abstract OkHttpClient httpClient();
     public abstract Context appContext();

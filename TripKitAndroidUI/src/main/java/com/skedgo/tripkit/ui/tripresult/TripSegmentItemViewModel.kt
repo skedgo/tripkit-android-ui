@@ -26,6 +26,7 @@ import com.skedgo.tripkit.ui.core.RxViewModel
 import com.skedgo.tripkit.ui.core.fetchAsync
 import com.skedgo.tripkit.ui.tripresults.GetTransportIconTintStrategy
 import com.skedgo.tripkit.ui.tripresults.TripSegmentHelper
+import com.skedgo.tripkit.ui.utils.TapAction
 import com.skedgo.tripkit.ui.utils.tint
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -44,7 +45,7 @@ class TripSegmentItemViewModel @Inject internal constructor(private val context:
         STATIONARY_BRIDGE,
         MOVING
     }
-
+    val onClick = TapAction.create<TripSegmentItemViewModel>() { this }
     val title = ObservableField<String>()
     val startTime = ObservableField<SpannableString>()
     val showStartTime = ObservableBoolean(false)

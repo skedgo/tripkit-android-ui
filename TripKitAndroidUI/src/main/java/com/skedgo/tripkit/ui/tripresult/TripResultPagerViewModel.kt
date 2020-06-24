@@ -1,7 +1,6 @@
 package com.skedgo.tripkit.ui.tripresult
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import androidx.databinding.ObservableBoolean
 import androidx.databinding.ObservableField
 import androidx.databinding.ObservableInt
@@ -26,7 +25,7 @@ import io.reactivex.schedulers.Schedulers
 import java.util.concurrent.atomic.AtomicReference
 import javax.inject.Inject
 
-const val KEY_TRIP_GROUP_ID = "tripGroupId"
+const val ARG_TRIP_GROUP_ID = "tripGroupId"
 
 class TripResultPagerViewModel @Inject internal constructor(
         private val context: Context,
@@ -60,14 +59,14 @@ class TripResultPagerViewModel @Inject internal constructor(
   private val tripResultTransportViewFilter = PermissiveTransportViewFilter()
 
   fun onCreate(savedInstanceState: Bundle?) {
-    savedInstanceState?.getString(KEY_TRIP_GROUP_ID)?.let {
+    savedInstanceState?.getString(ARG_TRIP_GROUP_ID)?.let {
       setInitialSelectedTripGroupId(it)
     }
   }
 
   fun onSavedInstanceState(outState: Bundle) {
     if (currentTripGroupId.get() != null) {
-      outState.putString(KEY_TRIP_GROUP_ID, currentTripGroupId.get())
+      outState.putString(ARG_TRIP_GROUP_ID, currentTripGroupId.get())
     }
   }
 
