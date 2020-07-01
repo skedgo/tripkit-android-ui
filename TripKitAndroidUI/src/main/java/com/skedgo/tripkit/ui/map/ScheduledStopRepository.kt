@@ -3,6 +3,7 @@ package com.skedgo.tripkit.ui.map
 import android.content.ContentValues
 import android.database.Cursor
 import android.database.sqlite.SQLiteQueryBuilder
+import android.util.Log
 import com.jakewharton.rxrelay2.PublishRelay
 import com.skedgo.tripkit.common.model.ScheduledStop
 import com.skedgo.sqlite.Cursors
@@ -49,12 +50,9 @@ open class ScheduledStopRepository @Inject constructor(
         return Observable.using({ queryStopsSync(projection, selection, selectionArgs, order) },
                 { Cursors.flattenCursor().apply(it) },
                 { it.close() })
-                .map {
-                    val stop = cursorToStopConverter.apply(it)
-                    it.close()
-                    stop
-                }
-                .toList().toObservable()
+                .map { cursorToStopConverter.apply(it) }
+                .toList()
+                .toObservable()
                 .subscribeOn(Schedulers.io())
     }
 
