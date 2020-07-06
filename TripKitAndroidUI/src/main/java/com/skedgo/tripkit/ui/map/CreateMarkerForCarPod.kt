@@ -14,6 +14,7 @@ import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
 import com.skedgo.tripkit.locations.CarPod
+import io.reactivex.android.schedulers.AndroidSchedulers
 
 object CreateMarkerForCarPod {
 
@@ -27,6 +28,7 @@ object CreateMarkerForCarPod {
               .map { BitmapDescriptorFactory.fromBitmap(it) }
               .toObservable()
               .observeOn(Schedulers.io())
+                  .subscribeOn(AndroidSchedulers.mainThread())
               .onErrorResumeNext(Observable.empty())
         }
         .switchIfEmpty(Observable.fromCallable {
