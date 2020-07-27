@@ -24,4 +24,8 @@
     <string name="platform">Platform %s</string>
     <string name="choose_on_map">Choose on map</string>
     <string name="share">Share</string>
+    <string name="kickscooter">Kick Scooter</string>
+    <string name="scan_qr_code">Scan QR Code</string>
+    <string name="scan">Scan</string>
+    <string name="open_in">Open in...</string>
 </resources>

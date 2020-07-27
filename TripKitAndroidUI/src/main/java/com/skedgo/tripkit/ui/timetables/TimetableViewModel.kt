@@ -125,7 +125,7 @@ class TimetableViewModel  @Inject constructor(
                 realTimeChoreographer.getRealTimeResultsFromCleanElements(region, elements = services)
                         .map { vehicles ->
                             services.forEach { service : TimetableEntry ->
-                                val vehicle = vehicles.find { service.serviceTripId == it.serviceTripId }
+                                val vehicle = vehicles.firstOrNull { service.serviceTripId == it.serviceTripId  }
                                 vehicle?.let {
                                     service.realtimeVehicle = it
                                 }

@@ -5,6 +5,7 @@ import com.skedgo.tripkit.data.database.locations.carparks.CarParkMapper;
 import com.skedgo.tripkit.data.database.locations.carparks.CarParkPersistor;
 import com.skedgo.tripkit.data.database.locations.carpods.CarPodMapper;
 import com.skedgo.tripkit.data.database.locations.carpods.CarPodRepository;
+import com.skedgo.tripkit.data.database.locations.freefloating.FreeFloatingRepository;
 import com.skedgo.tripkit.data.database.locations.onstreetparking.OnStreetParkingMapper;
 import com.skedgo.tripkit.data.database.locations.onstreetparking.OnStreetParkingPersistor;
 import com.skedgo.tripkit.data.locations.LocationsApi;
@@ -26,6 +27,7 @@ public class ScheduledStopServiceModule {
                                    OnStreetParkingPersistor onStreetParkingPersistor,
                                    OnStreetParkingMapper onStreetParkingMapper,
                                    BikePodRepository bikePodRepository,
+                                   FreeFloatingRepository freeFloatingRepository,
                                    CarPodMapper carPodMapper,
                                    CarPodRepository carPodRepository) {
     return new StopsFetcher(
@@ -35,6 +37,7 @@ public class ScheduledStopServiceModule {
         stopsPersistor,
         configCreator,
         bikePodRepository,
+        freeFloatingRepository,
         carParkPersistor,
         onStreetParkingPersistor,
         CarParkMapper,

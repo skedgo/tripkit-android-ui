@@ -16,6 +16,7 @@ import com.skedgo.tripkit.routing.ModeInfo
 import com.skedgo.tripkit.ui.tripresults.LoaderPlaceholder
 import com.skedgo.tripkit.ui.tripresults.TripResultTransportItemViewModel
 import com.skedgo.tripkit.ui.tripresults.TripResultViewModel
+import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
 import me.tatarka.bindingcollectionadapter2.collections.MergeObservableList
 import me.tatarka.bindingcollectionadapter2.itembindings.OnItemBindClass
 import timber.log.Timber
@@ -32,7 +33,7 @@ class NearbyTripPreviewItemListItemViewModel {
 class NearbyTripPreviewModeItemViewModel {
     val modeId = ObservableField<String>()
     val modeIconId = ObservableInt(0)
-    val checked = ObservableBoolean(false)
+    val checked = ObservableBoolean(true)
 
     val clicked: PublishRelay<Pair<String, Boolean>> = PublishRelay.create()
 
@@ -44,6 +45,7 @@ class NearbyTripPreviewModeItemViewModel {
 class NearbyTripPreviewItemViewModel : RxViewModel() {
     val loadingItem = LoaderPlaceholder()
     val showModes = ObservableBoolean(false)
+    var originalItems = listOf<NearbyLocation>()
     var items = ObservableArrayList<NearbyTripPreviewItemListItemViewModel>()
     val binding = ItemBinding.of(
             OnItemBindClass<Any>()
@@ -61,23 +63,36 @@ class NearbyTripPreviewItemViewModel : RxViewModel() {
     fun addMode(modeInfo: ModeInfo) {
         val vm = NearbyTripPreviewModeItemViewModel()
         vm.modeId.set(modeInfo.id)
-        vm.modeIconId.set(modeInfo.modeCompat.iconRes)
+        vm.clicked.observeOn(mainThread())
+                .subscribe { loadLocations(true) }
+                .autoClear()
+        modeInfo.modeCompat?.let {
+            vm.modeIconId.set(it.iconRes)
+        }
         transportModes.add(vm)
         showModes.set(true)
     }
 
-    fun setLocations(list: List<NearbyLocation>) {
+    fun loadLocations(checkModes: Boolean = false) {
+        var enabledModes = transportModes.filter { it.checked.get() }.map{ it.modeId.get()!! }.toSet()
         items.clear()
-        list.forEach {
-            val vm = NearbyTripPreviewItemListItemViewModel()
-            vm.title.set(it.title)
-            vm.location.set(it.address)
-            if (it.modeInfo != null && it.modeInfo.modeCompat != null) {
-                vm.icon.set(it.modeInfo.modeCompat.iconRes)
+        originalItems.forEach {
+            if (!checkModes || enabledModes.contains(it.modeInfo?.id)) {
+                val vm = NearbyTripPreviewItemListItemViewModel()
+                vm.title.set(it.title)
+                vm.location.set(it.address)
+                if (it.modeInfo != null && it.modeInfo.modeCompat != null) {
+                    vm.icon.set(it.modeInfo.modeCompat.iconRes)
+                }
+                items.add(vm)
             }
-            items.add(vm)
-            mergedList.removeItem(loadingItem)
-            showModes.set(true)
         }
+
+    }
+    fun setLocations(list: List<NearbyLocation>) {
+        originalItems = list
+        loadLocations()
+        mergedList.removeItem(loadingItem)
+        showModes.set(true)
     }
 }

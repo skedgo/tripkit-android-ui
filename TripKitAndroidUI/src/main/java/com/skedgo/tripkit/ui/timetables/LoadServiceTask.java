@@ -75,7 +75,6 @@ public class LoadServiceTask implements Callable<Pair<List<StopInfo>, List<Servi
       final String address = mCursor.getString(LoadServiceTaskCursorCols.address);
       final String name = mCursor.getString(LoadServiceTaskCursorCols.name);
       int bearing = mCursor.getInt(LoadServiceTaskCursorCols.bearing);
-
       final RealTimeStatus realTimeStatus = RealTimeStatus.from(mCursor.getString(LoadServiceTaskCursorCols.realTimeStatus));
       final long depart = mCursor.getLong(LoadServiceTaskCursorCols.departureTime);
       final long arrive = mCursor.getLong(LoadServiceTaskCursorCols.arrivalTime);

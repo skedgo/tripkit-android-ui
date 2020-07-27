@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@android:color/white"
+                android:foreground="?selectableItemBackground"
+                android:padding="8dp">
+
+    <TextView
+            android:id="@+id/operatorName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginBottom="8dp"
+            android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+            tools:text="Neuron" />
+
+    <TextView
+            android:id="@+id/type"
+            android:drawablePadding="@dimen/spacing_small"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/operatorName"
+            android:padding="8dp"
+            android:text="@string/kickscooter"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
+
+    <TextView
+            android:id="@+id/name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBaseline="@id/type"
+            android:layout_marginLeft="8dp"
+            android:layout_toRightOf="@id/type"
+            android:gravity="center"
+            android:paddingLeft="8dp"
+            android:paddingRight="8dp"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+            tools:text="24" />
+
+    <TextView
+            android:id="@+id/batteryLevelText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/type"
+            android:padding="8dp"
+            android:drawablePadding="@dimen/spacing_small"
+            android:text="@string/battery"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
+
+    <TextView
+            android:id="@+id/batteryLevel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBaseline="@id/batteryLevelText"
+            android:layout_alignRight="@id/name"
+            android:layout_marginLeft="8dp"
+            android:gravity="center"
+            android:paddingLeft="8dp"
+            android:paddingRight="8dp"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+            tools:text="15" />
+
+    <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="16dp"
+            android:layout_toRightOf="@id/name"
+            android:src="@drawable/ic_arrow_forward" />
+</RelativeLayout>

@@ -10,12 +10,12 @@ import androidx.databinding.ObservableInt
 import com.skedgo.tripkit.common.util.TimeUtils
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.core.RxViewModel
-import com.skedgo.tripkit.ui.utils.TapAction
 import io.reactivex.Observable
 import io.reactivex.functions.BiFunction
 import org.joda.time.DateTime
 import com.skedgo.tripkit.datetime.PrintTime
 import com.skedgo.tripkit.routing.*
+import com.skedgo.tripkit.ui.utils.*
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -83,24 +83,24 @@ class TripResultViewModel  @Inject constructor(private val context: Context,
             alternateTripVisible.set(true)
         }
         setCost()
-        val bookingSegment = trip.segments.find { segment -> segment.booking?.quickBookingsUrl != null }
-        if (group.frequency > 0) {
+        val quickBookingSegment = trip.segments.find { segment -> segment.correctItemType() == ITEM_QUICK_BOOKING }
+        val externalBookingSegment = trip.segments.find { segment -> segment.correctItemType() == ITEM_EXTERNAL_BOOKING }
+        if (trip.segments.find { segment -> segment.correctItemType() == ITEM_SERVICE} != null) {
             moreButtonText.set(context.getString(R.string.view_times))
             moreButtonVisible.set(true)
-        } else if (bookingSegment != null){
-            val booking = bookingSegment.booking
-            moreButtonText.set(booking.title)
+        } else if (quickBookingSegment != null){
+            moreButtonText.set(quickBookingSegment.booking.title)
             moreButtonVisible.set(true)
-        } else {
+        } else if (externalBookingSegment != null) {
+            moreButtonText.set(externalBookingSegment.booking.title)
+            moreButtonVisible.set(true)
+        }  else {
             val mainSegment = trip.getMainTripSegment()
             if (mainSegment != null && mainSegment.miniInstruction != null && mainSegment.miniInstruction.instruction != null) {
                 moreButtonText.set(mainSegment.miniInstruction.instruction)
                 moreButtonVisible.set(true)
             }
         }
-        // External booking is missing
-        // Turn by turn is missing
-        // Main Segment?
     }
 
     private fun setBadge(classification: TripGroupClassifier.Classification) {

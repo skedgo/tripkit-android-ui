@@ -8,9 +8,17 @@ import androidx.databinding.ObservableBoolean
 import androidx.databinding.ObservableField
 import androidx.databinding.ObservableInt
 import com.jakewharton.rxrelay2.PublishRelay
+import com.skedgo.tripkit.ServiceApi
+import com.skedgo.tripkit.ServiceResponse
+import com.skedgo.tripkit.common.model.Location
 import com.skedgo.tripkit.common.model.ScheduledStop
 import com.skedgo.tripkit.common.model.ServiceStop
+import com.skedgo.tripkit.common.model.WheelchairAccessible
+import com.skedgo.tripkit.data.regions.RegionService
 import com.skedgo.tripkit.logging.ErrorLogger
+import com.skedgo.tripkit.routing.RealTimeVehicle
+import com.skedgo.tripkit.routing.ServiceColor
+import com.skedgo.tripkit.routing.TripSegment
 import com.skedgo.tripkit.routing.dateTimeZone
 import com.skedgo.tripkit.ui.BR
 import com.skedgo.tripkit.ui.R
@@ -29,6 +37,8 @@ import javax.inject.Inject
 import javax.inject.Provider
 
 class ServiceDetailViewModel  @Inject constructor(private val context: Context,
+                                                  private val regionService: RegionService,
+                                                  private val serviceApi: ServiceApi,
                                                   val occupancyViewModel: OccupancyViewModel,
                                                   private val serviceViewModelProvider: Provider<ServiceDetailItemViewModel>,
                                                   val serviceAlertViewModel: ServiceAlertViewModel,
@@ -38,10 +48,6 @@ class ServiceDetailViewModel  @Inject constructor(private val context: Context,
                                                   private val getServiceTertiaryText: GetServiceTertiaryText,
                                                   private val getRealtimeText: GetRealtimeText,
                                                   private val errorLogger: ErrorLogger): RxViewModel() {
-
-    var stop: ScheduledStop? = null
-    var timetableEntry: TimetableEntry? = null
-
     val stationName = ObservableField<String>()
     val serviceColor: ObservableInt = ObservableInt()
     val serviceNumber = ObservableField<String>()
@@ -61,23 +67,30 @@ class ServiceDetailViewModel  @Inject constructor(private val context: Context,
     val onItemClicked = PublishRelay.create<ServiceStop>()
     var showCloseButton = ObservableBoolean(false)
 
-    fun setup(_stop: ScheduledStop, _entry: TimetableEntry) {
-        stop = _stop
-        timetableEntry = _entry
 
-        stationName.set(_entry.serviceName)
-        serviceNumber.set(_entry.serviceNumber)
+    fun setup(region: String,
+              serviceId: String,
+              serviceName: String?,
+              serviceNumber: String?,
+              serviceColor: ServiceColor?,
+              operator: String,
+              startStopCode: String,
+              endStopCode: String?,
+              embarkation: Long,
+              realTimeVehicle: RealTimeVehicle?,
+              wheelchairAccessible: Boolean?) {
+        this.stationName.set(serviceName)
+        this.serviceNumber.set(serviceNumber)
 
-        val (secondaryMessage, color) = getRealtimeText.execute(_stop.dateTimeZone, _entry, _entry.realtimeVehicle)
-        secondaryText.set(secondaryMessage)
-        secondaryTextColor.set(ContextCompat.getColor(context, color))
-        tertiaryText.set(getServiceTertiaryText.execute(_entry))
+//        val (secondaryMessage, color) = getRealtimeText.execute(_stop.dateTimeZone, _entry, _entry.realtimeVehicle)
+//        secondaryText.set(secondaryMessage)
+//        secondaryTextColor.set(ContextCompat.getColor(context, color))
+//        tertiaryText.set(getServiceTertiaryText.execute(_entry))
 
-
-        _entry.realtimeVehicle?.let { occupancyViewModel.setOccupancy(it, false) }
+        realTimeVehicle?.let { occupancyViewModel.setOccupancy(it, false) }
         showOccupancyInfo.set(occupancyViewModel.hasInformation())
 
-        _entry.wheelchairAccessible?.let {
+        wheelchairAccessible?.let {
             showWheelchairAccessible.set(true)
             if (it) {
                 wheelchairAccessibleText.set(context.getString(R.string.wheelchair_accessible))
@@ -88,46 +101,83 @@ class ServiceDetailViewModel  @Inject constructor(private val context: Context,
             }
         }
 
-        setServiceColor()
-        loadServices.fetch(timetableEntry!!, stop!!).observeOn(AndroidSchedulers.mainThread()).subscribe ({
-            loadServices.execute(timetableEntry!!, stop!!)
-                .map { listListPair -> listListPair.first }
-                .map {
-                    var travelled = true
-                    it.map {
-                        serviceViewModelProvider.get().apply {
-                            if (_entry.stopCode == it.stop.code) travelled = false
-                            this.setStop(context, it, serviceColor.get(), travelled)
-                            this.setDrawable(context, ServiceDetailItemViewModel.LineDirection.MIDDLE)
-                            this.onItemClick.observable.subscribe {
-                                stopInfo -> stopInfo?.let { onItemClicked.accept(it.stop) }
-                            }
-                        }
-                    }
-                }
-                .subscribe ({
-                    list ->
-                        items.get()!!.forEach {
-                            vm -> vm.onCleared()
-                        }
-                        list.first()?.setDrawable(context, ServiceDetailItemViewModel.LineDirection.START)
-                        list.last()?.setDrawable(context, ServiceDetailItemViewModel.LineDirection.END)
-                        items.set(list)
-                }, { Timber.e(it) })
-        }, { Timber.e(it) }).autoClear()
-    }
-
-    private fun setServiceColor() {
-        timetableEntry?.serviceColor?.let {
+        serviceColor?.let {
             when (it.color) {
                 Color.BLACK, Color.WHITE -> {
-                    serviceColor.set(Color.BLACK)
+                    this.serviceColor.set(Color.BLACK)
                 }
                 else -> {
-                    serviceColor.set(it.color)
+                    this.serviceColor.set(it.color)
                 }
             }
         }
+
+        serviceApi.getServiceAsync(region, serviceId, operator, startStopCode, endStopCode,
+                embarkation, true)
+                .subscribe(::processResponse)
+                .autoClear()
+
+    }
+
+    fun setup(segment: TripSegment) {
+        regionService.getRegionByLocationAsync(segment.from)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe {
+                   setup(it.name!!,
+                        segment.serviceTripId,
+                        segment.serviceName,
+                        segment.serviceNumber,
+                        segment.serviceColor,
+                        segment.serviceOperator,
+                        segment.startStopCode,
+                        segment.endStopCode,
+                        segment.timetableStartTime,
+                        segment.realTimeVehicle,
+                        segment.wheelchairAccessible)
+                }.autoClear()
+    }
+
+    fun setup(_stop: ScheduledStop, _entry: TimetableEntry) {
+        regionService.getRegionByLocationAsync(_stop)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe {
+                    setup(it.name!!,
+                            _entry.getServiceTripId(),
+                            _entry.serviceName,
+                            _entry.serviceNumber,
+                            _entry.serviceColor,
+                            _entry.getOperator(),
+                            _entry.getStartStopCode(),
+                            null,
+                            _entry.startTimeInSecs,
+                            _entry.realtimeVehicle,
+                            _entry.wheelchairAccessible)
+                }.autoClear()
+    }
+
+    fun processResponse(response: ServiceResponse) {
+        var list = mutableListOf<ServiceDetailItemViewModel>()
+        response.shapes().forEach {shape ->
+            shape.stops?.forEach { stop ->
+                list.add(serviceViewModelProvider.get().apply {
+                    // isTravelled indicates whether or not the *traveller* has travelled the stop, which will always
+                    // be false for stops on a line prior to the displayed station, and true for stops after. So for our purposes here,
+                    // invert it.
+                    this.setStop(context, stop, shape.serviceColor.color, !shape.isTravelled)
+                    this.setDrawable(context, ServiceDetailItemViewModel.LineDirection.MIDDLE)
+                    this.onItemClick.observable.subscribe {
+                        stopInfo -> stopInfo?.let { onItemClicked.accept(it) }
+                    }
+                })
+            }
+        }
+
+        items.get()!!.forEach {
+            vm -> vm.onCleared()
+        }
+        list.firstOrNull()?.setDrawable(context, ServiceDetailItemViewModel.LineDirection.START)
+        list.lastOrNull()?.setDrawable(context, ServiceDetailItemViewModel.LineDirection.END)
+        items.set(list)
     }
 
     override fun onCleared() {

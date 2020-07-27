@@ -1,11 +1,13 @@
 package com.skedgo.tripkit.ui.trippreview
 
 import android.content.Context
+import android.graphics.Color
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import androidx.core.content.ContextCompat
 import androidx.databinding.ObservableBoolean
 import androidx.databinding.ObservableField
+import androidx.databinding.ObservableInt
 import com.skedgo.tripkit.common.model.TransportMode
 import com.skedgo.tripkit.common.util.TransportModeUtils
 import com.skedgo.tripkit.common.util.TripSegmentUtils
@@ -21,8 +23,6 @@ import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import timber.log.Timber
 
-
-/* The default view. Just shows the title, location, and distance */
 open class TripPreviewPagerItemViewModel : RxViewModel() {
     var title = ObservableField<String>()
     var icon = ObservableField<Drawable>()
@@ -30,10 +30,12 @@ open class TripPreviewPagerItemViewModel : RxViewModel() {
     var showDescription = ObservableBoolean(true)
     var closeClicked = TapAction<TripPreviewPagerItemViewModel>{ this }
     var notes = ObservableField<String>()
+    var messageTitle = ObservableField<String>()
+    var message = ObservableField<String>()
+    var messageVisible = ObservableBoolean(false)
 
     open fun setSegment(context: Context, segment: TripSegment) {
         title.set(TripSegmentUtils.getTripSegmentAction(context, segment) ?: "Unknown Action")
-
         var instruction = segment.miniInstruction?.description
         if (segment.metres > 0) {
             notes.set(DistanceFormatter.format(segment.metres))

@@ -78,9 +78,7 @@ class ServiceDetailFragment : BaseTripKitFragment() {
                               savedInstanceState: Bundle?): View? {
         binding = ServiceDetailFragmentBinding.inflate(layoutInflater)
         binding.viewModel = viewModel
-        binding.occupancyList.isNestedScrollingEnabled = false
-        binding.recyclerView.isNestedScrollingEnabled = true
-        binding.occupancyList.layoutManager = LinearLayoutManager(context, RecyclerView.HORIZONTAL, false)
+        binding.content.occupancyList.layoutManager = LinearLayoutManager(context, RecyclerView.HORIZONTAL, false)
         return binding.root
     }
 

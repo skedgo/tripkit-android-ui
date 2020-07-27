@@ -1,6 +1,7 @@
 package com.skedgo.tripkit.ui;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.util.Log;
 import com.google.android.libraries.places.api.Places;
@@ -10,6 +11,7 @@ import com.skedgo.tripkit.Configs;
 import com.skedgo.tripkit.data.database.DbHelper;
 import com.skedgo.tripkit.data.regions.RegionService;
 import com.skedgo.tripkit.ui.core.module.*;
+import com.skedgo.tripkit.ui.core.settings.DeveloperPreferenceRepositoryImpl;
 import com.skedgo.tripkit.ui.data.places.PlaceSearchRepository;
 import com.skedgo.tripkit.ui.poidetails.PoiDetailsFragment;
 import com.skedgo.tripkit.ui.provider.ScheduledStopsProvider;
@@ -33,6 +35,7 @@ import com.skedgo.tripkit.logging.ErrorLogger;
 import timber.log.Timber;
 
 import javax.inject.Singleton;
+import java.util.concurrent.Callable;
 
 @Singleton
 @Component(modules = {
@@ -61,7 +64,8 @@ import javax.inject.Singleton;
         CyclingSpeedRepositoryModule.class,
         WalkingSpeedRepositoryModule.class,
         PrioritiesRepositoryModule.class,
-        GetRoutingConfigModule.class
+        GetRoutingConfigModule.class,
+        BookingModule.class
         })
 public abstract class TripKitUI {
     private static TripKitUI instance;
@@ -83,10 +87,24 @@ public abstract class TripKitUI {
             AUTHORITY =  context.getPackageName() + ".com.skedgo.tripkit.ui.";
             boolean isDebuggable = (0 != (context.getApplicationInfo().flags
                     & ApplicationInfo.FLAG_DEBUGGABLE ) || BuildConfig.DEBUG);
-
+            DeveloperPreferenceRepositoryImpl repository = new DeveloperPreferenceRepositoryImpl(context, context.getSharedPreferences(
+                    "TripKit", Context.MODE_PRIVATE));
             Configs configs = Configs.builder()
                     .context(context)
                     .debuggable(isDebuggable)
+                    .baseUrlAdapterFactory(new Callable<String>() {
+                        @Override
+                        public String call() throws Exception {
+                            return repository.getServer();
+                        }
+                    })
+                    .userTokenProvider(new Callable<String>() {
+                        @Override
+                        public String call() throws Exception {
+                            SharedPreferences prefs = context.getSharedPreferences("UserTokenPreferences", Context.MODE_PRIVATE);
+                            return prefs.getString("userToken", "");
+                        }
+                    })
                     .key(() -> key)
                     .build();
             TripKit.initialize(configs);
@@ -98,8 +116,8 @@ public abstract class TripKitUI {
             }
 
             if (isDebuggable) {
-            Timber.plant(new Timber.DebugTree());
-        }
+                Timber.plant(new Timber.DebugTree());
+            }
         instance = DaggerTripKitUI.builder()
                 .contextModule(new ContextModule(context))
                 .build();

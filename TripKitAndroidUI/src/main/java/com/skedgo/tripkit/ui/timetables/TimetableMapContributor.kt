@@ -81,7 +81,7 @@ class TimetableMapContributor(val fragment: Fragment) : TripKitMapContributor {
         map.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(mStop!!.lat, mStop!!.lon), 15.0f))
 
         autoDisposable.add(viewModel.drawStops
-                .subscribe { (newMarkerOptions, removedStopIds) ->
+                .subscribe({ (newMarkerOptions, removedStopIds) ->
                     for (id in removedStopIds) {
                         stopCodesToMarkerMap[id]!!.remove()
                         stopCodesToMarkerMap.remove(id)
@@ -90,7 +90,7 @@ class TimetableMapContributor(val fragment: Fragment) : TripKitMapContributor {
                         val marker = map.addMarker(first)
                         stopCodesToMarkerMap[second!!] = marker
                     }
-                })
+                }, {}))
 
 
         autoDisposable.add(viewModel.viewPort

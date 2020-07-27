@@ -14,6 +14,7 @@ import com.skedgo.tripkit.ui.utils.Optional
 import io.reactivex.Observable
 import io.reactivex.Single
 import skedgo.tripgo.data.timetables.ParentStopDao
+import timber.log.Timber
 import javax.inject.Inject
 
 open class FetchAndLoadTimetable @Inject constructor(

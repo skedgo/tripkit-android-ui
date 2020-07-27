@@ -1,6 +1,7 @@
 package com.skedgo.tripkit.ui;
 
 import android.graphics.*;
+import androidx.annotation.ColorInt;
 
 /**
  * Created by Adrian Schoenig on 3. May 2018.

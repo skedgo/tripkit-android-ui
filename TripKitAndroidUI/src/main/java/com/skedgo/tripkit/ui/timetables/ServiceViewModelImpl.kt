@@ -17,6 +17,7 @@ import com.skedgo.tripkit.ui.utils.TimeSpanUtils
 import org.joda.time.DateTimeZone
 import com.skedgo.tripkit.logging.ErrorLogger
 import com.skedgo.tripkit.routing.ModeInfo
+import timber.log.Timber
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
@@ -58,13 +59,8 @@ internal class ServiceViewModelImpl @Inject constructor(
 
   override fun setService(_service: TimetableEntry,
                           _dateTimeZone: DateTimeZone) {
-//    Timber.d(_service.serviceNumber + ": " + _service.serviceName)
-//    Timber.d(_service.serviceDirection)
-//    Timber.d("StartStop: " + _service.startStopShortName);
-
     service = _service
     dateTimeZone = _dateTimeZone
-
     updateInfo()
   }
 

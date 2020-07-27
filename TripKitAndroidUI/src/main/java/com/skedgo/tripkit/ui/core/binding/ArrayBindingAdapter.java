@@ -22,8 +22,7 @@ public final class ArrayBindingAdapter {
             LayoutInflater inflater = (LayoutInflater)
                     viewGroup.getContext()
                             .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            for (int i = 0; i < entries.size(); i++) {
-                T entry = entries.get(i);
+            for (T entry : entries) {
                 ViewDataBinding binding = DataBindingUtil
                         .inflate(inflater, layoutId, viewGroup, true);
                 binding.setVariable(BR.viewModel, entry);

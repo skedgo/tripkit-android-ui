@@ -111,7 +111,11 @@ class TripResultListViewModel @Inject constructor(
     }
     fun setup(_query: Query,
               showTransportSelectionView: Boolean,
-              transportModeFilter: TransportModeFilter?) {
+              transportModeFilter: TransportModeFilter?,
+              force: Boolean = false) {
+        if (!force && mergedList.size > 0) {
+            return
+        }
 
         this.query = _query
         _query.fromLocation?.let {
@@ -300,7 +304,7 @@ class TripResultListViewModel @Inject constructor(
 
     fun changeQuery(newQuery: Query) {
         results.update(emptyList())
-        setup(newQuery, showTransportModeSelection.get(), transportModeFilter)
+        setup(newQuery, showTransportModeSelection.get(), transportModeFilter, true)
     }
 
     fun updateQueryTime(timeTag: TimeTag) {

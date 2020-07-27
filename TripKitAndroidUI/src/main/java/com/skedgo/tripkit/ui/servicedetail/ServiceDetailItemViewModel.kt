@@ -6,11 +6,13 @@ import android.graphics.drawable.NinePatchDrawable
 import androidx.core.content.ContextCompat
 import androidx.databinding.ObservableField
 import androidx.databinding.ObservableInt
+import com.skedgo.tripkit.common.model.ServiceStop
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.core.RxViewModel
 import com.skedgo.tripkit.ui.model.StopInfo
 import com.skedgo.tripkit.ui.utils.TapAction
 import io.reactivex.android.schedulers.AndroidSchedulers
+import timber.log.Timber
 import javax.inject.Inject
 
 
@@ -19,7 +21,7 @@ class ServiceDetailItemViewModel @Inject constructor(val getStopTimeDisplayText:
         START, MIDDLE, END
     }
 
-    var stop: StopInfo? = null
+    var stop: ServiceStop? = null
     val scheduledTime = ObservableField<String>()
     val scheduledTimeTextColor = ObservableInt()
     var lineColor = 0
@@ -38,13 +40,10 @@ class ServiceDetailItemViewModel @Inject constructor(val getStopTimeDisplayText:
         lineDrawable.get()?.setColorFilter(lineColor, PorterDuff.Mode.SRC_ATOP)
     }
 
-    fun setStop(context: Context, stop: StopInfo, _lineColor: Int, travelled: Boolean) {
+    fun setStop(context: Context, stop: ServiceStop, _lineColor: Int, travelled: Boolean) {
         this.stop = stop
         lineColor = _lineColor
-
-        stop.stop?.let {
-            stopName.set(it.name)
-        }
+        stopName.set(stop.name)
         if (travelled) {
             scheduledTimeTextColor.set(ContextCompat.getColor(context, R.color.black2))
             stopNameColor.set(ContextCompat.getColor(context, R.color.black2))
@@ -53,7 +52,7 @@ class ServiceDetailItemViewModel @Inject constructor(val getStopTimeDisplayText:
             stopNameColor.set(ContextCompat.getColor(context, R.color.black))
         }
         scheduledTimeTextColor.set(ContextCompat.getColor(context, R.color.black1))
-        getStopTimeDisplayText.execute(stop.stop)
+        getStopTimeDisplayText.execute(stop)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe {
                     text ->

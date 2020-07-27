@@ -6,6 +6,7 @@ import com.skedgo.tripkit.common.util.TimeUtils
 import com.skedgo.tripkit.data.database.DbFields
 import com.skedgo.tripkit.ui.model.TimetableEntry
 import com.skedgo.tripkit.ui.realtime.RealtimeAlertRepository
+import timber.log.Timber
 import java.util.*
 import javax.inject.Inject
 
@@ -22,7 +23,6 @@ class TimetableEntriesMapper @Inject constructor(
       val random = Random()
 
       services.forEachIndexed { i, service ->
-
         val serviceId = random.nextLong()
         serviceValuesList[i].put(DbFields.ID.name, serviceId)
         serviceValuesList[i].put(DbFields.PAIR_IDENTIFIER.name, service.pairIdentifier)

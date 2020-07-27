@@ -13,15 +13,17 @@
     </data>
 
 <androidx.constraintlayout.widget.ConstraintLayout
-        android:background="?selectableItemBackground"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/trip_preview_external_action_pager_list_item"
         android:onClick="@{() -> parentViewModel.actionChosen.accept(viewModel.action)}"
-                                                   android:layout_width="match_parent"
+                                                   android:layout_width="wrap_content"
+                                                    android:padding="8dp"
                                                    android:layout_height="wrap_content">
 
     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
               app:layout_constraintTop_toTopOf="parent"
               app:layout_constraintStart_toStartOf="parent"
-              android:layout_marginStart="16dp"
               style="@style/TextAppearance.MaterialComponents.Body1"
               android:text="@{viewModel.title}"/>
 </androidx.constraintlayout.widget.ConstraintLayout>

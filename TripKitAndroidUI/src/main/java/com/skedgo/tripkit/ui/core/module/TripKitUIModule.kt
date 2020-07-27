@@ -6,20 +6,26 @@ import android.content.res.Resources
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.skedgo.TripKit
-import com.skedgo.tripkit.common.model.GsonAdaptersBooking
-import com.skedgo.tripkit.common.model.GsonAdaptersRealtimeAlert
-import com.skedgo.tripkit.common.util.Gsons
-import com.skedgo.tripkit.common.util.LowercaseEnumTypeAdapterFactory
 import com.skedgo.routepersistence.LocationTypeAdapterFactory
 import com.skedgo.routepersistence.RouteDatabaseHelper
 import com.skedgo.routepersistence.RouteStore
 import com.skedgo.routepersistence.RoutingStatusStore
+import com.skedgo.tripkit.ServiceApi
+import com.skedgo.tripkit.common.model.GsonAdaptersBooking
+import com.skedgo.tripkit.common.model.GsonAdaptersRealtimeAlert
+import com.skedgo.tripkit.common.util.Gsons
+import com.skedgo.tripkit.common.util.LowercaseEnumTypeAdapterFactory
+import com.skedgo.tripkit.configuration.Server
 import com.skedgo.tripkit.data.database.TripKitDatabase
 import com.skedgo.tripkit.data.database.locations.bikepods.BikePodRepository
 import com.skedgo.tripkit.data.database.locations.bikepods.BikePodRepositoryImpl
+import com.skedgo.tripkit.data.database.locations.freefloating.FreeFloatingRepository
+import com.skedgo.tripkit.data.database.locations.freefloating.FreeFloatingRepositoryImpl
 import com.skedgo.tripkit.data.locations.LocationsApi
 import com.skedgo.tripkit.data.locations.StopsFetcher
 import com.skedgo.tripkit.data.routingstatus.RoutingStatusRepositoryImpl
+import com.skedgo.tripkit.logging.ErrorLogger
+import com.skedgo.tripkit.routingstatus.RoutingStatusRepository
 import com.skedgo.tripkit.ui.core.CellsLoader
 import com.skedgo.tripkit.ui.core.CellsPersistor
 import com.skedgo.tripkit.ui.core.StopsPersistor
@@ -33,9 +39,6 @@ import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
-import com.skedgo.tripkit.configuration.Server
-import com.skedgo.tripkit.logging.ErrorLogger
-import com.skedgo.tripkit.routingstatus.RoutingStatusRepository
 import javax.inject.Singleton
 
 
@@ -71,6 +74,17 @@ class TripKitUIModule {
                 .create(LocationsApi::class.java)
     }
 
+    @Singleton
+    @Provides
+    fun getServiceApi(httpClient: OkHttpClient, gson: Gson): ServiceApi {
+        return Retrofit.Builder()
+                .baseUrl(Server.ApiTripGo.value)
+                .addConverterFactory(GsonConverterFactory.create(gson))
+                .addCallAdapterFactory(RxJava2CallAdapterFactory.createWithScheduler(Schedulers.io()))
+                .client(httpClient)
+                .build()
+                .create(ServiceApi::class.java)
+    }
 
     @Provides
     @Singleton
@@ -98,6 +112,11 @@ class TripKitUIModule {
         return BikePodRepositoryImpl(tripGoDatabase2)
     }
 
+    @Provides
+    @Singleton
+    internal fun freeFloatingRepositoryImpl(tripGoDatabase2: TripKitDatabase): FreeFloatingRepository {
+        return FreeFloatingRepositoryImpl(tripGoDatabase2)
+    }
 
     @Provides
     internal fun provideCellsPersistor(context: Context): StopsFetcher.ICellsPersistor {

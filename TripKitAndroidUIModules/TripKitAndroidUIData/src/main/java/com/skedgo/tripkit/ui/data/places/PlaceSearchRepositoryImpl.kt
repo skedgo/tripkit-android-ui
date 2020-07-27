@@ -29,8 +29,6 @@ class PlaceSearchRepositoryImpl
                             .setTypeFilter(TypeFilter.ADDRESS)
                             .build())
                     .addOnCompleteListener { task ->
-                        Timber.d("searchForPlaces for $query complete: ${task.isSuccessful}")
-
                         if (task.isSuccessful) {
                             val result = task.result
                             val list = result?.autocompletePredictions.orEmpty()

@@ -14,6 +14,7 @@ import dagger.Provides
 import com.skedgo.tripkit.agenda.ConfigRepository
 import com.skedgo.tripkit.analytics.MarkTripAsPlannedWithUserInfo
 import com.skedgo.tripkit.datetime.PrintTime
+import com.skedgo.tripkit.ui.core.settings.BaseUrlAdapter
 import java.util.concurrent.Callable
 import javax.inject.Singleton
 
@@ -44,6 +45,9 @@ class TripKitModule {
 
   @Provides internal fun markTripAsPlannedWithUserInfo(): MarkTripAsPlannedWithUserInfo
       = TripKit.getInstance().analyticsComponent().markTripAsPlannedWithUserInfo
+
+  @Provides internal fun baseUrlAdapterFactory(baseUrlAdapter: BaseUrlAdapter):
+          Callable<Callable<String>> = Callable { baseUrlAdapter }
 
   @Provides
   fun printTime(): PrintTime

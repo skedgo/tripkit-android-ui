@@ -8,7 +8,7 @@
                 android:padding="8dp">
 
     <TextView
-            android:id="@+id/bikeShareName"
+            android:id="@+id/operatorName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
@@ -22,7 +22,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
-            android:layout_below="@id/bikeShareName"
+            android:layout_below="@id/operatorName"
             android:layout_marginRight="8dp"
             android:layout_marginTop="16dp"
             android:src="@drawable/ic_bicycle_share" />
@@ -31,7 +31,7 @@
             android:id="@+id/availableBikesText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/bikeShareName"
+            android:layout_below="@id/operatorName"
             android:layout_toRightOf="@id/bikeShareIcon"
             android:padding="8dp"
             android:text="@string/available_bikes"
@@ -52,7 +52,7 @@
             tools:text="24" />
 
     <TextView
-            android:id="@+id/emptyDocksText"
+            android:id="@+id/batteryLevelText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/availableBikesText"
@@ -62,10 +62,10 @@
             android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
 
     <TextView
-            android:id="@+id/emptyDocks"
+            android:id="@+id/batteryLevel"
             android:layout_width="48dp"
             android:layout_height="wrap_content"
-            android:layout_alignBottom="@id/emptyDocksText"
+            android:layout_alignBottom="@id/batteryLevelText"
             android:layout_alignRight="@id/availableBikes"
             android:layout_marginLeft="8dp"
             android:background="?colorPrimary"

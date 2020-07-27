@@ -2,6 +2,7 @@ package com.skedgo.tripkit.ui.trippreview.nearby
 
 import android.content.Context
 import com.jakewharton.rxrelay2.BehaviorRelay
+import com.skedgo.tripkit.booking.BookingForm
 import com.skedgo.tripkit.common.util.SphericalUtil
 import com.skedgo.tripkit.data.database.stops.toModeInfo
 import com.skedgo.tripkit.data.locations.LocationsApi
@@ -16,8 +17,10 @@ class SharedNearbyTripPreviewItemViewModel @Inject constructor(private val regio
                                                                 private val locationsApi: LocationsApi) : TripPreviewPagerItemViewModel() {
     var locationDetails = BehaviorRelay.create<NearbyLocation>()
     var locationList = BehaviorRelay.create<List<NearbyLocation>>()
+    var bookingForm = BehaviorRelay.create<BookingForm>()
 
     var loadedSegment: TripSegment? = null
+
     override fun setSegment(context: Context, segment: TripSegment) {
         super.setSegment(context, segment)
         if (segment != loadedSegment) {
@@ -26,7 +29,7 @@ class SharedNearbyTripPreviewItemViewModel @Inject constructor(private val regio
             val details = NearbyLocation(lat = segment.singleLocation.lat,
                                         lng = segment.singleLocation.lon,
                                         title = segment.operator,
-                                        address = segment.singleLocation.displayAddress,
+                                        address = segment.singleLocation.address,
                                         website = null,
                                         modeInfo = segment.modeInfo)
             locationDetails.accept(details)
@@ -61,12 +64,12 @@ class SharedNearbyTripPreviewItemViewModel @Inject constructor(private val regio
                                                                         modeInfo = it.modeInfo?.toModeInfo()))
                                         }
                                         it.freeFloating?.forEach {
-                                            newList.add(NearbyLocation(lat=it.lat(),
-                                                    lng=it.lng(),
-                                                    title = it.vehicle().operator().name(),
-                                                    address = it.address(),
-                                                    website = it.vehicle().operator().website(),
-                                                    modeInfo = it.modeInfo()))
+                                            newList.add(NearbyLocation(lat=it.lat,
+                                                    lng=it.lng,
+                                                    title = it.vehicle.operator.name,
+                                                    address = it.address,
+                                                    website = it.vehicle.operator.website,
+                                                    modeInfo = it.modeInfo?.toModeInfo()))
 
                                         }
                                         it.carRentals?.forEach {

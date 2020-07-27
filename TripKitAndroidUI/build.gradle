@@ -99,20 +99,25 @@ dependencies {
     implementation libs.bindingCollectionAdapterRecyclerView
 
     implementation libs.immutablesGson
+    implementation libs.mlkit
+    implementation libs.camerax
+    implementation libs.cameraxView
+    implementation libs.cameraxLifecycle
 
     implementation libs.timber
     implementation libs.gson
-
     kapt libs.daggerCompiler
 
     kapt libs.daggerAndroidProcessor
     kapt libs.lifecycleCompiler
     implementation "biz.laenger.android:vpbs:0.0.6"
+    implementation 'com.github.AraujoJordan:ExcuseMe:0.9.5'
 
     api project(':trip-kit-booking')
     api project(':TripKitAndroid')
     api project(':TripKitAndroidUIModules:TripKitAndroidUIData')
     api project(':TripKitAndroidUIModules:TripKitAndroidUIDomain')
+    api project(":AccountData")
 }
 
 group = tripkitGroup

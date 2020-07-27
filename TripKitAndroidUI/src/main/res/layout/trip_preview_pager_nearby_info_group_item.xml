@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<layout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <variable name="viewModel" type="com.skedgo.tripkit.ui.trippreview.nearby.InfoGroupViewModel"/>
+    </data>
+    <androidx.constraintlayout.widget.ConstraintLayout android:layout_width="wrap_content"
+                                                       android:layout_height="wrap_content"
+                                                       android:paddingBottom="12dp"
+                                                       android:paddingTop="12dp"
+                                                       android:paddingStart="24dp"
+                                                       android:paddingEnd="12dp">
+        <TextView
+                android:id="@+id/title"
+                android:layout_width="wrap_content"
+                style="@style/TextAppearance.MaterialComponents.Subtitle1"
+                android:layout_height="match_parent"
+                android:text="@{viewModel.title}"
+                tools:text="KICK SCOOTER"
+                android:textAlignment="center"
+                android:singleLine="true"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"/>
+
+        <LinearLayout android:layout_width="match_parent"
+                      android:orientation="horizontal"
+                      android:layout_height="wrap_content"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                      android:gravity="center"
+                      app:layout_constraintTop_toBottomOf="@+id/title">
+            <ImageView
+                    android:id="@+id/icon"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@{viewModel.icon}"/>
+            <TextView
+                    android:id="@+id/description"
+                    android:layout_width="wrap_content"
+                    style="@style/TextAppearance.MaterialComponents.Body2"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:text="@{viewModel.value}"
+                    tools:text="1283"/>
+
+        </LinearLayout>
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

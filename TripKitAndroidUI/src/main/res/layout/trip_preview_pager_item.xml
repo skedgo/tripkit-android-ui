@@ -15,12 +15,49 @@
                                                    android:layout_height="match_parent">
 
     <include layout="@layout/trip_preview_pager_item_header" bind:viewModel="@{viewModel}"/>
-    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-              app:layout_constraintTop_toBottomOf="@+id/textBarrier"
-              android:layout_marginTop="16dp"
-              app:layout_constraintStart_toStartOf="parent"
-              android:layout_marginStart="16dp"
-              style="@style/TextAppearance.MaterialComponents.Body1"
-              android:text="@{viewModel.notes}"/>
+    <ScrollView android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_constraintTop_toBottomOf="@+id/textBarrier"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent">
+        <LinearLayout android:layout_width="match_parent"
+                      android:layout_height="wrap_content"
+                      android:layout_marginTop="16dp"
+                      android:orientation="vertical">
+            <LinearLayout android:layout_width="match_parent"
+                          android:layout_height="wrap_content"
+                          android:id="@+id/messageLayout"
+                          android:background="@color/tripKitSuccess"
+                          android:visibility="@{viewModel.messageVisible}"
+                          android:padding="8dp"
+                          android:orientation="vertical">
+                <TextView android:layout_width="wrap_content"
+                          style="@style/TextAppearance.MaterialComponents.Body1"
+                          tools:text="Status"
+                          android:layout_height="wrap_content"
+                          android:text="@{viewModel.messageTitle}"/>
+                <TextView android:layout_width="wrap_content"
+                          android:layout_height="wrap_content"
+                          tools:text="A message"
+                          android:text="@{viewModel.message}"/>
+            </LinearLayout>
+            <TextView android:layout_width="wrap_content"
+                      android:layout_height="wrap_content"
+                      android:id="@+id/instruction"
+                      android:layout_margin="16dp"
+                      tools:text="Some kind of an instruction goes here. If it's really long, we want it to wrap."
+                      style="@style/TextAppearance.MaterialComponents.Body1"
+                      android:text="@{viewModel.notes}"/>
+
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                          android:id="@+id/actionButtonLayout"
+                          android:orientation="vertical"
+                          app:layout_constraintTop_toBottomOf="@+id/instruction"/>
+
+        </LinearLayout>
+    </ScrollView>
+
+
 </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

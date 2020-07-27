@@ -9,8 +9,6 @@ import com.skedgo.tripkit.routing.TripSegment
 import com.skedgo.tripkit.ui.core.BaseTripKitFragment
 import com.skedgo.tripkit.ui.core.addTo
 import com.skedgo.tripkit.ui.databinding.TripPreviewPagerDirectionsItemBinding
-import com.skedgo.tripkit.ui.trippreview.default.DefaultTripPreviewItemFragment
-import com.skedgo.tripkit.ui.utils.TapAction
 import io.reactivex.android.schedulers.AndroidSchedulers
 
 

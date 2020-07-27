@@ -19,7 +19,7 @@ import kotlin.collections.ArrayList
 
 class FetchService @Inject constructor(private val context: Context,
                                        private val getWheelchairAccessible: GetWheelchairAccessible) {
-  fun execute(service: TimetableEntry, stop: ScheduledStop): Completable {
+  fun execute(service: TimetableEntry, stop: Location): Completable {
     return Completable
         .fromAction {
           val serviceTripId = service.serviceTripId

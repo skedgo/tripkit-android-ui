@@ -119,7 +119,6 @@ class TripResultListFragment : BaseTripKitFragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         binding = TripResultListFragmentBinding.inflate(layoutInflater)
-
         binding.viewModel = viewModel
         val showCloseButton = arguments?.getBoolean(ARG_SHOW_CLOSE_BUTTON, false) ?: false
         viewModel.showCloseButton.set(showCloseButton)
@@ -140,6 +139,9 @@ class TripResultListFragment : BaseTripKitFragment() {
         return binding.root
     }
 
+    fun showCloseButton(showCloseButton: Boolean) {
+        viewModel.showCloseButton.set(showCloseButton)
+    }
     override fun onResume() {
         super.onResume()
         viewModel.onError.observeOn(AndroidSchedulers.mainThread()).subscribe { error ->
@@ -217,7 +219,6 @@ class TripResultListFragment : BaseTripKitFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         query = arguments?.getParcelable<Query>(ARG_QUERY) as Query
         arguments?.getParcelable<TransportModeFilter>(ARG_TRANSPORT_MODE_FILTER)?.let {
             transportModeFilter = it

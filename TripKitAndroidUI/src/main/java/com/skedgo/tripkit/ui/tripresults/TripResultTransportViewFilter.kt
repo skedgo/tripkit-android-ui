@@ -15,7 +15,7 @@ interface TripResultTransportViewFilter {
     fun setMinimized(mode: String, minimized: Boolean)
 }
 
-internal class PrefsBasedTransportViewFilter(context: Context) : TripResultTransportViewFilter {
+class PrefsBasedTransportViewFilter(context: Context) : TripResultTransportViewFilter {
     val prefs: SharedPreferences = context.getSharedPreferences("TransportPreferences", Context.MODE_PRIVATE)
 
     override fun isSelected(mode: String): Boolean {
@@ -43,7 +43,7 @@ internal class PrefsBasedTransportViewFilter(context: Context) : TripResultTrans
     }
 }
 
-internal class PermissiveTransportViewFilter() : TripResultTransportViewFilter {
+class PermissiveTransportViewFilter() : TripResultTransportViewFilter {
     var showWalking  = true;
 
     override fun isSelected(mode: String): Boolean {
