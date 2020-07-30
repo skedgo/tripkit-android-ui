@@ -1,5 +1,6 @@
 package com.skedgo.tripkit.ui.utils
 
+import com.skedgo.tripkit.routing.SegmentType
 import com.skedgo.tripkit.routing.TripSegment
 
 const val ITEM_DEFAULT = 0
@@ -13,7 +14,7 @@ const val ITEM_EXTERNAL_BOOKING = 6
 fun TripSegment.correctItemType(): Int {
     return if (this.turnByTurn != null) {
         ITEM_DIRECTIONS
-    } else if (this.mode?.isPublicTransport == true && this.from != null) {
+    } else if (this.type == SegmentType.SCHEDULED) {
         ITEM_SERVICE
     } else if (this.modeInfo?.id == "stationary_vehicle-collect" || this.hasCarParks()) {
         ITEM_NEARBY

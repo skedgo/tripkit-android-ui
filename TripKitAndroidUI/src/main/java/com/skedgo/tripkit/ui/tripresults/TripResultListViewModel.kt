@@ -88,6 +88,7 @@ class TripResultListViewModel @Inject constructor(
     lateinit var query: Query
     private var transportModeFilter: TransportModeFilter? = null
     private var transportVisibilityFilter: TripResultTransportViewFilter? = null
+    private var actionButtonHandler: ActionButtonHandler? = null
 
     init {
         transportModeChangeThrottle.debounce(500, TimeUnit.MILLISECONDS)
@@ -112,6 +113,7 @@ class TripResultListViewModel @Inject constructor(
     fun setup(_query: Query,
               showTransportSelectionView: Boolean,
               transportModeFilter: TransportModeFilter?,
+              actionButtonHandler: ActionButtonHandler?,
               force: Boolean = false) {
         if (!force && mergedList.size > 0) {
             return
@@ -131,7 +133,7 @@ class TripResultListViewModel @Inject constructor(
         } else {
             PermissiveTransportViewFilter()
         }
-
+        this.actionButtonHandler = actionButtonHandler
         if (transportModeFilter == null) {
             this.transportModeFilter = SimpleTransportModeFilter()
         } else {
@@ -272,7 +274,7 @@ class TripResultListViewModel @Inject constructor(
                     val classifier = TripGroupClassifier(list)
                     list.map { group ->
                         val vm = tripResultViewModelProvider.get().apply {
-                            this.setTripGroup(context, group, classifier.classify(group))
+                            this.setTripGroup(context, group, classifier.classify(group), actionButtonHandler)
                         }
                         vm.onItemClicked.observable
                                 .subscribe { viewModel ->
@@ -304,7 +306,7 @@ class TripResultListViewModel @Inject constructor(
 
     fun changeQuery(newQuery: Query) {
         results.update(emptyList())
-        setup(newQuery, showTransportModeSelection.get(), transportModeFilter, true)
+        setup(newQuery, showTransportModeSelection.get(), transportModeFilter, actionButtonHandler, true)
     }
 
     fun updateQueryTime(timeTag: TimeTag) {

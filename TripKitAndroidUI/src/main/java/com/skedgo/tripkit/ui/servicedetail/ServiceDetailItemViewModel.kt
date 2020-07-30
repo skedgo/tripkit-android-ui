@@ -54,10 +54,10 @@ class ServiceDetailItemViewModel @Inject constructor(val getStopTimeDisplayText:
         scheduledTimeTextColor.set(ContextCompat.getColor(context, R.color.black1))
         getStopTimeDisplayText.execute(stop)
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe {
+                .subscribe({
                     text ->
                         scheduledTime.set(text)
-                }.autoClear()
+                }, { Timber.e(it)}).autoClear()
     }
 
 }

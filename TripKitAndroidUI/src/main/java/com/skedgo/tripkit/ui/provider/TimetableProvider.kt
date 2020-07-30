@@ -1,19 +1,14 @@
 package com.skedgo.tripkit.ui.provider
 
-import android.content.ContentProvider
-import android.content.ContentUris
-import android.content.ContentValues
-import android.content.UriMatcher
+import android.content.*
 import android.database.Cursor
 import android.database.SQLException
 import android.database.sqlite.SQLiteQueryBuilder
 import android.net.Uri
 import com.skedgo.sqlite.DatabaseField
 import com.skedgo.sqlite.DatabaseTable
-import com.skedgo.tripkit.data.database.DbFields
+import com.skedgo.tripkit.data.database.*
 import com.skedgo.tripkit.data.database.DbFields.*
-import com.skedgo.tripkit.data.database.DbHelper
-import com.skedgo.tripkit.data.database.DbTables
 import com.skedgo.tripkit.data.database.timetables.ScheduledServiceRealtimeInfoDao
 import com.skedgo.tripkit.ui.BuildConfig
 import com.skedgo.tripkit.ui.TripKitUI
@@ -24,16 +19,20 @@ import timber.log.Timber
 import javax.inject.Inject
 
 class TimetableProvider : ContentProvider() {
-  @Inject
   lateinit var mDbHelper: DbHelper
 
-  @Inject
   lateinit var scheduledServiceRealtimeInfoDao: ScheduledServiceRealtimeInfoDao
 
+
   override fun onCreate(): Boolean {
-    TripKitUI.getInstance()
-        .timetableComponent(TimetableModule(this.context!!))
-        .inject(this)
+    val db = TripKitDatabase.getInstance(context!!)
+    mDbHelper = DbHelper(context!!, "tripkit-legacy.db", DatabaseMigrator(db))
+    scheduledServiceRealtimeInfoDao = db.scheduledServiceRealtimeInfoDao()
+    setupConstants(context!!)
+    mURIMatcher.addURI(AUTHORITY, "REMINDERS", REMINDERS)
+    mURIMatcher.addURI(AUTHORITY, "SCHEDULED_SERVICES", SCHEDULED_SERVICES)
+    mURIMatcher.addURI(AUTHORITY, "SERVICE_ALERTS", SERVICE_ALERT)
+
     return true
   }
 
@@ -261,24 +260,23 @@ class TimetableProvider : ContentProvider() {
 
   }
 
-  companion object {
+companion object {
+  lateinit var AUTHORITY: String
+  private lateinit var BASE_URI : Uri
+  lateinit var REMINDERS_URI: Uri
+  lateinit var SCHEDULED_SERVICES_URI : Uri
+  lateinit var SERVICE_ALERT_URI : Uri
 
-    val AUTHORITY = TripKitUI.AUTHORITY + TimetableProvider::class.java.simpleName
-    private val BASE_URI = Uri.parse("content://$AUTHORITY")
-    val REMINDERS_URI = Uri.withAppendedPath(BASE_URI, "REMINDERS")
-    val SCHEDULED_SERVICES_URI = Uri.withAppendedPath(BASE_URI, "SCHEDULED_SERVICES")
-    val SERVICE_ALERT_URI = Uri.withAppendedPath(BASE_URI, "SERVICE_ALERTS")
-
-
-    private val mURIMatcher = UriMatcher(UriMatcher.NO_MATCH)
-    private val REMINDERS = 0x1
-    private val SCHEDULED_SERVICES = 0x2
-    private val SERVICE_ALERT = 0x3
-
-    init {
-      mURIMatcher.addURI(AUTHORITY, "REMINDERS", REMINDERS)
-      mURIMatcher.addURI(AUTHORITY, "SCHEDULED_SERVICES", SCHEDULED_SERVICES)
-      mURIMatcher.addURI(AUTHORITY, "SERVICE_ALERTS", SERVICE_ALERT)
-    }
+  private val mURIMatcher = UriMatcher(UriMatcher.NO_MATCH)
+  private val REMINDERS = 0x1
+  private val SCHEDULED_SERVICES = 0x2
+  private val SERVICE_ALERT = 0x3
+  fun setupConstants(context: Context) {
+    AUTHORITY = context!!.packageName + TripKitUI.AUTHORITY_END + TimetableProvider::class.java.simpleName
+    BASE_URI = Uri.parse("content://$AUTHORITY")
+    REMINDERS_URI = Uri.withAppendedPath(BASE_URI, "REMINDERS")
+    SCHEDULED_SERVICES_URI = Uri.withAppendedPath(BASE_URI, "SCHEDULED_SERVICES")
+    SERVICE_ALERT_URI = Uri.withAppendedPath(BASE_URI, "SERVICE_ALERTS")
   }
+}
 }

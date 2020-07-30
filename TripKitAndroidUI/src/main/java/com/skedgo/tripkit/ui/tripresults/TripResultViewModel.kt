@@ -55,10 +55,11 @@ class TripResultViewModel  @Inject constructor(private val context: Context,
     val cost = ObservableField<String>()
     val moreButtonVisible = ObservableBoolean(false)
     val moreButtonText = ObservableField<String>()
-
     var otherTripGroups : List<Trip>? = null
 
-    fun setTripGroup(context: Context, tripgroup: TripGroup, classification: TripGroupClassifier.Classification) {
+    fun setTripGroup(context: Context, tripgroup: TripGroup,
+                     classification: TripGroupClassifier.Classification,
+                     actionButtonHandler: ActionButtonHandler?)  {
         moreButtonText.set(context.resources.getString(R.string.more))
         group = tripgroup
         trip = tripgroup.displayTrip!!
@@ -83,23 +84,11 @@ class TripResultViewModel  @Inject constructor(private val context: Context,
             alternateTripVisible.set(true)
         }
         setCost()
-        val quickBookingSegment = trip.segments.find { segment -> segment.correctItemType() == ITEM_QUICK_BOOKING }
-        val externalBookingSegment = trip.segments.find { segment -> segment.correctItemType() == ITEM_EXTERNAL_BOOKING }
-        if (trip.segments.find { segment -> segment.correctItemType() == ITEM_SERVICE} != null) {
-            moreButtonText.set(context.getString(R.string.view_times))
+
+        val actionButtonText = actionButtonHandler?.getAction(context, trip)
+        actionButtonText?.let {
+            moreButtonText.set(it)
             moreButtonVisible.set(true)
-        } else if (quickBookingSegment != null){
-            moreButtonText.set(quickBookingSegment.booking.title)
-            moreButtonVisible.set(true)
-        } else if (externalBookingSegment != null) {
-            moreButtonText.set(externalBookingSegment.booking.title)
-            moreButtonVisible.set(true)
-        }  else {
-            val mainSegment = trip.getMainTripSegment()
-            if (mainSegment != null && mainSegment.miniInstruction != null && mainSegment.miniInstruction.instruction != null) {
-                moreButtonText.set(mainSegment.miniInstruction.instruction)
-                moreButtonVisible.set(true)
-            }
         }
     }
 

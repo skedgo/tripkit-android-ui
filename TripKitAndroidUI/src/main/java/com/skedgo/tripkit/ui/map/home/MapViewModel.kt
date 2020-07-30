@@ -97,10 +97,8 @@ class MapViewModel @Inject internal constructor(
 
   fun goToMyLocation() = goToMyLocationRepository.goToMyLocation()
 
-  fun getInitialCameraUpdate(
-      requestLocationPermission: () -> Observable<Boolean> = { Observable.just(true) }
-  ): Observable<CameraUpdate> =
-      getInitialMapCameraPosition.execute(requestLocationPermission)
+  fun getInitialCameraUpdate(): Observable<CameraUpdate> =
+      getInitialMapCameraPosition.execute()
           .map { it.toCameraPosition() }
           .map { CameraUpdateFactory.newCameraPosition(it) }
           .observeOn(AndroidSchedulers.mainThread())

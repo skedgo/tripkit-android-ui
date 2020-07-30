@@ -4,24 +4,23 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.util.Log;
+import androidx.annotation.Nullable;
 import com.google.android.libraries.places.api.Places;
 import com.skedgo.TripKit;
 import com.skedgo.routepersistence.RouteStore;
 import com.skedgo.tripkit.Configs;
+import com.skedgo.tripkit.ImmutableTripKitConfigs;
+import com.skedgo.tripkit.TripKitConfigs;
 import com.skedgo.tripkit.data.database.DbHelper;
 import com.skedgo.tripkit.data.regions.RegionService;
 import com.skedgo.tripkit.ui.core.module.*;
 import com.skedgo.tripkit.ui.core.settings.DeveloperPreferenceRepositoryImpl;
 import com.skedgo.tripkit.ui.data.places.PlaceSearchRepository;
 import com.skedgo.tripkit.ui.poidetails.PoiDetailsFragment;
-import com.skedgo.tripkit.ui.provider.ScheduledStopsProvider;
-import com.skedgo.tripkit.ui.provider.ServiceStopsProvider;
 import com.skedgo.tripkit.ui.routingresults.TripGroupRepository;
 import com.skedgo.tripkit.ui.search.FetchSuggestions;
-import com.skedgo.tripkit.ui.search.LocationSearchFragment;
 import com.skedgo.tripkit.ui.servicedetail.ServiceDetailFragment;
 import com.skedgo.tripkit.ui.timetables.TimetableFragment;
-import com.skedgo.tripkit.ui.timetables.TimetableMapContributor;
 import com.squareup.otto.Bus;
 import com.squareup.picasso.Picasso;
 import com.uber.rxdogtag.RxDogTag;
@@ -69,7 +68,7 @@ import java.util.concurrent.Callable;
         })
 public abstract class TripKitUI {
     private static TripKitUI instance;
-    public static String AUTHORITY;
+    public static String AUTHORITY_END = ".com.skedgo.tripkit.ui.";
 
     public static TripKitUI getInstance() {
         synchronized (TripKitUI.class) {
@@ -81,41 +80,51 @@ public abstract class TripKitUI {
         }
     }
 
-    public static void initialize(Context context, Key key) {
+    public static Configs buildTripKitConfig(Context context, Key.ApiKey key) {
+        DeveloperPreferenceRepositoryImpl repository = new DeveloperPreferenceRepositoryImpl(context, context.getSharedPreferences(
+                "TripKit", Context.MODE_PRIVATE));
+        boolean isDebuggable = (0 != (context.getApplicationInfo().flags
+                & ApplicationInfo.FLAG_DEBUGGABLE ) || BuildConfig.DEBUG);
+       return TripKitConfigs.builder().context(context)
+               .debuggable(isDebuggable)
+                .baseUrlAdapterFactory(new Callable<String>() {
+                    @Override
+                    public String call() throws Exception {
+                        return repository.getServer();
+                    }
+                })
+                .userTokenProvider(new Callable<String>() {
+                    @Override
+                    public String call() throws Exception {
+                        SharedPreferences prefs = context.getSharedPreferences("UserTokenPreferences", Context.MODE_PRIVATE);
+                        return prefs.getString("userToken", "");
+                    }
+                })
+                .key(() -> key).build();
+    }
+
+    public static void initialize(Context context, Key.ApiKey key, @Nullable Configs configs) {
         RxDogTag.install();
+
         if (!TripKit.isInitialized()) {
-            AUTHORITY =  context.getPackageName() + ".com.skedgo.tripkit.ui.";
-            boolean isDebuggable = (0 != (context.getApplicationInfo().flags
-                    & ApplicationInfo.FLAG_DEBUGGABLE ) || BuildConfig.DEBUG);
-            DeveloperPreferenceRepositoryImpl repository = new DeveloperPreferenceRepositoryImpl(context, context.getSharedPreferences(
-                    "TripKit", Context.MODE_PRIVATE));
-            Configs configs = Configs.builder()
-                    .context(context)
-                    .debuggable(isDebuggable)
-                    .baseUrlAdapterFactory(new Callable<String>() {
-                        @Override
-                        public String call() throws Exception {
-                            return repository.getServer();
-                        }
-                    })
-                    .userTokenProvider(new Callable<String>() {
-                        @Override
-                        public String call() throws Exception {
-                            SharedPreferences prefs = context.getSharedPreferences("UserTokenPreferences", Context.MODE_PRIVATE);
-                            return prefs.getString("userToken", "");
-                        }
-                    })
-                    .key(() -> key)
-                    .build();
-            TripKit.initialize(configs);
+            if ("SKEDGO_API_KEY".equals(key.getValue())) {
+                throw new IllegalStateException("Invalid SkedGo API Key.");
+            }
+
+            Configs tripKitConfigs = configs;
+            if (tripKitConfigs == null) {
+                tripKitConfigs = buildTripKitConfig(context, key);
+            }
+
+            TripKit.initialize(tripKitConfigs);
             if (!Places.isInitialized()) {
                 String placesApiKey = context.getString(R.string.google_places_api_key);
-                if (placesApiKey != "GOOGLE_PLACES_API_KEY") {
+                if (!placesApiKey.equals("GOOGLE_PLACES_API_KEY")) {
                     Places.initialize(context, placesApiKey);
                 }
             }
 
-            if (isDebuggable) {
+            if (tripKitConfigs.debuggable()) {
                 Timber.plant(new Timber.DebugTree());
             }
         instance = DaggerTripKitUI.builder()
@@ -124,7 +133,6 @@ public abstract class TripKitUI {
         }
     }
 
-    public abstract TimetableComponent timetableComponent(TimetableModule module);
     public abstract RouteInputViewComponent routeInputViewComponent();
     public abstract TripSegmentViewModelComponent tripSegmentViewModelComponent();
     public abstract TimePickerComponent timePickerComponent();
@@ -149,8 +157,6 @@ public abstract class TripKitUI {
     public abstract RouteStore routeStore();
 
     public abstract void inject(TimetableFragment fragment);
-    public abstract void inject(ServiceStopsProvider provider);
     public abstract void inject(ServiceDetailFragment fragment);
-    public abstract void inject(ScheduledStopsProvider provider);
     public abstract void inject(PoiDetailsFragment fragment);
 }

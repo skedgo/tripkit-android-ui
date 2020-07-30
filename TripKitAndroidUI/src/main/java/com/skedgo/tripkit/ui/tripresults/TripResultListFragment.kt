@@ -93,6 +93,7 @@ class TripResultListFragment : BaseTripKitFragment() {
     lateinit var binding: TripResultListFragmentBinding
     private var query: Query? = null
     private var transportModeFilter: TransportModeFilter? = null
+    private var actionButtonHandler: ActionButtonHandler?= null
     private var showTransportSelectionView = true
 
     fun query(): Query {
@@ -164,7 +165,9 @@ class TripResultListFragment : BaseTripKitFragment() {
 
         viewModel.onMoreButtonClicked
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe { trip -> tripActionButtonClickListener?.onTripActionButtonClicked(trip) }.addTo(autoDisposable)
+                .subscribe {
+                    trip -> tripActionButtonClickListener?.onTripActionButtonClicked(trip)
+                }.addTo(autoDisposable)
         viewModel.stateChange.observeOn(AndroidSchedulers.mainThread()).subscribe {
             binding.multiStateView?.let { msv ->
                 if (it == MultiStateView.ViewState.EMPTY) {
@@ -220,11 +223,14 @@ class TripResultListFragment : BaseTripKitFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         query = arguments?.getParcelable<Query>(ARG_QUERY) as Query
+        arguments?.getParcelable<ActionButtonHandler>(ARG_ACTION_BUTTON_HANDLER)?.let {
+            actionButtonHandler = it
+        }
         arguments?.getParcelable<TransportModeFilter>(ARG_TRANSPORT_MODE_FILTER)?.let {
             transportModeFilter = it
         }
         showTransportSelectionView = arguments?.getBoolean(ARG_SHOW_TRANSPORT_MODE_SELECTION, true)!!
-        query?.let { viewModel.setup(it, showTransportSelectionView, transportModeFilter) }
+        query?.let { viewModel.setup(it, showTransportSelectionView, transportModeFilter, actionButtonHandler) }
     }
 
     class Builder {
@@ -232,6 +238,7 @@ class TripResultListFragment : BaseTripKitFragment() {
         private var transportModeFilter: TransportModeFilter? = null
         private var showTransportModeSelection = true
         private var showCloseButton = false
+        private var actionButtonHandler: ActionButtonHandler? = null
 
         fun withQuery(query: Query): Builder {
             this.query = query
@@ -240,6 +247,11 @@ class TripResultListFragment : BaseTripKitFragment() {
 
         fun withTransportModeFilter(transportModeFilter: TransportModeFilter): Builder {
             this.transportModeFilter = transportModeFilter
+            return this
+        }
+
+        fun withActionButtonHandler(actionButtonHandler: ActionButtonHandler): Builder {
+            this.actionButtonHandler = actionButtonHandler
             return this
         }
 
@@ -258,6 +270,7 @@ class TripResultListFragment : BaseTripKitFragment() {
             val fragment = TripResultListFragment()
             args.putParcelable(ARG_QUERY, query)
             args.putParcelable(ARG_TRANSPORT_MODE_FILTER, transportModeFilter)
+            args.putParcelable(ARG_ACTION_BUTTON_HANDLER, actionButtonHandler)
             args.putBoolean(ARG_SHOW_TRANSPORT_MODE_SELECTION, showTransportModeSelection)
             args.putBoolean(ARG_SHOW_CLOSE_BUTTON, showCloseButton)
             fragment.arguments = args

@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.araujo.jordan.excuseme.ExcuseMe
 import com.google.android.gms.maps.CameraUpdate
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -53,10 +54,12 @@ open class LocationEnhancedMapFragment : BaseMapFragment() {
             originalView.addView(settingsButton)
 
             // And the location button if possible
-            if (activity is CanRequestPermission) {
-                val myLocationButton = inflater.inflate(R.layout.view_my_location_button, originalView, false)
-                myLocationButton.setOnClickListener {  animateToMyLocation() }
-                originalView.addView(myLocationButton)
+            ExcuseMe.couldYouGive(this).permissionFor(android.Manifest.permission.ACCESS_FINE_LOCATION) {
+                if(it.granted.contains(android.Manifest.permission.ACCESS_FINE_LOCATION)) {
+                    val myLocationButton = inflater.inflate(R.layout.view_my_location_button, originalView, false)
+                    myLocationButton.setOnClickListener {  animateToMyLocation() }
+                    originalView.addView(myLocationButton)
+                }
             }
         }
         return originalView
@@ -66,21 +69,19 @@ open class LocationEnhancedMapFragment : BaseMapFragment() {
         if (activity == null) {
             return
         }
-        requestLocationPermission2()
-                .flatMapObservable { result: PermissionResult? ->
-                    if (result is Granted) {
-                        return@flatMapObservable locationStream
-                    } else {
-                        return@flatMapObservable Observable.error<Location>(PermissionDenialError())
-                    }
-                }
-                .take(1)
-                .singleOrError()
-                .map { location: Location -> LatLng(location.latitude, location.longitude) }
-                .map { latLng: LatLng? -> CameraUpdateFactory.newLatLng(latLng) }
-                .subscribe(
-                        { cameraUpdate: CameraUpdate? -> whenSafeToUseMap(Consumer { map: GoogleMap -> map.animateCamera(cameraUpdate) }) }) { error: Throwable? -> errorLogger!!.logError(error!!) }
-                .addTo(autoDisposable)
+        ExcuseMe.couldYouGive(this).permissionFor(android.Manifest.permission.ACCESS_FINE_LOCATION) {
+            if(it.granted.contains(android.Manifest.permission.ACCESS_FINE_LOCATION)) {
+                locationStream
+                        .take(1)
+                        .singleOrError()
+                        .map { location: Location -> LatLng(location.latitude, location.longitude) }
+                        .map { latLng: LatLng? -> CameraUpdateFactory.newLatLng(latLng) }
+                        .subscribe(
+                                { cameraUpdate: CameraUpdate? -> whenSafeToUseMap(Consumer { map: GoogleMap -> map.animateCamera(cameraUpdate) }) }) { error: Throwable? -> errorLogger!!.logError(error!!) }
+                        .addTo(autoDisposable)
+            }
+        }
+
     }
 
     private fun applyDefaultSettings(googleMap: GoogleMap) {
@@ -92,14 +93,5 @@ open class LocationEnhancedMapFragment : BaseMapFragment() {
         //    googleMap.setMapType(SettingsFragment.Companion.getPersistentMapType(getActivity()));
         googleMap.mapType = GoogleMap.MAP_TYPE_NORMAL
         //    googleMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(getContext(), R.raw.map_style));
-    }
-
-    private fun requestLocationPermission2(): Single<PermissionResult> {
-        return (activity as CanRequestPermission?)!!
-                .requestPermissions(
-                        PermissionsRequest.Location(),
-                        activity!!.showGenericRationale(null, getString(R.string.access_to_location_services_required_dot)),
-                        activity!!.dealWithNeverAskAgainDenial(getString(R.string.access_to_location_services_required_dot))
-                )
     }
 }

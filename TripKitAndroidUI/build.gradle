@@ -111,7 +111,7 @@ dependencies {
     kapt libs.daggerAndroidProcessor
     kapt libs.lifecycleCompiler
     implementation "biz.laenger.android:vpbs:0.0.6"
-    implementation 'com.github.AraujoJordan:ExcuseMe:0.9.5'
+    implementation libs.excuseMe
 
     api project(':trip-kit-booking')
     api project(':TripKitAndroid')

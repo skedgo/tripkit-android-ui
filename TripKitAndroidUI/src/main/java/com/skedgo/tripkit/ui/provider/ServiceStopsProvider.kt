@@ -1,19 +1,14 @@
 package com.skedgo.tripkit.ui.provider
 
-import android.content.ContentProvider
-import android.content.ContentUris
-import android.content.ContentValues
-import android.content.UriMatcher
+import android.content.*
 import android.database.Cursor
 import android.database.SQLException
 import android.database.sqlite.SQLiteQueryBuilder
 import android.net.Uri
 import com.skedgo.sqlite.DatabaseField
 import com.skedgo.sqlite.DatabaseTable
-import com.skedgo.tripkit.data.database.DbFields
+import com.skedgo.tripkit.data.database.*
 import com.skedgo.tripkit.data.database.DbFields.ID
-import com.skedgo.tripkit.data.database.DbHelper
-import com.skedgo.tripkit.data.database.DbTables
 import com.skedgo.tripkit.ui.BuildConfig
 import com.skedgo.tripkit.ui.TripKitUI
 import com.skedgo.tripkit.ui.utils.ProviderUtils
@@ -22,17 +17,16 @@ import javax.inject.Inject
 
 class ServiceStopsProvider : ContentProvider() {
   companion object {
-
-    val AUTHORITY = TripKitUI.AUTHORITY + ServiceStopsProvider::class.java.simpleName
-    private val BASE_URI = Uri.parse("content://$AUTHORITY")
+    lateinit var AUTHORITY : String
+    private lateinit var BASE_URI : Uri
 
     /**
      * Supports insertion only - used for batch transactions when inserting stops
      */
-    val STOPS_URI = Uri.withAppendedPath(BASE_URI, "stops")
-    val SHAPES_URI = Uri.withAppendedPath(BASE_URI, "shapes")
-    val LOCATIONS_URI = Uri.withAppendedPath(BASE_URI, "locations")
-    val STOPS_BY_SERVICE_URI = Uri.withAppendedPath(BASE_URI, "stopsByServiceTripId")
+    lateinit var STOPS_URI: Uri
+    lateinit var SHAPES_URI : Uri
+    lateinit var LOCATIONS_URI : Uri
+    lateinit var STOPS_BY_SERVICE_URI : Uri
 
     private val mURIMatcher = UriMatcher(UriMatcher.NO_MATCH)
     private val STOPS = 0x1
@@ -40,19 +34,28 @@ class ServiceStopsProvider : ContentProvider() {
     private val LOCATIONS = 0x3
     private val STOPS_FOR_SERVICE_ID = 0x4
 
-    init {
-      mURIMatcher.addURI(AUTHORITY, "stops", STOPS)
-      mURIMatcher.addURI(AUTHORITY, "locations", LOCATIONS)
-      mURIMatcher.addURI(AUTHORITY, "shapes", SHAPES)
-      mURIMatcher.addURI(AUTHORITY, "stopsByServiceTripId", STOPS_FOR_SERVICE_ID)
+    fun setupConstants(context: Context) {
+      AUTHORITY = context!!.packageName + TripKitUI.AUTHORITY_END + TimetableProvider::class.java.simpleName
+      BASE_URI = Uri.parse("content://$AUTHORITY")
+      STOPS_URI = Uri.withAppendedPath(BASE_URI, "stops")
+      SHAPES_URI = Uri.withAppendedPath(BASE_URI, "shapes")
+      LOCATIONS_URI = Uri.withAppendedPath(BASE_URI, "locations")
+      STOPS_BY_SERVICE_URI = Uri.withAppendedPath(BASE_URI, "stopsByServiceTripId")
+
     }
+
   }
 
-  @Inject
   internal lateinit var mDbHelper: DbHelper
 
   override fun onCreate(): Boolean {
-    TripKitUI.getInstance().inject(this)
+    mDbHelper = DbHelper(context!!, "tripkit-legacy.db", DatabaseMigrator(TripKitDatabase.getInstance(context!!)))
+    setupConstants(context!!)
+    mURIMatcher.addURI(AUTHORITY, "stops", STOPS)
+    mURIMatcher.addURI(AUTHORITY, "locations", LOCATIONS)
+    mURIMatcher.addURI(AUTHORITY, "shapes", SHAPES)
+    mURIMatcher.addURI(AUTHORITY, "stopsByServiceTripId", STOPS_FOR_SERVICE_ID)
+
     return true
   }
 

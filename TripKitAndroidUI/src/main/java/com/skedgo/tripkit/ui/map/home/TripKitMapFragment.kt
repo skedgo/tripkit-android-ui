@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.Toast
+import com.araujo.jordan.excuseme.ExcuseMe
 import com.google.android.gms.maps.CameraUpdate
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -46,6 +47,7 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.functions.Action
 import io.reactivex.functions.Consumer
 import io.reactivex.schedulers.Schedulers
+import kotlinx.android.synthetic.main.qr_scan_activity.*
 import timber.log.Timber
 import java.io.InvalidClassException
 import java.util.*
@@ -443,29 +445,11 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
         })
     }
 
-    @SuppressLint("CheckResult")
     private fun setMyLocationEnabled() {
-        if (activity is CanRequestPermission) {
-            val host = activity as CanRequestPermission
-            host.checkSelfPermissionReactively(Manifest.permission.ACCESS_FINE_LOCATION)
-                    .filter { result -> result }
-                    .subscribe( {
-                        whenSafeToUseMap(Consumer { map: GoogleMap -> map.isMyLocationEnabled = true }) },
-                            { Timber.e(it) })
-                    .addTo(autoDisposable)
-        }
-    }
-
-    private fun requestLocationPermission(): Single<PermissionResult> {
-        if (activity is CanRequestPermission) {
-            return (activity as CanRequestPermission)
-                    .requestPermissions(
-                            PermissionsRequest.Location(),
-                            activity!!.showGenericRationale(null, getString(R.string.access_to_location_services_required_dot)),
-                            activity!!.dealWithNeverAskAgainDenial(getString(R.string.access_to_location_services_required_dot))
-                    )
-        } else {
-            return Single.error(InvalidClassException("Parent activity must implement CanRequestPermission"))
+        ExcuseMe.couldYouGive(this).permissionFor(android.Manifest.permission.ACCESS_FINE_LOCATION) {
+            if(it.granted.contains(android.Manifest.permission.ACCESS_FINE_LOCATION)) {
+                whenSafeToUseMap(Consumer { map: GoogleMap -> map.isMyLocationEnabled = true })
+            }
         }
     }
 
@@ -540,15 +524,10 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
     }
 
     private fun goToMyLocation() {
-        if (activity is CanRequestPermission) {
-            requestLocationPermission()
-                    .toObservable()
-                    .subscribe({ result: PermissionResult? ->
-                        if (result is Granted) {
-                            viewModel!!.goToMyLocation()
-                        }
-                    }) { error: Throwable? -> errorLogger!!.trackError(error!!) }
-                    .addTo(autoDisposable)
+        ExcuseMe.couldYouGive(this).permissionFor(android.Manifest.permission.ACCESS_FINE_LOCATION) {
+            if(it.granted.contains(android.Manifest.permission.ACCESS_FINE_LOCATION)) {
+                viewModel!!.goToMyLocation()
+            }
         }
     }
 
@@ -570,15 +549,16 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
     private fun initMap(map: GoogleMap) {
         cityIcon = BitmapDescriptorFactory.fromResource(R.drawable.ic_map_city)
         setupMap(map)
-        val requestLocationPermission = Single
-                .defer {
-                    requestLocationPermission()
-                            .map { it: PermissionResult? -> it is Granted }
-                }.toObservable()
 
-        viewModel.getInitialCameraUpdate { requestLocationPermission }
-                .subscribe({ cameraUpdate: CameraUpdate? -> map.moveCamera(cameraUpdate) }) { error: Throwable? -> errorLogger!!.trackError(error!!) }
-                .addTo(autoDisposable)
+        ExcuseMe.couldYouGive(this).permissionFor(android.Manifest.permission.ACCESS_FINE_LOCATION) {
+            if(it.granted.contains(android.Manifest.permission.ACCESS_FINE_LOCATION)) {
+                viewModel.getInitialCameraUpdate()
+                        .subscribe({ cameraUpdate: CameraUpdate? -> map.moveCamera(cameraUpdate) }) { error: Throwable? -> errorLogger!!.trackError(error!!) }
+                        .addTo(autoDisposable)
+
+            }
+        }
+
 
     }
 
@@ -660,13 +640,8 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
     }
 
     private fun setUpCurrentLocationMarkers(markerManager: MarkerManager) {
-        if (activity is CanRequestPermission) {
-            currentLocationMarkers = markerManager.newCollection("CurrentLocationMarkers")
-            currentLocationMarkers!!.setOnInfoWindowAdapter(myLocationWindowAdapter)
-        }
-        //    currentLocationMarkers.setOnInfoWindowClickListener(marker -> bus.post(
-//        new CurrentLocationInfoWindowClickEvent(marker.getPosition())
-//    ));
+        currentLocationMarkers = markerManager.newCollection("CurrentLocationMarkers")
+        currentLocationMarkers!!.setOnInfoWindowAdapter(myLocationWindowAdapter)
     }
 
     private fun setUpDepartureAndArrivalMarkers(markerManager: MarkerManager) {
