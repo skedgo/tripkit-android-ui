@@ -27,6 +27,9 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+    kotlinOptions {
+        jvmTarget = JavaVersion.VERSION_1_8.toString()
+    }
 
     testOptions {
         unitTests {
@@ -34,8 +37,8 @@ android {
         }
     }
 
-    dataBinding {
-        enabled = true
+    buildFeatures {
+        dataBinding true
     }
 
     dexOptions { preDexLibraries = true } // To enable build-cache.
@@ -75,6 +78,7 @@ dependencies {
     implementation libs.retrofitConverterGson
     implementation libs.playServicesMaps
     implementation 'com.google.maps.android:android-maps-utils:0.5'
+    implementation libs.coreKtx
 
     implementation libs.rxAndroid2
     implementation libs.rxjava2

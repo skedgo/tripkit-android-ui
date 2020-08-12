@@ -46,7 +46,7 @@ class PoiDetailsViewModel @Inject constructor(private val locationInfoService: L
             location.placeId?.let {placeId ->
                 placeSearchRepository.getPlaceDetails(placeId)
                         .take(1)
-                        .subscribe {
+                        .subscribe({
                             if (it.address.isNotBlank()) {
                                 this.address.set(it.address)
                                 this.showAddress.set(true)
@@ -56,7 +56,7 @@ class PoiDetailsViewModel @Inject constructor(private val locationInfoService: L
                                 this.website.set(website)
                                 this.showWebsite.set(true)
                             }
-                        }.autoClear()
+                        }, {Timber.e(it)}).autoClear()
             }
         }
     }

@@ -1,10 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
     <data>
-        <variable
-                name="entries"
-                type="java.util.List" />
-        <variable name="itemBinding" type="me.tatarka.bindingcollectionadapter2.ItemBinding"/>
+        <variable name="viewModel" type="com.skedgo.tripkit.ui.tripresult.TripSegmentAlertsSheetViewModel"/>
     </data>
     <androidx.constraintlayout.widget.ConstraintLayout
             android:orientation="vertical"
@@ -38,8 +35,8 @@
                                                    android:id="@+id/alertsList"
                                                    android:layout_height="0dp"
                                                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                                                   app:itemBinding="@{itemBinding}"
-                                                   app:items="@{entries}"
+                                                   app:itemBinding="@{viewModel.itemBinding}"
+                                                   app:items="@{viewModel.items}"
                                                 android:paddingBottom="8dp"
                                                     app:layout_constraintTop_toBottomOf="@+id/divider"
                                                     app:layout_constraintStart_toStartOf="parent"

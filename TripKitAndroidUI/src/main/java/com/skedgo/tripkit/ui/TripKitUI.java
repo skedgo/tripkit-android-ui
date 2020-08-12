@@ -43,6 +43,7 @@ import java.util.concurrent.Callable;
         GooglePlacesModule.class,
         ConnectivityServiceModule.class,
         FetchSuggestionsModule.class,
+        RouteStoreModule.class,
         TripKitUIModule.class,
         ContextModule.class,
         ErrorLoggerModule.class,

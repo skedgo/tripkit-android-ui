@@ -68,16 +68,16 @@ class TimetableFragment : BaseTripKitFragment(), View.OnClickListener {
         When you provide the Timetable fragment with buttons, this callback will be called when one is clicked.
      */
     interface OnTripKitButtonClickListener {
-        fun onTripButtonClicked(id: String, stop: ScheduledStop)
+        fun onTripButtonClicked(id: Int, stop: ScheduledStop)
     }
 
     private var tripButtonClickListener: OnTripKitButtonClickListener? = null
     fun setOnTripKitButtonClickListener(listener: OnTripKitButtonClickListener) {
         this.tripButtonClickListener = listener
     }
-    fun setOnTripKitButtonClickListener(listener:(String, ScheduledStop) -> Unit) {
+    fun setOnTripKitButtonClickListener(listener:(Int, ScheduledStop) -> Unit) {
         this.tripButtonClickListener = object: OnTripKitButtonClickListener {
-            override fun onTripButtonClicked(id: String, stop: ScheduledStop) {
+            override fun onTripButtonClicked(id: Int, stop: ScheduledStop) {
                 listener(id, stop)
             }
         }
@@ -214,7 +214,6 @@ class TimetableFragment : BaseTripKitFragment(), View.OnClickListener {
         buttons.forEach {
             try {
                 val button = layoutInflater.inflate(it.layoutResourceId, null, false)
-                button.tag = it.id
                 button.setOnClickListener(this)
                 binding.buttonLayout.addView(button)
             } catch (e: InflateException) {
@@ -295,7 +294,7 @@ class TimetableFragment : BaseTripKitFragment(), View.OnClickListener {
 
     override fun onClick(p0: View?) {
         if (p0 != null) {
-            tripButtonClickListener?.onTripButtonClicked(p0.tag as String, viewModel.stop.value!!)
+            tripButtonClickListener?.onTripButtonClicked(p0.id, viewModel.stop.value!!)
         }
     }
 
@@ -323,7 +322,7 @@ class TimetableFragment : BaseTripKitFragment(), View.OnClickListener {
         }
 
         fun withButton(id: String, layoutResourceId: Int): Builder {
-            val b = TripKitButton(id, layoutResourceId)
+            val b = TripKitButton(layoutResourceId)
             buttons.add(b)
             return this
         }

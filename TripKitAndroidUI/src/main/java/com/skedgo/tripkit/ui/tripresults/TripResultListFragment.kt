@@ -50,21 +50,7 @@ class TripResultListFragment : BaseTripKitFragment() {
             }
         }
     }
-
-    interface OnTripActionButtonClickListener {
-        fun onTripActionButtonClicked(trip: Trip)
-    }
-    private var tripActionButtonClickListener: OnTripActionButtonClickListener? = null
-    fun setOnTripActionButtonClickListener(callback: OnTripActionButtonClickListener) {
-        this.tripActionButtonClickListener = callback
-    }
-    fun setOnTripActionButtonClickListener(callback:(Trip) -> Unit) {
-        this.tripActionButtonClickListener = object : OnTripActionButtonClickListener {
-            override fun onTripActionButtonClicked(trip: Trip) {
-                callback(trip)
-            }
-        }
-    }
+    
     interface OnLocationClickListener {
         fun onStartLocationClicked()
         fun onDestinationLocationClicked()
@@ -166,7 +152,7 @@ class TripResultListFragment : BaseTripKitFragment() {
         viewModel.onMoreButtonClicked
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe {
-                    trip -> tripActionButtonClickListener?.onTripActionButtonClicked(trip)
+                    trip -> actionButtonHandler?.actionClicked(trip)
                 }.addTo(autoDisposable)
         viewModel.stateChange.observeOn(AndroidSchedulers.mainThread()).subscribe {
             binding.multiStateView?.let { msv ->

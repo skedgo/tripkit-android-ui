@@ -40,4 +40,8 @@ open class StandardActionButtonHandler : ActionButtonHandler {
         return null
     }
 
+    override fun actionClicked(trip: Trip) {
+
+    }
+
 }

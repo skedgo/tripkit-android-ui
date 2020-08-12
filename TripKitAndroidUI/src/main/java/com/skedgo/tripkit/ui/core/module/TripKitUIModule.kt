@@ -60,45 +60,6 @@ class TripKitUIModule {
     internal fun resources(appContext: Context): Resources = appContext.resources
 
     @Provides
-    internal fun gson(): Gson = Gsons.createForLowercaseEnum()
-    @Provides
-    @Singleton
-    internal fun locationsApi(httpClient: OkHttpClient, gson: Gson): LocationsApi {
-        return Retrofit.Builder()
-                /* This base url is ignored as the api relies on @Url. */
-                .baseUrl(Server.ApiTripGo.value)
-                .addCallAdapterFactory(RxJava2CallAdapterFactory.createWithScheduler(Schedulers.io()))
-                .addConverterFactory(GsonConverterFactory.create(gson))
-                .client(httpClient)
-                .build()
-                .create(LocationsApi::class.java)
-    }
-
-    @Singleton
-    @Provides
-    fun getServiceApi(httpClient: OkHttpClient, gson: Gson): ServiceApi {
-        return Retrofit.Builder()
-                .baseUrl(Server.ApiTripGo.value)
-                .addConverterFactory(GsonConverterFactory.create(gson))
-                .addCallAdapterFactory(RxJava2CallAdapterFactory.createWithScheduler(Schedulers.io()))
-                .client(httpClient)
-                .build()
-                .create(ServiceApi::class.java)
-    }
-
-    @Provides
-    @Singleton
-    internal fun routeStore(routeDatabaseHelper: RouteDatabaseHelper): RouteStore {
-        val gson = GsonBuilder()
-                .registerTypeAdapterFactory(LocationTypeAdapterFactory())
-                .registerTypeAdapterFactory(LowercaseEnumTypeAdapterFactory())
-                .registerTypeAdapterFactory(GsonAdaptersBooking())
-                .registerTypeAdapterFactory(GsonAdaptersRealtimeAlert())
-                .create()
-        return RouteStore(routeDatabaseHelper, gson)
-    }
-
-    @Provides
     internal fun provideStopsPersistor(
             context: Context,
             gson: Gson,
@@ -129,9 +90,31 @@ class TripKitUIModule {
     }
 
     @Provides
+    internal fun gson(): Gson = Gsons.createForLowercaseEnum()
+    @Provides
     @Singleton
-    fun routeDatabaseHelper(context: Context): RouteDatabaseHelper =
-            RouteDatabaseHelper(context, "routes.db")
+    internal fun locationsApi(httpClient: OkHttpClient, gson: Gson): LocationsApi {
+        return Retrofit.Builder()
+                /* This base url is ignored as the api relies on @Url. */
+                .baseUrl(Server.ApiTripGo.value)
+                .addCallAdapterFactory(RxJava2CallAdapterFactory.createWithScheduler(Schedulers.io()))
+                .addConverterFactory(GsonConverterFactory.create(gson))
+                .client(httpClient)
+                .build()
+                .create(LocationsApi::class.java)
+    }
+
+    @Singleton
+    @Provides
+    fun getServiceApi(httpClient: OkHttpClient, gson: Gson): ServiceApi {
+        return Retrofit.Builder()
+                .baseUrl(Server.ApiTripGo.value)
+                .addConverterFactory(GsonConverterFactory.create(gson))
+                .addCallAdapterFactory(RxJava2CallAdapterFactory.createWithScheduler(Schedulers.io()))
+                .client(httpClient)
+                .build()
+                .create(ServiceApi::class.java)
+    }
 
 
     @Provides

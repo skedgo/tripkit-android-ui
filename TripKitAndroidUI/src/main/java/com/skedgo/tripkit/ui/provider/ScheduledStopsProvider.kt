@@ -13,6 +13,7 @@ import com.skedgo.tripkit.data.database.DbHelper
 import com.skedgo.tripkit.data.database.DbTables
 import com.skedgo.tripkit.data.database.TripKitDatabase.Companion.getInstance
 import com.skedgo.tripkit.ui.BuildConfig
+import com.skedgo.tripkit.ui.TripKitUI
 import com.skedgo.tripkit.ui.utils.ProviderUtils
 import timber.log.Timber
 import java.sql.SQLException
@@ -240,7 +241,7 @@ class ScheduledStopsProvider : ContentProvider() {
         private const val LOCATIONS_BY_SCHEDULED_STOP = 0x5
 
         fun setupConstants(context: Context) {
-            AUTHORITY = ScheduledStopsProvider::class.java.simpleName
+            AUTHORITY =  context.packageName + TripKitUI.AUTHORITY_END + ScheduledStopsProvider::class.java.simpleName
             BASE_URI = Uri.parse("content://$AUTHORITY")
             CONTENT_URI = Uri.withAppendedPath(BASE_URI, "stopsOnly")
             LOCATIONS_URI = Uri.withAppendedPath(BASE_URI, "locations")

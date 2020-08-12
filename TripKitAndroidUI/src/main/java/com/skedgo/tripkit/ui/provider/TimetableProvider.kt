@@ -272,7 +272,7 @@ companion object {
   private val SCHEDULED_SERVICES = 0x2
   private val SERVICE_ALERT = 0x3
   fun setupConstants(context: Context) {
-    AUTHORITY = context!!.packageName + TripKitUI.AUTHORITY_END + TimetableProvider::class.java.simpleName
+    AUTHORITY = context.packageName + TripKitUI.AUTHORITY_END + TimetableProvider::class.java.simpleName
     BASE_URI = Uri.parse("content://$AUTHORITY")
     REMINDERS_URI = Uri.withAppendedPath(BASE_URI, "REMINDERS")
     SCHEDULED_SERVICES_URI = Uri.withAppendedPath(BASE_URI, "SCHEDULED_SERVICES")

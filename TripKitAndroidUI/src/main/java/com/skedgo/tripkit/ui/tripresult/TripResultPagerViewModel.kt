@@ -13,6 +13,7 @@ import com.skedgo.tripkit.ui.core.SchedulerFactory
 import com.skedgo.tripkit.ui.core.rxproperty.asObservable
 import com.skedgo.tripkit.ui.routing.GetSortedTripGroups
 import com.skedgo.tripkit.ui.routingresults.FetchingRealtimeStatusRepository
+import com.skedgo.tripkit.ui.routingresults.SelectedTripGroupRepository
 import com.skedgo.tripkit.ui.routingresults.TrackViewingTrip
 import com.skedgo.tripkit.ui.routingresults.TripGroupRepository
 import com.skedgo.tripkit.ui.tripprogress.UpdateTripProgressWithUserLocation
@@ -22,6 +23,7 @@ import io.reactivex.disposables.Disposable
 import io.reactivex.functions.BiFunction
 import io.reactivex.rxkotlin.Observables
 import io.reactivex.schedulers.Schedulers
+import timber.log.Timber
 import java.util.concurrent.atomic.AtomicReference
 import javax.inject.Inject
 
@@ -36,11 +38,11 @@ class TripResultPagerViewModel @Inject internal constructor(
         private val trackViewingTrip: TrackViewingTrip,
         private val errorLogger: ErrorLogger,
 //        private val eventTracker: EventTracker,
+        private val selectedTripGroupRepository: SelectedTripGroupRepository,
+
         private val updateTripProgress: UpdateTripProgressWithUserLocation,
         private val tripGroupRepository: TripGroupRepository,
         private val fetchingRealtimeStatusRepository: FetchingRealtimeStatusRepository,
-        // TODO: This is really just a stub
-        private val isLocationPermissionGranted: IsLocationPermissionGranted,
         private val schedulers: SchedulerFactory
         // TODO: Commenting this out disables favorite trips
 //        private val getTripGroupsFromWayPoints: GetTripGroupsFromWayPoints
@@ -76,6 +78,11 @@ class TripResultPagerViewModel @Inject internal constructor(
           .subscribeOn(schedulers.ioScheduler)
           .doOnNext { tripGroups.accept(it) }
           .map { Unit }
+    } else if (args is SingleTrip) {
+      selectedTripGroupRepository.setSelectedTripGroupId(args.tripGroupId)
+      return selectedTripGroupRepository.getSelectedTripGroup().map { listOf(it) }
+              .doOnNext { tripGroups.accept(it) }
+              .map { Unit }
     } else {
       throw IllegalArgumentException("Unknown Argument: $args")
     }

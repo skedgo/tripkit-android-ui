@@ -10,20 +10,21 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AlertDialog
+import androidx.core.view.forEach
 import androidx.recyclerview.widget.RecyclerView
 import com.skedgo.tripkit.logging.ErrorLogger
 import com.skedgo.tripkit.routing.Trip
 import com.skedgo.tripkit.routing.TripGroup
 import com.skedgo.tripkit.routing.TripSegment
-import com.skedgo.tripkit.ui.ARG_SHOW_CLOSE_BUTTON
+import com.skedgo.tripkit.ui.*
 import com.skedgo.tripkit.ui.ARG_TRIP_GROUP_ID
-import com.skedgo.tripkit.ui.R
-import com.skedgo.tripkit.ui.TripKitUI
 import com.skedgo.tripkit.ui.core.BaseTripKitFragment
 import com.skedgo.tripkit.ui.core.addTo
 import com.skedgo.tripkit.ui.databinding.TripSegmentListFragmentBinding
 import com.skedgo.tripkit.ui.model.TripKitButton
+import com.skedgo.tripkit.ui.model.TripKitButtonConfigurator
 import com.squareup.otto.Bus
+import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
 import kotlinx.android.synthetic.main.trip_segment_list_fragment.view.*
 import timber.log.Timber
 import javax.inject.Inject
@@ -35,12 +36,12 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
 
     override fun onClick(p0: View?) {
         if (mClickListener != null && p0 != null) {
-            mClickListener?.tripKitButtonClicked(p0.tag as String, viewModel.tripGroup)
+            mClickListener?.tripKitButtonClicked(p0.id, viewModel.tripGroup)
         }
     }
 
     interface OnTripKitButtonClickListener {
-        fun tripKitButtonClicked(id: String, tripGroup: TripGroup)
+        fun tripKitButtonClicked(id: Int, tripGroup: TripGroup)
     }
 
     private var mClickListener: OnTripKitButtonClickListener? = null
@@ -48,9 +49,9 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
         this.mClickListener = callback
     }
 
-    fun setOnTripKitButtonClickListener(callback:(String, TripGroup) -> Unit) {
+    fun setOnTripKitButtonClickListener(callback:(Int, TripGroup) -> Unit) {
         this.mClickListener = object: OnTripKitButtonClickListener {
-            override fun tripKitButtonClicked(id: String, tripGroup: TripGroup) {
+            override fun tripKitButtonClicked(id: Int, tripGroup: TripGroup) {
                 callback(id, tripGroup)
             }
         }
@@ -74,6 +75,7 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
         }
     }
     var buttons = emptyList<TripKitButton>()
+    var buttonConfigurator: TripKitButtonConfigurator? = null
 
     @Inject
     lateinit var errorLogger: ErrorLogger
@@ -94,8 +96,11 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
 
         if (arguments != null) {
             tripGroupId = arguments!!.getString(ARG_TRIP_GROUP_ID)
+            buttonConfigurator = arguments!!.getSerializable(ARG_TRIPKIT_BUTTON_CONFIGURATOR) as TripKitButtonConfigurator?
         } else if (savedInstanceState != null) {
             tripGroupId = savedInstanceState.getString(ARG_TRIP_GROUP_ID)
+            buttonConfigurator = savedInstanceState!!.getSerializable(ARG_TRIPKIT_BUTTON_CONFIGURATOR) as TripKitButtonConfigurator?
+
         }
     }
 
@@ -207,7 +212,7 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
             try {
                 val button = layoutInflater.inflate(it.layoutResourceId, null, false)
 
-                button.tag = it.id
+                button.tag = button.id
                 button.setOnClickListener(this)
                 binding.buttonLayout.addView(button)
             } catch (e: InflateException) {
@@ -220,6 +225,17 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
     override fun onStart() {
         super.onStart()
         viewModel.onStart()
+        viewModel.tripGroupObservable
+                .observeOn(mainThread())
+                .take(1)
+                .subscribe { tripGroup ->
+                    buttonConfigurator?.let { configurator ->
+                        binding.buttonLayout.forEach {
+                            configurator.configureButton(context!!, it, tripGroup)
+                        }
+                    }
+
+                }.addTo(autoDisposable)
     }
 
     override fun onResume() {
@@ -369,6 +385,7 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
     class Builder {
         private var tripGroupId : String? = null
         private var buttons: List<TripKitButton>? = null
+        private var buttonConfigurator: TripKitButtonConfigurator? = null
         private var showCloseButton = false
         fun withTripGroupId(tripGroupId: String): Builder {
             this.tripGroupId = tripGroupId
@@ -377,6 +394,11 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
 
         fun withButtons(buttons: List<TripKitButton>): Builder {
             this.buttons = buttons
+            return this
+        }
+
+        fun withButtonConfigurator(configurator: TripKitButtonConfigurator?): Builder {
+            this.buttonConfigurator = configurator
             return this
         }
 
@@ -391,7 +413,7 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
             val args = Bundle()
             args.putString(ARG_TRIP_GROUP_ID, tripGroupId)
             args.putBoolean(ARG_SHOW_CLOSE_BUTTON, showCloseButton)
-
+            args.putSerializable(ARG_TRIPKIT_BUTTON_CONFIGURATOR, buttonConfigurator)
             // Initialize fragment
             val fragment = TripSegmentListFragment()
             fragment.arguments = args

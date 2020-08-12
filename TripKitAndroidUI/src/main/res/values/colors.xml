@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <color name="colorPrimary">#23b15e</color>
+    <color name="colorPrimaryDark">#00574B</color>
+    <color name="colorAccent">#2B7EED</color>
+
     <!-- "New" colors from design mockups-->
     <color name="tripKitPrimary">#23b15e</color>
     <color name="black">#212A33</color>

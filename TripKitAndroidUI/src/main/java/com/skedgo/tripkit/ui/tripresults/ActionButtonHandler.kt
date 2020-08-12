@@ -14,4 +14,6 @@ interface ActionButtonHandler : Parcelable {
        Given a trip, provide an action string, or return NULL if the action button should not be shown.
      */
     fun getAction(context: Context, trip: Trip): String?
+
+    fun actionClicked(trip: Trip)
 }

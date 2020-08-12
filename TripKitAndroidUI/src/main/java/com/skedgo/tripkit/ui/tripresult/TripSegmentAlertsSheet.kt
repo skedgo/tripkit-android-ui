@@ -9,6 +9,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.databinding.DataBindingUtil
+import androidx.databinding.ObservableArrayList
+import androidx.databinding.ObservableList
 import androidx.recyclerview.widget.DividerItemDecoration
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
@@ -18,23 +20,28 @@ import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.databinding.TripSegmentAlertDetailsBottomSheetBinding
 import me.tatarka.bindingcollectionadapter2.ItemBinding
 
-class TripSegmentAlertsSheet : BottomSheetDialogFragment() {
-    var viewModels = emptyList<TripSegmentAlertsItemViewModel>()
+
+class TripSegmentAlertsSheetViewModel {
+    val items: ObservableList<TripSegmentAlertsItemViewModel> = ObservableArrayList()
     val itemBinding = ItemBinding.of<TripSegmentAlertsItemViewModel>(BR.viewModel, R.layout.trip_segment_alert_details_item)
+}
+
+class TripSegmentAlertsSheet : BottomSheetDialogFragment() {
+    var viewModel = TripSegmentAlertsSheetViewModel()
 
     companion object {
         fun newInstance(viewModels: List<TripSegmentAlertsItemViewModel>): TripSegmentAlertsSheet {
             val newSheet = TripSegmentAlertsSheet()
-
-            newSheet.viewModels = viewModels
+            viewModels.forEach {
+                newSheet.viewModel.items.add(it)
+            }
             return newSheet
         }
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val binding = DataBindingUtil.inflate<TripSegmentAlertDetailsBottomSheetBinding>(inflater, R.layout.trip_segment_alert_details_bottom_sheet, container, false)
-        binding.entries = viewModels
-        binding.itemBinding = itemBinding
+        binding.viewModel = viewModel
         binding.closeButton.setOnClickListener {
             dismiss()
         }
