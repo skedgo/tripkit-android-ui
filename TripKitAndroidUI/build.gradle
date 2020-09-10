@@ -24,6 +24,7 @@ android {
     }
 
     compileOptions {
+        coreLibraryDesugaringEnabled true
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
@@ -50,17 +51,17 @@ android {
 }
 
 dependencies {
+    coreLibraryDesugaring libs.desugar
+
     implementation libs.supportDesign
     implementation libs.koptional
     implementation libs.kotlin
-    implementation 'androidx.appcompat:appcompat:1.1.0'
+    implementation libs.appCompat
     implementation libs.constraintLayout
     implementation libs.places
     implementation("com.squareup.okhttp3:logging-interceptor:4.2.0")
 
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
-    implementation 'androidx.lifecycle:lifecycle-extensions:2.1.0'
-    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.1.0'
     implementation 'com.google.android:flexbox:1.1.1'
     implementation 'com.github.skedgo:wheel:v1.0'
 
@@ -94,6 +95,8 @@ dependencies {
     implementation libs.daggerAndroid
     implementation libs.daggerAndroidSupport
     implementation libs.lifecycle
+    implementation libs.lifecycleViewModel
+    implementation libs.lifecycleRuntime
     implementation libs.appCompat
     implementation libs.supportDesign
     implementation libs.recyclerView

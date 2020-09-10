@@ -18,6 +18,8 @@ class DbHelperModule {
           tripKitDatabase: TripKitDatabase): DbHelper {
     return DbHelper(
             context,
+            // Although this is called "tripkit-legacy.db", the tables come from the original TripGo, and were imported
+            // to be used by TripKitUI customers.
             "tripkit-legacy.db",
             DatabaseMigrator(tripKitDatabase))
   }

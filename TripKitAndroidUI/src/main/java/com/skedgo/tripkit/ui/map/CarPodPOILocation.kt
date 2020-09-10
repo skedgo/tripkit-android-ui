@@ -11,6 +11,7 @@ import com.squareup.otto.Bus
 import com.squareup.picasso.Picasso
 import io.reactivex.Single
 import com.skedgo.tripkit.locations.CarPod
+import com.skedgo.tripkit.ui.model.PodLocation
 
 class CarPodPOILocation(private val carPod: CarPod) : IMapPoiLocation {
 
@@ -23,7 +24,8 @@ class CarPodPOILocation(private val carPod: CarPod) : IMapPoiLocation {
   }
 
   override fun toLocation(): Location {
-    val location = Location(carPod.lat, carPod.lng)
+    val location = PodLocation(carPod.lat, carPod.lng)
+    location.podIdentifier = carPod.id
     location.name = carPod.name
     location.address = carPod.address
     location.phoneNumber = carPod.operator.phone

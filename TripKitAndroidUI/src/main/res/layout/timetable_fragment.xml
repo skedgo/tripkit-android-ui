@@ -66,7 +66,7 @@
                 app:items="@{viewModel.serviceNumbers}"
                 app:layoutManager="com.google.android.flexbox.FlexboxLayoutManager">
         </androidx.recyclerview.widget.RecyclerView>
-        <LinearLayout android:layout_width="match_parent"
+        <LinearLayout android:layout_width="0dp"
                       android:layout_height="wrap_content"
                       android:id="@+id/buttonLayout"
                       android:paddingStart="8dp"

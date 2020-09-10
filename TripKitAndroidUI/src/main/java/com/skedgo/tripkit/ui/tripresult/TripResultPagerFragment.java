@@ -225,7 +225,7 @@ public class TripResultPagerFragment extends BaseTripKitFragment implements View
     private boolean singleRoute = false;
 
     public Builder withTripButton(int layoutResourceId) {
-      TripKitButton b = new TripKitButton(layoutResourceId);
+      TripKitButton b = new TripKitButton("trip", layoutResourceId);
       buttons.add(b);
       return this;
     }

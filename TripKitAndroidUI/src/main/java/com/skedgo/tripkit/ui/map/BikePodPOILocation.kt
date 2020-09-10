@@ -7,6 +7,7 @@ import com.skedgo.tripkit.common.model.Location
 import com.skedgo.tripkit.data.database.locations.bikepods.BikePodLocationEntity
 import com.skedgo.tripkit.ui.map.adapter.BikePodInfoWindowAdapter
 import com.skedgo.tripkit.ui.map.adapter.StopInfoWindowAdapter
+import com.skedgo.tripkit.ui.model.PodLocation
 import com.skedgo.tripkit.ui.tracking.EventTracker
 import com.squareup.otto.Bus
 import com.squareup.picasso.Picasso
@@ -23,7 +24,8 @@ class BikePodPOILocation(
   }
 
   override fun toLocation(): Location {
-    val location = Location(bikePodEntity.lat, bikePodEntity.lng)
+    val location = PodLocation(bikePodEntity.lat, bikePodEntity.lng)
+    location.podIdentifier = bikePodEntity.identifier
     location.phoneNumber = bikePodEntity.bikePod.operator.phone
     location.name = bikePodEntity.bikePod.operator.name
     location.address = bikePodEntity.address

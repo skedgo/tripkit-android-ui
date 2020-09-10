@@ -11,6 +11,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.TextView
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearSmoothScroller
@@ -105,8 +106,9 @@ class TimetableFragment : BaseTripKitFragment(), View.OnClickListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        viewModel = ViewModelProviders.of(this, viewModelFactory).get(TimetableViewModel::class.java)
+        viewModel = ViewModelProvider(this, viewModelFactory).get(TimetableViewModel::class.java)
     }
+
 
     override fun onResume() {
         super.onResume()
@@ -214,6 +216,7 @@ class TimetableFragment : BaseTripKitFragment(), View.OnClickListener {
         buttons.forEach {
             try {
                 val button = layoutInflater.inflate(it.layoutResourceId, null, false)
+                button.tag = it.id
                 button.setOnClickListener(this)
                 binding.buttonLayout.addView(button)
             } catch (e: InflateException) {
@@ -243,6 +246,24 @@ class TimetableFragment : BaseTripKitFragment(), View.OnClickListener {
                 })
 
         return binding.root
+    }
+
+    fun replaceButton(id: String, newLayoutId: Int) {
+        buttons.forEach {button ->
+            if (button.id == id) {
+                val currentView = binding.buttonLayout.findViewWithTag<View?>(id)
+                currentView?.let {
+                    val currentViewIndex = binding.buttonLayout.indexOfChild(currentView)
+                    val newView = layoutInflater.inflate(newLayoutId, null, false)
+                    newView.tag = button.id
+                    newView.setOnClickListener(this)
+
+                    binding.buttonLayout.removeView(currentView)
+                    binding.buttonLayout.addView(newView, currentViewIndex)
+                    button.layoutResourceId = newLayoutId
+                }
+            }
+        }
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
@@ -322,7 +343,7 @@ class TimetableFragment : BaseTripKitFragment(), View.OnClickListener {
         }
 
         fun withButton(id: String, layoutResourceId: Int): Builder {
-            val b = TripKitButton(layoutResourceId)
+            val b = TripKitButton(id, layoutResourceId)
             buttons.add(b)
             return this
         }

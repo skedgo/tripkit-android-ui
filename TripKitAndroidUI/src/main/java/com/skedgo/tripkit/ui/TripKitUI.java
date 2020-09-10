@@ -6,11 +6,10 @@ import android.content.pm.ApplicationInfo;
 import android.util.Log;
 import androidx.annotation.Nullable;
 import com.google.android.libraries.places.api.Places;
+import com.skedgo.DaggerTripKit;
 import com.skedgo.TripKit;
 import com.skedgo.routepersistence.RouteStore;
-import com.skedgo.tripkit.Configs;
-import com.skedgo.tripkit.ImmutableTripKitConfigs;
-import com.skedgo.tripkit.TripKitConfigs;
+import com.skedgo.tripkit.*;
 import com.skedgo.tripkit.data.database.DbHelper;
 import com.skedgo.tripkit.data.regions.RegionService;
 import com.skedgo.tripkit.ui.core.module.*;
@@ -25,6 +24,8 @@ import com.squareup.otto.Bus;
 import com.squareup.picasso.Picasso;
 import com.uber.rxdogtag.RxDogTag;
 import dagger.Component;
+import io.reactivex.Scheduler;
+import net.danlew.android.joda.JodaTimeAndroid;
 import okhttp3.OkHttpClient;
 import skedgo.tripgo.agenda.legacy.CyclingSpeedRepositoryModule;
 import skedgo.tripgo.agenda.legacy.GetRoutingConfigModule;
@@ -65,7 +66,8 @@ import java.util.concurrent.Callable;
         WalkingSpeedRepositoryModule.class,
         PrioritiesRepositoryModule.class,
         GetRoutingConfigModule.class,
-        BookingModule.class
+        BookingModule.class,
+        SchedulerFactoryModule.class
         })
 public abstract class TripKitUI {
     private static TripKitUI instance;
@@ -105,6 +107,11 @@ public abstract class TripKitUI {
     }
 
     public static void initialize(Context context, Key.ApiKey key, @Nullable Configs configs) {
+        initialize(context, key, configs, null);
+    }
+    public static void initialize(Context context, Key.ApiKey key,
+                                  @Nullable Configs configs,
+                                  @Nullable HttpClientModule httpClientModule) {
         RxDogTag.install();
 
         if (!TripKit.isInitialized()) {
@@ -117,7 +124,17 @@ public abstract class TripKitUI {
                 tripKitConfigs = buildTripKitConfig(context, key);
             }
 
-            TripKit.initialize(tripKitConfigs);
+            if (httpClientModule != null) {
+                TripKit tripKit = DaggerTripKit.builder()
+                        .mainModule(new MainModule(tripKitConfigs))
+                        .httpClientModule(httpClientModule)
+                        .build();
+                TripKit.initialize(context, tripKit);
+                JodaTimeAndroid.init(context);
+            } else {
+                TripKit.initialize(tripKitConfigs);
+            }
+
             if (!Places.isInitialized()) {
                 String placesApiKey = context.getString(R.string.google_places_api_key);
                 if (!placesApiKey.equals("GOOGLE_PLACES_API_KEY")) {

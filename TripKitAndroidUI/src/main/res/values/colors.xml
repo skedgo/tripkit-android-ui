@@ -26,6 +26,19 @@
     <color name="classification_healthiest">#e15b72</color>
     <color name="classification_recommended">#1880e7</color>
 
+    <color name="favorite_blue">#3467CE</color>
+    <color name="favorite_blue_faded">#303467CE</color>
+    <color name="favorite_bus">#23B15E</color>
+    <color name="favorite_train">#6665B2</color>
+    <color name="favorite_subway">#9A579D</color>
+    <color name="favorite_monorail">#E4C015</color>
+    <color name="favorite_funicular">#73A9F3</color>
+    <color name="favorite_school_bus">#E4D115</color>
+    <color name="favorite_coach">#5AA0FF</color>
+    <color name="favorite_tram">#EA9C46</color>
+    <color name="favorite_cablecar">#DA5A4B</color>
+    <color name="favorite_ferry">#4F9DD8</color>
+
     <!-- Colors imported from TripGo -->
     <color name="main_color">#23b15e</color>
     <color name="time_label_bg">#a3000000</color>

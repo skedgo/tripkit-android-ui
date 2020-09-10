@@ -36,7 +36,8 @@ open class FetchTimetable @Inject constructor(
           region.name!!,
           embarkationStopCodes,
           null,
-          startTimeInSecs)
+          startTimeInSecs,
+        50)
           .map { response ->
             if (response == null) {
               error(RuntimeException("Failed to fetch timetable"))

@@ -19,7 +19,8 @@ class DeparturesRepositoryImpl @Inject constructor(
       region: String,
       embarkationStopCodes: List<String>,
       disembarkationStopCodes: List<String>?,
-      timeInSecs: Long
+      timeInSecs: Long,
+      limit: Int
   ): Single<DeparturesResponse> =
       regionService.getRegionByNameAsync(region)
           .flatMap { Observable.fromIterable(it.urLs) }
@@ -36,6 +37,7 @@ class DeparturesRepositoryImpl @Inject constructor(
                 .embarkationStops(embarkationStopCodes)
                 .disembarkationStops(disembarkationStopCodes)
                 .regionName(region)
+                .limit(limit)
                 .timeInSecs(timeInSecs)
                 .build()
 

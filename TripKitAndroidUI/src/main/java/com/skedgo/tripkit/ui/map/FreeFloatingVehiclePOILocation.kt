@@ -6,6 +6,7 @@ import com.skedgo.tripkit.common.model.Location
 import com.skedgo.tripkit.data.database.locations.freefloating.FreeFloatingLocationEntity
 import com.skedgo.tripkit.ui.map.adapter.FreeFloatingVehicleInfoWindowAdapter
 import com.skedgo.tripkit.ui.map.adapter.StopInfoWindowAdapter
+import com.skedgo.tripkit.ui.model.PodLocation
 import com.skedgo.tripkit.ui.tracking.EventTracker
 import com.squareup.otto.Bus
 import com.squareup.picasso.Picasso
@@ -22,7 +23,8 @@ class FreeFloatingVehiclePOILocation(
   }
 
   override fun toLocation(): Location {
-    val location = Location(freeFloatingLocationEntity.lat, freeFloatingLocationEntity.lng)
+    val location = PodLocation(freeFloatingLocationEntity.lat, freeFloatingLocationEntity.lng)
+    location.podIdentifier = freeFloatingLocationEntity.identifier
     location.phoneNumber = freeFloatingLocationEntity.vehicle.operator.phone
     location.name = freeFloatingLocationEntity.vehicle.operator.name
     location.address = freeFloatingLocationEntity.address

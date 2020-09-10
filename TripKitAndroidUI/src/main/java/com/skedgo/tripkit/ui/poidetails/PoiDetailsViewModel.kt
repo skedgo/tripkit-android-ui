@@ -1,10 +1,12 @@
 package com.skedgo.tripkit.ui.poidetails
 
+import android.content.Context
 import androidx.databinding.ObservableBoolean
 import androidx.databinding.ObservableField
 import com.skedgo.tripkit.LocationInfoService
 import com.skedgo.tripkit.common.model.Location
 import com.skedgo.tripkit.common.model.PoiLocation
+import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.core.RxViewModel
 import com.skedgo.tripkit.ui.data.places.PlaceSearchRepository
 import timber.log.Timber
@@ -15,7 +17,7 @@ class PoiDetailsViewModel @Inject constructor(private val locationInfoService: L
                                               private val placeSearchRepository: PlaceSearchRepository): RxViewModel() {
     var locationTitle = ObservableField<String>("")
     var showCloseButton = ObservableBoolean(false)
-
+    var favoriteText = ObservableField<String>("")
     var address = ObservableField<String>("")
     var showAddress = ObservableBoolean(false)
     var website = ObservableField<String>("")
@@ -24,6 +26,13 @@ class PoiDetailsViewModel @Inject constructor(private val locationInfoService: L
     var what3words = ObservableField<String>("")
     var showWhat3words = ObservableBoolean(false)
 
+    fun setFavorite(context: Context, favorite: Boolean) {
+        if (favorite) {
+            favoriteText.set(context.getString(R.string.remove_favourite))
+        } else {
+            favoriteText.set(context.getString(R.string.favourite))
+        }
+    }
     fun start(location: Location) {
         this.locationTitle.set(location.displayName)
         this.address.set(location.address)

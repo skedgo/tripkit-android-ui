@@ -9,6 +9,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import com.jakewharton.rxrelay2.PublishRelay
 import com.skedgo.tripkit.common.model.Location
+import com.skedgo.tripkit.ui.ARG_IS_FAVORITE
 import com.skedgo.tripkit.ui.ARG_LOCATION
 import com.skedgo.tripkit.ui.ARG_SHOW_CLOSE_BUTTON
 import com.skedgo.tripkit.ui.TripKitUI
@@ -35,11 +36,18 @@ class PoiDetailsFragment : BaseTripKitFragment()  {
         viewModel = ViewModelProviders.of(this, viewModelFactory).get(PoiDetailsViewModel::class.java)
     }
 
+    fun toggleFavorite(isFavorite: Boolean) {
+        viewModel.setFavorite(requireContext(), isFavorite)
+    }
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        val isFavorite = arguments?.getBoolean(ARG_IS_FAVORITE, false) ?: false
         val showCloseButton = arguments?.getBoolean(ARG_SHOW_CLOSE_BUTTON, false) ?: false
         val location = arguments?.getParcelable(ARG_LOCATION) as Location?
 
         viewModel.showCloseButton.set(showCloseButton)
+        viewModel.setFavorite(requireContext(), isFavorite)
+
         location?.let { viewModel.start(it) }
 
         val binding = PoiDetailsFragmentBinding.inflate(inflater)
@@ -54,9 +62,14 @@ class PoiDetailsFragment : BaseTripKitFragment()  {
 
     class Builder(val location: Location) {
         private var showCloseButton = false
-
+        private var isFavorite = false
         fun showCloseButton(showCloseButton: Boolean): Builder {
             this.showCloseButton = showCloseButton
+            return this
+        }
+
+        fun isFavorite(favorite: Boolean): Builder {
+            isFavorite = favorite
             return this
         }
 
@@ -64,6 +77,7 @@ class PoiDetailsFragment : BaseTripKitFragment()  {
                 arguments = Bundle().apply {
                     this.putBoolean(ARG_SHOW_CLOSE_BUTTON, showCloseButton)
                     this.putParcelable(ARG_LOCATION, location)
+                    this.putBoolean(ARG_IS_FAVORITE, isFavorite)
                 }
             }
     }

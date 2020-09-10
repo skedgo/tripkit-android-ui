@@ -50,7 +50,7 @@ class TripResultListFragment : BaseTripKitFragment() {
             }
         }
     }
-    
+
     interface OnLocationClickListener {
         fun onStartLocationClicked()
         fun onDestinationLocationClicked()

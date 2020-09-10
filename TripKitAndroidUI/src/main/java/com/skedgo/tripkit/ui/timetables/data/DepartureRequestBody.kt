@@ -20,4 +20,6 @@ interface DepartureRequestBody {
 
   @SerializedName("timeStamp")
   fun timeInSecs(): Long
+
+  fun limit(): Int
 }

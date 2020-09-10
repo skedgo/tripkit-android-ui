@@ -7,5 +7,6 @@ interface DeparturesRepository {
   fun getTimetableEntries(region: String,
                           embarkationStopCodes: List<String>,
                           disembarkationStopCodes: List<String>?,
-                          timeInSecs: Long): Single<DeparturesResponse>
+                          timeInSecs: Long,
+                          limit: Int): Single<DeparturesResponse>
 }
