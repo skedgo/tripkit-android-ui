@@ -22,48 +22,33 @@ internal class PrioritiesRepositoryImpl @Inject constructor(
         Priority.Budget(prefs.getInt(budgetPriorityKey, defaultValue))
       }
 
-  override fun putBudgetPriority(budgetPriority: Priority.Budget): Completable =
-      Completable.fromAction {
-        prefs.edit().putInt(budgetPriorityKey, budgetPriority.value).apply()
-      }
+  override fun putBudgetPriority(budgetPriority: Priority.Budget) = prefs.edit().putInt(budgetPriorityKey, budgetPriority.value).apply()
+
 
   override fun getTimePriority(): Observable<Priority.Time> =
       Observable.fromCallable {
         Priority.Time(prefs.getInt(timePriorityKey, defaultValue))
       }
 
-  override fun putTimePriority(timePriority: Priority.Time): Completable =
-      Completable.fromAction {
-        prefs.edit().putInt(timePriorityKey, timePriority.value).apply()
-      }
+  override fun putTimePriority(timePriority: Priority.Time) = prefs.edit().putInt(timePriorityKey, timePriority.value).apply()
 
   override fun getEnvironmentPriority(): Observable<Priority.Environment> =
       Observable.fromCallable {
         Priority.Environment(prefs.getInt(environmentPriorityKey, defaultValue))
       }
 
-  override fun putEnvironmentPriority(environmentPriority: Priority.Environment): Completable =
-      Completable.fromAction {
-        prefs.edit().putInt(environmentPriorityKey, environmentPriority.value).apply()
-      }
+  override fun putEnvironmentPriority(environmentPriority: Priority.Environment) = prefs.edit().putInt(environmentPriorityKey, environmentPriority.value).apply()
 
   override fun getConveniencePriority(): Observable<Priority.Convenience> =
       Observable.fromCallable {
         Priority.Convenience(prefs.getInt(conveniencePriorityKey, defaultValue))
       }
 
-  override fun putConveniencePriority(conveniencePriority: Priority.Convenience): Completable =
-      Completable.fromAction {
-        prefs.edit().putInt(conveniencePriorityKey, conveniencePriority.value).apply()
-      }
-
+  override fun putConveniencePriority(conveniencePriority: Priority.Convenience)= prefs.edit().putInt(conveniencePriorityKey, conveniencePriority.value).apply()
   override fun getExercisePriority(): Observable<Priority.Exercise> =
       Observable.fromCallable {
         Priority.Exercise(prefs.getInt(exercisePriorityKey, defaultValue))
       }
 
-  override fun putExercisePriority(exercisePriority: Priority.Exercise): Completable =
-      Completable.fromAction {
-        prefs.edit().putInt(exercisePriorityKey, exercisePriority.value).apply()
-      }
+  override fun putExercisePriority(exercisePriority: Priority.Exercise) = prefs.edit().putInt(exercisePriorityKey, exercisePriority.value).apply()
 }

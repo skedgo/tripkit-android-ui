@@ -36,7 +36,8 @@ internal class GetRoutingConfigImpl @Inject constructor(
                         budgetPriority = prioritiesRepository.getBudgetPriority().blockingFirst(),
                         environmentPriority = prioritiesRepository.getEnvironmentPriority().blockingFirst(),
                         timePriority = prioritiesRepository.getTimePriority().blockingFirst(),
-                        conveniencePriority = prioritiesRepository.getConveniencePriority().blockingFirst()
+                        conveniencePriority = prioritiesRepository.getConveniencePriority().blockingFirst(),
+                        exercisePriority = prioritiesRepository.getExercisePriority().blockingFirst()
                 ),
                 isOnWheelchair = tripPreferences.isWheelchairPreferred
         )

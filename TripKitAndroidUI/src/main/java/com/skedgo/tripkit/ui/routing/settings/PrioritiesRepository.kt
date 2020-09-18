@@ -4,13 +4,13 @@ import io.reactivex.Observable
 
 interface PrioritiesRepository {
   fun getBudgetPriority(): Observable<Priority.Budget>
-  fun putBudgetPriority(budgetPriority: Priority.Budget): Completable
+  fun putBudgetPriority(budgetPriority: Priority.Budget)
   fun getTimePriority(): Observable<Priority.Time>
-  fun putTimePriority(timePriority: Priority.Time): Completable
+  fun putTimePriority(timePriority: Priority.Time)
   fun getEnvironmentPriority(): Observable<Priority.Environment>
-  fun putEnvironmentPriority(environmentPriority: Priority.Environment): Completable
+  fun putEnvironmentPriority(environmentPriority: Priority.Environment)
   fun getConveniencePriority(): Observable<Priority.Convenience>
-  fun putConveniencePriority(conveniencePriority: Priority.Convenience): Completable
+  fun putConveniencePriority(conveniencePriority: Priority.Convenience)
   fun getExercisePriority(): Observable<Priority.Exercise>
-  fun putExercisePriority(exercisePriority: Priority.Exercise): Completable
+  fun putExercisePriority(exercisePriority: Priority.Exercise)
 }
