@@ -48,7 +48,7 @@
                       android:layout_marginStart="4dp"
                       tools:text="Current Location"
                       android:text="@{viewModel.fromName}"
-                      android:textColor="@color/tripKitPrimary"
+                      android:textColor="@color/colorPrimary"
                       style="@style/TextAppearance.MaterialComponents.Body2"
                       android:id="@+id/from"
                       app:layout_constraintStart_toEndOf="@+id/fromLabel"
@@ -59,7 +59,7 @@
                        app:layout_constraintTop_toTopOf="@+id/from"
                        app:layout_constraintStart_toEndOf="@+id/from"
                        app:layout_constraintBottom_toBottomOf="@id/from"
-                       android:tint="@color/tripKitPrimary"
+                       android:tint="@color/colorPrimary"
                        app:srcCompat="@drawable/chevron_right"/>
             <!-- Leave Now & Transports header -->
             <androidx.constraintlayout.widget.ConstraintLayout android:layout_width="match_parent"
@@ -87,11 +87,11 @@
                               tools:text="Transports"
                               android:text="@string/transport"
                               style="@style/TextAppearance.MaterialComponents.Body2"
-                              android:textColor="@color/tripKitPrimary"/>
+                              android:textColor="@color/colorPrimary"/>
                     <ImageView android:layout_width="16dp"
                                android:layout_height="16dp"
                                android:layout_gravity="center_vertical"
-                               android:tint="@color/tripKitPrimary"
+                               android:tint="@color/colorPrimary"
                                android:src="@drawable/chevron_down"/>
                 </LinearLayout>
                 <View android:layout_width="1dp" android:layout_height="0dp"
@@ -119,11 +119,11 @@
                               android:layout_gravity="center_vertical"
                               android:text="@{viewModel.timeLabel}"
                               style="@style/TextAppearance.MaterialComponents.Body2"
-                              android:textColor="@color/tripKitPrimary"/>
+                              android:textColor="@color/colorPrimary"/>
                     <ImageView android:layout_width="16dp"
                                android:layout_height="16dp"
                                android:layout_gravity="center_vertical"
-                               android:tint="@color/tripKitPrimary"
+                               android:tint="@color/colorPrimary"
                                app:srcCompat="@drawable/chevron_down"/>
                 </LinearLayout>
 
