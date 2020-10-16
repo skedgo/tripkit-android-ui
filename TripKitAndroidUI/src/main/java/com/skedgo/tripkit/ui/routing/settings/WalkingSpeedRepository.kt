@@ -4,6 +4,6 @@ import io.reactivex.Completable
 import io.reactivex.Observable
 
 interface WalkingSpeedRepository {
-  fun putWalkingSpeed(walkingSpeed: WalkingSpeed): Completable
-  fun getWalkingSpeed(): Observable<WalkingSpeed>
+  suspend fun putWalkingSpeed(walkingSpeed: WalkingSpeed)
+  suspend fun getWalkingSpeed(): WalkingSpeed
 }

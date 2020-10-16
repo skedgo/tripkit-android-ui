@@ -1,6 +1,7 @@
 package com.skedgo.tripkit.ui.tripresults
 
 import android.content.Context
+import android.util.Log
 import android.view.View
 import android.widget.ProgressBar
 import androidx.databinding.ObservableBoolean
@@ -12,6 +13,7 @@ import com.skedgo.tripkit.common.model.TimeTag
 import com.skedgo.tripkit.RoutingError
 import com.skedgo.tripkit.TransportModeFilter
 import com.skedgo.tripkit.a2brouting.RouteService
+import com.skedgo.tripkit.a2brouting.ToWeightingProfileString
 import com.skedgo.tripkit.common.model.TransportMode
 import com.skedgo.tripkit.data.regions.RegionService
 import com.skedgo.tripkit.model.ViewTrip
@@ -118,7 +120,6 @@ class TripResultListViewModel @Inject constructor(
         if (!force && mergedList.size > 0) {
             return
         }
-
         this.query = _query
         _query.fromLocation?.let {
             fromName.set(it.displayName)

@@ -17,38 +17,14 @@ internal class PrioritiesRepositoryImpl @Inject constructor(
   private val conveniencePriorityKey = resources.getString(R.string.pref_hassle)
   private val exercisePriorityKey = resources.getString(R.string.pref_exercise)
 
-  override fun getBudgetPriority(): Observable<Priority.Budget> =
-      Observable.fromCallable {
-        Priority.Budget(prefs.getInt(budgetPriorityKey, defaultValue))
-      }
-
-  override fun putBudgetPriority(budgetPriority: Priority.Budget) = prefs.edit().putInt(budgetPriorityKey, budgetPriority.value).apply()
-
-
-  override fun getTimePriority(): Observable<Priority.Time> =
-      Observable.fromCallable {
-        Priority.Time(prefs.getInt(timePriorityKey, defaultValue))
-      }
-
-  override fun putTimePriority(timePriority: Priority.Time) = prefs.edit().putInt(timePriorityKey, timePriority.value).apply()
-
-  override fun getEnvironmentPriority(): Observable<Priority.Environment> =
-      Observable.fromCallable {
-        Priority.Environment(prefs.getInt(environmentPriorityKey, defaultValue))
-      }
-
-  override fun putEnvironmentPriority(environmentPriority: Priority.Environment) = prefs.edit().putInt(environmentPriorityKey, environmentPriority.value).apply()
-
-  override fun getConveniencePriority(): Observable<Priority.Convenience> =
-      Observable.fromCallable {
-        Priority.Convenience(prefs.getInt(conveniencePriorityKey, defaultValue))
-      }
-
-  override fun putConveniencePriority(conveniencePriority: Priority.Convenience)= prefs.edit().putInt(conveniencePriorityKey, conveniencePriority.value).apply()
-  override fun getExercisePriority(): Observable<Priority.Exercise> =
-      Observable.fromCallable {
-        Priority.Exercise(prefs.getInt(exercisePriorityKey, defaultValue))
-      }
-
-  override fun putExercisePriority(exercisePriority: Priority.Exercise) = prefs.edit().putInt(exercisePriorityKey, exercisePriority.value).apply()
+  override suspend fun getBudgetPriority(): Priority.Budget =  Priority.Budget(prefs.getInt(budgetPriorityKey, defaultValue))
+  override suspend fun putBudgetPriority(budgetPriority: Priority.Budget) = prefs.edit().putInt(budgetPriorityKey, budgetPriority.value).apply()
+  override suspend fun getTimePriority(): Priority.Time = Priority.Time(prefs.getInt(timePriorityKey, defaultValue))
+  override suspend fun putTimePriority(timePriority: Priority.Time) = prefs.edit().putInt(timePriorityKey, timePriority.value).apply()
+  override suspend fun getEnvironmentPriority(): Priority.Environment = Priority.Environment(prefs.getInt(environmentPriorityKey, defaultValue))
+  override suspend fun putEnvironmentPriority(environmentPriority: Priority.Environment) = prefs.edit().putInt(environmentPriorityKey, environmentPriority.value).apply()
+  override suspend fun getConveniencePriority(): Priority.Convenience = Priority.Convenience(prefs.getInt(conveniencePriorityKey, defaultValue))
+  override suspend fun putConveniencePriority(conveniencePriority: Priority.Convenience)= prefs.edit().putInt(conveniencePriorityKey, conveniencePriority.value).apply()
+  override suspend fun getExercisePriority(): Priority.Exercise = Priority.Exercise(prefs.getInt(exercisePriorityKey, defaultValue))
+  override suspend fun putExercisePriority(exercisePriority: Priority.Exercise) = prefs.edit().putInt(exercisePriorityKey, exercisePriority.value).apply()
 }

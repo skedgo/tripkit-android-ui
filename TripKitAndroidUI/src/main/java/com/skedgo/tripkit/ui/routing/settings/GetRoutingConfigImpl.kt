@@ -1,18 +1,12 @@
-package skedgo.tripgo.agenda.legacy
+package com.skedgo.tripkit.ui.routing.settings
 
+import android.util.Log
 import com.skedgo.tripkit.TripPreferences
 import com.skedgo.tripkit.ui.routing.GetRoutingConfig
 import com.skedgo.tripkit.ui.routing.PreferredTransferTimeRepository
 import com.skedgo.tripkit.ui.routing.RoutingConfig
-import com.skedgo.tripkit.ui.routing.settings.CyclingSpeedRepository
-import com.skedgo.tripkit.ui.routing.settings.PrioritiesRepository
-import com.skedgo.tripkit.ui.routing.settings.WalkingSpeedRepository
-import com.skedgo.tripkit.ui.routing.settings.WeightingProfile
-import io.reactivex.Observable
-import io.reactivex.rxkotlin.withLatestFrom
 import javax.inject.Inject
 
-/** TODO: Refactor to move this class to TripGoData. */
 internal class GetRoutingConfigImpl @Inject constructor(
         private val walkingSpeedRepository: WalkingSpeedRepository,
         private val cyclingSpeedRepository: CyclingSpeedRepository,
@@ -20,26 +14,20 @@ internal class GetRoutingConfigImpl @Inject constructor(
         private val preferredTransferTimeRepository: PreferredTransferTimeRepository,
         private val prioritiesRepository: PrioritiesRepository
 ) : GetRoutingConfig {
-  override fun execute(): Observable<RoutingConfig>
-      = walkingSpeedRepository.getWalkingSpeed()
-      .withLatestFrom(
-          cyclingSpeedRepository.getCyclingSpeed(),
-          preferredTransferTimeRepository.getPreferredTransferTime()
-      ) {
-        walkingSpeed, cyclingSpeed, preferredTransferTime ->
-        RoutingConfig(
-            preferredTransferTime = preferredTransferTime,
-            walkingSpeed = walkingSpeed,
-            cyclingSpeed = cyclingSpeed,
+  override suspend fun execute(): RoutingConfig {
+      return RoutingConfig (
+            preferredTransferTime = preferredTransferTimeRepository.getPreferredTransferTime(),
+            walkingSpeed = walkingSpeedRepository.getWalkingSpeed(),
+            cyclingSpeed = cyclingSpeedRepository.getCyclingSpeed(),
             shouldUseConcessionPricing = tripPreferences.isConcessionPricingPreferred,
-                weightingProfile = WeightingProfile(
-                        budgetPriority = prioritiesRepository.getBudgetPriority().blockingFirst(),
-                        environmentPriority = prioritiesRepository.getEnvironmentPriority().blockingFirst(),
-                        timePriority = prioritiesRepository.getTimePriority().blockingFirst(),
-                        conveniencePriority = prioritiesRepository.getConveniencePriority().blockingFirst(),
-                        exercisePriority = prioritiesRepository.getExercisePriority().blockingFirst()
-                ),
-                isOnWheelchair = tripPreferences.isWheelchairPreferred
-        )
-      }
+            isOnWheelchair = tripPreferences.isWheelchairPreferred,
+            weightingProfile = WeightingProfile(
+                    budgetPriority = prioritiesRepository.getBudgetPriority(),
+                    environmentPriority = prioritiesRepository.getEnvironmentPriority(),
+                    timePriority = prioritiesRepository.getTimePriority(),
+                    conveniencePriority = prioritiesRepository.getConveniencePriority(),
+                    exercisePriority = prioritiesRepository.getExercisePriority()
+            )
+    )
+  }
 }

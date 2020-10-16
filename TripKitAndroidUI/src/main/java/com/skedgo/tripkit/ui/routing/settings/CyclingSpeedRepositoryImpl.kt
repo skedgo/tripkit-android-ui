@@ -9,22 +9,17 @@ import com.skedgo.tripkit.ui.routing.settings.toCyclingSpeed
 import io.reactivex.Completable
 import io.reactivex.Observable
 
-/** TODO: Refactor to move this class to TripGoData. */
 internal class CyclingSpeedRepositoryImpl constructor(
     private val resources: Resources,
     private val prefs: SharedPreferences
 ) : CyclingSpeedRepository {
-  override fun putCyclingSpeed(cyclingSpeed: CyclingSpeed): Completable {
-    // FIXME: Should use this Repository to change cycling speed.
-    TODO("Not implemented yet.")
-  }
+  override suspend fun putCyclingSpeed(cyclingSpeed: CyclingSpeed) =
+          prefs.edit().putString(resources.getString(R.string.pref_cycling_speed),
+                  cyclingSpeed.value.toString()).apply()
 
-  override fun getCyclingSpeed(): Observable<CyclingSpeed>
-      = Observable
-      .fromCallable {
-        prefs.getString(resources.getString(R.string.pref_cycling_speed), null)
-      }
-      .filter { !it.isNullOrEmpty() }
-      .map { it.toInt().toCyclingSpeed() }
-      .defaultIfEmpty(CyclingSpeed.Medium)
+  override suspend fun getCyclingSpeed(): CyclingSpeed {
+      return prefs.getString(resources.getString(R.string.pref_cycling_speed), null)?.toInt()?.toCyclingSpeed()
+              ?: CyclingSpeed.Medium
+
+  }
 }

@@ -1,16 +1,10 @@
 package com.skedgo.tripkit.ui.routing
-import io.reactivex.Completable
-import io.reactivex.Observable
-import org.joda.time.Minutes
+
+import java.time.Duration
 
 interface PreferredTransferTimeRepository {
-  fun putPreferredTransferTime(preferredTransferTime: Minutes): Completable
-  fun getPreferredTransferTime(
-      defaultIfEmpty: () -> Minutes = { Minutes.THREE }
-  ): Observable<Minutes>
-
-  /**
-   * Emits when preferred transfer time has changed.
-   */
-  fun whenPreferredTransferTimeChanges(): Observable<Minutes>
+  suspend fun putPreferredTransferTime(preferredTransferTime: Duration)
+  suspend fun getPreferredTransferTime(
+      defaultIfEmpty: () -> Duration = { Duration.ofMinutes(3) }
+  ): Duration
 }
