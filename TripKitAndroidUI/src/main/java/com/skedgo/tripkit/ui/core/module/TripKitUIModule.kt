@@ -117,15 +117,5 @@ class TripKitUIModule {
     }
 
 
-    @Provides
-    @Singleton
-    internal fun routingStatusStore(
-            routeDatabaseHelper: RouteDatabaseHelper
-    ): RoutingStatusStore = RoutingStatusStore(routeDatabaseHelper)
-
-    @Provides
-    internal fun routingStatusRepository(
-            impl: RoutingStatusRepositoryImpl
-    ): RoutingStatusRepository = impl
 
 }

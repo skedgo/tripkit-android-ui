@@ -2,12 +2,6 @@ include ':TripKitAndroidUI'
 include ':TripKitAndroidUIModules:TripKitAndroidUIData'
 include ':TripKitAndroidUIModules:TripKitAndroidUIDomain'
 
-include ':AccountDomain'
-project(':AccountDomain').projectDir = new File('tripkit-android/AccountDomain')
-
-include ':AccountData'
-project(':AccountData').projectDir = new File('tripkit-android/AccountData')
-
 include ':trip-kit-booking'
 project(':trip-kit-booking').projectDir = new File('tripkit-android/trip-kit-booking')
 

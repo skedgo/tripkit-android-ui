@@ -6,14 +6,16 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import com.google.android.flexbox.FlexDirection
 import com.google.android.flexbox.FlexboxLayoutManager
+import com.jakewharton.rxrelay2.BehaviorRelay
 import com.skedgo.tripkit.TransportModeFilter
 import com.skedgo.tripkit.common.model.Query
 import com.skedgo.tripkit.common.model.TimeTag
 import com.skedgo.tripkit.model.ViewTrip
-import com.skedgo.tripkit.routing.Trip
+import com.skedgo.tripkit.routing.TripGroup
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.TripKitUI
 import com.skedgo.tripkit.ui.core.BaseTripKitFragment
@@ -21,9 +23,11 @@ import com.skedgo.tripkit.ui.core.OnResultStateListener
 import com.skedgo.tripkit.ui.core.addTo
 import com.skedgo.tripkit.ui.databinding.TripResultListFragmentBinding
 import com.skedgo.tripkit.ui.dialog.TripKitDateTimePickerDialogFragment
+import com.skedgo.tripkit.ui.tripresult.UpdateTripForRealtime
+import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButtonHandler
+import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButtonHandlerFactory
 import com.skedgo.tripkit.ui.views.MultiStateView
 import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -79,7 +83,7 @@ class TripResultListFragment : BaseTripKitFragment() {
     lateinit var binding: TripResultListFragmentBinding
     private var query: Query? = null
     private var transportModeFilter: TransportModeFilter? = null
-    private var actionButtonHandler: ActionButtonHandler?= null
+    var actionButtonHandlerFactory: ActionButtonHandlerFactory?= null
     private var showTransportSelectionView = true
 
     fun query(): Query {
@@ -129,6 +133,11 @@ class TripResultListFragment : BaseTripKitFragment() {
     fun showCloseButton(showCloseButton: Boolean) {
         viewModel.showCloseButton.set(showCloseButton)
     }
+
+    override fun onStop() {
+        super.onStop()
+    }
+
     override fun onResume() {
         super.onResume()
         viewModel.onError.observeOn(AndroidSchedulers.mainThread()).subscribe { error ->
@@ -149,11 +158,17 @@ class TripResultListFragment : BaseTripKitFragment() {
                 .doOnNext { viewTrip -> tripSelectedListener?.onTripSelected(viewTrip)
                 }.subscribe().addTo(autoDisposable)
 
-        viewModel.onMoreButtonClicked
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe {
-                    trip -> actionButtonHandler?.actionClicked(trip)
-                }.addTo(autoDisposable)
+//        viewModel.onMoreButtonClicked
+//                .observeOn(AndroidSchedulers.mainThread())
+//                .subscribe {
+//                    trip ->
+//                    if (actionButtonHandler?.actionClicked(trip) == true) {
+//                        // We should monitor this trip for changes, likely due to booking
+////                        viewModel.monitorTrip(trip)
+//                        Timber.d("Triggering updates")
+//                        updateTripRelay.accept(trip.group)
+//                    }
+//                }.addTo(autoDisposable)
         viewModel.stateChange.observeOn(AndroidSchedulers.mainThread()).subscribe {
             binding.multiStateView?.let { msv ->
                 if (it == MultiStateView.ViewState.EMPTY) {
@@ -209,14 +224,12 @@ class TripResultListFragment : BaseTripKitFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         query = arguments?.getParcelable<Query>(ARG_QUERY) as Query
-        arguments?.getParcelable<ActionButtonHandler>(ARG_ACTION_BUTTON_HANDLER)?.let {
-            actionButtonHandler = it
-        }
         arguments?.getParcelable<TransportModeFilter>(ARG_TRANSPORT_MODE_FILTER)?.let {
             transportModeFilter = it
         }
+
         showTransportSelectionView = arguments?.getBoolean(ARG_SHOW_TRANSPORT_MODE_SELECTION, true)!!
-        query?.let { viewModel.setup(it, showTransportSelectionView, transportModeFilter, actionButtonHandler) }
+        query?.let { viewModel.setup(it, showTransportSelectionView, transportModeFilter, actionButtonHandlerFactory) }
     }
 
     class Builder {
@@ -224,7 +237,7 @@ class TripResultListFragment : BaseTripKitFragment() {
         private var transportModeFilter: TransportModeFilter? = null
         private var showTransportModeSelection = true
         private var showCloseButton = false
-        private var actionButtonHandler: ActionButtonHandler? = null
+        private var actionButtonHandlerFactory: ActionButtonHandlerFactory? = null
 
         fun withQuery(query: Query): Builder {
             this.query = query
@@ -236,8 +249,8 @@ class TripResultListFragment : BaseTripKitFragment() {
             return this
         }
 
-        fun withActionButtonHandler(actionButtonHandler: ActionButtonHandler): Builder {
-            this.actionButtonHandler = actionButtonHandler
+        fun withActionButtonHandlerFactory(factory: ActionButtonHandlerFactory): Builder {
+            this.actionButtonHandlerFactory = factory
             return this
         }
 
@@ -256,10 +269,10 @@ class TripResultListFragment : BaseTripKitFragment() {
             val fragment = TripResultListFragment()
             args.putParcelable(ARG_QUERY, query)
             args.putParcelable(ARG_TRANSPORT_MODE_FILTER, transportModeFilter)
-            args.putParcelable(ARG_ACTION_BUTTON_HANDLER, actionButtonHandler)
             args.putBoolean(ARG_SHOW_TRANSPORT_MODE_SELECTION, showTransportModeSelection)
             args.putBoolean(ARG_SHOW_CLOSE_BUTTON, showCloseButton)
             fragment.arguments = args
+            fragment.actionButtonHandlerFactory = actionButtonHandlerFactory
             return fragment
         }
     }

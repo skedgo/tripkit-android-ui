@@ -1,5 +1,6 @@
 package com.skedgo.tripkit.ui.data.routingresults
 
+import android.util.Log
 import com.jakewharton.rxrelay2.PublishRelay
 import com.skedgo.routepersistence.GroupQueries
 import com.skedgo.routepersistence.RouteStore
@@ -51,7 +52,8 @@ class TripGroupRepositoryImpl(
             _whenTripGroupIsUpdated.hide()
 
     override fun getTripGroup(tripGroupId: String): Observable<TripGroup> {
-        return map[tripGroupId] ?: createQuery(tripGroupId)
+//        return map[tripGroupId] ?: createQuery(tripGroupId)
+        return createQuery(tripGroupId)
     }
 
   private fun createQuery(tripGroupId: String): Observable<TripGroup> {
@@ -60,7 +62,7 @@ class TripGroupRepositoryImpl(
         .subscribeOn(io())
         .replay(1)
         .autoConnect()
-    map[tripGroupId] = query
+      map[tripGroupId] = query
     return query
   }
 
@@ -68,13 +70,15 @@ class TripGroupRepositoryImpl(
     return routeStore.querySegmentByIdAndTripId(segmentId = segmentId, tripId = tripId)
   }
 
-  override fun updateTrip(tripGroupId: String, oldTripUuid: String, trip: Trip): Completable =
-      routeStore.updateTripAsync(oldTripUuid, trip)
-          .andThen(
-              Completable.fromAction {
-                _whenTripGroupIsUpdated.accept(tripGroupId)
-              })
-          .subscribeOn(io())
+  override fun updateTrip(tripGroupId: String, oldTripUuid: String, trip: Trip): Completable {
+      val done =map.remove(tripGroupId)
+      return routeStore.updateTripAsync(oldTripUuid, trip)
+              .andThen(
+                      Completable.fromAction {
+                          _whenTripGroupIsUpdated.accept(tripGroupId)
+                      })
+              .subscribeOn(io())
+  }
 
   override fun updateNotify(tripGroupId: String, isFavorite: Boolean): Completable =
       routeStore.updateNotifiability(tripGroupId, isFavorite)

@@ -73,7 +73,7 @@ dependencies {
     compileOnly libs.valueAnnotations
 
     implementation 'com.squareup:otto:1.3.8'
-    implementation 'com.squareup.picasso:picasso:2.71828'
+    implementation libs.picasso
     implementation libs.retrofit
     implementation libs.retrofitAdapterRxJava
     implementation libs.retrofitConverterGson
@@ -104,6 +104,7 @@ dependencies {
     implementation libs.fragment
     implementation libs.bindingCollectionAdapter
     implementation libs.bindingCollectionAdapterRecyclerView
+    implementation libs.networkResponse
 
     implementation libs.immutablesGson
     implementation libs.mlkit
@@ -124,7 +125,6 @@ dependencies {
     api project(':TripKitAndroid')
     api project(':TripKitAndroidUIModules:TripKitAndroidUIData')
     api project(':TripKitAndroidUIModules:TripKitAndroidUIDomain')
-    api project(":AccountData")
 }
 
 group = tripkitGroup

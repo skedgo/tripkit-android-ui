@@ -1,19 +1,17 @@
 package com.skedgo.tripkit.ui.tripresults
 
 import android.content.Context
-import android.util.Log
 import android.view.View
-import android.widget.ProgressBar
 import androidx.databinding.ObservableBoolean
 import androidx.databinding.ObservableField
-import androidx.loader.content.Loader
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
 import com.jakewharton.rxrelay2.PublishRelay
 import com.skedgo.tripkit.common.model.Query
 import com.skedgo.tripkit.common.model.TimeTag
 import com.skedgo.tripkit.RoutingError
 import com.skedgo.tripkit.TransportModeFilter
 import com.skedgo.tripkit.a2brouting.RouteService
-import com.skedgo.tripkit.a2brouting.ToWeightingProfileString
 import com.skedgo.tripkit.common.model.TransportMode
 import com.skedgo.tripkit.data.regions.RegionService
 import com.skedgo.tripkit.model.ViewTrip
@@ -37,11 +35,13 @@ import com.skedgo.tripkit.routing.dateTimeZone
 import com.skedgo.tripkit.routingstatus.RoutingStatus
 import com.skedgo.tripkit.routingstatus.RoutingStatusRepository
 import com.skedgo.tripkit.routingstatus.Status
-import com.skedgo.tripkit.ui.core.OnResultStateListener
-import com.skedgo.tripkit.ui.creditsources.CreditSourcesOfDataViewModel
 import com.skedgo.tripkit.ui.routing.SimpleTransportModeFilter
-import com.skedgo.tripkit.ui.tripresult.TripSegmentItemViewModel
+import com.skedgo.tripkit.ui.tripresult.UpdateTripForRealtime
+import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButtonContainer
+import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButtonHandler
+import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButtonHandlerFactory
 import com.skedgo.tripkit.ui.views.MultiStateView
+import kotlinx.coroutines.CoroutineScope
 import me.tatarka.bindingcollectionadapter2.collections.MergeObservableList
 import me.tatarka.bindingcollectionadapter2.itembindings.OnItemBindClass
 import timber.log.Timber
@@ -59,7 +59,7 @@ class TripResultListViewModel @Inject constructor(
         private val regionService: RegionService,
         private val routeService: RouteService,
         private val errorLogger: ErrorLogger,
-        private val routingTimeViewModelMapper: RoutingTimeViewModelMapper): RxViewModel() {
+        private val routingTimeViewModelMapper: RoutingTimeViewModelMapper): RxViewModel(), ActionButtonContainer {
     val loadingItem = LoaderPlaceholder()
     val fromName = ObservableField<String>()
     val toName = ObservableField<String>()
@@ -90,7 +90,7 @@ class TripResultListViewModel @Inject constructor(
     lateinit var query: Query
     private var transportModeFilter: TransportModeFilter? = null
     private var transportVisibilityFilter: TripResultTransportViewFilter? = null
-    private var actionButtonHandler: ActionButtonHandler? = null
+    private var actionButtonHandlerFactory: ActionButtonHandlerFactory? = null
 
     init {
         transportModeChangeThrottle.debounce(500, TimeUnit.MILLISECONDS)
@@ -112,10 +112,12 @@ class TripResultListViewModel @Inject constructor(
             mergedList.removeItem(loadingItem)
         }
     }
+
+
     fun setup(_query: Query,
               showTransportSelectionView: Boolean,
               transportModeFilter: TransportModeFilter?,
-              actionButtonHandler: ActionButtonHandler?,
+              actionButtonHandlerFactory: ActionButtonHandlerFactory?,
               force: Boolean = false) {
         if (!force && mergedList.size > 0) {
             return
@@ -134,7 +136,7 @@ class TripResultListViewModel @Inject constructor(
         } else {
             PermissiveTransportViewFilter()
         }
-        this.actionButtonHandler = actionButtonHandler
+        this.actionButtonHandlerFactory = actionButtonHandlerFactory
         if (transportModeFilter == null) {
             this.transportModeFilter = SimpleTransportModeFilter()
         } else {
@@ -275,7 +277,13 @@ class TripResultListViewModel @Inject constructor(
                     val classifier = TripGroupClassifier(list)
                     list.map { group ->
                         val vm = tripResultViewModelProvider.get().apply {
-                            this.setTripGroup(context, group, classifier.classify(group), actionButtonHandler)
+                            var handler: ActionButtonHandler? = actionButtonHandlerFactory?.createHandler(this@TripResultListViewModel)
+                            this.actionButtonHandler = handler
+                            this.setTripGroup(context, group, classifier.classify(group))
+                            onMoreButtonClicked.observable
+                                    .subscribe {
+                                        actionButtonHandler?.actionClicked(it.trip)
+                                    }.autoClear()
                         }
                         vm.onItemClicked.observable
                                 .subscribe { viewModel ->
@@ -285,12 +293,11 @@ class TripResultListViewModel @Inject constructor(
                                             displayTripID = viewModel.group.displayTripId)
                                     onItemClicked.accept(clickEvent)
                                 }.autoClear()
-                        vm.onMoreButtonClicked.observable
-                                .subscribe {viewModel ->
-                                    onMoreButtonClicked.accept(viewModel.trip)
-                                }.autoClear()
+//                        vm.onMoreButtonClicked.observable
+//                                .subscribe {viewModel ->
+//                                    actionButtonHandler?.actionClicked(viewModel.trip)
+//                                }.autoClear()
                         vm
-
                     }
                 }
                 .map {
@@ -307,7 +314,7 @@ class TripResultListViewModel @Inject constructor(
 
     fun changeQuery(newQuery: Query) {
         results.update(emptyList())
-        setup(newQuery, showTransportModeSelection.get(), transportModeFilter, actionButtonHandler, true)
+        setup(newQuery, showTransportModeSelection.get(), transportModeFilter, actionButtonHandlerFactory, true)
     }
 
     fun updateQueryTime(timeTag: TimeTag) {
@@ -318,6 +325,16 @@ class TripResultListViewModel @Inject constructor(
         reload()
     }
 
+    override fun scope() = viewModelScope
+
+    override fun replaceTripGroup(tripGroupUuid: String, newTripGroup: TripGroup) {
+         results.forEach {
+            if (it.group.uuid() == tripGroupUuid) {
+                it.setTripGroup(context, newTripGroup, null)
+                return@forEach
+            }
+        }
+    }
 
 
 }

@@ -6,6 +6,7 @@ import com.skedgo.tripkit.routing.TripGroup
 import com.skedgo.tripkit.routingstatus.RoutingStatusRepository
 import com.skedgo.tripkit.routingstatus.Status
 import com.skedgo.tripkit.ui.tripresults.TripResultTransportViewFilter
+import timber.log.Timber
 import javax.inject.Inject
 
 class GetSortedTripGroupsWithRoutingStatus @Inject constructor(
@@ -14,7 +15,9 @@ class GetSortedTripGroupsWithRoutingStatus @Inject constructor(
 ) {
   fun execute(query: Query, sortOrder: Int, filter: TripResultTransportViewFilter): Observable<Pair<List<TripGroup>, Status>> =
       routingStatusRepository.getRoutingStatus(query.uuid())
-          .map { it.status }
+          .map {
+              it.status
+          }
           .switchMap { status ->
             when (status) {
               is Status.Error -> Observable.just(Pair(emptyList(), status))

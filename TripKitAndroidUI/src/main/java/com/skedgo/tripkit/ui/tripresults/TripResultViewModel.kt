@@ -15,6 +15,7 @@ import io.reactivex.functions.BiFunction
 import org.joda.time.DateTime
 import com.skedgo.tripkit.datetime.PrintTime
 import com.skedgo.tripkit.routing.*
+import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButtonHandler
 import com.skedgo.tripkit.ui.utils.*
 import timber.log.Timber
 import javax.inject.Inject
@@ -48,25 +49,42 @@ class TripResultViewModel  @Inject constructor(private val context: Context,
     val alternateTitleVisible = ObservableBoolean(true)
     val alternateSubtitle = ObservableField<String>()
     val alternateSegments = ArrayList<TripSegmentViewModel>()
+    var actionButtonHandler: ActionButtonHandler? = null
 
     // Footer
     val alternateTripVisible = ObservableBoolean(false)
     val costVisible = ObservableBoolean(true)
     val cost = ObservableField<String>()
     val moreButtonVisible = ObservableBoolean(false)
-    val moreButtonText = ObservableField<String>()
+    var moreButtonText = ObservableField<String>()
     var otherTripGroups : List<Trip>? = null
 
-    fun setTripGroup(context: Context, tripgroup: TripGroup,
-                     classification: TripGroupClassifier.Classification,
-                     actionButtonHandler: ActionButtonHandler?)  {
+    override fun equals(other: Any?) : Boolean {
+        if (other == null
+          || other !is TripResultViewModel
+          || other.group.uuid() != group.uuid()
+          || other.trip.segments.size != trip.segments.size)
+            return false
+        trip.segments.forEachIndexed { index, value ->
+            if (value.bookingHashCode != other.trip.segments[index].bookingHashCode) return false
+        }
+
+        if (moreButtonText.get() != other.moreButtonText.get()) {
+            return false
+        }
+        return true
+    }
+
+    fun setTripGroup(context: Context,
+                     tripgroup: TripGroup,
+                     classification: TripGroupClassifier.Classification?)  {
         moreButtonText.set(context.resources.getString(R.string.more))
         group = tripgroup
         trip = tripgroup.displayTrip!!
         otherTripGroups = tripgroup.trips?.filterNot { it.uuid() == trip.uuid() }
         alternateTrip = otherTripGroups?.firstOrNull()
 
-        if (classification != TripGroupClassifier.Classification.NONE) {
+        if (classification != null && classification != TripGroupClassifier.Classification.NONE) {
             setBadge(classification)
         }
         buildTitle(trip).subscribe { title.set(it) }.autoClear()
@@ -86,8 +104,9 @@ class TripResultViewModel  @Inject constructor(private val context: Context,
         setCost()
 
         val actionButtonText = actionButtonHandler?.getAction(context, trip)
+
         actionButtonText?.let {
-            moreButtonText.set(it)
+            moreButtonText = actionButtonText
             moreButtonVisible.set(true)
         }
     }

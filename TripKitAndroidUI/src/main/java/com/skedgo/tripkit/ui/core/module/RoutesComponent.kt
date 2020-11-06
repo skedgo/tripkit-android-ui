@@ -3,11 +3,7 @@ import com.skedgo.tripkit.ui.tripresults.TripResultListFragment
 import dagger.Subcomponent
 
 @ActivityScope
-@Subcomponent(modules = arrayOf(
-    RoutesModule::class,
-    LocationStuffModule::class,
-    CameraPositionDataModule::class
-))
+@Subcomponent(modules = [RoutesModule::class, LocationStuffModule::class, CameraPositionDataModule::class, TripDetailsModule::class])
 interface RoutesComponent {
   fun inject(fragment: TripResultListFragment)
 }

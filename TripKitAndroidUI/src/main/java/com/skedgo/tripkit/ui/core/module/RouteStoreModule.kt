@@ -48,5 +48,16 @@ class RouteStoreModule {
             RouteDatabaseHelper(context, "routes.db")
 
 
+    @Provides
+    @Singleton
+    internal fun routingStatusStore(
+            routeDatabaseHelper: RouteDatabaseHelper
+    ): RoutingStatusStore = RoutingStatusStore(routeDatabaseHelper)
+
+    @Provides
+    @Singleton
+    internal fun routingStatusRepository(
+            impl: RoutingStatusRepositoryImpl
+    ): RoutingStatusRepository = impl
 
 }
