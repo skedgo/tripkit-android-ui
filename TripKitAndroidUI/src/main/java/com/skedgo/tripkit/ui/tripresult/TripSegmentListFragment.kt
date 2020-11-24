@@ -10,12 +10,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AlertDialog
+import androidx.core.view.ViewCompat
 import androidx.core.view.forEach
 import androidx.recyclerview.widget.RecyclerView
 import com.skedgo.tripkit.logging.ErrorLogger
 import com.skedgo.tripkit.routing.Trip
 import com.skedgo.tripkit.routing.TripGroup
 import com.skedgo.tripkit.routing.TripSegment
+import com.skedgo.tripkit.routing.getBookingSegment
 import com.skedgo.tripkit.ui.*
 import com.skedgo.tripkit.ui.ARG_TRIP_GROUP_ID
 import com.skedgo.tripkit.ui.core.BaseTripKitFragment
@@ -23,7 +25,9 @@ import com.skedgo.tripkit.ui.core.addTo
 import com.skedgo.tripkit.ui.databinding.TripSegmentListFragmentBinding
 import com.skedgo.tripkit.ui.model.TripKitButton
 import com.skedgo.tripkit.ui.model.TripKitButtonConfigurator
+import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButtonHandlerFactory
 import com.squareup.otto.Bus
+import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
 import kotlinx.android.synthetic.main.trip_segment_list_fragment.view.*
 import timber.log.Timber
@@ -35,9 +39,9 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
     private val RQ_VIEW_ALERTS = 1
 
     override fun onClick(p0: View?) {
-        if (mClickListener != null && p0 != null) {
-            mClickListener?.tripKitButtonClicked(p0.id, viewModel.tripGroup)
-        }
+//        if (mClickListener != null && p0 != null) {
+//            mClickListener?.tripKitButtonClicked(p0.id, viewModel.tripGroup)
+//        }
     }
 
     interface OnTripKitButtonClickListener {
@@ -74,8 +78,7 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
 
         }
     }
-    var buttons = emptyList<TripKitButton>()
-    var buttonConfigurator: TripKitButtonConfigurator? = null
+
 
     @Inject
     lateinit var errorLogger: ErrorLogger
@@ -85,6 +88,7 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
 
     lateinit var binding: TripSegmentListFragmentBinding
     private var tripGroupId: String? = null
+    var actionButtonHandlerFactory: ActionButtonHandlerFactory? = null
 
     override fun onAttach(context: Context) {
         TripKitUI.getInstance().tripDetailsComponent().inject(this)
@@ -95,12 +99,9 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
         super.onCreate(savedInstanceState)
 
         if (arguments != null) {
-            tripGroupId = arguments!!.getString(ARG_TRIP_GROUP_ID)
-            buttonConfigurator = arguments!!.getSerializable(ARG_TRIPKIT_BUTTON_CONFIGURATOR) as TripKitButtonConfigurator?
+            tripGroupId = requireArguments().getString(ARG_TRIP_GROUP_ID)
         } else if (savedInstanceState != null) {
             tripGroupId = savedInstanceState.getString(ARG_TRIP_GROUP_ID)
-            buttonConfigurator = savedInstanceState!!.getSerializable(ARG_TRIPKIT_BUTTON_CONFIGURATOR) as TripKitButtonConfigurator?
-
         }
     }
 
@@ -145,7 +146,13 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
             viewModel.loadTripGroup(it, savedInstanceState)
         }
 
+        viewModel.tripGroupObservable
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe {tripGroup ->
+                    tripGroup.displayTrip?.getBookingSegment()?.booking?.externalActions?.forEach {
 
+                    }
+                }.addTo(autoDisposable)
 
         //    viewModel.getOnStreetViewTapped()
         //        .subscribe(location -> {
@@ -203,39 +210,28 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
 
         binding = TripSegmentListFragmentBinding.inflate(inflater)
         binding.viewModel = viewModel
+        viewModel.setActionButtonHandlerFactory(actionButtonHandlerFactory)
         val showCloseButton = arguments?.getBoolean(ARG_SHOW_CLOSE_BUTTON, false) ?: false
         viewModel.showCloseButton.set(showCloseButton)
         binding.closeButton.setOnClickListener(onCloseButtonListener)
-
         binding.itemsView.isNestedScrollingEnabled = true
-        buttons.forEach {
-            try {
-                val button = layoutInflater.inflate(it.layoutResourceId, null, false)
-
-                button.tag = button.id
-                button.setOnClickListener(this)
-                binding.buttonLayout.addView(button)
-            } catch (e: InflateException) {
-                Timber.e("Invalid button layout ${it.layoutResourceId}", e)
-            }
-        }
         return binding.root
     }
 
     override fun onStart() {
         super.onStart()
         viewModel.onStart()
-        viewModel.tripGroupObservable
-                .observeOn(mainThread())
-                .take(1)
-                .subscribe { tripGroup ->
-                    buttonConfigurator?.let { configurator ->
-                        binding.buttonLayout.forEach {
-                            configurator.configureButton(context!!, it, tripGroup)
-                        }
-                    }
-
-                }.addTo(autoDisposable)
+//        viewModel.tripGroupObservable
+//                .observeOn(mainThread())
+//                .take(1)
+//                .subscribe { tripGroup ->
+//                    buttonConfigurator?.let { configurator ->
+//                        binding.buttonLayout.forEach {
+//                            configurator.configureButton(context!!, it, tripGroup)
+//                        }
+//                    }
+//
+//                }.addTo(autoDisposable)
     }
 
     override fun onResume() {
@@ -254,7 +250,7 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
                         list.add(vm)
                     }
                     val dialog = TripSegmentAlertsSheet.newInstance(list)
-                    dialog.show(fragmentManager!!, "alerts_sheet")
+                    dialog.show(requireFragmentManager(), "alerts_sheet")
                 }.addTo(autoDisposable)
     }
     override fun onStop() {
@@ -376,7 +372,7 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
     //  }
 
     private fun showMessage(info: String) {
-        val builder = AlertDialog.Builder(activity!!)
+        val builder = AlertDialog.Builder(requireActivity())
                 .setMessage(info)
                 .setPositiveButton(R.string.ok) { dialog, which -> dialog.dismiss() }
         builder.show()
@@ -387,21 +383,16 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
         private var buttons: List<TripKitButton>? = null
         private var buttonConfigurator: TripKitButtonConfigurator? = null
         private var showCloseButton = false
+        private var actionButtonHandlerFactory: ActionButtonHandlerFactory? = null
         fun withTripGroupId(tripGroupId: String): Builder {
             this.tripGroupId = tripGroupId
             return this
         }
 
-        fun withButtons(buttons: List<TripKitButton>): Builder {
-            this.buttons = buttons
+        fun withActionButtonHandlerFactory(factory: ActionButtonHandlerFactory) : Builder {
+            this.actionButtonHandlerFactory = factory
             return this
         }
-
-        fun withButtonConfigurator(configurator: TripKitButtonConfigurator?): Builder {
-            this.buttonConfigurator = configurator
-            return this
-        }
-
         fun showCloseButton(showCloseButton: Boolean): Builder {
             this.showCloseButton = showCloseButton
             return this
@@ -413,13 +404,10 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
             val args = Bundle()
             args.putString(ARG_TRIP_GROUP_ID, tripGroupId)
             args.putBoolean(ARG_SHOW_CLOSE_BUTTON, showCloseButton)
-            args.putSerializable(ARG_TRIPKIT_BUTTON_CONFIGURATOR, buttonConfigurator)
             // Initialize fragment
             val fragment = TripSegmentListFragment()
             fragment.arguments = args
-            buttons?.let {
-                fragment.buttons = it
-            }
+            fragment.actionButtonHandlerFactory = actionButtonHandlerFactory
             return fragment
 
         }

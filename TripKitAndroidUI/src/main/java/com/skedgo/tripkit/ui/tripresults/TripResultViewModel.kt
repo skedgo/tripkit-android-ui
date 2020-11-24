@@ -17,9 +17,7 @@ import com.skedgo.tripkit.datetime.PrintTime
 import com.skedgo.tripkit.routing.*
 import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButtonHandler
 import com.skedgo.tripkit.ui.utils.*
-import timber.log.Timber
 import javax.inject.Inject
-
 
 class TripResultViewModel  @Inject constructor(private val context: Context,
         private val tripSegmentHelper: TripSegmentHelper,
@@ -103,7 +101,7 @@ class TripResultViewModel  @Inject constructor(private val context: Context,
         }
         setCost()
 
-        val actionButtonText = actionButtonHandler?.getAction(context, trip)
+        val actionButtonText = actionButtonHandler?.getPrimaryAction(context, trip)
 
         actionButtonText?.let {
             moreButtonText = actionButtonText

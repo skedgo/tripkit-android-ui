@@ -39,4 +39,5 @@ public final class BindingConversions {
   public static int convertLocationToAlpha(Location location) {
     return location == null ? 1 : 0;
   }
+
 }

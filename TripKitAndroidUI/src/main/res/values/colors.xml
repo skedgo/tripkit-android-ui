@@ -13,6 +13,7 @@
     <color name="black4">#1F212A33</color>
     <color name="grey1">#E6EFF2</color>
     <color name="grey2">#f5f6f7</color>
+    <color name="grey3">#F6F6F6</color>
     <color name="tripKitSuccess">#23B15E</color>
     <color name="tripKitWarning">#FCBA1E</color>
     <color name="tripKitError">#E34040</color>

@@ -8,6 +8,7 @@ import com.skedgo.tripkit.ui.search.FetchGoogleLocations
 import com.skedgo.tripkit.ui.search.FetchLocationsParameters
 import io.reactivex.Observable
 import io.reactivex.schedulers.Schedulers
+import timber.log.Timber
 import javax.inject.Inject
 
 class FetchGoogleLocationsImpl @Inject constructor(
@@ -17,6 +18,7 @@ class FetchGoogleLocationsImpl @Inject constructor(
   private val maxResult = 20
 
   override fun getLocations(parameters: FetchLocationsParameters): Observable<List<GCResultInterface>> {
+      Timber.d("Getting google locations")
     return getLocationFromGoogleClient(parameters)
         .subscribeOn(Schedulers.newThread())
   }

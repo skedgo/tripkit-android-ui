@@ -6,6 +6,7 @@ import android.content.Context
 import android.graphics.drawable.InsetDrawable
 import android.os.Bundle
 import android.text.TextUtils
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -112,6 +113,13 @@ class LocationSearchFragment : BaseTripKitFragment() {
         }
     }
 
+    var searchSuggestionProvider: LocationSearchProvider? = null
+    set(value) {
+        field = value
+        if (::viewModel.isInitialized) {
+            viewModel.locationSearchProvider = value
+        }
+    }
     /**
      * @suppress
      */
@@ -130,6 +138,7 @@ class LocationSearchFragment : BaseTripKitFragment() {
                 .get(LocationSearchViewModel::class.java)
         viewModel.locationSearchIconProvider = locationSearchIconProvider
         viewModel.fixedSuggestionsProvider = fixedSuggestionsProvider
+        viewModel.locationSearchProvider = searchSuggestionProvider
     }
 
     /**
@@ -149,7 +158,7 @@ class LocationSearchFragment : BaseTripKitFragment() {
 
     private fun buildItemDecoration(): DividerItemDecoration {
         val ATTRS = intArrayOf(android.R.attr.listDivider)
-        val a = context!!.obtainStyledAttributes(ATTRS)
+        val a = requireContext().obtainStyledAttributes(ATTRS)
         val divider = a.getDrawable(0)
         val inset = resources.getDimensionPixelSize(R.dimen.tripkit_search_result_divider_inset)
         val insetDivider = InsetDrawable(divider, inset, 0, 0, 0)
@@ -275,7 +284,7 @@ class LocationSearchFragment : BaseTripKitFragment() {
         private var locationSearchIconProvider: LocationSearchIconProvider? = null
         private var fixedSuggestionsProvider: FixedSuggestionsProvider? = null
         private var showSearchField: Boolean = true
-
+        private var searchProvider : LocationSearchProvider? = null
         /**
          * Used for Google Places searches. For example, a map's visible boundaries.
          *
@@ -377,6 +386,14 @@ class LocationSearchFragment : BaseTripKitFragment() {
             this.fixedSuggestionsProvider = fixedSuggestionsProvider
             return this
         }
+
+        /**
+         * Additional search results can be provided (from a database, for example) using one or more LocationSearchProviders.
+         */
+        fun withLocationSearchProvider(locationSearchProvider: LocationSearchProvider): Builder {
+            this.searchProvider = locationSearchProvider
+            return this
+        }
         /**
          * You can choose to not show the location search field, and instead orchestrate the search results on your own
          * by calling [setQuery].
@@ -406,7 +423,8 @@ class LocationSearchFragment : BaseTripKitFragment() {
             args.putBoolean(ARG_SHOW_BACK_BUTTON, showBackButton)
             args.putBoolean(ARG_SHOW_SEARCH_FIELD, showSearchField)
             val fragment = LocationSearchFragment()
-            fragment.setArguments(args)
+            fragment.arguments = args
+            fragment.searchSuggestionProvider = searchProvider
             fragment.locationSearchIconProvider = locationSearchIconProvider
             fragment.fixedSuggestionsProvider = fixedSuggestionsProvider
             return fragment

@@ -11,9 +11,9 @@ data class BookingV2ListResponse(
 ) {
     data class Booking(
             @SerializedName("confirmation")
-        val confirmation: Confirmation? = null,
+        val confirmation: Confirmation,
             @SerializedName("datetime")
-        val datetime: String? = null,
+        val datetime: String,
             @SerializedName("id")
         val id: String? = null,
             @SerializedName("index")
@@ -25,9 +25,12 @@ data class BookingV2ListResponse(
             @SerializedName("timeZone")
         val timeZone: String? = null,
             @SerializedName("trips")
-        val trips: List<String?>? = null,
+        val trips: List<String>? = null,
             @SerializedName("tripsInfo")
-        val tripsInfo: List<TripsInfo?>? = null
+        val tripsInfo: List<TripsInfo?>? = null,
+            // This does NOT come from the API, but is used later
+        @SerializedName("tripGroup")
+        var tripGroup: String? = null
     ) {
         data class Confirmation(
             @SerializedName("purchase")
@@ -55,7 +58,7 @@ data class BookingV2ListResponse(
                 @SerializedName("destination")
             val destination: Destination? = null,
                 @SerializedName("legs")
-            val legs: List<Leg?>? = null,
+            val legs: List<Leg>? = null,
                 @SerializedName("origin")
             val origin: Origin? = null
         ) {
@@ -74,7 +77,7 @@ data class BookingV2ListResponse(
                     @SerializedName("metric")
                 val metric: Metric? = null,
                     @SerializedName("modeInfo")
-                val modeInfo: ModeInfo? = null
+                val modeInfo: ModeInfo
             ) {
                 data class Metric(
                     @SerializedName("calories")

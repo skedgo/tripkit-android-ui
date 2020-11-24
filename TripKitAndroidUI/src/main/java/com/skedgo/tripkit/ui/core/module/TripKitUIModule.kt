@@ -104,6 +104,7 @@ class TripKitUIModule {
                 .create(LocationsApi::class.java)
     }
 
+
     @Singleton
     @Provides
     fun getServiceApi(httpClient: OkHttpClient, gson: Gson): ServiceApi {

@@ -18,7 +18,8 @@
                     app:layout_constraintTop_toTopOf="parent"/>
         <ImageView android:layout_width="24dp" android:layout_height="24dp"
                    android:id="@+id/closeButton"
-                    app:srcCompat="@drawable/close"
+                   android:src="@drawable/close"
+                   android:background="?attr/selectableItemBackgroundBorderless"
                    android:layout_marginEnd="16dp"
                    app:layout_constraintTop_toTopOf="@+id/alertTitle"
                    app:layout_constraintBottom_toBottomOf="@id/alertTitle"

@@ -22,7 +22,7 @@ open class GetInitialMapCameraPosition @Inject constructor(
             }
           }
     } else {
-      lastCameraPositionRepository.getMapCameraPositionByLocale()
+      lastCameraPositionRepository.getDefaultMapCameraPosition()
           .concatWith(getCurrentMapCameraPosition.execute())
     }
   }

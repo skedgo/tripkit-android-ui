@@ -4,7 +4,6 @@ import android.content.Context
 import android.view.View
 import androidx.databinding.ObservableBoolean
 import androidx.databinding.ObservableField
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.jakewharton.rxrelay2.PublishRelay
 import com.skedgo.tripkit.common.model.Query
@@ -36,12 +35,10 @@ import com.skedgo.tripkit.routingstatus.RoutingStatus
 import com.skedgo.tripkit.routingstatus.RoutingStatusRepository
 import com.skedgo.tripkit.routingstatus.Status
 import com.skedgo.tripkit.ui.routing.SimpleTransportModeFilter
-import com.skedgo.tripkit.ui.tripresult.UpdateTripForRealtime
 import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButtonContainer
 import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButtonHandler
 import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButtonHandlerFactory
 import com.skedgo.tripkit.ui.views.MultiStateView
-import kotlinx.coroutines.CoroutineScope
 import me.tatarka.bindingcollectionadapter2.collections.MergeObservableList
 import me.tatarka.bindingcollectionadapter2.itembindings.OnItemBindClass
 import timber.log.Timber
@@ -282,7 +279,7 @@ class TripResultListViewModel @Inject constructor(
                             this.setTripGroup(context, group, classifier.classify(group))
                             onMoreButtonClicked.observable
                                     .subscribe {
-                                        actionButtonHandler?.actionClicked(it.trip)
+                                        actionButtonHandler?.primaryActionClicked(it.trip)
                                     }.autoClear()
                         }
                         vm.onItemClicked.observable

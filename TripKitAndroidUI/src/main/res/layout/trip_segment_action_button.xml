@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools">
+    <data>
+        <variable name="listener" type="com.skedgo.tripkit.ui.tripresult.ActionButtonClickListener"/>
+        <variable name="viewModel" type="com.skedgo.tripkit.ui.tripresult.ActionButtonViewModel"/>
+    </data>
+    <LinearLayout android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:gravity="center"
+                  android:padding="8dp"
+                  android:orientation="vertical">
+        <com.google.android.material.button.MaterialButton
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton.Icon"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                app:cornerRadius="30dp"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                android:insetLeft="0dp"
+                android:insetRight="0dp"
+                android:onClick="@{() -> listener.onItemClick(viewModel.tag)}"
+                app:iconTint="@{viewModel.iconTint}"
+                app:strokeColor="@{viewModel.outlineTint}"
+                app:backgroundTintBinding="@{viewModel.backgroundTint}"
+                app:strokeWidth="2dp"
+                app:icon="@{viewModel.icon}"/>
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                  tools:text="An action"
+                  android:layout_marginTop="4dp"
+                  style="@style/TextAppearance.MaterialComponents.Caption"
+                  android:text="@{viewModel.title}"
+                  android:textColor="@color/black1"/>
+    </LinearLayout>
+
+</layout>

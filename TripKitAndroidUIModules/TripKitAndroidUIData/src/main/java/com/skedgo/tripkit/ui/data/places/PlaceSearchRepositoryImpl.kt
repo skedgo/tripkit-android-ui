@@ -20,25 +20,26 @@ class PlaceSearchRepositoryImpl
       val bounds = RectangularBounds.newInstance(
               com.google.android.gms.maps.model.LatLng(latLngBounds.southwest.latitude, latLngBounds.southwest.longitude),
               com.google.android.gms.maps.model.LatLng(latLngBounds.northeast.latitude, latLngBounds.northeast.longitude))
+
       return Observable
         .create<List<AutocompletePrediction>> {
-            geoDataClient.get()
-                    .findAutocompletePredictions(FindAutocompletePredictionsRequest.builder()
-                            .setLocationBias(bounds)
-                            .setQuery(query)
-                            .setTypeFilter(TypeFilter.ADDRESS)
-                            .build())
-                    .addOnCompleteListener { task ->
-                        if (task.isSuccessful) {
-                            val result = task.result
-                            val list = result?.autocompletePredictions.orEmpty()
-                            it.onNext(list)
-                            it.onComplete()
-                        } else {
-                            Timber.e(task.exception)
-                            it.tryOnError(GooglePlacesException(task.toString(), task.exception!!))
-                        }
-                    }
+                geoDataClient.get()
+                        .findAutocompletePredictions(FindAutocompletePredictionsRequest.builder()
+                                .setLocationBias(bounds)
+                                .setQuery(query)
+                                .build())
+                        .addOnCompleteListener { task ->
+                            if (task.isSuccessful) {
+                                val result = task.result
+                                val list = result?.autocompletePredictions.orEmpty()
+                                it.onNext(list)
+                                it.onComplete()
+                            } else {
+                                Timber.e(task.exception)
+                                it.tryOnError(GooglePlacesException(task.toString(), task.exception!!))
+                            }
+
+            }
         }
             .flatMap { Observable.fromIterable(it) }
         .map {

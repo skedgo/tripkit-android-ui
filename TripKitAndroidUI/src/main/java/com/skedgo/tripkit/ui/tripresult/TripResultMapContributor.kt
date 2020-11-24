@@ -123,6 +123,7 @@ class TripResultMapContributor : TripKitMapContributor {
                     }) { error: Throwable? -> errorLogger!!.trackError(error!!) })
 
             autoDisposable.add(viewModel.tripCameraUpdate
+                    .observeOn(AndroidSchedulers.mainThread())
                     .subscribe({ cameraUpdate ->
                         map.animateCamera(cameraUpdate)
                     }, { Timber.e(it) }))

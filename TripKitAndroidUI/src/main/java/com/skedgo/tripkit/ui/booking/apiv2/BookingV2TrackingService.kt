@@ -14,7 +14,7 @@ class BookingV2TrackingService(private var trackingApi: BookingV2TrackingApi) {
         return trackingApi.summary()
     }
 
-    suspend fun bookingList(month: String): NetworkResponse<BookingV2ListResponse, Unit> {
+    suspend fun bookingList(month: String): NetworkResponse<BookingV2ListResponse, Unit>{
         return trackingApi.getBookingMonth(month)
     }
 

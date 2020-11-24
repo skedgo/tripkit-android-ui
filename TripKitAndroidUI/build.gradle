@@ -115,10 +115,9 @@ dependencies {
     implementation libs.timber
     implementation libs.gson
     kapt libs.daggerCompiler
-
     kapt libs.daggerAndroidProcessor
     kapt libs.lifecycleCompiler
-    implementation "biz.laenger.android:vpbs:0.0.6"
+//    implementation "biz.laenger.android:vpbs:0.0.6"
     implementation libs.excuseMe
 
     api project(':trip-kit-booking')

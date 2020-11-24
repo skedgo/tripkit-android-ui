@@ -8,18 +8,18 @@ import android.view.View;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.view.ViewCompat;
 import androidx.fragment.app.Fragment;
 import androidx.viewpager.widget.ViewPager;
-import biz.laenger.android.vpbs.BottomSheetUtils;
 import com.skedgo.tripkit.model.ViewTrip;
 import com.skedgo.tripkit.ui.TripKitUI;
 import com.skedgo.tripkit.ui.booking.BookViewClickEventHandler;
 import com.skedgo.tripkit.ui.core.BaseTripKitFragment;
 import com.skedgo.tripkit.ui.databinding.TripResultPagerBinding;
 import com.skedgo.tripkit.ui.map.home.TripKitMapContributor;
-import com.skedgo.tripkit.ui.map.home.TripKitMapFragment;
-import com.skedgo.tripkit.ui.model.TripKitButton;
 import com.skedgo.tripkit.ui.model.TripKitButtonConfigurator;
+import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButton;
+import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButtonHandlerFactory;
 import com.squareup.otto.Bus;
 import org.jetbrains.annotations.NotNull;
 import com.skedgo.tripkit.logging.ErrorLogger;
@@ -40,12 +40,8 @@ public class TripResultPagerFragment extends BaseTripKitFragment implements View
     this.tripButtonClickListener = listener;
   }
 
-  private List<TripKitButton> buttons;
-
   private static final String KEY_CURRENT_PAGE = "currentPage";
   private static final String KEY_SHOW_CLOSE_BUTTON = "showCloseButton";
-  private static final String KEY_BUTTONS = "buttons";
-  private static final String KEY_BUTTON_CONFIGURATOR = "buttonConfig";
   private final BookViewClickEventHandler bookViewClickEventHandler = BookViewClickEventHandler.create(this);
 
   /* TODO: Replace with RxJava-based approach. */
@@ -58,6 +54,11 @@ public class TripResultPagerFragment extends BaseTripKitFragment implements View
   private TripResultPagerBinding binding;
   private TripResultMapContributor mapContributor = new TripResultMapContributor();
   public TripSegmentListFragment.OnTripSegmentClickListener tripSegmentClickListener = null;
+  private ActionButtonHandlerFactory actionButtonHandlerFactory = null;
+
+  public void setActionButtonHandlerFactory(ActionButtonHandlerFactory actionButtonHandlerFactory) {
+    this.actionButtonHandlerFactory = actionButtonHandlerFactory;
+  }
 
   @Nullable private PagerFragmentArguments args;
   private int currentPage = -1;
@@ -69,8 +70,6 @@ public class TripResultPagerFragment extends BaseTripKitFragment implements View
       @Nullable Bundle savedInstanceState) {
     final TripResultPagerBinding binding = TripResultPagerBinding.inflate(inflater);
     this.binding = binding;
-
-    BottomSheetUtils.setupViewPager(binding.tripGroupsPager);
     return binding.getRoot();
   }
 
@@ -175,15 +174,12 @@ public class TripResultPagerFragment extends BaseTripKitFragment implements View
     Bundle b = getArguments();
     if (b != null) {
       tripGroupsPagerAdapter.setShowCloseButton(b.getBoolean(KEY_SHOW_CLOSE_BUTTON, false));
-      buttons = b.getParcelableArrayList(KEY_BUTTONS);
-      configurator = (TripKitButtonConfigurator) b.getSerializable(KEY_BUTTON_CONFIGURATOR);
     }
 
     tripGroupsPagerAdapter.listener = this;
     tripGroupsPagerAdapter.segmentClickListener = tripSegmentClickListener;
     tripGroupsPagerAdapter.closeListener = getOnCloseButtonListener();
-    tripGroupsPagerAdapter.setButtons(buttons);
-    tripGroupsPagerAdapter.setButtonConfigurator(configurator);
+    tripGroupsPagerAdapter.setActionButtonHandlerFactory(actionButtonHandlerFactory);
     binding.tripGroupsPager.setAdapter(tripGroupsPagerAdapter);
   }
 
@@ -220,18 +216,11 @@ public class TripResultPagerFragment extends BaseTripKitFragment implements View
     private String requestId = "";
     private Long arriveBy = 0L;
     private boolean showCloseButton = false;
-    private ArrayList<TripKitButton> buttons = new ArrayList<TripKitButton>();
-    private TripKitButtonConfigurator buttonConfigurator = null;
     private boolean singleRoute = false;
+    private ActionButtonHandlerFactory actionButtonHandlerFactory = null;
 
-    public Builder withTripButton(int layoutResourceId) {
-      TripKitButton b = new TripKitButton("trip", layoutResourceId);
-      buttons.add(b);
-      return this;
-    }
-
-    public Builder withTripButtonConfigurator(TripKitButtonConfigurator configurator) {
-      this.buttonConfigurator = configurator;
+    public Builder withActionButtonHandlerFactory(ActionButtonHandlerFactory factory) {
+      this.actionButtonHandlerFactory = factory;
       return this;
     }
     public Builder withViewTrip(ViewTrip trip) {
@@ -280,10 +269,9 @@ public class TripResultPagerFragment extends BaseTripKitFragment implements View
       }
       TripResultPagerFragment fragment = new TripResultPagerFragment();
       fragment.setArgs(args);
+      fragment.setActionButtonHandlerFactory(actionButtonHandlerFactory);
       Bundle b = new Bundle();
       b.putBoolean(KEY_SHOW_CLOSE_BUTTON, showCloseButton);
-      b.putParcelableArrayList(KEY_BUTTONS, buttons);
-      b.putSerializable(KEY_BUTTON_CONFIGURATOR, buttonConfigurator);
       fragment.setArguments(b);
       return fragment;
     }

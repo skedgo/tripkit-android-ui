@@ -48,19 +48,13 @@ open class LocationEnhancedMapFragment : BaseMapFragment() {
         val originalView = super.onCreateView(inflater, container, savedInstanceState) as ViewGroup?
         // Add the settings button
         if (originalView != null) {
-
             settingsButton = inflater.inflate(R.layout.map_settings_button, originalView, false) as MaterialButton
             settingsButton!!.visibility = View.GONE
             originalView.addView(settingsButton)
 
-            // And the location button if possible
-            ExcuseMe.couldYouGive(this).permissionFor(android.Manifest.permission.ACCESS_FINE_LOCATION) {
-                if(it.granted.contains(android.Manifest.permission.ACCESS_FINE_LOCATION)) {
-                    val myLocationButton = inflater.inflate(R.layout.view_my_location_button, originalView, false)
-                    myLocationButton.setOnClickListener {  animateToMyLocation() }
-                    originalView.addView(myLocationButton)
-                }
-            }
+            val myLocationButton = inflater.inflate(R.layout.view_my_location_button, originalView, false)
+            myLocationButton.setOnClickListener {  animateToMyLocation() }
+            originalView.addView(myLocationButton)
         }
         return originalView
     }

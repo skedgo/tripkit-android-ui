@@ -1,22 +1,15 @@
 package com.skedgo.tripkit.ui.search
 
 import android.content.Context
-import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
-import android.util.Log
 import androidx.core.content.ContextCompat
 import androidx.databinding.ObservableField
 import com.skedgo.tripkit.common.model.Location
 import com.skedgo.tripkit.common.model.ScheduledStop
 import com.skedgo.tripkit.ui.R
-import com.skedgo.tripkit.ui.core.fetchAsync
 import com.skedgo.tripkit.ui.data.places.Place
-import com.skedgo.tripkit.ui.utils.BindingConversions
-import com.skedgo.tripkit.ui.utils.StopMarkerUtils
 import com.skedgo.tripkit.ui.utils.TapAction
 import com.squareup.picasso.Picasso
-import io.reactivex.Observable
-import timber.log.Timber
 
 sealed class SuggestionViewModel(context: Context) {
     val icon: ObservableField<Drawable?> = ObservableField()
@@ -33,7 +26,8 @@ sealed class SuggestionViewModel(context: Context) {
     abstract val onItemClicked: TapAction<SuggestionViewModel>
 }
 
-class FixedSuggestionViewModel(context: Context, suggestion: FixedSuggestion) : SuggestionViewModel(context) {
+open class FixedSuggestionViewModel(context: Context, suggestion: SearchSuggestion) : SuggestionViewModel(context) {
+    val suggestion = suggestion
     val id = suggestion.id()
     override val title = suggestion.title()
     override val titleTextColorRes = suggestion.titleColor()
@@ -45,6 +39,8 @@ class FixedSuggestionViewModel(context: Context, suggestion: FixedSuggestion) : 
         icon.set(suggestion.icon())
     }
 }
+
+class SearchProviderSuggestionViewModel(context: Context, suggestion: SearchSuggestion): FixedSuggestionViewModel(context, suggestion)
 class GoogleAndTripGoSuggestionViewModel(context: Context,
                                          val picasso: Picasso,
                                          val place: Place,

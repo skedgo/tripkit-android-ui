@@ -13,7 +13,7 @@ import java.util.*
 class CameraPositionDataModule {
   @Provides
   fun lastCameraPositionRepository(context: Context): LastCameraPositionRepository =
-      LastCameraPositionRepositoryImpl(getMapPrefs(context), Locale.getDefault())
+      LastCameraPositionRepositoryImpl(context.resources, getMapPrefs(context), Locale.getDefault())
   @Provides
   fun cachingDateTimeOfMapCameraPositionRepository(context: Context): CachingDateTimeOfMapCameraPositionRepository =
           CachingDateTimeOfMapCameraPositionRepositoryImpl(getMapPrefs(context))

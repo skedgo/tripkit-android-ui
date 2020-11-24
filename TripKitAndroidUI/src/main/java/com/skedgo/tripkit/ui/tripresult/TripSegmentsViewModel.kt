@@ -4,9 +4,11 @@ package com.skedgo.tripkit.ui.tripresult
 import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
-import android.util.Log
+import androidx.core.content.ContextCompat
+import androidx.databinding.ObservableArrayList
 import androidx.databinding.ObservableBoolean
 import androidx.databinding.ObservableField
+import androidx.lifecycle.viewModelScope
 import com.jakewharton.rxrelay2.BehaviorRelay
 import com.skedgo.tripkit.booking.BookingForm
 import com.skedgo.tripkit.common.model.Location
@@ -19,13 +21,18 @@ import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.core.RxViewModel
 import com.skedgo.tripkit.ui.creditsources.CreditSourcesOfDataViewModel
 import com.skedgo.tripkit.ui.routingresults.TripGroupRepository
+import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButtonContainer
+import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButtonHandler
+import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButtonHandlerFactory
 import com.skedgo.tripkit.ui.utils.TripSegmentActionProcessor
 import com.squareup.otto.Bus
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
 import io.reactivex.subjects.PublishSubject
+import kotlinx.coroutines.CoroutineScope
 import me.tatarka.bindingcollectionadapter2.ItemBinding
 import me.tatarka.bindingcollectionadapter2.itembindings.OnItemBindClass
+import timber.log.Timber
 import java.util.*
 import java.util.Collections.emptyList
 import javax.inject.Inject
@@ -40,9 +47,12 @@ class TripSegmentsViewModel @Inject internal constructor(
         private val updateTripForRealtime: UpdateTripForRealtime,
         private val tripGroupRepository: TripGroupRepository,
         private val tripSegmentActionProcessor: TripSegmentActionProcessor,
-        private val getAlternativeTripForAlternativeService: GetAlternativeTripForAlternativeService) : RxViewModel() {
+        private val getAlternativeTripForAlternativeService: GetAlternativeTripForAlternativeService) : RxViewModel(), ActionButtonContainer, ActionButtonClickListener {
 
   val segmentViewModels: MutableList<TripSegmentItemViewModel> = ArrayList()
+  val buttons = ObservableArrayList<ActionButtonViewModel>()
+  val buttonsBinding = ItemBinding.of<ActionButtonViewModel>(BR.viewModel, R.layout.trip_segment_action_button)
+          .bindExtra(BR.listener, this)
   val itemViewModels = ObservableField(emptyList<Any>())
   val itemBinding = ItemBinding.of(
           OnItemBindClass<Any>()
@@ -62,7 +72,7 @@ class TripSegmentsViewModel @Inject internal constructor(
   val segmentClicked = BehaviorRelay.create<TripSegment>()
   var durationTitle = ObservableField<String>()
   var arriveAtTitle = ObservableField<String>()
-
+  private var actionButtonHandler: ActionButtonHandler? = null
 
   val tripGroupObservable: Observable<TripGroup>
     get() = tripGroupRelay.hide()
@@ -82,6 +92,9 @@ class TripSegmentsViewModel @Inject internal constructor(
   init {
   }
 
+  fun setActionButtonHandlerFactory(actionButtonHandlerFactory: ActionButtonHandlerFactory?) {
+    actionButtonHandler = actionButtonHandlerFactory?.createHandler(this)
+  }
   fun setInternalBus(bus: Bus) {
     this.internalBus = bus
   }
@@ -92,10 +105,23 @@ class TripSegmentsViewModel @Inject internal constructor(
             .onErrorResumeNext (Observable.empty())
         .subscribe { tripGroup ->
           setTitleAndSubtitle(tripGroup)
-          setTripGroup(tripGroup, savedInstanceState) }
+          setTripGroup(tripGroup, savedInstanceState)
+          setupButtons(tripGroup)
+        }
             .autoClear()
   }
 
+  private fun setupButtons(tripGroup: TripGroup) {
+    if (buttons.size > 0) return
+
+    if (tripGroup.displayTrip == null) return
+      actionButtonHandler?.let { handler ->
+        val actions = handler.getActions(context, tripGroup.displayTrip!!)
+        actions.forEach {
+          buttons.add(ActionButtonViewModel(context, it))
+        }
+    }
+  }
   private fun setTitleAndSubtitle(tripGroup: TripGroup) {
     val trip = tripGroup.displayTrip
     if (trip == null || trip.from == null || trip.to == null) return
@@ -347,6 +373,12 @@ class TripSegmentsViewModel @Inject internal constructor(
 
   private fun startUpdate() {
     updateTripForRealtime.start(tripGroupRelay.hide())
+  }
+
+  override fun scope(): CoroutineScope = viewModelScope
+  override fun replaceTripGroup(tripGroupUuid: String, newTripGroup: TripGroup) {}
+  override fun onItemClick(tag: String) {
+    actionButtonHandler?.actionClicked(context, tag, tripGroup.displayTrip!!)
   }
 
 }

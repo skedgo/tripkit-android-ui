@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.Toast
+import androidx.lifecycle.lifecycleScope
 import com.araujo.jordan.excuseme.ExcuseMe
 import com.google.android.gms.maps.CameraUpdate
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -48,6 +49,7 @@ import io.reactivex.functions.Action
 import io.reactivex.functions.Consumer
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.qr_scan_activity.*
+import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.io.InvalidClassException
 import java.util.*
@@ -173,10 +175,9 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
             this.map = map
             initMarkerCollections(map)
             initMap(map)
-            contributor?.safeToUseMap(context!!, map)
+            contributor?.safeToUseMap(requireContext(), map)
         })
         initStuff()
-        setMyLocationEnabled()
     }
 
     fun setContributor(newContributor: TripKitMapContributor?) {
@@ -186,7 +187,7 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
         contributor = newContributor
         contributor?.let {
             whenSafeToUseMap(Consumer { map: GoogleMap ->
-                contributor?.safeToUseMap(context!!, map)
+                contributor?.safeToUseMap(requireContext(), map)
             })
         }
     }
@@ -445,14 +446,6 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
         })
     }
 
-    private fun setMyLocationEnabled() {
-        ExcuseMe.couldYouGive(this).permissionFor(android.Manifest.permission.ACCESS_FINE_LOCATION) {
-            if(it.granted.contains(android.Manifest.permission.ACCESS_FINE_LOCATION)) {
-                whenSafeToUseMap(Consumer { map: GoogleMap -> map.isMyLocationEnabled = true })
-            }
-        }
-    }
-
     private fun removeAllCities() {
         cityMarkers!!.clear()
         cityMarkerMap.clear()
@@ -526,6 +519,7 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
     private fun goToMyLocation() {
         ExcuseMe.couldYouGive(this).permissionFor(android.Manifest.permission.ACCESS_FINE_LOCATION) {
             if(it.granted.contains(android.Manifest.permission.ACCESS_FINE_LOCATION)) {
+                map?.isMyLocationEnabled = true
                 viewModel!!.goToMyLocation()
             }
         }
@@ -549,15 +543,9 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
     private fun initMap(map: GoogleMap) {
         cityIcon = BitmapDescriptorFactory.fromResource(R.drawable.ic_map_city)
         setupMap(map)
-
-        ExcuseMe.couldYouGive(this).permissionFor(android.Manifest.permission.ACCESS_FINE_LOCATION) {
-            if(it.granted.contains(android.Manifest.permission.ACCESS_FINE_LOCATION)) {
-                viewModel.getInitialCameraUpdate()
-                        .subscribe({ cameraUpdate: CameraUpdate? -> map.moveCamera(cameraUpdate) }) { error: Throwable? -> errorLogger!!.trackError(error!!) }
-                        .addTo(autoDisposable)
-
-            }
-        }
+        viewModel.getInitialCameraUpdate()
+                .subscribe({ cameraUpdate: CameraUpdate? -> map.moveCamera(cameraUpdate) }) { error: Throwable? -> errorLogger!!.trackError(error!!) }
+                .addTo(autoDisposable)
 
 
     }

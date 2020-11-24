@@ -22,7 +22,8 @@ interface LocationSearchIconProvider {
         HOME,
         WORK,
         FOURSQUARE,
-        GOOGLE
+        GOOGLE,
+        FAVORITE
     }
 
     /**
@@ -49,6 +50,7 @@ class LegacyLocationSearchIconProvider : LocationSearchIconProvider {
             LocationSearchIconProvider.SearchResultType.WORK -> R.drawable.work
             LocationSearchIconProvider.SearchResultType.FOURSQUARE -> R.drawable.ic_foursquare_search
             LocationSearchIconProvider.SearchResultType.GOOGLE -> R.drawable.ic_googleresult
+            LocationSearchIconProvider.SearchResultType.FAVORITE -> R.drawable.ic_favorite
             else -> 0
         }
     }
