@@ -39,6 +39,10 @@ import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButtonContainer
 import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButtonHandler
 import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButtonHandlerFactory
 import com.skedgo.tripkit.ui.views.MultiStateView
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import me.tatarka.bindingcollectionadapter2.collections.MergeObservableList
 import me.tatarka.bindingcollectionadapter2.itembindings.OnItemBindClass
 import timber.log.Timber
@@ -267,6 +271,15 @@ class TripResultListViewModel @Inject constructor(
     }
 
     private fun loadFromStore() {
+        val tripFlow = MutableSharedFlow<Trip>()
+        tripFlow.onEach {
+            val clickEvent = ViewTrip(query = this.query,
+                    tripGroupUUID = it.group.uuid(),
+                    sortOrder = 1, /* TODO Proper sorting */
+                    displayTripID = it.id)
+            onItemClicked.accept(clickEvent)
+        }.launchIn(viewModelScope)
+
         getSortedTripGroupsWithRoutingStatusProvider.get().execute(query, 1, transportVisibilityFilter!!)
                 .observeOn(AndroidSchedulers.mainThread())
                 .map {
@@ -276,20 +289,23 @@ class TripResultListViewModel @Inject constructor(
                         val vm = tripResultViewModelProvider.get().apply {
                             var handler: ActionButtonHandler? = actionButtonHandlerFactory?.createHandler(this@TripResultListViewModel)
                             this.actionButtonHandler = handler
+                            this.clickFlow = tripFlow
                             this.setTripGroup(context, group, classifier.classify(group))
                             onMoreButtonClicked.observable
                                     .subscribe {
                                         actionButtonHandler?.primaryActionClicked(it.trip)
                                     }.autoClear()
                         }
-                        vm.onItemClicked.observable
-                                .subscribe { viewModel ->
-                                    val clickEvent = ViewTrip(query = this.query,
-                                            tripGroupUUID = viewModel.group.uuid(),
-                                            sortOrder = 1, /* TODO Proper sorting */
-                                            displayTripID = viewModel.group.displayTripId)
-                                    onItemClicked.accept(clickEvent)
-                                }.autoClear()
+
+//                        vm.onItemClicked.observable
+//                                .subscribe { viewModel ->
+//                                    val clickEvent = ViewTrip(query = this.query,
+//                                            tripGroupUUID = viewModel.group.uuid(),
+//                                            sortOrder = 1, /* TODO Proper sorting */
+//                                            displayTripID = viewModel.group.displayTripId)
+//                                    onItemClicked.accept(clickEvent)
+//                                }.autoClear()
+
 //                        vm.onMoreButtonClicked.observable
 //                                .subscribe {viewModel ->
 //                                    actionButtonHandler?.actionClicked(viewModel.trip)

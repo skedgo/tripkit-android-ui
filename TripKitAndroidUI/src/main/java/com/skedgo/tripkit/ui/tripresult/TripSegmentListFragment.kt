@@ -88,6 +88,7 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
 
     lateinit var binding: TripSegmentListFragmentBinding
     private var tripGroupId: String? = null
+    private var tripId: Long? = null
     var actionButtonHandlerFactory: ActionButtonHandlerFactory? = null
 
     override fun onAttach(context: Context) {
@@ -100,8 +101,11 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
 
         if (arguments != null) {
             tripGroupId = requireArguments().getString(ARG_TRIP_GROUP_ID)
+            tripId = requireArguments().getLong(ARG_TRIP_ID)
         } else if (savedInstanceState != null) {
             tripGroupId = savedInstanceState.getString(ARG_TRIP_GROUP_ID)
+            tripId = savedInstanceState.getLong(ARG_TRIP_ID)
+
         }
     }
 
@@ -143,7 +147,7 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
 
         //    viewModel.onCreate(savedInstanceState);
         tripGroupId?.let {
-            viewModel.loadTripGroup(it, savedInstanceState)
+            viewModel.loadTripGroup(it, tripId ?: -1, savedInstanceState)
         }
 
         viewModel.tripGroupObservable
@@ -380,6 +384,7 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
 
     class Builder {
         private var tripGroupId : String? = null
+        private var tripId: Long? = null
         private var buttons: List<TripKitButton>? = null
         private var buttonConfigurator: TripKitButtonConfigurator? = null
         private var showCloseButton = false
@@ -389,10 +394,18 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
             return this
         }
 
+        fun withTripId(tripId: Long?): Builder {
+            tripId?.let {
+                this.tripId = it
+            }
+            return this
+        }
         fun withActionButtonHandlerFactory(factory: ActionButtonHandlerFactory) : Builder {
             this.actionButtonHandlerFactory = factory
             return this
         }
+
+
         fun showCloseButton(showCloseButton: Boolean): Builder {
             this.showCloseButton = showCloseButton
             return this
@@ -403,7 +416,9 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
 
             val args = Bundle()
             args.putString(ARG_TRIP_GROUP_ID, tripGroupId)
+            args.putLong(ARG_TRIP_ID, tripId ?: -1)
             args.putBoolean(ARG_SHOW_CLOSE_BUTTON, showCloseButton)
+
             // Initialize fragment
             val fragment = TripSegmentListFragment()
             fragment.arguments = args

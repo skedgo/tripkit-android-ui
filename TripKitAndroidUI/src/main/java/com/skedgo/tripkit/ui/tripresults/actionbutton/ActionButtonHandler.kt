@@ -43,7 +43,8 @@ open class ActionButtonHandler {
         val type = foundSegment?.correctItemType()
         val result = ObservableField<String>()
         if (type == ITEM_SERVICE) {
-            result.set(context.getString(R.string.view_times))
+            // TODO: More & Less button to expand the list of extra services
+//            result.set(context.getString(R.string.view_times))
             return result
         } else if (type == ITEM_QUICK_BOOKING
                 || type == ITEM_EXTERNAL_BOOKING){

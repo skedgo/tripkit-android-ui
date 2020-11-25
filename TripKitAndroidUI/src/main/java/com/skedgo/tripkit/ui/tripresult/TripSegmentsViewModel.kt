@@ -87,7 +87,7 @@ class TripSegmentsViewModel @Inject internal constructor(
 
   var tripGroup: TripGroup
     get() = tripGroupRelay.value!!
-    internal set(tripGroup) = setTripGroup(tripGroup, null)
+    internal set(tripGroup) = setTripGroup(tripGroup, -1, null)
 
   init {
   }
@@ -99,13 +99,13 @@ class TripSegmentsViewModel @Inject internal constructor(
     this.internalBus = bus
   }
 
-  fun loadTripGroup(tripGroupId: String, savedInstanceState: Bundle?) {
+  fun loadTripGroup(tripGroupId: String, tripId: Long, savedInstanceState: Bundle?) {
     tripGroupRepository.getTripGroup(tripGroupId)
             .observeOn(mainThread())
             .onErrorResumeNext (Observable.empty())
         .subscribe { tripGroup ->
-          setTitleAndSubtitle(tripGroup)
-          setTripGroup(tripGroup, savedInstanceState)
+          setTitleAndSubtitle(tripGroup, tripId)
+          setTripGroup(tripGroup, tripId, savedInstanceState)
           setupButtons(tripGroup)
         }
             .autoClear()
@@ -122,8 +122,8 @@ class TripSegmentsViewModel @Inject internal constructor(
         }
     }
   }
-  private fun setTitleAndSubtitle(tripGroup: TripGroup) {
-    val trip = tripGroup.displayTrip
+  private fun setTitleAndSubtitle(tripGroup: TripGroup, tripId: Long) {
+    val trip = tripGroup.trips?.firstOrNull { it.id == tripId } ?: tripGroup.displayTrip
     if (trip == null || trip.from == null || trip.to == null) return
     if (trip.isDepartureTimeFixed) {
       durationTitle.set("${printTime.print(trip.startDateTime)} - ${printTime.print(trip.endDateTime)}")
@@ -318,11 +318,11 @@ class TripSegmentsViewModel @Inject internal constructor(
             description = tripSegment.getDisplayNotes(context.resources, false),
             lineColor = tripSegment.lineColor())
   }
-  private fun setTripGroup(tripGroup: TripGroup, savedInstanceState: Bundle?) {
+  private fun setTripGroup(tripGroup: TripGroup, tripId: Long, savedInstanceState: Bundle?) {
     tripGroupRelay.accept(tripGroup)
-    val needsRestore = savedInstanceState != null
     val newItems = ArrayList<Any>()
-    if (tripGroup.displayTrip != null) {
+    val trip = tripGroup.trips?.firstOrNull { it.id == tripId } ?: tripGroup.displayTrip
+    if (trip != null) {
       val tripSegments = tripGroup.displayTrip!!.segments
       segmentViewModels.clear()
       tripSegments.forEachIndexed { index, segment ->

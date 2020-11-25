@@ -4,9 +4,12 @@ import android.content.Context
 import android.content.res.Resources
 import android.graphics.drawable.Drawable
 import androidx.core.content.ContextCompat
+import androidx.databinding.ObservableArrayList
 import androidx.databinding.ObservableBoolean
 import androidx.databinding.ObservableField
 import androidx.databinding.ObservableInt
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.skedgo.tripkit.common.util.TimeUtils
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.core.RxViewModel
@@ -15,9 +18,29 @@ import io.reactivex.functions.BiFunction
 import org.joda.time.DateTime
 import com.skedgo.tripkit.datetime.PrintTime
 import com.skedgo.tripkit.routing.*
+import com.skedgo.tripkit.ui.core.addTo
 import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButtonHandler
 import com.skedgo.tripkit.ui.utils.*
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
+
+class TripResultTripViewModel: ViewModel() {
+    var trip: Trip? = null
+    val title = ObservableField<String>()
+    val subtitle = ObservableField<String>()
+    var clickFlow: MutableSharedFlow<Trip>? = null
+    val segments = ArrayList<TripSegmentViewModel>()
+    fun onItemClicked() {
+        viewModelScope.launch {
+            trip?.let {
+                clickFlow?.emit(it)
+            }
+        }
+    }
+
+}
 
 class TripResultViewModel  @Inject constructor(private val context: Context,
         private val tripSegmentHelper: TripSegmentHelper,
@@ -26,6 +49,7 @@ class TripResultViewModel  @Inject constructor(private val context: Context,
     : RxViewModel() {
     val onItemClicked: TapAction<TripResultViewModel> = TapAction.create { this }
     val onMoreButtonClicked: TapAction<TripResultViewModel> = TapAction.create { this }
+    var clickFlow: MutableSharedFlow<Trip>? = null
 
     lateinit var group: TripGroup
     lateinit var trip: Trip
@@ -36,17 +60,18 @@ class TripResultViewModel  @Inject constructor(private val context: Context,
     val badgeText = ObservableField<String>()
     val badgeTextColor = ObservableInt()
     val badgeVisible = ObservableBoolean(false)
+    val tripResults = ObservableArrayList<TripResultTripViewModel>()
 
-    val title = ObservableField<String>()
-    val titleVisible = ObservableBoolean(true)
-    val subtitle = ObservableField<String>()
-
-    val segments = ArrayList<TripSegmentViewModel>()
-
-    val alternateTitle = ObservableField<String>()
-    val alternateTitleVisible = ObservableBoolean(true)
-    val alternateSubtitle = ObservableField<String>()
-    val alternateSegments = ArrayList<TripSegmentViewModel>()
+//    val title = ObservableField<String>()
+//    val titleVisible = ObservableBoolean(true)
+//    val subtitle = ObservableField<String>()
+//
+//    val segments = ArrayList<TripSegmentViewModel>()
+//
+//    val alternateTitle = ObservableField<String>()
+//    val alternateTitleVisible = ObservableBoolean(true)
+//    val alternateSubtitle = ObservableField<String>()
+//    val alternateSegments = ArrayList<TripSegmentViewModel>()
     var actionButtonHandler: ActionButtonHandler? = null
 
     // Footer
@@ -85,19 +110,10 @@ class TripResultViewModel  @Inject constructor(private val context: Context,
         if (classification != null && classification != TripGroupClassifier.Classification.NONE) {
             setBadge(classification)
         }
-        buildTitle(trip).subscribe { title.set(it) }.autoClear()
-        buildSubtitle(trip).subscribe { subtitle.set(it) }.autoClear()
-        setSegments(segments, trip)
 
+        addTripToList(trip)
         alternateTrip?.let {
-            buildTitle(it).subscribe { subtitle -> alternateTitle.set(subtitle) }.autoClear()
-            buildSubtitle(it).subscribe { subtitle -> alternateSubtitle.set(subtitle) }.autoClear()
-            setSegments(alternateSegments, it)
-//          TODO Dynamically show the other trips when the more button is clicked
-//            if (otherTripGroups?.size!! > 1) {
-//                moreButtonVisible.set(true)
-//            }
-            alternateTripVisible.set(true)
+            addTripToList(it)
         }
         setCost()
 
@@ -107,6 +123,19 @@ class TripResultViewModel  @Inject constructor(private val context: Context,
             moreButtonText = actionButtonText
             moreButtonVisible.set(true)
         }
+    }
+
+    private fun addTripToList(trip: Trip) {
+        val newVm = TripResultTripViewModel()
+        newVm.trip = trip
+        newVm.clickFlow = clickFlow
+        newVm.title.set(buildTitle(trip))
+        newVm.subtitle.set(buildSubtitle(trip))
+        setSegments(newVm.segments, trip)
+//        newVm.onItemClicked.observable.subscribe {
+
+//        }.autoClear()
+        tripResults.add(newVm)
     }
 
     private fun setBadge(classification: TripGroupClassifier.Classification) {
@@ -128,19 +157,18 @@ class TripResultViewModel  @Inject constructor(private val context: Context,
     }
 
 
-    private fun buildTitle(_trip: Trip) : Observable<String> {
+    private fun buildTitle(_trip: Trip) : String {
         return if (_trip.isDepartureTimeFixed) {
             showTimeRange(_trip.startDateTime, _trip.endDateTime)
         } else {
-            Observable.just(formatDuration(_trip.startTimeInSecs, _trip.endTimeInSecs))
+            formatDuration(_trip.startTimeInSecs, _trip.endTimeInSecs)
         }
     }
     /**
      * For example, '09:40am - 10:40am (59mins)'
      */
-    private fun showTimeRange(startDateTime: DateTime, endDateTime: DateTime) : Observable<String> {
-        return Observable.combineLatest(printTime.execute(startDateTime).toObservable(), printTime.execute(endDateTime).toObservable(),
-                BiFunction { start: String, end: String -> "$start - $end" })
+    private fun showTimeRange(startDateTime: DateTime, endDateTime: DateTime) : String {
+        return "${printTime.printLocalTime(startDateTime.toLocalTime())} - ${printTime.printLocalTime(endDateTime.toLocalTime())}"
     }
 
     /**
@@ -148,13 +176,13 @@ class TripResultViewModel  @Inject constructor(private val context: Context,
      */
     private fun formatDuration(startTimeInSecs: Long, endTimeInSecs: Long): String  = TimeUtils.getDurationInDaysHoursMins((endTimeInSecs - startTimeInSecs).toInt())
 
-    private fun buildSubtitle(_trip: Trip): Observable<String> {
-        if (_trip.isDepartureTimeFixed) {
-            return Observable.just(formatDuration(_trip.startTimeInSecs, _trip.endTimeInSecs))
+    private fun buildSubtitle(_trip: Trip): String {
+        return if (_trip.isDepartureTimeFixed) {
+            formatDuration(_trip.startTimeInSecs, _trip.endTimeInSecs)
         } else if (!_trip.queryIsLeaveAfter()){
-            return printTime.execute(_trip.startDateTime).toObservable().map { resources.getString(R.string.departs__pattern, it) }
+            resources.getString(R.string.departs__pattern, printTime.printLocalTime(_trip.startDateTime.toLocalTime()))
         } else {
-            return printTime.execute(_trip.endDateTime).toObservable().map { resources.getString(R.string.arrives__pattern, it) }
+            resources.getString(R.string.arrives__pattern, printTime.printLocalTime(_trip.endDateTime.toLocalTime()))
         }
     }
 

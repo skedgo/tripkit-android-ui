@@ -1,8 +1,11 @@
 package com.skedgo.tripkit.ui.tripresult
 
 import android.util.Log
+import android.util.SparseLongArray
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.util.getOrDefault
+import androidx.core.util.getOrElse
 import androidx.core.view.children
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
@@ -12,6 +15,7 @@ import com.skedgo.tripkit.routing.TripGroup
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.tripresult.TripSegmentListFragment.OnTripSegmentClickListener
 import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButtonHandlerFactory
+import timber.log.Timber
 
 class TripGroupsPagerAdapter(private val fragmentManager: FragmentManager) : FragmentStatePagerAdapter(fragmentManager, BEHAVIOR_SET_USER_VISIBLE_HINT) {
     var tripGroups: List<TripGroup>? = null
@@ -19,6 +23,8 @@ class TripGroupsPagerAdapter(private val fragmentManager: FragmentManager) : Fra
         field = value
         notifyDataSetChanged()
     }
+    var tripIds = mutableMapOf<String, Long>()
+
     private var actionButtonHandlerFactory: ActionButtonHandlerFactory? = null
     private var showCloseButton = false
     @JvmField
@@ -58,8 +64,10 @@ class TripGroupsPagerAdapter(private val fragmentManager: FragmentManager) : Fra
 
     override fun getItem(position: Int): Fragment {
         val tripGroup = tripGroups!![position]
+        val tripId = tripIds[tripGroup.uuid()]
         val fragment = TripSegmentListFragment.Builder()
                 .withTripGroupId(tripGroup.uuid())
+                .withTripId(tripId)
                 .withActionButtonHandlerFactory(actionButtonHandlerFactory!!)
                 .showCloseButton(showCloseButton)
                 .build()

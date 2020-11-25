@@ -1,4 +1,5 @@
 package com.skedgo.tripkit.ui.core.binding
+import android.util.SparseLongArray
 import androidx.databinding.BindingAdapter
 import androidx.databinding.InverseBindingListener
 import androidx.databinding.InverseBindingMethod
@@ -37,13 +38,14 @@ object ViewPageCurrentItemBindings {
   }
 
   @JvmStatic
-  @BindingAdapter("currentItem", "tripGroups", requireAll = true)
+  @BindingAdapter("currentItem", "tripGroups",  requireAll = true)
   fun setCurrentItem(view: ViewPager, currentItem: Int, tripGroups: List<TripGroup>) {
     check(view.adapter != null) { "PagerAdapter must be specified first" }
 
-    (view.adapter as TripGroupsPagerAdapter).takeIf {
+    val adapter = (view.adapter as TripGroupsPagerAdapter).takeIf {
       tripGroups.map { it.uuid() } != it.tripGroups?.map { it.uuid() }
-    }?.tripGroups = tripGroups
+    }
+    adapter?.tripGroups = tripGroups
 
     if (currentItem != view.currentItem) {
       view.setCurrentItem(currentItem, false)

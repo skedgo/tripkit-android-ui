@@ -1,6 +1,7 @@
 package com.skedgo.tripkit.ui.tripresult
 import android.content.Context
 import android.os.Bundle
+import android.util.SparseLongArray
 import androidx.databinding.ObservableBoolean
 import androidx.databinding.ObservableField
 import androidx.databinding.ObservableInt

@@ -18,7 +18,6 @@ class FetchGoogleLocationsImpl @Inject constructor(
   private val maxResult = 20
 
   override fun getLocations(parameters: FetchLocationsParameters): Observable<List<GCResultInterface>> {
-      Timber.d("Getting google locations")
     return getLocationFromGoogleClient(parameters)
         .subscribeOn(Schedulers.newThread())
   }

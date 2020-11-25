@@ -160,15 +160,18 @@ public class TripResultPagerFragment extends BaseTripKitFragment implements View
     }
 
     viewModel.onCreate(savedInstanceState);
+    Long tripId = null;
+    tripGroupsPagerAdapter = new TripGroupsPagerAdapter(getChildFragmentManager());
 
     if (savedInstanceState == null) {
       if (args instanceof HasInitialTripGroupId) {
         String id = ((HasInitialTripGroupId) args).tripGroupId();
+        tripId = ((HasInitialTripGroupId) args).tripId();
+        tripGroupsPagerAdapter.getTripIds().put(id, tripId);
         viewModel.setInitialSelectedTripGroupId(id);
         mapContributor.setTripGroupId(id);
       }
     }
-    tripGroupsPagerAdapter = new TripGroupsPagerAdapter(getChildFragmentManager());
 
     TripKitButtonConfigurator configurator = null;
     Bundle b = getArguments();
@@ -212,6 +215,7 @@ public class TripResultPagerFragment extends BaseTripKitFragment implements View
 
   public static class Builder {
     private String tripGroupId = "";
+    private Long tripId = -1L;
     private Integer sortOrder = 1;
     private String requestId = "";
     private Long arriveBy = 0L;
@@ -225,6 +229,7 @@ public class TripResultPagerFragment extends BaseTripKitFragment implements View
     }
     public Builder withViewTrip(ViewTrip trip) {
       this.tripGroupId = trip.tripGroupUUID();
+      this.tripId = trip.getDisplayTripID();
       this.sortOrder = trip.getSortOrder();
       this.arriveBy = trip.query().getArriveBy();
       this.requestId = trip.query().uuid();
@@ -236,6 +241,10 @@ public class TripResultPagerFragment extends BaseTripKitFragment implements View
       return this;
     }
 
+    public Builder withTripId(Long tripId) {
+      this.tripId = tripId;
+      return this;
+    }
     public Builder showSingleRoute() {
       this.singleRoute = true;
       return this;
@@ -263,9 +272,9 @@ public class TripResultPagerFragment extends BaseTripKitFragment implements View
     public TripResultPagerFragment build() {
       PagerFragmentArguments args;
       if (singleRoute) {
-        args = new SingleTrip(this.tripGroupId);
+        args = new SingleTrip(this.tripGroupId, this.tripId);
       } else {
-        args = new FromRoutes(this.tripGroupId, this.sortOrder, this.requestId, this.arriveBy);
+        args = new FromRoutes(this.tripGroupId, this.tripId, this.sortOrder, this.requestId, this.arriveBy);
       }
       TripResultPagerFragment fragment = new TripResultPagerFragment();
       fragment.setArgs(args);
