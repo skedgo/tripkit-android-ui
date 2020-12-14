@@ -19,12 +19,16 @@
                 android:insetBottom="0dp"
                 android:insetLeft="0dp"
                 android:insetRight="0dp"
-                android:onClick="@{() -> listener.onItemClick(viewModel.tag)}"
+                android:visibility="@{!viewModel.showSpinner}"
+                android:onClick="@{() -> listener.onItemClick(viewModel.tag, viewModel)}"
                 app:iconTint="@{viewModel.iconTint}"
                 app:strokeColor="@{viewModel.outlineTint}"
                 app:backgroundTintBinding="@{viewModel.backgroundTint}"
                 app:strokeWidth="2dp"
                 app:icon="@{viewModel.icon}"/>
+        <ProgressBar android:layout_width="48dp" android:layout_height="48dp"
+                     android:visibility="@{viewModel.showSpinner}"
+                     android:progressTint="@color/colorPrimary"/>
         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                   tools:text="An action"
                   android:layout_marginTop="4dp"

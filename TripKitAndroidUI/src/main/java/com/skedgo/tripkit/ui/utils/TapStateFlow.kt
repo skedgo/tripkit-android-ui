@@ -4,6 +4,7 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.consumeAsFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 
 
 class TapStateFlow<TSender> internal constructor(
@@ -15,7 +16,7 @@ class TapStateFlow<TSender> internal constructor(
     }
 
     private val onTap = Channel<TSender>()
-    val observable = onTap.consumeAsFlow()
+    val observable = onTap.receiveAsFlow()
 
     fun perform() {
         onTap.offer(getSender())

@@ -112,14 +112,20 @@ class TripSegmentsViewModel @Inject internal constructor(
   }
 
   private fun setupButtons(tripGroup: TripGroup) {
-    if (buttons.size > 0) return
-
     if (tripGroup.displayTrip == null) return
-      actionButtonHandler?.let { handler ->
-        val actions = handler.getActions(context, tripGroup.displayTrip!!)
+
+    actionButtonHandler?.let { handler ->
+      val actions = handler.getActions(context, tripGroup.displayTrip!!)
+      if (buttons.size != actions.size) {
+        buttons.clear()
         actions.forEach {
           buttons.add(ActionButtonViewModel(context, it))
         }
+      } else {
+        actions.forEachIndexed {i, button ->
+          buttons[i].update(context, button)
+        }
+      }
     }
   }
   private fun setTitleAndSubtitle(tripGroup: TripGroup, tripId: Long) {
@@ -377,8 +383,8 @@ class TripSegmentsViewModel @Inject internal constructor(
 
   override fun scope(): CoroutineScope = viewModelScope
   override fun replaceTripGroup(tripGroupUuid: String, newTripGroup: TripGroup) {}
-  override fun onItemClick(tag: String) {
-    actionButtonHandler?.actionClicked(context, tag, tripGroup.displayTrip!!)
+  override fun onItemClick(tag: String, viewModel: ActionButtonViewModel) {
+    actionButtonHandler?.actionClicked(context, tag, tripGroup.displayTrip!!, viewModel)
   }
 
 }

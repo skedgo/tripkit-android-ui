@@ -12,3 +12,13 @@ fun <T: Any, U: Any> NetworkResponse<T, U>.logError() {
         is NetworkResponse.UnknownError -> Timber.e("Error", this.error)
     }
 }
+
+fun <T: Any, U: Any> NetworkResponse<T, U>.getDisplayError() : String {
+    return when(this) {
+        is NetworkResponse.ServerError -> "Network response ${this.code}"
+        is NetworkResponse.Success -> "Successful response: ${this.code}"
+        is NetworkResponse.NetworkError -> "Error: ${this.error.message}"
+        is NetworkResponse.UnknownError -> "Error: ${this.error.message}"
+    }
+
+}

@@ -400,7 +400,7 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
             }
             return this
         }
-        fun withActionButtonHandlerFactory(factory: ActionButtonHandlerFactory) : Builder {
+        fun withActionButtonHandlerFactory(factory: ActionButtonHandlerFactory?) : Builder {
             this.actionButtonHandlerFactory = factory
             return this
         }

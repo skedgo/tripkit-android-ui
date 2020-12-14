@@ -9,6 +9,7 @@ import com.skedgo.tripkit.routing.Trip
 import com.skedgo.tripkit.routing.TripSegment
 import com.skedgo.tripkit.routing.getMainTripSegment
 import com.skedgo.tripkit.ui.R
+import com.skedgo.tripkit.ui.tripresult.ActionButtonViewModel
 import com.skedgo.tripkit.ui.utils.ITEM_EXTERNAL_BOOKING
 import com.skedgo.tripkit.ui.utils.ITEM_QUICK_BOOKING
 import com.skedgo.tripkit.ui.utils.ITEM_SERVICE
@@ -72,7 +73,7 @@ open class ActionButtonHandler {
 
     }
 
-    open fun actionClicked(context: Context, tag: String, trip: Trip) {
+    open fun actionClicked(context: Context, tag: String, trip: Trip, viewModel: ActionButtonViewModel) {
     }
 
 }

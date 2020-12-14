@@ -68,7 +68,7 @@ class TripGroupsPagerAdapter(private val fragmentManager: FragmentManager) : Fra
         val fragment = TripSegmentListFragment.Builder()
                 .withTripGroupId(tripGroup.uuid())
                 .withTripId(tripId)
-                .withActionButtonHandlerFactory(actionButtonHandlerFactory!!)
+                .withActionButtonHandlerFactory(actionButtonHandlerFactory)
                 .showCloseButton(showCloseButton)
                 .build()
         fragment.setOnTripKitButtonClickListener(listener!!)

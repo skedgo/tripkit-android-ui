@@ -71,7 +71,7 @@ class TripGroupRepositoryImpl(
   }
 
   override fun updateTrip(tripGroupId: String, oldTripUuid: String, trip: Trip): Completable {
-      val done =map.remove(tripGroupId)
+      val done = map.remove(tripGroupId)
       return routeStore.updateTripAsync(oldTripUuid, trip)
               .andThen(
                       Completable.fromAction {
