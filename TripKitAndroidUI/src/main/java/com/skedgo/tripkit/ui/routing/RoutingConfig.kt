@@ -9,6 +9,7 @@ data class RoutingConfig(
         val preferredTransferTime: Duration = Duration.ofMinutes(3),
         val walkingSpeed: WalkingSpeed = WalkingSpeed.Medium,
         val cyclingSpeed: CyclingSpeed = CyclingSpeed.Medium,
+        val unit: String = "auto",
         val shouldUseConcessionPricing: Boolean = false,
         val isOnWheelchair: Boolean = false,
         val weightingProfile: WeightingProfile = WeightingProfile()

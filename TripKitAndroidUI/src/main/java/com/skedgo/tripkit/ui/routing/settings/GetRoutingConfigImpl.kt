@@ -1,6 +1,5 @@
 package com.skedgo.tripkit.ui.routing.settings
 
-import android.util.Log
 import com.skedgo.tripkit.TripPreferences
 import com.skedgo.tripkit.ui.routing.GetRoutingConfig
 import com.skedgo.tripkit.ui.routing.PreferredTransferTimeRepository
@@ -10,6 +9,7 @@ import javax.inject.Inject
 internal class GetRoutingConfigImpl @Inject constructor(
         private val walkingSpeedRepository: WalkingSpeedRepository,
         private val cyclingSpeedRepository: CyclingSpeedRepository,
+        private val unitsRepository: UnitsRepository,
         private val tripPreferences: TripPreferences,
         private val preferredTransferTimeRepository: PreferredTransferTimeRepository,
         private val prioritiesRepository: PrioritiesRepository
@@ -18,6 +18,7 @@ internal class GetRoutingConfigImpl @Inject constructor(
       return RoutingConfig (
             preferredTransferTime = preferredTransferTimeRepository.getPreferredTransferTime(),
             walkingSpeed = walkingSpeedRepository.getWalkingSpeed(),
+            unit = unitsRepository.getUnit(),
             cyclingSpeed = cyclingSpeedRepository.getCyclingSpeed(),
             shouldUseConcessionPricing = tripPreferences.isConcessionPricingPreferred,
             isOnWheelchair = tripPreferences.isWheelchairPreferred,
