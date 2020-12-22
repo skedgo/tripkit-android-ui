@@ -24,8 +24,8 @@
                     app:layout_constraintTop_toTopOf="parent"/>
             <ImageButton
                     android:id="@+id/closeButton"
-                    android:layout_width="16dp"
-                    android:layout_height="16dp"
+                    android:layout_width="@dimen/close_button_size"
+                    android:layout_height="@dimen/close_button_size"
                     android:layout_marginEnd="16dp"
                     android:src="@drawable/close"
                     android:background="?attr/selectableItemBackgroundBorderless"
