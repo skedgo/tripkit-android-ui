@@ -1,5 +1,6 @@
 package com.skedgo.tripkit.ui.map
 
+import android.content.Context
 import android.location.Location
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -38,6 +39,7 @@ open class LocationEnhancedMapFragment : BaseMapFragment() {
         settingsButton?.setOnClickListener(l)
         settingsButton?.visibility = View.VISIBLE
     }
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -84,8 +86,5 @@ open class LocationEnhancedMapFragment : BaseMapFragment() {
         settings.isCompassEnabled = false
         settings.isMyLocationButtonEnabled = false
         settings.isZoomControlsEnabled = false
-        //    googleMap.setMapType(SettingsFragment.Companion.getPersistentMapType(getActivity()));
-        googleMap.mapType = GoogleMap.MAP_TYPE_NORMAL
-        //    googleMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(getContext(), R.raw.map_style));
     }
 }

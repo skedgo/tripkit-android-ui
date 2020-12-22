@@ -114,7 +114,7 @@ class ServiceDetailViewModel  @Inject constructor(private val context: Context,
 
         serviceApi.getServiceAsync(region, serviceId, operator, startStopCode, endStopCode,
                 embarkation, true)
-                .subscribe(::processResponse)
+                .subscribe({ processResponse(it) }, { Timber.e(it)})
                 .autoClear()
 
     }
