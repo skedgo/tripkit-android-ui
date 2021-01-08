@@ -1,6 +1,7 @@
 package com.skedgo.tripkit.ui.tripresults.actionbutton
 
 import android.content.Context
+import android.util.Log
 import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
 import androidx.databinding.ObservableField
@@ -65,7 +66,7 @@ open class ActionButtonHandler {
     /**
      * Given a trip, return a list of actions that can be taken. The default implementation lists nothing.
      */
-    open fun getActions(context: Context, trip: Trip) : List<ActionButton> {
+    open suspend fun getActions(context: Context, trip: Trip) : List<ActionButton> {
         return listOf<ActionButton>()
     }
 

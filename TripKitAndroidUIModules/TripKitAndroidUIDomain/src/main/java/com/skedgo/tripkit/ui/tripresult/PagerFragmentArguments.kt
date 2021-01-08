@@ -13,7 +13,7 @@ class SingleTrip(val tripGroupId: String, val tripId: Long?) : PagerFragmentArgu
   override fun tripId(): Long? = tripId
 }
 
-//class FavoriteTrip(val favoriteTripId: String) : PagerFragmentArguments()
+class FavoriteTrip(val favoriteTripId: String) : PagerFragmentArguments()
 
 interface HasInitialTripGroupId {
   fun tripGroupId(): String

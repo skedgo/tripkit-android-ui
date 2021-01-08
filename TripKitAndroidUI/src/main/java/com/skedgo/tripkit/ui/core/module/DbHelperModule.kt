@@ -4,6 +4,7 @@ import com.skedgo.tripkit.data.database.DatabaseMigrator
 import com.skedgo.tripkit.data.database.DbHelper
 import com.skedgo.tripkit.data.database.TripKitDatabase
 import com.skedgo.tripkit.data.database.timetables.ScheduledServiceRealtimeInfoDao
+import com.skedgo.tripkit.ui.favorites.trips.FavoriteTripsDataBase
 import dagger.Module
 import dagger.Provides
 import skedgo.tripgo.data.timetables.ParentStopDao
@@ -41,5 +42,6 @@ class DbHelperModule {
   internal fun parentStopDao(tripKitDatabase: TripKitDatabase): ParentStopDao {
     return tripKitDatabase.parentStopDao()
   }
+
 
 }

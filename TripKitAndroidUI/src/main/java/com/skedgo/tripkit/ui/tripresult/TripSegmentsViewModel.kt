@@ -30,6 +30,7 @@ import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
 import io.reactivex.subjects.PublishSubject
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import me.tatarka.bindingcollectionadapter2.ItemBinding
 import me.tatarka.bindingcollectionadapter2.itembindings.OnItemBindClass
 import timber.log.Timber
@@ -113,17 +114,18 @@ class TripSegmentsViewModel @Inject internal constructor(
 
   private fun setupButtons(tripGroup: TripGroup) {
     if (tripGroup.displayTrip == null) return
-
-    actionButtonHandler?.let { handler ->
-      val actions = handler.getActions(context, tripGroup.displayTrip!!)
-      if (buttons.size != actions.size) {
-        buttons.clear()
-        actions.forEach {
-          buttons.add(ActionButtonViewModel(context, it))
-        }
-      } else {
-        actions.forEachIndexed {i, button ->
-          buttons[i].update(context, button)
+    viewModelScope.launch {
+      actionButtonHandler?.let { handler ->
+        val actions = handler.getActions(context, tripGroup.displayTrip!!)
+        if (buttons.size != actions.size) {
+          buttons.clear()
+          actions.forEach {
+            buttons.add(ActionButtonViewModel(context, it))
+          }
+        } else {
+          actions.forEachIndexed {i, button ->
+            buttons[i].update(context, button)
+          }
         }
       }
     }

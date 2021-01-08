@@ -12,6 +12,7 @@ import com.skedgo.tripkit.routing.TripGroup
 import com.skedgo.tripkit.ui.core.RxViewModel
 import com.skedgo.tripkit.ui.core.SchedulerFactory
 import com.skedgo.tripkit.ui.core.rxproperty.asObservable
+import com.skedgo.tripkit.ui.favorites.GetTripGroupsFromWayPoints
 import com.skedgo.tripkit.ui.routing.GetSortedTripGroups
 import com.skedgo.tripkit.ui.routingresults.FetchingRealtimeStatusRepository
 import com.skedgo.tripkit.ui.routingresults.SelectedTripGroupRepository
@@ -44,9 +45,8 @@ class TripResultPagerViewModel @Inject internal constructor(
         private val updateTripProgress: UpdateTripProgressWithUserLocation,
         private val tripGroupRepository: TripGroupRepository,
         private val fetchingRealtimeStatusRepository: FetchingRealtimeStatusRepository,
-        private val schedulers: SchedulerFactory
-        // TODO: Commenting this out disables favorite trips
-//        private val getTripGroupsFromWayPoints: GetTripGroupsFromWayPoints
+        private val schedulers: SchedulerFactory,
+        private val getTripGroupsFromWayPoints: GetTripGroupsFromWayPoints
 ): RxViewModel() {
   val fetchingRealtimeStatus = ObservableBoolean()
   val selectedTripGroup by lazy {
@@ -57,7 +57,7 @@ class TripResultPagerViewModel @Inject internal constructor(
 
   private val tripGroups: BehaviorRelay<List<TripGroup>> = BehaviorRelay.create()
   val tripSource = BehaviorRelay.create<TripSource>()
-  private val currentTripGroupId = AtomicReference<String?>(null)
+  val currentTripGroupId = AtomicReference<String?>(null)
   private var updateTripProgressSubscription: Disposable? = null
   private val tripResultTransportViewFilter = PermissiveTransportViewFilter()
 
@@ -84,6 +84,17 @@ class TripResultPagerViewModel @Inject internal constructor(
       return selectedTripGroupRepository.getSelectedTripGroup().map { listOf(it) }
               .doOnNext { tripGroups.accept(it) }
               .map { Unit }
+    } else if (args is FavoriteTrip) {
+        fetchingRealtimeStatus.set(true)
+        return getTripGroupsFromWayPoints.execute(args.favoriteTripId)
+            .doOnNext {
+                setInitialSelectedTripGroupId(it.uuid())
+                fetchingRealtimeStatus.set(false)
+            }
+            .map {
+                listOf(it) }
+            .doOnNext { tripGroups.accept(it) }
+            .map { Unit }
     } else {
       throw IllegalArgumentException("Unknown Argument: $args")
     }

@@ -11,7 +11,7 @@ class ErrorLoggerImpl @Inject internal constructor() : ErrorLogger {
 
   override fun logError(error: Throwable) {
     if (BuildConfig.DEBUG) {
-      Timber.e("An error occurred", error)
+      Timber.e(error, "An error occurred")
     }
   }
 }

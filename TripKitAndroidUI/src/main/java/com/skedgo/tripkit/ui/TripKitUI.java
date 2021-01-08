@@ -14,6 +14,7 @@ import com.skedgo.tripkit.data.regions.RegionService;
 import com.skedgo.tripkit.ui.core.module.*;
 import com.skedgo.tripkit.ui.core.settings.DeveloperPreferenceRepositoryImpl;
 import com.skedgo.tripkit.ui.data.places.PlaceSearchRepository;
+import com.skedgo.tripkit.ui.data.waypoints.WaypointsModule;
 import com.skedgo.tripkit.ui.poidetails.PoiDetailsFragment;
 import com.skedgo.tripkit.ui.routingresults.TripGroupRepository;
 import com.skedgo.tripkit.ui.search.FetchSuggestions;
@@ -65,7 +66,9 @@ import java.util.concurrent.Callable;
         PrioritiesRepositoryModule.class,
         GetRoutingConfigModule.class,
         BookingModule.class,
-        SchedulerFactoryModule.class
+        SchedulerFactoryModule.class,
+        WaypointsModule.class,
+        FavoriteTripsModule.class
         })
 public abstract class TripKitUI {
     private static TripKitUI instance;

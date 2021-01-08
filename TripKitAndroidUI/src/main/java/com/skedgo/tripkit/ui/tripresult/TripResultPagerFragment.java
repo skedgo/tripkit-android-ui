@@ -96,7 +96,12 @@ public class TripResultPagerFragment extends BaseTripKitFragment implements View
 
     assert args != null;
     getAutoDisposable().add(viewModel.getSortedTripGroups(args)
-            .subscribe(tripGroup -> {}, errorLogger::trackError));
+            .subscribe(tripGroup -> {
+              if (args instanceof FavoriteTrip) {
+                // The trip group will possibly have changed after reloading it, so set the map to the correct one here
+                mapContributor.setTripGroupId(viewModel.getCurrentTripGroupId().get());
+              }
+            }, errorLogger::trackError));
 
   }
 
@@ -215,6 +220,7 @@ public class TripResultPagerFragment extends BaseTripKitFragment implements View
 
   public static class Builder {
     private String tripGroupId = "";
+    private String favoriteTripId = "";
     private Long tripId = -1L;
     private Integer sortOrder = 1;
     private String requestId = "";
@@ -236,6 +242,11 @@ public class TripResultPagerFragment extends BaseTripKitFragment implements View
       return this;
     }
 
+    public Builder withFavoriteTripId(String id) {
+      favoriteTripId = id;
+      singleRoute = true;
+      return this;
+    }
     public Builder withTripGroupId(String tripGroupId) {
       this.tripGroupId = tripGroupId;
       return this;
@@ -272,7 +283,11 @@ public class TripResultPagerFragment extends BaseTripKitFragment implements View
     public TripResultPagerFragment build() {
       PagerFragmentArguments args;
       if (singleRoute) {
-        args = new SingleTrip(this.tripGroupId, this.tripId);
+        if (!favoriteTripId.isEmpty()) {
+          args = new FavoriteTrip(this.favoriteTripId);
+        } else {
+          args = new SingleTrip(this.tripGroupId, this.tripId);
+        }
       } else {
         args = new FromRoutes(this.tripGroupId, this.tripId, this.sortOrder, this.requestId, this.arriveBy);
       }

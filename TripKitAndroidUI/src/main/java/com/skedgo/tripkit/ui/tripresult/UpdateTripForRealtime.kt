@@ -26,10 +26,11 @@ open class UpdateTripForRealtime @Inject internal constructor(
     Observable.interval(0, 10, TimeUnit.SECONDS, Schedulers.computation())
         .withLatestFrom(getTripGroup, BiFunction<Long, TripGroup, TripGroup>{ _, tripGroup -> tripGroup } )
         .filter { it.displayTrip!!.hasQuickBooking().not() }
+        .filter { it.displayTrip!!.updateURL  != null }
         .flatMap { startAsync(it) }
         .subscribe({
           tripGroupRepository.updateTrip(it.second.uuid(), it.second.displayTrip!!.uuid(), it.first)
-              .subscribe({}, errorLogger::trackError)
+              .subscribe({}, errorLogger::trackError )
         }, errorLogger::logError)
         .run {
           subscriptions.add(this)
