@@ -8,8 +8,8 @@ fun <T: Any, U: Any> NetworkResponse<T, U>.logError() {
     when(this) {
         is NetworkResponse.ServerError -> Timber.e("Error: Network response ${this.code}")
         is NetworkResponse.Success -> Timber.d("Successful response: ${this.code}")
-        is NetworkResponse.NetworkError -> Timber.e("Error", this.error)
-        is NetworkResponse.UnknownError -> Timber.e("Error", this.error)
+        is NetworkResponse.NetworkError -> Timber.e("Network error", this.error)
+        is NetworkResponse.UnknownError -> Timber.e("Unknown error", this.error)
     }
 }
 

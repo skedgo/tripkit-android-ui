@@ -3,11 +3,7 @@ package com.skedgo.tripkit.ui.booking.apiv2
 import com.haroldadmin.cnradapter.NetworkResponse
 import com.skedgo.tripkit.ApiError
 import com.skedgo.tripkit.routing.RoutingResponse
-import io.reactivex.Completable
-import io.reactivex.Observable
-import kotlinx.coroutines.flow.Flow
 import retrofit2.http.*
-import java.util.*
 
 interface BookingV2TrackingApi {
     @GET
