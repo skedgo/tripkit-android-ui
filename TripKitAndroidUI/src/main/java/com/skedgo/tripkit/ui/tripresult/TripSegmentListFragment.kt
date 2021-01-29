@@ -113,39 +113,6 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
-        //    viewModel.externalAuth()
-        //        .subscribe(bookingForm -> {
-        //          Deeplink deepLink = UberSsoHandler.Companion.createDeepLink(getActivity(), RQ_UBER_SSO);
-        //          if (bookingForm.isOAuthForm() && deepLink.isSupported()) {
-        //            deepLink.execute();
-        //          } else {
-        //            Intent intent = ExternalProviderAuthActivity.newIntent(getActivity(), bookingForm);
-        //            startActivityForResult(intent, RQ_AUTH);
-        //          }
-        //        }, errorLogger::trackError);
-
-        //    viewModel.onCall()
-        //        .subscribe(this::startActivity, errorLogger::trackError);
-        //
-        //    viewModel.onBookingError()
-        //        .subscribe(error -> {
-        //          Toast.makeText(getActivity(), error.getMessage(), Toast.LENGTH_LONG).show();
-        //        }, errorLogger::trackError);
-
-        //    viewModel.onQuickBookingUpdate()
-        //        .subscribe(quickBooking -> {
-        //          Intent intent = new Intent(getActivity(), CustomBookingActivity.class)
-        //              .putExtra(KEY_URL, quickBooking.bookingURL());
-        //          startActivityForResult(intent, RQ_AUTH);
-        //        }, errorLogger::trackError);
-
-        //    viewModel.onQRCode()
-        //        .subscribe(this::showQRCode, errorLogger::trackError);
-
-        //    viewModel.onMoreQuickBookingInfo()
-        //        .subscribe(this::showMessage, errorLogger::trackError);
-
-        //    viewModel.onCreate(savedInstanceState);
         tripGroupId?.let {
             viewModel.loadTripGroup(it, tripId ?: -1, savedInstanceState)
         }
@@ -157,54 +124,6 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
 
                     }
                 }.addTo(autoDisposable)
-
-        //    viewModel.getOnStreetViewTapped()
-        //        .subscribe(location -> {
-        //          startActivity(StreetViewActivity.Intents.viewLocation(
-        //              getActivity(),
-        //              location.getLat(),
-        //              location.getLon(),
-        //              location.getBearing()
-        //          ));
-        //        });
-
-        //    viewModel.onCreditSourcesTap()
-        //        .compose(bindToLifecycle())
-        //        .map(sources -> DataProvidersActivity.Intents.create(getActivity(), sources))
-        //        .subscribe(this::startActivity);
-
-        //    viewModel.onAlertAction()
-        //        .compose(bindToLifecycle())
-        //        .subscribe(alertAction -> getActivity().finish());
-        //
-        //    viewModel.onSecondaryAction()
-        //        .mergeWith(viewModel.onGetDirections())
-        //        .compose(bindToLifecycle())
-        //        .subscribe(intent -> getActivity().startActivity(intent));
-        //
-        //    viewModel.onShowMoreInfo()
-        //        .compose(bindToLifecycle())
-        //        .subscribe(this::showMessage);
-
-
-        //    final TripSegmentsBinding binding = TripSegmentsBinding.bind(getView());
-        //    binding.setViewModel(viewModel);
-        //    binding.itemsView.addItemDecoration(new TripTrackLineDecoration());
-        //    binding.itemsView.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false));
-        //    this.itemsView = binding.itemsView;
-        //
-        //    binding.tripView.setOnClickListener(__ -> bus.post(new TogglePanelSlideModeEvent()));
-        //    binding.tripView.getFrequencyView().setOnClickListener(__ -> requestAlternativeTimes());
-        //
-        //    viewModel.getTripGroupObservable()
-        //        .compose(bindToLifecycle())
-        //        .subscribe(tripGroup -> {
-        //          final TripViewPresenter presenter = new TripViewPresenter(getActivity());
-        //          presenter.setVisibilityIgnored(true);
-        //          presenter.setContent(tripGroup)
-        //              .setView(binding.tripView)
-        //              .present();
-        //        });
     }
 
     override fun onCreateView(

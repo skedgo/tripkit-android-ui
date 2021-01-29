@@ -195,8 +195,8 @@ class TripSegmentItemViewModel @Inject internal constructor(private val context:
             }
 
             if (!it.alerts.isNullOrEmpty()) {
-                alerts.set(it.alerts)
                 showAlerts.set(true)
+                alerts.set(it.alerts)
             }
         }
     }

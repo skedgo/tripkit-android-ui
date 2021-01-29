@@ -39,6 +39,7 @@ import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButtonContainer
 import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButtonHandler
 import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButtonHandlerFactory
 import com.skedgo.tripkit.ui.views.MultiStateView
+import io.reactivex.disposables.CompositeDisposable
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.launchIn
@@ -92,6 +93,7 @@ class TripResultListViewModel @Inject constructor(
     private var transportModeFilter: TransportModeFilter? = null
     private var transportVisibilityFilter: TripResultTransportViewFilter? = null
     private var actionButtonHandlerFactory: ActionButtonHandlerFactory? = null
+    private val networkRequests = CompositeDisposable()
 
     init {
         transportModeChangeThrottle.debounce(500, TimeUnit.MILLISECONDS)
@@ -221,7 +223,7 @@ class TripResultListViewModel @Inject constructor(
     fun load() {
         query = query.clone(false)
         query.setUseWheelchair(transportVisibilityFilter!!.isSelected(TransportMode.ID_WHEEL_CHAIR))
-        Observable.defer {
+        val request = Observable.defer {
             routeService.routeAsync(query = query, transportModeFilter = TripResultListViewTransportModeFilter(transportModeFilter!!, transportVisibilityFilter!!))
                     .flatMap {
                         tripGroupRepository.addTripGroups(query.uuid(), it)
@@ -262,10 +264,14 @@ class TripResultListViewModel @Inject constructor(
                 onError.accept(error.message)
             }
             Timber.e(error, "An error in routing occurred")
-        }).autoClear()
+        })
+
+        networkRequests.add(request)
+        request.autoClear()
     }
 
     fun reload() {
+        networkRequests.clear()
         results.update(emptyList())
         load()
     }
@@ -327,6 +333,7 @@ class TripResultListViewModel @Inject constructor(
 
     fun changeQuery(newQuery: Query) {
         results.update(emptyList())
+        networkRequests.clear()
         setup(newQuery, showTransportModeSelection.get(), transportModeFilter, actionButtonHandlerFactory, true)
     }
 
