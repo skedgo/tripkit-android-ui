@@ -53,9 +53,6 @@ class TripKitModule {
   fun printTime(): PrintTime
       = TripKit.getInstance().dateTimeComponent().printTime
 
-  @Provides
-  fun tripUpdater(): com.skedgo.tripkit.TripUpdater = TripKit.getInstance().tripUpdater
-
   @Provides internal fun configCreator(
           context: Context,
           preferences: SharedPreferences,

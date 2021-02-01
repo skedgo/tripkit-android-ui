@@ -112,11 +112,22 @@
                                                           />
 
 
+        <Button android:layout_width="wrap_content"
+                                                           android:layout_height="wrap_content"
+                                                           style="@style/Widget.MaterialComponents.Button.TextButton"
+                                                           android:id="@+id/externalActionButton"
+                                                           tools:text="External Action"
+                                                           android:text="@{viewModel.externalAction}"
+                                                            android:visibility="@{viewModel.externalAction.length() > 0}"
+                                                            android:onClick="@{viewModel::onExternalActionClicked}"
+                                                           app:layout_constraintTop_toBottomOf="@+id/alertsView"
+                                                           app:layout_constraintStart_toStartOf="@+id/title"
+                                                           />
                 <androidx.constraintlayout.widget.Barrier android:layout_width="wrap_content"
                                                           android:layout_height="wrap_content"
                                                           android:id="@+id/bottomBarrier"
                                                           app:barrierDirection="bottom"
-                                                          app:constraint_referenced_ids="title,description,alertsView"/>
+                                                          app:constraint_referenced_ids="title,description,alertsView, externalActionButton"/>
                 <View android:id="@+id/line"
                       android:layout_width="0dp"
                       android:layout_height="1dp"

@@ -16,6 +16,7 @@ import androidx.core.content.ContextCompat
 import androidx.databinding.ObservableBoolean
 import androidx.databinding.ObservableField
 import com.jakewharton.rxrelay2.BehaviorRelay
+import com.skedgo.tripkit.common.model.Booking
 import com.skedgo.tripkit.common.model.RealtimeAlert
 import com.skedgo.tripkit.datetime.PrintTime
 import com.skedgo.tripkit.routing.SegmentType
@@ -26,7 +27,9 @@ import com.skedgo.tripkit.ui.core.RxViewModel
 import com.skedgo.tripkit.ui.core.fetchAsync
 import com.skedgo.tripkit.ui.tripresults.GetTransportIconTintStrategy
 import com.skedgo.tripkit.ui.tripresults.TripSegmentHelper
+import com.skedgo.tripkit.ui.utils.ITEM_EXTERNAL_BOOKING
 import com.skedgo.tripkit.ui.utils.TapAction
+import com.skedgo.tripkit.ui.utils.correctItemType
 import com.skedgo.tripkit.ui.utils.tint
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -70,6 +73,9 @@ class TripSegmentItemViewModel @Inject internal constructor(private val context:
     val alertsClicked = BehaviorRelay.create<ArrayList<RealtimeAlert>>()
     var tripSegment: TripSegment? = null
 
+    val externalAction = ObservableField<String>()
+    val externalActionClicked = BehaviorRelay.create<TripSegment>()
+
     fun setupSegment(viewType: SegmentViewType,
                      title: String,
                      description: String? = null,
@@ -88,6 +94,9 @@ class TripSegmentItemViewModel @Inject internal constructor(private val context:
                 this.showDescription.set(true)
             }
 
+            if (it.correctItemType() == ITEM_EXTERNAL_BOOKING && viewType == SegmentViewType.MOVING) {
+                externalAction.set(it.booking!!.title)
+            }
             if (hasRealtime) {
                 // We show the realtime times differently than when they aren't real time. When a
                 // segment is on time, it is shown in bold green text. If it is early, the top text is a bold warning
@@ -215,7 +224,11 @@ class TripSegmentItemViewModel @Inject internal constructor(private val context:
         alertsClicked.accept(alerts.get())
     }
 
-
+    fun onExternalActionClicked(view : View) {
+        tripSegment?.let {
+            externalActionClicked.accept(it)
+        }
+    }
     protected fun showSegmentIcon(segment: TripSegment, tintWhite: Boolean) {
         if (segment.type == SegmentType.ARRIVAL || segment.type == SegmentType.DEPARTURE) {
             icon.set(ContextCompat.getDrawable(context, R.drawable.v4_ic_map_location))

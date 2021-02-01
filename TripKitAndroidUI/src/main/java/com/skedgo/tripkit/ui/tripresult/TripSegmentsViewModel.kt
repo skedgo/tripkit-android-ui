@@ -10,7 +10,9 @@ import androidx.databinding.ObservableBoolean
 import androidx.databinding.ObservableField
 import androidx.lifecycle.viewModelScope
 import com.jakewharton.rxrelay2.BehaviorRelay
+import com.jakewharton.rxrelay2.PublishRelay
 import com.skedgo.tripkit.booking.BookingForm
+import com.skedgo.tripkit.common.model.Booking
 import com.skedgo.tripkit.common.model.Location
 import com.skedgo.tripkit.common.model.RealtimeAlert
 import com.skedgo.tripkit.common.util.TimeUtils
@@ -69,8 +71,9 @@ class TripSegmentsViewModel @Inject internal constructor(
   internal var itemsChangeEmitter = PublishSubject.create<List<TripSegmentItemViewModel>>()
   internal var bookingForm: BookingForm? = null
   private var internalBus: Bus? = null
-  val alertsClicked = BehaviorRelay.create<ArrayList<RealtimeAlert>>()
-  val segmentClicked = BehaviorRelay.create<TripSegment>()
+  val alertsClicked = PublishRelay.create<ArrayList<RealtimeAlert>>()
+  val segmentClicked = PublishRelay.create<TripSegment>()
+  val externalActionClicked = PublishRelay.create<TripSegment>()
   var durationTitle = ObservableField<String>()
   var arriveAtTitle = ObservableField<String>()
   private var actionButtonHandler: ActionButtonHandler? = null
@@ -341,6 +344,11 @@ class TripSegmentsViewModel @Inject internal constructor(
         viewModel.alertsClicked.subscribe {
           alertsClicked.accept(it)
         }.autoClear()
+
+        viewModel.externalActionClicked.subscribe {
+          externalActionClicked.accept(it)
+        }.autoClear()
+
         viewModel.onClick.observable.subscribe {
           it.tripSegment?.let {
             segmentClicked.accept(it)
