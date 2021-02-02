@@ -3,6 +3,7 @@ package com.skedgo.tripkit.ui.servicedetail
 import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.Drawable
+import android.view.View
 import androidx.core.content.ContextCompat
 import androidx.databinding.ObservableBoolean
 import androidx.databinding.ObservableField
@@ -57,6 +58,7 @@ class ServiceDetailViewModel  @Inject constructor(private val context: Context,
     val tertiaryText = ObservableField<String>()
     val showWheelchairAccessible = ObservableBoolean(false)
     val wheelchairAccessibleText = ObservableField<String>()
+    val showExpandableMenu = ObservableInt(View.VISIBLE)
 
     val wheelchairIcon = ObservableField<Drawable?>()
 
@@ -100,6 +102,8 @@ class ServiceDetailViewModel  @Inject constructor(private val context: Context,
                 wheelchairIcon.set(ContextCompat.getDrawable(context, R.drawable.ic_wheelchair_not_accessible))
             }
         }
+
+        showExpandableMenu.set(if (!showOccupancyInfo.get() && !showWheelchairAccessible.get()) View.GONE else View.VISIBLE)
 
         serviceColor?.let {
             when (it.color) {

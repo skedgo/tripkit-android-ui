@@ -25,6 +25,7 @@
             android:id="@+id/firstDividingLine"
             android:background="@color/black4"
             android:layout_marginTop="8dp"
+            android:visibility="@{viewModel.showExpandableMenu}"
             app:layout_constraintTop_toBottomOf="@+id/details"
             app:layout_constraintStart_toStartOf="parent"/>
 
@@ -33,6 +34,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:id="@+id/motionLayout"
+            android:visibility="@{viewModel.showExpandableMenu}"
             app:layoutDescription="@xml/service_detail_motion"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/firstDividingLine">
@@ -95,18 +97,19 @@
                 android:visibility="@{viewModel.showOccupancyInfo}"
                 app:itemBinding="@{viewModel.occupancyViewModel.itemBinding}"
                 app:items="@{viewModel.occupancyViewModel.items}"
-
                 app:layout_constraintTop_toBottomOf="@+id/occupancyView"
                 app:layout_constraintStart_toStartOf="@+id/occupancyLabel"
                 app:layout_constraintHorizontal_chainStyle="packed"/>
 
     </androidx.constraintlayout.motion.widget.MotionLayout>
+
     <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:id="@+id/secondDividingLine"
             android:background="@color/black4"
             android:layout_marginTop="8dp"
+            android:visibility="@{viewModel.showExpandableMenu}"
             app:layout_constraintTop_toBottomOf="@+id/motionLayout"
             app:layout_constraintStart_toStartOf="parent"/>
 
