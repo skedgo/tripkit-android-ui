@@ -58,7 +58,7 @@ class ServiceDetailViewModel  @Inject constructor(private val context: Context,
     val tertiaryText = ObservableField<String>()
     val showWheelchairAccessible = ObservableBoolean(false)
     val wheelchairAccessibleText = ObservableField<String>()
-    val showExpandableMenu = ObservableInt(View.VISIBLE)
+    val showExpandableMenu = ObservableBoolean(false)
 
     val wheelchairIcon = ObservableField<Drawable?>()
 
@@ -103,7 +103,7 @@ class ServiceDetailViewModel  @Inject constructor(private val context: Context,
             }
         }
 
-        showExpandableMenu.set(if (!showOccupancyInfo.get() && !showWheelchairAccessible.get()) View.GONE else View.VISIBLE)
+        showExpandableMenu.set(showOccupancyInfo.get() && showWheelchairAccessible.get())
 
         serviceColor?.let {
             when (it.color) {
