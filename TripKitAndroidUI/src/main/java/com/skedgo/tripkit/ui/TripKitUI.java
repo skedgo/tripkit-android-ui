@@ -46,6 +46,7 @@ import java.util.concurrent.Callable;
         RouteStoreModule.class,
         TripKitUIModule.class,
         ContextModule.class,
+        HttpClientModule.class,
         ErrorLoggerModule.class,
         PicassoModule.class,
         TripKitModule.class,
@@ -90,6 +91,7 @@ public abstract class TripKitUI {
         boolean isDebuggable = (0 != (context.getApplicationInfo().flags
                 & ApplicationInfo.FLAG_DEBUGGABLE ) || BuildConfig.DEBUG);
        return TripKitConfigs.builder().context(context)
+
                .debuggable(isDebuggable)
                 .baseUrlAdapterFactory(new Callable<String>() {
                     @Override
@@ -146,8 +148,15 @@ public abstract class TripKitUI {
             if (tripKitConfigs.debuggable()) {
                 Timber.plant(new Timber.DebugTree());
             }
-        instance = DaggerTripKitUI.builder()
-                .contextModule(new ContextModule(context))
+
+        DaggerTripKitUI.Builder builder = DaggerTripKitUI.builder();
+            if (httpClientModule != null) {
+                builder.httpClientModule(httpClientModule);
+            } else {
+                builder.httpClientModule(new HttpClientModule(null, null, tripKitConfigs));
+            }
+
+        instance = builder.contextModule(new ContextModule(context))
                 .build();
         }
     }

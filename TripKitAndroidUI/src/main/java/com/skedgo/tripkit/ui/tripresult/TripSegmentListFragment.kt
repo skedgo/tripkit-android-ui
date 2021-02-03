@@ -12,6 +12,7 @@ import android.view.ViewGroup
 import androidx.appcompat.app.AlertDialog
 import androidx.core.view.ViewCompat
 import androidx.core.view.forEach
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import com.skedgo.tripkit.logging.ErrorLogger
 import com.skedgo.tripkit.routing.Trip
@@ -20,7 +21,10 @@ import com.skedgo.tripkit.routing.TripSegment
 import com.skedgo.tripkit.routing.getBookingSegment
 import com.skedgo.tripkit.ui.*
 import com.skedgo.tripkit.ui.ARG_TRIP_GROUP_ID
+import com.skedgo.tripkit.bookingproviders.BookingResolver
 import com.skedgo.tripkit.ui.core.BaseTripKitFragment
+import com.skedgo.tripkit.ExternalActionParams
+import com.skedgo.tripkit.ui.booking.apiv2.BookingV2TrackingService
 import com.skedgo.tripkit.ui.core.addTo
 import com.skedgo.tripkit.ui.databinding.TripSegmentListFragmentBinding
 import com.skedgo.tripkit.ui.model.TripKitButton
@@ -28,8 +32,7 @@ import com.skedgo.tripkit.ui.model.TripKitButtonConfigurator
 import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButtonHandlerFactory
 import com.squareup.otto.Bus
 import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
-import kotlinx.android.synthetic.main.trip_segment_list_fragment.view.*
+import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -85,6 +88,12 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
 
     @Inject
     lateinit var viewModel: TripSegmentsViewModel
+
+    @Inject
+    lateinit var bookingResolver: BookingResolver
+
+    @Inject
+    lateinit var bookingService: BookingV2TrackingService
 
     lateinit var binding: TripSegmentListFragmentBinding
     private var tripGroupId: String? = null
@@ -163,6 +172,11 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
                 .subscribe {
                     onTripSegmentClickListener?.tripSegmentClicked(it)
                 }.addTo(autoDisposable)
+        viewModel.externalActionClicked
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe { tripSegment ->
+                handleExternalBooking(tripSegment)
+            }.addTo(autoDisposable)
         viewModel.alertsClicked
                 .subscribe {
                     var list = mutableListOf<TripSegmentAlertsItemViewModel>()
@@ -175,6 +189,52 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
                     val dialog = TripSegmentAlertsSheet.newInstance(list)
                     dialog.show(requireFragmentManager(), "alerts_sheet")
                 }.addTo(autoDisposable)
+    }
+
+    private fun startAndLogActivity(tripSegment: TripSegment, intent: Intent) {
+        tripSegment.trip.logURL?.let {
+            lifecycleScope.launch { bookingService.logTrip(it) }
+        }
+        startActivity(intent)
+    }
+    private fun handleExternalBooking(tripSegment: TripSegment) {
+        tripSegment.booking.externalActions?.firstOrNull()?.let { action ->
+            val externalActionParams = ExternalActionParams.builder()
+                .action(action)
+                .segment(tripSegment)
+                .build()
+            bookingResolver.performExternalActionAsync(externalActionParams)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe { bookingAction ->
+                    if (bookingAction.bookingProvider() == BookingResolver.SMS) {
+                        if (bookingAction.data().resolveActivity(requireActivity().packageManager) != null) {
+                            startAndLogActivity(tripSegment, bookingAction.data());
+                        }
+                    } else {
+                        startAndLogActivity(tripSegment, bookingAction.data());
+                    }
+                    //            if (bookingAction.bookingProvider() == BookingResolver.SMS) {
+//              if (bookingAction.data().resolveActivity(fragment.getActivity().getPackageManager()) != null) {
+//                fragment.startActivity(bookingAction.data());
+//
+//                // This is when booking with SMS.
+//                // Record the event for Analytics due to
+//                // requirement of https://redmine.buzzhives.com/issues/6030.
+//
+//                /* FIXME: Use EventTracker to track this event.
+//                BaseApp.component().tracker().send(
+//                    new HitBuilders.EventBuilder()
+//                        .setCategory("goalFlow")
+//                        .setAction("BookSMS")
+//                        .setLabel("start")
+//                        .build()); */
+//              }
+//            } else {
+//              fragment.startActivity(bookingAction.data());
+//            }
+
+                }
+        }
     }
     override fun onStop() {
         super.onStop()

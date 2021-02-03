@@ -10,7 +10,10 @@ import com.skedgo.routepersistence.LocationTypeAdapterFactory
 import com.skedgo.routepersistence.RouteDatabaseHelper
 import com.skedgo.routepersistence.RouteStore
 import com.skedgo.routepersistence.RoutingStatusStore
+import com.skedgo.tripkit.AndroidGeocoder
 import com.skedgo.tripkit.ServiceApi
+import com.skedgo.tripkit.bookingproviders.BookingResolver
+import com.skedgo.tripkit.bookingproviders.BookingResolverImpl
 import com.skedgo.tripkit.common.model.GsonAdaptersBooking
 import com.skedgo.tripkit.common.model.GsonAdaptersRealtimeAlert
 import com.skedgo.tripkit.common.util.Gsons
@@ -53,8 +56,8 @@ class TripKitUIModule {
     internal fun bus(errorLogger: ErrorLogger): Bus =
     MainThreadBus { errorLogger.logError(it) }
 
-    @Provides
-    internal fun httpClient3(): OkHttpClient = TripKit.getInstance().okHttpClient3
+//    @Provides
+//    internal fun httpClient3(): OkHttpClient = TripKit.getInstance().okHttpClient3
 
     @Provides
     internal fun resources(appContext: Context): Resources = appContext.resources
@@ -118,5 +121,13 @@ class TripKitUIModule {
     }
 
 
+    @Provides
+    fun getBookingResolver(context: Context): BookingResolver {
+        return BookingResolverImpl(
+            context.resources,
+            context.packageManager,
+            AndroidGeocoder(context)
+        )
+    }
 
 }

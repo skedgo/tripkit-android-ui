@@ -5,6 +5,10 @@ import com.google.gson.GsonBuilder;
 import com.skedgo.tripkit.booking.*;
 import com.skedgo.tripkit.booking.viewmodel.AuthenticationViewModel;
 import com.skedgo.tripkit.configuration.Server;
+import com.skedgo.tripkit.ui.booking.apiv2.BookingV2ListResponse;
+import com.skedgo.tripkit.ui.booking.apiv2.BookingV2TrackingApi;
+import com.skedgo.tripkit.ui.booking.apiv2.BookingV2TrackingService;
+import com.skedgo.tripkit.ui.booking.apiv2.GsonAdaptersBookingV2LogTripResponse;
 import dagger.Module;
 import dagger.Provides;
 import io.reactivex.schedulers.Schedulers;
@@ -59,6 +63,34 @@ public class BookingModule {
                 .client(httpClient)
                 .build()
                 .create(AuthApi.class);
+    }
+    /*
+        @Provides
+    fun logTripApi(builder: Retrofit.Builder, httpClient: OkHttpClient): BookingV2TrackingApi {
+        val gson = GsonBuilder()
+                .registerTypeAdapterFactory(GsonAdaptersBookingV2LogTripResponse())
+                .create()
+        return builder
+                .addConverterFactory(GsonConverterFactory.create(gson))
+                .client(httpClient)
+                .build()
+                .create(BookingV2TrackingApi::class.java)
+    }
+
+
+     */
+
+    @Provides
+    BookingV2TrackingApi bookingV2TrackingApi(Retrofit.Builder builder, OkHttpClient client) {
+        Gson gson = new GsonBuilder().registerTypeAdapterFactory(new GsonAdaptersBookingV2LogTripResponse()).create();
+        return builder.addConverterFactory(GsonConverterFactory.create(gson))
+                .client(client)
+                .build()
+                .create(BookingV2TrackingApi.class);
+    }
+    @Provides
+    BookingV2TrackingService provideBookingV2TrackingService(BookingV2TrackingApi api) {
+        return new BookingV2TrackingService(api);
     }
 //
 //    @Provides AuthService authService(AuthApi authApi) {

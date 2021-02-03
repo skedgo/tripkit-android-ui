@@ -6,6 +6,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import com.skedgo.tripkit.routing.TripSegment;
+import com.skedgo.tripkit.bookingproviders.BookingResolver;
 
 import java.util.List;
 
