@@ -392,7 +392,9 @@ class TripSegmentsViewModel @Inject internal constructor(
   }
 
   override fun scope(): CoroutineScope = viewModelScope
-  override fun replaceTripGroup(tripGroupUuid: String, newTripGroup: TripGroup) {}
+  override fun replaceTripGroup(tripGroupUuid: String, newTripGroup: TripGroup) {
+    setupButtons(newTripGroup)
+  }
   override fun onItemClick(tag: String, viewModel: ActionButtonViewModel) {
     actionButtonHandler?.actionClicked(context, tag, tripGroup.displayTrip!!, viewModel)
   }
