@@ -31,4 +31,6 @@
     <string name="scan_qr_code">Scan QR Code</string>
     <string name="scan">Scan</string>
     <string name="open_in">Open in...</string>
+    <!--This is to indicate a mobility plan is the user's either future or current plan-->
+    <string name="subscribed">Subscribed</string>
 </resources>

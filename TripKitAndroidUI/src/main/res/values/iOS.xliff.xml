@@ -888,8 +888,6 @@ Note, your iCloud data will not be deleted by this, but you can delete this in t
 	<string name="upcoming">Upcoming</string>
 	<!--Indicating the next trip is an upcoming trip-->
 	<string name="upcoming_trip">Upcoming Trip</string>
-	<!--This is to indicate a mobility plan is the user's either future or current plan-->
-	<string name="subscribed">Subscribed</string>
 	<!--No comment provided by engineer.-->
 	<string name="use_this_option_to_review_and_manage_devices_you_have_registered_to_receive_push_notifications">Use this option to review and manage devices you have registered to receive push notifications</string>
 	<!--Button to view something, e.g., a notification content or the EULA-->
