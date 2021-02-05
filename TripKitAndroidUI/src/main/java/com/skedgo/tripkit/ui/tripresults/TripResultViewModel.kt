@@ -62,16 +62,6 @@ class TripResultViewModel  @Inject constructor(private val context: Context,
     val badgeVisible = ObservableBoolean(false)
     val tripResults = ObservableArrayList<TripResultTripViewModel>()
 
-//    val title = ObservableField<String>()
-//    val titleVisible = ObservableBoolean(true)
-//    val subtitle = ObservableField<String>()
-//
-//    val segments = ArrayList<TripSegmentViewModel>()
-//
-//    val alternateTitle = ObservableField<String>()
-//    val alternateTitleVisible = ObservableBoolean(true)
-//    val alternateSubtitle = ObservableField<String>()
-//    val alternateSegments = ArrayList<TripSegmentViewModel>()
     var actionButtonHandler: ActionButtonHandler? = null
 
     // Footer
@@ -81,6 +71,7 @@ class TripResultViewModel  @Inject constructor(private val context: Context,
     val moreButtonVisible = ObservableBoolean(false)
     var moreButtonText = ObservableField<String>()
     var otherTripGroups : List<Trip>? = null
+    var classification = TripGroupClassifier.Classification.NONE
 
     override fun equals(other: Any?) : Boolean {
         if (other == null
@@ -132,13 +123,11 @@ class TripResultViewModel  @Inject constructor(private val context: Context,
         newVm.title.set(buildTitle(trip))
         newVm.subtitle.set(buildSubtitle(trip))
         setSegments(newVm.segments, trip)
-//        newVm.onItemClicked.observable.subscribe {
-
-//        }.autoClear()
         tripResults.add(newVm)
     }
 
     private fun setBadge(classification: TripGroupClassifier.Classification) {
+        this.classification = classification
         val (drawableRes, textRes, textColor) = when (classification) {
             TripGroupClassifier.Classification.EASIEST -> {  Triple(R.drawable.ic_like_circle, R.string.easiest, R.color.classification_easiest) }
             TripGroupClassifier.Classification.CHEAPEST -> {  Triple(R.drawable.ic_money_sign_circle, R.string.cheapest, R.color.classification_cheapest) }

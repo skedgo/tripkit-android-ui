@@ -303,21 +303,8 @@ class TripResultListViewModel @Inject constructor(
                                     }.autoClear()
                         }
 
-//                        vm.onItemClicked.observable
-//                                .subscribe { viewModel ->
-//                                    val clickEvent = ViewTrip(query = this.query,
-//                                            tripGroupUUID = viewModel.group.uuid(),
-//                                            sortOrder = 1, /* TODO Proper sorting */
-//                                            displayTripID = viewModel.group.displayTripId)
-//                                    onItemClicked.accept(clickEvent)
-//                                }.autoClear()
-
-//                        vm.onMoreButtonClicked.observable
-//                                .subscribe {viewModel ->
-//                                    actionButtonHandler?.actionClicked(viewModel.trip)
-//                                }.autoClear()
                         vm
-                    }
+                    }.sortedByDescending { it.classification.ordinal }
                 }
                 .map {
                     Pair(it, results.calculateDiff(it))

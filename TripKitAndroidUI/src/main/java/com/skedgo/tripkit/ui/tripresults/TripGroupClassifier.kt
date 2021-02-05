@@ -9,12 +9,12 @@ import kotlin.math.min
 class TripGroupClassifier constructor (tripGroups: List<TripGroup>){
     enum class Classification {
         NONE,
-        RECOMMENDED,
         CHEAPEST,
+        HEALTHIEST,
         FASTEST,
         EASIEST,
-        HEALTHIEST,
-        GREENEST
+        GREENEST,
+        RECOMMENDED
     }
 
     private var weighted = floatArrayOf(Float.POSITIVE_INFINITY, Float.NEGATIVE_INFINITY)
