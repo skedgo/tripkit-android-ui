@@ -186,16 +186,6 @@ class TripSegmentsViewModel @Inject internal constructor(
     }
   }
 
-//  fun onAlternativeTimeForTripSegmentSelected(tripSegmentId: Long, selectedService: TimetableEntry): Completable {
-//    return tripGroupRelay.hide()
-//        .firstOrError()
-//        .flatMapCompletable { tripGroup ->
-//          getAlternativeTripForAlternativeService
-//              .execute(tripGroup.displayTrip!!, tripSegmentId, selectedService)
-//              .map { it.displayTrip!! }
-//              .flatMapCompletable { newTrip -> tripGroupRepository.addTripToTripGroup(tripGroup.uuid(), newTrip) }
-//        }
-//  }
 
   private fun processedText(segment: TripSegment, text: String?): String {
     return if (!text.isNullOrBlank()) {
@@ -209,7 +199,6 @@ class TripSegmentsViewModel @Inject internal constructor(
                               tripSegment: TripSegment,
                                 previousSegment: TripSegment? = null,
                                 nextSegment: TripSegment? = null) {
-
     val time = when(tripSegment.type) {
         SegmentType.DEPARTURE -> printTime.print(tripSegment.startDateTime)
         SegmentType.ARRIVAL -> printTime.print(tripSegment.endDateTime)
@@ -248,7 +237,7 @@ class TripSegmentsViewModel @Inject internal constructor(
     var delay = 0L
 
     nextSegment?.let {
-      if (it.isRealTime) {
+      if (it.isRealTime && it.timetableStartTime > 0) {
         delay = it.startTimeInSecs - it.timetableStartTime
         if (delay != 0L) {
           startTime = printTime.print(it.timetableStartDateTime)
@@ -282,10 +271,13 @@ class TripSegmentsViewModel @Inject internal constructor(
                                 nextSegment: TripSegment? = null) {
 
     val possibleTitle = nextSegment?.from?.displayName ?: tripSegment.to?.displayName
+
     val possibleDescription = when {
       !nextSegment?.platform.isNullOrBlank() -> context.getString(R.string.platform, nextSegment!!.platform)
       else -> null
     }
+
+    // If nextSegment is null, the bridge is the end point, otherwise it's the start
     var endTime = if (nextSegment != null) printTime.print(nextSegment.startDateTime) else null
 
     // If it's a real-time service, we show the time in green if it's on-time, yellow if it's early, and red if it's late.
@@ -298,16 +290,20 @@ class TripSegmentsViewModel @Inject internal constructor(
     }
 
     realtimeTripSegment?.let {
-      if (it.from != null) {
+      if (nextSegment != null && it.timetableStartTime > 0) {
         delay = it.startTimeInSecs - it.timetableStartTime
         endTime = when {
           delay == 0L -> null
-          else -> printTime.print(it.timetableStartDateTime) }
-      } else if (it.to != null) {
+          else -> printTime.print(it.timetableStartDateTime)
+        }
+      } else if (nextSegment == null && it.timetableEndTime > 0) {
         delay = it.endTimeInSecs - it.timetableEndTime
         endTime = when {
           delay == 0L -> null
-          else -> printTime.print(it.timetableEndDateTime) }
+          else -> printTime.print(it.timetableEndDateTime)
+        }
+      } else {
+        endTime = null
       }
     }
 
