@@ -69,6 +69,7 @@ class TripResultListViewModel @Inject constructor(
 
     val onItemClicked = PublishRelay.create<ViewTrip>()
     val onMoreButtonClicked = PublishRelay.create<Trip>()
+    val onFinished = PublishRelay.create<Boolean>()
 
     val stateChange = PublishRelay.create<MultiStateView.ViewState>()
     val onError = PublishRelay.create<String>()
@@ -255,6 +256,7 @@ class TripResultListViewModel @Inject constructor(
                     )).subscribe()
         }
         .doFinally {
+            onFinished.accept(true)
             setLoading(false)
         }.subscribe({}, { error ->
             isError.set(true)

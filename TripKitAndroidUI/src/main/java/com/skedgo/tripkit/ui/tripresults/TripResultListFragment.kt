@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.flexbox.FlexDirection
 import com.google.android.flexbox.FlexboxLayoutManager
 import com.jakewharton.rxrelay2.BehaviorRelay
@@ -28,6 +29,7 @@ import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButtonHandler
 import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButtonHandlerFactory
 import com.skedgo.tripkit.ui.views.MultiStateView
 import io.reactivex.android.schedulers.AndroidSchedulers
+import kotlinx.android.synthetic.main.trip_result_list_fragment.view.*
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -140,6 +142,10 @@ class TripResultListFragment : BaseTripKitFragment() {
 
     override fun onResume() {
         super.onResume()
+        viewModel.onFinished.observeOn(AndroidSchedulers.mainThread()).subscribe {
+            binding.recyclerView.layoutManager?.scrollToPosition(0)
+        }.addTo(autoDisposable)
+
         viewModel.onError.observeOn(AndroidSchedulers.mainThread()).subscribe { error ->
             binding.multiStateView?.let { msv ->
                 if (activity is OnResultStateListener) {
