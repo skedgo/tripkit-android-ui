@@ -54,14 +54,16 @@ open class LocationEnhancedMapFragment : BaseMapFragment() {
             settingsButton!!.visibility = View.GONE
             originalView.addView(settingsButton)
 
+            /*
             val myLocationButton = inflater.inflate(R.layout.view_my_location_button, originalView, false)
             myLocationButton.setOnClickListener {  animateToMyLocation() }
             originalView.addView(myLocationButton)
+            */
         }
         return originalView
     }
 
-    protected open fun animateToMyLocation() {
+    open fun animateToMyLocation() {
         if (activity == null) {
             return
         }
