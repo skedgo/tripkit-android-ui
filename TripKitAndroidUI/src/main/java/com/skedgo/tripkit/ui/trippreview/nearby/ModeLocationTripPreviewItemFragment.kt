@@ -82,7 +82,7 @@ class ModeLocationTripPreviewItemFragment(val segment: TripSegment) : BaseTripKi
         if (!segment.booking?.confirmation?.actions().isNullOrEmpty()) {
             segment.booking.confirmation!!.actions().forEach { action ->
                 if (sharedViewModel.bookingForm.value == null && action.type() == "UNLOCK") {
-                    val newButton = MaterialButton(context!!, null, R.attr.materialButtonOutlinedStyle)
+                    val newButton = MaterialButton(requireContext(), null, R.attr.materialButtonOutlinedStyle)
                     newButton.text = action.title()
                     newButton.id = action.hashCode()
                     newButton.setOnClickListener {

@@ -1,9 +1,11 @@
 package com.skedgo.tripkit.ui.trippreview
 
 import android.content.Context
+import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
+import android.net.Uri
 import androidx.core.content.ContextCompat
 import androidx.databinding.ObservableBoolean
 import androidx.databinding.ObservableField
@@ -19,6 +21,7 @@ import com.skedgo.tripkit.ui.core.RxViewModel
 import com.skedgo.tripkit.ui.core.fetchAsync
 import com.skedgo.tripkit.ui.utils.DistanceFormatter
 import com.skedgo.tripkit.ui.utils.TapAction
+import com.skedgo.tripkit.ui.utils.TapStateFlow
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import timber.log.Timber
@@ -33,8 +36,12 @@ open class TripPreviewPagerItemViewModel : RxViewModel() {
     var messageTitle = ObservableField<String>()
     var message = ObservableField<String>()
     var messageVisible = ObservableBoolean(false)
+    var showLaunchInMaps = ObservableBoolean(false)
+    var showLaunchInMapsClicked = TapStateFlow { this }
 
+    var segment: TripSegment? = null
     open fun setSegment(context: Context, segment: TripSegment) {
+        this.segment = segment
         title.set(TripSegmentUtils.getTripSegmentAction(context, segment) ?: "Unknown Action")
         var instruction = segment.miniInstruction?.description
         if (segment.metres > 0) {

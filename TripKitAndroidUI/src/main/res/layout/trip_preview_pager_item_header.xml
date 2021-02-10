@@ -42,7 +42,16 @@
             app:layout_constraintTop_toBottomOf="@+id/actionText"
             app:layout_constraintEnd_toStartOf="@+id/closeButton"
             app:layout_constraintStart_toStartOf="@+id/actionText"/>
-
+    <com.google.android.material.button.MaterialButton android:layout_width="wrap_content"
+                                                       android:layout_height="wrap_content"
+                                                       android:id="@+id/openInButton"
+                                                       style="?attr/materialButtonOutlinedStyle"
+                                                       android:text="@string/open_in"
+                                                       app:icon="@drawable/ic_go"
+                                                       android:onClick="@{() -> viewModel.showLaunchInMapsClicked.perform()}"
+                                                       android:visibility="@{viewModel.showLaunchInMaps}"
+                                                       app:layout_constraintTop_toBottomOf="@+id/descriptionText"
+                                                       app:layout_constraintStart_toStartOf="@+id/descriptionText"/>
     <ImageButton
             android:id="@+id/closeButton"
             android:layout_width="@dimen/close_button_size"
@@ -59,6 +68,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:barrierDirection="bottom"
-            app:constraint_referenced_ids="actionText,descriptionText" />
+            app:constraint_referenced_ids="actionText,descriptionText, openInButton" />
     </merge>
 </layout>

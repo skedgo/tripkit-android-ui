@@ -6,6 +6,7 @@ import android.icu.text.MeasureFormat
 import android.icu.util.Measure
 import android.icu.util.MeasureUnit
 import androidx.databinding.ObservableArrayList
+import androidx.databinding.ObservableBoolean
 import androidx.databinding.ObservableField
 import androidx.databinding.library.baseAdapters.BR
 import androidx.lifecycle.ViewModel
@@ -31,6 +32,10 @@ class DirectionsTripPreviewItemViewModel : TripPreviewPagerItemViewModel() {
 
     override fun setSegment(context: Context, segment: TripSegment) {
         super.setSegment(context, segment)
+        if (segment.turnByTurn != null) {
+            showLaunchInMaps.set(true)
+        }
+
         val iconGetter = GetInstructionIcon()
         segment.streets.forEach {
             val vm = DirectionsTripPreviewItemStepViewModel()
