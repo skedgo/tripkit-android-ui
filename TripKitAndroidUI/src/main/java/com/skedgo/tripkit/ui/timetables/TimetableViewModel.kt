@@ -3,12 +3,15 @@ package com.skedgo.tripkit.ui.timetables
 import android.content.res.Resources
 import androidx.databinding.ObservableBoolean
 import androidx.databinding.ObservableField
+import androidx.lifecycle.viewModelScope
+import androidx.recyclerview.widget.DiffUtil
 import com.jakewharton.rxrelay2.BehaviorRelay
 import com.jakewharton.rxrelay2.PublishRelay
 import com.skedgo.tripkit.common.model.RealtimeAlert
 import com.skedgo.tripkit.common.model.Region
 import com.skedgo.tripkit.common.model.ScheduledStop
 import com.skedgo.tripkit.data.regions.RegionService
+import com.skedgo.tripkit.routing.RealTimeVehicle
 import com.skedgo.tripkit.time.GetNow
 import com.skedgo.tripkit.ui.BR
 import com.skedgo.tripkit.ui.R
@@ -29,7 +32,13 @@ import me.tatarka.bindingcollectionadapter2.ItemBinding
 import org.joda.time.DateTimeZone
 import com.skedgo.tripkit.routing.toSeconds
 import com.skedgo.tripkit.ui.views.MultiStateView
+import io.reactivex.disposables.CompositeDisposable
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import me.tatarka.bindingcollectionadapter2.collections.DiffObservableList
 import timber.log.Timber
+import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicLong
 import javax.inject.Inject
 import javax.inject.Provider
@@ -52,7 +61,21 @@ class TimetableViewModel  @Inject constructor(
     val itemBinding = ItemBinding.of<ServiceViewModel>(BR.viewModel, R.layout.timetable_fragment_list_item)
     val serviceItemBinding = ItemBinding.of<TimetableHeaderLineItem>(BR.data, R.layout.timetable_header_line_item)
 
-    val services: ObservableField<List<ServiceViewModel>> = ObservableField(emptyList())
+    object ServicesDiffCallback : DiffUtil.ItemCallback<ServiceViewModel>() {
+        override fun areItemsTheSame(oldItem: ServiceViewModel, newItem: ServiceViewModel): Boolean =
+                    oldItem.service.serviceTripId == newItem.service.serviceTripId
+                    && oldItem.service.startTimeInSecs == newItem.service.startTimeInSecs
+
+
+        override fun areContentsTheSame(oldItem: ServiceViewModel, newItem: ServiceViewModel): Boolean =
+            oldItem.serviceNumber.get() == newItem.serviceNumber.get()
+                    && oldItem.secondaryText.get() == newItem.secondaryText.get()
+                    && oldItem.tertiaryText.get() == newItem.tertiaryText.get()
+                    && oldItem.countDownTimeText.get() == newItem.countDownTimeText.get()
+
+
+    }
+    val services = DiffObservableList<ServiceViewModel>(ServicesDiffCallback)
 
     val serviceNumbers: ObservableField<List<TimetableHeaderLineItem>> = ObservableField(emptyList())
     val showLoading = ObservableBoolean(false)
@@ -116,14 +139,16 @@ class TimetableViewModel  @Inject constructor(
                 }
             })
 
+    private val realtimeRelay = PublishRelay.create<Unit>()
+
     private val servicesVMs = Observables.combineLatest(servicesAndParentStop.map { it.first }, regionObservable)
                 { services : List<TimetableEntry>, region : Region -> services to region }
             .flatMap {
                 val services = it.first
                 val region = it.second
-
                 realTimeChoreographer.getRealTimeResultsFromCleanElements(region, elements = services)
-                        .map { vehicles ->
+                     .takeUntil(realtimeRelay)
+                     .map { vehicles ->
                             services.forEach { service : TimetableEntry ->
                                 val vehicle = vehicles.firstOrNull { service.serviceTripId == it.serviceTripId  }
                                 vehicle?.let {
@@ -161,6 +186,7 @@ class TimetableViewModel  @Inject constructor(
             .replay(1)
             .refCount()
 
+
     val onAlertClicks: Observable<ArrayList<RealtimeAlert>> = services
             .asObservable()
             .switchMap {
@@ -188,16 +214,21 @@ class TimetableViewModel  @Inject constructor(
         minStartTime.subscribe(startTimeRelay::accept) { onError.accept(it.message)}
         servicesVMs
                 .ignoreNetworkErrors()
-                .subscribe ({
+            .subscribe ({
                     if (it.isEmpty()) {
                         stateChange.accept(MultiStateView.ViewState.EMPTY)
                         return@subscribe
                     }
 
-                    services.get()!!.forEach {
-                        it.onCleared()
+                    viewModelScope.launch {
+                        withContext(Dispatchers.Default) {
+                            val diff = services.calculateDiff(it)
+                            withContext(Dispatchers.Main) {
+                                Timber.d("Updating")
+                                services.update(it, diff)
+                            }
+                        }
                     }
-                    services.set(it)
                     val tmpServiceList : MutableList<TimetableHeaderLineItem> = arrayListOf<TimetableHeaderLineItem>()
 
                     it.forEach {
@@ -222,8 +253,13 @@ class TimetableViewModel  @Inject constructor(
         loadMore.accept(Unit)
     }
 
-    fun getFirstNowPosition(): Int = getFirstNowPosition(services.get()!!)
+    fun getFirstNowPosition(): Int = getFirstNowPosition(services)
 
+    fun stopRealtime() {
+        // Known issue: Stopping the realtime updates by doing this means that pausing and resuming the app while the
+        // timetable is shown will then no longer show realtime updates.
+        realtimeRelay.accept(Unit)
+    }
     private fun getFirstNowPosition(services: List<ServiceViewModel>): Int {
         return services.indexOfFirst {
             it.getRealTimeDeparture() - getNow.execute().toSeconds() >= -1L
@@ -232,7 +268,7 @@ class TimetableViewModel  @Inject constructor(
 
     override fun onCleared() {
         super.onCleared()
-        services.get()!!.forEach {
+        services.forEach {
             it.onCleared()
         }
     }
@@ -245,6 +281,6 @@ class TimetableViewModel  @Inject constructor(
     }
 
     fun getShareUrl(stop: ScheduledStop) =
-            createShareContent.execute(stop, services.get()!!.map { it.service })
+            createShareContent.execute(stop, services.map { it.service })
 
 }

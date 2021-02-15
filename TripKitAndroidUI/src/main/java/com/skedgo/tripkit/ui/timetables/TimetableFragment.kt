@@ -161,6 +161,7 @@ class TimetableFragment : BaseTripKitFragment(), View.OnClickListener {
         viewModel.downloadTimetable.accept(System.currentTimeMillis() - TimeUtils.InMillis.MINUTE * 10)
     }
 
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         binding = TimetableFragmentBinding.inflate(layoutInflater)
@@ -293,6 +294,11 @@ class TimetableFragment : BaseTripKitFragment(), View.OnClickListener {
 
     }
 
+    override fun onStop() {
+        super.onStop()
+        viewModel.stopRealtime()
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
         clickDisposable.clear()
@@ -306,10 +312,12 @@ class TimetableFragment : BaseTripKitFragment(), View.OnClickListener {
     fun selectTime() {
         val fragment = TimeDatePickerFragment.newInstance(getString(R.string.set_time))
         fragment.timeRelay
+            .skip(1)
                 .subscribe {
+                    viewModel.stopRealtime()
+                    viewModel.services.update(listOf())
                     viewModel.onDateChanged.accept(it)
                 }.addTo(autoDisposable)
-
         fragment.show(childFragmentManager, null)
     }
 

@@ -9,6 +9,7 @@ import android.view.View;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 import com.jakewharton.rxrelay2.BehaviorRelay;
+import com.jakewharton.rxrelay2.PublishRelay;
 import com.skedgo.tripkit.ui.R;
 import kankan.wheel.widget.WheelView;
 import kankan.wheel.widget.adapters.ArrayWheelAdapter;
@@ -38,7 +39,7 @@ public class TimeDatePickerFragment extends DialogFragment implements View.OnCli
   private WheelView mAmPmView;
   private WheelView mDaysView;
   private int mTimeType;
-  public BehaviorRelay<Long> timeRelay = BehaviorRelay.create();
+  public PublishRelay<Long> timeRelay = PublishRelay.create();
 
   public static TimeDatePickerFragment newInstance(int timeType, String initiatorId, @Nullable String title, long initialTimeInMillis) {
     Bundle args = new Bundle();
