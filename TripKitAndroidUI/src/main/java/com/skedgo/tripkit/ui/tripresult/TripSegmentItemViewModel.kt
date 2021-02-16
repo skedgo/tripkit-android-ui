@@ -27,10 +27,7 @@ import com.skedgo.tripkit.ui.core.RxViewModel
 import com.skedgo.tripkit.ui.core.fetchAsync
 import com.skedgo.tripkit.ui.tripresults.GetTransportIconTintStrategy
 import com.skedgo.tripkit.ui.tripresults.TripSegmentHelper
-import com.skedgo.tripkit.ui.utils.ITEM_EXTERNAL_BOOKING
-import com.skedgo.tripkit.ui.utils.TapAction
-import com.skedgo.tripkit.ui.utils.correctItemType
-import com.skedgo.tripkit.ui.utils.tint
+import com.skedgo.tripkit.ui.utils.*
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import timber.log.Timber
@@ -94,9 +91,11 @@ class TripSegmentItemViewModel @Inject internal constructor(private val context:
                 this.showDescription.set(true)
             }
 
-            if (it.correctItemType() == ITEM_EXTERNAL_BOOKING && viewType == SegmentViewType.MOVING) {
+            if ((it.correctItemType() == ITEM_EXTERNAL_BOOKING && viewType == SegmentViewType.MOVING)
+                || (it.correctItemType() == ITEM_NEARBY && it.booking?.externalActions?.isNotEmpty() == true)){
                 externalAction.set(it.booking!!.title)
             }
+
             if (hasRealtime) {
                 // We show the realtime times differently than when they aren't real time. When a
                 // segment is on time, it is shown in bold green text. If it is early, the top text is a bold warning
