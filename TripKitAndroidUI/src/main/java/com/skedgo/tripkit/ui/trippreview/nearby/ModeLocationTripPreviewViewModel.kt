@@ -41,9 +41,9 @@ class ModeLocationTripPreviewViewModel @Inject constructor(private val locationI
         if (segment.sharedVehicle != null) {
             val vehicle = segment.sharedVehicle
             val vehicleVm =  InfoGroupViewModel()
-            vehicleVm.title.set(vehicle.vehicleType().title())
+            vehicleVm.title.set(vehicle.vehicleType()?.title() ?: 0)
             vehicleVm.value.set(vehicle.name())
-            vehicleVm.icon.set(vehicle.vehicleType().iconId)
+            vehicleVm.icon.set(vehicle.vehicleType()?.iconId)
             infoGroups.add(vehicleVm)
 
             if (vehicle.batteryRange() != null) {
