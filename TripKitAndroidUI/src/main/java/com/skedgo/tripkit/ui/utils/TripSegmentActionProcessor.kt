@@ -72,7 +72,7 @@ class TripSegmentActionProcessor @Inject constructor() {
             out = if (minutes < 0) {
                 durationRegex.replace(out, "")
             } else {
-                durationRegex.replace(out, " " + TimeUtils.getDurationInHoursMins((segment.endTimeInSecs - segment.startTimeInSecs).toInt()))
+                durationRegex.replace(out, " " + context.resources.getString(com.skedgo.tripkit.common.R.string.for__pattern, TimeUtils.getDurationInHoursMins((segment.endTimeInSecs - segment.startTimeInSecs).toInt())))
             }
         }
 
