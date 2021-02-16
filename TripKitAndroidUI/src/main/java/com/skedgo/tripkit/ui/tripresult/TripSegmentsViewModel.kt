@@ -216,7 +216,6 @@ class TripSegmentsViewModel @Inject internal constructor(
 
     if (tripSegment.type == SegmentType.DEPARTURE) { bottomConnectionColor = connectionColor }
     if (tripSegment.type == SegmentType.ARRIVAL) { topConnectionColor = connectionColor }
-
     viewModel.setupSegment(viewType = TripSegmentItemViewModel.SegmentViewType.TERMINAL,
                             title = processedText(tripSegment, tripSegment.action),
                             startTime = time,
@@ -252,6 +251,7 @@ class TripSegmentsViewModel @Inject internal constructor(
 
     val possibleDescription = when {
       !nextSegment?.platform.isNullOrBlank() -> context.getString(R.string.platform, nextSegment!!.platform)
+      !tripSegment.action.isNullOrBlank() -> processedText(tripSegment, tripSegment.action)
       else -> null
     }
 
