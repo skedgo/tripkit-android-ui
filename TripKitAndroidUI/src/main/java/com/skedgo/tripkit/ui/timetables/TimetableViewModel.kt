@@ -224,7 +224,6 @@ class TimetableViewModel  @Inject constructor(
                         withContext(Dispatchers.Default) {
                             val diff = services.calculateDiff(it)
                             withContext(Dispatchers.Main) {
-                                Timber.d("Updating")
                                 services.update(it, diff)
                             }
                         }

@@ -244,7 +244,7 @@ class TripSegmentsViewModel @Inject internal constructor(
 
         endTime = when {
           delay == 0L -> null
-          else -> printTime.print(it.timetableStartDateTime)
+          else -> printTime.print(it.timetableEndDateTime)
         }
       }
     }
@@ -283,6 +283,7 @@ class TripSegmentsViewModel @Inject internal constructor(
     // If it's a real-time service, we show the time in green if it's on-time, yellow if it's early, and red if it's late.
     // In both cases, we show the original time crossed out below the current real-time information.
     var delay = 0L
+
     var realtimeTripSegment = when {
       tripSegment.isRealTime -> tripSegment
       (nextSegment != null) && nextSegment.isRealTime -> nextSegment
@@ -290,13 +291,15 @@ class TripSegmentsViewModel @Inject internal constructor(
     }
 
     realtimeTripSegment?.let {
-      if (nextSegment != null && it.timetableStartTime > 0) {
+      if (!tripSegment.isRealTime && it.timetableStartTime > 0) {
+        // The starting stationary bridge shows the departure time
         delay = it.startTimeInSecs - it.timetableStartTime
         endTime = when {
           delay == 0L -> null
           else -> printTime.print(it.timetableStartDateTime)
         }
-      } else if (nextSegment == null && it.timetableEndTime > 0) {
+      } else if (it.timetableEndTime > 0) {
+        // The end stationary bridge shows the arrival time
         delay = it.endTimeInSecs - it.timetableEndTime
         endTime = when {
           delay == 0L -> null
@@ -351,13 +354,12 @@ class TripSegmentsViewModel @Inject internal constructor(
           }
         }.autoClear()
         viewModel.tripSegment = segment
-
         if (segment.type == SegmentType.ARRIVAL || segment.type == SegmentType.DEPARTURE) {
           addTerminalItem(viewModel, segment, previousSegment, nextSegment)
-        } else if (segment.type == SegmentType.STATIONARY) {
+        } else if (segment.isStationary) {
           addStationaryItem(viewModel, segment, previousSegment, nextSegment)
         } else {
-          if (nextSegment != null && !nextSegment.isStationary) {
+          if (nextSegment != null && !nextSegment.isStationary && nextSegment.type != SegmentType.ARRIVAL) {
             var bridgeModel = segmentViewModelProvider.get()
             bridgeModel.tripSegment = segment
             addMovingItem(bridgeModel, segment)
