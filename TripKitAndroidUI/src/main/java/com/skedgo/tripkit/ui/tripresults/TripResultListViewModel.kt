@@ -2,6 +2,7 @@ package com.skedgo.tripkit.ui.tripresults
 
 import android.content.Context
 import android.view.View
+import androidx.databinding.ObservableArrayList
 import androidx.databinding.ObservableBoolean
 import androidx.databinding.ObservableField
 import androidx.lifecycle.viewModelScope
@@ -75,12 +76,16 @@ class TripResultListViewModel @Inject constructor(
     val onError = PublishRelay.create<String>()
 
 //    val itemBinding = ItemBinding.of<TripResultViewModel>(BR.viewModel, R.layout.trip_result_list_item)
-    val itemBinding = ItemBinding.of(
+    val itemBinding =
+        ItemBinding.of(
         OnItemBindClass<Any>()
                 .map(TripResultViewModel::class.java, BR.viewModel, R.layout.trip_result_list_item)
-                .map(LoaderPlaceholder::class.java, ItemBinding.VAR_NONE, R.layout.circular_progress_loader))
+                .map(LoaderPlaceholder::class.java, ItemBinding.VAR_NONE, R.layout.circular_progress_loader)
+        )
+
     val results = DiffObservableList<TripResultViewModel>(GroupDiffCallback)
-    val mergedList = MergeObservableList<Any>().insertList(results)
+    private val loadingList = ObservableArrayList<LoaderPlaceholder>()
+    val mergedList = MergeObservableList<Any>().insertList(loadingList).insertList(results)
 
     val transportBinding = ItemBinding.of<TripResultTransportItemViewModel>(BR.viewModel, R.layout.trip_result_list_transport_item)
     val transportModes: ObservableField<List<TripResultTransportItemViewModel>> = ObservableField(emptyList())
@@ -111,9 +116,9 @@ class TripResultListViewModel @Inject constructor(
 
     private fun setLoading(loading: Boolean) {
         if (loading && !mergedList.contains(loadingItem)) {
-            mergedList.insertItem(loadingItem)
+            loadingList.add(loadingItem)
         } else if (!loading && mergedList.contains(loadingItem)) {
-            mergedList.removeItem(loadingItem)
+            loadingList.clear()
         }
     }
 
