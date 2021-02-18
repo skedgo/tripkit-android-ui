@@ -4,6 +4,8 @@ import com.skedgo.tripkit.data.database.DatabaseMigrator
 import com.skedgo.tripkit.data.database.DbHelper
 import com.skedgo.tripkit.data.database.TripKitDatabase
 import com.skedgo.tripkit.data.database.timetables.ScheduledServiceRealtimeInfoDao
+import com.skedgo.tripkit.ui.database.TripKitUiDatabase
+import com.skedgo.tripkit.ui.database.location_history.LocationHistoryDao
 import com.skedgo.tripkit.ui.favorites.trips.FavoriteTripsDataBase
 import dagger.Module
 import dagger.Provides
@@ -29,6 +31,17 @@ class DbHelperModule {
   @Singleton
   internal fun tripKitDatabase(context: Context): TripKitDatabase {
     return TripKitDatabase.getInstance(context)
+  }
+
+  @Provides
+  @Singleton
+  internal fun tripKitUiDatabase(context: Context): TripKitUiDatabase {
+    return TripKitUiDatabase.getInstance(context)
+  }
+
+  @Provides
+  internal fun locationHistoryDao(tripKitUiDatabase: TripKitUiDatabase): LocationHistoryDao {
+    return tripKitUiDatabase.locationHistoryDao()
   }
 
   @Provides
