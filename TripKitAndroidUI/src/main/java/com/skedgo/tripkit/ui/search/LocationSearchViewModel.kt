@@ -2,16 +2,18 @@ package com.skedgo.tripkit.ui.search
 
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
-import androidx.databinding.*
+import androidx.databinding.ObservableArrayList
+import androidx.databinding.ObservableBoolean
+import androidx.databinding.ObservableField
+import androidx.databinding.ObservableList
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
-import com.google.gson.Gson
 import com.jakewharton.rxrelay2.PublishRelay
 import com.skedgo.tripkit.common.model.Location
 import com.skedgo.tripkit.common.model.Region
 import com.skedgo.tripkit.data.regions.RegionService
+import com.skedgo.tripkit.logging.ErrorLogger
 import com.skedgo.tripkit.ui.BR
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.core.RxViewModel
@@ -21,6 +23,8 @@ import com.skedgo.tripkit.ui.core.isExecuting
 import com.skedgo.tripkit.ui.core.rxproperty.asObservable
 import com.skedgo.tripkit.ui.data.places.Place
 import com.skedgo.tripkit.ui.data.places.PlaceSearchRepository
+import com.skedgo.tripkit.ui.database.location_history.LocationHistoryRepository
+import com.skedgo.tripkit.ui.geocoding.AutoCompleteResult
 import com.skedgo.tripkit.ui.geocoding.HasResults
 import com.skedgo.tripkit.ui.geocoding.NoConnection
 import com.skedgo.tripkit.ui.geocoding.NoResult
@@ -32,13 +36,10 @@ import io.reactivex.rxkotlin.Observables
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.schedulers.Schedulers.io
 import io.reactivex.subjects.PublishSubject
+import kotlinx.coroutines.launch
 import me.tatarka.bindingcollectionadapter2.ItemBinding
 import me.tatarka.bindingcollectionadapter2.collections.MergeObservableList
-import com.skedgo.tripkit.logging.ErrorLogger
-import com.skedgo.tripkit.ui.database.location_history.LocationHistoryRepository
-import com.skedgo.tripkit.ui.geocoding.AutoCompleteResult
-import kotlinx.coroutines.launch
-import timber.log.Timber
+import java.util.*
 import java.util.Collections.min
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -96,6 +97,7 @@ class LocationSearchViewModel @Inject constructor(private val context: Context,
     private val isFetchingPlaceDetails = ObservableBoolean(false)
     private val isSearchingSuggestion = ObservableBoolean(false)
     private val queryCache = mutableMapOf<String, AutoCompleteResult>()
+
     init {
 
         allSuggestions.insertList(fixedSuggestions)
@@ -112,7 +114,7 @@ class LocationSearchViewModel @Inject constructor(private val context: Context,
                 .switchMap {
                     Observable.merge(it)
                 }
-                .subscribe ({
+                .subscribe({
                     when (it.first) {
                         is SearchProviderSuggestionViewModel -> onSuggestionItemClick(SearchSuggestionChoice.SearchProviderChoice((it.first as SearchProviderSuggestionViewModel).suggestion.location()))
                         is FixedSuggestionViewModel -> onSuggestionItemClick(SearchSuggestionChoice.FixedChoice((it.first as FixedSuggestionViewModel).id))
@@ -124,14 +126,14 @@ class LocationSearchViewModel @Inject constructor(private val context: Context,
 
         queries
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe( {params ->
+                .subscribe({ params ->
                     fixedSuggestions.clear()
                     if (params.term().isEmpty()) {
                         fixedSuggestionsProvider().fixedSuggestions(context, iconProvider()).forEach { suggestion ->
                             fixedSuggestions.add(FixedSuggestionViewModel(context, suggestion))
                         }
                         loadFromHistory()
-                    }else{
+                    } else {
                         historySuggestions.clear()
                     }
                     providedSuggestions.clear()
@@ -189,7 +191,7 @@ class LocationSearchViewModel @Inject constructor(private val context: Context,
 
         suggestionFetcher
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({result->
+                .subscribe({ result ->
                     when (result) {
                         is NoConnection -> {
                             googleAndTripGoSuggestions.clear()
@@ -198,7 +200,8 @@ class LocationSearchViewModel @Inject constructor(private val context: Context,
                         is HasResults -> {
                             googleAndTripGoSuggestions.clear()
                             googleAndTripGoSuggestions.addAll(result.suggestions.map { place ->
-                                GoogleAndTripGoSuggestionViewModel(context, picasso, place, canOpenTimetable, iconProvider(), result.query) })
+                                GoogleAndTripGoSuggestionViewModel(context, picasso, place, canOpenTimetable, iconProvider(), result.query)
+                            })
                             errorViewModel.updateError(null)
                         }
                         is NoResult -> {
@@ -220,16 +223,20 @@ class LocationSearchViewModel @Inject constructor(private val context: Context,
 
     }
 
-    private fun loadFromHistory(){
+    private fun loadFromHistory() {
+
+        val historyStartCalendar = Calendar.getInstance()
+        historyStartCalendar.add(Calendar.DATE, -12)
+
         locationHistoryRepository
-                .getLocationHistory()
+                .getLatestLocationHistory(historyStartCalendar.timeInMillis)
                 .observeOn(mainThread())
                 .subscribeOn(io())
                 .subscribe({
                     fixedSuggestionsProvider().locationsToSuggestion(context, it, legacyIconProvider()).forEach { suggestion ->
                         historySuggestions.add(SearchProviderSuggestionViewModel(context, suggestion))
                     }
-                },{
+                }, {
                     it.printStackTrace()
                 }).autoClear()
     }
@@ -288,6 +295,7 @@ class LocationSearchViewModel @Inject constructor(private val context: Context,
         showRefreshing.set(true)
         onQueryTextChangeEventThrottle.onNext(query)
     }
+
     fun onTextSubmit(): Boolean = when {
         googleAndTripGoSuggestions.isNotEmpty() -> {
             onSuggestionItemClick(SearchSuggestionChoice.PlaceChoice(googleAndTripGoSuggestions.first().place))
@@ -328,7 +336,7 @@ class LocationSearchViewModel @Inject constructor(private val context: Context,
     fun onSuggestionItemClick(choice: SearchSuggestionChoice) {
         when (choice) {
             is SearchSuggestionChoice.SearchProviderChoice ->
-               choice.location?.let { locationChosen.accept(it) }
+                choice.location?.let { locationChosen.accept(it) }
             is SearchSuggestionChoice.FixedChoice ->
                 onFixedLocationSuggestionItemClick(choice.id)
             is SearchSuggestionChoice.PlaceChoice -> {

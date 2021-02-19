@@ -19,4 +19,9 @@ open class LocationHistoryRepository @Inject constructor(
         return locationHistoryDao.getAllLocationInHistory()
                 .map { mapper.toLocation(it) }
     }
+
+    fun getLatestLocationHistory(startTimestamp: Long): Single<List<Location>>{
+        return locationHistoryDao.getLocationInHistory(startTimestamp)
+                .map { mapper.toLocation(it) }
+    }
 }
