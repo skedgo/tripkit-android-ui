@@ -229,8 +229,7 @@ class LocationSearchViewModel @Inject constructor(private val context: Context,
 
     private fun loadFromHistory() {
 
-        val historyStartCalendarMillis = LocalDateTime.now().minusDays(12)
-                .atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
+        val historyStartCalendarMillis = System.currentTimeMillis() - TimeUnit.DAYS.toMillis(12L)
 
         locationHistoryRepository
                 .getLatestLocationHistory(historyStartCalendarMillis)
