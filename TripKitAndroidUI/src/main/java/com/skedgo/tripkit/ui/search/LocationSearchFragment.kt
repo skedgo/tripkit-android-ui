@@ -22,8 +22,13 @@ import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.TripKitUI
 import com.skedgo.tripkit.ui.core.BaseTripKitFragment
 import com.skedgo.tripkit.ui.core.addTo
+import com.skedgo.tripkit.ui.database.location_history.LocationHistoryRepository
 import com.skedgo.tripkit.ui.databinding.LocationSearchBinding
+import io.reactivex.Completable
+import io.reactivex.Observable
+import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
+import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -45,6 +50,10 @@ import javax.inject.Inject
  * ```
  */
 class LocationSearchFragment : BaseTripKitFragment() {
+
+    @Inject
+    lateinit var locationHistoryRepository: LocationHistoryRepository
+
     /**
      * This callback will be invoked when a search result is clicked.
      */
@@ -59,10 +68,21 @@ class LocationSearchFragment : BaseTripKitFragment() {
     fun setOnLocationSelectedListener(listener:(Location) -> Unit) {
         this.locationSelectedListener = object: OnLocationSelectedListener {
             override fun onLocationSelected(location: Location) {
+                saveLocationToHistory(location)
                 listener(location)
             }
 
         }
+    }
+
+    private fun saveLocationToHistory(location: Location) {
+        locationHistoryRepository.saveLocationsToHistory(
+                listOf(location)
+        ).observeOn(Schedulers.io())
+                .subscribeOn(Schedulers.io())
+                .subscribe({}, {
+                    it.printStackTrace()
+                }).addTo(autoDisposable)
     }
 
     /**

@@ -104,34 +104,52 @@ class GoogleAndTripGoSuggestionViewModel(context: Context,
         val iconRes = if (location is ScheduledStop) {
             iconProvider.iconForSearchResult(LocationSearchIconProvider.SearchResultType.SCHEDULED_STOP, (location as ScheduledStop).type)
         } else {
-            if (location.locationType == Location.TYPE_CONTACT) {
-                iconProvider.iconForSearchResult(LocationSearchIconProvider.SearchResultType.CONTACT)
-            } else if (location.locationType == Location.TYPE_CALENDAR) {
-                iconProvider.iconForSearchResult(LocationSearchIconProvider.SearchResultType.CALENDAR)
-            } else if (location.locationType == Location.TYPE_W3W) {
-                iconProvider.iconForSearchResult(LocationSearchIconProvider.SearchResultType.W3W)
-            } else if (location.locationType == Location.TYPE_HOME) {
-                iconProvider.iconForSearchResult(LocationSearchIconProvider.SearchResultType.HOME)
-            } else if (location.locationType == Location.TYPE_WORK) {
-                iconProvider.iconForSearchResult(LocationSearchIconProvider.SearchResultType.WORK)
-            } else {
-                val source = location.source
-                if (Location.FOURSQUARE == source) {
-                    iconProvider.iconForSearchResult(LocationSearchIconProvider.SearchResultType.FOURSQUARE)
-                } else if (Location.GOOGLE == source) {
-                    iconProvider.iconForSearchResult(LocationSearchIconProvider.SearchResultType.GOOGLE)
-                } else {
-                    0
+            when (location.locationType) {
+                Location.TYPE_CONTACT -> {
+                    iconProvider.iconForSearchResult(LocationSearchIconProvider.SearchResultType.CONTACT)
+                }
+                Location.TYPE_CALENDAR -> {
+                    iconProvider.iconForSearchResult(LocationSearchIconProvider.SearchResultType.CALENDAR)
+                }
+                Location.TYPE_W3W -> {
+                    iconProvider.iconForSearchResult(LocationSearchIconProvider.SearchResultType.W3W)
+                }
+                Location.TYPE_HOME -> {
+                    iconProvider.iconForSearchResult(LocationSearchIconProvider.SearchResultType.HOME)
+                }
+                Location.TYPE_WORK -> {
+                    iconProvider.iconForSearchResult(LocationSearchIconProvider.SearchResultType.WORK)
+                }
+                Location.TYPE_HISTORY -> {
+                    iconProvider.iconForSearchResult(LocationSearchIconProvider.SearchResultType.HISTORY)
+                }
+                else -> {
+                    val source = location.source
+                    when {
+                        Location.FOURSQUARE == source -> {
+                            iconProvider.iconForSearchResult(LocationSearchIconProvider.SearchResultType.FOURSQUARE)
+                        }
+                        Location.GOOGLE == source -> {
+                            iconProvider.iconForSearchResult(LocationSearchIconProvider.SearchResultType.GOOGLE)
+                        }
+                        else -> {
+                            0
+                        }
+                    }
                 }
             }
         }
 
-        if (place.icon() != null) {
-            icon.set(place.icon())
-        } else if (iconRes == 0) {
-            icon.set(null)
-        } else {
-            icon.set(ContextCompat.getDrawable(context, iconRes))
+        when {
+            place.icon() != null -> {
+                icon.set(place.icon())
+            }
+            iconRes == 0 -> {
+                icon.set(null)
+            }
+            else -> {
+                icon.set(ContextCompat.getDrawable(context, iconRes))
+            }
         }
     }
 }
