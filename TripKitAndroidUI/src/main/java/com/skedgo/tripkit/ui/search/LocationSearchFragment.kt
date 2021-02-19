@@ -76,13 +76,15 @@ class LocationSearchFragment : BaseTripKitFragment() {
     }
 
     private fun saveLocationToHistory(location: Location) {
-        locationHistoryRepository.saveLocationsToHistory(
-                listOf(location)
-        ).observeOn(Schedulers.io())
-                .subscribeOn(Schedulers.io())
-                .subscribe({}, {
-                    it.printStackTrace()
-                }).addTo(autoDisposable)
+        if(location.name != getString(R.string.home) && location.name != getString(R.string.work)) {
+            locationHistoryRepository.saveLocationsToHistory(
+                    listOf(location)
+            ).observeOn(Schedulers.io())
+                    .subscribeOn(Schedulers.io())
+                    .subscribe({}, {
+                        it.printStackTrace()
+                    }).addTo(autoDisposable)
+        }
     }
 
     /**
