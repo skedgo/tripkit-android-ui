@@ -2,10 +2,12 @@ package com.skedgo.tripkit.ui.search
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import androidx.databinding.*
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
+import com.google.gson.Gson
 import com.jakewharton.rxrelay2.PublishRelay
 import com.skedgo.tripkit.common.model.Location
 import com.skedgo.tripkit.common.model.Region
@@ -33,6 +35,7 @@ import io.reactivex.subjects.PublishSubject
 import me.tatarka.bindingcollectionadapter2.ItemBinding
 import me.tatarka.bindingcollectionadapter2.collections.MergeObservableList
 import com.skedgo.tripkit.logging.ErrorLogger
+import com.skedgo.tripkit.ui.database.location_history.LocationHistoryRepository
 import com.skedgo.tripkit.ui.geocoding.AutoCompleteResult
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -50,9 +53,11 @@ class LocationSearchViewModel @Inject constructor(private val context: Context,
                                                   private val errorLogger: ErrorLogger,
                                                   private val picasso: Picasso,
                                                   private val schedulerFactory: SchedulerFactory,
+                                                  private val locationHistoryRepository: LocationHistoryRepository,
                                                   val errorViewModel: LocationSearchErrorViewModel)
     : RxViewModel() {
 
+    var legacyLocationSearchIconProvider: LegacyLocationSearchIconProvider? = null
     var locationSearchIconProvider: LocationSearchIconProvider? = null
     var fixedSuggestionsProvider: FixedSuggestionsProvider? = null
     var locationSearchProvider: LocationSearchProvider? = null
@@ -71,6 +76,7 @@ class LocationSearchViewModel @Inject constructor(private val context: Context,
 
     val chosenCityName = ObservableField<String>()
 
+    val historySuggestions: ObservableList<SuggestionViewModel> = ObservableArrayList()
     val fixedSuggestions: ObservableList<SuggestionViewModel> = ObservableArrayList()
     val providedSuggestions: ObservableList<SuggestionViewModel> = ObservableArrayList()
 
@@ -93,6 +99,7 @@ class LocationSearchViewModel @Inject constructor(private val context: Context,
     init {
 
         allSuggestions.insertList(fixedSuggestions)
+        allSuggestions.insertList(historySuggestions)
         allSuggestions.insertList(providedSuggestions)
         allSuggestions.insertList(googleAndTripGoSuggestions)
         allSuggestions.asObservable()
@@ -123,6 +130,9 @@ class LocationSearchViewModel @Inject constructor(private val context: Context,
                         fixedSuggestionsProvider().fixedSuggestions(context, iconProvider()).forEach { suggestion ->
                             fixedSuggestions.add(FixedSuggestionViewModel(context, suggestion))
                         }
+                        loadFromHistory()
+                    }else{
+                        historySuggestions.clear()
                     }
                     providedSuggestions.clear()
                     viewModelScope.launch {
@@ -208,6 +218,27 @@ class LocationSearchViewModel @Inject constructor(private val context: Context,
                 .subscribe({}, { errorLogger.trackError(it) })
                 .autoClear()
 
+    }
+
+    private fun loadFromHistory(){
+        locationHistoryRepository
+                .getLocationHistory()
+                .observeOn(mainThread())
+                .subscribeOn(io())
+                .subscribe({
+                    fixedSuggestionsProvider().locationsToSuggestion(context, it, legacyIconProvider()).forEach { suggestion ->
+                        historySuggestions.add(SearchProviderSuggestionViewModel(context, suggestion))
+                    }
+                },{
+                    it.printStackTrace()
+                }).autoClear()
+    }
+
+    private fun legacyIconProvider(): LegacyLocationSearchIconProvider {
+        if (legacyLocationSearchIconProvider == null) {
+            legacyLocationSearchIconProvider = LegacyLocationSearchIconProvider()
+        }
+        return legacyLocationSearchIconProvider!!
     }
 
     private fun iconProvider(): LocationSearchIconProvider {

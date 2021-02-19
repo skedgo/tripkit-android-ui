@@ -5,6 +5,6 @@ import com.skedgo.tripkit.ui.data.places.Place
 
 sealed class SearchSuggestionChoice {
   data class PlaceChoice(val place: Place) : SearchSuggestionChoice()
-  data class FixedChoice(val id: Any) : SearchSuggestionChoice()
+  data class FixedChoice(val id: Any, val location: Location? = null) : SearchSuggestionChoice()
   data class SearchProviderChoice(val location: Location?) : SearchSuggestionChoice()
 }

@@ -17,7 +17,7 @@ open class LocationHistoryMapper @Inject constructor() {
                             bearing = it.bearing,
                             phone = it.phoneNumber?:"",
                             url = it.url?:"",
-                            timezone = it.timeZone?:"",
+                            timezone = it.timeZone,
                             popularity = it.popularity,
                             locationClass = it.locationClass?:"",
                             w3w = it.w3w?:"",
@@ -38,7 +38,7 @@ open class LocationHistoryMapper @Inject constructor() {
                         location.bearing = it.bearing
                         location.phoneNumber = it.phone
                         location.url = it.url
-                        location.timeZone = it.timezone?:""
+                        location.timeZone = it.timezone
                         location.popularity = it.popularity
                         location.locationClass = it.locationClass?:""
                         location.w3w = it.w3w
