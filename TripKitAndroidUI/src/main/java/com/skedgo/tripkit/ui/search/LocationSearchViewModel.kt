@@ -39,6 +39,10 @@ import io.reactivex.subjects.PublishSubject
 import kotlinx.coroutines.launch
 import me.tatarka.bindingcollectionadapter2.ItemBinding
 import me.tatarka.bindingcollectionadapter2.collections.MergeObservableList
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.ZoneId
+import java.time.ZoneOffset
 import java.util.*
 import java.util.Collections.min
 import java.util.concurrent.TimeUnit
@@ -225,15 +229,15 @@ class LocationSearchViewModel @Inject constructor(private val context: Context,
 
     private fun loadFromHistory() {
 
-        val historyStartCalendar = Calendar.getInstance()
-        historyStartCalendar.add(Calendar.DATE, -12)
+        val historyStartCalendarMillis = LocalDateTime.now().minusDays(12)
+                .atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
 
         locationHistoryRepository
-                .getLatestLocationHistory(historyStartCalendar.timeInMillis)
+                .getLatestLocationHistory(historyStartCalendarMillis)
                 .observeOn(mainThread())
                 .subscribeOn(io())
                 .subscribe({
-                    fixedSuggestionsProvider().locationsToSuggestion(context, it, legacyIconProvider()).forEach { suggestion ->
+                    fixedSuggestionsProvider().locationsToSuggestion(context, it.reversed(), legacyIconProvider()).forEach { suggestion ->
                         historySuggestions.add(SearchProviderSuggestionViewModel(context, suggestion))
                     }
                 }, {

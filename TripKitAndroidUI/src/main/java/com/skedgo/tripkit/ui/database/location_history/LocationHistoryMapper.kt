@@ -22,7 +22,7 @@ open class LocationHistoryMapper @Inject constructor() {
                             locationClass = it.locationClass?:"",
                             w3w = it.w3w?:"",
                             wewInfoURL = it.w3wInfoURL?:"",
-                            createdAt = Calendar.getInstance().timeInMillis
+                            createdAt = System.currentTimeMillis()
                     )
                 }
     }

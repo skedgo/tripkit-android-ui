@@ -19,4 +19,7 @@ interface LocationHistoryDao {
 
   @Query("SELECT * from location_history WHERE createdAt > :startTimestamp")
   fun getLocationInHistory(startTimestamp: Long): Single<List<LocationHistoryEntity>>
+
+  @Query("DELETE FROM location_history WHERE createdAt < :startTimestamp")
+  fun deleteOldHistory(startTimestamp: Long): Completable
 }

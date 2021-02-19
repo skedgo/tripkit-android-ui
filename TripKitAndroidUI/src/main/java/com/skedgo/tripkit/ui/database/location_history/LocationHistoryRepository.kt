@@ -15,13 +15,14 @@ open class LocationHistoryRepository @Inject constructor(
         return locationHistoryDao.insert(entities)
     }
 
-    fun getLocationHistory(): Single<List<Location>>{
+    fun getLocationHistory(): Single<List<Location>> {
         return locationHistoryDao.getAllLocationInHistory()
                 .map { mapper.toLocation(it) }
     }
 
-    fun getLatestLocationHistory(startTimestamp: Long): Single<List<Location>>{
-        return locationHistoryDao.getLocationInHistory(startTimestamp)
+    fun getLatestLocationHistory(startTimestamp: Long): Single<List<Location>> {
+        return locationHistoryDao.deleteOldHistory(startTimestamp)
+                .andThen(locationHistoryDao.getLocationInHistory(startTimestamp))
                 .map { mapper.toLocation(it) }
     }
 }
