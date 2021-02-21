@@ -39,11 +39,6 @@ import io.reactivex.subjects.PublishSubject
 import kotlinx.coroutines.launch
 import me.tatarka.bindingcollectionadapter2.ItemBinding
 import me.tatarka.bindingcollectionadapter2.collections.MergeObservableList
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.ZoneId
-import java.time.ZoneOffset
-import java.util.*
 import java.util.Collections.min
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -78,6 +73,9 @@ class LocationSearchViewModel @Inject constructor(private val context: Context,
     val showMiddleProgressBar = ObservableBoolean()
     val showBackButton = ObservableBoolean(true)
     val showSearchBox = ObservableBoolean(true)
+
+    var scrollResultsOfQuery = false
+    val scrollListToTop = ObservableBoolean(true)
 
     val chosenCityName = ObservableField<String>()
 
@@ -135,6 +133,11 @@ class LocationSearchViewModel @Inject constructor(private val context: Context,
                     if (params.term().isEmpty()) {
                         fixedSuggestionsProvider().fixedSuggestions(context, iconProvider()).forEach { suggestion ->
                             fixedSuggestions.add(FixedSuggestionViewModel(context, suggestion))
+
+                            if(scrollResultsOfQuery){
+                                scrollListToTop.set(true)
+                                scrollResultsOfQuery = false
+                            }
                         }
                         loadFromHistory()
                     } else {
@@ -228,7 +231,7 @@ class LocationSearchViewModel @Inject constructor(private val context: Context,
     }
 
     private fun loadFromHistory() {
-
+        historySuggestions.clear()
         val historyStartCalendarMillis = System.currentTimeMillis() - TimeUnit.DAYS.toMillis(12L)
 
         locationHistoryRepository
@@ -297,6 +300,9 @@ class LocationSearchViewModel @Inject constructor(private val context: Context,
     fun onQueryTextChanged(query: String) {
         showRefreshing.set(true)
         onQueryTextChangeEventThrottle.onNext(query)
+        if(query.isBlank()) {
+            scrollResultsOfQuery = true
+        }
     }
 
     fun onTextSubmit(): Boolean = when {
