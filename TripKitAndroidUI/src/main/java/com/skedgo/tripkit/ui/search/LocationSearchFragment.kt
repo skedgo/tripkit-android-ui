@@ -22,6 +22,7 @@ import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.TripKitUI
 import com.skedgo.tripkit.ui.core.BaseTripKitFragment
 import com.skedgo.tripkit.ui.core.addTo
+import com.skedgo.tripkit.ui.core.rxproperty.asObservable
 import com.skedgo.tripkit.ui.database.location_history.LocationHistoryRepository
 import com.skedgo.tripkit.ui.databinding.LocationSearchBinding
 import io.reactivex.Completable
@@ -54,6 +55,8 @@ class LocationSearchFragment : BaseTripKitFragment() {
     @Inject
     lateinit var locationHistoryRepository: LocationHistoryRepository
 
+    lateinit var binding: LocationSearchBinding
+
     /**
      * This callback will be invoked when a search result is clicked.
      */
@@ -76,13 +79,15 @@ class LocationSearchFragment : BaseTripKitFragment() {
     }
 
     private fun saveLocationToHistory(location: Location) {
-        locationHistoryRepository.saveLocationsToHistory(
-                listOf(location)
-        ).observeOn(Schedulers.io())
-                .subscribeOn(Schedulers.io())
-                .subscribe({}, {
-                    it.printStackTrace()
-                }).addTo(autoDisposable)
+        if(location.name != getString(R.string.home) && location.name != getString(R.string.work)) {
+            locationHistoryRepository.saveLocationsToHistory(
+                    listOf(location)
+            ).observeOn(Schedulers.io())
+                    .subscribeOn(Schedulers.io())
+                    .subscribe({}, {
+                        it.printStackTrace()
+                    }).addTo(autoDisposable)
+        }
     }
 
     /**
@@ -165,7 +170,7 @@ class LocationSearchFragment : BaseTripKitFragment() {
      * @suppress
      */
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val binding = LocationSearchBinding.inflate(inflater)
+        binding = LocationSearchBinding.inflate(inflater)
 
         binding.viewModel = viewModel
         searchView = binding.searchLayout.searchView
@@ -229,6 +234,16 @@ class LocationSearchFragment : BaseTripKitFragment() {
                             Toast.LENGTH_SHORT
                     ).show()
                 }, errorLogger::trackError).addTo(autoDisposable)
+
+        viewModel.scrollListToTop.asObservable()
+                .observeOn(mainThread())
+                .subscribe({
+                    if(it) {
+                        scrollResultsToTop()
+                    }
+                },{
+                    it.printStackTrace()
+                }).addTo(autoDisposable)
     }
     /**
      * @suppress
@@ -287,6 +302,13 @@ class LocationSearchFragment : BaseTripKitFragment() {
 
     fun dismissKeyboard() {
         searchView?.clearFocus()
+    }
+
+    private fun scrollResultsToTop() {
+        if (this::binding.isInitialized) {
+            binding.resultView.scrollToPosition(0)
+        }
+        viewModel.scrollListToTop.set(false)
     }
 
     /**
