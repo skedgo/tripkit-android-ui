@@ -306,7 +306,11 @@ class TripResultListViewModel @Inject constructor(
                             this.setTripGroup(context, group, classifier.classify(group))
                             onMoreButtonClicked.observable
                                     .subscribe {
-                                        actionButtonHandler?.primaryActionClicked(it.trip)
+                                        if(it.otherTripGroups.isNullOrEmpty()) {
+                                            actionButtonHandler?.primaryActionClicked(it.trip)
+                                        }else{
+                                            it.toggleShowMore()
+                                        }
                                     }.autoClear()
                         }
 

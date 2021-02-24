@@ -19,8 +19,11 @@ import org.joda.time.DateTime
 import com.skedgo.tripkit.datetime.PrintTime
 import com.skedgo.tripkit.routing.*
 import com.skedgo.tripkit.ui.core.addTo
+import com.skedgo.tripkit.ui.core.rxproperty.asObservable
 import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButtonHandler
 import com.skedgo.tripkit.ui.utils.*
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -61,6 +64,7 @@ class TripResultViewModel  @Inject constructor(private val context: Context,
     val badgeTextColor = ObservableInt()
     val badgeVisible = ObservableBoolean(false)
     val tripResults = ObservableArrayList<TripResultTripViewModel>()
+    val showMoreTrips = ObservableBoolean(false)
 
     var actionButtonHandler: ActionButtonHandler? = null
 
@@ -72,6 +76,24 @@ class TripResultViewModel  @Inject constructor(private val context: Context,
     var moreButtonText = ObservableField<String>()
     var otherTripGroups : List<Trip>? = null
     var classification = TripGroupClassifier.Classification.NONE
+
+    fun toggleShowMore(){
+        showMoreTrips.set(!showMoreTrips.get())
+
+        if (showMoreTrips.get()) {
+            otherTripGroups?.forEach {
+                addTripToList(it)
+            }
+            moreButtonText.set(context.resources.getString(R.string.less))
+            moreButtonVisible.set(true)
+        } else {
+            otherTripGroups?.let { otherTrips ->
+                removeFromTripList(otherTrips.map { tripToTripResultTripViewModel(it) })
+            }
+            moreButtonText.set(context.resources.getString(R.string.more))
+            moreButtonVisible.set(true)
+        }
+    }
 
     override fun equals(other: Any?) : Boolean {
         if (other == null
@@ -92,7 +114,6 @@ class TripResultViewModel  @Inject constructor(private val context: Context,
     fun setTripGroup(context: Context,
                      tripgroup: TripGroup,
                      classification: TripGroupClassifier.Classification?)  {
-        moreButtonText.set(context.resources.getString(R.string.more))
         group = tripgroup
         trip = tripgroup.displayTrip!!
         otherTripGroups = tripgroup.trips?.filterNot { it.uuid() == trip.uuid() }
@@ -103,27 +124,47 @@ class TripResultViewModel  @Inject constructor(private val context: Context,
         }
 
         addTripToList(trip)
+
         alternateTrip?.let {
             addTripToList(it)
+            val otherTrips = otherTripGroups?.toMutableList()
+            otherTrips?.removeAll { otherTrip -> otherTrip.id == it.id  }
+            otherTripGroups = otherTrips
         }
+
         setCost()
 
-        val actionButtonText = actionButtonHandler?.getPrimaryAction(context, trip)
+        if(otherTripGroups.isNullOrEmpty()) {
+            val actionButtonText = actionButtonHandler?.getPrimaryAction(context, trip)
 
-        actionButtonText?.let {
-            moreButtonText = actionButtonText
+            actionButtonText?.let {
+                moreButtonText = actionButtonText
+                moreButtonVisible.set(true)
+            }
+
+        }else{
+            moreButtonText.set(context.resources.getString(R.string.more))
             moreButtonVisible.set(true)
         }
     }
 
     private fun addTripToList(trip: Trip) {
+        tripResults.add(tripToTripResultTripViewModel(trip))
+    }
+
+    private fun removeFromTripList(trips: List<TripResultTripViewModel>){
+        tripResults.removeAll { trips.any { toRemove -> it.trip == toRemove.trip } }
+    }
+
+    private fun tripToTripResultTripViewModel(trip: Trip): TripResultTripViewModel{
         val newVm = TripResultTripViewModel()
         newVm.trip = trip
         newVm.clickFlow = clickFlow
         newVm.title.set(buildTitle(trip))
         newVm.subtitle.set(buildSubtitle(trip))
         setSegments(newVm.segments, trip)
-        tripResults.add(newVm)
+
+        return newVm
     }
 
     private fun setBadge(classification: TripGroupClassifier.Classification) {
