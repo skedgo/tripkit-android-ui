@@ -333,7 +333,7 @@ class TripSegmentsViewModel @Inject internal constructor(
     val newItems = ArrayList<Any>()
     val trip = tripGroup.trips?.firstOrNull { it.id == tripId } ?: tripGroup.displayTrip
     if (trip != null) {
-      val tripSegments = tripGroup.displayTrip!!.segments
+      val tripSegments = trip.segments
       segmentViewModels.clear()
       tripSegments.forEachIndexed { index, segment ->
         var previousSegment = tripSegments.elementAtOrNull(index - 1)
