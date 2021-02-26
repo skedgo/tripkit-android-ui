@@ -120,6 +120,7 @@ dependencies {
     kapt libs.lifecycleCompiler
 //    implementation "biz.laenger.android:vpbs:0.0.6"
     implementation libs.excuseMe
+    implementation libs.pdfViewer
 
     api project(':trip-kit-booking')
     api project(':TripKitAndroid')
