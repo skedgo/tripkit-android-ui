@@ -233,7 +233,7 @@ public class TripResultPagerFragment extends BaseTripKitFragment implements View
       this.actionButtonHandlerFactory = factory;
       return this;
     }
-    public Builder withViewTrip(ViewTrip trip) {
+    public Builder withViewTrip(ViewTrip.FromRoutesScreen trip) {
       this.tripGroupId = trip.tripGroupUUID();
       this.tripId = trip.getDisplayTripID();
       this.sortOrder = trip.getSortOrder();

@@ -35,7 +35,7 @@ open class CreateShareContent @Inject constructor(private val regionService: Reg
                             rows.append("* real-time")
                         }
 
-                        rows.append("\nhttp://tripgo.me/stop/${region.name}/${stop.code}")
+                        rows.append("\nhttp://tripgo.com/stop/${region.name}/${stop.code}")
 
                         rows.toString()
                     }

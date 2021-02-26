@@ -286,7 +286,7 @@ class TripResultListViewModel @Inject constructor(
     private fun loadFromStore() {
         val tripFlow = MutableSharedFlow<Trip>()
         tripFlow.onEach {
-            val clickEvent = ViewTrip(query = this.query,
+            val clickEvent = ViewTrip.FromRoutesScreen(query = this.query,
                     tripGroupUUID = it.group.uuid(),
                     sortOrder = 1, /* TODO Proper sorting */
                     displayTripID = it.id)
