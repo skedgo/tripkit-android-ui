@@ -64,4 +64,8 @@
     <color name="v4_btn_radio_pressed_flat">#00a653</color>
     <color name="v4_btn_radio_text_flat">#808080</color>
 
+    <color name="toolbar_buttonText">#007bff</color>
+    <color name="toolbar_buttonText_pressed">#ccdaed</color>
+    <color name="toolbar_button">#f6f6f5</color>
+
 </resources>
