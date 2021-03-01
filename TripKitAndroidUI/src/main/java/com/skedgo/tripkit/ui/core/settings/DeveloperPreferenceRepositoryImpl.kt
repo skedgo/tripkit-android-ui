@@ -13,6 +13,7 @@ class DeveloperPreferenceRepositoryImpl constructor(
 ) : DeveloperPreferenceRepository {
   private val isEnabledKey by lazy { "isEnabled" }
   private val bsbKey by lazy { context.getString(R.string.pref_bsb) }
+  private val psbKey by lazy { context.getString(R.string.pref_psb) }
   private val serverTypeKey by lazy { context.getString(R.string.pref_server_type) }
   private val customServerKey by lazy { context.getString(R.string.pref_custom_server) }
   private val productionServer by lazy { "" }
@@ -49,6 +50,14 @@ class DeveloperPreferenceRepositoryImpl constructor(
       preferences.edit()
           .putBoolean(bsbKey, value)
           .apply()
+    }
+
+  override var paymentsUseSandbox: Boolean
+    get() {
+      return preferences.getBoolean(psbKey, false)
+    }
+    set(value) {
+      preferences.edit().putBoolean(psbKey, value).apply()
     }
 
   override val server: String
