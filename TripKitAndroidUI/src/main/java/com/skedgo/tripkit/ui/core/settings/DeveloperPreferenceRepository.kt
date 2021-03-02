@@ -7,5 +7,6 @@ interface DeveloperPreferenceRepository {
   val onServerChange: Observable<String>
   var isEnabled: Boolean
   var bookingsUseSandbox: Boolean
+  var paymentsUseSandbox: Boolean
   val server: String
 }

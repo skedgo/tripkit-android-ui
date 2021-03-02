@@ -68,7 +68,7 @@
 
     <!-- NOTE: This view MUST have a tag called "segmentList". For more information, see the TripGroupPagerAdapter's setPrimaryItem function -->
   <androidx.recyclerview.widget.RecyclerView
-      android:id="@+id/itemsView"
+    android:id="@+id/itemsView"
       android:layout_width="match_parent"
       android:layout_height="0dp"
       app:itemBinding="@{viewModel.itemBinding}"

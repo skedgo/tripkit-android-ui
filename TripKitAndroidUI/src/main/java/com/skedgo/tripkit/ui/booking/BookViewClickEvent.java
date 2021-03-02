@@ -10,8 +10,8 @@ public class BookViewClickEvent implements View.OnClickListener {
   private final Bus bus;
 
   public BookViewClickEvent(
-      @NonNull Bus bus,
-      @NonNull TripSegment segment) {
+          @NonNull Bus bus,
+          @NonNull TripSegment segment) {
     this.bus = bus;
     this.segment = segment;
   }
