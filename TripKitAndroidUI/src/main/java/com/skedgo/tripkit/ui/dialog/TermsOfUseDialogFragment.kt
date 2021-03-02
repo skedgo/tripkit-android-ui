@@ -9,6 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.Window
 import androidx.fragment.app.DialogFragment
+import com.github.barteksc.pdfviewer.listener.OnPageScrollListener
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.databinding.DialogPdfDisplayBinding
 
@@ -41,7 +42,12 @@ class TermsOfUseDialogFragment(private val listener: Listener) : DialogFragment(
     }
 
     private fun setupWebView() {
-        binding.pdfView.fromAsset(getString(R.string.terms_of_use_file_name)).load()
+        binding.pdfView.fromAsset(getString(R.string.terms_of_use_file_name))
+                .onPageScroll { _, positionOffset ->
+                    if (positionOffset >= 1) {
+                        binding.btnAccept.isEnabled = true
+                    }
+                }.load()
     }
 
     private fun setupListener() {
