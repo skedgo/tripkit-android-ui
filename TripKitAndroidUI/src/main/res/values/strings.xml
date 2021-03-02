@@ -33,4 +33,5 @@
     <string name="open_in">Open in...</string>
     <!--This is to indicate a mobility plan is the user's either future or current plan-->
     <string name="subscribed">Subscribed</string>
+    <string name="accept">Accept</string>
 </resources>
