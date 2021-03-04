@@ -5,6 +5,7 @@ import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.view.View
 import androidx.core.content.ContextCompat
+import androidx.databinding.ObservableArrayList
 import androidx.databinding.ObservableBoolean
 import androidx.databinding.ObservableField
 import androidx.databinding.ObservableInt
@@ -31,6 +32,7 @@ import com.skedgo.tripkit.ui.timetables.GetServiceTertiaryText
 import com.skedgo.tripkit.ui.timetables.GetServiceTitleText
 import com.skedgo.tripkit.ui.trip.details.viewmodel.OccupancyViewModel
 import com.skedgo.tripkit.ui.trip.details.viewmodel.ServiceAlertViewModel
+import com.skedgo.tripkit.ui.trippreview.service.ServiceTripActionViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers
 import me.tatarka.bindingcollectionadapter2.ItemBinding
 import timber.log.Timber
@@ -69,6 +71,10 @@ class ServiceDetailViewModel  @Inject constructor(private val context: Context,
     val onItemClicked = PublishRelay.create<ServiceStop>()
     var showCloseButton = ObservableBoolean(false)
 
+    val enableButton = ObservableBoolean(true)
+    val buttonText = ObservableField<String>()
+    val actionChosen = PublishRelay.create<String>()
+    var action = ""
 
     fun setup(region: String,
               serviceId: String,
@@ -139,6 +145,21 @@ class ServiceDetailViewModel  @Inject constructor(private val context: Context,
                         segment.realTimeVehicle,
                         segment.wheelchairAccessible)
                 }.autoClear()
+
+        segment.booking?.externalActions?.let { actions ->
+            when {
+                actions.contains("showTicket") -> {
+                    action = "showTicket"
+                    buttonText.set("Show Ticket")
+                }
+                actions.contains("book") -> {
+                    action = "book"
+                    buttonText.set("Book")
+                }
+                else -> {
+                }
+            }
+        }
     }
 
     fun setup(_stop: ScheduledStop, _entry: TimetableEntry) {

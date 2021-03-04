@@ -23,11 +23,11 @@ class TripPreviewPagerAdapter(fragmentManager: FragmentManager)
     override fun getItem(position: Int): Fragment {
         val page = pages[position]
         val fragment = when (page.type) {
-            ITEM_DIRECTIONS -> DirectionsTripPreviewItemFragment(page.tripSegment)
-            ITEM_NEARBY -> NearbyTripPreviewItemFragment(page.tripSegment)
-            ITEM_MODE_LOCATION -> ModeLocationTripPreviewItemFragment(page.tripSegment)
+            ITEM_DIRECTIONS -> DirectionsTripPreviewItemFragment(page.tripSegment) // Directions showing miles per item
+            ITEM_NEARBY -> NearbyTripPreviewItemFragment(page.tripSegment) // Happening nearby (collect bicycle, walk, etc)
+            ITEM_MODE_LOCATION -> ModeLocationTripPreviewItemFragment(page.tripSegment) // modes
             ITEM_EXTERNAL_BOOKING -> ExternalActionTripPreviewItemFragment(page.tripSegment)
-            ITEM_SERVICE -> ServiceTripPreviewItemFragment(page.tripSegment)
+            ITEM_SERVICE -> ServiceTripPreviewItemFragment(page.tripSegment) // PT with stops
             else -> StandardTripPreviewItemFragment(page.tripSegment)
         }
         fragment.onCloseButtonListener = onCloseButtonListener

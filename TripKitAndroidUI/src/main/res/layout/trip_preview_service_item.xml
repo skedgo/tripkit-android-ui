@@ -68,6 +68,7 @@
                         android:paddingRight="4dp"
                         style="@style/TextAppearance.MaterialComponents.Caption"/>
             </androidx.cardview.widget.CardView>
+
             <TextView
                     tools:text="Scheduled"
                     android:layout_width="wrap_content"
@@ -78,9 +79,25 @@
                     android:text="@{viewModel.secondaryText}"
                     style="@style/TextAppearance.MaterialComponents.Body2"/>
         </LinearLayout>
-        <include layout="@layout/service_detail_fragment_content"  android:id="@+id/content"
-                 bind:viewModel="@{viewModel}"/>
 
+
+        <com.google.android.material.button.MaterialButton
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/btnBook"
+            style="?attr/materialButtonOutlinedStyle"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:text="@{viewModel.buttonText}"
+            android:onClick="@{() -> viewModel.actionChosen.accept(viewModel.action)}"
+            app:icon="@drawable/ic_ticket"
+            app:iconGravity="textStart"
+            android:enabled="@{viewModel.enableButton}"
+            app:layout_constraintTop_toBottomOf="@id/iconLayout"/>
+
+        <include layout="@layout/service_detail_fragment_content"
+            android:id="@+id/content"
+            bind:viewModel="@{viewModel}"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </layout>
