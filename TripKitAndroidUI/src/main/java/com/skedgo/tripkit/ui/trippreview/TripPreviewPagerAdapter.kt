@@ -19,6 +19,7 @@ class TripPreviewPagerAdapter(fragmentManager: FragmentManager)
     : FragmentStatePagerAdapter(fragmentManager, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
     var pages = mutableListOf<TripPreviewPagerAdapterItem>()
     var onCloseButtonListener: View.OnClickListener? = null
+    var tripPreviewPagerListener: TripPreviewPagerFragment.Listener? = null
 
     override fun getItem(position: Int): Fragment {
         val page = pages[position]
@@ -31,6 +32,7 @@ class TripPreviewPagerAdapter(fragmentManager: FragmentManager)
             else -> StandardTripPreviewItemFragment(page.tripSegment)
         }
         fragment.onCloseButtonListener = onCloseButtonListener
+        fragment.tripPreviewPagerListener = tripPreviewPagerListener
         return fragment
     }
 
@@ -40,7 +42,8 @@ class TripPreviewPagerAdapter(fragmentManager: FragmentManager)
 
     fun setTripSegments(activeTripSegmentId: Long, tripSegments: List<TripSegment>): Int {
         var activeTripSegmentPosition = 0
-        tripSegments.forEachIndexed {index, segment ->
+        var addedModeCards = 0
+        tripSegments.forEachIndexed { index, segment ->
             val itemType = segment.correctItemType()
             val newItem = TripPreviewPagerAdapterItem(itemType, segment)
             pages.add(newItem)
@@ -48,14 +51,14 @@ class TripPreviewPagerAdapter(fragmentManager: FragmentManager)
             if (itemType == ITEM_NEARBY) {
                 // Add the mode location card as well
                 pages.add(TripPreviewPagerAdapterItem(ITEM_MODE_LOCATION, segment))
+                addedModeCards++
             }
 
-            if (activeTripSegmentId == segment.templateHashCode) {
-                activeTripSegmentPosition = index
+            if (activeTripSegmentId == segment.id) {
+                activeTripSegmentPosition = index + addedModeCards
             }
         }
         notifyDataSetChanged()
         return activeTripSegmentPosition
     }
-
 }

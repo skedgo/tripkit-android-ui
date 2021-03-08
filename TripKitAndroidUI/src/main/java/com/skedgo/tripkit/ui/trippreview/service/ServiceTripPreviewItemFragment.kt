@@ -19,7 +19,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import javax.inject.Inject
 
 
-class ServiceTripPreviewItemFragment(val segment: TripSegment) : BaseTripKitFragment() {
+class ServiceTripPreviewItemFragment(var segment: TripSegment) : BaseTripKitFragment() {
     var time = 0L
 
     @Inject
@@ -36,6 +36,18 @@ class ServiceTripPreviewItemFragment(val segment: TripSegment) : BaseTripKitFrag
         super.onAttach(context)
     }
 
+    override fun onResume() {
+        super.onResume()
+        viewModel.actionChosen.observeOn(AndroidSchedulers.mainThread())
+                .subscribe {
+                    if (viewModel.action == "book") {
+                        viewModel.buttonText.set("Booking...")
+                        viewModel.enableButton.set(false)
+                    }
+                    tripPreviewPagerListener?.onServiceActionButtonClicked(viewModel.action, segment)
+                }.addTo(autoDisposable)
+    }
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val binding = TripPreviewServiceItemBinding.inflate(inflater)
         binding.viewModel = viewModel
@@ -43,11 +55,7 @@ class ServiceTripPreviewItemFragment(val segment: TripSegment) : BaseTripKitFrag
         binding.content.occupancyList.layoutManager = LinearLayoutManager(context, RecyclerView.HORIZONTAL, false)
         binding.closeButton.setOnClickListener(onCloseButtonListener)
 
-        viewModel.actionChosen.observeOn(AndroidSchedulers.mainThread())
-                .subscribe {
-                    viewModel.enableButton.set(false)
-
-                }.addTo(autoDisposable)
+        viewModel.setup(segment)
 
         return binding.root
     }
