@@ -17,8 +17,8 @@
             android:layout_marginTop="4dp"
             android:textColor="@color/black1"
             style="@style/TextAppearance.MaterialComponents.Caption"
-            app:layout_constraintStart_toStartOf="@+id/iconLayout"
-            app:layout_constraintTop_toBottomOf="@+id/iconLayout"/>
+            app:layout_constraintStart_toStartOf="@+id/contButton"
+            app:layout_constraintTop_toBottomOf="@+id/contButton"/>
     <View
             android:layout_width="match_parent"
             android:layout_height="1dp"

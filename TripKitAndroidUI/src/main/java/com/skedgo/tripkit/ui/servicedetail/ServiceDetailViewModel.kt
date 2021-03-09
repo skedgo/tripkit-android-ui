@@ -5,6 +5,7 @@ import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.view.View
 import androidx.core.content.ContextCompat
+import androidx.databinding.ObservableArrayList
 import androidx.databinding.ObservableBoolean
 import androidx.databinding.ObservableField
 import androidx.databinding.ObservableInt
@@ -31,24 +32,25 @@ import com.skedgo.tripkit.ui.timetables.GetServiceTertiaryText
 import com.skedgo.tripkit.ui.timetables.GetServiceTitleText
 import com.skedgo.tripkit.ui.trip.details.viewmodel.OccupancyViewModel
 import com.skedgo.tripkit.ui.trip.details.viewmodel.ServiceAlertViewModel
+import com.skedgo.tripkit.ui.trippreview.service.ServiceTripActionViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers
 import me.tatarka.bindingcollectionadapter2.ItemBinding
 import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Provider
 
-class ServiceDetailViewModel  @Inject constructor(private val context: Context,
-                                                  private val regionService: RegionService,
-                                                  private val serviceApi: ServiceApi,
-                                                  val occupancyViewModel: OccupancyViewModel,
-                                                  private val serviceViewModelProvider: Provider<ServiceDetailItemViewModel>,
-                                                  val serviceAlertViewModel: ServiceAlertViewModel,
-                                                  private val loadServices: LoadServices,
-                                                  private val getServiceTitleText: GetServiceTitleText,
-                                                  private val getServiceSubTitleText: GetServiceSubTitleText,
-                                                  private val getServiceTertiaryText: GetServiceTertiaryText,
-                                                  private val getRealtimeText: GetRealtimeText,
-                                                  private val errorLogger: ErrorLogger): RxViewModel() {
+class ServiceDetailViewModel @Inject constructor(private val context: Context,
+                                                 private val regionService: RegionService,
+                                                 private val serviceApi: ServiceApi,
+                                                 val occupancyViewModel: OccupancyViewModel,
+                                                 private val serviceViewModelProvider: Provider<ServiceDetailItemViewModel>,
+                                                 val serviceAlertViewModel: ServiceAlertViewModel,
+                                                 private val loadServices: LoadServices,
+                                                 private val getServiceTitleText: GetServiceTitleText,
+                                                 private val getServiceSubTitleText: GetServiceSubTitleText,
+                                                 private val getServiceTertiaryText: GetServiceTertiaryText,
+                                                 private val getRealtimeText: GetRealtimeText,
+                                                 private val errorLogger: ErrorLogger) : RxViewModel() {
     val stationName = ObservableField<String>()
     val serviceColor: ObservableInt = ObservableInt()
     val serviceNumber = ObservableField<String>()
@@ -69,6 +71,11 @@ class ServiceDetailViewModel  @Inject constructor(private val context: Context,
     val onItemClicked = PublishRelay.create<ServiceStop>()
     var showCloseButton = ObservableBoolean(false)
 
+    val enableButton = ObservableBoolean(true)
+    val showButton = ObservableBoolean(true)
+    val buttonText = ObservableField<String>()
+    val actionChosen = PublishRelay.create<String>()
+    var action = ""
 
     fun setup(region: String,
               serviceId: String,
@@ -118,7 +125,7 @@ class ServiceDetailViewModel  @Inject constructor(private val context: Context,
 
         serviceApi.getServiceAsync(region, serviceId, operator, startStopCode, endStopCode,
                 embarkation, true)
-                .subscribe({ processResponse(it) }, { Timber.e(it)})
+                .subscribe({ processResponse(it) }, { Timber.e(it) })
                 .autoClear()
 
     }
@@ -127,18 +134,33 @@ class ServiceDetailViewModel  @Inject constructor(private val context: Context,
         regionService.getRegionByLocationAsync(segment.from)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe {
-                   setup(it.name!!,
-                        segment.serviceTripId,
-                        segment.serviceName,
-                        segment.serviceNumber,
-                        segment.serviceColor,
-                        segment.serviceOperator,
-                        segment.startStopCode,
-                        segment.endStopCode,
-                        segment.timetableStartTime,
-                        segment.realTimeVehicle,
-                        segment.wheelchairAccessible)
+                    setup(it.name!!,
+                            segment.serviceTripId,
+                            segment.serviceName,
+                            segment.serviceNumber,
+                            segment.serviceColor,
+                            segment.serviceOperator,
+                            segment.startStopCode,
+                            segment.endStopCode,
+                            segment.timetableStartTime,
+                            segment.realTimeVehicle,
+                            segment.wheelchairAccessible)
                 }.autoClear()
+
+        segment.booking?.externalActions?.let { actions ->
+            when {
+                actions.contains("showTicket") -> {
+                    action = "showTicket"
+                    buttonText.set("Show Ticket")
+                }
+                actions.contains("book") -> {
+                    action = "book"
+                    buttonText.set("Book")
+                }
+            }
+        }
+
+        showButton.set(action.isNotEmpty())
     }
 
     fun setup(_stop: ScheduledStop, _entry: TimetableEntry) {
@@ -161,7 +183,7 @@ class ServiceDetailViewModel  @Inject constructor(private val context: Context,
 
     fun processResponse(response: ServiceResponse) {
         var list = mutableListOf<ServiceDetailItemViewModel>()
-        response.shapes().forEach {shape ->
+        response.shapes().forEach { shape ->
             shape.stops?.forEach { stop ->
                 list.add(serviceViewModelProvider.get().apply {
                     // isTravelled indicates whether or not the *traveller* has travelled the stop, which will always
@@ -169,15 +191,15 @@ class ServiceDetailViewModel  @Inject constructor(private val context: Context,
                     // invert it.
                     this.setStop(context, stop, shape.serviceColor.color, !shape.isTravelled)
                     this.setDrawable(context, ServiceDetailItemViewModel.LineDirection.MIDDLE)
-                    this.onItemClick.observable.subscribe {
-                        stopInfo -> stopInfo?.let { onItemClicked.accept(it) }
+                    this.onItemClick.observable.subscribe { stopInfo ->
+                        stopInfo?.let { onItemClicked.accept(it) }
                     }
                 })
             }
         }
 
-        items.get()!!.forEach {
-            vm -> vm.onCleared()
+        items.get()!!.forEach { vm ->
+            vm.onCleared()
         }
         list.firstOrNull()?.setDrawable(context, ServiceDetailItemViewModel.LineDirection.START)
         list.lastOrNull()?.setDrawable(context, ServiceDetailItemViewModel.LineDirection.END)

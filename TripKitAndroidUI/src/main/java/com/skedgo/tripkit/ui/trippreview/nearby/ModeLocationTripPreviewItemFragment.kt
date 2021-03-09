@@ -14,6 +14,7 @@ import android.view.View
 import android.view.View.GONE
 import android.view.ViewGroup
 import android.widget.Button
+import androidx.core.content.res.ResourcesCompat
 import androidx.lifecycle.ViewModelProviders
 import com.google.android.flexbox.FlexDirection
 import com.google.android.flexbox.FlexWrap
@@ -33,12 +34,16 @@ import com.skedgo.tripkit.ui.qrcode.INTENT_KEY_BARCODES
 import com.skedgo.tripkit.ui.qrcode.INTENT_KEY_BUTTON_ID
 import com.skedgo.tripkit.ui.qrcode.INTENT_KEY_INTERNAL_URL
 import com.skedgo.tripkit.ui.qrcode.QrCodeScanActivity
+import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButton
+import com.skedgo.tripkit.ui.utils.ITEM_SERVICE
+import com.skedgo.tripkit.ui.utils.correctItemType
 import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.android.synthetic.main.timetable_fragment.view.*
 import timber.log.Timber
 import javax.inject.Inject
 
 const val REQUEST_QR_SCAN = 1
+
 class ModeLocationTripPreviewItemFragment(val segment: TripSegment) : BaseTripKitFragment() {
     private lateinit var binding: TripPreviewPagerModeLocationItemBinding
 
@@ -46,6 +51,7 @@ class ModeLocationTripPreviewItemFragment(val segment: TripSegment) : BaseTripKi
     lateinit var sharedViewModelFactory: SharedNearbyTripPreviewItemViewModelFactory
 
     lateinit var sharedViewModel: SharedNearbyTripPreviewItemViewModel
+
     @Inject
     lateinit var viewModel: ModeLocationTripPreviewViewModel
 
@@ -95,8 +101,6 @@ class ModeLocationTripPreviewItemFragment(val segment: TripSegment) : BaseTripKi
 
                     binding.buttonLayout.addView(newButton)
                 }
-
-
             }
         }
 
@@ -122,7 +126,8 @@ class ModeLocationTripPreviewItemFragment(val segment: TripSegment) : BaseTripKi
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == REQUEST_QR_SCAN && resultCode == RESULT_OK) {
             data?.let {
-                val barcodes = it.getStringArrayExtra(INTENT_KEY_BARCODES)?.firstOrNull() ?: "unknown"
+                val barcodes = it.getStringArrayExtra(INTENT_KEY_BARCODES)?.firstOrNull()
+                        ?: "unknown"
                 val internalUrl = it.getStringExtra(INTENT_KEY_INTERNAL_URL)!!
                 var buttonId = it.getIntExtra(INTENT_KEY_BUTTON_ID, -1)
                 sendCode(buttonId, internalUrl, barcodes)
@@ -149,7 +154,7 @@ class ModeLocationTripPreviewItemFragment(val segment: TripSegment) : BaseTripKi
         super.onResume()
         sharedViewModel.bookingForm
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe {form ->
+                .subscribe { form ->
                     form.action?.let { action ->
                         if (action.isDone) {
 
@@ -157,7 +162,7 @@ class ModeLocationTripPreviewItemFragment(val segment: TripSegment) : BaseTripKi
                     }
                 }
                 .addTo(autoDisposable)
-        sharedViewModel.closeClicked.observable.observeOn(AndroidSchedulers.mainThread()).subscribe{ onCloseButtonListener?.onClick(null) }.addTo(autoDisposable)
+        sharedViewModel.closeClicked.observable.observeOn(AndroidSchedulers.mainThread()).subscribe { onCloseButtonListener?.onClick(null) }.addTo(autoDisposable)
         sharedViewModel.locationDetails.observeOn(AndroidSchedulers.mainThread())
                 .subscribe {
                     viewModel.set(it)
