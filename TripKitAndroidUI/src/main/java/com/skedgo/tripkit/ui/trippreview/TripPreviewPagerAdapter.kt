@@ -39,6 +39,7 @@ class TripPreviewPagerAdapter(fragmentManager: FragmentManager)
                 scheduledStop.type = StopType.from(page.tripSegment.modeInfo?.localIconName)
                 TimetableFragment.Builder()
                         .withStop(scheduledStop)
+                        .withBookingAction(page.tripSegment.booking?.externalActions)
                         .hideSearchBar()
                         .build()
             }
@@ -62,7 +63,6 @@ class TripPreviewPagerAdapter(fragmentManager: FragmentManager)
             if (itemType == ITEM_SERVICE) {
                 // Add the timetable card as well
                 pages.add(TripPreviewPagerAdapterItem(ITEM_TIMETABLE, segment))
-                addedModeCards++
             }
 
             val newItem = TripPreviewPagerAdapterItem(itemType, segment)

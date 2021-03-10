@@ -76,8 +76,12 @@ class TripPreviewPagerFragment : BaseTripKitFragment() {
         binding.tripSegmentPager.currentItem = index
     }
 
+    fun updateListener(tripPreviewPagerListener: Listener) {
+        this.tripPreviewPagerListener = tripPreviewPagerListener
+    }
+
     interface Listener {
-        fun onServiceActionButtonClicked(action: String, tripSegment: TripSegment)
+        fun onServiceActionButtonClicked(action: String)
     }
 
     class Builder(val tripGroupId: String, val tripId: String, val tripSegmentHashCode: Long, val _tripPreviewPagerListener: Listener) {

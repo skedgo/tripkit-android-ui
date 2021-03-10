@@ -36,18 +36,6 @@ class ServiceTripPreviewItemFragment(var segment: TripSegment) : BaseTripKitFrag
         super.onAttach(context)
     }
 
-    override fun onResume() {
-        super.onResume()
-        viewModel.actionChosen.observeOn(AndroidSchedulers.mainThread())
-                .subscribe {
-                    if (viewModel.action == "book") {
-                        viewModel.buttonText.set("Booking...")
-                        viewModel.enableButton.set(false)
-                    }
-                    tripPreviewPagerListener?.onServiceActionButtonClicked(viewModel.action, segment)
-                }.addTo(autoDisposable)
-    }
-
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val binding = TripPreviewServiceItemBinding.inflate(inflater)
         binding.viewModel = viewModel

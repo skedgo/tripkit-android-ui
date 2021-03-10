@@ -12,6 +12,7 @@ import com.skedgo.tripkit.common.model.Region
 import com.skedgo.tripkit.common.model.ScheduledStop
 import com.skedgo.tripkit.data.regions.RegionService
 import com.skedgo.tripkit.routing.RealTimeVehicle
+import com.skedgo.tripkit.routing.TripSegment
 import com.skedgo.tripkit.time.GetNow
 import com.skedgo.tripkit.ui.BR
 import com.skedgo.tripkit.ui.R
@@ -209,6 +210,12 @@ class TimetableViewModel  @Inject constructor(
 
     val scrollToNow: PublishRelay<Int> = PublishRelay.create<Int>()
 
+    val enableButton = ObservableBoolean(true)
+    val showButton = ObservableBoolean(false)
+    val buttonText = ObservableField<String>()
+    val actionChosen = PublishRelay.create<String>()
+    var action = ""
+
     init {
 
         parentStop.subscribe(stopRelay::accept) { onError.accept(it.message)}
@@ -247,6 +254,23 @@ class TimetableViewModel  @Inject constructor(
                 .subscribe ({
                     scrollToNow.accept(getFirstNowPosition(it))
                 }, {}).autoClear()
+    }
+
+    fun withSegment(bookingActions: ArrayList<String>?) {
+        bookingActions?.let { actions ->
+            when {
+                actions.contains("showTicket") -> {
+                    action = "showTicket"
+                    buttonText.set("Show Ticket")
+                }
+                actions.contains("book") -> {
+                    action = "book"
+                    buttonText.set("Book")
+                }
+            }
+        }
+
+        showButton.set(action.isNotEmpty())
     }
 
     fun downloadMoreTimetableAsync() {

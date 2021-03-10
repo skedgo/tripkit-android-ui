@@ -20,6 +20,7 @@ import com.google.android.flexbox.FlexDirection
 import com.google.android.flexbox.FlexboxLayoutManager
 import com.skedgo.tripkit.common.model.ScheduledStop
 import com.skedgo.tripkit.common.util.TimeUtils
+import com.skedgo.tripkit.routing.TripSegment
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.TripKitUI
 import com.skedgo.tripkit.ui.core.BaseTripKitFragment
@@ -98,6 +99,14 @@ class TimetableFragment : BaseTripKitFragment(), View.OnClickListener {
             }
             field = value
         }
+
+    var bookingActions: ArrayList<String>? = null
+        set(value) {
+            if (value != null) {
+                this.viewModel.withSegment(value)
+            }
+            field = value
+        }
     private val filterThrottle = PublishSubject.create<String>()
     private lateinit var binding: TimetableFragmentBinding
     protected var buttons: List<TripKitButton> = emptyList()
@@ -163,6 +172,15 @@ class TimetableFragment : BaseTripKitFragment(), View.OnClickListener {
                     binding.recyclerView.layoutManager?.startSmoothScroll(smoothScroller)
                 }.addTo(autoDisposable)
         viewModel.downloadTimetable.accept(System.currentTimeMillis() - TimeUtils.InMillis.MINUTE * 10)
+
+        viewModel.actionChosen.observeOn(AndroidSchedulers.mainThread())
+                .subscribe {
+                    if (viewModel.action == "book") {
+                        viewModel.buttonText.set("Booking...")
+                        viewModel.enableButton.set(false)
+                    }
+                    tripPreviewPagerListener?.onServiceActionButtonClicked(viewModel.action)
+                }.addTo(autoDisposable)
     }
 
 
@@ -293,6 +311,8 @@ class TimetableFragment : BaseTripKitFragment(), View.OnClickListener {
         stop = arguments?.getParcelable(ARG_STOP)
         binding.goToNowButton.setOnClickListener { binding.recyclerView.scrollToPosition(viewModel.getFirstNowPosition()) }
 
+        bookingActions = arguments?.getStringArrayList(ARG_BOOKING_ACTION)
+
         val showCloseButton = arguments?.getBoolean(ARG_SHOW_CLOSE_BUTTON, false) ?: false
         viewModel.showCloseButton.set(showCloseButton)
 
@@ -353,6 +373,7 @@ class TimetableFragment : BaseTripKitFragment(), View.OnClickListener {
         private var showCloseButton = false
         private var showSearchBar = true
         private var stop: ScheduledStop? = null
+        private var bookingActions: ArrayList<String>? = null
         private var buttons: MutableList<TripKitButton> = mutableListOf()
 
         fun withStop(stop: ScheduledStop?): Builder {
@@ -363,6 +384,15 @@ class TimetableFragment : BaseTripKitFragment(), View.OnClickListener {
         fun withButton(id: String, layoutResourceId: Int): Builder {
             val b = TripKitButton(id, layoutResourceId)
             buttons.add(b)
+            return this
+        }
+
+        fun withBookingAction(bookingActions: List<String>?): Builder {
+            if (!bookingActions.isNullOrEmpty()) {
+                val list = ArrayList<String>()
+                list.addAll(bookingActions.toMutableList())
+                this.bookingActions = list
+            }
             return this
         }
 
@@ -380,6 +410,7 @@ class TimetableFragment : BaseTripKitFragment(), View.OnClickListener {
             val args = Bundle()
             val fragment = TimetableFragment()
             args.putParcelable(ARG_STOP, stop)
+            args.putStringArrayList(ARG_BOOKING_ACTION, bookingActions)
             args.putBoolean(ARG_SHOW_CLOSE_BUTTON, showCloseButton)
             args.putBoolean(ARG_SHOW_SEARCH_FIELD, showSearchBar)
             fragment.arguments = args
