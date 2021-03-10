@@ -30,6 +30,7 @@ import com.skedgo.tripkit.ui.databinding.TimetableFragmentBinding
 import com.skedgo.tripkit.ui.dialog.TimeDatePickerFragment
 import com.skedgo.tripkit.ui.model.TimetableEntry
 import com.skedgo.tripkit.ui.model.TripKitButton
+import com.skedgo.tripkit.ui.search.ARG_SHOW_SEARCH_FIELD
 import com.skedgo.tripkit.ui.views.MultiStateView
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -46,7 +47,7 @@ class TimetableFragment : BaseTripKitFragment(), View.OnClickListener {
      * This callback will be invoked when a specific timetable entry is clicked.
      */
     interface OnTimetableEntrySelectedListener {
-        fun onTimetableEntrySelected(service: TimetableEntry, stop : ScheduledStop, minStartTime: Long)
+        fun onTimetableEntrySelected(service: TimetableEntry, stop: ScheduledStop, minStartTime: Long)
     }
 
     private var timetableEntrySelectedListener: MutableList<OnTimetableEntrySelectedListener> = mutableListOf()
@@ -56,8 +57,8 @@ class TimetableFragment : BaseTripKitFragment(), View.OnClickListener {
         }
     }
 
-    fun addOnTimetableEntrySelectedListener(listener:(TimetableEntry, ScheduledStop, Long) -> Unit) {
-        this.timetableEntrySelectedListener.add(object: OnTimetableEntrySelectedListener {
+    fun addOnTimetableEntrySelectedListener(listener: (TimetableEntry, ScheduledStop, Long) -> Unit) {
+        this.timetableEntrySelectedListener.add(object : OnTimetableEntrySelectedListener {
             override fun onTimetableEntrySelected(service: TimetableEntry, stop: ScheduledStop, minStartTime: Long) {
                 listener(service, stop, minStartTime)
             }
@@ -66,7 +67,7 @@ class TimetableFragment : BaseTripKitFragment(), View.OnClickListener {
 
 
     /**
-        When you provide the Timetable fragment with buttons, this callback will be called when one is clicked.
+    When you provide the Timetable fragment with buttons, this callback will be called when one is clicked.
      */
     interface OnTripKitButtonClickListener {
         fun onTripButtonClicked(id: Int, stop: ScheduledStop)
@@ -76,8 +77,9 @@ class TimetableFragment : BaseTripKitFragment(), View.OnClickListener {
     fun setOnTripKitButtonClickListener(listener: OnTripKitButtonClickListener) {
         this.tripButtonClickListener = listener
     }
-    fun setOnTripKitButtonClickListener(listener:(Int, ScheduledStop) -> Unit) {
-        this.tripButtonClickListener = object: OnTripKitButtonClickListener {
+
+    fun setOnTripKitButtonClickListener(listener: (Int, ScheduledStop) -> Unit) {
+        this.tripButtonClickListener = object : OnTripKitButtonClickListener {
             override fun onTripButtonClicked(id: Int, stop: ScheduledStop) {
                 listener(id, stop)
             }
@@ -85,7 +87,9 @@ class TimetableFragment : BaseTripKitFragment(), View.OnClickListener {
     }
 
     lateinit var viewModel: TimetableViewModel
-    @Inject lateinit var viewModelFactory: TimetableViewModelFactory
+
+    @Inject
+    lateinit var viewModelFactory: TimetableViewModelFactory
 
     var stop: ScheduledStop? = null
         set(value) {
@@ -198,7 +202,7 @@ class TimetableFragment : BaseTripKitFragment(), View.OnClickListener {
             selectTime()
         }
 
-        val search =  binding.departuresSearchSetTime.stationSearch
+        val search = binding.departuresSearchSetTime.stationSearch
         search.isSelected = false
         search.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(p0: Editable?) {
@@ -229,7 +233,7 @@ class TimetableFragment : BaseTripKitFragment(), View.OnClickListener {
         // Doing so here, in onCreateView(), works.
         clickDisposable.add(viewModel.services.asObservable()
                 .map {
-                    it.map {vm ->
+                    it.map { vm ->
                         vm.onItemClick.observable
                     }
                 }
@@ -250,7 +254,7 @@ class TimetableFragment : BaseTripKitFragment(), View.OnClickListener {
     }
 
     fun replaceButton(id: String, newLayoutId: Int) {
-        buttons.forEach {button ->
+        buttons.forEach { button ->
             if (button.id == id) {
                 val currentView = binding.buttonLayout.findViewWithTag<View?>(id)
                 currentView?.let {
@@ -288,8 +292,13 @@ class TimetableFragment : BaseTripKitFragment(), View.OnClickListener {
         super.onViewCreated(view, savedInstanceState)
         stop = arguments?.getParcelable(ARG_STOP)
         binding.goToNowButton.setOnClickListener { binding.recyclerView.scrollToPosition(viewModel.getFirstNowPosition()) }
+
         val showCloseButton = arguments?.getBoolean(ARG_SHOW_CLOSE_BUTTON, false) ?: false
         viewModel.showCloseButton.set(showCloseButton)
+
+        val showSearchBar = arguments?.getBoolean(ARG_SHOW_SEARCH_FIELD, true) ?: true
+        viewModel.showSearch.set(showSearchBar)
+
         binding.closeButton.setOnClickListener(onCloseButtonListener)
 
     }
@@ -312,7 +321,7 @@ class TimetableFragment : BaseTripKitFragment(), View.OnClickListener {
     fun selectTime() {
         val fragment = TimeDatePickerFragment.newInstance(getString(R.string.set_time))
         fragment.timeRelay
-            .skip(1)
+                .skip(1)
                 .subscribe {
                     viewModel.stopRealtime()
                     viewModel.services.update(listOf())
@@ -342,6 +351,7 @@ class TimetableFragment : BaseTripKitFragment(), View.OnClickListener {
 
     class Builder {
         private var showCloseButton = false
+        private var showSearchBar = true
         private var stop: ScheduledStop? = null
         private var buttons: MutableList<TripKitButton> = mutableListOf()
 
@@ -356,15 +366,22 @@ class TimetableFragment : BaseTripKitFragment(), View.OnClickListener {
             return this
         }
 
+        fun hideSearchBar(): Builder {
+            showSearchBar = false
+            return this
+        }
+
         fun showCloseButton(): Builder {
             showCloseButton = true
             return this
         }
+
         fun build(): TimetableFragment {
             val args = Bundle()
             val fragment = TimetableFragment()
             args.putParcelable(ARG_STOP, stop)
             args.putBoolean(ARG_SHOW_CLOSE_BUTTON, showCloseButton)
+            args.putBoolean(ARG_SHOW_SEARCH_FIELD, showSearchBar)
             fragment.arguments = args
             fragment.buttons = buttons
 
