@@ -37,7 +37,7 @@ class DirectionsTripPreviewItemViewModel : TripPreviewPagerItemViewModel() {
         }
 
         val iconGetter = GetInstructionIcon()
-        segment.streets.forEach {
+        segment.streets?.forEach {
             val vm = DirectionsTripPreviewItemStepViewModel()
             vm.title.set(DistanceFormatter.format(it.metres().roundToInt()))
             if (it.name().isNullOrBlank()) {
