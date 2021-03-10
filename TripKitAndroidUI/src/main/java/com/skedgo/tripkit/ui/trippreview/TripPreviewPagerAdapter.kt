@@ -4,7 +4,10 @@ import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentStatePagerAdapter
+import com.skedgo.tripkit.common.model.ScheduledStop
+import com.skedgo.tripkit.common.model.StopType
 import com.skedgo.tripkit.routing.TripSegment
+import com.skedgo.tripkit.ui.timetables.TimetableFragment
 import com.skedgo.tripkit.ui.trippreview.standard.StandardTripPreviewItemFragment
 import com.skedgo.tripkit.ui.trippreview.directions.DirectionsTripPreviewItemFragment
 import com.skedgo.tripkit.ui.trippreview.external.ExternalActionTripPreviewItemFragment
@@ -29,6 +32,16 @@ class TripPreviewPagerAdapter(fragmentManager: FragmentManager)
             ITEM_MODE_LOCATION -> ModeLocationTripPreviewItemFragment(page.tripSegment) // modes
             ITEM_EXTERNAL_BOOKING -> ExternalActionTripPreviewItemFragment(page.tripSegment)
             ITEM_SERVICE -> ServiceTripPreviewItemFragment(page.tripSegment) // PT with stops
+            ITEM_TIMETABLE -> {
+                val scheduledStop = ScheduledStop(page.tripSegment.to)
+                scheduledStop.code = page.tripSegment.startStopCode
+                scheduledStop.modeInfo = page.tripSegment.modeInfo
+                scheduledStop.type = StopType.from(page.tripSegment.modeInfo?.localIconName)
+                TimetableFragment.Builder()
+                        .withStop(scheduledStop)
+                        .hideSearchBar()
+                        .build()
+            }
             else -> StandardTripPreviewItemFragment(page.tripSegment)
         }
         fragment.onCloseButtonListener = onCloseButtonListener
@@ -45,6 +58,13 @@ class TripPreviewPagerAdapter(fragmentManager: FragmentManager)
         var addedModeCards = 0
         tripSegments.forEachIndexed { index, segment ->
             val itemType = segment.correctItemType()
+
+            if (itemType == ITEM_SERVICE) {
+                // Add the timetable card as well
+                pages.add(TripPreviewPagerAdapterItem(ITEM_TIMETABLE, segment))
+                addedModeCards++
+            }
+
             val newItem = TripPreviewPagerAdapterItem(itemType, segment)
             pages.add(newItem)
 

@@ -67,6 +67,7 @@
                 app:items="@{viewModel.serviceNumbers}"
                 app:layoutManager="com.google.android.flexbox.FlexboxLayoutManager">
         </androidx.recyclerview.widget.RecyclerView>
+
         <LinearLayout android:layout_width="0dp"
                       android:layout_height="wrap_content"
                       android:id="@+id/buttonLayout"
@@ -79,13 +80,20 @@
                       app:layout_constraintEnd_toEndOf="parent"
                       app:layout_constraintTop_toBottomOf="@+id/serviceLineRecyclerView"/>
 
-        <include android:layout_width="match_parent"
-                 android:layout_height="wrap_content"
-                 android:layout_marginTop="12dp"
-                 android:id="@+id/departuresSearchSetTime"
-                 layout="@layout/timetable_search_set_time"
-                 app:layout_constraintTop_toBottomOf="@+id/buttonLayout"
-                 app:layout_constraintStart_toStartOf="parent"/>
+        <FrameLayout
+            android:id="@+id/contSearchBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            app:layout_constraintTop_toBottomOf="@+id/buttonLayout"
+            app:layout_constraintStart_toStartOf="parent">
+
+                <include android:layout_width="match_parent"
+                         android:layout_height="wrap_content"
+                         android:id="@+id/departuresSearchSetTime"
+                         android:visibility="@{viewModel.showSearch}"
+                         layout="@layout/timetable_search_set_time" />
+        </FrameLayout>
 
         <com.skedgo.tripkit.ui.views.MultiStateView android:layout_width="0dp"
                                                     android:layout_height="0dp"
@@ -93,7 +101,7 @@
                                                     app:layout_constraintEnd_toEndOf="parent"
                                                     app:layout_constraintStart_toStartOf="parent"
                                                     app:layout_constraintBottom_toBottomOf="parent"
-                                                    app:layout_constraintTop_toBottomOf="@+id/departuresSearchSetTime">
+                                                    app:layout_constraintTop_toBottomOf="@+id/contSearchBar">
             <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/recyclerView"
                     tools:listitem="@layout/timetable_fragment_list_item"
@@ -116,7 +124,7 @@
                 android:layout_height="wrap_content"
                 android:indeterminate="true"
                 app:fadeVisible="@{viewModel.showLoading}"
-                app:layout_constraintTop_toBottomOf="@+id/departuresSearchSetTime"
+                app:layout_constraintTop_toBottomOf="@+id/contSearchBar"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"/>
 

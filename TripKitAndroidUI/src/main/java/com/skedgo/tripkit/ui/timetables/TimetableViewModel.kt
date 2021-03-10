@@ -80,6 +80,7 @@ class TimetableViewModel  @Inject constructor(
     val serviceNumbers: ObservableField<List<TimetableHeaderLineItem>> = ObservableField(emptyList())
     val showLoading = ObservableBoolean(false)
     val showCloseButton = ObservableBoolean(false)
+    val showSearch = ObservableBoolean(true)
 
     val downloadTimetable: PublishRelay<Long> = PublishRelay.create<Long>()
     val onDateChanged: PublishRelay<Long> = PublishRelay.create<Long>()
