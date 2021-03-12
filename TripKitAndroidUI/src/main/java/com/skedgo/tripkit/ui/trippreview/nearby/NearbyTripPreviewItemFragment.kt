@@ -18,7 +18,7 @@ import timber.log.Timber
 import javax.inject.Inject
 
 
-class NearbyTripPreviewItemFragment(val segment: TripSegment) : BaseTripKitFragment() {
+class NearbyTripPreviewItemFragment(var segment: TripSegment) : BaseTripKitFragment() {
     @Inject
     lateinit var sharedViewModelFactory: SharedNearbyTripPreviewItemViewModelFactory
     lateinit var sharedViewModel: SharedNearbyTripPreviewItemViewModel

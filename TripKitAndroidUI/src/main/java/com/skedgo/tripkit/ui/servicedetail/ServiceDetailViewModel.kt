@@ -71,12 +71,6 @@ class ServiceDetailViewModel @Inject constructor(private val context: Context,
     val onItemClicked = PublishRelay.create<ServiceStop>()
     var showCloseButton = ObservableBoolean(false)
 
-    val enableButton = ObservableBoolean(true)
-    val showButton = ObservableBoolean(true)
-    val buttonText = ObservableField<String>()
-    val actionChosen = PublishRelay.create<String>()
-    var action = ""
-
     fun setup(region: String,
               serviceId: String,
               serviceName: String?,
@@ -146,21 +140,6 @@ class ServiceDetailViewModel @Inject constructor(private val context: Context,
                             segment.realTimeVehicle,
                             segment.wheelchairAccessible)
                 }.autoClear()
-
-        segment.booking?.externalActions?.let { actions ->
-            when {
-                actions.contains("showTicket") -> {
-                    action = "showTicket"
-                    buttonText.set("Show Ticket")
-                }
-                actions.contains("book") -> {
-                    action = "book"
-                    buttonText.set("Book")
-                }
-            }
-        }
-
-        showButton.set(action.isNotEmpty())
     }
 
     fun setup(_stop: ScheduledStop, _entry: TimetableEntry) {
