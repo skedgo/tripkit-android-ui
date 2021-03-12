@@ -44,7 +44,7 @@ import javax.inject.Inject
 
 const val REQUEST_QR_SCAN = 1
 
-class ModeLocationTripPreviewItemFragment(val segment: TripSegment) : BaseTripKitFragment() {
+class ModeLocationTripPreviewItemFragment(var segment: TripSegment) : BaseTripKitFragment() {
     private lateinit var binding: TripPreviewPagerModeLocationItemBinding
 
     @Inject

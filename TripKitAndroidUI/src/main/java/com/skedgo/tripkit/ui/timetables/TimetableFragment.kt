@@ -12,7 +12,6 @@ import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.TextView
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearSmoothScroller
 import androidx.recyclerview.widget.RecyclerView
@@ -20,7 +19,6 @@ import com.google.android.flexbox.FlexDirection
 import com.google.android.flexbox.FlexboxLayoutManager
 import com.skedgo.tripkit.common.model.ScheduledStop
 import com.skedgo.tripkit.common.util.TimeUtils
-import com.skedgo.tripkit.routing.TripSegment
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.TripKitUI
 import com.skedgo.tripkit.ui.core.BaseTripKitFragment
@@ -39,6 +37,7 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.functions.BiFunction
 import io.reactivex.subjects.PublishSubject
 import timber.log.Timber
+import java.lang.Exception
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
@@ -103,7 +102,7 @@ class TimetableFragment : BaseTripKitFragment(), View.OnClickListener {
     var bookingActions: ArrayList<String>? = null
         set(value) {
             if (value != null) {
-                this.viewModel.withSegment(value)
+                this.viewModel.withBookingActions(value)
             }
             field = value
         }
@@ -120,8 +119,9 @@ class TimetableFragment : BaseTripKitFragment(), View.OnClickListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         viewModel = ViewModelProvider(this, viewModelFactory).get(TimetableViewModel::class.java)
-    }
 
+        bookingActions = arguments?.getStringArrayList(ARG_BOOKING_ACTION)
+    }
 
     override fun onResume() {
         super.onResume()
@@ -183,6 +183,17 @@ class TimetableFragment : BaseTripKitFragment(), View.OnClickListener {
                 }.addTo(autoDisposable)
     }
 
+    fun setBookingActions(bookingActions: List<String>?) {
+        viewModel.enableButton.set(true)
+        if (!bookingActions.isNullOrEmpty()) {
+            val list = ArrayList<String>()
+            list.addAll(bookingActions.toMutableList())
+            arguments?.putStringArrayList(ARG_BOOKING_ACTION, list)
+            try {
+                this.bookingActions = list
+            } catch (e: Exception) {}
+        }
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {

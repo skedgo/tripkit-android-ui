@@ -256,7 +256,7 @@ class TimetableViewModel  @Inject constructor(
                 }, {}).autoClear()
     }
 
-    fun withSegment(bookingActions: ArrayList<String>?) {
+    fun withBookingActions(bookingActions: ArrayList<String>?) {
         bookingActions?.let { actions ->
             when {
                 actions.contains("showTicket") -> {

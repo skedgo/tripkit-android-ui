@@ -19,7 +19,7 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
 
-class DirectionsTripPreviewItemFragment(val segment: TripSegment) : BaseTripKitFragment() {
+class DirectionsTripPreviewItemFragment(var segment: TripSegment) : BaseTripKitFragment() {
     private lateinit var viewModel: DirectionsTripPreviewItemViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {

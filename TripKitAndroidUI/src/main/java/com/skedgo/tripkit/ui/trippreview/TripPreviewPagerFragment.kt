@@ -6,6 +6,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.ViewModelProviders
+import com.skedgo.tripkit.common.model.ScheduledStop
+import com.skedgo.tripkit.common.model.StopType
 import com.skedgo.tripkit.routing.SegmentType
 import com.skedgo.tripkit.routing.Trip
 import com.skedgo.tripkit.routing.TripSegment
@@ -16,7 +18,15 @@ import com.skedgo.tripkit.ui.core.BaseTripKitFragment
 import com.skedgo.tripkit.ui.core.addTo
 import com.skedgo.tripkit.ui.databinding.TripPreviewPagerBinding
 import com.skedgo.tripkit.ui.routingresults.TripGroupRepository
+import com.skedgo.tripkit.ui.timetables.TimetableFragment
+import com.skedgo.tripkit.ui.trippreview.directions.DirectionsTripPreviewItemFragment
+import com.skedgo.tripkit.ui.trippreview.external.ExternalActionTripPreviewItemFragment
+import com.skedgo.tripkit.ui.trippreview.nearby.ModeLocationTripPreviewItemFragment
+import com.skedgo.tripkit.ui.trippreview.nearby.NearbyTripPreviewItemFragment
+import com.skedgo.tripkit.ui.trippreview.service.ServiceTripPreviewItemFragment
+import com.skedgo.tripkit.ui.trippreview.standard.StandardTripPreviewItemFragment
 import com.skedgo.tripkit.ui.tripresult.ARG_TRIP_GROUP_ID
+import com.skedgo.tripkit.ui.utils.*
 import io.reactivex.android.schedulers.AndroidSchedulers
 import javax.inject.Inject
 
@@ -49,6 +59,7 @@ class TripPreviewPagerFragment : BaseTripKitFragment() {
                     trip?.let {
                         adapter.setTripSegments(tripSegmentId,
                                 trip.segments.filter { !it.isContinuation }.filter { it.type != SegmentType.DEPARTURE && it.type != SegmentType.ARRIVAL })
+                        adapter.notifyDataSetChanged()
 
                     }
                 }
@@ -67,13 +78,36 @@ class TripPreviewPagerFragment : BaseTripKitFragment() {
         adapter = TripPreviewPagerAdapter(childFragmentManager)
         adapter.onCloseButtonListener = this.onCloseButtonListener
         adapter.tripPreviewPagerListener = this.tripPreviewPagerListener
-
         binding.tripSegmentPager.adapter = adapter
     }
 
-    fun updateTripSegment(segment: TripSegment, tripSegments: List<TripSegment>) {
+    fun setTripSegment(segment: TripSegment, tripSegments: List<TripSegment>) {
         val index = adapter.setTripSegments(segment.id, tripSegments.filter { !it.isContinuation }.filter { it.type != SegmentType.DEPARTURE && it.type != SegmentType.ARRIVAL })
-        binding.tripSegmentPager.currentItem = index
+//        binding.tripSegmentPager.currentItem = index
+    }
+
+    fun updateTripSegment(tripSegments: List<TripSegment>) {
+        tripSegments.forEachIndexed { _, segment ->
+            when (segment.correctItemType()) {
+                ITEM_DIRECTIONS -> {
+                    adapter.directionsTripPreviewItemFragment?.segment = segment
+                }
+                ITEM_NEARBY -> {
+                    adapter.nearbyTripPreviewItemFragment?.segment = segment
+                }
+                ITEM_MODE_LOCATION -> {
+                    adapter.modeLocationTripPreviewItemFragment?.segment = segment
+                }
+                ITEM_SERVICE -> {
+                    val scheduledStop = ScheduledStop(segment.to)
+                    scheduledStop.code = segment.startStopCode
+                    scheduledStop.modeInfo = segment.modeInfo
+                    scheduledStop.type = StopType.from(segment.modeInfo?.localIconName)
+                    adapter.timetableFragment!!.setBookingActions(segment.booking?.externalActions)
+                    adapter.serviceTripPreviewItemFragment?.segment = segment
+                }
+            }
+        }
     }
 
     fun updateListener(tripPreviewPagerListener: Listener) {
