@@ -6,6 +6,8 @@ import com.squareup.picasso.Picasso
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
 import io.reactivex.schedulers.Schedulers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 
 fun Picasso.fetchAsync(url: String): Single<Bitmap> =
@@ -13,19 +15,22 @@ fun Picasso.fetchAsync(url: String): Single<Bitmap> =
 
 fun Picasso.fetchAsyncWithSize(url: String, @DimenRes maxSize: Int? = null): Single<Bitmap> {
     return Single.create {
-        try {
-            if (!it.isDisposed) {
-                val creator = this.load(url)
-                maxSize?.let {
-                    creator.resizeDimen(it,it)
-                            .centerInside()
-                            .onlyScaleDown()
+        val single = this
+        GlobalScope.launch {
+            try {
+                if (!it.isDisposed) {
+                    val creator = single.load(url)
+                    maxSize?.let {
+                        creator.resizeDimen(it,it)
+                                .centerInside()
+                                .onlyScaleDown()
+                    }
+                    val bitmap = creator.get()
+                    it.onSuccess(bitmap)
                 }
-                val bitmap = creator.get()
-                it.onSuccess(bitmap)
+            } catch (e: Throwable) {
+                it.onError(UnableToFetchBitmapError("Unable to fetch bitmap $url: ${e.message}"))
             }
-        } catch (e: Throwable) {
-            it.onError(UnableToFetchBitmapError("Unable to fetch bitmap $url: ${e.message}"))
         }
     }
 }

@@ -45,99 +45,101 @@ class MapViewModel @Inject internal constructor(
         private val loadPOILocationsByViewPort: LoadPOILocationsByViewPort,
         private val errorLogger: ErrorLogger
 ) : RxViewModel() {
-  private val _myLocationError: PublishRelay<Throwable> = PublishRelay.create()
-  val myLocationError: Observable<Throwable>
-    get() = _myLocationError.hide()
+    private val _myLocationError: PublishRelay<Throwable> = PublishRelay.create()
+    val myLocationError: Observable<Throwable>
+        get() = _myLocationError.hide()
 
-  private val _myLocation: PublishRelay<Location> = PublishRelay.create()
-  val myLocation: Observable<Location>
-    get() = _myLocation.hide()
+    private val _myLocation: PublishRelay<Location> = PublishRelay.create()
+    val myLocation: Observable<Location>
+        get() = _myLocation.hide()
 
-  private val viewportChanged = PublishRelay.create<ViewPort>()
-  val markers = viewportChanged.hide()
-      .debounce(500, TimeUnit.MILLISECONDS)
-      .flatMap { viewPort ->
-        getCellIdsFromViewPort.execute(viewPort)
-            .map { viewPort to it }
-      }
-      .distinctUntilChanged { a, b -> a.second == b.second }
-      .map { it.first }
-      .observeOn(Schedulers.io())
-      .switchMap { loadPOILocationsByViewPort.execute(it) }
-      .compose(DiffTransformer<IMapPoiLocation, MarkerOptions>({ it.identifier }, { it.createMarkerOptions(resources, picasso) }))
-      .autoClear()
+    private val viewportChanged = PublishRelay.create<ViewPort>()
+    val markers = viewportChanged.hide()
+            .debounce(500, TimeUnit.MILLISECONDS)
+            .flatMap { viewPort ->
+                getCellIdsFromViewPort.execute(viewPort)
+                        .map { viewPort to it }
+            }
+            .distinctUntilChanged { a, b -> a.second == b.second }
+            .map { it.first }
+            .observeOn(Schedulers.io())
+            .switchMap { loadPOILocationsByViewPort.execute(it) }
+            .compose(DiffTransformer<IMapPoiLocation, MarkerOptions>({ it.identifier }, {
+                it.createMarkerOptions(resources, picasso)
+            }))
+            .autoClear()
 
 
-  init {
-    goToMyLocationRepository.myLocation
-        .map<Try<Location>> { result: Try<GeoPoint> ->
-          when (result) {
-            is Success -> Success(createMyLocationViewModel(result))
-            is Failure -> Failure<Location>(result())
-          }
-        }
-        .subscribeOn(Schedulers.io())
-        .subscribe({
-          when (it) {
-            is Success -> _myLocation.accept(it())
-            is Failure -> _myLocationError.accept(it())
-          }
-        }, errorLogger::trackError)
-        .autoClear()
+    init {
+        goToMyLocationRepository.myLocation
+                .map<Try<Location>> { result: Try<GeoPoint> ->
+                    when (result) {
+                        is Success -> Success(createMyLocationViewModel(result))
+                        is Failure -> Failure<Location>(result())
+                    }
+                }
+                .subscribeOn(Schedulers.io())
+                .subscribe({
+                    when (it) {
+                        is Success -> _myLocation.accept(it())
+                        is Failure -> _myLocationError.accept(it())
+                    }
+                }, errorLogger::trackError)
+                .autoClear()
 
-    viewportChanged.hide()
-        .debounce(500, TimeUnit.MILLISECONDS)!!
-        .distinctViewPortUntilChanged(getCellIdsFromViewPort)
-        .switchMapDelayError {
-          fetchStopsByViewport.execute(it).toObservable<Unit>()
-        }
-        .subscribe({}, {errorLogger.logError(it) })
-        .autoClear()
-  }
+        viewportChanged.hide()
+                .debounce(500, TimeUnit.MILLISECONDS)!!
+                .distinctViewPortUntilChanged(getCellIdsFromViewPort)
+                .switchMapDelayError {
+                    fetchStopsByViewport.execute(it).toObservable<Unit>()
+                }
+                .subscribe({}, { errorLogger.logError(it) })
+                .autoClear()
+    }
 
-  fun goToMyLocation() = goToMyLocationRepository.goToMyLocation()
+    fun goToMyLocation() = goToMyLocationRepository.goToMyLocation()
 
-  fun getInitialCameraUpdate(): Observable<CameraUpdate> =
-      getInitialMapCameraPosition.execute()
-          .map { it.toCameraPosition() }
-          .map { CameraUpdateFactory.newCameraPosition(it) }
-          .observeOn(AndroidSchedulers.mainThread())
+    fun getInitialCameraUpdate(): Observable<CameraUpdate> =
+            getInitialMapCameraPosition.execute()
+                    .map { it.toCameraPosition() }
+                    .map { CameraUpdateFactory.newCameraPosition(it) }
+                    .observeOn(AndroidSchedulers.mainThread())
 
-  fun putCameraPosition(cameraPosition: CameraPosition?): Completable =
-      Observable.just<CameraPosition>(cameraPosition)
-          .map { it.toMapCameraPosition() }
-          .flatMap { putMapCameraPosition.execute(it) }
-          .ignoreElements()
+    fun putCameraPosition(cameraPosition: CameraPosition?): Completable =
+            Observable.just<CameraPosition>(cameraPosition)
+                    .map { it.toMapCameraPosition() }
+                    .flatMap { putMapCameraPosition.execute(it) }
+                    .ignoreElements()
 
-  fun getOriginPinUpdate(): Observable<PinUpdate> =
-      pinUpdateRepository.getOriginPinUpdate()
+    fun getOriginPinUpdate(): Observable<PinUpdate> =
+            pinUpdateRepository.getOriginPinUpdate()
 
-  fun getDestinationPinUpdate(): Observable<PinUpdate> =
-      pinUpdateRepository.getDestinationPinUpdate()
+    fun getDestinationPinUpdate(): Observable<PinUpdate> =
+            pinUpdateRepository.getDestinationPinUpdate()
 
-  private fun createMyLocationViewModel(result: Success<GeoPoint>): Location =
-      Location(result().latitude, result().longitude).also {
-        it.name = resources.getString(R.string.current_location)
-      }
+    private fun createMyLocationViewModel(result: Success<GeoPoint>): Location =
+            Location(result().latitude, result().longitude).also {
+                it.name = resources.getString(R.string.current_location)
+            }
 
-  fun onViewPortChanged(viewPort: ViewPort) = viewportChanged.accept(viewPort)
+    fun onViewPortChanged(viewPort: ViewPort) = viewportChanged.accept(viewPort)
 
 }
 
 private fun Observable<ViewPort>.distinctViewPortUntilChanged(
-    getCellIdsFromViewPort: GetCellIdsFromViewPort): Observable<ViewPort> {
-  return this
-      .flatMap { viewPort ->
-        getCellIdsFromViewPort.execute(viewPort)
-            .map { viewPort to it }
-      }
-      .distinctUntilChanged { a, b -> a.second == b.second }
-      .map { it.first }
+        getCellIdsFromViewPort: GetCellIdsFromViewPort): Observable<ViewPort> {
+    return this
+            .flatMap { viewPort ->
+                getCellIdsFromViewPort.execute(viewPort)
+                        .map { viewPort to it }
+            }
+            .distinctUntilChanged { a, b -> a.second == b.second }
+            .map { it.first }
 }
 
 sealed class ViewPort(val zoom: Float, val visibleBounds: LatLngBounds) {
-  class CloseEnough(zoom: Float, visibleBounds: LatLngBounds) : ViewPort(zoom, visibleBounds)
-  class NotCloseEnough(zoom: Float, visibleBounds: LatLngBounds) : ViewPort(zoom, visibleBounds)
+    class CloseEnough(zoom: Float, visibleBounds: LatLngBounds) : ViewPort(zoom, visibleBounds)
+    class NotCloseEnough(zoom: Float, visibleBounds: LatLngBounds) : ViewPort(zoom, visibleBounds)
 
-  fun isInner(): Boolean = this is CloseEnough && ZoomLevel.fromLevel(zoom) == ZoomLevel.INNER
+    fun isInner(): Boolean = this is CloseEnough && ZoomLevel.fromLevel(zoom) == ZoomLevel.INNER
 }

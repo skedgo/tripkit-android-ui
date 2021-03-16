@@ -24,7 +24,7 @@ object CreateMarkerForCarPod {
         .let { Observable.fromIterable(it.orEmpty()) }
         .filter { it != null }
         .concatMap {
-          picasso.fetchAsyncWithSize(it!!, R.dimen.map_icon_size)
+          picasso.fetchAsyncWithSize(it, R.dimen.map_icon_size)
               .map { BitmapDescriptorFactory.fromBitmap(it) }
               .toObservable()
               .observeOn(Schedulers.io())
