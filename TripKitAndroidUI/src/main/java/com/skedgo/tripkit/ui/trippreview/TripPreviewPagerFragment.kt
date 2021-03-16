@@ -82,29 +82,18 @@ class TripPreviewPagerFragment : BaseTripKitFragment() {
     }
 
     fun setTripSegment(segment: TripSegment, tripSegments: List<TripSegment>) {
-        val index = adapter.setTripSegments(segment.id, tripSegments.filter { !it.isContinuation }.filter { it.type != SegmentType.DEPARTURE && it.type != SegmentType.ARRIVAL })
-//        binding.tripSegmentPager.currentItem = index
+        adapter.setTripSegments(segment.id, tripSegments.filter { !it.isContinuation }.filter { it.type != SegmentType.DEPARTURE && it.type != SegmentType.ARRIVAL })
     }
 
     fun updateTripSegment(tripSegments: List<TripSegment>) {
         tripSegments.forEachIndexed { _, segment ->
             when (segment.correctItemType()) {
-                ITEM_DIRECTIONS -> {
-                    adapter.directionsTripPreviewItemFragment?.segment = segment
-                }
-                ITEM_NEARBY -> {
-                    adapter.nearbyTripPreviewItemFragment?.segment = segment
-                }
-                ITEM_MODE_LOCATION -> {
-                    adapter.modeLocationTripPreviewItemFragment?.segment = segment
-                }
                 ITEM_SERVICE -> {
                     val scheduledStop = ScheduledStop(segment.to)
                     scheduledStop.code = segment.startStopCode
                     scheduledStop.modeInfo = segment.modeInfo
                     scheduledStop.type = StopType.from(segment.modeInfo?.localIconName)
                     adapter.timetableFragment!!.setBookingActions(segment.booking?.externalActions)
-                    adapter.serviceTripPreviewItemFragment?.segment = segment
                 }
             }
         }

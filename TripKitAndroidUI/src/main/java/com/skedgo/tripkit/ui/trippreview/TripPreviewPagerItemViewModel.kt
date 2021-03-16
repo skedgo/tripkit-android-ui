@@ -15,6 +15,8 @@ import com.skedgo.tripkit.common.util.TransportModeUtils
 import com.skedgo.tripkit.common.util.TripSegmentUtils
 import com.skedgo.tripkit.routing.SegmentType
 import com.skedgo.tripkit.routing.TripSegment
+import com.skedgo.tripkit.routing.endDateTime
+import com.skedgo.tripkit.routing.startDateTime
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.TripKitUI
 import com.skedgo.tripkit.ui.core.RxViewModel
@@ -25,13 +27,16 @@ import com.skedgo.tripkit.ui.utils.TapStateFlow
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import timber.log.Timber
+import java.time.ZonedDateTime
+import java.util.*
+import java.util.concurrent.TimeUnit
 
 open class TripPreviewPagerItemViewModel : RxViewModel() {
     var title = ObservableField<String>()
     var icon = ObservableField<Drawable>()
     var description = ObservableField<String>()
     var showDescription = ObservableBoolean(true)
-    var closeClicked = TapAction<TripPreviewPagerItemViewModel>{ this }
+    var closeClicked = TapAction<TripPreviewPagerItemViewModel> { this }
     var notes = ObservableField<String>()
     var messageTitle = ObservableField<String>()
     var message = ObservableField<String>()
@@ -47,7 +52,15 @@ open class TripPreviewPagerItemViewModel : RxViewModel() {
         if (segment.metres > 0) {
             notes.set(DistanceFormatter.format(segment.metres))
         } else {
-            notes.set(segment.notes)
+            if (segment.notes.equals("<DURATION>", true)) {
+                TimeUnit.MINUTES.convert(segment.endTimeInSecs - segment.startTimeInSecs, TimeUnit.MILLISECONDS).let {
+                    if (it > 0) {
+                        notes.set(String.format("%d %s", it, "minutes"))
+                    }
+                }
+            } else {
+                notes.set(segment.notes)
+            }
         }
         description.set(instruction)
         showDescription.set(!instruction.isNullOrBlank())
