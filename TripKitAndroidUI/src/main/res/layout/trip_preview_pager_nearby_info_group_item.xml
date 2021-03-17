@@ -17,7 +17,7 @@
                 android:layout_width="wrap_content"
                 style="@style/TextAppearance.MaterialComponents.Subtitle1"
                 android:layout_height="match_parent"
-                android:text="@{viewModel.title}"
+                android:text="@{viewModel.title.toString()}"
                 tools:text="KICK SCOOTER"
                 android:textAlignment="center"
                 android:singleLine="true"
