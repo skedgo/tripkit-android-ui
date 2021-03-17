@@ -24,73 +24,41 @@ class TripPreviewPagerAdapter(fragmentManager: FragmentManager)
     var onCloseButtonListener: View.OnClickListener? = null
     var tripPreviewPagerListener: TripPreviewPagerFragment.Listener? = null
 
-    var directionsTripPreviewItemFragment: DirectionsTripPreviewItemFragment? = null
-    var nearbyTripPreviewItemFragment: NearbyTripPreviewItemFragment? = null
-    var modeLocationTripPreviewItemFragment: ModeLocationTripPreviewItemFragment? = null
-    var externalActionTripPreviewItemFragment: ExternalActionTripPreviewItemFragment? = null
-    var serviceTripPreviewItemFragment: ServiceTripPreviewItemFragment? = null
     var timetableFragment: TimetableFragment? = null
 
     override fun getItem(position: Int): Fragment {
         val page = pages[position]
         val fragment = when (page.type) {
             ITEM_DIRECTIONS -> {
-                if (directionsTripPreviewItemFragment == null) {
-                    directionsTripPreviewItemFragment = DirectionsTripPreviewItemFragment(page.tripSegment) // Directions showing miles per item
-                } else {
-                    directionsTripPreviewItemFragment!!.segment = page.tripSegment
-                }
-                directionsTripPreviewItemFragment!!
+                DirectionsTripPreviewItemFragment(page.tripSegment) // Directions showing miles per item
             }
             ITEM_NEARBY -> {
-                if (nearbyTripPreviewItemFragment == null) {
-                    nearbyTripPreviewItemFragment = NearbyTripPreviewItemFragment(page.tripSegment) // Happening nearby (collect bicycle, walk, etc)
-                } else {
-                    nearbyTripPreviewItemFragment!!.segment = page.tripSegment
-                }
-                nearbyTripPreviewItemFragment!!
+                NearbyTripPreviewItemFragment(page.tripSegment) // Happening nearby (collect bicycle, walk, etc)
             }
             ITEM_MODE_LOCATION -> {
-                if (modeLocationTripPreviewItemFragment == null) {
-                    modeLocationTripPreviewItemFragment = ModeLocationTripPreviewItemFragment(page.tripSegment) // modes
-                } else {
-                    modeLocationTripPreviewItemFragment!!.segment = page.tripSegment
-                }
-                modeLocationTripPreviewItemFragment!!
+                ModeLocationTripPreviewItemFragment(page.tripSegment) // modes
             }
             ITEM_EXTERNAL_BOOKING -> {
-                if (externalActionTripPreviewItemFragment == null) {
-                    externalActionTripPreviewItemFragment = ExternalActionTripPreviewItemFragment(page.tripSegment) // taxis, gocatch
-                }
-                externalActionTripPreviewItemFragment!!
+                ExternalActionTripPreviewItemFragment(page.tripSegment) // taxis, gocatch
             }
             ITEM_SERVICE -> {
-                if (serviceTripPreviewItemFragment == null) {
-                    serviceTripPreviewItemFragment = ServiceTripPreviewItemFragment(page.tripSegment) // PT with Stops
-                } else {
-                    serviceTripPreviewItemFragment!!.segment = page.tripSegment
-                }
-                serviceTripPreviewItemFragment!!
+                ServiceTripPreviewItemFragment(page.tripSegment) // PT with Stops
             }
             ITEM_TIMETABLE -> {
                 val scheduledStop = ScheduledStop(page.tripSegment.to)
                 scheduledStop.code = page.tripSegment.startStopCode
                 scheduledStop.modeInfo = page.tripSegment.modeInfo
                 scheduledStop.type = StopType.from(page.tripSegment.modeInfo?.localIconName)
-                if (timetableFragment == null) {
-                    timetableFragment = TimetableFragment.Builder()
-                            .withStop(scheduledStop)
-                            .withBookingAction(page.tripSegment.booking?.externalActions)
-                            .hideSearchBar()
-                            .build()
-                } else {
-                    timetableFragment!!.setBookingActions(page.tripSegment.booking?.externalActions)
-                }
-                timetableFragment!!
+                timetableFragment = TimetableFragment.Builder()
+                        .withStop(scheduledStop)
+                        .withBookingAction(page.tripSegment.booking?.externalActions)
+                        .hideSearchBar()
+                        .build()
+                timetableFragment
             }
             else -> StandardTripPreviewItemFragment(page.tripSegment)
         }
-        fragment.onCloseButtonListener = onCloseButtonListener
+        fragment!!.onCloseButtonListener = onCloseButtonListener
         fragment.tripPreviewPagerListener = tripPreviewPagerListener
         return fragment
     }
