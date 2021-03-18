@@ -147,6 +147,10 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
         }
     }
 
+    fun refreshMap(map: GoogleMap){
+        initMap(map, false)
+    }
+
     interface OnZoomLevelChangedListener {
         fun onZoomLevelChanged(zoomLevel: Float)
     }
@@ -306,7 +310,7 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
     fun setInfoWindowAdapter(infoWindowAdapter: InfoWindowAdapter?) {
         this.infoWindowAdapter = infoWindowAdapter
     }
-
+//mike
     override fun onInfoWindowClick(marker: Marker) {
         markerManager!!.onInfoWindowClick(marker)
     }
@@ -567,12 +571,14 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
         myLocationMarker!!.showInfoWindow()
     }
 
-    private fun initMap(map: GoogleMap) {
+    private fun initMap(map: GoogleMap, moveCamera: Boolean = true) {
         cityIcon = BitmapDescriptorFactory.fromResource(R.drawable.ic_map_city)
         setupMap(map)
-        viewModel.getInitialCameraUpdate()
-                .subscribe({ cameraUpdate: CameraUpdate? -> map.moveCamera(cameraUpdate) }) { error: Throwable? -> errorLogger!!.trackError(error!!) }
-                .addTo(autoDisposable)
+        if(moveCamera) {
+            viewModel.getInitialCameraUpdate()
+                    .subscribe({ cameraUpdate: CameraUpdate? -> map.moveCamera(cameraUpdate) }) { error: Throwable? -> errorLogger!!.trackError(error!!) }
+                    .addTo(autoDisposable)
+        }
 
 
     }
