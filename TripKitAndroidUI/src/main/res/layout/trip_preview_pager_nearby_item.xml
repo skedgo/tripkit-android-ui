@@ -14,6 +14,22 @@
 
         <include layout="@layout/trip_preview_pager_item_header" bind:viewModel="@{sharedViewModel}"/>
 
+        <com.google.android.material.button.MaterialButton
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/btnBookingAction"
+            style="?attr/materialButtonOutlinedStyle"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:text="@{sharedViewModel.buttonText}"
+            android:onClick="@{() -> sharedViewModel.actionChosen.accept(sharedViewModel.action)}"
+            android:visibility="@{sharedViewModel.showButton}"
+            app:icon="@drawable/ic_go"
+            app:iconGravity="textStart"
+            app:layout_constraintTop_toBottomOf="@id/textBarrier"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"/>
+
         <androidx.recyclerview.widget.RecyclerView android:layout_width="match_parent"
                                                    android:layout_height="wrap_content"
                                                    android:id="@+id/transportItemsView"
@@ -27,7 +43,7 @@
                                                    android:paddingBottom="8dp"
                                                    android:overScrollMode="never"
                                                    android:nestedScrollingEnabled="false"
-                                                   app:layout_constraintTop_toBottomOf="@id/textBarrier"
+                                                   app:layout_constraintTop_toBottomOf="@id/btnBookingAction"
                                                    app:layout_constraintStart_toStartOf="parent"
                                                    app:layout_constraintEnd_toEndOf="parent"/>
 

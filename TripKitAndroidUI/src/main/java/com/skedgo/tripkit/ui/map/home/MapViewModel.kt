@@ -63,10 +63,11 @@ class MapViewModel @Inject internal constructor(
             .distinctUntilChanged { a, b -> a.second == b.second }
             .map { it.first }
             .observeOn(Schedulers.io())
-            .switchMap { loadPOILocationsByViewPort.execute(it) }
-            .compose(DiffTransformer<IMapPoiLocation, MarkerOptions>({ it.identifier }, {
-                it.createMarkerOptions(resources, picasso)
-            }))
+            .switchMap {
+                loadPOILocationsByViewPort.execute(it)
+            }
+            .compose(DiffTransformer<IMapPoiLocation, MarkerOptions>({ it.identifier },
+                    { it.createMarkerOptions(resources, picasso) }))
             .autoClear()
 
 
