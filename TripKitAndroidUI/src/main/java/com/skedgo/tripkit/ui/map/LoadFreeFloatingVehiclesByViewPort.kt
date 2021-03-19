@@ -1,6 +1,5 @@
 package com.skedgo.tripkit.ui.map
-import com.skedgo.tripkit.data.database.locations.bikepods.BikePodLocationEntity
-import com.skedgo.tripkit.data.database.locations.bikepods.BikePodRepository
+
 import com.skedgo.tripkit.data.database.locations.freefloating.FreeFloatingLocationEntity
 import com.skedgo.tripkit.data.database.locations.freefloating.FreeFloatingRepository
 import com.skedgo.tripkit.ui.map.home.GetCellIdsFromViewPort
