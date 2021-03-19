@@ -122,18 +122,22 @@ class SharedNearbyTripPreviewItemViewModel @Inject constructor(private val regio
     }
 
     fun withAction(isAppInstalled: Boolean) {
-        loadedSegment!!.booking?.externalActions?.let { actions ->
+        loadedSegment!!.booking?.externalActions?.let {
             when {
-                actions.contains("nss://home") && isAppInstalled -> {
+                isAppInstalled -> {
                     action = "openApp"
-                    buttonText.set("Open App")
+                    var label = loadedSegment!!.booking.title
+                    if (label.isNullOrEmpty()) {
+                        label = "Open App"
+                    }
+                    buttonText.set(label)
                 }
-                actions.contains("nss://home") && !isAppInstalled -> {
+                !isAppInstalled -> {
                     action = "getApp"
                     buttonText.set("Get App")
                 }
             }
-            showButton.set(true)
         }
+        showButton.set(loadedSegment?.sharedVehicle != null && action.isNotEmpty())
     }
 }
