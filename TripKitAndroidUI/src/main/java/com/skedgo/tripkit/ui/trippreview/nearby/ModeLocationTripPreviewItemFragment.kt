@@ -5,16 +5,14 @@ import android.app.AlertDialog
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
-import android.graphics.Color
+import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Bundle
-import android.os.Handler
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.View.GONE
 import android.view.ViewGroup
 import android.widget.Button
-import androidx.core.content.res.ResourcesCompat
 import androidx.lifecycle.ViewModelProviders
 import com.google.android.flexbox.FlexDirection
 import com.google.android.flexbox.FlexWrap
@@ -22,8 +20,6 @@ import com.google.android.flexbox.FlexboxLayoutManager
 import com.google.android.flexbox.JustifyContent
 import com.google.android.material.button.MaterialButton
 import com.skedgo.tripkit.booking.BookingService
-import com.skedgo.tripkit.booking.InputForm
-import com.skedgo.tripkit.booking.QrFormField
 import com.skedgo.tripkit.routing.TripSegment
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.TripKitUI
@@ -34,12 +30,7 @@ import com.skedgo.tripkit.ui.qrcode.INTENT_KEY_BARCODES
 import com.skedgo.tripkit.ui.qrcode.INTENT_KEY_BUTTON_ID
 import com.skedgo.tripkit.ui.qrcode.INTENT_KEY_INTERNAL_URL
 import com.skedgo.tripkit.ui.qrcode.QrCodeScanActivity
-import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButton
-import com.skedgo.tripkit.ui.utils.ITEM_SERVICE
-import com.skedgo.tripkit.ui.utils.correctItemType
 import io.reactivex.android.schedulers.AndroidSchedulers
-import kotlinx.android.synthetic.main.timetable_fragment.view.*
-import timber.log.Timber
 import javax.inject.Inject
 
 const val REQUEST_QR_SCAN = 1
@@ -68,6 +59,12 @@ class ModeLocationTripPreviewItemFragment(var segment: TripSegment) : BaseTripKi
         sharedViewModel = ViewModelProviders.of(parentFragment!!, sharedViewModelFactory).get("sharedNearbyViewModel", SharedNearbyTripPreviewItemViewModel::class.java)
         sharedViewModel.setSegment(context!!, segment)
         viewModel.set(segment)
+
+        setBookingAction()
+    }
+
+    private fun setBookingAction() {
+        sharedViewModel.withAction(isAppInstalled())
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -168,6 +165,72 @@ class ModeLocationTripPreviewItemFragment(var segment: TripSegment) : BaseTripKi
                     viewModel.set(it)
                 }.addTo(autoDisposable)
 
+        sharedViewModel.actionChosen.observeOn(AndroidSchedulers.mainThread())
+                .subscribe {
+                    if (sharedViewModel.action == "openApp") {
+                        startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(getSharedVehicleIntentURI())))
+                    } else {
+                        startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(getSharedVehicleAppAndroidURL())))
+                    }
+                    tripPreviewPagerListener?.onServiceActionButtonClicked(sharedViewModel.action)
+                }.addTo(autoDisposable)
+
+        setBookingAction()
+
+    }
+
+    private fun getSharedVehicleIntentURI(): String? {
+        return if (!segment.sharedVehicle?.operator()?.appInfo?.deepLink.isNullOrEmpty()) {
+            segment.sharedVehicle.operator()?.appInfo?.deepLink
+        } else if (!segment.sharedVehicle?.deepLink().isNullOrEmpty()) {
+            segment.sharedVehicle.deepLink()
+        } else {
+            segment.sharedVehicle?.operator()?.website
+        }
+    }
+
+    private fun getSharedVehicleDeepLink(): String? {
+        return if (!segment.sharedVehicle?.operator()?.appInfo?.deepLink.isNullOrEmpty()) {
+            segment.sharedVehicle.operator()?.appInfo?.deepLink
+        } else {
+            segment.sharedVehicle.deepLink()
+        }
+    }
+
+    private fun getSharedVehicleAppAndroidURL(): String? {
+        return if (!segment.sharedVehicle?.operator()?.appInfo?.appURLAndroid.isNullOrEmpty()) {
+            segment.sharedVehicle.operator()?.appInfo?.appURLAndroid
+        } else {
+            segment.sharedVehicle.appURLAndroid()
+        }
+    }
+
+    private fun isAppInstalled(): Boolean {
+        val deepLink = getSharedVehicleIntentURI()
+        if (deepLink.isNullOrEmpty()) {
+            return false
+        }
+
+        if (getSharedVehicleDeepLink() == null) {
+            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(getSharedVehicleIntentURI()))
+            val componentName = intent.resolveActivity(requireActivity().packageManager)
+            if (componentName != null) {
+                return true
+            }
+            return false
+        }
+
+        return try {
+            val appUrl = getSharedVehicleAppAndroidURL()
+            appUrl.let {
+                val firstIndex = it!!.indexOf("=")
+                val lastIndex = it.indexOf("&")
+                requireActivity().packageManager.getPackageInfo(it.substring(firstIndex + 1, lastIndex), 0)
+            }
+            true
+        } catch (e: PackageManager.NameNotFoundException) {
+            false
+        }
     }
 
 }
