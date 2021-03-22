@@ -2,6 +2,7 @@ package com.skedgo.tripkit.ui.trippreview.nearby
 
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -76,14 +77,9 @@ class NearbyTripPreviewItemFragment(var segment: TripSegment) : BaseTripKitFragm
         sharedViewModel.actionChosen.observeOn(AndroidSchedulers.mainThread())
                 .subscribe {
                     if (sharedViewModel.action == "openApp") {
-                        startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(getSharedVehicleDeepLink())))
+                        startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(getSharedVehicleIntentURI())))
                     } else {
-                        val appUrl = if (segment.sharedVehicle.appURLAndroid().isNullOrEmpty()) {
-                            segment.sharedVehicle.operator()?.appInfo?.appURLAndroid
-                        } else {
-                            segment.sharedVehicle.appURLAndroid()
-                        }
-                        startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(appUrl)))
+                        startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(getSharedVehicleAppAndroidURL())))
                     }
                     tripPreviewPagerListener?.onServiceActionButtonClicked(sharedViewModel.action)
                 }.addTo(autoDisposable)
@@ -91,20 +87,57 @@ class NearbyTripPreviewItemFragment(var segment: TripSegment) : BaseTripKitFragm
         setBookingAction()
     }
 
-    private fun getSharedVehicleDeepLink(): String? {
-        return if (segment.sharedVehicle.operator()?.appInfo?.deepLink.isNullOrEmpty()) {
+    private fun getSharedVehicleIntentURI(): String? {
+        return if (!segment.sharedVehicle?.operator()?.appInfo?.deepLink.isNullOrEmpty()) {
+            segment.sharedVehicle.operator()?.appInfo?.deepLink
+        } else if (!segment.sharedVehicle?.deepLink().isNullOrEmpty()) {
             segment.sharedVehicle.deepLink()
         } else {
+            segment.sharedVehicle?.operator()?.website
+        }
+    }
+
+    private fun getSharedVehicleDeepLink(): String? {
+        return if (!segment.sharedVehicle?.operator()?.appInfo?.deepLink.isNullOrEmpty()) {
             segment.sharedVehicle.operator()?.appInfo?.deepLink
+        } else {
+            segment.sharedVehicle.deepLink()
+        }
+    }
+
+    private fun getSharedVehicleAppAndroidURL(): String? {
+        return if (!segment.sharedVehicle?.operator()?.appInfo?.appURLAndroid.isNullOrEmpty()) {
+            segment.sharedVehicle.operator()?.appInfo?.appURLAndroid
+        } else {
+            segment.sharedVehicle.appURLAndroid()
         }
     }
 
     private fun isAppInstalled(): Boolean {
-        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(getSharedVehicleDeepLink()))
-        val componentName = intent.resolveActivity(requireActivity().packageManager)
-        if (componentName != null) {
-            return true
+        val deepLink = getSharedVehicleIntentURI()
+        if (deepLink.isNullOrEmpty()) {
+            return false
         }
-        return false
+
+        if (getSharedVehicleDeepLink() == null) {
+            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(getSharedVehicleIntentURI()))
+            val componentName = intent.resolveActivity(requireActivity().packageManager)
+            if (componentName != null) {
+                return true
+            }
+            return false
+        }
+
+        return try {
+            val appUrl = getSharedVehicleAppAndroidURL()
+            appUrl.let {
+                val firstIndex = it!!.indexOf("=")
+                val lastIndex = it.indexOf("&")
+                requireActivity().packageManager.getPackageInfo(it.substring(firstIndex + 1, lastIndex), 0)
+            }
+            true
+        } catch (e: PackageManager.NameNotFoundException) {
+            false
+        }
     }
 }
