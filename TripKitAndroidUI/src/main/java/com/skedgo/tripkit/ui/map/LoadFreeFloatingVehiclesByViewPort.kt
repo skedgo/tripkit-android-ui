@@ -14,7 +14,7 @@ open class LoadFreeFloatingVehiclesByViewPort @Inject constructor(
 
   open fun execute(viewPort: ViewPort): Observable<List<FreeFloatingLocationEntity>> {
     return when {
-      viewPort.isInner() && viewPort is ViewPort.CloseEnough -> {
+      viewPort.isInner() -> {
         val southwest = GeoPoint(viewPort.visibleBounds.southwest.latitude, viewPort.visibleBounds.southwest.longitude)
         val northeast = GeoPoint(viewPort.visibleBounds.northeast.latitude, viewPort.visibleBounds.northeast.longitude)
         getCellIdsFromViewPort.execute(viewPort)

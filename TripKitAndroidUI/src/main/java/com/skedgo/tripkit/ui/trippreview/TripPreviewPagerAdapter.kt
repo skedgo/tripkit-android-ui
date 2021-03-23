@@ -79,8 +79,12 @@ class TripPreviewPagerAdapter(fragmentManager: FragmentManager)
                 pages.add(TripPreviewPagerAdapterItem(ITEM_TIMETABLE, segment))
             }
 
-            val newItem = TripPreviewPagerAdapterItem(itemType, segment)
-            pages.add(newItem)
+            segment.action?.contains("neuron", true).let {
+                if(!it!!) {
+                    val newItem = TripPreviewPagerAdapterItem(itemType, segment)
+                    pages.add(newItem)
+                }
+            }
 
             if (itemType == ITEM_NEARBY) {
                 // Add the mode location card as well

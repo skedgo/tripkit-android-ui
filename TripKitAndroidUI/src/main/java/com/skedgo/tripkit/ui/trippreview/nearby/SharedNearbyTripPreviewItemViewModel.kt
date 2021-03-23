@@ -23,6 +23,7 @@ class SharedNearbyTripPreviewItemViewModel @Inject constructor(private val regio
 
     var loadedSegment: TripSegment? = null
 
+    val enableButton = ObservableBoolean(true)
     val showButton = ObservableBoolean(false)
     val buttonText = ObservableField<String>()
     val actionChosen = PublishRelay.create<String>()
@@ -122,10 +123,10 @@ class SharedNearbyTripPreviewItemViewModel @Inject constructor(private val regio
     }
 
     fun withAction(isAppInstalled: Boolean) {
-        loadedSegment!!.booking?.externalActions?.let {
+        loadedSegment!!.booking?.externalActions?.forEach {
             when {
                 isAppInstalled -> {
-                    action = "openApp"
+                    action = it
                     var label = loadedSegment!!.booking.title
                     if (label.isNullOrEmpty()) {
                         label = "Open App"

@@ -30,7 +30,7 @@ import timber.log.Timber
 import javax.inject.Inject
 
 
-class TripSegmentViewModel @Inject constructor(private val context: Context, private val printTime: PrintTime): RxViewModel() {
+class TripSegmentViewModel @Inject constructor(private val context: Context, private val printTime: PrintTime) : RxViewModel() {
     @Inject
     lateinit var getTransportIconTintStrategy: GetTransportIconTintStrategy
 
@@ -62,19 +62,18 @@ class TripSegmentViewModel @Inject constructor(private val context: Context, pri
                     .map { bitmap -> BitmapDrawable(context.resources, bitmap) }
         }
         Observable
-            .just(context.resources.getDrawable(segment.darkVehicleIcon))
-            .concatWith(remoteIcon)
-            .doOnError { e -> Timber.e(e) }
-            .flatMap { drawable ->
-                getTransportIconTintStrategy.invoke()
-                        .map { transportTintStrategy -> transportTintStrategy.apply(segment.modeInfo!!.remoteIconIsTemplate, segment.serviceColor, drawable) }
-                        .toObservable()
-            }
-            .map { bitmapDrawable -> createSummaryIcon(segment, bitmapDrawable) }
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe({
-                drawable: Drawable -> icon.set(drawable)
-            }, { e -> Timber.e(e) }).autoClear()
+                .just(context.resources.getDrawable(segment.darkVehicleIcon))
+                .concatWith(remoteIcon)
+                .doOnError { e -> Timber.e(e) }
+                .flatMap { drawable ->
+                    getTransportIconTintStrategy.invoke()
+                            .map { transportTintStrategy -> transportTintStrategy.apply(segment.modeInfo!!.remoteIconIsTemplate, segment.serviceColor, drawable) }
+                            .toObservable()
+                }
+                .map { bitmapDrawable -> createSummaryIcon(segment, bitmapDrawable) }
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe({ drawable: Drawable -> icon.set(drawable)
+                }, { e -> Timber.e(e) }).autoClear()
 
     }
 
@@ -167,7 +166,7 @@ class TripSegmentViewModel @Inject constructor(private val context: Context, pri
             }
         } else if (trip.isMixedModal(false) && !segment.hasTimeTable()) {
             return TimeUtils.getDurationInHoursMins((segment.endTimeInSecs - segment.startTimeInSecs).toInt())
-        } else if (segment.metresSafe > 0)  {
+        } else if (segment.metresSafe > 0) {
             if (segment.isCycling) {
                 return context.resources.getString(R.string._pattern_cycle_friendly, "${segment.cycleFriendliness}%")
             } else if (segment.isWheelchair) {

@@ -34,6 +34,7 @@ class ExternalActionTripPreviewItemFragment (private val tripSegment: TripSegmen
         viewModel.closeClicked.observable.observeOn(AndroidSchedulers.mainThread()).subscribe{ onCloseButtonListener?.onClick(null) }.addTo(autoDisposable)
         viewModel.actionChosen.observeOn(AndroidSchedulers.mainThread())
                 .subscribe {
+                    tripPreviewPagerListener?.onServiceActionButtonClicked(null)
                     doBooking(it)
                 }.addTo(autoDisposable)
     }

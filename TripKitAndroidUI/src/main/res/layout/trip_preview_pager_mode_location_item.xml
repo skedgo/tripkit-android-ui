@@ -15,6 +15,42 @@
 
         <include layout="@layout/trip_preview_pager_item_header" bind:viewModel="@{sharedViewModel}"/>
 
+        <RelativeLayout
+            android:id="@+id/contBookingActionButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/textBarrier">
+            <com.google.android.material.button.MaterialButton
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/btnBookingAction"
+                style="?attr/materialButtonOutlinedStyle"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:text="@{sharedViewModel.buttonText}"
+                android:onClick="@{() -> sharedViewModel.actionChosen.accept(sharedViewModel.action)}"
+                android:visibility="@{sharedViewModel.showButton}"
+                app:icon="@drawable/ic_go"
+                app:iconGravity="textStart"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"/>
+
+            <ProgressBar
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginBottom="-2dp"
+                android:layout_marginStart="5dp"
+                android:layout_marginEnd="5dp"
+                android:indeterminateOnly="true"
+                android:elevation="2dp"
+                android:layout_alignStart="@id/btnBookingAction"
+                android:layout_alignEnd="@id/btnBookingAction"
+                android:layout_alignBottom="@id/btnBookingAction"
+                android:visibility="@{!sharedViewModel.enableButton}" />
+
+        </RelativeLayout>
 
         <com.google.android.flexbox.FlexboxLayout android:layout_width="0dp"
                                                   android:layout_height="wrap_content"
@@ -23,7 +59,7 @@
                                                   android:layout_marginEnd="16dp"
                                                   app:layout_constraintStart_toStartOf="parent"
                                                   app:layout_constraintEnd_toEndOf="parent"
-                                                  app:layout_constraintTop_toBottomOf="@+id/textBarrier"/>
+                                                  app:layout_constraintTop_toBottomOf="@+id/contBookingActionButton"/>
 
         <View android:id="@+id/divider"
               android:layout_width="match_parent"
