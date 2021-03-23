@@ -64,6 +64,7 @@ class ModeLocationTripPreviewItemFragment(var segment: TripSegment) : BaseTripKi
     }
 
     private fun setBookingAction() {
+        sharedViewModel.enableButton.set(true)
         sharedViewModel.withAction(isAppInstalled())
     }
 
@@ -167,12 +168,13 @@ class ModeLocationTripPreviewItemFragment(var segment: TripSegment) : BaseTripKi
 
         sharedViewModel.actionChosen.observeOn(AndroidSchedulers.mainThread())
                 .subscribe {
-                    if (sharedViewModel.action == "openApp") {
-                        startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(getSharedVehicleIntentURI())))
-                    } else {
+                    if (sharedViewModel.action == "getApp") {
                         startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(getSharedVehicleAppAndroidURL())))
+                    } else {
+                        sharedViewModel.buttonText.set("Opening...")
+                        sharedViewModel.enableButton.set(false)
+                        tripPreviewPagerListener?.onServiceActionButtonClicked(getSharedVehicleIntentURI()!!)
                     }
-                    tripPreviewPagerListener?.onServiceActionButtonClicked(sharedViewModel.action)
                 }.addTo(autoDisposable)
 
         setBookingAction()
@@ -184,8 +186,18 @@ class ModeLocationTripPreviewItemFragment(var segment: TripSegment) : BaseTripKi
             segment.sharedVehicle.operator()?.appInfo?.deepLink
         } else if (!segment.sharedVehicle?.deepLink().isNullOrEmpty()) {
             segment.sharedVehicle.deepLink()
+        } else if (!segment.sharedVehicle?.bookingURL().isNullOrEmpty()) {
+            segment.sharedVehicle.bookingURL()
         } else {
-            segment.sharedVehicle?.operator()?.website
+            if (!segment.booking?.externalActions.isNullOrEmpty()) {
+                var url = segment.sharedVehicle?.operator()?.website
+                segment.booking?.externalActions?.forEach {
+                    url = it
+                }
+                url
+            } else {
+                segment.sharedVehicle?.operator()?.website
+            }
         }
     }
 

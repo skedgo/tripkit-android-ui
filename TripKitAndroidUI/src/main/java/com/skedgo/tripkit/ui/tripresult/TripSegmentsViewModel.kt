@@ -39,6 +39,7 @@ import kotlinx.coroutines.launch
 import me.tatarka.bindingcollectionadapter2.ItemBinding
 import me.tatarka.bindingcollectionadapter2.itembindings.OnItemBindClass
 import timber.log.Timber
+import java.lang.Exception
 import java.util.*
 import java.util.Collections.emptyList
 import javax.inject.Inject
@@ -266,30 +267,29 @@ class TripSegmentsViewModel @Inject internal constructor(
             else -> null
         }
 
-        locationLabel.subscribe {
-            viewModel.setupSegment(viewType = TripSegmentItemViewModel.SegmentViewType.STATIONARY,
-                    title = it,
-                    description = possibleDescription,
-                    startTime = startTime,
-                    endTime = endTime,
-                    delay = delay,
-                    hasRealtime = nextSegment?.isRealTime ?: false,
-                    topConnectionColor = previousSegment?.lineColor() ?: Color.TRANSPARENT,
-                    bottomConnectionColor = nextSegment?.lineColor() ?: Color.TRANSPARENT)
-        }.autoClear()
-
-        tripSegment.singleLocation.displayName.let {
-            if (it.isNotEmpty()) {
-                AndroidGeocoder(context).getAddress(tripSegment.singleLocation.lat,
-                        tripSegment.singleLocation.lon).observeOn(mainThread()).subscribe { loc ->
-                    locationLabel.accept(loc)
-                }
-            }
+        var location = context.resources.getString(R.string.location)
+        if (!tripSegment.singleLocation.address.isNullOrEmpty()) {
+            location = tripSegment.singleLocation.displayAddress
+        }
+        if (!tripSegment.sharedVehicle?.garage()?.address.isNullOrEmpty()) {
+            location = tripSegment.sharedVehicle.garage()?.address!!
+        }
+        if (!nextSegment?.from?.address.isNullOrEmpty()) {
+            location = nextSegment?.from?.address!!
+        }
+        if (!previousSegment?.from?.address.isNullOrEmpty()) {
+            location = previousSegment?.from?.address!!
         }
 
-        if (tripSegment.singleLocation.displayName.isNullOrEmpty()) {
-            locationLabel.accept(context.resources.getString(R.string.location))
-        }
+        viewModel.setupSegment(viewType = TripSegmentItemViewModel.SegmentViewType.STATIONARY,
+                title = location,
+                description = possibleDescription,
+                startTime = startTime,
+                endTime = endTime,
+                delay = delay,
+                hasRealtime = nextSegment?.isRealTime ?: false,
+                topConnectionColor = previousSegment?.lineColor() ?: Color.TRANSPARENT,
+                bottomConnectionColor = nextSegment?.lineColor() ?: Color.TRANSPARENT)
     }
 
     private fun addStationaryBridgeItem(viewModel: TripSegmentItemViewModel,
