@@ -142,9 +142,6 @@ class LocationSearchViewModel @Inject constructor(private val context: Context,
                         loadFromHistory()
                     } else {
                         historySuggestions.clear()
-                    }
-                    providedSuggestions.clear()
-                    viewModelScope.launch {
 
                         fixedSuggestionsProvider().specificSuggestions(
                                 context,
@@ -153,7 +150,9 @@ class LocationSearchViewModel @Inject constructor(private val context: Context,
                         ).forEach { suggestion ->
                             fixedSuggestions.add(FixedSuggestionViewModel(context, suggestion))
                         }
-
+                    }
+                    providedSuggestions.clear()
+                    viewModelScope.launch {
                         locationSearchProvider?.query(context, iconProvider(), params.term())?.forEach { suggestion ->
                             providedSuggestions.add(SearchProviderSuggestionViewModel(context, suggestion))
                         }
