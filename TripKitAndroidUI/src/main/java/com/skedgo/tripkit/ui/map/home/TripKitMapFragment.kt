@@ -574,11 +574,11 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
     private fun initMap(map: GoogleMap, moveCamera: Boolean = true) {
         cityIcon = BitmapDescriptorFactory.fromResource(R.drawable.ic_map_city)
         setupMap(map)
-//        if(moveCamera) {
+        if(moveCamera) {
             viewModel.getInitialCameraUpdate()
                     .subscribe({ cameraUpdate: CameraUpdate? -> map.moveCamera(cameraUpdate) }) { error: Throwable? -> errorLogger!!.trackError(error!!) }
                     .addTo(autoDisposable)
-//        }
+        }
 
 
     }
