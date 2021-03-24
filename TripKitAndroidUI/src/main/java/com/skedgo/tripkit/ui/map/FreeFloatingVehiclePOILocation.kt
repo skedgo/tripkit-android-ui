@@ -19,7 +19,6 @@ class FreeFloatingVehiclePOILocation(
 
   override fun getInfoWindowAdapter(context: Context): StopInfoWindowAdapter? {
     return FreeFloatingVehicleInfoWindowAdapter(context)
-
   }
 
   override fun toLocation(): Location {
