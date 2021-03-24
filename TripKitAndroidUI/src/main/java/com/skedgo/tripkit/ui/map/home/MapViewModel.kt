@@ -142,5 +142,5 @@ sealed class ViewPort(val zoom: Float, val visibleBounds: LatLngBounds) {
     class CloseEnough(zoom: Float, visibleBounds: LatLngBounds) : ViewPort(zoom, visibleBounds)
     class NotCloseEnough(zoom: Float, visibleBounds: LatLngBounds) : ViewPort(zoom, visibleBounds)
 
-    fun isInner(): Boolean = this is CloseEnough && ZoomLevel.fromLevel(zoom) == ZoomLevel.INNER
+    fun isInner(): Boolean = ZoomLevel.fromLevel(zoom) == ZoomLevel.INNER
 }

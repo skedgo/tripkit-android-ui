@@ -12,18 +12,18 @@ open class LoadBikePodsByViewPort @Inject constructor(
         private val getCellIdsFromViewPort: GetCellIdsFromViewPort) {
 
   open fun execute(viewPort: ViewPort): Observable<List<BikePodLocationEntity>> {
-    return when {
-      viewPort.isInner() -> {
-        val southwest = GeoPoint(viewPort.visibleBounds.southwest.latitude, viewPort.visibleBounds.southwest.longitude)
-        val northeast = GeoPoint(viewPort.visibleBounds.northeast.latitude, viewPort.visibleBounds.northeast.longitude)
-        getCellIdsFromViewPort.execute(viewPort)
-            .flatMap {
-              bikePodRepository.getBikePodsWithinBounds(cellIds = it,
-                  southwest = southwest,
-                  northEast = northeast)
-            }
-            .defaultIfEmpty(emptyList())
-      }
+    return when (viewPort) {
+        is ViewPort.CloseEnough -> {
+          val southwest = GeoPoint(viewPort.visibleBounds.southwest.latitude, viewPort.visibleBounds.southwest.longitude)
+          val northeast = GeoPoint(viewPort.visibleBounds.northeast.latitude, viewPort.visibleBounds.northeast.longitude)
+          getCellIdsFromViewPort.execute(viewPort)
+                  .flatMap {
+                    bikePodRepository.getBikePodsWithinBounds(cellIds = it,
+                            southwest = southwest,
+                            northEast = northeast)
+                  }
+                  .defaultIfEmpty(emptyList())
+        }
       else -> Observable.just(emptyList())
     }
   }
