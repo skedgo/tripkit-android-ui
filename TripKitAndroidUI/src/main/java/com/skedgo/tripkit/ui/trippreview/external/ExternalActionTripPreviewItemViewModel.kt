@@ -2,6 +2,7 @@ package com.skedgo.tripkit.ui.trippreview.external
 
 import android.content.Context
 import androidx.databinding.ObservableArrayList
+import androidx.databinding.ObservableBoolean
 import com.jakewharton.rxrelay2.PublishRelay
 import com.skedgo.tripkit.routing.TripSegment
 import com.skedgo.tripkit.ui.trippreview.TripPreviewPagerItemViewModel
@@ -15,6 +16,7 @@ class ExternalActionTripPreviewItemViewModel : TripPreviewPagerItemViewModel() {
     val actionChosen = PublishRelay.create<String>()
     val binding = ItemBinding.of<ExternalActionViewModel>(BR.viewModel, R.layout.trip_preview_external_action_pager_list_item)
             .bindExtra(BR.parentViewModel, this)
+    val enableButton = ObservableBoolean(true)
 
     override fun setSegment(context: Context, segment: TripSegment) {
         super.setSegment(context, segment)
