@@ -148,7 +148,7 @@ class LocationSearchViewModel @Inject constructor(private val context: Context,
 
                         fixedSuggestionsProvider().specificSuggestions(
                                 context,
-                                listOf(DefaultFixedSuggestionType.CHOOSE_ON_MAP),
+                                listOf(DefaultFixedSuggestionType.CHOOSE_ON_MAP, DefaultFixedSuggestionType.CURRENT_LOCATION),
                                 iconProvider()
                         ).forEach { suggestion ->
                             fixedSuggestions.add(FixedSuggestionViewModel(context, suggestion))
