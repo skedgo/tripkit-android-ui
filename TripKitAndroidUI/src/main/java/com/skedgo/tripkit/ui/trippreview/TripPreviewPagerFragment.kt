@@ -105,6 +105,7 @@ class TripPreviewPagerFragment : BaseTripKitFragment() {
 
     interface Listener {
         fun onServiceActionButtonClicked(action: String?)
+        fun onExternalActionButtonClicked(action: String?)
     }
 
     class Builder(val tripGroupId: String, val tripId: String, val tripSegmentHashCode: Long, val _tripPreviewPagerListener: Listener) {
