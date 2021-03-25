@@ -134,7 +134,7 @@ class LocationSearchViewModel @Inject constructor(private val context: Context,
                         fixedSuggestionsProvider().fixedSuggestions(context, iconProvider()).forEach { suggestion ->
                             fixedSuggestions.add(FixedSuggestionViewModel(context, suggestion))
 
-                            if(scrollResultsOfQuery){
+                            if (scrollResultsOfQuery) {
                                 scrollListToTop.set(true)
                                 scrollResultsOfQuery = false
                             }
@@ -142,6 +142,14 @@ class LocationSearchViewModel @Inject constructor(private val context: Context,
                         loadFromHistory()
                     } else {
                         historySuggestions.clear()
+
+                        fixedSuggestionsProvider().specificSuggestions(
+                                context,
+                                listOf(DefaultFixedSuggestionType.CHOOSE_ON_MAP, DefaultFixedSuggestionType.CURRENT_LOCATION),
+                                iconProvider()
+                        ).forEach { suggestion ->
+                            fixedSuggestions.add(FixedSuggestionViewModel(context, suggestion))
+                        }
                     }
                     providedSuggestions.clear()
                     viewModelScope.launch {
