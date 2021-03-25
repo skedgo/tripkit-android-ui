@@ -4,7 +4,7 @@ import androidx.annotation.Nullable;
 
 public enum ZoomLevel {
   INNER(15.2f), OUTER(13f);
-  public static final float ZOOM_VALUE_TO_SHOW_CITIES = 7f;
+  public static final float ZOOM_VALUE_TO_SHOW_CITIES = -7f;
 
   public final float level;
 
