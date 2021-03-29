@@ -70,33 +70,48 @@ class TripPreviewPagerAdapter(fragmentManager: FragmentManager)
     fun setTripSegments(activeTripSegmentId: Long, tripSegments: List<TripSegment>): Int {
         pages.clear()
         var activeTripSegmentPosition = 0
-        var addedModeCards = 0
+        var addedCards = 0
         tripSegments.forEachIndexed { index, segment ->
             val itemType = segment.correctItemType()
 
             if (itemType == ITEM_SERVICE) {
+                if (activeTripSegmentId == segment.id && itemType == ITEM_SERVICE
+                        && activeTripSegmentPosition <= 0) {
+                    activeTripSegmentPosition = index + addedCards
+                }
+
                 // Add the timetable card as well
                 pages.add(TripPreviewPagerAdapterItem(ITEM_TIMETABLE, segment))
+                addedCards++
             }
 
             segment.action?.contains("neuron", true).let {
-                if(!it!!) {
+                if (!it!!) {
                     val newItem = TripPreviewPagerAdapterItem(itemType, segment)
                     pages.add(newItem)
                 }
             }
 
             if (itemType == ITEM_NEARBY) {
+                if (activeTripSegmentId == segment.id && itemType == ITEM_NEARBY
+                        && activeTripSegmentPosition <= 0) {
+                    activeTripSegmentPosition = index + addedCards
+                }
+
                 // Add the mode location card as well
                 pages.add(TripPreviewPagerAdapterItem(ITEM_MODE_LOCATION, segment))
-                addedModeCards++
+                addedCards++
             }
 
-            if (activeTripSegmentId == segment.id) {
-                activeTripSegmentPosition = index + addedModeCards
+            if (activeTripSegmentId == segment.id && activeTripSegmentPosition <= 0) {
+                activeTripSegmentPosition = index + addedCards
             }
         }
         notifyDataSetChanged()
+
+        if (activeTripSegmentPosition < 0) {
+            activeTripSegmentPosition = 0
+        }
         return activeTripSegmentPosition
     }
 }

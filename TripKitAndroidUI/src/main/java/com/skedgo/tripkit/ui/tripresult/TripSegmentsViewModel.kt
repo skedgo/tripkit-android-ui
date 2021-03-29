@@ -376,8 +376,8 @@ class TripSegmentsViewModel @Inject internal constructor(
                 }.autoClear()
 
                 viewModel.onClick.observable.subscribe {
-                    it.tripSegment?.let {
-                        segmentClicked.accept(it)
+                    it.tripSegment?.let { segment ->
+                        segmentClicked.accept(segment)
                     }
                 }.autoClear()
                 viewModel.tripSegment = segment
@@ -390,6 +390,11 @@ class TripSegmentsViewModel @Inject internal constructor(
                         var bridgeModel = segmentViewModelProvider.get()
                         bridgeModel.tripSegment = segment
                         addMovingItem(bridgeModel, segment)
+                        bridgeModel.onClick.observable.subscribe {
+                            it.tripSegment?.let { segment ->
+                                segmentClicked.accept(segment)
+                            }
+                        }.autoClear()
                         segmentViewModels.add(bridgeModel)
 
                         addStationaryBridgeItem(viewModel, segment, nextSegment)

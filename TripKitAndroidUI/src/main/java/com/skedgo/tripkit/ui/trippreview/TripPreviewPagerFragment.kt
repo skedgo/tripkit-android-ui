@@ -57,10 +57,10 @@ class TripPreviewPagerFragment : BaseTripKitFragment() {
                 .subscribe { tripGroup ->
                     val trip = tripGroup.trips?.find { it.uuid() == tripId }
                     trip?.let {
-                        adapter.setTripSegments(tripSegmentId,
+                        val activeIndex = adapter.setTripSegments(tripSegmentId,
                                 trip.segments.filter { !it.isContinuation }.filter { it.type != SegmentType.DEPARTURE && it.type != SegmentType.ARRIVAL })
                         adapter.notifyDataSetChanged()
-
+                        binding.tripSegmentPager.currentItem = activeIndex
                     }
                 }
                 .addTo(autoDisposable)
