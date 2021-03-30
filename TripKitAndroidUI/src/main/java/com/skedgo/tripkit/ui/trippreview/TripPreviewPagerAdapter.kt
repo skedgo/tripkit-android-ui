@@ -1,12 +1,14 @@
 package com.skedgo.tripkit.ui.trippreview
 
 import android.view.View
+import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentStatePagerAdapter
 import com.skedgo.tripkit.common.model.ScheduledStop
 import com.skedgo.tripkit.common.model.StopType
 import com.skedgo.tripkit.routing.TripSegment
+import com.skedgo.tripkit.ui.core.BaseTripKitFragment
 import com.skedgo.tripkit.ui.timetables.TimetableFragment
 import com.skedgo.tripkit.ui.trippreview.standard.StandardTripPreviewItemFragment
 import com.skedgo.tripkit.ui.trippreview.directions.DirectionsTripPreviewItemFragment
@@ -30,19 +32,19 @@ class TripPreviewPagerAdapter(fragmentManager: FragmentManager)
         val page = pages[position]
         val fragment = when (page.type) {
             ITEM_DIRECTIONS -> {
-                DirectionsTripPreviewItemFragment(page.tripSegment) // Directions showing miles per item
+                DirectionsTripPreviewItemFragment.newInstance(page.tripSegment) // Directions showing miles per item
             }
             ITEM_NEARBY -> {
-                NearbyTripPreviewItemFragment(page.tripSegment) // Happening nearby (collect bicycle, walk, etc)
+                NearbyTripPreviewItemFragment.newInstance(page.tripSegment) // Happening nearby (collect bicycle, walk, etc)
             }
             ITEM_MODE_LOCATION -> {
-                ModeLocationTripPreviewItemFragment(page.tripSegment) // modes
+                ModeLocationTripPreviewItemFragment.newInstance(page.tripSegment) // modes
             }
             ITEM_EXTERNAL_BOOKING -> {
-                ExternalActionTripPreviewItemFragment(page.tripSegment) // taxis, gocatch
+                ExternalActionTripPreviewItemFragment.newInstance(page.tripSegment) // taxis, gocatch
             }
             ITEM_SERVICE -> {
-                ServiceTripPreviewItemFragment(page.tripSegment) // PT with Stops
+                ServiceTripPreviewItemFragment.newInstance(page.tripSegment) // PT with Stops
             }
             ITEM_TIMETABLE -> {
                 val scheduledStop = ScheduledStop(page.tripSegment.to)
@@ -56,7 +58,7 @@ class TripPreviewPagerAdapter(fragmentManager: FragmentManager)
                         .build()
                 timetableFragment
             }
-            else -> StandardTripPreviewItemFragment(page.tripSegment)
+            else -> StandardTripPreviewItemFragment.newInstance(page.tripSegment)
         }
         fragment!!.onCloseButtonListener = onCloseButtonListener
         fragment.tripPreviewPagerListener = tripPreviewPagerListener

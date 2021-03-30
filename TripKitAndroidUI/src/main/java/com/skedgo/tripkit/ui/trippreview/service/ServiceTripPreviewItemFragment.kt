@@ -19,8 +19,10 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import javax.inject.Inject
 
 
-class ServiceTripPreviewItemFragment(var segment: TripSegment) : BaseTripKitFragment() {
+class ServiceTripPreviewItemFragment : BaseTripKitFragment() {
     var time = 0L
+
+    var segment: TripSegment? = null
 
     @Inject
     lateinit var fetchAndLoadTimetable: FetchAndLoadTimetable
@@ -36,6 +38,12 @@ class ServiceTripPreviewItemFragment(var segment: TripSegment) : BaseTripKitFrag
         super.onAttach(context)
     }
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+
+    }
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val binding = TripPreviewServiceItemBinding.inflate(inflater)
         binding.viewModel = viewModel
@@ -43,8 +51,18 @@ class ServiceTripPreviewItemFragment(var segment: TripSegment) : BaseTripKitFrag
         binding.content.occupancyList.layoutManager = LinearLayoutManager(context, RecyclerView.HORIZONTAL, false)
         binding.closeButton.setOnClickListener(onCloseButtonListener)
 
-        viewModel.setup(segment)
+        segment?.let {
+            viewModel.setup(it)
+        }
 
         return binding.root
+    }
+
+    companion object{
+        fun newInstance(segment: TripSegment): ServiceTripPreviewItemFragment{
+            val fragment = ServiceTripPreviewItemFragment()
+            fragment.segment = segment
+            return fragment
+        }
     }
 }

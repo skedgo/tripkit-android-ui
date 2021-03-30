@@ -137,7 +137,7 @@ public class TripResultPagerFragment extends BaseTripKitFragment implements View
 
   @Override public void onSaveInstanceState(@NonNull Bundle outState) {
     super.onSaveInstanceState(outState);
-    if (binding.tripGroupsPager != null) {
+    if (binding != null && binding.tripGroupsPager != null) {
       outState.putInt(KEY_CURRENT_PAGE, binding.tripGroupsPager.getCurrentItem());
     }
     viewModel.onSavedInstanceState(outState);

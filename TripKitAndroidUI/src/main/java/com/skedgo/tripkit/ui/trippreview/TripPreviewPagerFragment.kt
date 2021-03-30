@@ -5,7 +5,9 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.os.bundleOf
 import androidx.lifecycle.ViewModelProviders
+import androidx.viewpager.widget.ViewPager
 import com.skedgo.tripkit.common.model.ScheduledStop
 import com.skedgo.tripkit.common.model.StopType
 import com.skedgo.tripkit.routing.SegmentType
@@ -18,16 +20,10 @@ import com.skedgo.tripkit.ui.core.BaseTripKitFragment
 import com.skedgo.tripkit.ui.core.addTo
 import com.skedgo.tripkit.ui.databinding.TripPreviewPagerBinding
 import com.skedgo.tripkit.ui.routingresults.TripGroupRepository
-import com.skedgo.tripkit.ui.timetables.TimetableFragment
-import com.skedgo.tripkit.ui.trippreview.directions.DirectionsTripPreviewItemFragment
-import com.skedgo.tripkit.ui.trippreview.external.ExternalActionTripPreviewItemFragment
-import com.skedgo.tripkit.ui.trippreview.nearby.ModeLocationTripPreviewItemFragment
-import com.skedgo.tripkit.ui.trippreview.nearby.NearbyTripPreviewItemFragment
-import com.skedgo.tripkit.ui.trippreview.service.ServiceTripPreviewItemFragment
-import com.skedgo.tripkit.ui.trippreview.standard.StandardTripPreviewItemFragment
 import com.skedgo.tripkit.ui.tripresult.ARG_TRIP_GROUP_ID
 import com.skedgo.tripkit.ui.utils.*
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
 import javax.inject.Inject
 
 
@@ -76,9 +72,29 @@ class TripPreviewPagerFragment : BaseTripKitFragment() {
 
     fun updateAdapter() {
         adapter = TripPreviewPagerAdapter(childFragmentManager)
+        //adapter = TripPreviewPagerAdapterNew(childFragmentManager)
         adapter.onCloseButtonListener = this.onCloseButtonListener
         adapter.tripPreviewPagerListener = this.tripPreviewPagerListener
         binding.tripSegmentPager.adapter = adapter
+        binding.tripSegmentPager.offscreenPageLimit = 1
+        setViewPagerListeners()
+    }
+
+    private fun setViewPagerListeners(){
+        binding.tripSegmentPager.addOnPageChangeListener(object: ViewPager.OnPageChangeListener{
+            override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {}
+
+            override fun onPageSelected(position: Int) {
+                (adapter.instantiateItem(
+                        binding.tripSegmentPager,
+                        position) as? BaseTripKitFragment)?.let {
+                    it.onCloseButtonListener = this@TripPreviewPagerFragment.onCloseButtonListener
+                    it.tripPreviewPagerListener = this@TripPreviewPagerFragment.tripPreviewPagerListener
+                }
+            }
+
+            override fun onPageScrollStateChanged(state: Int) {}
+        })
     }
 
     fun setTripSegment(segment: TripSegment, tripSegments: List<TripSegment>) {
@@ -108,6 +124,7 @@ class TripPreviewPagerFragment : BaseTripKitFragment() {
         fun onExternalActionButtonClicked(action: String?)
     }
 
+    /*
     class Builder(val tripGroupId: String, val tripId: String, val tripSegmentHashCode: Long, val _tripPreviewPagerListener: Listener) {
         fun build(): TripPreviewPagerFragment {
             return TripPreviewPagerFragment().apply {
@@ -118,6 +135,24 @@ class TripPreviewPagerFragment : BaseTripKitFragment() {
                 this.tripPreviewPagerListener = _tripPreviewPagerListener
                 arguments = b
             }
+        }
+    }
+    */
+
+    companion object{
+        fun newInstance(
+                tripGroupId: String,
+                tripId: String,
+                tripSegmentHashCode: Long,
+                tripPreviewPagerListener: Listener): TripPreviewPagerFragment {
+            val fragment = TripPreviewPagerFragment()
+            fragment.arguments = bundleOf(
+                    ARG_TRIP_GROUP_ID to tripGroupId,
+                    ARG_TRIP_ID to tripId,
+                    ARG_TRIP_SEGMENT_ID to tripSegmentHashCode
+            )
+            fragment.tripPreviewPagerListener = tripPreviewPagerListener
+            return fragment
         }
     }
 }

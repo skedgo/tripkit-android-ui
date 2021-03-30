@@ -46,7 +46,9 @@ class DirectionsTripPreviewItemViewModel : TripPreviewPagerItemViewModel() {
                 vm.description.set(context.getString(R.string.along__pattern, it.name()))
             }
             vm.icon.set(iconGetter.getIcon(context, it))
-            items.add(vm)
+            if(!items.any { it.title == vm.title && it.description == vm.description }){
+                items.add(vm)
+            }
         }
     }
 }
