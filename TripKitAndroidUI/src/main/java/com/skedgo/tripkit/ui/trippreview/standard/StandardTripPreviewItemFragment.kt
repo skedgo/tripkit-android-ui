@@ -26,7 +26,7 @@ import timber.log.Timber
 import javax.inject.Inject
 
 
-class StandardTripPreviewItemFragment(val segment: TripSegment) : BaseTripKitFragment() {
+class StandardTripPreviewItemFragment : BaseTripKitFragment() {
 
     @Inject
     lateinit var sharedViewModelFactory: SharedNearbyTripPreviewItemViewModelFactory
@@ -36,6 +36,8 @@ class StandardTripPreviewItemFragment(val segment: TripSegment) : BaseTripKitFra
     @Inject
     lateinit var bookingService: BookingService
 
+    var segment: TripSegment? = null
+
     override fun onAttach(context: Context) {
         TripKitUI.getInstance().tripPreviewComponent().inject(this)
         super.onAttach(context)
@@ -43,13 +45,15 @@ class StandardTripPreviewItemFragment(val segment: TripSegment) : BaseTripKitFra
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        sharedViewModel = ViewModelProviders.of(parentFragment!!, sharedViewModelFactory).get("sharedNearbyViewModel", SharedNearbyTripPreviewItemViewModel::class.java)
+        sharedViewModel = ViewModelProviders.of(requireParentFragment(), sharedViewModelFactory).get("sharedNearbyViewModel", SharedNearbyTripPreviewItemViewModel::class.java)
         vm = ViewModelProviders.of(this).get(TripPreviewPagerItemViewModel::class.java)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         binding = TripPreviewPagerItemBinding.inflate(inflater)
-        vm.setSegment(context!!, segment)
+        segment?.let {
+            vm.setSegment(requireContext(), it)
+        }
         binding.viewModel = vm
         binding.lifecycleOwner = this
         return binding.root
@@ -75,7 +79,7 @@ class StandardTripPreviewItemFragment(val segment: TripSegment) : BaseTripKitFra
                     vm.message.set(formField.sidetitle)
                     vm.messageVisible.set(true)
                 } else if (formField.id == "end_booking" && formField is LinkFormField) {
-                    val newButton = MaterialButton(context!!, null, R.attr.borderlessButtonStyle)
+                    val newButton = MaterialButton(requireContext(), null, R.attr.borderlessButtonStyle)
                     newButton.text = formField.title
                     newButton.setOnClickListener {
                         runAction(formField)
@@ -96,6 +100,14 @@ class StandardTripPreviewItemFragment(val segment: TripSegment) : BaseTripKitFra
                     .subscribe({
                         sharedViewModel.bookingForm.accept(it)
                     }, {}).addTo(autoDisposable)
+        }
+    }
+
+    companion object{
+        fun newInstance(segment: TripSegment): StandardTripPreviewItemFragment{
+            val fragment = StandardTripPreviewItemFragment()
+            fragment.segment = segment
+            return fragment
         }
     }
 }

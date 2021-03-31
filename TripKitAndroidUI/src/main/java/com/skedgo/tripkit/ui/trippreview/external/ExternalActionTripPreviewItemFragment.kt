@@ -15,9 +15,11 @@ import com.skedgo.tripkit.ui.core.addTo
 import com.skedgo.tripkit.ui.databinding.TripPreviewExternalActionPagerItemBinding
 import io.reactivex.android.schedulers.AndroidSchedulers
 
-class ExternalActionTripPreviewItemFragment (private val tripSegment: TripSegment): BaseTripKitFragment() {
+class ExternalActionTripPreviewItemFragment : BaseTripKitFragment() {
     private lateinit var viewModel: ExternalActionTripPreviewItemViewModel
     private val bookingResolver = TripKit.getInstance().bookingResolver
+
+    private var tripSegment: TripSegment? = null
 
     override fun onAttach(context: Context) {
         TripKitUI.getInstance().tripPreviewComponent().inject(this)
@@ -31,7 +33,7 @@ class ExternalActionTripPreviewItemFragment (private val tripSegment: TripSegmen
 
     override fun onResume() {
         super.onResume()
-        viewModel.closeClicked.observable.observeOn(AndroidSchedulers.mainThread()).subscribe{ onCloseButtonListener?.onClick(null) }.addTo(autoDisposable)
+        viewModel.closeClicked.observable.observeOn(AndroidSchedulers.mainThread()).subscribe { onCloseButtonListener?.onClick(null) }.addTo(autoDisposable)
         viewModel.actionChosen.observeOn(AndroidSchedulers.mainThread())
                 .subscribe {
                     viewModel.enableButton.set(false)
@@ -50,9 +52,12 @@ class ExternalActionTripPreviewItemFragment (private val tripSegment: TripSegmen
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewModel.setSegment(context!!, tripSegment)
+        tripSegment?.let {
+            viewModel.setSegment(requireContext(), it)
+        }
     }
-    private fun doBooking( action: String) {
+
+    private fun doBooking(action: String) {
         val params: ExternalActionParams = ExternalActionParams.builder()
                 .action(action)
                 .segment(tripSegment)
@@ -62,5 +67,13 @@ class ExternalActionTripPreviewItemFragment (private val tripSegment: TripSegmen
                 .subscribe {
                     startActivity(it.data())
                 }.addTo(autoDisposable)
+    }
+
+    companion object {
+        fun newInstance(tripSegment: TripSegment): ExternalActionTripPreviewItemFragment {
+            val fragment = ExternalActionTripPreviewItemFragment()
+            fragment.tripSegment = tripSegment
+            return fragment
+        }
     }
 }

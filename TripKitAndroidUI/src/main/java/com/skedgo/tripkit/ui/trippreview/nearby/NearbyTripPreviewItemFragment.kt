@@ -19,11 +19,13 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import javax.inject.Inject
 
 
-class NearbyTripPreviewItemFragment(var segment: TripSegment) : BaseTripKitFragment() {
+class NearbyTripPreviewItemFragment() : BaseTripKitFragment() {
     @Inject
     lateinit var sharedViewModelFactory: SharedNearbyTripPreviewItemViewModelFactory
     lateinit var sharedViewModel: SharedNearbyTripPreviewItemViewModel
     lateinit var viewModel: NearbyTripPreviewItemViewModel
+
+    var segment: TripSegment? = null
 
     override fun onAttach(context: Context) {
         TripKitUI.getInstance().tripPreviewComponent().inject(this)
@@ -33,9 +35,12 @@ class NearbyTripPreviewItemFragment(var segment: TripSegment) : BaseTripKitFragm
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         viewModel = ViewModelProviders.of(this).get("nearbyViewModel", NearbyTripPreviewItemViewModel::class.java)
-        sharedViewModel = ViewModelProviders.of(parentFragment!!, sharedViewModelFactory).get("sharedNearbyViewModel", SharedNearbyTripPreviewItemViewModel::class.java)
+        sharedViewModel = ViewModelProviders.of(requireParentFragment(), sharedViewModelFactory).get("sharedNearbyViewModel", SharedNearbyTripPreviewItemViewModel::class.java)
         sharedViewModel.closeClicked.observable.observeOn(AndroidSchedulers.mainThread()).subscribe { onCloseButtonListener?.onClick(null) }.addTo(autoDisposable)
-        sharedViewModel.setSegment(context!!, segment)
+        //sharedViewModel.setSegment(context!!, segment)
+        segment?.let {
+            sharedViewModel.setSegment(requireContext(), it)
+        }
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -67,5 +72,13 @@ class NearbyTripPreviewItemFragment(var segment: TripSegment) : BaseTripKitFragm
                 .subscribe { mode -> viewModel.addMode(mode) }
                 .addTo(autoDisposable)
 
+    }
+
+    companion object {
+        fun newInstance(segment: TripSegment): NearbyTripPreviewItemFragment {
+            val fragment = NearbyTripPreviewItemFragment()
+
+            return fragment
+        }
     }
 }

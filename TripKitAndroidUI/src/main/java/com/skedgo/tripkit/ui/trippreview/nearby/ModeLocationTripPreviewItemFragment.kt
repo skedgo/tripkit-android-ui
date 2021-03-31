@@ -35,7 +35,7 @@ import javax.inject.Inject
 
 const val REQUEST_QR_SCAN = 1
 
-class ModeLocationTripPreviewItemFragment(var segment: TripSegment) : BaseTripKitFragment() {
+class ModeLocationTripPreviewItemFragment() : BaseTripKitFragment() {
     private lateinit var binding: TripPreviewPagerModeLocationItemBinding
 
     @Inject
@@ -49,6 +49,8 @@ class ModeLocationTripPreviewItemFragment(var segment: TripSegment) : BaseTripKi
     @Inject
     lateinit var bookingService: BookingService
 
+    var segment: TripSegment? = null
+
     override fun onAttach(context: Context) {
         TripKitUI.getInstance().tripPreviewComponent().inject(this)
         super.onAttach(context)
@@ -56,9 +58,12 @@ class ModeLocationTripPreviewItemFragment(var segment: TripSegment) : BaseTripKi
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        sharedViewModel = ViewModelProviders.of(parentFragment!!, sharedViewModelFactory).get("sharedNearbyViewModel", SharedNearbyTripPreviewItemViewModel::class.java)
-        sharedViewModel.setSegment(context!!, segment)
-        viewModel.set(segment)
+        sharedViewModel = ViewModelProviders.of(requireParentFragment(), sharedViewModelFactory).get("sharedNearbyViewModel", SharedNearbyTripPreviewItemViewModel::class.java)
+        segment?.let {
+            sharedViewModel.setSegment(requireContext(), it)
+            viewModel.set(it)
+        }
+
 
         setBookingAction()
     }
@@ -83,8 +88,8 @@ class ModeLocationTripPreviewItemFragment(var segment: TripSegment) : BaseTripKi
         binding.infoGroupRecyclerView.layoutManager = layoutManager
         binding.infoGroupRecyclerView.isNestedScrollingEnabled = false
 
-        if (!segment.booking?.confirmation?.actions().isNullOrEmpty()) {
-            segment.booking.confirmation!!.actions().forEach { action ->
+        if (!segment?.booking?.confirmation?.actions().isNullOrEmpty()) {
+            segment?.booking?.confirmation?.actions()?.forEach { action ->
                 if (sharedViewModel.bookingForm.value == null && action.type() == "UNLOCK") {
                     val newButton = MaterialButton(requireContext(), null, R.attr.materialButtonOutlinedStyle)
                     newButton.text = action.title()
@@ -182,38 +187,38 @@ class ModeLocationTripPreviewItemFragment(var segment: TripSegment) : BaseTripKi
     }
 
     private fun getSharedVehicleIntentURI(): String? {
-        return if (!segment.sharedVehicle?.operator()?.appInfo?.deepLink.isNullOrEmpty()) {
-            segment.sharedVehicle.operator()?.appInfo?.deepLink
-        } else if (!segment.sharedVehicle?.deepLink().isNullOrEmpty()) {
-            segment.sharedVehicle.deepLink()
-        } else if (!segment.sharedVehicle?.bookingURL().isNullOrEmpty()) {
-            segment.sharedVehicle.bookingURL()
+        return if (!segment?.sharedVehicle?.operator()?.appInfo?.deepLink.isNullOrEmpty()) {
+            segment?.sharedVehicle?.operator()?.appInfo?.deepLink
+        } else if (!segment?.sharedVehicle?.deepLink().isNullOrEmpty()) {
+            segment?.sharedVehicle?.deepLink()
+        } else if (!segment?.sharedVehicle?.bookingURL().isNullOrEmpty()) {
+            segment?.sharedVehicle?.bookingURL()
         } else {
-            if (!segment.booking?.externalActions.isNullOrEmpty()) {
-                var url = segment.sharedVehicle?.operator()?.website
-                segment.booking?.externalActions?.forEach {
+            if (!segment?.booking?.externalActions.isNullOrEmpty()) {
+                var url = segment?.sharedVehicle?.operator()?.website
+                segment?.booking?.externalActions?.forEach {
                     url = it
                 }
                 url
             } else {
-                segment.sharedVehicle?.operator()?.website
+                segment?.sharedVehicle?.operator()?.website
             }
         }
     }
 
     private fun getSharedVehicleDeepLink(): String? {
-        return if (!segment.sharedVehicle?.operator()?.appInfo?.deepLink.isNullOrEmpty()) {
-            segment.sharedVehicle.operator()?.appInfo?.deepLink
+        return if (!segment?.sharedVehicle?.operator()?.appInfo?.deepLink.isNullOrEmpty()) {
+            segment?.sharedVehicle?.operator()?.appInfo?.deepLink
         } else {
-            segment.sharedVehicle.deepLink()
+            segment?.sharedVehicle?.deepLink()
         }
     }
 
     private fun getSharedVehicleAppAndroidURL(): String? {
-        return if (!segment.sharedVehicle?.operator()?.appInfo?.appURLAndroid.isNullOrEmpty()) {
-            segment.sharedVehicle.operator()?.appInfo?.appURLAndroid
+        return if (!segment?.sharedVehicle?.operator()?.appInfo?.appURLAndroid.isNullOrEmpty()) {
+            segment?.sharedVehicle?.operator()?.appInfo?.appURLAndroid
         } else {
-            segment.sharedVehicle.appURLAndroid()
+            segment?.sharedVehicle?.appURLAndroid()
         }
     }
 
@@ -242,6 +247,14 @@ class ModeLocationTripPreviewItemFragment(var segment: TripSegment) : BaseTripKi
             true
         } catch (e: PackageManager.NameNotFoundException) {
             false
+        }
+    }
+
+    companion object {
+        fun newInstance(segment: TripSegment): ModeLocationTripPreviewItemFragment{
+            val fragment = ModeLocationTripPreviewItemFragment()
+            fragment.segment = segment
+            return fragment
         }
     }
 
