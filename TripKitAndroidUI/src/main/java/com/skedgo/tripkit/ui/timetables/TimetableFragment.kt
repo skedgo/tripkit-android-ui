@@ -380,6 +380,11 @@ class TimetableFragment : BaseTripKitFragment(), View.OnClickListener {
                 }, { Timber.e(it) })
     }
 
+    fun updateStop(stop: ScheduledStop){
+        this.stop = stop
+        viewModel.setText()
+    }
+
     class Builder {
         private var showCloseButton = false
         private var showSearchBar = true
