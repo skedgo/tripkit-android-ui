@@ -41,7 +41,6 @@ import java.lang.Exception
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
-
 class TimetableFragment : BaseTripKitFragment(), View.OnClickListener {
     /**
      * This callback will be invoked when a specific timetable entry is clicked.
@@ -116,9 +115,18 @@ class TimetableFragment : BaseTripKitFragment(), View.OnClickListener {
         super.onAttach(context)
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putParcelable(ARG_STOP, stop)
+        outState.putStringArrayList(ARG_BOOKING_ACTION, bookingActions)
+        outState.putBoolean(ARG_SHOW_SEARCH_FIELD, viewModel.showSearch.get())
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         viewModel = ViewModelProvider(this, viewModelFactory).get(TimetableViewModel::class.java)
+
+        savedInstanceState?.let { arguments = it }
 
         bookingActions = arguments?.getStringArrayList(ARG_BOOKING_ACTION)
     }

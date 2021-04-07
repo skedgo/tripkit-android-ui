@@ -105,11 +105,13 @@ class TripPreviewPagerFragment : BaseTripKitFragment() {
         tripSegments.forEachIndexed { _, segment ->
             when (segment.correctItemType()) {
                 ITEM_SERVICE -> {
+                    /*
                     val scheduledStop = ScheduledStop(segment.to)
                     scheduledStop.code = segment.startStopCode
                     scheduledStop.modeInfo = segment.modeInfo
                     scheduledStop.type = StopType.from(segment.modeInfo?.localIconName)
-                    adapter.timetableFragment!!.setBookingActions(segment.booking?.externalActions)
+                    */
+                    adapter.timetableFragment?.setBookingActions(segment.booking?.externalActions)
                 }
             }
         }
