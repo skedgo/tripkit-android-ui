@@ -54,7 +54,7 @@ class ServiceTripPreviewItemFragment : BaseTripKitFragment() {
         segment?.let {
             outState.putString(ARGS_TRIP_SEGMENT, gson.toJson(it))
             outState.putString(ARGS_TRIP_SEGMENT_TRIP, gson.toJson(it.trip))
-            outState.putString(ARGS_TRIP_SEGMENT_TRIP_GROUP, gson.toJson(it.trip.group))
+            outState.putString(ARGS_TRIP_SEGMENT_TRIP_GROUP, gson.toJson(it.trip?.group))
         }
     }
 
@@ -88,6 +88,7 @@ class ServiceTripPreviewItemFragment : BaseTripKitFragment() {
                     it.getString(ARGS_TRIP_SEGMENT_TRIP_GROUP),
                     TripGroup::class.java
             )
+            segment.trip = trip
             this@ServiceTripPreviewItemFragment.segment = segment
             viewModel.setup(segment)
 
