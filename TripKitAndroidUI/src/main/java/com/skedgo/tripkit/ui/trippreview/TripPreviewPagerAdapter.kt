@@ -87,13 +87,6 @@ class TripPreviewPagerAdapter(fragmentManager: FragmentManager)
                 addedCards++
             }
 
-            segment.action?.let {
-                if (itemType != ITEM_NEARBY) {
-                    val newItem = TripPreviewPagerAdapterItem(itemType, segment)
-                    pages.add(newItem)
-                }
-            }
-
             if (itemType == ITEM_NEARBY) {
                 if (activeTripSegmentId == segment.id && itemType == ITEM_NEARBY
                         && activeTripSegmentPosition <= 0) {
@@ -103,6 +96,9 @@ class TripPreviewPagerAdapter(fragmentManager: FragmentManager)
                 // Add the mode location card as well
                 pages.add(TripPreviewPagerAdapterItem(ITEM_MODE_LOCATION, segment))
                 addedCards++
+            } else {
+                val newItem = TripPreviewPagerAdapterItem(itemType, segment)
+                pages.add(newItem)
             }
 
             if (activeTripSegmentId == segment.id && activeTripSegmentPosition <= 0) {
