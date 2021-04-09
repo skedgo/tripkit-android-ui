@@ -87,8 +87,8 @@ class TripPreviewPagerAdapter(fragmentManager: FragmentManager)
                 addedCards++
             }
 
-            segment.action?.contains("neuron", true).let {
-                if (!it!!) {
+            segment.action?.let {
+                if (itemType != ITEM_NEARBY) {
                     val newItem = TripPreviewPagerAdapterItem(itemType, segment)
                     pages.add(newItem)
                 }

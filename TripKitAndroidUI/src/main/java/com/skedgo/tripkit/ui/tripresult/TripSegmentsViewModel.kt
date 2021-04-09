@@ -82,6 +82,7 @@ class TripSegmentsViewModel @Inject internal constructor(
     var arriveAtTitle = ObservableField<String>()
     val locationLabel = PublishRelay.create<String>()
     private var actionButtonHandler: ActionButtonHandler? = null
+    private var trip: Trip? = null
 
     val tripGroupObservable: Observable<TripGroup>
         get() = tripGroupRelay.hide()
@@ -360,6 +361,7 @@ class TripSegmentsViewModel @Inject internal constructor(
         val newItems = ArrayList<Any>()
         val trip = tripGroup.trips?.firstOrNull { it.id == tripId } ?: tripGroup.displayTrip
         if (trip != null) {
+            this.trip = trip
             val tripSegments = trip.segments
             segmentViewModels.clear()
             tripSegments.forEachIndexed { index, segment ->
@@ -427,7 +429,7 @@ class TripSegmentsViewModel @Inject internal constructor(
     }
 
     override fun onItemClick(tag: String, viewModel: ActionButtonViewModel) {
-        actionButtonHandler?.actionClicked(context, tag, tripGroup.displayTrip!!, viewModel)
+        actionButtonHandler?.actionClicked(context, tag, this.trip ?: tripGroup.displayTrip!!, viewModel)
     }
 
 }

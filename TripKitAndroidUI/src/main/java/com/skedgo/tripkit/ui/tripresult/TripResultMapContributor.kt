@@ -220,7 +220,7 @@ class TripResultMapContributor : TripKitMapContributor {
         marker.tag = segment
         val url = TransportModeUtils.getIconUrlForModeInfo(context.resources, segment.modeInfo)
         if (url != null) {
-            autoDisposable.add(picasso!!.fetchAsync(url)
+            autoDisposable.add(picasso.fetchAsync(url)
                     .map { it: Bitmap? -> BitmapDrawable(context.resources, it) }
                     .map { it: BitmapDrawable? -> segmentMarkerIconMaker!!.make(segment, it) }
                     .compose(toTrySingle { error: Throwable? -> error is UnableToFetchBitmapError })
