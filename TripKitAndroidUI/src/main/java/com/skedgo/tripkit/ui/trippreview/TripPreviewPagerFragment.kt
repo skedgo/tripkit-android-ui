@@ -99,17 +99,24 @@ class TripPreviewPagerFragment : BaseTripKitFragment() {
 
     fun setTripSegment(segment: TripSegment, tripSegments: List<TripSegment>) {
         adapter.setTripSegments(segment.id, tripSegments.filter { !it.isContinuation }.filter { it.type != SegmentType.DEPARTURE && it.type != SegmentType.ARRIVAL })
+        tripGroupRepository.updateTrip(segment.trip.group.uuid(), segment.trip.uuid(), segment.trip)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe()
+                .addTo(autoDisposable)
     }
 
     fun updateTripSegment(tripSegments: List<TripSegment>) {
         tripSegments.forEachIndexed { _, segment ->
             when (segment.correctItemType()) {
                 ITEM_SERVICE -> {
+                    /*
                     val scheduledStop = ScheduledStop(segment.to)
                     scheduledStop.code = segment.startStopCode
                     scheduledStop.modeInfo = segment.modeInfo
                     scheduledStop.type = StopType.from(segment.modeInfo?.localIconName)
-                    adapter.timetableFragment!!.setBookingActions(segment.booking?.externalActions)
+                    */
+                    adapter.timetableFragment?.setBookingActions(segment.booking?.externalActions)
                 }
             }
         }
