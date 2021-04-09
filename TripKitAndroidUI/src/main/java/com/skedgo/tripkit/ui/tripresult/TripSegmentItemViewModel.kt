@@ -35,9 +35,9 @@ import javax.inject.Inject
 
 
 class TripSegmentItemViewModel @Inject internal constructor(private val context: Context,
-                                                    private val getTransportIconTintStrategy: GetTransportIconTintStrategy,
-                                                    private val tripSegmentHelper: TripSegmentHelper,
-                                                    private val printTime: PrintTime)
+                                                            private val getTransportIconTintStrategy: GetTransportIconTintStrategy,
+                                                            private val tripSegmentHelper: TripSegmentHelper,
+                                                            private val printTime: PrintTime)
     : RxViewModel() {
     enum class SegmentViewType {
         TERMINAL,
@@ -45,6 +45,7 @@ class TripSegmentItemViewModel @Inject internal constructor(private val context:
         STATIONARY_BRIDGE,
         MOVING
     }
+
     val onClick = TapAction.create<TripSegmentItemViewModel>() { this }
     val title = ObservableField<String>()
     val startTime = ObservableField<SpannableString>()
@@ -92,7 +93,7 @@ class TripSegmentItemViewModel @Inject internal constructor(private val context:
             }
 
             if ((it.correctItemType() == ITEM_EXTERNAL_BOOKING && viewType == SegmentViewType.MOVING)
-                || (it.correctItemType() == ITEM_NEARBY && it.booking?.externalActions?.isNotEmpty() == true)){
+                    || (it.correctItemType() == ITEM_NEARBY && it.booking?.externalActions?.isNotEmpty() == true)) {
                 externalAction.set(it.booking!!.title)
             }
 
@@ -158,13 +159,17 @@ class TripSegmentItemViewModel @Inject internal constructor(private val context:
             // we also handle the special case of a TERMINAL being the last segment.
             if (lineColor != Color.TRANSPARENT
                     && viewType != SegmentViewType.TERMINAL /* Don't show the circle background when it's a terminal */) {
-                tintWhite = true
+                val isBranded = it.modeInfo?.remoteIconIsBranding
+                val remoteName = it.modeInfo?.remoteIconName
+                tintWhite = if (isBranded != null && isBranded && remoteName != null && remoteName.contains("neuron")) {
+                    false
+                } else !(isBranded != null && isBranded && remoteName != null && remoteName.contains("lime"))
                 backgroundCircleTint.set(lineColor)
                 showBackgroundCircle.set(true)
             }
 
             var segmentCircleColor = Color.TRANSPARENT
-            if (topConnectionColor != Color.TRANSPARENT){
+            if (topConnectionColor != Color.TRANSPARENT) {
                 this.topLineTint.set(topConnectionColor)
                 this.showTopLine.set(true)
                 segmentCircleColor = topConnectionColor
@@ -197,7 +202,7 @@ class TripSegmentItemViewModel @Inject internal constructor(private val context:
                 }
             } else {
                 // Everything else with a linecolor shows the representative icon.
-                if (segmentCircleColor == Color.TRANSPARENT || lineColor != Color.TRANSPARENT){
+                if (segmentCircleColor == Color.TRANSPARENT || lineColor != Color.TRANSPARENT) {
                     showSegmentIcon(it, tintWhite)
                 }
             }
@@ -208,6 +213,7 @@ class TripSegmentItemViewModel @Inject internal constructor(private val context:
             }
         }
     }
+
     private fun serviceColor(): Int {
         tripSegment?.serviceColor?.let {
             return when (it.color) {
@@ -223,11 +229,12 @@ class TripSegmentItemViewModel @Inject internal constructor(private val context:
         alertsClicked.accept(alerts.get())
     }
 
-    fun onExternalActionClicked(view : View) {
+    fun onExternalActionClicked(view: View) {
         tripSegment?.let {
             externalActionClicked.accept(it)
         }
     }
+
     protected fun showSegmentIcon(segment: TripSegment, tintWhite: Boolean) {
         if (segment.type == SegmentType.ARRIVAL || segment.type == SegmentType.DEPARTURE) {
             icon.set(ContextCompat.getDrawable(context, R.drawable.v4_ic_map_location))
@@ -253,7 +260,8 @@ class TripSegmentItemViewModel @Inject internal constructor(private val context:
                         }
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe({ drawable:
-                                    Drawable -> icon.set(drawable)
+                                     Drawable ->
+                            icon.set(drawable)
                         }, { e -> Timber.e(e) }).autoClear()
 
             }

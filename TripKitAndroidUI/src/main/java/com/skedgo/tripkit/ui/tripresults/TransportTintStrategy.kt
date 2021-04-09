@@ -4,5 +4,5 @@ import android.graphics.drawable.Drawable
 import com.skedgo.tripkit.routing.ServiceColor
 
 interface TransportTintStrategy {
-  fun apply(remoteIconIsTemplate: Boolean, serviceColor: ServiceColor?, drawable: Drawable): Drawable
+    fun apply(remoteIconIsTemplate: Boolean, remoteIconIsBranding: Boolean, serviceColor: ServiceColor?, drawable: Drawable): Drawable
 }
