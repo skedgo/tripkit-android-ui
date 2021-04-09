@@ -60,6 +60,10 @@ class PoiDetailsFragment : BaseTripKitFragment()  {
         return binding.root
     }
 
+    fun updateLocation(location: Location){
+        viewModel.start(location)
+    }
+
     class Builder(val location: Location) {
         private var showCloseButton = false
         private var isFavorite = false
