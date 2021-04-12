@@ -6,8 +6,8 @@ import com.skedgo.tripkit.routing.ServiceColor
 import com.skedgo.tripkit.routing.toInt
 
 object ApplyTintStrategy : TransportTintStrategy {
-  override fun apply(remoteIconIsTemplate: Boolean, serviceColor: ServiceColor?, drawable: Drawable): Drawable {
-    if (serviceColor != null && remoteIconIsTemplate) {
+  override fun apply(remoteIconIsTemplate: Boolean, remoteIconIsBranding: Boolean, serviceColor: ServiceColor?, drawable: Drawable): Drawable {
+    if (serviceColor != null && remoteIconIsTemplate && !remoteIconIsBranding) {
       return drawable.tint(serviceColor.toInt(0xff))
     }
     return drawable

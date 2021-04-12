@@ -37,6 +37,7 @@ class TripSegmentViewModel @Inject constructor(private val context: Context, pri
     init {
         TripKitUI.getInstance().tripSegmentViewModelComponent().inject(this)
     }
+
     val icon = ObservableField<Drawable>()
 
     val showPrimary = ObservableBoolean(false)
@@ -67,12 +68,13 @@ class TripSegmentViewModel @Inject constructor(private val context: Context, pri
                 .doOnError { e -> Timber.e(e) }
                 .flatMap { drawable ->
                     getTransportIconTintStrategy.invoke()
-                            .map { transportTintStrategy -> transportTintStrategy.apply(segment.modeInfo!!.remoteIconIsTemplate, segment.serviceColor, drawable) }
+                            .map { transportTintStrategy -> transportTintStrategy.apply(segment.modeInfo!!.remoteIconIsTemplate, segment.modeInfo!!.remoteIconIsBranding, segment.serviceColor, drawable) }
                             .toObservable()
                 }
                 .map { bitmapDrawable -> createSummaryIcon(segment, bitmapDrawable) }
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({ drawable: Drawable -> icon.set(drawable)
+                .subscribe({ drawable: Drawable ->
+                    icon.set(drawable)
                 }, { e -> Timber.e(e) }).autoClear()
 
     }
