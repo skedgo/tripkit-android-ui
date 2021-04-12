@@ -22,6 +22,7 @@ class PoiDetailsViewModel @Inject constructor(private val locationInfoService: L
     var showAddress = ObservableBoolean(false)
     var website = ObservableField<String>("")
     var showWebsite = ObservableBoolean(false)
+    var type = ObservableField(Location.TYPE_UNKNOWN)
 
     var what3words = ObservableField<String>("")
     var showWhat3words = ObservableBoolean(false)
@@ -37,6 +38,7 @@ class PoiDetailsViewModel @Inject constructor(private val locationInfoService: L
         this.locationTitle.set(location.displayName)
         this.address.set(location.address)
         this.website.set(location.url)
+        this.type.set(location.locationType)
 
         locationInfoService.getLocationInfoAsync(location)
                 .take(1)
