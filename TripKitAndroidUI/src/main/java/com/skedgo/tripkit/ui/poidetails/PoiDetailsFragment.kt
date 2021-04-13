@@ -1,6 +1,8 @@
 package com.skedgo.tripkit.ui.poidetails
 
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -24,6 +26,7 @@ const val BUTTON_FAVORITE = 2
 class PoiDetailsFragment : BaseTripKitFragment()  {
     @Inject lateinit var viewModelFactory: PoiDetailsViewModelFactory
     lateinit var viewModel: PoiDetailsViewModel
+    lateinit var binding: PoiDetailsFragmentBinding
 
     val buttonClick = PublishRelay.create<Int>()
     override fun onAttach(context: Context) {
@@ -50,11 +53,16 @@ class PoiDetailsFragment : BaseTripKitFragment()  {
 
         location?.let { viewModel.start(it) }
 
-        val binding = PoiDetailsFragmentBinding.inflate(inflater)
+        binding = PoiDetailsFragmentBinding.inflate(inflater)
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
         binding.goButton.setOnClickListener { buttonClick.accept(BUTTON_GO) }
         binding.favoriteButton.setOnClickListener { buttonClick.accept(BUTTON_FAVORITE) }
+        binding.openAppButton.setOnClickListener {
+            location?.appUrl?.let {
+                startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(it)))
+            }
+        }
 
         binding.closeButton.setOnClickListener(onCloseButtonListener)
         return binding.root
@@ -62,6 +70,11 @@ class PoiDetailsFragment : BaseTripKitFragment()  {
 
     fun updateLocation(location: Location){
         viewModel.start(location)
+        binding.openAppButton.setOnClickListener {
+            location.appUrl?.let {
+                startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(it)))
+            }
+        }
     }
 
     class Builder(val location: Location) {

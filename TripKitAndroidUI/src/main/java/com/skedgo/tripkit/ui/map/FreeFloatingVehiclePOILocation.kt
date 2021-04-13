@@ -29,6 +29,7 @@ class FreeFloatingVehiclePOILocation(
     location.address = freeFloatingLocationEntity.address
     location.url = freeFloatingLocationEntity.vehicle.operator.website
     location.locationType = Location.TYPE_E_BIKE
+    location.appUrl = freeFloatingLocationEntity.vehicle.operator.appInfo?.appURLAndroid
     return location
   }
 
