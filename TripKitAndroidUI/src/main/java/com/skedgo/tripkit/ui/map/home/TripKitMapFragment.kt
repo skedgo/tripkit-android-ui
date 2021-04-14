@@ -750,16 +750,14 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
             poiLocation?.let {
                 poiLocation.onMarkerClick(bus, eventTracker)
                 marker.showInfoWindow()
-                /*
                 val scrollY = ((resources.getDimensionPixelSize(R.dimen.routing_card_height)
                         + resources.getDimensionPixelSize(R.dimen.spacing_huge)
                         + poiLocationInfoWindowAdapter.windowInfoHeightInPixel(marker))
-                        - view.height / 2)
+                        - view.height )
                 map.moveCamera(CameraUpdateFactory.newLatLng(marker.position))
                 if (scrollY > 0) { // center the map to 64dp above the bottom of the fragment
                     map.moveCamera(CameraUpdateFactory.scrollBy(0f, scrollY * -1.toFloat()))
                 }
-                */
                 onInfoWindowClickListener!!.onInfoWindowClick(poiLocation.toLocation())
             }
             true
