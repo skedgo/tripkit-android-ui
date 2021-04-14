@@ -60,7 +60,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:text="@string/open_app"
+            android:text="@{viewModel.openAppButtonText}"
             android:textColor="@android:color/white"
             android:theme="@style/Theme.MaterialComponents"
             android:visibility="@{viewModel.type == Location.TYPE_E_BIKE? View.VISIBLE: View.GONE}"
@@ -69,7 +69,8 @@
             app:iconTint="@android:color/white"
             app:layout_constraintEnd_toEndOf="@+id/favoriteButton"
             app:layout_constraintStart_toStartOf="@+id/goButton"
-            app:layout_constraintTop_toBottomOf="@+id/firstDividingLine" />
+            app:layout_constraintTop_toBottomOf="@+id/firstDividingLine"
+            tools:text="@string/open_app" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/goButton"
