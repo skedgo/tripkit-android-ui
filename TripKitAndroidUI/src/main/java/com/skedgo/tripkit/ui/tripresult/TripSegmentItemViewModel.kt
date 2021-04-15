@@ -159,11 +159,11 @@ class TripSegmentItemViewModel @Inject internal constructor(private val context:
             // we also handle the special case of a TERMINAL being the last segment.
             if (lineColor != Color.TRANSPARENT
                     && viewType != SegmentViewType.TERMINAL /* Don't show the circle background when it's a terminal */) {
-                val isBranded = it.modeInfo?.remoteIconIsBranding
-                val remoteName = it.modeInfo?.remoteIconName
-                tintWhite = if (isBranded != null && isBranded && remoteName != null && remoteName.contains("neuron")) {
+                tintWhite = if (it.modeInfo?.remoteIconIsBranding != null && it.modeInfo?.remoteIconIsBranding!!
+                        && it.modeInfo?.remoteIconName != null && it.modeInfo?.remoteIconName!!.contains("neuron")) {
                     false
-                } else !(isBranded != null && isBranded && remoteName != null && remoteName.contains("lime"))
+                } else !(it.modeInfo?.remoteIconIsBranding != null && it.modeInfo?.remoteIconIsBranding!!
+                        && it.modeInfo?.remoteIconName != null && it.modeInfo?.remoteIconName!!.contains("lime"))
                 backgroundCircleTint.set(lineColor)
                 showBackgroundCircle.set(true)
             }
