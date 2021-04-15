@@ -121,10 +121,10 @@
             android:layout_width="24dp"
             android:layout_height="24dp"
             android:layout_marginStart="16dp"
-            android:layout_marginTop="24dp"
             android:visibility="@{viewModel.showAddress}"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/secondDividingLine"
+            app:layout_constraintTop_toTopOf="@+id/address"
+            app:layout_constraintBottom_toBottomOf="@+id/address"
             app:srcCompat="@drawable/ic_pin" />
 
         <TextView
@@ -134,13 +134,13 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="48dp"
             android:layout_marginEnd="16dp"
+            android:layout_marginTop="24dp"
             android:text="@{viewModel.address}"
             android:textAlignment="viewStart"
             android:visibility="@{viewModel.showAddress}"
-            app:layout_constraintBottom_toBottomOf="@+id/addressIcon"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/addressIcon"
-            app:layout_constraintTop_toTopOf="@+id/addressIcon"
+            app:layout_constraintTop_toBottomOf="@+id/secondDividingLine"
             tools:text="Address Address Address Address Address Address Address" />
 
         <ImageView
@@ -148,11 +148,11 @@
             android:layout_width="24dp"
             android:layout_height="24dp"
             android:layout_marginStart="16dp"
-            android:layout_marginTop="24dp"
             android:tint="@color/tripKitSuccess"
             android:visibility="@{viewModel.showWebsite}"
+            app:layout_constraintBottom_toBottomOf="@+id/website"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/addressIcon"
+            app:layout_constraintTop_toTopOf="@+id/website"
             app:srcCompat="@drawable/ic_globe" />
 
         <TextView
@@ -161,16 +161,16 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="48dp"
+            android:layout_marginTop="24dp"
             android:layout_marginEnd="16dp"
             android:autoLink="web"
             android:text="@{viewModel.website}"
             android:textAlignment="viewStart"
             android:textColor="@color/tripKitSuccess"
             android:visibility="@{viewModel.showWebsite}"
-            app:layout_constraintBottom_toBottomOf="@+id/websiteIcon"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/websiteIcon"
-            app:layout_constraintTop_toTopOf="@+id/websiteIcon"
+            app:layout_constraintTop_toBottomOf="@+id/address"
             tools:text="www.somesite" />
 
         <ImageView
@@ -178,11 +178,11 @@
             android:layout_width="24dp"
             android:layout_height="24dp"
             android:layout_marginStart="16dp"
-            android:layout_marginTop="24dp"
             android:tint="@color/tripKitSuccess"
             android:visibility="@{viewModel.showWhat3words}"
+            app:layout_constraintBottom_toBottomOf="@+id/what3word"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/websiteIcon"
+            app:layout_constraintTop_toTopOf="@+id/what3word"
             app:srcCompat="@drawable/ic_what3word" />
 
         <TextView
@@ -191,11 +191,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="48dp"
+            android:layout_marginTop="24dp"
             android:text="@{viewModel.what3words}"
             android:visibility="@{viewModel.showWhat3words}"
-            app:layout_constraintBottom_toBottomOf="@+id/what3wordIcon"
             app:layout_constraintStart_toEndOf="@+id/what3wordIcon"
-            app:layout_constraintTop_toTopOf="@+id/what3wordIcon"
+            app:layout_constraintTop_toBottomOf="@+id/website"
             tools:text="something.something.something" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
