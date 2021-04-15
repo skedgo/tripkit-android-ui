@@ -650,6 +650,7 @@
 	<string name="calendars_on_your_agenda">Calendars on your Agenda</string>
 	<!--Title for the button that allows users to change his/her mobility plan for the next month-->
 	<string name="change_to_this_plan">Change to this plan</string>
+	<string name="purchase_pass_for_next_month">Purchase pass for next month</string>
 	<!--Button to remove a photo (e.g., a receipt)-->
 	<string name="clear_photo">Clear Photo</string>
 	<!--Button to clear filter settings-->
