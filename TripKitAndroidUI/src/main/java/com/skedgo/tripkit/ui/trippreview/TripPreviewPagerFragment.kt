@@ -33,6 +33,8 @@ class TripPreviewPagerFragment : BaseTripKitFragment() {
     lateinit var adapter: TripPreviewPagerAdapter
     lateinit var binding: TripPreviewPagerBinding
 
+    var currentPagerIndex = 0
+
     override fun onAttach(context: Context) {
         TripKitUI.getInstance().tripDetailsComponent().inject(this)
         super.onAttach(context)
@@ -45,6 +47,17 @@ class TripPreviewPagerFragment : BaseTripKitFragment() {
                     it.getString(ARG_TRIP_ID, ""),
                     it.getLong(ARG_TRIP_SEGMENT_ID, 0L))
         }
+
+        savedInstanceState?.getInt(ARG_CURRENT_PAGER_INDEX)?.let {
+            currentPagerIndex = it
+            binding.tripSegmentPager.currentItem = currentPagerIndex
+            savedInstanceState.remove(ARG_CURRENT_PAGER_INDEX)
+        }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putInt(ARG_CURRENT_PAGER_INDEX, currentPagerIndex)
     }
 
     fun load(tripGroupId: String, tripId: String, tripSegmentId: Long) {
@@ -53,9 +66,13 @@ class TripPreviewPagerFragment : BaseTripKitFragment() {
                 .subscribe { tripGroup ->
                     val trip = tripGroup.trips?.find { it.uuid() == tripId }
                     trip?.let {
-                        val activeIndex = adapter.setTripSegments(tripSegmentId,
+                        var activeIndex = adapter.setTripSegments(tripSegmentId,
                                 trip.segments.filter { !it.isContinuation }.filter { it.type != SegmentType.DEPARTURE && it.type != SegmentType.ARRIVAL })
                         adapter.notifyDataSetChanged()
+                        if(currentPagerIndex != 0 && activeIndex != currentPagerIndex){
+                            activeIndex = currentPagerIndex
+                        }
+                        currentPagerIndex = activeIndex
                         binding.tripSegmentPager.currentItem = activeIndex
                     }
                 }
@@ -70,9 +87,8 @@ class TripPreviewPagerFragment : BaseTripKitFragment() {
         return binding.root
     }
 
-    fun updateAdapter() {
+    private fun updateAdapter() {
         adapter = TripPreviewPagerAdapter(childFragmentManager)
-        //adapter = TripPreviewPagerAdapterNew(childFragmentManager)
         adapter.onCloseButtonListener = this.onCloseButtonListener
         adapter.tripPreviewPagerListener = this.tripPreviewPagerListener
         binding.tripSegmentPager.adapter = adapter
@@ -91,6 +107,7 @@ class TripPreviewPagerFragment : BaseTripKitFragment() {
                     it.onCloseButtonListener = this@TripPreviewPagerFragment.onCloseButtonListener
                     it.tripPreviewPagerListener = this@TripPreviewPagerFragment.tripPreviewPagerListener
                 }
+                currentPagerIndex = position
             }
 
             override fun onPageScrollStateChanged(state: Int) {}
@@ -147,6 +164,9 @@ class TripPreviewPagerFragment : BaseTripKitFragment() {
     */
 
     companion object{
+
+        const val ARG_CURRENT_PAGER_INDEX = "_a_current_pager_index"
+
         fun newInstance(
                 tripGroupId: String,
                 tripId: String,
