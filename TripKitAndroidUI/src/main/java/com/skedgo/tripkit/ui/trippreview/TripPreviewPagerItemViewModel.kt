@@ -53,7 +53,7 @@ open class TripPreviewPagerItemViewModel : RxViewModel() {
             notes.set(DistanceFormatter.format(segment.metres))
         } else {
             if (segment.notes.equals("<DURATION>", true)) {
-                TimeUnit.MINUTES.convert(segment.endTimeInSecs - segment.startTimeInSecs, TimeUnit.MILLISECONDS).let {
+                TimeUnit.SECONDS.toMinutes(segment.endTimeInSecs - segment.startTimeInSecs).let {
                     if (it > 0) {
                         notes.set(String.format("%d %s", it, "minutes"))
                     }
@@ -73,7 +73,9 @@ open class TripPreviewPagerItemViewModel : RxViewModel() {
                 val localResource = TransportMode.getLocalIconResId(segment.transportModeId)
                 if (localResource > 0) {
                     icon.set(ContextCompat.getDrawable(context, localResource))
-                } else {
+                } else if(segment.action?.contains("<TIME>: Wait") == true) {
+                    icon.set(ContextCompat.getDrawable(context, R.drawable.ic_wait))
+                }else{
                     icon.set(null)
                 }
             } else {
