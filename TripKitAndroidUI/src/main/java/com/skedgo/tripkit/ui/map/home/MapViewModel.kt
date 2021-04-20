@@ -1,6 +1,7 @@
 package com.skedgo.tripkit.ui.map.home
 
 import android.content.res.Resources
+import androidx.databinding.ObservableBoolean
 import com.google.android.gms.maps.CameraUpdate
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
@@ -53,6 +54,8 @@ class MapViewModel @Inject internal constructor(
     val myLocation: Observable<Location>
         get() = _myLocation.hide()
 
+    var showMarkers = ObservableBoolean(true)
+
     private val viewportChanged = PublishRelay.create<ViewPort>()
     val markers = viewportChanged.hide()
             .debounce(500, TimeUnit.MILLISECONDS)
@@ -64,7 +67,11 @@ class MapViewModel @Inject internal constructor(
             .map { it.first }
             .observeOn(Schedulers.io())
             .switchMap {
-                loadPOILocationsByViewPort.execute(it)
+                if(showMarkers.get()){
+                    loadPOILocationsByViewPort.execute(it)
+                }else {
+                    Observable.empty()
+                }
             }
             .compose(DiffTransformer<IMapPoiLocation, MarkerOptions>({ it.identifier },
                     { it.createMarkerOptions(resources, picasso) }))
