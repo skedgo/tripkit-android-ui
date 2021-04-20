@@ -223,6 +223,11 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
                 .subscribe({ _: Throwable? -> showMyLocationError() }) { error: Throwable? -> errorLogger!!.trackError(error!!) }
                 .addTo(autoDisposable)
 
+        loadMarkers()
+
+    }
+
+    private fun loadMarkers() {
         viewModel.markers
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -245,8 +250,8 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
                     }
                 }, { errorLogger.logError(it) })
                 .addTo(autoDisposable)
-
     }
+
     override fun onPause() { //    bus.unregister(this);
         super.onPause()
         // Warning: If we obtain GoogleMap via getMapAsync() right here, when onPause() is called in
@@ -765,16 +770,6 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
 
     }
 
-    companion object {
-        private fun asMarkerIcon(mode: SelectionType): BitmapDescriptor {
-            return if (mode === SelectionType.DEPARTURE) {
-                BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)
-            } else {
-                BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)
-            }
-        }
-    }
-
     // Keep track of the last zoom level since we don't want to misleadingly call the OnZoomLevelChangedListener.
     private var lastZoomLevel = 0f
     override fun onCameraIdle() {
@@ -782,6 +777,24 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
             if (it.cameraPosition.zoom != lastZoomLevel) {
                 lastZoomLevel = it.cameraPosition.zoom
                 onZoomLevelChangedListener?.onZoomLevelChanged(lastZoomLevel)
+            }
+        }
+    }
+
+    fun setShowPoiMarkers(show: Boolean){
+        poiMarkers?.clear()
+        viewModel.showMarkers.set(show)
+        if(show){
+            loadMarkers()
+        }
+    }
+
+    companion object {
+        private fun asMarkerIcon(mode: SelectionType): BitmapDescriptor {
+            return if (mode === SelectionType.DEPARTURE) {
+                BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)
+            } else {
+                BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)
             }
         }
     }
