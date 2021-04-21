@@ -36,7 +36,6 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.functions.BiFunction
 import io.reactivex.subjects.PublishSubject
-import okhttp3.internal.notifyAll
 import timber.log.Timber
 import java.lang.Exception
 import java.util.concurrent.TimeUnit
