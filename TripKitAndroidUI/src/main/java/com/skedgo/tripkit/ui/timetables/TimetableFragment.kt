@@ -36,6 +36,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.functions.BiFunction
 import io.reactivex.subjects.PublishSubject
+import okhttp3.internal.notifyAll
 import timber.log.Timber
 import java.lang.Exception
 import java.util.concurrent.TimeUnit
@@ -189,6 +190,30 @@ class TimetableFragment : BaseTripKitFragment(), View.OnClickListener {
                     }
                     tripPreviewPagerListener?.onServiceActionButtonClicked(viewModel.action)
                 }.addTo(autoDisposable)
+
+        // For some reason, subscribing to this in onResume() loses click events after resuming.
+        // Doing so here, in onCreateView(), works.
+        clickDisposable.clear()
+        clickDisposable.add(viewModel.services.asObservable()
+                .map {
+                    it.map { vm ->
+                        vm.onItemClick.observable
+                    }
+                }
+                .switchMap {
+                    Observable.merge(it)
+                }
+                .subscribe { timetableEntry ->
+                    Observable.combineLatest(viewModel.stopRelay, viewModel.startTimeRelay,
+                            BiFunction { one: ScheduledStop, two: Long -> one to two })
+                            .take(1).subscribe { pair ->
+                                timetableEntrySelectedListener.forEach { listener ->
+                                    listener.onTimetableEntrySelected(timetableEntry, pair.first, pair.second)
+                                }
+                            }
+                })
+
+        binding.recyclerView.scrollToPosition(0)
     }
 
     fun setBookingActions(bookingActions: List<String>?) {
@@ -266,27 +291,6 @@ class TimetableFragment : BaseTripKitFragment(), View.OnClickListener {
             }
         }
 
-        // For some reason, subscribing to this in onResume() loses click events after resuming.
-        // Doing so here, in onCreateView(), works.
-        clickDisposable.add(viewModel.services.asObservable()
-                .map {
-                    it.map { vm ->
-                        vm.onItemClick.observable
-                    }
-                }
-                .switchMap {
-                    Observable.merge(it)
-                }
-                .subscribe { timetableEntry ->
-                    Observable.combineLatest(viewModel.stopRelay, viewModel.startTimeRelay,
-                            BiFunction { one: ScheduledStop, two: Long -> one to two })
-                            .take(1).subscribe { pair ->
-                                timetableEntrySelectedListener.forEach { listener ->
-                                    listener.onTimetableEntrySelected(timetableEntry, pair.first, pair.second)
-                                }
-                            }
-                })
-
         return binding.root
     }
 
@@ -349,7 +353,6 @@ class TimetableFragment : BaseTripKitFragment(), View.OnClickListener {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        clickDisposable.clear()
     }
 
     override fun onDestroy() {
