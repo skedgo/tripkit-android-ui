@@ -190,8 +190,6 @@ class TimetableFragment : BaseTripKitFragment(), View.OnClickListener {
                     tripPreviewPagerListener?.onServiceActionButtonClicked(viewModel.action)
                 }.addTo(autoDisposable)
 
-        // For some reason, subscribing to this in onResume() loses click events after resuming.
-        // Doing so here, in onCreateView(), works.
         clickDisposable.clear()
         clickDisposable.add(viewModel.services.asObservable()
                 .map {
