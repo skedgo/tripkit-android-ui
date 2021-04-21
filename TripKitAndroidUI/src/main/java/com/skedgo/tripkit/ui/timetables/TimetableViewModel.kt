@@ -32,7 +32,9 @@ import io.reactivex.rxkotlin.Observables
 import me.tatarka.bindingcollectionadapter2.ItemBinding
 import org.joda.time.DateTimeZone
 import com.skedgo.tripkit.routing.toSeconds
+import com.skedgo.tripkit.ui.core.addTo
 import com.skedgo.tripkit.ui.views.MultiStateView
+import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -55,7 +57,6 @@ class TimetableViewModel  @Inject constructor(
         private val resources: Resources
 ): RxViewModel() {
     var stop: BehaviorRelay<ScheduledStop> = BehaviorRelay.create<ScheduledStop>()
-    var serviceClick = PublishRelay.create<TimetableEntry>()
 
     val stationName = ObservableField<String>()
     val stationType = ObservableField<String>()
@@ -200,13 +201,6 @@ class TimetableViewModel  @Inject constructor(
 
     val stopRelay = BehaviorRelay.create<ScheduledStop>()
     val startTimeRelay = BehaviorRelay.create<Long>()
-    val onServiceClick = services.asObservable()
-            .switchMap { vMs ->
-                vMs.map { it.onItemClick.observable }
-                .let { Observable.merge(it) }
-//                .map { Triple(it, stopRelay.value, minStartTime) }
-            }
-
 
     val scrollToNow: PublishRelay<Int> = PublishRelay.create<Int>()
 
