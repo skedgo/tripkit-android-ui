@@ -33,6 +33,7 @@
             android:layout_marginTop="@dimen/spacing_small"
             android:layout_marginRight="@dimen/spacing_small"
             android:text="@{viewModel.title}"
+            android:background="@android:color/holo_red_dark"
             app:layout_constraintEnd_toStartOf="@+id/closeButton"
             app:layout_constraintStart_toEndOf="@+id/icon"
             app:layout_constraintTop_toTopOf="parent"

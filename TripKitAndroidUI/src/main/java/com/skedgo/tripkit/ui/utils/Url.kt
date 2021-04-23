@@ -30,7 +30,7 @@ fun String.getPackageNameFromStoreUrl(): String? {
 }
 
 fun String.checkUrl(): String? {
-    return if (URLUtil.isNetworkUrl(this)) {
+    return if (URLUtil.isNetworkUrl(this) || this.contains("://")) {
         this
     } else {
         val guessUrl = URLUtil.guessUrl(this)

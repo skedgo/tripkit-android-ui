@@ -6,7 +6,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.ViewModelProviders
 import com.skedgo.TripKit
 import com.skedgo.tripkit.ExternalActionParams
 import com.skedgo.tripkit.routing.TripSegment
@@ -44,13 +43,13 @@ class ExternalActionTripPreviewItemFragment : BaseTripKitFragment() {
                 .subscribe {
                     onCloseButtonListener?.onClick(null)
                 }.addTo(autoDisposable)
-        viewModel.actionChosen.observeOn(AndroidSchedulers.mainThread())
+        viewModel.externalActionChosen.observeOn(AndroidSchedulers.mainThread())
                 .subscribe {
-                    viewModel.enableButton.set(false)
+                    viewModel.enableActionButtons.set(false)
                     //tripPreviewPagerListener?.onExternalActionButtonClicked(it)
                     externalActionCallback?.invoke(tripSegment, it)
                 }.addTo(autoDisposable)
-        viewModel.enableButton.set(true)
+        viewModel.enableActionButtons.set(true)
     }
 
 

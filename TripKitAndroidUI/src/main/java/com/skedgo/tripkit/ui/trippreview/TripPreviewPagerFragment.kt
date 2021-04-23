@@ -1,5 +1,6 @@
 package com.skedgo.tripkit.ui.trippreview
 
+import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -127,10 +128,20 @@ class TripPreviewPagerFragment : BaseTripKitFragment() {
     }
 
     private fun proceedWithExternalAction(action: Action) {
-        if(action.appInstalled){
-            activity?.startActivity(requireContext().packageManager.getLaunchIntentForPackage(action.data))
-        }else{
-            activity?.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(action.data)))
+        if (action.appInstalled) {
+            action.data?.let {
+                activity?.startActivity(requireContext().packageManager.getLaunchIntentForPackage(it))
+            }
+        } else {
+            action.data?.let { dataUrl ->
+                try {
+                    activity?.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(dataUrl)))
+                }catch (e: ActivityNotFoundException){
+                    action.fallbackUrl?.let { fallbackUrl ->
+                        activity?.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(fallbackUrl)))
+                    }
+                }
+            }
         }
     }
 

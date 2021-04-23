@@ -10,6 +10,7 @@ import androidx.core.content.ContextCompat
 import androidx.databinding.ObservableBoolean
 import androidx.databinding.ObservableField
 import androidx.databinding.ObservableInt
+import com.jakewharton.rxrelay2.PublishRelay
 import com.skedgo.tripkit.common.model.TransportMode
 import com.skedgo.tripkit.common.util.TransportModeUtils
 import com.skedgo.tripkit.common.util.TripSegmentUtils
@@ -45,6 +46,10 @@ open class TripPreviewPagerItemViewModel : RxViewModel() {
     var showLaunchInMapsClicked = TapStateFlow { this }
 
     var segment: TripSegment? = null
+
+    val externalActionChosen = PublishRelay.create<Action>()
+    val enableActionButtons = ObservableBoolean(true)
+
     open fun setSegment(context: Context, segment: TripSegment) {
         this.segment = segment
         title.set(TripSegmentUtils.getTripSegmentAction(context, segment) ?: "Unknown Action")

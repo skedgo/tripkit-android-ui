@@ -1,6 +1,8 @@
 package com.skedgo.tripkit.ui.trippreview.nearby
 
 import android.content.Context
+import android.webkit.URLUtil
+import androidx.databinding.ObservableArrayList
 import androidx.databinding.ObservableBoolean
 import androidx.databinding.ObservableField
 import com.jakewharton.rxrelay2.BehaviorRelay
@@ -11,25 +13,37 @@ import com.skedgo.tripkit.data.database.stops.toModeInfo
 import com.skedgo.tripkit.data.locations.LocationsApi
 import com.skedgo.tripkit.data.regions.RegionService
 import com.skedgo.tripkit.routing.TripSegment
+import com.skedgo.tripkit.ui.BR
+import com.skedgo.tripkit.ui.R
+import com.skedgo.tripkit.ui.trippreview.Action
 import com.skedgo.tripkit.ui.trippreview.TripPreviewPagerItemViewModel
+import com.skedgo.tripkit.ui.trippreview.external.ExternalActionViewModel
+import com.skedgo.tripkit.ui.trippreview.handleExternalAction
+import com.skedgo.tripkit.ui.utils.checkUrl
+import com.skedgo.tripkit.ui.utils.getPackageNameFromStoreUrl
 import com.skedgo.tripkit.ui.utils.isAppInstalled
+import me.tatarka.bindingcollectionadapter2.ItemBinding
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import javax.inject.Inject
 
 class SharedNearbyTripPreviewItemViewModel @Inject constructor(private val regionService: RegionService,
                                                                private val locationsApi: LocationsApi) : TripPreviewPagerItemViewModel() {
+
+    val externalActions = ObservableArrayList<ExternalActionViewModel>()
+    val externalActionsBinding = ItemBinding.of<ExternalActionViewModel>(BR.viewModel, R.layout.trip_preview_external_action_pager_list_item)
+            .bindExtra(BR.parentViewModel, this)
+
     var locationDetails = BehaviorRelay.create<NearbyLocation>()
     var locationList = BehaviorRelay.create<List<NearbyLocation>>()
     var bookingForm = BehaviorRelay.create<BookingForm>()
 
     var loadedSegment: TripSegment? = null
 
-    val enableButton = ObservableBoolean(true)
-    val showButton = ObservableBoolean(false)
+    val hasExternalActions = ObservableBoolean(false)
+    val showActions = ObservableBoolean(false)
     val buttonText = ObservableField<String>()
     val actionChosen = PublishRelay.create<String>()
     var action = ""
-    var isActionExternal = false
 
     override fun setSegment(context: Context, segment: TripSegment) {
         super.setSegment(context, segment)
@@ -145,27 +159,73 @@ class SharedNearbyTripPreviewItemViewModel @Inject constructor(private val regio
             action = "getApp"
             buttonText.set("Get App")
         }
-        showButton.set(loadedSegment?.sharedVehicle != null && action.isNotEmpty())
+        showActions.set(loadedSegment?.sharedVehicle != null && action.isNotEmpty())
     }
 
     fun withAction(context: Context) {
-        val url: String? = loadedSegment?.booking?.externalActions?.firstOrNull()
-                ?: loadedSegment?.sharedVehicle?.operator()?.appInfo?.appURLAndroid
-        isActionExternal = loadedSegment?.booking?.externalActions != null
-        url?.let {
+        externalActions.clear()
+        loadedSegment?.booking?.externalActions?.forEachIndexed { index, action ->
+            addExternalActionItem(context, action, index)
+        } ?: kotlin.run {
+            //For handling action when there's no external actions
+            handleNonExternalAction(context)
+        }
+
+    }
+
+    private fun addExternalActionItem(context: Context, action: String, index: Int) {
+        hasExternalActions.set(true)
+        val vm = ExternalActionViewModel()
+        val externalAction = context.handleExternalAction(action)
+        vm.action = action
+        vm.externalAction = externalAction
+        if (index == 0 && (loadedSegment?.booking?.externalActions?.size ?: 0) > 1) {
+            externalAction?.drawable = R.drawable.ic_open
+        }
+        if(!URLUtil.isValidUrl(externalAction?.data) && externalAction?.data?.contains("://") == true){
+            externalAction.fallbackUrl = generateFallbackUrl()
+        }
+        vm.title.set(
+                when {
+                    index == 0 -> {
+                        loadedSegment?.booking?.title
+                    }
+                    URLUtil.isNetworkUrl(externalAction?.data) -> {
+                        context.getString(R.string.show_website)
+                    }
+                    else -> {
+                        context.getString(R.string.open_app)
+                    }
+                }
+        )
+        externalActions.add(vm)
+        showActions.set(false)
+    }
+
+    private fun handleNonExternalAction(context: Context) {
+        hasExternalActions.set(false)
+        loadedSegment?.sharedVehicle?.operator()?.appInfo?.appURLAndroid?.let {
             buttonText.set(
-                    loadedSegment?.booking?.title
-                            ?: if (it.isAppInstalled(context.packageManager)) {
-                                "Open App"
-                            } else {
-                                "Get App"
-                            }
+                    if (it.isAppInstalled(context.packageManager)) {
+                        context.getString(R.string.open_app)
+                    } else {
+                        context.getString(R.string.get_app)
+                    }
             )
             action = if (it.isAppInstalled(context.packageManager)) {
                 "openApp"
             } else {
                 "getApp"
             }
-        }
+
+            showActions.set(true)
+        } ?: kotlin.run { showActions.set(false) }
+    }
+
+    //in case url is a deep link, app is not installed and no way to get app package name from externalActions
+    private fun generateFallbackUrl(): String? {
+        return loadedSegment?.booking?.externalActions?.singleOrNull { it.getPackageNameFromStoreUrl() != null }
+                ?: loadedSegment?.sharedVehicle?.operator()?.appInfo?.appURLAndroid
+                ?: loadedSegment?.booking?.externalActions?.singleOrNull { URLUtil.isNetworkUrl(it) }
     }
 }

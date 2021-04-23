@@ -5,8 +5,6 @@ import android.app.AlertDialog
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
-import android.content.pm.PackageManager
-import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -32,8 +30,6 @@ import com.skedgo.tripkit.ui.qrcode.INTENT_KEY_INTERNAL_URL
 import com.skedgo.tripkit.ui.qrcode.QrCodeScanActivity
 import com.skedgo.tripkit.ui.trippreview.Action
 import com.skedgo.tripkit.ui.trippreview.handleExternalAction
-import com.skedgo.tripkit.ui.utils.checkUrl
-import com.skedgo.tripkit.ui.utils.isAppInstalled
 import io.reactivex.android.schedulers.AndroidSchedulers
 import javax.inject.Inject
 
@@ -77,7 +73,7 @@ class ModeLocationTripPreviewItemFragment() : BaseTripKitFragment() {
     }
 
     private fun setBookingAction() {
-        sharedViewModel.enableButton.set(true)
+        sharedViewModel.enableActionButtons.set(true)
         /*
         sharedViewModel.withAction(
                 getAppUrl()?.isAppInstalled(
@@ -199,7 +195,7 @@ class ModeLocationTripPreviewItemFragment() : BaseTripKitFragment() {
                     url?.let {
                         if(sharedViewModel.action != "getApp"){
                             sharedViewModel.buttonText.set("Opening...")
-                            sharedViewModel.enableButton.set(false)
+                            sharedViewModel.enableActionButtons.set(false)
                         }
                         externalActionCallback?.invoke(
                                 segment, requireContext().handleExternalAction(it)
@@ -222,6 +218,12 @@ class ModeLocationTripPreviewItemFragment() : BaseTripKitFragment() {
                         externalActionCallback?.invoke(segment, getSharedVehicleIntentURI())
                     }
                     */
+                }.addTo(autoDisposable)
+
+        sharedViewModel.externalActionChosen.observeOn(AndroidSchedulers.mainThread())
+                .subscribe {
+                    sharedViewModel.enableActionButtons.set(false)
+                    externalActionCallback?.invoke(segment, it)
                 }.addTo(autoDisposable)
 
         setBookingAction()
