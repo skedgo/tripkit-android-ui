@@ -41,7 +41,6 @@
                 android:text="@{sharedViewModel.buttonText}"
                 android:visibility="@{sharedViewModel.showActions &amp;&amp; !sharedViewModel.hasExternalActions}"
                 app:icon="@drawable/ic_go"
-                android:background="@android:color/holo_red_dark"
                 app:iconGravity="textStart"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"

@@ -7,8 +7,8 @@ import com.skedgo.tripkit.ui.utils.getPackageNameFromStoreUrl
 import com.skedgo.tripkit.ui.utils.isAppInstalledById
 
 data class Action(
-        val data: String?, //url or package
-        val appInstalled: Boolean,
+        var data: String?, //url or package
+        var appInstalled: Boolean,
         var drawable: Int,
         var fallbackUrl: String? = null
 )

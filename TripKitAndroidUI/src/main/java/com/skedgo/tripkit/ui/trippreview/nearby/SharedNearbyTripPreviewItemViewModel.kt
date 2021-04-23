@@ -22,6 +22,7 @@ import com.skedgo.tripkit.ui.trippreview.handleExternalAction
 import com.skedgo.tripkit.ui.utils.checkUrl
 import com.skedgo.tripkit.ui.utils.getPackageNameFromStoreUrl
 import com.skedgo.tripkit.ui.utils.isAppInstalled
+import com.skedgo.tripkit.ui.utils.isAppInstalledById
 import me.tatarka.bindingcollectionadapter2.ItemBinding
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import javax.inject.Inject
@@ -182,9 +183,23 @@ class SharedNearbyTripPreviewItemViewModel @Inject constructor(private val regio
         if (index == 0 && (loadedSegment?.booking?.externalActions?.size ?: 0) > 1) {
             externalAction?.drawable = R.drawable.ic_open
         }
-        if(!URLUtil.isValidUrl(externalAction?.data) && externalAction?.data?.contains("://") == true){
+        if (!URLUtil.isValidUrl(externalAction?.data) && externalAction?.data?.contains("://") == true) {
             externalAction.fallbackUrl = generateFallbackUrl()
         }
+
+        /*
+        //Since we do not hard code checking what kind of app the external action is for, there are cases,
+        //like goget, that you have to check if its app installed but in the external action url there
+        //is no package name included that we can use to check if the app is installed. So we'll
+        //look on sharedVehicle field if package name is available
+        if (loadedSegment?.booking?.externalActions?.none { it.getPackageNameFromStoreUrl() != null } == true) {
+            checkAppIdOnSharedVehicleAndIfInstalled(context)?.let {
+                externalAction?.data = it
+                externalAction?.appInstalled = true
+            }
+        }
+        */
+
         vm.title.set(
                 when {
                     index == 0 -> {
@@ -227,5 +242,15 @@ class SharedNearbyTripPreviewItemViewModel @Inject constructor(private val regio
         return loadedSegment?.booking?.externalActions?.singleOrNull { it.getPackageNameFromStoreUrl() != null }
                 ?: loadedSegment?.sharedVehicle?.operator()?.appInfo?.appURLAndroid
                 ?: loadedSegment?.booking?.externalActions?.singleOrNull { URLUtil.isNetworkUrl(it) }
+    }
+
+    private fun checkAppIdOnSharedVehicleAndIfInstalled(context: Context): String? {
+        loadedSegment?.sharedVehicle?.operator()?.appInfo?.appURLAndroid?.getPackageNameFromStoreUrl()?.let {
+            if (it.isAppInstalledById(context.packageManager)) {
+                return it
+            }
+        }
+
+        return null
     }
 }

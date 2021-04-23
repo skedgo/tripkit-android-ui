@@ -33,7 +33,6 @@
             android:layout_marginTop="@dimen/spacing_small"
             android:layout_marginRight="@dimen/spacing_small"
             android:text="@{viewModel.title}"
-            android:background="@android:color/holo_red_dark"
             app:layout_constraintEnd_toStartOf="@+id/closeButton"
             app:layout_constraintStart_toEndOf="@+id/icon"
             app:layout_constraintTop_toTopOf="parent"
@@ -56,11 +55,12 @@
             style="?attr/materialButtonOutlinedStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/spacing_small"
             android:onClick="@{() -> viewModel.showLaunchInMapsClicked.perform()}"
             android:text="@string/open_in"
             android:visibility="@{viewModel.showLaunchInMaps}"
             app:icon="@drawable/ic_go"
-            app:layout_constraintStart_toStartOf="@+id/descriptionText"
+            app:layout_constraintStart_toEndOf="@+id/icon"
             app:layout_constraintTop_toBottomOf="@+id/descriptionText" />
 
         <ImageButton
