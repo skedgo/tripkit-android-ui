@@ -12,6 +12,7 @@ import com.skedgo.tripkit.data.locations.LocationsApi
 import com.skedgo.tripkit.data.regions.RegionService
 import com.skedgo.tripkit.routing.TripSegment
 import com.skedgo.tripkit.ui.trippreview.TripPreviewPagerItemViewModel
+import com.skedgo.tripkit.ui.utils.isAppInstalled
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import javax.inject.Inject
 
@@ -28,6 +29,7 @@ class SharedNearbyTripPreviewItemViewModel @Inject constructor(private val regio
     val buttonText = ObservableField<String>()
     val actionChosen = PublishRelay.create<String>()
     var action = ""
+    var isActionExternal = false
 
     override fun setSegment(context: Context, segment: TripSegment) {
         super.setSegment(context, segment)
@@ -124,12 +126,12 @@ class SharedNearbyTripPreviewItemViewModel @Inject constructor(private val regio
 
     fun withAction(isAppInstalled: Boolean) {
         var deepLink: String? = null
-        if (loadedSegment!!.booking?.externalActions != null) {
-            loadedSegment!!.booking?.externalActions?.forEach {
+        if (loadedSegment?.booking?.externalActions != null) {
+            loadedSegment?.booking?.externalActions?.forEach {
                 deepLink = it
             }
-        } else if (loadedSegment!!.sharedVehicle?.operator()?.appInfo != null) {
-            deepLink = loadedSegment!!.sharedVehicle?.operator()?.appInfo!!.deepLink
+        } else if (loadedSegment?.sharedVehicle?.operator()?.appInfo != null) {
+            deepLink = loadedSegment?.sharedVehicle?.operator()?.appInfo!!.deepLink
         }
 
         if (isAppInstalled && !deepLink.isNullOrEmpty()) {
@@ -144,5 +146,26 @@ class SharedNearbyTripPreviewItemViewModel @Inject constructor(private val regio
             buttonText.set("Get App")
         }
         showButton.set(loadedSegment?.sharedVehicle != null && action.isNotEmpty())
+    }
+
+    fun withAction(context: Context) {
+        val url: String? = loadedSegment?.booking?.externalActions?.firstOrNull()
+                ?: loadedSegment?.sharedVehicle?.operator()?.appInfo?.appURLAndroid
+        isActionExternal = loadedSegment?.booking?.externalActions != null
+        url?.let {
+            buttonText.set(
+                    loadedSegment?.booking?.title
+                            ?: if (it.isAppInstalled(context.packageManager)) {
+                                "Open App"
+                            } else {
+                                "Get App"
+                            }
+            )
+            action = if (it.isAppInstalled(context.packageManager)) {
+                "openApp"
+            } else {
+                "getApp"
+            }
+        }
     }
 }

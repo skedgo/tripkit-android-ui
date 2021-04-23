@@ -1,5 +1,6 @@
 package com.skedgo.tripkit.ui.trippreview.nearby
 
+import android.webkit.URLUtil
 import androidx.databinding.ObservableArrayList
 import androidx.databinding.ObservableBoolean
 import androidx.databinding.ObservableField
@@ -10,6 +11,7 @@ import com.skedgo.tripkit.ui.BR
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.core.RxViewModel
 import com.skedgo.tripkit.ui.utils.DistanceFormatter
+import com.skedgo.tripkit.ui.utils.checkUrl
 import me.tatarka.bindingcollectionadapter2.ItemBinding
 import timber.log.Timber
 import javax.inject.Inject
@@ -28,6 +30,7 @@ class ModeLocationTripPreviewViewModel @Inject constructor(private val locationI
     var showWhat3words = ObservableBoolean(false)
 
     fun set(segment: TripSegment) {
+        infoGroups.clear()
         locationInfoService.getLocationInfoAsync(segment.singleLocation)
                 .take(1)
                 .subscribe({
@@ -67,6 +70,13 @@ class ModeLocationTripPreviewViewModel @Inject constructor(private val locationI
                 )
                 infoGroups.add(batteryLevelVm)
             }
+
+            (segment.sharedVehicle.operator()?.website ?: segment.sharedVehicle.deepLink())?.let {
+                website.set(it.checkUrl())
+                showWebsite.set(true)
+            }
+
+
         }
     }
 

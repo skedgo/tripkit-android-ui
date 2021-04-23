@@ -8,6 +8,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProviders
 import androidx.lifecycle.lifecycleScope
 import com.google.gson.Gson
@@ -21,13 +22,17 @@ import kotlinx.coroutines.flow.onEach
 
 
 class DirectionsTripPreviewItemFragment : BaseTripKitFragment() {
-    private lateinit var viewModel: DirectionsTripPreviewItemViewModel
+
+    private val viewModel: DirectionsTripPreviewItemViewModel by viewModels()
 
     private var segment: TripSegment? = null
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        viewModel = ViewModelProviders.of(this).get("directionsTripPreview", DirectionsTripPreviewItemViewModel::class.java)
+
+        //viewModel = ViewModelProviders.of(this).get("directionsTripPreview", DirectionsTripPreviewItemViewModel::class.java)
+
         segment?.let {
             viewModel.setSegment(requireContext(), it)
         }?: kotlin.run {

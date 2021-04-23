@@ -122,6 +122,8 @@ dependencies {
     implementation libs.excuseMe
     implementation libs.pdfViewer
 
+    implementation libs.fragmentKtx
+
     api project(':trip-kit-booking')
     api project(':TripKitAndroid')
     api project(':TripKitAndroidUIModules:TripKitAndroidUIData')

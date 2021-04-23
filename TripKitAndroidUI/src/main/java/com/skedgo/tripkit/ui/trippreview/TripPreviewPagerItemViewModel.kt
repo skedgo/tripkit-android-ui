@@ -48,7 +48,7 @@ open class TripPreviewPagerItemViewModel : RxViewModel() {
     open fun setSegment(context: Context, segment: TripSegment) {
         this.segment = segment
         title.set(TripSegmentUtils.getTripSegmentAction(context, segment) ?: "Unknown Action")
-        var instruction = segment.miniInstruction?.description
+        val instruction = segment.miniInstruction?.description
         if (segment.metres > 0) {
             notes.set(DistanceFormatter.format(segment.metres))
         } else {
@@ -71,12 +71,16 @@ open class TripPreviewPagerItemViewModel : RxViewModel() {
         } else {
             if (segment.modeInfo == null || segment.modeInfo!!.modeCompat == null) {
                 val localResource = TransportMode.getLocalIconResId(segment.transportModeId)
-                if (localResource > 0) {
-                    icon.set(ContextCompat.getDrawable(context, localResource))
-                } else if(segment.action?.contains("<TIME>: Wait") == true) {
-                    icon.set(ContextCompat.getDrawable(context, R.drawable.ic_wait))
-                }else{
-                    icon.set(null)
+                when {
+                    localResource > 0 -> {
+                        icon.set(ContextCompat.getDrawable(context, localResource))
+                    }
+                    segment.action?.contains("<TIME>: Wait") == true -> {
+                        icon.set(ContextCompat.getDrawable(context, R.drawable.ic_wait))
+                    }
+                    else -> {
+                        icon.set(null)
+                    }
                 }
             } else {
                 if (url != null) {

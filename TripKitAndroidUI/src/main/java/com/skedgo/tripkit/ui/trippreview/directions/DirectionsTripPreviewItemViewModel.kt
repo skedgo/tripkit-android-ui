@@ -32,6 +32,7 @@ class DirectionsTripPreviewItemViewModel : TripPreviewPagerItemViewModel() {
 
     override fun setSegment(context: Context, segment: TripSegment) {
         super.setSegment(context, segment)
+        items.clear()
         if (segment.turnByTurn != null) {
             showLaunchInMaps.set(true)
         }

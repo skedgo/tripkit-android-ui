@@ -1,35 +1,45 @@
 package com.skedgo.tripkit.ui.trippreview
 
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.os.bundleOf
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.lifecycleScope
 import androidx.viewpager.widget.ViewPager
-import com.skedgo.tripkit.common.model.ScheduledStop
-import com.skedgo.tripkit.common.model.StopType
+import com.haroldadmin.cnradapter.NetworkResponse
+import com.skedgo.TripKit
+import com.skedgo.tripkit.ExternalActionParams
+import com.skedgo.tripkit.bookingproviders.BookingResolver
 import com.skedgo.tripkit.routing.SegmentType
-import com.skedgo.tripkit.routing.Trip
 import com.skedgo.tripkit.routing.TripSegment
 import com.skedgo.tripkit.ui.ARG_TRIP_ID
 import com.skedgo.tripkit.ui.ARG_TRIP_SEGMENT_ID
 import com.skedgo.tripkit.ui.TripKitUI
+import com.skedgo.tripkit.ui.booking.apiv2.BookingV2TrackingService
 import com.skedgo.tripkit.ui.core.BaseTripKitFragment
 import com.skedgo.tripkit.ui.core.addTo
+import com.skedgo.tripkit.ui.core.logError
 import com.skedgo.tripkit.ui.databinding.TripPreviewPagerBinding
 import com.skedgo.tripkit.ui.routingresults.TripGroupRepository
 import com.skedgo.tripkit.ui.tripresult.ARG_TRIP_GROUP_ID
 import com.skedgo.tripkit.ui.utils.*
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 
 class TripPreviewPagerFragment : BaseTripKitFragment() {
     @Inject
     lateinit var tripGroupRepository: TripGroupRepository
+
+    @Inject
+    lateinit var bookingService: BookingV2TrackingService
+
     lateinit var adapter: TripPreviewPagerAdapter
     lateinit var binding: TripPreviewPagerBinding
 
@@ -92,8 +102,36 @@ class TripPreviewPagerFragment : BaseTripKitFragment() {
         adapter.onCloseButtonListener = this.onCloseButtonListener
         adapter.tripPreviewPagerListener = this.tripPreviewPagerListener
         binding.tripSegmentPager.adapter = adapter
-        binding.tripSegmentPager.offscreenPageLimit = 1
+        binding.tripSegmentPager.offscreenPageLimit = 2
         setViewPagerListeners()
+        adapter.externalActionCallback = { segment, action ->
+            if(segment != null && action != null){
+                logAction(segment, action)
+            }
+        }
+    }
+
+    //TODO add viewmodel and move logic there (not just for this class).
+    // Better for all logic to be moved in viewModel
+    private fun logAction(segment: TripSegment, action: Action) {
+        val trip = segment.trip
+        lifecycleScope.launch {
+            trip?.logURL?.let {
+                val result = bookingService.logTrip(it)
+                if(result !is NetworkResponse.Success){
+                    result.logError()
+                }
+                proceedWithExternalAction(action)
+            }
+        }
+    }
+
+    private fun proceedWithExternalAction(action: Action) {
+        if(action.appInstalled){
+            activity?.startActivity(requireContext().packageManager.getLaunchIntentForPackage(action.data))
+        }else{
+            activity?.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(action.data)))
+        }
     }
 
     private fun setViewPagerListeners(){
@@ -106,6 +144,7 @@ class TripPreviewPagerFragment : BaseTripKitFragment() {
                         position) as? BaseTripKitFragment)?.let {
                     it.onCloseButtonListener = this@TripPreviewPagerFragment.onCloseButtonListener
                     it.tripPreviewPagerListener = this@TripPreviewPagerFragment.tripPreviewPagerListener
+                    it.refresh()
                 }
                 currentPagerIndex = position
             }
@@ -127,13 +166,8 @@ class TripPreviewPagerFragment : BaseTripKitFragment() {
         tripSegments.forEachIndexed { _, segment ->
             when (segment.correctItemType()) {
                 ITEM_SERVICE -> {
-                    /*
-                    val scheduledStop = ScheduledStop(segment.to)
-                    scheduledStop.code = segment.startStopCode
-                    scheduledStop.modeInfo = segment.modeInfo
-                    scheduledStop.type = StopType.from(segment.modeInfo?.localIconName)
-                    */
-                    adapter.timetableFragment?.setBookingActions(segment.booking?.externalActions)
+                    //adapter.timetableFragment?.setBookingActions(segment.booking?.externalActions)
+                    adapter.segmentActionStream.onNext(Pair(segment.startStopCode, segment.booking?.externalActions))
                 }
             }
         }
@@ -145,7 +179,7 @@ class TripPreviewPagerFragment : BaseTripKitFragment() {
 
     interface Listener {
         fun onServiceActionButtonClicked(action: String?)
-        fun onExternalActionButtonClicked(action: String?)
+        @Deprecated("UnusedClass") fun onExternalActionButtonClicked(action: String?)
     }
 
     /*

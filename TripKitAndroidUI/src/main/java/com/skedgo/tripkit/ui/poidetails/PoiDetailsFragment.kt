@@ -7,7 +7,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import com.jakewharton.rxrelay2.PublishRelay
 import com.skedgo.tripkit.common.model.Location
@@ -19,7 +18,6 @@ import com.skedgo.tripkit.ui.core.BaseTripKitFragment
 import com.skedgo.tripkit.ui.databinding.PoiDetailsFragmentBinding
 import com.skedgo.tripkit.ui.utils.getPackageNameFromStoreUrl
 import com.skedgo.tripkit.ui.utils.isAppInstalled
-import timber.log.Timber
 import javax.inject.Inject
 
 
@@ -77,7 +75,7 @@ class PoiDetailsFragment : BaseTripKitFragment() {
         binding.openAppButton.setOnClickListener {
             location?.appUrl?.let {
                 if (it.isAppInstalled(requireContext().packageManager)) {
-                    it.getPackageNameFromStoreUrl(requireContext().packageManager)?.let { appId ->
+                    it.getPackageNameFromStoreUrl()?.let { appId ->
                         startActivity(requireContext().packageManager.getLaunchIntentForPackage(appId))
                     }
                 } else {

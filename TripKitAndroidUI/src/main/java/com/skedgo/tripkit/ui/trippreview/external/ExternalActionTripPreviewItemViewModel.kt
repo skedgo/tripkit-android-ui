@@ -9,11 +9,13 @@ import com.skedgo.tripkit.ui.trippreview.TripPreviewPagerItemViewModel
 import me.tatarka.bindingcollectionadapter2.ItemBinding
 import com.skedgo.tripkit.ui.BR
 import com.skedgo.tripkit.ui.R
+import com.skedgo.tripkit.ui.trippreview.Action
+import com.skedgo.tripkit.ui.trippreview.handleExternalAction
 import com.skedgo.tripkit.ui.utils.TapAction
 
 class ExternalActionTripPreviewItemViewModel : TripPreviewPagerItemViewModel() {
     val items = ObservableArrayList<ExternalActionViewModel>()
-    val actionChosen = PublishRelay.create<String>()
+    val actionChosen = PublishRelay.create<Action>()
     val binding = ItemBinding.of<ExternalActionViewModel>(BR.viewModel, R.layout.trip_preview_external_action_pager_list_item)
             .bindExtra(BR.parentViewModel, this)
     val enableButton = ObservableBoolean(true)
@@ -24,6 +26,7 @@ class ExternalActionTripPreviewItemViewModel : TripPreviewPagerItemViewModel() {
             val vm = ExternalActionViewModel()
             vm.title.set(segment.booking.title)
             vm.action = it
+            vm.externalAction = context.handleExternalAction(it)
             items.add(vm)
         }
     }

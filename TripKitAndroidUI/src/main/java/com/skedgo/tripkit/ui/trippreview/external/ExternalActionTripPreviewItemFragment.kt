@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProviders
 import com.skedgo.TripKit
 import com.skedgo.tripkit.ExternalActionParams
@@ -13,31 +14,41 @@ import com.skedgo.tripkit.ui.TripKitUI
 import com.skedgo.tripkit.ui.core.BaseTripKitFragment
 import com.skedgo.tripkit.ui.core.addTo
 import com.skedgo.tripkit.ui.databinding.TripPreviewExternalActionPagerItemBinding
+import com.skedgo.tripkit.ui.trippreview.Action
 import io.reactivex.android.schedulers.AndroidSchedulers
 
 class ExternalActionTripPreviewItemFragment : BaseTripKitFragment() {
-    private lateinit var viewModel: ExternalActionTripPreviewItemViewModel
+    private val viewModel: ExternalActionTripPreviewItemViewModel by viewModels()
     private val bookingResolver = TripKit.getInstance().bookingResolver
 
     private var tripSegment: TripSegment? = null
+
+    private var externalActionCallback: ((TripSegment?, Action?) -> Unit)? = null
 
     override fun onAttach(context: Context) {
         TripKitUI.getInstance().tripPreviewComponent().inject(this)
         super.onAttach(context)
     }
 
+    /*
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         viewModel = ViewModelProviders.of(this).get(ExternalActionTripPreviewItemViewModel::class.java)
     }
+    */
 
     override fun onResume() {
         super.onResume()
-        viewModel.closeClicked.observable.observeOn(AndroidSchedulers.mainThread()).subscribe { onCloseButtonListener?.onClick(null) }.addTo(autoDisposable)
+        viewModel.closeClicked.observable
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe {
+                    onCloseButtonListener?.onClick(null)
+                }.addTo(autoDisposable)
         viewModel.actionChosen.observeOn(AndroidSchedulers.mainThread())
                 .subscribe {
                     viewModel.enableButton.set(false)
-                    tripPreviewPagerListener?.onServiceActionButtonClicked(it)
+                    //tripPreviewPagerListener?.onExternalActionButtonClicked(it)
+                    externalActionCallback?.invoke(tripSegment, it)
                 }.addTo(autoDisposable)
         viewModel.enableButton.set(true)
     }
@@ -70,8 +81,12 @@ class ExternalActionTripPreviewItemFragment : BaseTripKitFragment() {
     }
 
     companion object {
-        fun newInstance(tripSegment: TripSegment): ExternalActionTripPreviewItemFragment {
+        fun newInstance(
+                tripSegment: TripSegment,
+                externalActionCallback: ((TripSegment?, Action?) -> Unit)? = null
+        ): ExternalActionTripPreviewItemFragment {
             val fragment = ExternalActionTripPreviewItemFragment()
+            fragment.externalActionCallback = externalActionCallback
             fragment.tripSegment = tripSegment
             return fragment
         }

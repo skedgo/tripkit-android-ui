@@ -13,7 +13,7 @@ import android.view.View
 import android.view.View.GONE
 import android.view.ViewGroup
 import android.widget.Button
-import androidx.lifecycle.ViewModelProviders
+import androidx.fragment.app.viewModels
 import com.google.android.flexbox.FlexDirection
 import com.google.android.flexbox.FlexWrap
 import com.google.android.flexbox.FlexboxLayoutManager
@@ -30,6 +30,10 @@ import com.skedgo.tripkit.ui.qrcode.INTENT_KEY_BARCODES
 import com.skedgo.tripkit.ui.qrcode.INTENT_KEY_BUTTON_ID
 import com.skedgo.tripkit.ui.qrcode.INTENT_KEY_INTERNAL_URL
 import com.skedgo.tripkit.ui.qrcode.QrCodeScanActivity
+import com.skedgo.tripkit.ui.trippreview.Action
+import com.skedgo.tripkit.ui.trippreview.handleExternalAction
+import com.skedgo.tripkit.ui.utils.checkUrl
+import com.skedgo.tripkit.ui.utils.isAppInstalled
 import io.reactivex.android.schedulers.AndroidSchedulers
 import javax.inject.Inject
 
@@ -41,7 +45,7 @@ class ModeLocationTripPreviewItemFragment() : BaseTripKitFragment() {
     @Inject
     lateinit var sharedViewModelFactory: SharedNearbyTripPreviewItemViewModelFactory
 
-    lateinit var sharedViewModel: SharedNearbyTripPreviewItemViewModel
+    private val sharedViewModel: SharedNearbyTripPreviewItemViewModel by viewModels { sharedViewModelFactory }
 
     @Inject
     lateinit var viewModel: ModeLocationTripPreviewViewModel
@@ -51,6 +55,8 @@ class ModeLocationTripPreviewItemFragment() : BaseTripKitFragment() {
 
     var segment: TripSegment? = null
 
+    private var externalActionCallback: ((TripSegment?, Action?) -> Unit)? = null
+
     override fun onAttach(context: Context) {
         TripKitUI.getInstance().tripPreviewComponent().inject(this)
         super.onAttach(context)
@@ -58,7 +64,9 @@ class ModeLocationTripPreviewItemFragment() : BaseTripKitFragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        sharedViewModel = ViewModelProviders.of(requireParentFragment(), sharedViewModelFactory).get("sharedNearbyViewModel", SharedNearbyTripPreviewItemViewModel::class.java)
+
+        //sharedViewModel = ViewModelProviders.of(activity!!, sharedViewModelFactory).get("sharedNearbyViewModel", SharedNearbyTripPreviewItemViewModel::class.java)
+
         segment?.let {
             sharedViewModel.setSegment(requireContext(), it)
             viewModel.set(it)
@@ -70,10 +78,17 @@ class ModeLocationTripPreviewItemFragment() : BaseTripKitFragment() {
 
     private fun setBookingAction() {
         sharedViewModel.enableButton.set(true)
-        sharedViewModel.withAction(isAppInstalled())
+        /*
+        sharedViewModel.withAction(
+                getAppUrl()?.isAppInstalled(
+                        requireContext().packageManager
+                ) ?: false
+        )
+        */
+        sharedViewModel.withAction(requireContext())
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = TripPreviewPagerModeLocationItemBinding.inflate(inflater)
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
@@ -163,23 +178,50 @@ class ModeLocationTripPreviewItemFragment() : BaseTripKitFragment() {
 
                         }
                     }
-                }
-                .addTo(autoDisposable)
-        sharedViewModel.closeClicked.observable.observeOn(AndroidSchedulers.mainThread()).subscribe { onCloseButtonListener?.onClick(null) }.addTo(autoDisposable)
-        sharedViewModel.locationDetails.observeOn(AndroidSchedulers.mainThread())
+                }.addTo(autoDisposable)
+
+        sharedViewModel.closeClicked.observable
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe { onCloseButtonListener?.onClick(null)
+                }.addTo(autoDisposable)
+
+        sharedViewModel.locationDetails
+                .observeOn(AndroidSchedulers.mainThread())
                 .subscribe {
                     viewModel.set(it)
                 }.addTo(autoDisposable)
 
         sharedViewModel.actionChosen.observeOn(AndroidSchedulers.mainThread())
                 .subscribe {
+
+                    val url = getExternalAction()?.firstOrNull()?: getAppUrl()
+
+                    url?.let {
+                        if(sharedViewModel.action != "getApp"){
+                            sharedViewModel.buttonText.set("Opening...")
+                            sharedViewModel.enableButton.set(false)
+                        }
+                        externalActionCallback?.invoke(
+                                segment, requireContext().handleExternalAction(it)
+                        )
+                    }
+
+
+                    /*
                     if (sharedViewModel.action == "getApp") {
-                        startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(getSharedVehicleAppAndroidURL())))
+                        startActivity(
+                                Intent(
+                                        Intent.ACTION_VIEW,
+                                        Uri.parse(getAppUrl()?.checkUrl())
+                                )
+                        )
                     } else {
                         sharedViewModel.buttonText.set("Opening...")
                         sharedViewModel.enableButton.set(false)
-                        tripPreviewPagerListener?.onServiceActionButtonClicked(getSharedVehicleIntentURI()!!)
+                        //tripPreviewPagerListener?.onExternalActionButtonClicked(getSharedVehicleIntentURI()!!)
+                        externalActionCallback?.invoke(segment, getSharedVehicleIntentURI())
                     }
+                    */
                 }.addTo(autoDisposable)
 
         setBookingAction()
@@ -187,21 +229,26 @@ class ModeLocationTripPreviewItemFragment() : BaseTripKitFragment() {
     }
 
     private fun getSharedVehicleIntentURI(): String? {
-        return if (!segment?.sharedVehicle?.operator()?.appInfo?.deepLink.isNullOrEmpty()) {
-            segment?.sharedVehicle?.operator()?.appInfo?.deepLink
-        } else if (!segment?.sharedVehicle?.deepLink().isNullOrEmpty()) {
-            segment?.sharedVehicle?.deepLink()
-        } else if (!segment?.sharedVehicle?.bookingURL().isNullOrEmpty()) {
-            segment?.sharedVehicle?.bookingURL()
-        } else {
-            if (!segment?.booking?.externalActions.isNullOrEmpty()) {
-                var url = segment?.sharedVehicle?.operator()?.website
-                segment?.booking?.externalActions?.forEach {
-                    url = it
+        return when {
+            !getSharedVehicleAppAndroidURL().isNullOrBlank() -> {
+                getSharedVehicleAppAndroidURL()
+            }
+            !getSharedVehicleDeepLink().isNullOrBlank() -> {
+                getSharedVehicleDeepLink()
+            }
+            !segment?.sharedVehicle?.bookingURL().isNullOrBlank() -> {
+                segment?.sharedVehicle?.bookingURL()
+            }
+            else -> {
+                if (!segment?.booking?.externalActions.isNullOrEmpty()) {
+                    var url = segment?.sharedVehicle?.operator()?.website
+                    segment?.booking?.externalActions?.forEach {
+                        url = it
+                    }
+                    url
+                } else {
+                    segment?.sharedVehicle?.operator()?.website
                 }
-                url
-            } else {
-                segment?.sharedVehicle?.operator()?.website
             }
         }
     }
@@ -222,11 +269,22 @@ class ModeLocationTripPreviewItemFragment() : BaseTripKitFragment() {
         }
     }
 
+    private fun getExternalAction(): List<String>? {
+        return segment?.booking?.externalActions
+    }
+
+    private fun getAppUrl(): String? {
+        return getSharedVehicleAppAndroidURL()
+                ?: getSharedVehicleDeepLink()
+    }
+
+    /*
     private fun isAppInstalled(): Boolean {
         val deepLink = getSharedVehicleIntentURI()
         if (deepLink.isNullOrEmpty()) {
             return false
         }
+
 
         if (getSharedVehicleDeepLink() == null) {
             val intent = Intent(Intent.ACTION_VIEW, Uri.parse(getSharedVehicleIntentURI()))
@@ -239,8 +297,8 @@ class ModeLocationTripPreviewItemFragment() : BaseTripKitFragment() {
 
         return try {
             val appUrl = getSharedVehicleAppAndroidURL()
-            appUrl.let {
-                val firstIndex = it!!.indexOf("=")
+            appUrl?.let {
+                val firstIndex = it.indexOf("=")
                 val lastIndex = it.indexOf("&")
                 requireActivity().packageManager.getPackageInfo(it.substring(firstIndex + 1, lastIndex), 0)
             }
@@ -249,10 +307,15 @@ class ModeLocationTripPreviewItemFragment() : BaseTripKitFragment() {
             false
         }
     }
+    */
 
     companion object {
-        fun newInstance(segment: TripSegment): ModeLocationTripPreviewItemFragment{
+        fun newInstance(
+                segment: TripSegment,
+                externalActionCallback: ((TripSegment?, Action?) -> Unit)? = null
+        ): ModeLocationTripPreviewItemFragment {
             val fragment = ModeLocationTripPreviewItemFragment()
+            fragment.externalActionCallback = externalActionCallback
             fragment.segment = segment
             return fragment
         }

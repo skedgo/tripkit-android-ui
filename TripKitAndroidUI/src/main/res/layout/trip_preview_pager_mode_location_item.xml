@@ -15,7 +15,7 @@
 
         <include layout="@layout/trip_preview_pager_item_header" bind:viewModel="@{sharedViewModel}"/>
 
-        <RelativeLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/contBookingActionButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -34,6 +34,7 @@
                 android:enabled="@{sharedViewModel.enableButton}"
                 app:icon="@drawable/ic_go"
                 app:iconGravity="textStart"
+                app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"/>
 
@@ -47,12 +48,12 @@
                 android:layout_marginEnd="5dp"
                 android:indeterminateOnly="true"
                 android:elevation="2dp"
-                android:layout_alignStart="@id/btnBookingAction"
-                android:layout_alignEnd="@id/btnBookingAction"
-                android:layout_alignBottom="@id/btnBookingAction"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintBottom_toBottomOf="@+id/btnBookingAction"
                 android:visibility="@{!sharedViewModel.enableButton}" />
 
-        </RelativeLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <com.google.android.flexbox.FlexboxLayout android:layout_width="0dp"
                                                   android:layout_height="wrap_content"
