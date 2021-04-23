@@ -14,11 +14,9 @@ import com.skedgo.tripkit.routing.TripGroup
 import com.skedgo.tripkit.routing.TripSegment
 import com.skedgo.tripkit.ui.TripKitUI
 import com.skedgo.tripkit.ui.core.BaseTripKitFragment
-import com.skedgo.tripkit.ui.core.addTo
 import com.skedgo.tripkit.ui.databinding.TripPreviewServiceItemBinding
 import com.skedgo.tripkit.ui.servicedetail.ServiceDetailViewModel
 import com.skedgo.tripkit.ui.timetables.FetchAndLoadTimetable
-import io.reactivex.android.schedulers.AndroidSchedulers
 import javax.inject.Inject
 
 
@@ -36,6 +34,10 @@ class ServiceTripPreviewItemFragment : BaseTripKitFragment() {
 
     @Inject
     lateinit var viewModel: ServiceDetailViewModel
+
+    override fun refresh() {
+        segment?.let { viewModel.setup(it) }
+    }
 
     override fun onAttach(context: Context) {
         TripKitUI.getInstance().tripPreviewComponent().inject(this)

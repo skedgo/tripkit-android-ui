@@ -18,4 +18,6 @@ open class BaseTripKitFragment : Fragment() {
         super.onCreate(savedInstanceState)
         autoDisposable.bindTo(this.lifecycle)
     }
+
+    open fun refresh(){}
 }

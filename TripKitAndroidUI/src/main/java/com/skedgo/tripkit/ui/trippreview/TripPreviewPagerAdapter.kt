@@ -17,6 +17,7 @@ import com.skedgo.tripkit.ui.trippreview.nearby.ModeLocationTripPreviewItemFragm
 import com.skedgo.tripkit.ui.trippreview.nearby.NearbyTripPreviewItemFragment
 import com.skedgo.tripkit.ui.trippreview.service.ServiceTripPreviewItemFragment
 import com.skedgo.tripkit.ui.utils.*
+import io.reactivex.subjects.PublishSubject
 
 data class TripPreviewPagerAdapterItem(val type: Int, val tripSegment: TripSegment)
 
@@ -26,7 +27,19 @@ class TripPreviewPagerAdapter(fragmentManager: FragmentManager)
     var onCloseButtonListener: View.OnClickListener? = null
     var tripPreviewPagerListener: TripPreviewPagerFragment.Listener? = null
 
-    var timetableFragment: TimetableFragment? = null
+    //To emit booking actions updates to TimetableFragment instead of getting and using the fragments instance
+    var segmentActionStream = PublishSubject.create<Pair<String, List<String>?>>()
+
+    //var timetableFragment: TimetableFragment? = null
+
+    /**
+     * Adding callback for handling external actions (3rd party applications booking) handling.
+     * To also unload the handling using TripPreviewPagerFragment.Listener since code doesn't
+     * have to go through a lot of classes just to handle the action since components being
+     * used for handling such as BookingV2TrackingService, bookingResolver, etc. (as per tracking the code
+     * from previous implementation) can be injected and be used in TripPreviewPagerFragment.
+     */
+    internal var externalActionCallback: ((TripSegment?, Action?) -> Unit)? = null
 
     override fun getItem(position: Int): Fragment {
         val page = pages[position]
@@ -38,10 +51,14 @@ class TripPreviewPagerAdapter(fragmentManager: FragmentManager)
                 NearbyTripPreviewItemFragment.newInstance(page.tripSegment) // Happening nearby (collect bicycle, walk, etc)
             }
             ITEM_MODE_LOCATION -> {
-                ModeLocationTripPreviewItemFragment.newInstance(page.tripSegment) // modes
+                ModeLocationTripPreviewItemFragment.newInstance(page.tripSegment){ segment, url ->
+                    externalActionCallback?.invoke(segment, url)
+                } // modes
             }
             ITEM_EXTERNAL_BOOKING -> {
-                ExternalActionTripPreviewItemFragment.newInstance(page.tripSegment) // taxis, gocatch
+                ExternalActionTripPreviewItemFragment.newInstance(page.tripSegment){ segment, action ->
+                    externalActionCallback?.invoke(segment, action)
+                } // taxis, gocatch
             }
             ITEM_SERVICE -> {
                 ServiceTripPreviewItemFragment.newInstance(page.tripSegment) // PT with Stops
@@ -51,16 +68,18 @@ class TripPreviewPagerAdapter(fragmentManager: FragmentManager)
                 scheduledStop.code = page.tripSegment.startStopCode
                 scheduledStop.modeInfo = page.tripSegment.modeInfo
                 scheduledStop.type = StopType.from(page.tripSegment.modeInfo?.localIconName)
-                timetableFragment = TimetableFragment.Builder()
+                val timetableFragment = TimetableFragment.Builder()
                         .withStop(scheduledStop)
                         .withBookingAction(page.tripSegment.booking?.externalActions)
+                        .withSegmentActionStream(segmentActionStream)
                         .hideSearchBar()
                         .build()
+
                 timetableFragment
             }
             else -> StandardTripPreviewItemFragment.newInstance(page.tripSegment)
         }
-        fragment!!.onCloseButtonListener = onCloseButtonListener
+        fragment.onCloseButtonListener = onCloseButtonListener
         fragment.tripPreviewPagerListener = tripPreviewPagerListener
         return fragment
     }

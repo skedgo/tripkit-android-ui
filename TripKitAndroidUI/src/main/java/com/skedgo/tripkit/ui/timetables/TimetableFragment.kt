@@ -11,6 +11,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.TextView
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearSmoothScroller
@@ -19,6 +20,7 @@ import com.google.android.flexbox.FlexDirection
 import com.google.android.flexbox.FlexboxLayoutManager
 import com.skedgo.tripkit.common.model.ScheduledStop
 import com.skedgo.tripkit.common.util.TimeUtils
+import com.skedgo.tripkit.routing.TripSegment
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.TripKitUI
 import com.skedgo.tripkit.ui.core.BaseTripKitFragment
@@ -32,9 +34,11 @@ import com.skedgo.tripkit.ui.model.TripKitButton
 import com.skedgo.tripkit.ui.search.ARG_SHOW_SEARCH_FIELD
 import com.skedgo.tripkit.ui.views.MultiStateView
 import io.reactivex.Observable
+import io.reactivex.Scheduler
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.functions.BiFunction
+import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.PublishSubject
 import timber.log.Timber
 import java.lang.Exception
@@ -42,6 +46,7 @@ import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 class TimetableFragment : BaseTripKitFragment(), View.OnClickListener {
+
     /**
      * This callback will be invoked when a specific timetable entry is clicked.
      */
@@ -85,7 +90,9 @@ class TimetableFragment : BaseTripKitFragment(), View.OnClickListener {
         }
     }
 
-    lateinit var viewModel: TimetableViewModel
+    var segmentActionStream: PublishSubject<Pair<String, List<String>?>>? = null
+
+    private val viewModel: TimetableViewModel by viewModels() { viewModelFactory }
 
     @Inject
     lateinit var viewModelFactory: TimetableViewModelFactory
@@ -124,7 +131,7 @@ class TimetableFragment : BaseTripKitFragment(), View.OnClickListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        viewModel = ViewModelProvider(this, viewModelFactory).get(TimetableViewModel::class.java)
+        //viewModel = ViewModelProvider(this, viewModelFactory).get(TimetableViewModel::class.java)
 
         savedInstanceState?.let { arguments = it }
 
@@ -341,6 +348,17 @@ class TimetableFragment : BaseTripKitFragment(), View.OnClickListener {
 
         binding.closeButton.setOnClickListener(onCloseButtonListener)
 
+        segmentActionStream
+                ?.subscribeOn(Schedulers.io())
+                ?.observeOn(AndroidSchedulers.mainThread())
+                ?.subscribe({
+                    if(it.first == stop?.code){
+                        setBookingActions(it.second)
+                    }
+                }, {
+                    it.printStackTrace()
+                })?.addTo(autoDisposable)
+
     }
 
     override fun onStop() {
@@ -399,6 +417,7 @@ class TimetableFragment : BaseTripKitFragment(), View.OnClickListener {
         private var stop: ScheduledStop? = null
         private var bookingActions: ArrayList<String>? = null
         private var buttons: MutableList<TripKitButton> = mutableListOf()
+        private var actionStream: PublishSubject<Pair<String, List<String>?>>? = null
 
         fun withStop(stop: ScheduledStop?): Builder {
             this.stop = stop
@@ -430,6 +449,11 @@ class TimetableFragment : BaseTripKitFragment(), View.OnClickListener {
             return this
         }
 
+        fun withSegmentActionStream(actionStream: PublishSubject<Pair<String, List<String>?>>?): Builder{
+            this.actionStream = actionStream
+            return this
+        }
+
         fun build(): TimetableFragment {
             val args = Bundle()
             val fragment = TimetableFragment()
@@ -439,6 +463,7 @@ class TimetableFragment : BaseTripKitFragment(), View.OnClickListener {
             args.putBoolean(ARG_SHOW_SEARCH_FIELD, showSearchBar)
             fragment.arguments = args
             fragment.buttons = buttons
+            fragment.segmentActionStream = actionStream
 
             return fragment
         }
