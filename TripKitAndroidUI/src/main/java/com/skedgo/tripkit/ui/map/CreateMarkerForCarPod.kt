@@ -1,82 +1,53 @@
 package com.skedgo.tripkit.ui.map
 
 import android.content.res.Resources
-import android.graphics.Bitmap
-import android.graphics.Canvas
-import android.graphics.Color
-import android.graphics.Paint
+import android.graphics.*
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
+import com.skedgo.tripkit.locations.CarPod
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.TripGoStyleKit
-import com.skedgo.tripkit.ui.core.fetchAsyncWithSize
-import com.skedgo.tripkit.ui.utils.StopMarkerUtils
+import com.skedgo.tripkit.ui.TripGoStyleKit.ResizingBehavior
 import com.squareup.picasso.Picasso
-import io.reactivex.Observable
 import io.reactivex.Single
-import io.reactivex.schedulers.Schedulers
-import com.skedgo.tripkit.locations.CarPod
-import io.reactivex.android.schedulers.AndroidSchedulers
 
 object CreateMarkerForCarPod {
 
     fun execute(resources: Resources, picasso: Picasso, carPod: CarPod): Single<MarkerOptions> {
-        val carPodEntity = carPod
-        return StopMarkerUtils.getMapIconUrlForModeInfo(resources, carPodEntity.remoteIcon)
-                .let { Observable.fromIterable(it.orEmpty()) }
-                .filter { it != null }
-                .concatMap {
-                    picasso.fetchAsyncWithSize(it, R.dimen.map_icon_size)
-                            .map { bitmap ->
-                                val iconSize = resources.getDimensionPixelSize(R.dimen.map_icon_size)
-                                val newBitmap = Bitmap.createBitmap(iconSize, iconSize, Bitmap.Config.ARGB_8888)
-                                val canvas = Canvas(newBitmap)
-                                val color = Color.GRAY
+        val iconSize = resources.getDimensionPixelSize(R.dimen.map_icon_size)
+        val bitmap = Bitmap.createBitmap(iconSize, iconSize, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bitmap)
 
-                                val paint = Paint()
-                                paint.color = color
-                                paint.style = Paint.Style.FILL
-                                val center = (iconSize * 1.0f / 2)
-                                canvas.drawCircle(center, center, center, paint)
-                                canvas.drawBitmap(bitmap, 0f, 0f, paint)
-                                BitmapDescriptorFactory.fromBitmap(newBitmap)
-                            }
-                            .toObservable()
-                            .observeOn(Schedulers.io())
-                            .subscribeOn(AndroidSchedulers.mainThread())
-                            .onErrorResumeNext(Observable.empty())
-                }
-                .switchIfEmpty(Observable.fromCallable {
-                    val iconSize = resources.getDimensionPixelSize(R.dimen.map_icon_size)
-                    val bitmap = Bitmap.createBitmap(iconSize, iconSize, Bitmap.Config.ARGB_8888)
-                    val canvas = Canvas(bitmap)
-                    val color = Color.GRAY
+        val colorEntity = carPod.modeInfo?.color
+        var color = Color.GRAY
+        if (colorEntity?.red != null && colorEntity.green != null && colorEntity.blue != null) {
+            colorEntity.let {
+                color = Color.argb(255, it.red!!, it.green!!, it.blue!!)
+            }
+        }
 
-                    val paint = Paint()
-                    paint.color = color
-                    paint.style = Paint.Style.FILL
-                    val center = (iconSize * 1.0f / 2)
-                    canvas.drawCircle(center, center, center, paint)
+        val paint = Paint()
+        paint.color = color
+        paint.style = Paint.Style.FILL
+        val fillCenter = (iconSize * 1.0f / 2)
+        canvas.drawCircle(fillCenter, fillCenter, fillCenter, paint)
 
-                    val availableVehicles = carPodEntity.realTimeInfo?.availableVehicles
-                    val totalSpaces = carPodEntity.realTimeInfo?.totalSpaces
-                    val fraction = if (availableVehicles != null && totalSpaces != null) {
-                        availableVehicles.toFloat() / totalSpaces
-                    } else {
-                        1f
-                    }
-                    TripGoStyleKit.drawCarShareMap(canvas, fraction, 0.toFloat(), iconSize.toFloat())
-                    BitmapDescriptorFactory.fromBitmap(bitmap)
-                })
-                .firstOrError()
-                .map {
-                    MarkerOptions()
-                            .title(carPodEntity.name)
-                            .position(LatLng(carPodEntity.lat, carPodEntity.lng))
-                            .draggable(false)
-                            .snippet(carPodEntity.address)
-                            .icon(it)
-                }
+        paint.color = Color.WHITE
+        paint.style = Paint.Style.STROKE
+        paint.strokeWidth = resources.getDimensionPixelSize(R.dimen.map_icon_stroke).toFloat()
+        val strokeCenter = (iconSize * 0.95f / 2)
+        canvas.drawCircle(fillCenter, fillCenter, strokeCenter, paint)
+
+        val contentPadding = resources.getDimensionPixelSize(R.dimen.map_icon_padding).toFloat()
+        TripGoStyleKit.drawIconcarshare(canvas, RectF(contentPadding, contentPadding,
+                iconSize - contentPadding, iconSize - contentPadding), ResizingBehavior.AspectFit)
+        return MarkerOptions()
+                .title(carPod.name)
+                .position(LatLng(carPod.lat, carPod.lng))
+                .draggable(false)
+                .snippet(carPod.address)
+                .icon(BitmapDescriptorFactory.fromBitmap(bitmap))
+                .let { Single.just(it) }
     }
 }
