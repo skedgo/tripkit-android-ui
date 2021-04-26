@@ -68,4 +68,5 @@
     <color name="toolbar_buttonText_pressed">#ccdaed</color>
     <color name="toolbar_button">#f6f6f5</color>
 
+    <color name="marker_car_share">#00406a</color>
 </resources>

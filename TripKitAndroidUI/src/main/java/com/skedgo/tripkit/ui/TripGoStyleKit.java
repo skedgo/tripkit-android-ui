@@ -271,6 +271,7 @@ public class TripGoStyleKit {
     private static Path bezier2Path = new Path();
   }
 
+
   public synchronized static void drawIconcarshare(Canvas canvas) {
     TripGoStyleKit.drawIconcarshare(canvas, new RectF(0f, 0f, 32f, 32f), ResizingBehavior.AspectFit);
   }

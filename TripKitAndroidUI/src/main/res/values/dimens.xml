@@ -19,6 +19,8 @@
     <dimen name="v4_base_pointer_padding">6dp</dimen>
     <dimen name="routing_card_height">208dp</dimen>
     <dimen name="map_icon_size">20dp</dimen>
+    <dimen name="map_icon_padding">3dp</dimen>
+    <dimen name="map_icon_stroke">1dp</dimen>
     <dimen name="free_floating_map_icon_size">10dp</dimen>
     <dimen name="v4_half_content_padding">6dp</dimen>
     <dimen name="close_button_size">24dp</dimen>
