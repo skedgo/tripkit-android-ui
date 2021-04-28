@@ -21,6 +21,7 @@ class ExternalActionTripPreviewItemViewModel : TripPreviewPagerItemViewModel() {
 
     override fun setSegment(context: Context, segment: TripSegment) {
         super.setSegment(context, segment)
+        items.clear()
         segment.booking?.externalActions?.forEach {
             val vm = ExternalActionViewModel()
             vm.title.set(segment.booking.title)

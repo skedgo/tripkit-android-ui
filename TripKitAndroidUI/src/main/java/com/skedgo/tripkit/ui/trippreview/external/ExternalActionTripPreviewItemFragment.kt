@@ -38,6 +38,11 @@ class ExternalActionTripPreviewItemFragment : BaseTripKitFragment() {
 
     override fun onResume() {
         super.onResume()
+
+        tripSegment?.let {
+            viewModel.setSegment(requireContext(), it)
+        }
+
         viewModel.closeClicked.observable
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe {
