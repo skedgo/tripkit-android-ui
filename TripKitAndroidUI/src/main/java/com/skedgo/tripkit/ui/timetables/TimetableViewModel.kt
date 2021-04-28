@@ -56,7 +56,7 @@ class TimetableViewModel  @Inject constructor(
         private val getNow: GetNow,
         private val resources: Resources
 ): RxViewModel() {
-    var stop: BehaviorRelay<ScheduledStop> = BehaviorRelay.create<ScheduledStop>()
+    var stop: BehaviorRelay<ScheduledStop> = BehaviorRelay.create()
 
     val stationName = ObservableField<String>()
     val stationType = ObservableField<String>()
