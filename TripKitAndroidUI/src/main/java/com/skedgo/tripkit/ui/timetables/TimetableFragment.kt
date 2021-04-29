@@ -197,25 +197,15 @@ class TimetableFragment : BaseTripKitFragment(), View.OnClickListener {
                     tripPreviewPagerListener?.onServiceActionButtonClicked(viewModel.action)
                 }.addTo(autoDisposable)
 
-        clickDisposable.clear()
-        clickDisposable.add(viewModel.services.asObservable()
-                .map {
-                    it.map { vm ->
-                        vm.onItemClick.observable
+        viewModel.timetableEntryChosen.observeOn(AndroidSchedulers.mainThread()).subscribe {
+            Observable.combineLatest(viewModel.stopRelay, viewModel.startTimeRelay,
+                    BiFunction { one: ScheduledStop, two: Long -> one to two })
+                    .take(1).subscribe { pair ->
+                        timetableEntrySelectedListener.forEach { listener ->
+                            listener.onTimetableEntrySelected(it, pair.first, pair.second)
+                        }
                     }
-                }
-                .switchMap {
-                    Observable.merge(it)
-                }
-                .subscribe { timetableEntry ->
-                    Observable.combineLatest(viewModel.stopRelay, viewModel.startTimeRelay,
-                            BiFunction { one: ScheduledStop, two: Long -> one to two })
-                            .take(1).subscribe { pair ->
-                                timetableEntrySelectedListener.forEach { listener ->
-                                    listener.onTimetableEntrySelected(timetableEntry, pair.first, pair.second)
-                                }
-                            }
-                })
+        }.addTo(autoDisposable)
 
         binding.recyclerView.scrollToPosition(0)
     }
@@ -228,7 +218,8 @@ class TimetableFragment : BaseTripKitFragment(), View.OnClickListener {
             arguments?.putStringArrayList(ARG_BOOKING_ACTION, list)
             try {
                 this.bookingActions = list
-            } catch (e: Exception) {}
+            } catch (e: Exception) {
+            }
         }
     }
 
@@ -352,7 +343,7 @@ class TimetableFragment : BaseTripKitFragment(), View.OnClickListener {
                 ?.subscribeOn(Schedulers.io())
                 ?.observeOn(AndroidSchedulers.mainThread())
                 ?.subscribe({
-                    if(it.first == stop?.code){
+                    if (it.first == stop?.code) {
                         setBookingActions(it.second)
                     }
                 }, {
@@ -406,7 +397,7 @@ class TimetableFragment : BaseTripKitFragment(), View.OnClickListener {
                 }, { Timber.e(it) })
     }
 
-    fun updateStop(stop: ScheduledStop){
+    fun updateStop(stop: ScheduledStop) {
         this.stop = stop
         viewModel.setText()
     }
@@ -449,7 +440,7 @@ class TimetableFragment : BaseTripKitFragment(), View.OnClickListener {
             return this
         }
 
-        fun withSegmentActionStream(actionStream: PublishSubject<Pair<String, List<String>?>>?): Builder{
+        fun withSegmentActionStream(actionStream: PublishSubject<Pair<String, List<String>?>>?): Builder {
             this.actionStream = actionStream
             return this
         }

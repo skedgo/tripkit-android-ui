@@ -171,6 +171,9 @@ class TimetableViewModel  @Inject constructor(
                 services.map {
                     serviceViewModelProvider.get().apply {
                         this.setService(it, timeZone)
+                        this.onItemClick.observable.observeOn(AndroidSchedulers.mainThread()).subscribe { entry ->
+                            timetableEntryChosen.accept(entry)
+                        }
                     }
                 }
             }
@@ -208,6 +211,7 @@ class TimetableViewModel  @Inject constructor(
     val showButton = ObservableBoolean(false)
     val buttonText = ObservableField<String>()
     val actionChosen = PublishRelay.create<String>()
+    val timetableEntryChosen = PublishRelay.create<TimetableEntry>()
     var action = ""
 
     init {
