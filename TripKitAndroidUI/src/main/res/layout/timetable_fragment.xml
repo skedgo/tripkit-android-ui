@@ -79,7 +79,7 @@
                       android:paddingStart="8dp"
                       android:paddingEnd="8dp"
                       android:orientation="horizontal"
-                      android:divider="@drawable/empty_space"
+                      android:divider="@drawable/empty_space_narrow"
                       android:showDividers="middle"
                       app:layout_constraintStart_toStartOf="@+id/nameOfStation"
                       app:layout_constraintEnd_toEndOf="parent"
