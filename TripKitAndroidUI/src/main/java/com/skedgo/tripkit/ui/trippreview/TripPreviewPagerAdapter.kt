@@ -61,7 +61,7 @@ class TripPreviewPagerAdapter(fragmentManager: FragmentManager)
                 } // taxis, gocatch
             }
             ITEM_SERVICE -> {
-                ServiceTripPreviewItemFragment.newInstance(page.tripSegment) // PT with Stops
+                ServiceTripPreviewItemFragment.newInstance(page.tripSegment, position) // PT with Stops
             }
             ITEM_TIMETABLE -> {
                 val scheduledStop = ScheduledStop(page.tripSegment.to)

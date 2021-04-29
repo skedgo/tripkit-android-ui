@@ -69,7 +69,7 @@ class DirectionsTripPreviewItemFragment : BaseTripKitFragment() {
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        outState.putString(ARGS_SEGMENT, Gson().toJson(segment))
+        //outState.putString(ARGS_SEGMENT, Gson().toJson(segment))
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {

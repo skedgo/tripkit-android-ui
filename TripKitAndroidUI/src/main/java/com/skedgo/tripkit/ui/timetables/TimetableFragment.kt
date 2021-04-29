@@ -124,9 +124,11 @@ class TimetableFragment : BaseTripKitFragment(), View.OnClickListener {
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
+
         outState.putParcelable(ARG_STOP, stop)
         outState.putStringArrayList(ARG_BOOKING_ACTION, bookingActions)
         outState.putBoolean(ARG_SHOW_SEARCH_FIELD, viewModel.showSearch.get())
+
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

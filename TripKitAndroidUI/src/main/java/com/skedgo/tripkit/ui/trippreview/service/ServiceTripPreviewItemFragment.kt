@@ -1,6 +1,7 @@
 package com.skedgo.tripkit.ui.trippreview.service
 
 import android.content.Context
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -35,8 +36,18 @@ class ServiceTripPreviewItemFragment : BaseTripKitFragment() {
     @Inject
     lateinit var viewModel: ServiceDetailViewModel
 
-    override fun refresh() {
-        segment?.let { viewModel.setup(it) }
+    @Inject
+    lateinit var prefs: SharedPreferences
+
+    var positionInAdapter = 0
+
+    override fun refresh(position: Int) {
+        positionInAdapter = position
+        segment?.let {
+            viewModel.setup(it)
+        } ?: kotlin.run {
+            checkSegmentOnPrefs()
+        }
     }
 
     override fun onAttach(context: Context) {
@@ -53,10 +64,14 @@ class ServiceTripPreviewItemFragment : BaseTripKitFragment() {
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
 
+        //using shared pref to save the data since data too large for intent to handle
         segment?.let {
-            outState.putString(ARGS_TRIP_SEGMENT, gson.toJson(it))
-            outState.putString(ARGS_TRIP_SEGMENT_TRIP, gson.toJson(it.trip))
-            outState.putString(ARGS_TRIP_SEGMENT_TRIP_GROUP, gson.toJson(it.trip?.group))
+            with(prefs.edit()) {
+                putString("${positionInAdapter}_$ARGS_TRIP_SEGMENT", gson.toJson(it))
+                putString("${positionInAdapter}_$ARGS_TRIP_SEGMENT_TRIP", gson.toJson(it.trip))
+                putString("${positionInAdapter}_$ARGS_TRIP_SEGMENT_TRIP_GROUP", gson.toJson(it.trip?.group))
+                apply()
+            }
         }
     }
 
@@ -70,13 +85,41 @@ class ServiceTripPreviewItemFragment : BaseTripKitFragment() {
         segment?.let {
             viewModel.setup(it)
         } ?: kotlin.run {
-            checkSegmentOnSavedInstance(savedInstanceState)
+            checkSegmentOnPrefs()
         }
 
         return binding.root
     }
 
-    private fun checkSegmentOnSavedInstance(savedInstanceState: Bundle?) {
+    private fun checkSegmentOnPrefs() {
+
+        with(prefs) {
+            var segment: TripSegment? = null
+            if (contains("${positionInAdapter}_$ARGS_TRIP_SEGMENT")) {
+                segment = gson.fromJson(getString("${positionInAdapter}_$ARGS_TRIP_SEGMENT", ""), TripSegment::class.java)
+                prefs.edit().remove("${positionInAdapter}_$ARGS_TRIP_SEGMENT").apply()
+            }
+
+            var trip: Trip? = null
+            if (contains("${positionInAdapter}_$ARGS_TRIP_SEGMENT_TRIP")) {
+                trip = gson.fromJson(getString("${positionInAdapter}_$ARGS_TRIP_SEGMENT_TRIP", ""), Trip::class.java)
+                prefs.edit().remove("${positionInAdapter}_$ARGS_TRIP_SEGMENT_TRIP").apply()
+            }
+
+            var tripSegmentGroup: TripGroup? = null
+            if (contains("${positionInAdapter}_$ARGS_TRIP_SEGMENT_TRIP_GROUP")) {
+                tripSegmentGroup = gson.fromJson(getString("${positionInAdapter}_$ARGS_TRIP_SEGMENT_TRIP_GROUP", ""), TripGroup::class.java)
+                prefs.edit().remove("${positionInAdapter}_$ARGS_TRIP_SEGMENT_TRIP").apply()
+            }
+            trip?.group = tripSegmentGroup
+            segment?.trip = trip
+            segment?.let {
+                this@ServiceTripPreviewItemFragment.segment = it
+                viewModel.setup(it)
+            }
+        }
+
+        /*
         savedInstanceState?.let {
             val segment: TripSegment = gson.fromJson(
                     it.getString(ARGS_TRIP_SEGMENT, ""), TripSegment::class.java
@@ -95,6 +138,7 @@ class ServiceTripPreviewItemFragment : BaseTripKitFragment() {
             viewModel.setup(segment)
 
         }
+        */
     }
 
     companion object {
@@ -103,9 +147,10 @@ class ServiceTripPreviewItemFragment : BaseTripKitFragment() {
         const val ARGS_TRIP_SEGMENT_TRIP = "tripSegmentTri"
         const val ARGS_TRIP_SEGMENT_TRIP_GROUP = "tripSegmentTripGroup"
 
-        fun newInstance(segment: TripSegment): ServiceTripPreviewItemFragment {
+        fun newInstance(segment: TripSegment, position: Int): ServiceTripPreviewItemFragment {
             val fragment = ServiceTripPreviewItemFragment()
             fragment.segment = segment
+            fragment.positionInAdapter = position
             return fragment
         }
     }
