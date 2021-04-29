@@ -155,7 +155,7 @@ class TripPreviewPagerFragment : BaseTripKitFragment() {
                         position) as? BaseTripKitFragment)?.let {
                     it.onCloseButtonListener = this@TripPreviewPagerFragment.onCloseButtonListener
                     it.tripPreviewPagerListener = this@TripPreviewPagerFragment.tripPreviewPagerListener
-                    it.refresh()
+                    it.refresh(position)
                 }
                 currentPagerIndex = position
             }

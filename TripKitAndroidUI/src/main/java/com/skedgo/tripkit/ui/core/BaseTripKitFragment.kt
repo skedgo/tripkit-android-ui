@@ -19,5 +19,5 @@ open class BaseTripKitFragment : Fragment() {
         autoDisposable.bindTo(this.lifecycle)
     }
 
-    open fun refresh(){}
+    open fun refresh(position: Int){}
 }
