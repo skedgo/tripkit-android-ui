@@ -17,6 +17,7 @@ import com.skedgo.tripkit.ExternalActionParams
 import com.skedgo.tripkit.bookingproviders.BookingResolver
 import com.skedgo.tripkit.routing.SegmentType
 import com.skedgo.tripkit.routing.TripSegment
+import com.skedgo.tripkit.ui.ARG_FROM_TRIP_ACTION
 import com.skedgo.tripkit.ui.ARG_TRIP_ID
 import com.skedgo.tripkit.ui.ARG_TRIP_SEGMENT_ID
 import com.skedgo.tripkit.ui.TripKitUI
@@ -54,9 +55,12 @@ class TripPreviewPagerFragment : BaseTripKitFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         arguments?.let {
-            load(it.getString(ARG_TRIP_GROUP_ID, ""),
+            load(
+                    it.getString(ARG_TRIP_GROUP_ID, ""),
                     it.getString(ARG_TRIP_ID, ""),
-                    it.getLong(ARG_TRIP_SEGMENT_ID, 0L))
+                    it.getLong(ARG_TRIP_SEGMENT_ID, 0L),
+                    it.getBoolean(ARG_FROM_TRIP_ACTION, false)
+            )
         }
 
         savedInstanceState?.getInt(ARG_CURRENT_PAGER_INDEX)?.let {
@@ -71,14 +75,14 @@ class TripPreviewPagerFragment : BaseTripKitFragment() {
         outState.putInt(ARG_CURRENT_PAGER_INDEX, currentPagerIndex)
     }
 
-    fun load(tripGroupId: String, tripId: String, tripSegmentId: Long) {
+    fun load(tripGroupId: String, tripId: String, tripSegmentId: Long, fromTripAction: Boolean) {
         tripGroupRepository.getTripGroup(tripGroupId)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe { tripGroup ->
                     val trip = tripGroup.trips?.find { it.uuid() == tripId }
                     trip?.let {
                         var activeIndex = adapter.setTripSegments(tripSegmentId,
-                                trip.segments.filter { !it.isContinuation }.filter { it.type != SegmentType.DEPARTURE && it.type != SegmentType.ARRIVAL })
+                                trip.segments.filter { !it.isContinuation }.filter { it.type != SegmentType.DEPARTURE && it.type != SegmentType.ARRIVAL }, fromTripAction)
                         adapter.notifyDataSetChanged()
                         if(currentPagerIndex != 0 && activeIndex != currentPagerIndex){
                             activeIndex = currentPagerIndex
@@ -216,12 +220,14 @@ class TripPreviewPagerFragment : BaseTripKitFragment() {
                 tripGroupId: String,
                 tripId: String,
                 tripSegmentHashCode: Long,
-                tripPreviewPagerListener: Listener): TripPreviewPagerFragment {
+                tripPreviewPagerListener: Listener,
+                fromAction: Boolean = false): TripPreviewPagerFragment {
             val fragment = TripPreviewPagerFragment()
             fragment.arguments = bundleOf(
                     ARG_TRIP_GROUP_ID to tripGroupId,
                     ARG_TRIP_ID to tripId,
-                    ARG_TRIP_SEGMENT_ID to tripSegmentHashCode
+                    ARG_TRIP_SEGMENT_ID to tripSegmentHashCode,
+                    ARG_FROM_TRIP_ACTION to fromAction
             )
             fragment.tripPreviewPagerListener = tripPreviewPagerListener
             return fragment
