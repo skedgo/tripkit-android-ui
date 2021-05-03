@@ -88,7 +88,7 @@ class TripPreviewPagerAdapter(fragmentManager: FragmentManager)
         return pages.size
     }
 
-    fun setTripSegments(activeTripSegmentId: Long, tripSegments: List<TripSegment>): Int {
+    fun setTripSegments(activeTripSegmentId: Long, tripSegments: List<TripSegment>, fromAction: Boolean = false): Int {
         pages.clear()
         var activeTripSegmentPosition = 0
         var addedCards = 0
@@ -126,8 +126,14 @@ class TripPreviewPagerAdapter(fragmentManager: FragmentManager)
         }
         notifyDataSetChanged()
 
-        if (activeTripSegmentPosition < 0) {
-            activeTripSegmentPosition = 0
+        if(fromAction){
+            activeTripSegmentPosition = pages.indexOfFirst {
+                !it.tripSegment.booking?.externalActions.isNullOrEmpty()
+            }
+        }else {
+            if (activeTripSegmentPosition < 0) {
+                activeTripSegmentPosition = 0
+            }
         }
         return activeTripSegmentPosition
     }
