@@ -1,163 +1,204 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout         xmlns:android="http://schemas.android.com/apk/res/android"
-                xmlns:tools="http://schemas.android.com/tools"
-                xmlns:app="http://schemas.android.com/apk/res-auto">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
     <data>
+
         <variable
-                name="viewModel"
-                type="com.skedgo.tripkit.ui.tripresults.TripResultListViewModel" />
+            name="viewModel"
+            type="com.skedgo.tripkit.ui.tripresults.TripResultListViewModel" />
     </data>
 
-        <androidx.constraintlayout.widget.ConstraintLayout android:layout_width="match_parent"
-                                                           android:layout_height="match_parent"
-                                                           android:background="#ffffff">
-            <TextView
-                    tools:text="To Location"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/toLocation"
-                    android:text="@{viewModel.toName}"
-                    style="@style/TextAppearance.MaterialComponents.Headline6"
-                    android:layout_marginStart="16dp"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintEnd_toStartOf="@+id/closeButton"
-                    app:layout_constraintTop_toTopOf="parent"/>
-            <ImageButton
-                    android:id="@+id/closeButton"
-                    android:layout_width="@dimen/close_button_size"
-                    android:layout_height="@dimen/close_button_size"
-                    android:layout_marginEnd="16dp"
-                    android:src="@drawable/close"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:visibility="@{viewModel.showCloseButton}"
-                    app:layout_constraintTop_toTopOf="@+id/toLocation"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintBottom_toBottomOf="@+id/toLocation"/>
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#ffffff">
 
-            <TextView
-                    android:text="@string/from_with_colon"
+        <TextView
+            android:id="@+id/toLocation"
+            style="@style/TextAppearance.MaterialComponents.Headline6"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="@dimen/spacing_small"
+            android:text="@{viewModel.toName}"
+            android:singleLine="true"
+            android:ellipsize="end"
+            app:layout_constraintEnd_toStartOf="@+id/closeButton"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="To Location" />
+
+        <ImageButton
+            android:id="@+id/closeButton"
+            android:layout_width="@dimen/close_button_size"
+            android:layout_height="@dimen/close_button_size"
+            android:layout_marginEnd="16dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/close"
+            android:visibility="@{viewModel.showCloseButton}"
+            app:layout_constraintBottom_toBottomOf="@+id/toLocation"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/toLocation" />
+
+        <TextView
+            android:id="@+id/fromLabel"
+            style="@style/TextAppearance.MaterialComponents.Body2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/from_with_colon"
+            android:textColor="@color/black1"
+            app:layout_constraintStart_toStartOf="@id/toLocation"
+            app:layout_constraintTop_toBottomOf="@+id/toLocation" />
+
+        <TextView
+            android:id="@+id/from"
+            style="@style/TextAppearance.MaterialComponents.Body2"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:layout_marginEnd="@dimen/spacing_small"
+            android:text="@{viewModel.fromName}"
+            android:singleLine="true"
+            android:ellipsize="end"
+            android:textColor="@color/colorPrimary"
+            app:layout_constraintStart_toEndOf="@+id/fromLabel"
+            app:layout_constraintTop_toTopOf="@+id/fromLabel"
+            app:layout_constraintEnd_toStartOf="@+id/fromAction"
+            tools:text="Current Location" />
+
+        <ImageView
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:tint="@color/colorPrimary"
+            android:layout_marginEnd="16dp"
+            android:id="@+id/fromAction"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="@id/from"
+            app:layout_constraintTop_toTopOf="@+id/from"
+            app:srcCompat="@drawable/chevron_right" />
+
+        <!-- Leave Now & Transports header -->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/leaveNowAndTransportsHeader"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/list_header_background"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/fromLabel">
+            <!-- Start with the Transports header to the right -->
+            <LinearLayout
+                android:id="@+id/transportsLayout"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="?android:attr/selectableItemBackground"
+                android:onClick="@{viewModel::transportLayoutClicked}"
+                android:orientation="horizontal"
+                android:paddingStart="16dp"
+                android:paddingTop="10dp"
+                android:paddingEnd="16dp"
+                android:paddingBottom="10dp"
+                android:visibility="@{viewModel.showTransportModeSelection}"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <TextView
+                    style="@style/TextAppearance.MaterialComponents.Body2"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:id="@+id/fromLabel"
-                    app:layout_constraintTop_toBottomOf="@+id/toLocation"
-                    app:layout_constraintStart_toStartOf="@id/toLocation"
+                    android:layout_gravity="center_vertical"
+                    android:text="@string/transport"
+                    android:textColor="@color/colorPrimary"
+                    tools:text="Transports" />
+
+                <ImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:layout_gravity="center_vertical"
+                    android:src="@drawable/chevron_down"
+                    android:tint="@color/colorPrimary" />
+            </LinearLayout>
+
+            <View
+                android:id="@+id/dividerView"
+                android:layout_width="1dp"
+                android:layout_height="0dp"
+                android:background="#4D23B15E"
+                app:layout_constraintBottom_toBottomOf="@id/transportsLayout"
+                app:layout_constraintEnd_toStartOf="@id/transportsLayout"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <LinearLayout
+                android:id="@+id/leaveNowLayout"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:background="?android:attr/selectableItemBackground"
+                android:orientation="horizontal"
+                android:paddingStart="16dp"
+                android:paddingTop="10dp"
+                android:paddingEnd="16dp"
+                android:paddingBottom="10dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/dividerView"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <TextView
                     style="@style/TextAppearance.MaterialComponents.Body2"
-                    android:textColor="@color/black1"/>
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:text="@{viewModel.timeLabel}"
+                    android:textColor="@color/colorPrimary" />
 
-            <TextView android:layout_width="wrap_content"
-                      android:layout_height="wrap_content"
-                      android:layout_marginStart="4dp"
-                      tools:text="Current Location"
-                      android:text="@{viewModel.fromName}"
-                      android:textColor="@color/colorPrimary"
-                      style="@style/TextAppearance.MaterialComponents.Body2"
-                      android:id="@+id/from"
-                      app:layout_constraintStart_toEndOf="@+id/fromLabel"
-                      app:layout_constraintTop_toTopOf="@+id/fromLabel"
-            />
-            <ImageView android:layout_width="16dp"
-                       android:layout_height="16dp"
-                       app:layout_constraintTop_toTopOf="@+id/from"
-                       app:layout_constraintStart_toEndOf="@+id/from"
-                       app:layout_constraintBottom_toBottomOf="@id/from"
-                       android:tint="@color/colorPrimary"
-                       app:srcCompat="@drawable/chevron_right"/>
-            <!-- Leave Now & Transports header -->
-            <androidx.constraintlayout.widget.ConstraintLayout android:layout_width="match_parent"
-                                                               android:layout_height="wrap_content"
-                                                               android:layout_marginTop="16dp"
-                                                               android:id="@+id/leaveNowAndTransportsHeader"
-                                                               app:layout_constraintTop_toBottomOf="@id/fromLabel"
-                                                               app:layout_constraintStart_toStartOf="parent"
-                                                               app:layout_constraintEnd_toEndOf="parent"
-                                                               android:background="@drawable/list_header_background">
-                <!-- Start with the Transports header to the right -->
-                <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="horizontal"
-                              android:id="@+id/transportsLayout"
-                              android:paddingTop="10dp"
-                              android:paddingBottom="10dp"
-                              android:paddingStart="16dp"
-                              android:paddingEnd="16dp"
-                              android:visibility="@{viewModel.showTransportModeSelection}"
-                              android:background="?android:attr/selectableItemBackground"
-                              android:onClick="@{viewModel::transportLayoutClicked}"
-                              app:layout_constraintEnd_toEndOf="parent"
-                              app:layout_constraintTop_toTopOf="parent"
-                              app:layout_constraintBottom_toBottomOf="parent">
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="center_vertical"
-                              tools:text="Transports"
-                              android:text="@string/transport"
-                              style="@style/TextAppearance.MaterialComponents.Body2"
-                              android:textColor="@color/colorPrimary"/>
-                    <ImageView android:layout_width="16dp"
-                               android:layout_height="16dp"
-                               android:layout_gravity="center_vertical"
-                               android:tint="@color/colorPrimary"
-                               android:src="@drawable/chevron_down"/>
-                </LinearLayout>
-                <View android:layout_width="1dp" android:layout_height="0dp"
-                      app:layout_constraintEnd_toStartOf="@id/transportsLayout"
-                      app:layout_constraintTop_toTopOf="parent"
-                      app:layout_constraintBottom_toBottomOf="@id/transportsLayout"
-                      android:background="#4D23B15E"
-                      android:id="@+id/dividerView"/>
+                <ImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:layout_gravity="center_vertical"
+                    android:tint="@color/colorPrimary"
+                    app:srcCompat="@drawable/chevron_down" />
+            </LinearLayout>
 
-                <LinearLayout android:layout_width="0dp"
-                              android:layout_height="wrap_content"
-                              android:orientation="horizontal"
-                              android:id="@+id/leaveNowLayout"
-                              android:paddingTop="10dp"
-                              android:paddingBottom="10dp"
-                              android:paddingStart="16dp"
-                              android:paddingEnd="16dp"
-                              android:background="?android:attr/selectableItemBackground"
-                              app:layout_constraintStart_toStartOf="parent"
-                              app:layout_constraintTop_toTopOf="parent"
-                              app:layout_constraintBottom_toBottomOf="parent"
-                              app:layout_constraintEnd_toStartOf="@+id/dividerView">
-                    <TextView android:layout_width="wrap_content"
-                              android:layout_height="wrap_content"
-                              android:layout_gravity="center_vertical"
-                              android:text="@{viewModel.timeLabel}"
-                              style="@style/TextAppearance.MaterialComponents.Body2"
-                              android:textColor="@color/colorPrimary"/>
-                    <ImageView android:layout_width="16dp"
-                               android:layout_height="16dp"
-                               android:layout_gravity="center_vertical"
-                               android:tint="@color/colorPrimary"
-                               app:srcCompat="@drawable/chevron_down"/>
-                </LinearLayout>
-
-            </androidx.constraintlayout.widget.ConstraintLayout>
-            <androidx.recyclerview.widget.RecyclerView android:layout_width="match_parent"
-                                                       android:layout_height="wrap_content"
-                                                       android:id="@+id/transportItemsView"
-                                                       app:itemBinding="@{viewModel.transportBinding}"
-                                                       app:items="@{viewModel.transportModes}"
-                                                       android:visibility="@{viewModel.showTransport}"
-                                                       android:background="#f5f6f7"
-                                                       android:paddingStart="16dp"
-                                                       android:paddingTop="16dp"
-                                                       android:paddingBottom="8dp"
-                                                       android:overScrollMode="never"
-                                                       android:nestedScrollingEnabled="false"
-                                                       app:layout_constraintTop_toBottomOf="@id/leaveNowAndTransportsHeader"
-                                                       app:layout_constraintStart_toStartOf="parent"
-                                                       app:layout_constraintEnd_toEndOf="parent"/>
-            <com.skedgo.tripkit.ui.views.MultiStateView android:layout_width="match_parent"
-                                                        android:layout_height="0dp"
-                                                        android:id="@+id/multiStateView"
-                                                        app:layout_constraintTop_toBottomOf="@+id/transportItemsView"
-                                                        app:layout_constraintStart_toStartOf="parent"
-                                                        app:layout_constraintBottom_toBottomOf="parent">
-                <androidx.recyclerview.widget.RecyclerView android:layout_width="match_parent"
-                                                           android:layout_height="match_parent"
-                                                           android:id="@+id/recyclerView"
-                                                           app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                                                           app:itemBinding="@{viewModel.itemBinding}"
-                                                           app:items="@{viewModel.mergedList}"
-                                                           android:background="@color/grey2"/>
-
-            </com.skedgo.tripkit.ui.views.MultiStateView>
         </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/transportItemsView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#f5f6f7"
+            android:nestedScrollingEnabled="false"
+            android:overScrollMode="never"
+            android:paddingStart="16dp"
+            android:paddingTop="16dp"
+            android:paddingBottom="8dp"
+            android:visibility="@{viewModel.showTransport}"
+            app:itemBinding="@{viewModel.transportBinding}"
+            app:items="@{viewModel.transportModes}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/leaveNowAndTransportsHeader" />
+
+        <com.skedgo.tripkit.ui.views.MultiStateView
+            android:id="@+id/multiStateView"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/transportItemsView">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/grey2"
+                app:itemBinding="@{viewModel.itemBinding}"
+                app:items="@{viewModel.mergedList}"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+
+        </com.skedgo.tripkit.ui.views.MultiStateView>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
