@@ -61,7 +61,7 @@ class TripPreviewPagerAdapter(fragmentManager: FragmentManager)
                 } // taxis, gocatch
             }
             ITEM_SERVICE -> {
-                ServiceTripPreviewItemFragment.newInstance(page.tripSegment, position) // PT with Stops
+                ServiceTripPreviewItemFragment.newInstance(page.tripSegment, position, true) // PT with Stops
             }
             ITEM_TIMETABLE -> {
                 val scheduledStop = ScheduledStop(page.tripSegment.to)
@@ -73,6 +73,7 @@ class TripPreviewPagerAdapter(fragmentManager: FragmentManager)
                         .withBookingAction(page.tripSegment.booking?.externalActions)
                         .withSegmentActionStream(segmentActionStream)
                         .hideSearchBar()
+                        .showCloseButton()
                         .build()
 
                 timetableFragment
