@@ -128,6 +128,7 @@ class TimetableFragment : BaseTripKitFragment(), View.OnClickListener {
         outState.putParcelable(ARG_STOP, stop)
         outState.putStringArrayList(ARG_BOOKING_ACTION, bookingActions)
         outState.putBoolean(ARG_SHOW_SEARCH_FIELD, viewModel.showSearch.get())
+        outState.putBoolean(ARG_SHOW_CLOSE_BUTTON, viewModel.showCloseButton.get())
 
     }
 

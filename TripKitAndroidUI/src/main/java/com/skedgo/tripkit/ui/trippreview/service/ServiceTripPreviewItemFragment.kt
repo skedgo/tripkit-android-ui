@@ -41,13 +41,11 @@ class ServiceTripPreviewItemFragment : BaseTripKitFragment() {
 
     var positionInAdapter = 0
 
+    private var showCloseButton = false
+
     override fun refresh(position: Int) {
         positionInAdapter = position
-        segment?.let {
-            viewModel.setup(it)
-        } ?: kotlin.run {
-            checkSegmentOnPrefs()
-        }
+        handleSegment()
     }
 
     override fun onAttach(context: Context) {
@@ -70,6 +68,7 @@ class ServiceTripPreviewItemFragment : BaseTripKitFragment() {
                 putString("${positionInAdapter}_$ARGS_TRIP_SEGMENT", gson.toJson(it))
                 putString("${positionInAdapter}_$ARGS_TRIP_SEGMENT_TRIP", gson.toJson(it.trip))
                 putString("${positionInAdapter}_$ARGS_TRIP_SEGMENT_TRIP_GROUP", gson.toJson(it.trip?.group))
+                putBoolean("${positionInAdapter}_$ARGS_SHOW_CLOSE_BUTTON", showCloseButton)
                 apply()
             }
         }
@@ -82,13 +81,18 @@ class ServiceTripPreviewItemFragment : BaseTripKitFragment() {
         binding.content.occupancyList.layoutManager = LinearLayoutManager(context, RecyclerView.HORIZONTAL, false)
         binding.closeButton.setOnClickListener(onCloseButtonListener)
 
+        handleSegment()
+
+        return binding.root
+    }
+
+    private fun handleSegment(){
         segment?.let {
             viewModel.setup(it)
         } ?: kotlin.run {
             checkSegmentOnPrefs()
         }
-
-        return binding.root
+        viewModel.showCloseButton.set(showCloseButton)
     }
 
     private fun checkSegmentOnPrefs() {
@@ -116,6 +120,11 @@ class ServiceTripPreviewItemFragment : BaseTripKitFragment() {
             segment?.let {
                 this@ServiceTripPreviewItemFragment.segment = it
                 viewModel.setup(it)
+            }
+
+            if (contains("${positionInAdapter}_$ARGS_SHOW_CLOSE_BUTTON")) {
+                showCloseButton = getBoolean("${positionInAdapter}_$ARGS_SHOW_CLOSE_BUTTON", false)
+                prefs.edit().remove("${positionInAdapter}_$ARGS_SHOW_CLOSE_BUTTON").apply()
             }
         }
 
@@ -146,9 +155,11 @@ class ServiceTripPreviewItemFragment : BaseTripKitFragment() {
         const val ARGS_TRIP_SEGMENT = "tripSegment"
         const val ARGS_TRIP_SEGMENT_TRIP = "tripSegmentTri"
         const val ARGS_TRIP_SEGMENT_TRIP_GROUP = "tripSegmentTripGroup"
+        const val ARGS_SHOW_CLOSE_BUTTON = "showCloseButton"
 
-        fun newInstance(segment: TripSegment, position: Int): ServiceTripPreviewItemFragment {
+        fun newInstance(segment: TripSegment, position: Int, showCloseButton: Boolean = false): ServiceTripPreviewItemFragment {
             val fragment = ServiceTripPreviewItemFragment()
+            fragment.showCloseButton = showCloseButton
             fragment.segment = segment
             fragment.positionInAdapter = position
             return fragment
