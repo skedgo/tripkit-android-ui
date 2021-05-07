@@ -62,7 +62,7 @@ class TripResultListViewModel @Inject constructor(
         private val regionService: RegionService,
         private val routeService: RouteService,
         private val errorLogger: ErrorLogger,
-        private val routingTimeViewModelMapper: RoutingTimeViewModelMapper): RxViewModel(), ActionButtonContainer {
+        private val routingTimeViewModelMapper: RoutingTimeViewModelMapper) : RxViewModel(), ActionButtonContainer {
     val loadingItem = LoaderPlaceholder()
     val fromName = ObservableField<String>()
     val toName = ObservableField<String>()
@@ -75,13 +75,13 @@ class TripResultListViewModel @Inject constructor(
     val stateChange = PublishRelay.create<MultiStateView.ViewState>()
     val onError = PublishRelay.create<String>()
 
-//    val itemBinding = ItemBinding.of<TripResultViewModel>(BR.viewModel, R.layout.trip_result_list_item)
+    //    val itemBinding = ItemBinding.of<TripResultViewModel>(BR.viewModel, R.layout.trip_result_list_item)
     val itemBinding =
-        ItemBinding.of(
-        OnItemBindClass<Any>()
-                .map(TripResultViewModel::class.java, BR.viewModel, R.layout.trip_result_list_item)
-                .map(LoaderPlaceholder::class.java, ItemBinding.VAR_NONE, R.layout.circular_progress_loader)
-        )
+            ItemBinding.of(
+                    OnItemBindClass<Any>()
+                            .map(TripResultViewModel::class.java, BR.viewModel, R.layout.trip_result_list_item)
+                            .map(LoaderPlaceholder::class.java, ItemBinding.VAR_NONE, R.layout.circular_progress_loader)
+            )
 
     val results = DiffObservableList<TripResultViewModel>(GroupDiffCallback)
     private val loadingList = ObservableArrayList<LoaderPlaceholder>()
@@ -160,53 +160,53 @@ class TripResultListViewModel @Inject constructor(
     private fun getTransport() {
         setLoading(true)
         regionService.getTransportModesByLocationsAsync(query.fromLocation!!, query.toLocation!!)
-        .observeOn(AndroidSchedulers.mainThread())
-        .flatMapIterable { value -> value }
-        .filter {
-            transportModeFilter!!.useTransportMode(it.id)
-        }
-        .map { mode ->
-            tripResultTransportItemViewModelProvider.get().apply {
-                this.setup(mode)
-            }
-        }
-        .map { viewModel ->
-            viewModel.checked.set(transportVisibilityFilter!!.isSelected(viewModel.modeId.get()!!))
-            viewModel
-        }
-        .map {
-            it.clicked
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe {
-                        // The transportVisibilityFilter will save walking vs wheelchair automatically,
-                        // but we need to manually fix the display, as walking and wheelchair are mutually exclusive.
-                        if (it.first == TransportMode.ID_WALK) {
-                            toggleTransportModeChecked(TransportMode.ID_WHEEL_CHAIR, false)
-                        } else if (it.first == TransportMode.ID_WHEEL_CHAIR) {
-                            toggleTransportModeChecked(TransportMode.ID_WALK, false)
-                        }
+                .observeOn(AndroidSchedulers.mainThread())
+                .flatMapIterable { value -> value }
+                .filter {
+                    transportModeFilter!!.useTransportMode(it.id)
+                }
+                .map { mode ->
+                    tripResultTransportItemViewModelProvider.get().apply {
+                        this.setup(mode)
+                    }
+                }
+                .map { viewModel ->
+                    viewModel.checked.set(transportVisibilityFilter!!.isSelected(viewModel.modeId.get()!!))
+                    viewModel
+                }
+                .map {
+                    it.clicked
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribe {
+                                // The transportVisibilityFilter will save walking vs wheelchair automatically,
+                                // but we need to manually fix the display, as walking and wheelchair are mutually exclusive.
+                                if (it.first == TransportMode.ID_WALK) {
+                                    toggleTransportModeChecked(TransportMode.ID_WHEEL_CHAIR, false)
+                                } else if (it.first == TransportMode.ID_WHEEL_CHAIR) {
+                                    toggleTransportModeChecked(TransportMode.ID_WALK, false)
+                                }
 
-                        transportVisibilityFilter!!.setSelected(it.first, it.second)
-                        reload()
-                    }.autoClear()
-            it
-        }
-        .toList()
-        .subscribe ({ list ->
-            transportModes.set(list)
-            load()
-        }, {
-            Timber.e(it)
-            if (it.message != null) {
-                onError.accept(it.message)
-            } else {
-                onError.accept("Invalid Response")
-            }
-        })
-        .autoClear()
+                                transportVisibilityFilter!!.setSelected(it.first, it.second)
+                                reload()
+                            }.autoClear()
+                    it
+                }
+                .toList()
+                .subscribe({ list ->
+                    transportModes.set(list)
+                    load()
+                }, {
+                    Timber.e(it)
+                    if (it.message != null) {
+                        onError.accept(it.message)
+                    } else {
+                        onError.accept("Invalid Response")
+                    }
+                })
+                .autoClear()
     }
 
-    private fun toggleTransportModeChecked (mode: String, checked: Boolean) {
+    private fun toggleTransportModeChecked(mode: String, checked: Boolean) {
         transportModes.get()?.forEach { model ->
             if (model.modeId.get() == mode) {
                 model.checked.set(checked)
@@ -215,11 +215,11 @@ class TripResultListViewModel @Inject constructor(
     }
 
     private fun setTimeLabel() {
-        query.timeTag?.let {timeTag ->
+        query.timeTag?.let { timeTag ->
             query.fromLocation?.let {
                 routingTimeViewModelMapper.toText(timeTag.toRoutingTime(it.dateTimeZone)).toObservable()
                         .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe {str ->
+                        .subscribe { str ->
                             timeLabel.set(str)
                         }.autoClear()
             }
@@ -236,42 +236,42 @@ class TripResultListViewModel @Inject constructor(
                                 .toObservable<List<TripGroup>>()
                     }
         }.observeOn(AndroidSchedulers.mainThread())
-         .doOnSubscribe {
-            setLoading(true)
-            stateChange.accept(MultiStateView.ViewState.CONTENT)
-            routingStatusRepositoryLazy.get().putRoutingStatus(RoutingStatus(
-                    query.uuid(),
-                    Status.InProgress()
-            )).subscribe()
-            loadFromStore()
-        }.doOnError {
-            val message = when (it) {
-                is RoutingError -> it.message
-                else -> context.getString(R.string.error_encountered)
-            }
-            routingStatusRepositoryLazy.get().putRoutingStatus(RoutingStatus(
+                .doOnSubscribe {
+                    setLoading(true)
+                    stateChange.accept(MultiStateView.ViewState.CONTENT)
+                    routingStatusRepositoryLazy.get().putRoutingStatus(RoutingStatus(
+                            query.uuid(),
+                            Status.InProgress()
+                    )).subscribe()
+                    loadFromStore()
+                }.doOnError {
+                    val message = when (it) {
+                        is RoutingError -> it.message
+                        else -> context.getString(R.string.error_encountered)
+                    }
+                    routingStatusRepositoryLazy.get().putRoutingStatus(RoutingStatus(
                             query.uuid(),
                             Status.Error(message)
                     )).subscribe()
-        }
-        .doOnComplete {
-            routingStatusRepositoryLazy.get().putRoutingStatus(RoutingStatus(
+                }
+                .doOnComplete {
+                    routingStatusRepositoryLazy.get().putRoutingStatus(RoutingStatus(
                             query.uuid(),
                             Status.Completed()
                     )).subscribe()
-        }
-        .doFinally {
-            onFinished.accept(true)
-            setLoading(false)
-        }.subscribe({}, { error ->
-            isError.set(true)
-            if (error.message.isNullOrBlank()) {
-                onError.accept( context.getString(R.string.unknown_error))
-            } else {
-                onError.accept(error.message)
-            }
-            Timber.e(error, "An error in routing occurred")
-        })
+                }
+                .doFinally {
+                    onFinished.accept(true)
+                    setLoading(false)
+                }.subscribe({}, { error ->
+                    isError.set(true)
+                    if (error.message.isNullOrBlank()) {
+                        onError.accept(context.getString(R.string.unknown_error))
+                    } else {
+                        onError.accept(error.message)
+                    }
+                    Timber.e(error, "An error in routing occurred ${error.message}")
+                })
 
         networkRequests.add(request)
         request.autoClear()
@@ -306,9 +306,9 @@ class TripResultListViewModel @Inject constructor(
                             this.setTripGroup(context, group, classifier.classify(group))
                             onMoreButtonClicked.observable
                                     .subscribe {
-                                        if(it.otherTripGroups.isNullOrEmpty()) {
+                                        if (it.otherTripGroups.isNullOrEmpty()) {
                                             actionButtonHandler?.primaryActionClicked(it.trip)
-                                        }else{
+                                        } else {
                                             it.toggleShowMore()
                                         }
                                     }.autoClear()
@@ -346,7 +346,7 @@ class TripResultListViewModel @Inject constructor(
     override fun scope() = viewModelScope
 
     override fun replaceTripGroup(tripGroupUuid: String, newTripGroup: TripGroup) {
-         results.forEach {
+        results.forEach {
             if (it.group.uuid() == tripGroupUuid) {
                 it.setTripGroup(context, newTripGroup, null)
                 return@forEach
