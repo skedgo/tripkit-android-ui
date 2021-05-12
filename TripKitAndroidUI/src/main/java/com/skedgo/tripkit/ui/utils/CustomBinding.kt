@@ -1,5 +1,6 @@
 package com.skedgo.tripkit.ui.utils
 
+import android.content.res.Resources
 import android.os.SystemClock
 import android.view.View
 import android.widget.ImageView
@@ -9,8 +10,12 @@ import androidx.databinding.BindingAdapter
 //To databind resource id(int) on image views
 @BindingAdapter("android:src")
 fun setIcon(view: ImageView, iconResource: Int) {
-    ContextCompat.getDrawable(view.context, iconResource)?.let {
-        view.setImageDrawable(it)
+    try {
+        ContextCompat.getDrawable(view.context, iconResource)?.let {
+            view.setImageDrawable(it)
+        }
+    } catch (e: Exception){
+        e.printStackTrace()
     }
 }
 
