@@ -39,6 +39,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.functions.BiFunction
 import io.reactivex.schedulers.Schedulers
+import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
 import timber.log.Timber
 import java.lang.Exception
@@ -90,7 +91,7 @@ class TimetableFragment : BaseTripKitFragment(), View.OnClickListener {
         }
     }
 
-    var segmentActionStream: PublishSubject<Pair<String, List<String>?>>? = null
+    var segmentActionStream: BehaviorSubject<Pair<String, List<String>?>>? = null
 
     private val viewModel: TimetableViewModel by viewModels() { viewModelFactory }
 
@@ -332,7 +333,8 @@ class TimetableFragment : BaseTripKitFragment(), View.OnClickListener {
         stop = arguments?.getParcelable(ARG_STOP)
         binding.goToNowButton.setOnClickListener { binding.recyclerView.scrollToPosition(viewModel.getFirstNowPosition()) }
 
-        bookingActions = arguments?.getStringArrayList(ARG_BOOKING_ACTION)
+        bookingActions = savedInstanceState?.getStringArrayList(ARG_BOOKING_ACTION)
+                ?: arguments?.getStringArrayList(ARG_BOOKING_ACTION)
 
         val showCloseButton = arguments?.getBoolean(ARG_SHOW_CLOSE_BUTTON, false) ?: false
         viewModel.showCloseButton.set(showCloseButton)
@@ -345,10 +347,14 @@ class TimetableFragment : BaseTripKitFragment(), View.OnClickListener {
         segmentActionStream
                 ?.subscribeOn(Schedulers.io())
                 ?.observeOn(AndroidSchedulers.mainThread())
+                ?.take(1)
                 ?.subscribe({
+                    /*
                     if (it.first == stop?.code) {
                         setBookingActions(it.second)
                     }
+                    */
+                    setBookingActions(it.second)
                 }, {
                     it.printStackTrace()
                 })?.addTo(autoDisposable)
@@ -411,7 +417,7 @@ class TimetableFragment : BaseTripKitFragment(), View.OnClickListener {
         private var stop: ScheduledStop? = null
         private var bookingActions: ArrayList<String>? = null
         private var buttons: MutableList<TripKitButton> = mutableListOf()
-        private var actionStream: PublishSubject<Pair<String, List<String>?>>? = null
+        private var actionStream: BehaviorSubject<Pair<String, List<String>?>>? = null
 
         fun withStop(stop: ScheduledStop?): Builder {
             this.stop = stop
@@ -443,7 +449,7 @@ class TimetableFragment : BaseTripKitFragment(), View.OnClickListener {
             return this
         }
 
-        fun withSegmentActionStream(actionStream: PublishSubject<Pair<String, List<String>?>>?): Builder {
+        fun withSegmentActionStream(actionStream: BehaviorSubject<Pair<String, List<String>?>>?): Builder {
             this.actionStream = actionStream
             return this
         }
