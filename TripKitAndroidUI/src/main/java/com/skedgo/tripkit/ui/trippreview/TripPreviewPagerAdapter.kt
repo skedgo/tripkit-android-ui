@@ -17,6 +17,7 @@ import com.skedgo.tripkit.ui.trippreview.nearby.ModeLocationTripPreviewItemFragm
 import com.skedgo.tripkit.ui.trippreview.nearby.NearbyTripPreviewItemFragment
 import com.skedgo.tripkit.ui.trippreview.service.ServiceTripPreviewItemFragment
 import com.skedgo.tripkit.ui.utils.*
+import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
 
 data class TripPreviewPagerAdapterItem(val type: Int, val tripSegment: TripSegment)
@@ -28,7 +29,7 @@ class TripPreviewPagerAdapter(fragmentManager: FragmentManager)
     var tripPreviewPagerListener: TripPreviewPagerFragment.Listener? = null
 
     //To emit booking actions updates to TimetableFragment instead of getting and using the fragments instance
-    var segmentActionStream = PublishSubject.create<Pair<String, List<String>?>>()
+    var segmentActionStream = BehaviorSubject.create<Pair<String, List<String>?>>()
 
     //var timetableFragment: TimetableFragment? = null
 
