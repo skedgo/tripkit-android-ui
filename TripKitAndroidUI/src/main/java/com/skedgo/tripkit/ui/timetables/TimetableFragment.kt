@@ -318,7 +318,7 @@ class TimetableFragment : BaseTripKitFragment(), View.OnClickListener {
             imm.hideSoftInputFromWindow(view?.windowToken, 0);
         }
 
-        viewModel.setText()
+        viewModel.setText(requireContext())
         arguments?.let {
             handleArguments(it)
         }
@@ -408,7 +408,7 @@ class TimetableFragment : BaseTripKitFragment(), View.OnClickListener {
 
     fun updateStop(stop: ScheduledStop) {
         this.stop = stop
-        viewModel.setText()
+        viewModel.setText(requireContext())
     }
 
     class Builder {
