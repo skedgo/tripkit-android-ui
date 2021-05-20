@@ -5,12 +5,14 @@ import android.graphics.drawable.Drawable
 import androidx.annotation.ColorRes
 import androidx.core.content.ContextCompat
 import com.skedgo.tripkit.common.model.Location
+import com.skedgo.tripkit.common.model.Region
 import com.skedgo.tripkit.ui.R
 
 
 interface FixedSuggestionsProvider {
     fun fixedSuggestions(context: Context, iconProvider: LocationSearchIconProvider): List<SearchSuggestion>
     fun locationsToSuggestion(context: Context, locations: List<Location>, iconProvider: LegacyLocationSearchIconProvider): List<SearchSuggestion>
+    fun citiesToSuggestion(context: Context, locations: List<Region.City>, iconProvider: LegacyLocationSearchIconProvider): List<SearchSuggestion>
     fun specificSuggestions(context: Context, suggestionTypes: List<DefaultFixedSuggestionType>, iconProvider: LocationSearchIconProvider): List<SearchSuggestion>
 }
 
@@ -62,6 +64,21 @@ class DefaultFixedSuggestionsProvider(val showCurrentLocation: Boolean, val show
         return list
     }
 
+    override fun citiesToSuggestion(context: Context, locations: List<Region.City>, iconProvider: LegacyLocationSearchIconProvider): List<SearchSuggestion> {
+        val list = mutableListOf<SearchSuggestion>()
+        locations.forEach {
+            list.add(DefaultSearchSuggestion(
+                    it.address ?: it.name,
+                    it.name,
+                    it.address ?: null,
+                    R.color.title_text,
+                    R.color.description_text,
+                    ContextCompat.getDrawable(context, iconProvider.iconForSearchResult(LocationSearchIconProvider.SearchResultType.REGION))!!,
+                    it
+            ))
+        }
+        return list
+    }
     override fun specificSuggestions(context: Context, suggestionTypes: List<DefaultFixedSuggestionType>, iconProvider: LocationSearchIconProvider): List<SearchSuggestion> {
         val list = mutableListOf<SearchSuggestion>()
 

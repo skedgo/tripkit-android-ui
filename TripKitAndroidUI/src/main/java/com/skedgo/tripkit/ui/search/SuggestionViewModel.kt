@@ -40,7 +40,8 @@ open class FixedSuggestionViewModel(context: Context, suggestion: SearchSuggesti
     }
 }
 
-class SearchProviderSuggestionViewModel(context: Context, suggestion: SearchSuggestion): FixedSuggestionViewModel(context, suggestion)
+class SearchProviderSuggestionViewModel(context: Context, suggestion: SearchSuggestion) : FixedSuggestionViewModel(context, suggestion)
+class CityProviderSuggestionViewModel(context: Context, suggestion: SearchSuggestion) : FixedSuggestionViewModel(context, suggestion)
 class GoogleAndTripGoSuggestionViewModel(context: Context,
                                          val picasso: Picasso,
                                          val place: Place,
@@ -121,7 +122,9 @@ class GoogleAndTripGoSuggestionViewModel(context: Context,
                     iconProvider.iconForSearchResult(LocationSearchIconProvider.SearchResultType.WORK)
                 }
                 Location.TYPE_HISTORY -> {
-                    iconProvider.iconForSearchResult(LocationSearchIconProvider.SearchResultType.HISTORY)
+                    val default = iconProvider.iconForSearchResult(LocationSearchIconProvider.SearchResultType.HISTORY)
+                    if (default <= 0) iconProvider.iconForSearchResult(LocationSearchIconProvider.SearchResultType.GOOGLE)
+                    else default
                 }
                 else -> {
                     val source = location.source
@@ -133,7 +136,7 @@ class GoogleAndTripGoSuggestionViewModel(context: Context,
                             iconProvider.iconForSearchResult(LocationSearchIconProvider.SearchResultType.GOOGLE)
                         }
                         else -> {
-                            0
+                            iconProvider.iconForSearchResult(LocationSearchIconProvider.SearchResultType.GOOGLE)
                         }
                     }
                 }
