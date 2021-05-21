@@ -39,6 +39,7 @@ import io.reactivex.subjects.PublishSubject
 import kotlinx.coroutines.launch
 import me.tatarka.bindingcollectionadapter2.ItemBinding
 import me.tatarka.bindingcollectionadapter2.collections.MergeObservableList
+import timber.log.Timber
 import java.util.Collections.min
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -65,6 +66,7 @@ class LocationSearchViewModel @Inject constructor(private val context: Context,
     val unableToFindPlaceCoordinatesError: Observable<Throwable> get() = _unableToFindPlaceCoordinatesError.hide()
     val dismiss: PublishRelay<Unit> = PublishRelay.create<Unit>()
     val locationChosen: PublishRelay<Location> = PublishRelay.create<Location>()
+    val cityLocationChosen: PublishRelay<Location> = PublishRelay.create<Location>()
     val fixedLocationChosen: PublishRelay<Any> = PublishRelay.create<Any>()
     val showRefreshing = ObservableBoolean()
     val showList = ObservableBoolean()
@@ -79,6 +81,7 @@ class LocationSearchViewModel @Inject constructor(private val context: Context,
 
     val chosenCityName = ObservableField<String>()
 
+    val citiesSuggestions: ObservableList<SuggestionViewModel> = ObservableArrayList()
     val historySuggestions: ObservableList<SuggestionViewModel> = ObservableArrayList()
     val fixedSuggestions: ObservableList<SuggestionViewModel> = ObservableArrayList()
     val providedSuggestions: ObservableList<SuggestionViewModel> = ObservableArrayList()
@@ -95,14 +98,15 @@ class LocationSearchViewModel @Inject constructor(private val context: Context,
     private var canOpenTimetable: Boolean = false
     private var showCurrentLocation: Boolean = false
     private var showDropPin: Boolean = false
+    private var isRouting: Boolean = false
     private val onQueryTextChangeEventThrottle = PublishSubject.create<String>()
     private val isFetchingPlaceDetails = ObservableBoolean(false)
     private val isSearchingSuggestion = ObservableBoolean(false)
     private val queryCache = mutableMapOf<String, AutoCompleteResult>()
 
     init {
-
         allSuggestions.insertList(fixedSuggestions)
+        allSuggestions.insertList(citiesSuggestions)
         allSuggestions.insertList(historySuggestions)
         allSuggestions.insertList(providedSuggestions)
         allSuggestions.insertList(googleAndTripGoSuggestions)
@@ -119,6 +123,7 @@ class LocationSearchViewModel @Inject constructor(private val context: Context,
                 .subscribe({
                     when (it.first) {
                         is SearchProviderSuggestionViewModel -> onSuggestionItemClick(SearchSuggestionChoice.SearchProviderChoice((it.first as SearchProviderSuggestionViewModel).suggestion.location()))
+                        is CityProviderSuggestionViewModel -> onSuggestionItemClick(SearchSuggestionChoice.CityProviderChoice((it.first as CityProviderSuggestionViewModel).suggestion.location()))
                         is FixedSuggestionViewModel -> onSuggestionItemClick(SearchSuggestionChoice.FixedChoice((it.first as FixedSuggestionViewModel).id))
                         is GoogleAndTripGoSuggestionViewModel -> onSuggestionItemClick(SearchSuggestionChoice.PlaceChoice(
                                 (it.first as GoogleAndTripGoSuggestionViewModel).place))
@@ -127,7 +132,7 @@ class LocationSearchViewModel @Inject constructor(private val context: Context,
                 .autoClear()
 
         queries
-                .observeOn(AndroidSchedulers.mainThread())
+                .observeOn(mainThread())
                 .subscribe({ params ->
                     fixedSuggestions.clear()
                     if (params.term().isEmpty()) {
@@ -150,6 +155,9 @@ class LocationSearchViewModel @Inject constructor(private val context: Context,
                         ).forEach { suggestion ->
                             fixedSuggestions.add(FixedSuggestionViewModel(context, suggestion))
                         }
+                    }
+                    if (!isRouting) {
+                        loadFromRegions(params.term())
                     }
                     providedSuggestions.clear()
                     viewModelScope.launch {
@@ -205,7 +213,7 @@ class LocationSearchViewModel @Inject constructor(private val context: Context,
                 .autoClear()
 
         suggestionFetcher
-                .observeOn(AndroidSchedulers.mainThread())
+                .observeOn(mainThread())
                 .subscribe({ result ->
                     when (result) {
                         is NoConnection -> {
@@ -227,9 +235,9 @@ class LocationSearchViewModel @Inject constructor(private val context: Context,
                 .autoClear()
 
         onQueryTextChangeEventThrottle.debounce(500, TimeUnit.MILLISECONDS)
-                .subscribe(
-                        { this.searchResults(it) },
-                        { errorLogger.trackError(it) })
+                .subscribe({
+                    this.searchResults(it)
+                }, { errorLogger.trackError(it) })
                 .autoClear()
 
         observeGoogleAttribution(googleAndTripGoSuggestions.asObservable().map { it.map { it.place } })
@@ -253,6 +261,28 @@ class LocationSearchViewModel @Inject constructor(private val context: Context,
                 }, {
                     it.printStackTrace()
                 }).autoClear()
+    }
+
+    private fun loadFromRegions(query: String) {
+        citiesSuggestions.clear()
+
+        regionService.getRegionsAsync()
+                .observeOn(mainThread())
+                .subscribe({
+                    val newList = ArrayList<Region.City>()
+                    it.forEach { region ->
+                        region.cities?.let { list ->
+                            list.forEach { city ->
+                                if (city.name.contains(query, true)) {
+                                    newList.add(city)
+                                }
+                            }
+                        }
+                    }
+                    fixedSuggestionsProvider().citiesToSuggestion(context, newList, legacyIconProvider()).forEach { suggestion ->
+                        citiesSuggestions.add(CityProviderSuggestionViewModel(context, suggestion))
+                    }
+                }, { Timber.e(it) }).autoClear()
     }
 
     private fun legacyIconProvider(): LegacyLocationSearchIconProvider {
@@ -300,15 +330,16 @@ class LocationSearchViewModel @Inject constructor(private val context: Context,
                     }
                 }
                 .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
+                .observeOn(mainThread())
                 .subscribe({ city -> chosenCityName.set(city.name) }, { errorLogger.trackError(it) })
                 .autoClear()
     }
 
-    fun onQueryTextChanged(query: String) {
+    fun onQueryTextChanged(query: String, isRouting: Boolean = false) {
+        this.isRouting = isRouting
         showRefreshing.set(true)
         onQueryTextChangeEventThrottle.onNext(query)
-        if(query.isBlank()) {
+        if (query.isBlank()) {
             scrollResultsOfQuery = true
         }
     }
@@ -354,6 +385,8 @@ class LocationSearchViewModel @Inject constructor(private val context: Context,
         when (choice) {
             is SearchSuggestionChoice.SearchProviderChoice ->
                 choice.location?.let { locationChosen.accept(it) }
+            is SearchSuggestionChoice.CityProviderChoice ->
+                choice.location?.let { cityLocationChosen.accept(it) }
             is SearchSuggestionChoice.FixedChoice ->
                 onFixedLocationSuggestionItemClick(choice.id)
             is SearchSuggestionChoice.PlaceChoice -> {

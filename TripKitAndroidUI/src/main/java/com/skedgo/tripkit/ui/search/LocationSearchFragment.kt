@@ -78,6 +78,25 @@ class LocationSearchFragment : BaseTripKitFragment() {
         }
     }
 
+    /**
+     * This callback will be invoked when the user chooses a city"
+     */
+    interface OnCitySuggestionSelectedListener {
+        fun onCitySuggestionSelected(id: Location)
+    }
+    private var citySuggestionSelectedListener: OnCitySuggestionSelectedListener? = null
+    fun setOnCitySuggestionSelectedListener(callback: OnCitySuggestionSelectedListener) {
+        this.citySuggestionSelectedListener = callback
+    }
+    fun setOnCitySelectedListener(listener:(Location) -> Unit) {
+        this.citySuggestionSelectedListener = object: OnCitySuggestionSelectedListener {
+            override fun onCitySuggestionSelected(id: Location) {
+                listener(id)
+            }
+
+        }
+    }
+
     private fun saveLocationToHistory(location: Location) {
         if(location.name != getString(R.string.home) && location.name != getString(R.string.work)) {
             locationHistoryRepository.saveLocationsToHistory(
@@ -206,7 +225,11 @@ class LocationSearchFragment : BaseTripKitFragment() {
                 .subscribe({
                     fixedSuggestionSelectedListener?.onFixedSuggestionSelected(it)
                 }, errorLogger::trackError).addTo(autoDisposable)
-
+        viewModel.cityLocationChosen
+                .observeOn(mainThread())
+                .subscribe({
+                    citySuggestionSelectedListener?.onCitySuggestionSelected(it)
+                }, errorLogger::trackError).addTo(autoDisposable)
         viewModel.dismiss
                 .observeOn(mainThread())
                 .subscribe({
@@ -258,8 +281,8 @@ class LocationSearchFragment : BaseTripKitFragment() {
      *
      * @param query
      */
-    fun setQuery(query: String) {
-        viewModel.onQueryTextChanged(query)
+    fun setQuery(query: String, isRouting: Boolean = false) {
+        viewModel.onQueryTextChanged(query, isRouting)
     }
 
     private fun initSearchView(searchView: SearchView) {
