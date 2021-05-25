@@ -75,6 +75,7 @@ class LocationSearchViewModel @Inject constructor(private val context: Context,
     val showMiddleProgressBar = ObservableBoolean()
     val showBackButton = ObservableBoolean(true)
     val showSearchBox = ObservableBoolean(true)
+    val onFinishLoad: PublishRelay<Boolean> = PublishRelay.create<Boolean>()
 
     var scrollResultsOfQuery = false
     val scrollListToTop = ObservableBoolean(true)
@@ -112,12 +113,14 @@ class LocationSearchViewModel @Inject constructor(private val context: Context,
         allSuggestions.insertList(googleAndTripGoSuggestions)
         allSuggestions.asObservable()
                 .map {
+                    onFinishLoad.accept(false)
                     it.mapIndexed { index, vm ->
                         vm.onItemClicked.observable
                                 .map { viewModel -> viewModel to index }
                     }
                 }
                 .switchMap {
+                    onFinishLoad.accept(true)
                     Observable.merge(it)
                 }
                 .subscribe({
