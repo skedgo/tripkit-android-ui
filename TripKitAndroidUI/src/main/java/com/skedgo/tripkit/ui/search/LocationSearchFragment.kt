@@ -25,6 +25,8 @@ import com.skedgo.tripkit.ui.core.addTo
 import com.skedgo.tripkit.ui.core.rxproperty.asObservable
 import com.skedgo.tripkit.ui.database.location_history.LocationHistoryRepository
 import com.skedgo.tripkit.ui.databinding.LocationSearchBinding
+import com.skedgo.tripkit.ui.utils.defocusAndHideKeyboard
+import com.skedgo.tripkit.ui.utils.showKeyboard
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
@@ -68,8 +70,9 @@ class LocationSearchFragment : BaseTripKitFragment() {
     fun setOnLocationSelectedListener(callback: OnLocationSelectedListener) {
         this.locationSelectedListener = callback
     }
-    fun setOnLocationSelectedListener(listener:(Location) -> Unit) {
-        this.locationSelectedListener = object: OnLocationSelectedListener {
+
+    fun setOnLocationSelectedListener(listener: (Location) -> Unit) {
+        this.locationSelectedListener = object : OnLocationSelectedListener {
             override fun onLocationSelected(location: Location) {
                 saveLocationToHistory(location)
                 listener(location)
@@ -84,12 +87,14 @@ class LocationSearchFragment : BaseTripKitFragment() {
     interface OnCitySuggestionSelectedListener {
         fun onCitySuggestionSelected(id: Location)
     }
+
     private var citySuggestionSelectedListener: OnCitySuggestionSelectedListener? = null
     fun setOnCitySuggestionSelectedListener(callback: OnCitySuggestionSelectedListener) {
         this.citySuggestionSelectedListener = callback
     }
-    fun setOnCitySelectedListener(listener:(Location) -> Unit) {
-        this.citySuggestionSelectedListener = object: OnCitySuggestionSelectedListener {
+
+    fun setOnCitySelectedListener(listener: (Location) -> Unit) {
+        this.citySuggestionSelectedListener = object : OnCitySuggestionSelectedListener {
             override fun onCitySuggestionSelected(id: Location) {
                 listener(id)
             }
@@ -98,7 +103,7 @@ class LocationSearchFragment : BaseTripKitFragment() {
     }
 
     private fun saveLocationToHistory(location: Location) {
-        if(location.name != getString(R.string.home) && location.name != getString(R.string.work)) {
+        if (location.name != getString(R.string.home) && location.name != getString(R.string.work)) {
             locationHistoryRepository.saveLocationsToHistory(
                     listOf(location)
             ).observeOn(Schedulers.io())
@@ -121,8 +126,8 @@ class LocationSearchFragment : BaseTripKitFragment() {
         this.fixedSuggestionSelectedListener = callback
     }
 
-    fun setOnFixedSuggestionSelectedListener(listener:(Any) -> Unit) {
-        this.fixedSuggestionSelectedListener = object: OnFixedSuggestionSelectedListener {
+    fun setOnFixedSuggestionSelectedListener(listener: (Any) -> Unit) {
+        this.fixedSuggestionSelectedListener = object : OnFixedSuggestionSelectedListener {
             override fun onFixedSuggestionSelected(id: Any) {
                 listener(id)
             }
@@ -130,40 +135,56 @@ class LocationSearchFragment : BaseTripKitFragment() {
     }
 
     /**
-     * @suppress
+     * This callback will be invoked when a search result is clicked.
      */
-    @Inject lateinit var viewModelFactory: LocationSearchViewModelFactory
-    private lateinit var viewModel: LocationSearchViewModel
+    interface OnAttachFragmentListener {
+        fun onAttachFragment()
+    }
+
+    private var onAttachFragmentListener: OnAttachFragmentListener? = null
+    fun setOnAttachFragmentListener(callback: OnAttachFragmentListener) {
+        this.onAttachFragmentListener = callback
+    }
+
     /**
      * @suppress
      */
-    @Inject lateinit var errorLogger: ErrorLogger
+    @Inject
+    lateinit var viewModelFactory: LocationSearchViewModelFactory
+    private lateinit var viewModel: LocationSearchViewModel
+
+    /**
+     * @suppress
+     */
+    @Inject
+    lateinit var errorLogger: ErrorLogger
     private var searchView: SearchView? = null
     private var showSearchFieldBoolean = true
 
     var locationSearchIconProvider: LocationSearchIconProvider? = null
-    set(value) {
-        field = value
-        if (::viewModel.isInitialized) {
-            viewModel.locationSearchIconProvider = value
+        set(value) {
+            field = value
+            if (::viewModel.isInitialized) {
+                viewModel.locationSearchIconProvider = value
+            }
         }
-    }
 
     var fixedSuggestionsProvider: FixedSuggestionsProvider? = null
-    set(value) {
-        field = value
-        if (::viewModel.isInitialized) {
-            viewModel.fixedSuggestionsProvider = value
+        set(value) {
+            field = value
+            if (::viewModel.isInitialized) {
+                viewModel.fixedSuggestionsProvider = value
+            }
         }
-    }
 
     var searchSuggestionProvider: LocationSearchProvider? = null
-    set(value) {
-        field = value
-        if (::viewModel.isInitialized) {
-            viewModel.locationSearchProvider = value
+        set(value) {
+            field = value
+            if (::viewModel.isInitialized) {
+                viewModel.locationSearchProvider = value
+            }
         }
-    }
+
     /**
      * @suppress
      */
@@ -197,6 +218,7 @@ class LocationSearchFragment : BaseTripKitFragment() {
         binding.resultView.addItemDecoration(buildItemDecoration())
 
         initSearchView(binding.searchLayout.searchView)
+
         return binding.root
     }
 
@@ -261,13 +283,27 @@ class LocationSearchFragment : BaseTripKitFragment() {
         viewModel.scrollListToTop.asObservable()
                 .observeOn(mainThread())
                 .subscribe({
-                    if(it) {
+                    if (it) {
                         scrollResultsToTop()
                     }
-                },{
+                }, {
                     it.printStackTrace()
                 }).addTo(autoDisposable)
+
+        viewModel.onFinishLoad
+                .observeOn(mainThread())
+                .subscribe({
+                    if (it) {
+                        searchView?.post {
+                            onAttachFragmentListener?.onAttachFragment()
+                        }
+                    }
+                }, errorLogger::trackError).addTo(autoDisposable)
+
+        searchView?.requestFocus()
+        showKeyboard(requireActivity())
     }
+
     /**
      * @suppress
      */
@@ -349,7 +385,8 @@ class LocationSearchFragment : BaseTripKitFragment() {
         private var locationSearchIconProvider: LocationSearchIconProvider? = null
         private var fixedSuggestionsProvider: FixedSuggestionsProvider? = null
         private var showSearchField: Boolean = true
-        private var searchProvider : LocationSearchProvider? = null
+        private var searchProvider: LocationSearchProvider? = null
+
         /**
          * Used for Google Places searches. For example, a map's visible boundaries.
          *
@@ -459,6 +496,7 @@ class LocationSearchFragment : BaseTripKitFragment() {
             this.searchProvider = locationSearchProvider
             return this
         }
+
         /**
          * You can choose to not show the location search field, and instead orchestrate the search results on your own
          * by calling [setQuery].
