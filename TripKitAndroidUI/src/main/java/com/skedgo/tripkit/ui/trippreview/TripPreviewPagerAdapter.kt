@@ -90,7 +90,13 @@ class TripPreviewPagerAdapter(fragmentManager: FragmentManager)
         return pages.size
     }
 
-    fun setTripSegments(activeTripSegmentId: Long, tripSegments: List<TripSegment>, fromAction: Boolean = false): Int {
+    fun setTripSegments(
+            activeTripSegmentId: Long,
+            tripSegments: List<TripSegment>,
+            fromAction: Boolean = false,
+            headersCallback: ((List<TripPreviewHeader>) -> Unit)? = null
+    ): Int {
+        val previewHeaders = mutableListOf<TripPreviewHeader>()
         pages.clear()
         var activeTripSegmentPosition = 0
         var addedCards = 0
@@ -118,8 +124,7 @@ class TripPreviewPagerAdapter(fragmentManager: FragmentManager)
                 pages.add(TripPreviewPagerAdapterItem(ITEM_MODE_LOCATION, segment))
                 addedCards++
             } else {
-                val newItem = TripPreviewPagerAdapterItem(itemType, segment)
-                pages.add(newItem)
+                pages.add(TripPreviewPagerAdapterItem(itemType, segment))
             }
 
             if (activeTripSegmentId == segment.id && activeTripSegmentPosition <= 0) {

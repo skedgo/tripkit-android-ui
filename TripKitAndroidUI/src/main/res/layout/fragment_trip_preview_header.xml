@@ -18,6 +18,7 @@
             android:layout_height="wrap_content"
             app:itemBinding="@{viewModel.itemBinding}"
             app:items="@{viewModel.items}"
+            tools:listitem="@layout/item_trip_preview_header"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             android:orientation="horizontal"/>
 

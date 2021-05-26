@@ -30,7 +30,9 @@ import com.skedgo.tripkit.ui.routingresults.TripGroupRepository
 import com.skedgo.tripkit.ui.tripresult.ARG_TRIP_GROUP_ID
 import com.skedgo.tripkit.ui.utils.*
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.rxkotlin.subscribeBy
 import io.reactivex.schedulers.Schedulers
+import io.reactivex.subjects.PublishSubject
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -46,6 +48,20 @@ class TripPreviewPagerFragment : BaseTripKitFragment() {
     lateinit var binding: TripPreviewPagerBinding
 
     var currentPagerIndex = 0
+
+    private var previewHeadersCallback: ((List<TripPreviewHeader>) -> Unit)? = null
+    private var pageIndexStream: PublishSubject<Int>? = null
+
+    override fun onResume() {
+        super.onResume()
+
+        pageIndexStream?.observeOn(AndroidSchedulers.mainThread())
+                ?.subscribeBy {
+                    if(::adapter.isInitialized){
+                        binding.tripSegmentPager.currentItem = it
+                    }
+                }?.addTo(autoDisposable)
+    }
 
     override fun onAttach(context: Context) {
         TripKitUI.getInstance().tripDetailsComponent().inject(this)
@@ -81,10 +97,21 @@ class TripPreviewPagerFragment : BaseTripKitFragment() {
                 .subscribe { tripGroup ->
                     val trip = tripGroup.trips?.find { it.uuid() == tripId }
                     trip?.let {
-                        var activeIndex = adapter.setTripSegments(tripSegmentId,
-                                trip.segments.filter { !it.isContinuation }.filter { it.type != SegmentType.DEPARTURE && it.type != SegmentType.ARRIVAL }, fromTripAction)
+                        var activeIndex =
+                                adapter.setTripSegments(
+                                        tripSegmentId,
+                                        trip.segments
+                                                .filter {
+                                                    !it.isContinuation
+                                                }
+                                                .filter {
+                                                    it.type != SegmentType.DEPARTURE &&
+                                                            it.type != SegmentType.ARRIVAL
+                                                },
+                                        fromTripAction
+                                )
                         adapter.notifyDataSetChanged()
-                        if(currentPagerIndex != 0 && activeIndex != currentPagerIndex){
+                        if (currentPagerIndex != 0 && activeIndex != currentPagerIndex) {
                             activeIndex = currentPagerIndex
                         }
                         currentPagerIndex = activeIndex
@@ -221,7 +248,9 @@ class TripPreviewPagerFragment : BaseTripKitFragment() {
                 tripId: String,
                 tripSegmentHashCode: Long,
                 tripPreviewPagerListener: Listener,
-                fromAction: Boolean = false): TripPreviewPagerFragment {
+                fromAction: Boolean = false,
+                pageIndexStream: PublishSubject<Int>? = null,
+                previewHeadersCallback: ((List<TripPreviewHeader>) -> Unit)? = null): TripPreviewPagerFragment {
             val fragment = TripPreviewPagerFragment()
             fragment.arguments = bundleOf(
                     ARG_TRIP_GROUP_ID to tripGroupId,
@@ -230,6 +259,8 @@ class TripPreviewPagerFragment : BaseTripKitFragment() {
                     ARG_FROM_TRIP_ACTION to fromAction
             )
             fragment.tripPreviewPagerListener = tripPreviewPagerListener
+            fragment.pageIndexStream = pageIndexStream
+            fragment.previewHeadersCallback = previewHeadersCallback
             return fragment
         }
     }
