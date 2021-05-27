@@ -99,6 +99,7 @@ class TripPreviewPagerFragment : BaseTripKitFragment() {
                     trip?.let {
                         var activeIndex =
                                 adapter.setTripSegments(
+                                        requireContext(),
                                         tripSegmentId,
                                         trip.segments
                                                 .filter {
@@ -109,7 +110,9 @@ class TripPreviewPagerFragment : BaseTripKitFragment() {
                                                             it.type != SegmentType.ARRIVAL
                                                 },
                                         fromTripAction
-                                )
+                                ){
+                                    previewHeadersCallback?.invoke(it)
+                                }
                         adapter.notifyDataSetChanged()
                         if (currentPagerIndex != 0 && activeIndex != currentPagerIndex) {
                             activeIndex = currentPagerIndex
@@ -196,7 +199,17 @@ class TripPreviewPagerFragment : BaseTripKitFragment() {
     }
 
     fun setTripSegment(segment: TripSegment, tripSegments: List<TripSegment>) {
-        adapter.setTripSegments(segment.id, tripSegments.filter { !it.isContinuation }.filter { it.type != SegmentType.DEPARTURE && it.type != SegmentType.ARRIVAL })
+        adapter.setTripSegments(
+                requireContext(),
+                segment.id,
+                tripSegments.filter {
+                    !it.isContinuation
+                }.filter {
+                    it.type != SegmentType.DEPARTURE && it.type != SegmentType.ARRIVAL
+                }
+        ){
+            previewHeadersCallback?.invoke(it)
+        }
         tripGroupRepository.updateTrip(segment.trip.group.uuid(), segment.trip.uuid(), segment.trip)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())

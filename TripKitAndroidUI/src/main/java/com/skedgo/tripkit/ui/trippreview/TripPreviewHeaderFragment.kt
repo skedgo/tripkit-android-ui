@@ -17,10 +17,7 @@ import javax.inject.Inject
 
 class TripPreviewHeaderFragment : Fragment() {
 
-    @Inject
-    lateinit var viewModelFactory: TripPreviewHeaderViewModelFactory
-
-    private val viewModel: TripPreviewHeaderViewModel by viewModels() { viewModelFactory }
+    private val viewModel: TripPreviewHeaderViewModel by viewModels()
 
     lateinit var binding: FragmentTripPreviewHeaderBinding
 
@@ -32,6 +29,7 @@ class TripPreviewHeaderFragment : Fragment() {
                               savedInstanceState: Bundle?): View? {
         binding = FragmentTripPreviewHeaderBinding.inflate(inflater)
         binding.lifecycleOwner = this
+        binding.viewModel = viewModel
 
         return binding.root
     }
@@ -43,19 +41,19 @@ class TripPreviewHeaderFragment : Fragment() {
     }
 
     private fun initObserver() {
-        viewModel.setup(headerItems)
         pageIndexStream?.subscribeOn(AndroidSchedulers.mainThread())
                 ?.subscribe {
 
                 }?.addTo(disposeBag)
     }
 
+    fun setHeaderItems(items: List<TripPreviewHeader>){
+        viewModel.setup(items)
+    }
+
     companion object {
-        fun newInstance(headerItems: List<TripPreviewHeader>,
-                        pageIndexStream: PublishSubject<Int>?): TripPreviewHeaderFragment {
+        fun newInstance(pageIndexStream: PublishSubject<Int>?): TripPreviewHeaderFragment {
             return TripPreviewHeaderFragment().apply {
-                this.headerItems.clear()
-                this.headerItems.addAll(headerItems)
                 this.pageIndexStream = pageIndexStream
             }
         }

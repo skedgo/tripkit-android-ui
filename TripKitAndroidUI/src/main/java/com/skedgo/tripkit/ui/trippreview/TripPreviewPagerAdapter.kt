@@ -1,13 +1,16 @@
 package com.skedgo.tripkit.ui.trippreview
 
+import android.content.Context
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentStatePagerAdapter
 import com.skedgo.tripkit.common.model.ScheduledStop
 import com.skedgo.tripkit.common.model.StopType
 import com.skedgo.tripkit.routing.TripSegment
+import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.core.BaseTripKitFragment
 import com.skedgo.tripkit.ui.timetables.TimetableFragment
 import com.skedgo.tripkit.ui.trippreview.standard.StandardTripPreviewItemFragment
@@ -91,6 +94,7 @@ class TripPreviewPagerAdapter(fragmentManager: FragmentManager)
     }
 
     fun setTripSegments(
+            context: Context,
             activeTripSegmentId: Long,
             tripSegments: List<TripSegment>,
             fromAction: Boolean = false,
@@ -101,6 +105,12 @@ class TripPreviewPagerAdapter(fragmentManager: FragmentManager)
         var activeTripSegmentPosition = 0
         var addedCards = 0
         tripSegments.forEachIndexed { index, segment ->
+            val header = TripPreviewHeader(
+                    title = segment.transportModeId,
+                    icon = ContextCompat.getDrawable(context, R.drawable.ic_train)
+            )
+            val headerPages = mutableListOf<Int>()
+
             val itemType = segment.correctItemType()
 
             if (itemType == ITEM_SERVICE) {
@@ -111,6 +121,7 @@ class TripPreviewPagerAdapter(fragmentManager: FragmentManager)
 
                 // Add the timetable card as well
                 pages.add(TripPreviewPagerAdapterItem(ITEM_TIMETABLE, segment))
+                headerPages.add(addedCards)
                 addedCards++
             }
 
@@ -122,22 +133,28 @@ class TripPreviewPagerAdapter(fragmentManager: FragmentManager)
 
                 // Add the mode location card as well
                 pages.add(TripPreviewPagerAdapterItem(ITEM_MODE_LOCATION, segment))
+                headerPages.add(addedCards)
                 addedCards++
             } else {
+                headerPages.add(addedCards)
                 pages.add(TripPreviewPagerAdapterItem(itemType, segment))
             }
 
             if (activeTripSegmentId == segment.id && activeTripSegmentPosition <= 0) {
                 activeTripSegmentPosition = index + addedCards
             }
+
+            header.pages = headerPages
+            previewHeaders.add(header)
         }
+        headersCallback?.invoke(previewHeaders)
         notifyDataSetChanged()
 
-        if(fromAction){
+        if (fromAction) {
             activeTripSegmentPosition = pages.indexOfFirst {
                 !it.tripSegment.booking?.externalActions.isNullOrEmpty()
             }
-        }else {
+        } else {
             if (activeTripSegmentPosition < 0) {
                 activeTripSegmentPosition = 0
             }
