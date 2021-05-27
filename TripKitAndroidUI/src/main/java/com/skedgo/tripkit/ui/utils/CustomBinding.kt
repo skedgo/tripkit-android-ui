@@ -4,6 +4,7 @@ import android.content.res.Resources
 import android.os.SystemClock
 import android.view.View
 import android.widget.ImageView
+import androidx.annotation.ColorInt
 import androidx.core.content.ContextCompat
 import androidx.databinding.BindingAdapter
 
@@ -14,7 +15,7 @@ fun setIcon(view: ImageView, iconResource: Int) {
         ContextCompat.getDrawable(view.context, iconResource)?.let {
             view.setImageDrawable(it)
         }
-    } catch (e: Exception){
+    } catch (e: Exception) {
         e.printStackTrace()
     }
 }
@@ -33,4 +34,13 @@ fun setDebounceClickListener(view: View, onClickListener: View.OnClickListener) 
     }
 
     view.setOnClickListener(clickWithDebounce)
+}
+
+@BindingAdapter("customImageTint")
+fun ImageView.setImageTint(@ColorInt color: Int) {
+    if (color != 0) {
+        setColorFilter(color)
+    } else {
+        clearColorFilter()
+    }
 }

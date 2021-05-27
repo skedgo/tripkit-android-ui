@@ -115,29 +115,6 @@ class TripPreviewPagerAdapter(fragmentManager: FragmentManager)
         return pages.size
     }
 
-    fun generatePreviewHeaders(
-            context: Context,
-            tripSegments: List<TripSegment>,
-            getTransportIconTintStrategy: GetTransportIconTintStrategy,
-            headersCallback: ((List<TripPreviewHeader>) -> Unit)
-    ) {
-
-        val previewHeaders = mutableListOf<TripPreviewHeader>()
-
-        tripSegments.forEach { segment ->
-            getSegmentIcon(context, segment, getTransportIconTintStrategy) {
-                previewHeaders.add(
-                        TripPreviewHeader(
-                                title = if(segment.transportModeId == ID_WALK) "" else segment.transportModeId,
-                                icon = it
-                        )
-                )
-                headersCallback.invoke(previewHeaders)
-            }
-        }
-
-    }
-
     fun setTripSegments(
             activeTripSegmentId: Long,
             tripSegments: List<TripSegment>,
@@ -189,77 +166,6 @@ class TripPreviewPagerAdapter(fragmentManager: FragmentManager)
             }
         }
         return activeTripSegmentPosition
-    }
-
-    private fun getSegmentIcon(
-            context: Context,
-            segment: TripSegment,
-            getTransportIconTintStrategy: GetTransportIconTintStrategy,
-            icon: (Drawable) -> Unit
-    ) {
-
-        if (segment.modeInfo == null || segment.modeInfo!!.localIconName == null) {
-            return
-        }
-        if (segment.darkVehicleIcon == 0) {
-            return
-        }
-
-        val url = TransportModeUtils.getIconUrlForModeInfo(context.resources, segment.modeInfo)
-        var remoteIcon = Observable.empty<Drawable>()
-        if (url != null) {
-            remoteIcon = TripKitUI.getInstance().picasso().fetchAsync(url).toObservable()
-                    .map { bitmap -> BitmapDrawable(context.resources, bitmap) }
-        }
-
-        Observable
-                .just(ContextCompat.getDrawable(context, segment.darkVehicleIcon))
-                .concatWith(remoteIcon)
-                .doOnError { e -> Timber.e(e) }
-                .flatMap { drawable ->
-                    getTransportIconTintStrategy.invoke()
-                            .map { transportTintStrategy -> transportTintStrategy.apply(segment.modeInfo!!.remoteIconIsTemplate, segment.modeInfo!!.remoteIconIsBranding, segment.serviceColor, drawable) }
-                            .toObservable()
-                }
-                .map { bitmapDrawable ->
-                    createSummaryIcon(context, segment, bitmapDrawable)
-                }.observeOn(AndroidSchedulers.mainThread())
-                .subscribe {
-                    icon.invoke(it)
-                }.addTo(disposeBag)
-    }
-
-    private fun createSummaryIcon(context: Context, segment: TripSegment, transportIcon: Drawable): Drawable {
-        transportIcon.setBounds(0, 0, transportIcon.intrinsicWidth, transportIcon.intrinsicHeight)
-        if (CollectionUtils.isEmpty(segment.alerts) || shouldAttachAlertIconToSubtitle(segment)) {
-            return transportIcon
-        }
-
-        val alertIcon = getAlertIcon(context, segment)
-        val layers = arrayOf(transportIcon, alertIcon)
-
-        val layerDrawable = LayerDrawable(layers)
-        layerDrawable.setBounds(0, 0, transportIcon.intrinsicWidth, transportIcon.intrinsicHeight)
-        alertIcon?.setBounds(0,
-                transportIcon.intrinsicHeight / 4,
-                transportIcon.intrinsicWidth / 4 * 3,
-                transportIcon.intrinsicHeight
-        )
-        return layerDrawable
-    }
-
-    private fun getAlertIcon(context: Context, segment: TripSegment): Drawable? {
-        val iconRes = if (RealtimeAlert.SEVERITY_ALERT == segment.alerts!![0].severity())
-            R.drawable.ic_alert_red_overlay
-        else
-            R.drawable.ic_alert_yellow_overlay
-        return ContextCompat.getDrawable(context, iconRes)
-    }
-
-    private fun shouldAttachAlertIconToSubtitle(segment: TripSegment): Boolean {
-        return (segment.serviceTripId == null
-                && segment.startStopCode == null
-                && segment.endStopCode == null)
     }
 
     override fun getItemPosition(`object`: Any): Int {

@@ -13,6 +13,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        app:clickWithDebounce="@{() -> viewModel.itemClick.perform()}"
         android:padding="@dimen/spacing_small">
 
         <ImageView
@@ -23,7 +24,9 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            tools:src="@drawable/ic_train" />
+            tools:src="@drawable/ic_train"
+            tools:tint="@color/colorPrimary"
+            app:customImageTint="@{viewModel.selected? @color/colorPrimary : 0}" />
 
         <TextView
             android:id="@+id/tvTitle"

@@ -9,6 +9,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.os.bundleOf
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager.widget.ViewPager
 import com.haroldadmin.cnradapter.NetworkResponse
@@ -17,6 +18,7 @@ import com.skedgo.tripkit.ExternalActionParams
 import com.skedgo.tripkit.bookingproviders.BookingResolver
 import com.skedgo.tripkit.routing.SegmentType
 import com.skedgo.tripkit.routing.TripSegment
+import com.skedgo.tripkit.routing.getSummarySegments
 import com.skedgo.tripkit.ui.ARG_FROM_TRIP_ACTION
 import com.skedgo.tripkit.ui.ARG_TRIP_ID
 import com.skedgo.tripkit.ui.ARG_TRIP_SEGMENT_ID
@@ -47,6 +49,8 @@ class TripPreviewPagerFragment : BaseTripKitFragment() {
 
     @Inject
     lateinit var getTransportIconTintStrategy: GetTransportIconTintStrategy
+
+    private val viewModel: TripPreviewPagerViewModel by viewModels()
 
     lateinit var adapter: TripPreviewPagerAdapter
     lateinit var binding: TripPreviewPagerBinding
@@ -88,6 +92,12 @@ class TripPreviewPagerFragment : BaseTripKitFragment() {
             binding.tripSegmentPager.currentItem = currentPagerIndex
             savedInstanceState.remove(ARG_CURRENT_PAGER_INDEX)
         }
+
+        viewModel.apply {
+            observe(headers) {
+                it?.let { previewHeadersCallback?.invoke(it) }
+            }
+        }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -121,13 +131,11 @@ class TripPreviewPagerFragment : BaseTripKitFragment() {
                         currentPagerIndex = activeIndex
                         binding.tripSegmentPager.currentItem = activeIndex
 
-                        adapter.generatePreviewHeaders(
+                        viewModel.generatePreviewHeaders(
                                 requireContext(),
-                                it.segments,
+                                it.getSummarySegments(),
                                 getTransportIconTintStrategy,
-                        ){ headers ->
-                            previewHeadersCallback?.invoke(headers)
-                        }
+                        )
                     }
                 }
                 .addTo(autoDisposable)
