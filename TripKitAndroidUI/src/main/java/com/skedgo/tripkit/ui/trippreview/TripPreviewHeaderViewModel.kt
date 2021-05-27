@@ -24,6 +24,7 @@ class TripPreviewHeaderViewModel @Inject constructor() : RxViewModel() {
     val itemBinding = ItemBinding.of<TripPreviewHeaderItemViewModel>(BR.viewModel, R.layout.item_trip_preview_header)
 
     fun setup(headerItems: List<TripPreviewHeader>) {
+        items.clear()
         items.addAll(
                 headerItems.map {
                     TripPreviewHeaderItemViewModel().apply {

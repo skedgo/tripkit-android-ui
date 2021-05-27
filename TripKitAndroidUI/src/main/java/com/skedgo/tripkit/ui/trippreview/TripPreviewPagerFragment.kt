@@ -28,6 +28,7 @@ import com.skedgo.tripkit.ui.core.logError
 import com.skedgo.tripkit.ui.databinding.TripPreviewPagerBinding
 import com.skedgo.tripkit.ui.routingresults.TripGroupRepository
 import com.skedgo.tripkit.ui.tripresult.ARG_TRIP_GROUP_ID
+import com.skedgo.tripkit.ui.tripresults.GetTransportIconTintStrategy
 import com.skedgo.tripkit.ui.utils.*
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.rxkotlin.subscribeBy
@@ -43,6 +44,9 @@ class TripPreviewPagerFragment : BaseTripKitFragment() {
 
     @Inject
     lateinit var bookingService: BookingV2TrackingService
+
+    @Inject
+    lateinit var getTransportIconTintStrategy: GetTransportIconTintStrategy
 
     lateinit var adapter: TripPreviewPagerAdapter
     lateinit var binding: TripPreviewPagerBinding
@@ -99,7 +103,6 @@ class TripPreviewPagerFragment : BaseTripKitFragment() {
                     trip?.let {
                         var activeIndex =
                                 adapter.setTripSegments(
-                                        requireContext(),
                                         tripSegmentId,
                                         trip.segments
                                                 .filter {
@@ -110,15 +113,21 @@ class TripPreviewPagerFragment : BaseTripKitFragment() {
                                                             it.type != SegmentType.ARRIVAL
                                                 },
                                         fromTripAction
-                                ){
-                                    previewHeadersCallback?.invoke(it)
-                                }
+                                )
                         adapter.notifyDataSetChanged()
                         if (currentPagerIndex != 0 && activeIndex != currentPagerIndex) {
                             activeIndex = currentPagerIndex
                         }
                         currentPagerIndex = activeIndex
                         binding.tripSegmentPager.currentItem = activeIndex
+
+                        adapter.generatePreviewHeaders(
+                                requireContext(),
+                                it.segments,
+                                getTransportIconTintStrategy,
+                        ){ headers ->
+                            previewHeadersCallback?.invoke(headers)
+                        }
                     }
                 }
                 .addTo(autoDisposable)
@@ -200,16 +209,13 @@ class TripPreviewPagerFragment : BaseTripKitFragment() {
 
     fun setTripSegment(segment: TripSegment, tripSegments: List<TripSegment>) {
         adapter.setTripSegments(
-                requireContext(),
                 segment.id,
                 tripSegments.filter {
                     !it.isContinuation
                 }.filter {
                     it.type != SegmentType.DEPARTURE && it.type != SegmentType.ARRIVAL
                 }
-        ){
-            previewHeadersCallback?.invoke(it)
-        }
+        )
         tripGroupRepository.updateTrip(segment.trip.group.uuid(), segment.trip.uuid(), segment.trip)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
