@@ -36,7 +36,7 @@
             style="@style/TextAppearance.MaterialComponents.Caption"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing_small"
+            android:layout_marginTop="@dimen/shadow_height"
             android:gravity="center"
             android:text="@{viewModel.description}"
             android:textAlignment="center"

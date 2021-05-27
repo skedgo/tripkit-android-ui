@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.viewModels
 import com.skedgo.tripkit.ui.core.addTo
 import com.skedgo.tripkit.ui.databinding.FragmentTripPreviewHeaderBinding
+import com.skedgo.tripkit.ui.utils.observe
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.addTo
@@ -22,8 +23,7 @@ class TripPreviewHeaderFragment : Fragment() {
     lateinit var binding: FragmentTripPreviewHeaderBinding
 
     private val disposeBag = CompositeDisposable()
-    private var headerItems = mutableListOf<TripPreviewHeader>()
-    private var pageIndexStream: PublishSubject<Int>? = null
+    private var pageIndexStream: PublishSubject<Long>? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
@@ -43,8 +43,14 @@ class TripPreviewHeaderFragment : Fragment() {
     private fun initObserver() {
         pageIndexStream?.subscribeOn(AndroidSchedulers.mainThread())
                 ?.subscribe {
-
+                    viewModel.setSelectedById(it)
                 }?.addTo(disposeBag)
+
+        viewModel.apply {
+            observe(selectedSegmentId){
+                it?.let { pageIndexStream?.onNext(it) }
+            }
+        }
     }
 
     fun setHeaderItems(items: List<TripPreviewHeader>){
@@ -52,7 +58,7 @@ class TripPreviewHeaderFragment : Fragment() {
     }
 
     companion object {
-        fun newInstance(pageIndexStream: PublishSubject<Int>?): TripPreviewHeaderFragment {
+        fun newInstance(pageIndexStream: PublishSubject<Long>?): TripPreviewHeaderFragment {
             return TripPreviewHeaderFragment().apply {
                 this.pageIndexStream = pageIndexStream
             }

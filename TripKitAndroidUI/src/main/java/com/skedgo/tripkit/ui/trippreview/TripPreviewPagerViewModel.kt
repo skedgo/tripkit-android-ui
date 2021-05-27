@@ -10,16 +10,26 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.google.android.gms.common.util.CollectionUtils
 import com.skedgo.tripkit.common.model.RealtimeAlert
+import com.skedgo.tripkit.common.model.TransportMode
 import com.skedgo.tripkit.common.util.TransportModeUtils
+import com.skedgo.tripkit.datetime.PrintTime
 import com.skedgo.tripkit.routing.TripSegment
+import com.skedgo.tripkit.routing.endDateTime
+import com.skedgo.tripkit.routing.startDateTime
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.TripKitUI
 import com.skedgo.tripkit.ui.core.RxViewModel
 import com.skedgo.tripkit.ui.core.fetchAsync
 import com.skedgo.tripkit.ui.tripresults.GetTransportIconTintStrategy
+import com.skedgo.tripkit.ui.utils.DistanceFormatter
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
+import org.joda.time.format.DateTimeFormat
 import timber.log.Timber
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
+import javax.inject.Inject
 
 class TripPreviewPagerViewModel : RxViewModel() {
 
@@ -36,10 +46,14 @@ class TripPreviewPagerViewModel : RxViewModel() {
 
         tripSegments.forEach { segment ->
             getSegmentIcon(context, segment, getTransportIconTintStrategy) {
+                val dateTimeFormatter = DateTimeFormat.forPattern("HH:mma")
                 previewHeaders.add(
                         TripPreviewHeader(
+                                id = segment.id,
                                 title = getTitle(segment),
-                                icon = it
+                                icon = it,
+                                //description = "${segment.startDateTime.toString(dateTimeFormatter)} - ${segment.endDateTime.toString(dateTimeFormatter)}"
+                                description = "${segment.trip.startDateTime.toString(dateTimeFormatter)} - ${segment.trip.endDateTime.toString(dateTimeFormatter)}"
                         )
                 )
                 _headers.value = previewHeaders
@@ -120,10 +134,19 @@ class TripPreviewPagerViewModel : RxViewModel() {
     }
 
     private fun getTitle(segment: TripSegment): String {
-        return if (!TextUtils.isEmpty(segment.serviceNumber)) {
-            segment.serviceNumber
-        } else {
-            segment.modeInfo?.description ?: ""
+        return when {
+            !TextUtils.isEmpty(segment.serviceNumber) -> {
+                segment.serviceNumber
+            }
+            !segment.modeInfo?.description.isNullOrBlank() -> {
+                segment.modeInfo?.description ?: ""
+            }
+            segment.transportModeId != TransportMode.ID_WALK -> {
+                DistanceFormatter.format(segment.metres)
+            }
+            else -> {
+                ""
+            }
         }
     }
 

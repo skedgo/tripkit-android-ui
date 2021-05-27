@@ -47,8 +47,6 @@ data class TripPreviewPagerAdapterItem(val type: Int, val tripSegment: TripSegme
 class TripPreviewPagerAdapter(fragmentManager: FragmentManager)
     : FragmentStatePagerAdapter(fragmentManager, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
 
-    val disposeBag = CompositeDisposable()
-
     var pages = mutableListOf<TripPreviewPagerAdapterItem>()
     var onCloseButtonListener: View.OnClickListener? = null
     var tripPreviewPagerListener: TripPreviewPagerFragment.Listener? = null
@@ -109,6 +107,14 @@ class TripPreviewPagerAdapter(fragmentManager: FragmentManager)
         fragment.onCloseButtonListener = onCloseButtonListener
         fragment.tripPreviewPagerListener = tripPreviewPagerListener
         return fragment
+    }
+
+    fun getSegmentByPosition(position: Int): TripSegment {
+        return pages[position].tripSegment
+    }
+
+    fun getSegmentPositionById(id: Long): Int {
+        return pages.indexOfFirst { it.tripSegment.id == id }
     }
 
     override fun getCount(): Int {

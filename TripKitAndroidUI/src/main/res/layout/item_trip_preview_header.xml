@@ -13,20 +13,20 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:clickWithDebounce="@{() -> viewModel.itemClick.perform()}"
-        android:padding="@dimen/spacing_small">
+        android:padding="@dimen/spacing_small"
+        app:clickWithDebounce="@{() -> viewModel.itemClick.perform()}">
 
         <ImageView
             android:id="@+id/ivIcon"
             android:layout_width="@dimen/close_button_size"
             android:layout_height="@dimen/close_button_size"
             android:src="@{viewModel.icon}"
+            app:customImageTint="@{viewModel.selected? @color/colorPrimary : 0}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             tools:src="@drawable/ic_train"
-            tools:tint="@color/colorPrimary"
-            app:customImageTint="@{viewModel.selected? @color/colorPrimary : 0}" />
+            tools:tint="@color/colorPrimary" />
 
         <TextView
             android:id="@+id/tvTitle"
@@ -35,8 +35,13 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/shadow_height"
             android:text="@{viewModel.title}"
+            android:textColor="@{viewModel.selected? @color/colorPrimary : @color/black1}"
+            android:textSize="10sp"
+            android:visibility="@{viewModel.title.length() > 0}"
+            app:layout_constraintBottom_toTopOf="@+id/tvSubTitle"
             app:layout_constraintStart_toEndOf="@+id/ivIcon"
             app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_weight="1"
             tools:text="Title" />
 
         <TextView
@@ -45,10 +50,14 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/shadow_height"
-            android:layout_marginTop="@dimen/shadow_height"
             android:text="@{viewModel.subTitle}"
+            android:textColor="@{viewModel.selected? @color/colorPrimary : @color/black1}"
+            android:textSize="10sp"
+            android:visibility="@{viewModel.subTitle.length() > 0}"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toEndOf="@+id/ivIcon"
             app:layout_constraintTop_toBottomOf="@+id/tvTitle"
+            app:layout_constraintVertical_weight="1"
             tools:text="Sub-Title" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>

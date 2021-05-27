@@ -16,11 +16,12 @@ import me.tatarka.bindingcollectionadapter2.ItemBinding
 import javax.inject.Inject
 
 class TripPreviewHeaderItemViewModel : ViewModel() {
-    val id = ObservableField<String>()
+    val id = ObservableField<Long>()
     val title = ObservableField<String>()
     val subTitle = ObservableField<String>()
     val icon = ObservableField<Drawable>()
     val selected = ObservableBoolean(false)
+    val description = ObservableField<String>()
 
     val itemClick = TapStateFlow.create { this }
 }
@@ -33,36 +34,55 @@ class TripPreviewHeaderViewModel @Inject constructor() : RxViewModel() {
     private val _description = MutableLiveData<String>()
     val description: LiveData<String> = _description
 
-    private val _showDescription = MutableLiveData<Boolean>()
+    private val _showDescription = MutableLiveData(false)
     val showDescription: LiveData<Boolean> = _showDescription
 
+    private val _selectedSegmentId = MutableLiveData<Long>()
+    val selectedSegmentId: LiveData<Long> = _selectedSegmentId
 
     fun setup(headerItems: List<TripPreviewHeader>) {
         items.clear()
         items.addAll(
-                headerItems.map {
+                headerItems.mapIndexed { index, previewHeader ->
                     TripPreviewHeaderItemViewModel().apply {
-                        title.set(it.title)
-                        subTitle.set(it.subTitle)
-                        icon.set(it.icon)
-                        id.set(it.id)
+                        title.set(previewHeader.title)
+                        subTitle.set(previewHeader.subTitle)
+                        icon.set(previewHeader.icon)
+                        id.set(previewHeader.id)
+                        description.set(previewHeader.description)
+
+                        if (index == 0) {
+                            selected.set(true)
+                            previewHeader.description?.let { desc ->
+                                _description.value = desc
+                                _showDescription.value = true
+                            }
+                        }
 
                         itemClick.observable.onEach {
-                            it.selected.set(true)
-                            items.filter { item -> item.selected.get() && item.id.get() != it.id.get() }
-                                    .forEach { it.selected.set(false) }
+                            it.id.get()?.apply {
+                                setSelectedById(this)
+                                _selectedSegmentId.value = this
+                            }
                         }.launchIn(viewModelScope)
                     }
                 }
         )
     }
 
-    fun setDescription(value: String) {
-        _description.value = value
-    }
+    fun setSelectedById(segmentId: Long) {
+        items.firstOrNull { it.id.get() == segmentId }?.apply {
+            selected.set(true)
 
-    fun setShowDescription(value: Boolean) {
-        _showDescription.value = value
-    }
+            items.filter { item -> item.id.get() != segmentId }.map { otherItem ->
+                otherItem.selected.set(false)
+            }
 
+            description.get()?.let { desc ->
+                _description.value = desc
+                _showDescription.value = true
+            } ?: kotlin.run { _showDescription.value = false }
+
+        }
+    }
 }

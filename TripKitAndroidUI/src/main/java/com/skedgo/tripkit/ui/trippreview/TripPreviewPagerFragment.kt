@@ -58,15 +58,25 @@ class TripPreviewPagerFragment : BaseTripKitFragment() {
     var currentPagerIndex = 0
 
     private var previewHeadersCallback: ((List<TripPreviewHeader>) -> Unit)? = null
-    private var pageIndexStream: PublishSubject<Int>? = null
+    private var pageIndexStream: PublishSubject<Long>? = null
+
+    private var fromPageListener = false
 
     override fun onResume() {
         super.onResume()
 
         pageIndexStream?.observeOn(AndroidSchedulers.mainThread())
                 ?.subscribeBy {
-                    if(::adapter.isInitialized){
-                        binding.tripSegmentPager.currentItem = it
+                    if(!fromPageListener) {
+                        if (::adapter.isInitialized) {
+                            val index = adapter.getSegmentPositionById(it)
+                            if (index != -1) {
+                                currentPagerIndex = index
+                                binding.tripSegmentPager.currentItem = currentPagerIndex
+                            }
+                        }
+                    } else {
+                        fromPageListener = false
                     }
                 }?.addTo(autoDisposable)
     }
@@ -209,6 +219,10 @@ class TripPreviewPagerFragment : BaseTripKitFragment() {
                     it.refresh(position)
                 }
                 currentPagerIndex = position
+                adapter.getSegmentByPosition(position).let {
+                    fromPageListener = true
+                    pageIndexStream?.onNext(it.id)
+                }
             }
 
             override fun onPageScrollStateChanged(state: Int) {}
@@ -224,6 +238,13 @@ class TripPreviewPagerFragment : BaseTripKitFragment() {
                     it.type != SegmentType.DEPARTURE && it.type != SegmentType.ARRIVAL
                 }
         )
+
+        viewModel.generatePreviewHeaders(
+                requireContext(),
+                segment.trip.getSummarySegments(),
+                getTransportIconTintStrategy,
+        )
+
         tripGroupRepository.updateTrip(segment.trip.group.uuid(), segment.trip.uuid(), segment.trip)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -269,6 +290,7 @@ class TripPreviewPagerFragment : BaseTripKitFragment() {
     companion object{
 
         const val ARG_CURRENT_PAGER_INDEX = "_a_current_pager_index"
+        const val TAG = "tripPreview"
 
         fun newInstance(
                 tripGroupId: String,
@@ -276,7 +298,7 @@ class TripPreviewPagerFragment : BaseTripKitFragment() {
                 tripSegmentHashCode: Long,
                 tripPreviewPagerListener: Listener,
                 fromAction: Boolean = false,
-                pageIndexStream: PublishSubject<Int>? = null,
+                pageIndexStream: PublishSubject<Long>? = null,
                 previewHeadersCallback: ((List<TripPreviewHeader>) -> Unit)? = null): TripPreviewPagerFragment {
             val fragment = TripPreviewPagerFragment()
             fragment.arguments = bundleOf(
