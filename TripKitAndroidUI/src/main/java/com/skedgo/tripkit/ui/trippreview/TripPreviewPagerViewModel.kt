@@ -95,9 +95,13 @@ class TripPreviewPagerViewModel : RxViewModel() {
                 .map { bitmapDrawable ->
                     createSummaryIcon(context, segment, bitmapDrawable)
                 }.observeOn(AndroidSchedulers.mainThread())
-                .subscribe {
-                    icon.invoke(it)
-                }.autoClear()
+                .subscribe(
+                        {
+                            icon.invoke(it)
+                        }, {
+                    it.printStackTrace()
+                }
+                ).autoClear()
     }
 
     private fun createSummaryIcon(context: Context, segment: TripSegment, transportIcon: Drawable): Drawable {
