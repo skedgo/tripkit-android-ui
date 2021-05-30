@@ -714,8 +714,8 @@ We may share this data with our partners who help us make those predictions.</st
 	<!--Type for events that are regular visit's to one of the user's favorites-->
 	<string name="routine">Routine</string>
 	<!--No comment provided by engineer.-->
-	<string name="help_improve_transport_services_in_your_area_by_allowing_us_to_collect_information_about_which_trips_you_select_in_the_app_dot_we_aggregate_the_anomymised_data_and_provide_it_to_researchers_coma_regulators_coma_and_transport_providers_dot">Help improve transport services in your area by allowing us to collect information about which trips you select in the app.
-We aggregate the anomymised data and provide it to researchers, regulators, and transport providers.</string>
+	<string name="help_improve_transport_services_in_your_area_by_allowing_us_to_collect_information_about_which_trips_you_select_in_the_app_dot_we_aggregate_the_anonymised_data_and_provide_it_to_researchers_coma_regulators_coma_and_transport_providers_dot">Help improve transport services in your area by allowing us to collect information about which trips you select in the app.
+We aggregate the anonymised data and provide it to researchers, regulators, and transport providers.</string>
 	<!--No comment provided by engineer.-->
 	<string name="help_us_improve_flavor_by_allowing_us_to_collect_data_about_which_features_you_use_in_the_app_coma_and_how_often_dot">Help us improve %1$s by allowing us to collect data about which features you use in the app, and how often.</string>
 	<!--Refer to users not care about a particular aspect of their travel, e.g., cost, time, convenience-->
