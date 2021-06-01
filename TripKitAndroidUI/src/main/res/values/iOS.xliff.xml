@@ -19,11 +19,11 @@
 	<!--Class = "UISearchBar"; placeholder = "Search"; ObjectID = "GjR-iv-Ew6";-->
 	<string name="search">Search</string>
 	<!--Class = "UILabel"; text = "Save time"; ObjectID = "KSL-Sc-UHU";-->
-	<string name="save_time">Save time</string>
+	<string name="save_time">Time</string>
 	<!--Class = "UIButton"; normalTitle = "Let's go"; ObjectID = "MIu-4J-zUJ";-->
 	<string name="let_aposts_go">Let\'s go</string>
 	<!--Class = "UILabel"; text = "Reduce carbon"; ObjectID = "RKH-vV-EU9";-->
-	<string name="reduce_carbon">Reduce carbon</string>
+	<string name="reduce_carbon">Environment</string>
 	<!--Class = "UILabel"; text = "TripGo helps you optimise daily trips"; ObjectID = "Tdu-LJ-B02";-->
 	<string name="flavor_helps_you_optimise_daily_trips">%1$s helps you optimise daily trips</string>
 	<!--Class = "UILabel"; text = "Pick a supported city to continue"; ObjectID = "a2d-Mj-Am0";-->
@@ -47,7 +47,7 @@
 	<!--Class = "UIButton"; normalTitle = "Reset"; ObjectID = "vhz-Cp-aY4";-->
 	<string name="reset">Reset</string>
 	<!--Class = "UILabel"; text = "Save money"; ObjectID = "yuP-f9-IR1";-->
-	<string name="save_money">Save money</string>
+	<string name="save_money">Money</string>
 	<!--Class = "UILabel"; text = "Sorry, TripGo is yet to work in your home city."; ObjectID = "zS6-hR-gj9";-->
 	<string name="sorry_coma_flavor_is_yet_to_work_in_your_home_city_dot">Sorry, %1$s is yet to work in your home city.</string>
 	<!--'Every %day' in context of repetitions (especially recurring events), e.g., 'Every Monday'. (old key: EveryDayFormat)-->
