@@ -69,4 +69,10 @@
     <color name="toolbar_button">#f6f6f5</color>
 
     <color name="marker_car_share">#00406a</color>
+
+    <color name="priority_money">#8e5af6</color>
+    <color name="priority_time">#e87aa4</color>
+    <color name="priority_environment">#b8e195</color>
+    <color name="priority_convenience">#f3a88a</color>
+    <color name="priority_exercise">#78d7f9</color>
 </resources>
