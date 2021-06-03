@@ -14,7 +14,7 @@
             android:layout_height="wrap_content"
             android:id="@+id/details"
             android:text="@{viewModel.tertiaryText}"
-            android:layout_marginTop="4dp"
+            android:layout_marginTop="8dp"
             android:textColor="@color/black1"
             style="@style/TextAppearance.MaterialComponents.Caption"
             app:layout_constraintStart_toStartOf="@+id/iconLayout"
