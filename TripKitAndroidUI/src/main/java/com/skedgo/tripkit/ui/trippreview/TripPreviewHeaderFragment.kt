@@ -58,6 +58,9 @@ class TripPreviewHeaderFragment : Fragment() {
     }
 
     companion object {
+
+        const val TAG = "TripPreviewHeader"
+
         fun newInstance(pageIndexStream: PublishSubject<Long>?): TripPreviewHeaderFragment {
             return TripPreviewHeaderFragment().apply {
                 this.pageIndexStream = pageIndexStream
