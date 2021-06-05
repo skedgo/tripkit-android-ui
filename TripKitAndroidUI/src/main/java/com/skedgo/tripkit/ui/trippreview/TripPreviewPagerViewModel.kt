@@ -5,6 +5,7 @@ import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.LayerDrawable
 import android.text.TextUtils
+import android.util.Log
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -14,6 +15,7 @@ import com.skedgo.tripkit.common.model.TransportMode
 import com.skedgo.tripkit.common.util.TransportModeUtils
 import com.skedgo.tripkit.datetime.PrintTime
 import com.skedgo.tripkit.routing.TripSegment
+import com.skedgo.tripkit.routing.Visibilities
 import com.skedgo.tripkit.routing.endDateTime
 import com.skedgo.tripkit.routing.startDateTime
 import com.skedgo.tripkit.ui.R
@@ -44,19 +46,21 @@ class TripPreviewPagerViewModel : RxViewModel() {
 
         val previewHeaders = mutableListOf<TripPreviewHeader>()
 
-        tripSegments.forEach { segment ->
+        tripSegments.filter { it.visibility == Visibilities.VISIBILITY_IN_SUMMARY }.forEach { segment ->
             getSegmentIcon(context, segment, getTransportIconTintStrategy) {
                 val dateTimeFormatter = DateTimeFormat.forPattern("HH:mma")
-                previewHeaders.add(
-                        TripPreviewHeader(
-                                id = segment.id,
-                                title = getTitle(segment),
-                                icon = it,
-                                //description = "${segment.startDateTime.toString(dateTimeFormatter)} - ${segment.endDateTime.toString(dateTimeFormatter)}"
-                                description = "${segment.trip.startDateTime.toString(dateTimeFormatter)} - ${segment.trip.endDateTime.toString(dateTimeFormatter)}"
-                        )
-                )
-                _headers.value = previewHeaders
+                if (previewHeaders.none { it.id == segment.id })
+                    previewHeaders.add(
+                            TripPreviewHeader(
+                                    id = segment.id,
+                                    title = getTitle(segment),
+                                    icon = it,
+                                    //description = "${segment.startDateTime.toString(dateTimeFormatter)} - ${segment.endDateTime.toString(dateTimeFormatter)}"
+                                    description = "${segment.trip.startDateTime.toString(dateTimeFormatter)} - ${segment.trip.endDateTime.toString(dateTimeFormatter)}",
+                                    modeId = segment.transportModeId
+                            )
+                    )
+                _headers.value = previewHeaders.sortedBy { it.id }
             }
         }
 

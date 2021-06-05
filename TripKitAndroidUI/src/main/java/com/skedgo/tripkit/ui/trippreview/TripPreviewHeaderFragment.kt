@@ -23,7 +23,7 @@ class TripPreviewHeaderFragment : Fragment() {
     lateinit var binding: FragmentTripPreviewHeaderBinding
 
     private val disposeBag = CompositeDisposable()
-    private var pageIndexStream: PublishSubject<Long>? = null
+    private var pageIndexStream: PublishSubject<Pair<Long, String>>? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
@@ -43,7 +43,7 @@ class TripPreviewHeaderFragment : Fragment() {
     private fun initObserver() {
         pageIndexStream?.subscribeOn(AndroidSchedulers.mainThread())
                 ?.subscribe {
-                    viewModel.setSelectedById(it)
+                    viewModel.setSelectedById(it.first, it.second)
                 }?.addTo(disposeBag)
 
         viewModel.apply {
@@ -61,7 +61,7 @@ class TripPreviewHeaderFragment : Fragment() {
 
         const val TAG = "TripPreviewHeader"
 
-        fun newInstance(pageIndexStream: PublishSubject<Long>?): TripPreviewHeaderFragment {
+        fun newInstance(pageIndexStream: PublishSubject<Pair<Long, String>>?): TripPreviewHeaderFragment {
             return TripPreviewHeaderFragment().apply {
                 this.pageIndexStream = pageIndexStream
             }
