@@ -8,5 +8,6 @@ data class TripPreviewHeader(
         var icon: Drawable? = null,
         var pages: List<Int>? = null,
         val id: Long? = null,
-        val description: String? = null
+        val description: String? = null,
+        val modeId: String? = null
 )

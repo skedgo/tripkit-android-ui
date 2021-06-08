@@ -58,7 +58,7 @@ class TripPreviewPagerFragment : BaseTripKitFragment() {
     var currentPagerIndex = 0
 
     private var previewHeadersCallback: ((List<TripPreviewHeader>) -> Unit)? = null
-    private var pageIndexStream: PublishSubject<Long>? = null
+    private var pageIndexStream: PublishSubject<Pair<Long, String>>? = null
 
     private var fromPageListener = false
 
@@ -221,7 +221,7 @@ class TripPreviewPagerFragment : BaseTripKitFragment() {
                 currentPagerIndex = position
                 adapter.getSegmentByPosition(position).let {
                     fromPageListener = true
-                    pageIndexStream?.onNext(it.id)
+                    pageIndexStream?.onNext(Pair(it.id, it.transportModeId.toString()))
                 }
             }
 
@@ -298,7 +298,7 @@ class TripPreviewPagerFragment : BaseTripKitFragment() {
                 tripSegmentHashCode: Long,
                 tripPreviewPagerListener: Listener,
                 fromAction: Boolean = false,
-                pageIndexStream: PublishSubject<Long>? = null,
+                pageIndexStream: PublishSubject<Pair<Long, String>>? = null,
                 previewHeadersCallback: ((List<TripPreviewHeader>) -> Unit)? = null): TripPreviewPagerFragment {
             val fragment = TripPreviewPagerFragment()
             fragment.arguments = bundleOf(
