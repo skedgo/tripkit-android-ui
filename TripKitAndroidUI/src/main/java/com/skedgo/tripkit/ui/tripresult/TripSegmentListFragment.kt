@@ -30,7 +30,9 @@ import com.skedgo.tripkit.ui.databinding.TripSegmentListFragmentBinding
 import com.skedgo.tripkit.ui.model.TripKitButton
 import com.skedgo.tripkit.ui.model.TripKitButtonConfigurator
 import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButtonHandlerFactory
+import com.skedgo.tripkit.ui.utils.observe
 import com.squareup.otto.Bus
+import com.technologies.wikiwayfinder.core.singleton.WikiWayFinder
 import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -189,6 +191,14 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
                     val dialog = TripSegmentAlertsSheet.newInstance(list)
                     dialog.show(requireFragmentManager(), "alerts_sheet")
                 }.addTo(autoDisposable)
+        viewModel.apply {
+            observe(showWikiwayFinder){
+                if(!it.isNullOrEmpty()){
+                    WikiWayFinder.showRouteActivity(requireContext(), it)
+                    viewModel.setShowWikiwayFinder(emptyList())
+                }
+            }
+        }
     }
 
     private fun startAndLogActivity(tripSegment: TripSegment, intent: Intent) {

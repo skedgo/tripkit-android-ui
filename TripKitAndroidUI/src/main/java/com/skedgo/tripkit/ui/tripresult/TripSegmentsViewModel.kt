@@ -8,6 +8,7 @@ import androidx.core.content.ContextCompat
 import androidx.databinding.ObservableArrayList
 import androidx.databinding.ObservableBoolean
 import androidx.databinding.ObservableField
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.jakewharton.rxrelay2.BehaviorRelay
@@ -30,6 +31,8 @@ import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButtonHandler
 import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButtonHandlerFactory
 import com.skedgo.tripkit.ui.utils.TripSegmentActionProcessor
 import com.squareup.otto.Bus
+import com.technologies.wikiwayfinder.core.data.Point
+import com.technologies.wikiwayfinder.core.singleton.WikiWayFinder
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
@@ -84,6 +87,9 @@ class TripSegmentsViewModel @Inject internal constructor(
     private var actionButtonHandler: ActionButtonHandler? = null
     private var trip: Trip? = null
 
+    private val _showWikiwayFinder = MutableLiveData<List<Point>>()
+    val showWikiwayFinder: LiveData<List<Point>> = _showWikiwayFinder
+
     val tripGroupObservable: Observable<TripGroup>
         get() = tripGroupRelay.hide()
 
@@ -102,6 +108,10 @@ class TripSegmentsViewModel @Inject internal constructor(
     init {
     }
 
+    fun setShowWikiwayFinder(value: List<Point>){
+        _showWikiwayFinder.value = value
+    }
+
     fun setActionButtonHandlerFactory(actionButtonHandlerFactory: ActionButtonHandlerFactory?) {
         actionButtonHandler = actionButtonHandlerFactory?.createHandler(this)
     }
@@ -114,11 +124,13 @@ class TripSegmentsViewModel @Inject internal constructor(
         tripGroupRepository.getTripGroup(tripGroupId)
                 .observeOn(mainThread())
                 .onErrorResumeNext(Observable.empty())
-                .subscribe { tripGroup ->
-                    setTitleAndSubtitle(tripGroup, tripId)
-                    setTripGroup(tripGroup, tripId, savedInstanceState)
-                    setupButtons(tripGroup)
-                }
+                .subscribe(
+                        { tripGroup ->
+                            setTitleAndSubtitle(tripGroup, tripId)
+                            setTripGroup(tripGroup, tripId, savedInstanceState)
+                            setupButtons(tripGroup)
+                        }, { it.printStackTrace() }
+                )
                 .autoClear()
     }
 
@@ -394,7 +406,11 @@ class TripSegmentsViewModel @Inject internal constructor(
                         addMovingItem(bridgeModel, segment)
                         bridgeModel.onClick.observable.subscribe {
                             it.tripSegment?.let { segment ->
-                                segmentClicked.accept(segment)
+                                if(it.wikiWayFinderRoutes.isNotEmpty()){
+                                    _showWikiwayFinder.value = it.wikiWayFinderRoutes
+                                } else {
+                                    segmentClicked.accept(segment)
+                                }
                             }
                         }.autoClear()
                         segmentViewModels.add(bridgeModel)

@@ -18,6 +18,7 @@ import androidx.databinding.ObservableField
 import com.jakewharton.rxrelay2.BehaviorRelay
 import com.skedgo.tripkit.common.model.Booking
 import com.skedgo.tripkit.common.model.RealtimeAlert
+import com.skedgo.tripkit.common.model.TransportMode
 import com.skedgo.tripkit.datetime.PrintTime
 import com.skedgo.tripkit.routing.SegmentType
 import com.skedgo.tripkit.routing.TripSegment
@@ -28,6 +29,10 @@ import com.skedgo.tripkit.ui.core.fetchAsync
 import com.skedgo.tripkit.ui.tripresults.GetTransportIconTintStrategy
 import com.skedgo.tripkit.ui.tripresults.TripSegmentHelper
 import com.skedgo.tripkit.ui.utils.*
+import com.technologies.wikiwayfinder.core.data.Point
+import com.technologies.wikiwayfinder.core.singleton.WikiWayFinder
+import com.technologies.wikiwayfinder.core.singleton.WikiWayFinder.getPointById
+import com.technologies.wikiwayfinder.core.singleton.WikiWayFinder.getPointWithGTFSCode
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import timber.log.Timber
@@ -69,10 +74,103 @@ class TripSegmentItemViewModel @Inject internal constructor(private val context:
     val alerts = ObservableField<ArrayList<RealtimeAlert>>()
 
     val alertsClicked = BehaviorRelay.create<ArrayList<RealtimeAlert>>()
+    //var tripSegment: TripSegment? = null
+
+    val wikiWayFinderRoutes = mutableListOf<Point>()
+
     var tripSegment: TripSegment? = null
+        set(value) {
+            field = value
+
+            if (tripSegment?.transportModeId == TransportMode.ID_WALK) {
+                //assuming same area for both from and to point
+                WikiWayFinder.getAreaWithGTFSCode("2000328")?.apply {
+                    WikiWayFinder.let {
+                        it.setCurrentArea(this)
+                        it.checkDownloadAreaPoints(this) { area ->
+                            //val fromPoint = area.getPointWithGTFSCode("2000328")
+                            //val toPoint = area.getPointWithGTFSCode("2000336")
+                            val fromPoint = area.getPointById(348)
+                            val toPoint = listOf(
+                                    area.getPointById(121)!!,
+                                    area.getPointById(177)!!
+                            )
+
+                            if (fromPoint != null && toPoint != null) {
+                                WikiWayFinder.getRoute(
+                                        context,
+                                        fromPoint,
+                                        toPoint
+                                ) { routePoints ->
+                                    wikiWayFinderRoutes.clear()
+                                    wikiWayFinderRoutes.addAll(routePoints)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            /*
+            if (!value?.startStopCode.isNullOrBlank() && !value?.endStopCode.isNullOrBlank()) {
+                //assuming same area for both from and to point
+                WikiWayFinder.getAreaWithGTFSCode(value!!.startStopCode)?.apply {
+                    WikiWayFinder.let {
+                        it.setCurrentArea(this)
+                        it.checkDownloadAreaPoints(this) { area ->
+                            val fromPoint = area.getPointWithGTFSCode(value.startStopCode)
+                            val toPoint = area.getPointWithGTFSCode(value.endStopCode)
+
+                            if (fromPoint != null && toPoint != null) {
+                                WikiWayFinder.getRoute(
+                                        context,
+                                        fromPoint,
+                                        listOf(toPoint)
+                                ) { routePoints ->
+                                    wikiWayFinderRoutes.clear()
+                                    wikiWayFinderRoutes.addAll(routePoints)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            */
+        }
 
     val externalAction = ObservableField<String>()
     val externalActionClicked = BehaviorRelay.create<TripSegment>()
+
+    //private val
+
+    /*
+    fun setTripSegment(segment: TripSegment?){
+        _tripSegment = segment
+
+        if(!segment?.startStopCode.isNullOrBlank() && !segment?.endStopCode.isNullOrBlank()){
+            //assuming same area for both from and to point
+            WikiWayFinder.getAreaWithGTFSCode(segment!!.startStopCode)?.apply {
+                WikiWayFinder.let{
+                    it.setCurrentArea(this)
+                    it.checkDownloadAreaPoints(this){ area ->
+                        val fromPoint = area.getPointWithGTFSCode(segment.startStopCode)
+                        val toPoint = area.getPointWithGTFSCode(segment.endStopCode)
+
+                        if(fromPoint != null && toPoint != null) {
+                            WikiWayFinder.getRoute(
+                                    context,
+                                    fromPoint,
+                                    listOf(toPoint)
+                            ){
+
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    */
 
     fun setupSegment(viewType: SegmentViewType,
                      title: String,
