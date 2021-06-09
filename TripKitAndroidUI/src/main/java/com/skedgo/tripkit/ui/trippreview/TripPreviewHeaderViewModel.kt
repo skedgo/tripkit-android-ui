@@ -22,6 +22,7 @@ class TripPreviewHeaderItemViewModel : ViewModel() {
     val icon = ObservableField<Drawable>()
     val selected = ObservableBoolean(false)
     val description = ObservableField<String>()
+    val modeId = ObservableField<String>()
 
     val itemClick = TapStateFlow.create { this }
 }
@@ -37,8 +38,8 @@ class TripPreviewHeaderViewModel @Inject constructor() : RxViewModel() {
     private val _showDescription = MutableLiveData(false)
     val showDescription: LiveData<Boolean> = _showDescription
 
-    private val _selectedSegmentId = MutableLiveData<Long>()
-    val selectedSegmentId: LiveData<Long> = _selectedSegmentId
+    private val _selectedSegmentId = MutableLiveData<Pair<Long, String>>()
+    val selectedSegmentId: LiveData<Pair<Long, String>> = _selectedSegmentId
 
     fun setup(headerItems: List<TripPreviewHeader>) {
         items.clear()
@@ -50,6 +51,7 @@ class TripPreviewHeaderViewModel @Inject constructor() : RxViewModel() {
                         icon.set(previewHeader.icon)
                         id.set(previewHeader.id)
                         description.set(previewHeader.description)
+                        modeId.set(previewHeader.modeId)
 
                         if (index == 0) {
                             selected.set(true)
@@ -62,7 +64,7 @@ class TripPreviewHeaderViewModel @Inject constructor() : RxViewModel() {
                         itemClick.observable.onEach {
                             it.id.get()?.apply {
                                 setSelectedById(this)
-                                _selectedSegmentId.value = this
+                                _selectedSegmentId.value = Pair(this, it.modeId.get().toString())
                             }
                         }.launchIn(viewModelScope)
                     }
@@ -70,7 +72,7 @@ class TripPreviewHeaderViewModel @Inject constructor() : RxViewModel() {
         )
     }
 
-    fun setSelectedById(segmentId: Long) {
+    fun setSelectedById(segmentId: Long, modeId: String? = null) {
         items.firstOrNull { it.id.get() == segmentId }?.apply {
             selected.set(true)
 
@@ -83,6 +85,57 @@ class TripPreviewHeaderViewModel @Inject constructor() : RxViewModel() {
                 _showDescription.value = true
             } ?: kotlin.run { _showDescription.value = false }
 
+        } ?: kotlin.run {
+            modeId?.let {
+
+                when (it) {
+                    getNextPreviousItemModeId(true) -> {
+                        items[
+                                items.indexOfFirst { selectedItem ->
+                                    selectedItem.selected.get()
+                                } + 1
+                        ]
+                    }
+                    getNextPreviousItemModeId(false) -> {
+                        items[
+                                items.indexOfFirst { selectedItem ->
+                                    selectedItem.selected.get()
+                                } - 1
+                        ]
+                    }
+                    else -> {
+                        null
+                    }
+                }?.apply {
+                    selected.set(true)
+
+                    items.filter { item -> item.id.get() != this.id.get() }.map { otherItem ->
+                        otherItem.selected.set(false)
+                    }
+
+                    description.get()?.let { desc ->
+                        _description.value = desc
+                        _showDescription.value = true
+                    } ?: kotlin.run { _showDescription.value = false }
+                }
+            }
+        }
+    }
+
+    private fun getNextPreviousItemModeId(isNext: Boolean): String? {
+        val selectedIndex = items.indexOfFirst { it.selected.get() }
+        return if (isNext) {
+            if ((selectedIndex + 1) < items.size) {
+                items[selectedIndex + 1].modeId.get()
+            } else {
+                null
+            }
+        } else {
+            if ((selectedIndex - 1) >= 0) {
+                items[selectedIndex - 1].modeId.get()
+            } else {
+                null
+            }
         }
     }
 }

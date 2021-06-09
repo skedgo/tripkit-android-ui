@@ -113,8 +113,8 @@ class TripPreviewPagerAdapter(fragmentManager: FragmentManager)
         return pages[position].tripSegment
     }
 
-    fun getSegmentPositionById(id: Long): Int {
-        return pages.indexOfFirst { it.tripSegment.id == id }
+    fun getSegmentPositionById(pair: Pair<Long, String>): Int {
+        return pages.indexOfFirst { it.tripSegment.id == pair.first }
     }
 
     override fun getCount(): Int {
