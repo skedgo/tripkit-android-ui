@@ -105,7 +105,15 @@ class TripPreviewPagerFragment : BaseTripKitFragment() {
 
         viewModel.apply {
             observe(headers) {
-                it?.let { previewHeadersCallback?.invoke(it) }
+                it?.let {
+                    previewHeadersCallback?.invoke(it)
+                    if(currentPagerIndex > 0){
+                        adapter.getSegmentByPosition(currentPagerIndex).let {
+                            fromPageListener = true
+                            pageIndexStream?.onNext(Pair(it.id, it.transportModeId.toString()))
+                        }
+                    }
+                }
             }
         }
     }
@@ -121,6 +129,13 @@ class TripPreviewPagerFragment : BaseTripKitFragment() {
                 .subscribe { tripGroup ->
                     val trip = tripGroup.trips?.find { it.uuid() == tripId }
                     trip?.let {
+
+                        viewModel.generatePreviewHeaders(
+                                requireContext(),
+                                it.getSummarySegments(),
+                                getTransportIconTintStrategy,
+                        )
+
                         var activeIndex =
                                 adapter.setTripSegments(
                                         tripSegmentId,
@@ -140,12 +155,6 @@ class TripPreviewPagerFragment : BaseTripKitFragment() {
                         }
                         currentPagerIndex = activeIndex
                         binding.tripSegmentPager.currentItem = activeIndex
-
-                        viewModel.generatePreviewHeaders(
-                                requireContext(),
-                                it.getSummarySegments(),
-                                getTransportIconTintStrategy,
-                        )
                     }
                 }
                 .addTo(autoDisposable)
