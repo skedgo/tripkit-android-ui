@@ -4,16 +4,20 @@ import android.graphics.drawable.Drawable
 import androidx.databinding.ObservableArrayList
 import androidx.databinding.ObservableBoolean
 import androidx.databinding.ObservableField
-import androidx.lifecycle.*
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.skedgo.tripkit.common.model.TransportMode
 import com.skedgo.tripkit.ui.BR
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.core.RxViewModel
 import com.skedgo.tripkit.ui.utils.TapStateFlow
-import kotlinx.coroutines.flow.forEach
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import me.tatarka.bindingcollectionadapter2.ItemBinding
 import javax.inject.Inject
+import kotlin.math.abs
 
 class TripPreviewHeaderItemViewModel : ViewModel() {
     val id = ObservableField<Long>()
@@ -86,8 +90,12 @@ class TripPreviewHeaderViewModel @Inject constructor() : RxViewModel() {
             } ?: kotlin.run { _showDescription.value = false }
 
         } ?: kotlin.run {
-            modeId?.let {
-
+            val mode = if (modeId == "null" || modeId == TransportMode.ID_WALK) {
+                null
+            } else {
+                modeId
+            }
+            mode?.let {
                 when (it) {
                     getNextPreviousItemModeId(true) -> {
                         items[
@@ -104,21 +112,31 @@ class TripPreviewHeaderViewModel @Inject constructor() : RxViewModel() {
                         ]
                     }
                     else -> {
-                        null
+                        checkNearestSegment(segmentId)
                     }
                 }?.apply {
-                    selected.set(true)
-
-                    items.filter { item -> item.id.get() != this.id.get() }.map { otherItem ->
-                        otherItem.selected.set(false)
-                    }
-
-                    description.get()?.let { desc ->
-                        _description.value = desc
-                        _showDescription.value = true
-                    } ?: kotlin.run { _showDescription.value = false }
+                    setSelected(this)
+                }
+            } ?: kotlin.run {
+                checkNearestSegment(segmentId)?.apply {
+                    setSelected(this)
                 }
             }
+        }
+    }
+
+    private fun setSelected(item: TripPreviewHeaderItemViewModel){
+        with(item){
+            selected.set(true)
+
+            items.filter { item -> item.id.get() != this.id.get() }.map { otherItem ->
+                otherItem.selected.set(false)
+            }
+
+            description.get()?.let { desc ->
+                _description.value = desc
+                _showDescription.value = true
+            } ?: kotlin.run { _showDescription.value = false }
         }
     }
 
@@ -134,6 +152,36 @@ class TripPreviewHeaderViewModel @Inject constructor() : RxViewModel() {
             if ((selectedIndex - 1) >= 0) {
                 items[selectedIndex - 1].modeId.get()
             } else {
+                null
+            }
+        }
+    }
+
+
+    private fun checkNearestSegment(segmentId: Long): TripPreviewHeaderItemViewModel? {
+        val segmentGreater = items.filter {
+            it.id.get() != null && it.id.get()!! > segmentId
+        }.minByOrNull { it.id.get()!! }
+
+        val segmentLower = items.filter {
+            it.id.get() != null && it.id.get()!! < segmentId
+        }.maxByOrNull { it.id.get()!! }
+
+        return when {
+            segmentGreater != null && segmentLower != null -> {
+                if (segmentLower.modeId.get() != TransportMode.ID_WALK) {
+                    segmentLower
+                } else {
+                    segmentGreater
+                }
+            }
+            segmentGreater != null && segmentGreater.modeId.get() != TransportMode.ID_WALK -> {
+                segmentGreater
+            }
+            segmentLower != null && segmentLower.modeId.get() != TransportMode.ID_WALK -> {
+                segmentLower
+            }
+            else -> {
                 null
             }
         }
