@@ -26,17 +26,33 @@ import com.skedgo.tripkit.ui.tripresults.GetTransportIconTintStrategy
 import com.skedgo.tripkit.ui.utils.DistanceFormatter
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
+import io.reactivex.subjects.PublishSubject
 import org.joda.time.format.DateTimeFormat
 import timber.log.Timber
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 class TripPreviewPagerViewModel : RxViewModel() {
 
     private val _headers = MutableLiveData<List<TripPreviewHeader>>()
     val headers: LiveData<List<TripPreviewHeader>> = _headers
+
+    private val headersStream = PublishSubject.create<List<TripPreviewHeader>>()
+
+    init {
+        headersStream
+                .debounce(500, TimeUnit.MILLISECONDS)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe { headers ->
+                    _headers.value = headers.sortedBy { it.id }
+                }
+                .autoClear()
+    }
 
     fun generatePreviewHeaders(
             context: Context,
@@ -60,7 +76,10 @@ class TripPreviewPagerViewModel : RxViewModel() {
                                     modeId = segment.transportModeId
                             )
                     )
-                _headers.value = previewHeaders.sortedBy { it.id }
+
+                headersStream.onNext(previewHeaders)
+
+                //_headers.value = previewHeaders.sortedBy { it.id }
             }
         }
 
