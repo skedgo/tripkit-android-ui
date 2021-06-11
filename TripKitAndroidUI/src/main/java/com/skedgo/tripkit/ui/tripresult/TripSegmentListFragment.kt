@@ -4,18 +4,12 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
-import android.view.InflateException
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AlertDialog
-import androidx.core.view.ViewCompat
-import androidx.core.view.forEach
 import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.RecyclerView
 import com.skedgo.tripkit.logging.ErrorLogger
-import com.skedgo.tripkit.routing.Trip
 import com.skedgo.tripkit.routing.TripGroup
 import com.skedgo.tripkit.routing.TripSegment
 import com.skedgo.tripkit.routing.getBookingSegment
@@ -31,11 +25,9 @@ import com.skedgo.tripkit.ui.model.TripKitButton
 import com.skedgo.tripkit.ui.model.TripKitButtonConfigurator
 import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButtonHandlerFactory
 import com.skedgo.tripkit.ui.utils.observe
-import com.squareup.otto.Bus
-import com.technologies.wikiwayfinder.core.singleton.WikiWayFinder
+import com.technologies.wikiwayfinder.core.singleton.WayWikiFinder
 import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.coroutines.launch
-import timber.log.Timber
 import javax.inject.Inject
 
 
@@ -194,7 +186,7 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
         viewModel.apply {
             observe(showWikiwayFinder){
                 if(!it.isNullOrEmpty()){
-                    WikiWayFinder.showRouteActivity(requireContext(), it)
+                    WayWikiFinder.showRouteActivity(requireContext(), it)
                     viewModel.setShowWikiwayFinder(emptyList())
                 }
             }

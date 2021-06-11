@@ -4,7 +4,6 @@ package com.skedgo.tripkit.ui.tripresult
 import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
-import androidx.core.content.ContextCompat
 import androidx.databinding.ObservableArrayList
 import androidx.databinding.ObservableBoolean
 import androidx.databinding.ObservableField
@@ -13,11 +12,10 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.jakewharton.rxrelay2.BehaviorRelay
 import com.jakewharton.rxrelay2.PublishRelay
-import com.skedgo.tripkit.AndroidGeocoder
 import com.skedgo.tripkit.booking.BookingForm
-import com.skedgo.tripkit.common.model.Booking
 import com.skedgo.tripkit.common.model.Location
 import com.skedgo.tripkit.common.model.RealtimeAlert
+import com.skedgo.tripkit.common.model.TransportMode
 import com.skedgo.tripkit.common.util.TimeUtils
 import com.skedgo.tripkit.datetime.PrintTime
 import com.skedgo.tripkit.routing.*
@@ -32,17 +30,13 @@ import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButtonHandlerFactory
 import com.skedgo.tripkit.ui.utils.TripSegmentActionProcessor
 import com.squareup.otto.Bus
 import com.technologies.wikiwayfinder.core.data.Point
-import com.technologies.wikiwayfinder.core.singleton.WikiWayFinder
 import io.reactivex.Observable
-import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
 import io.reactivex.subjects.PublishSubject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import me.tatarka.bindingcollectionadapter2.ItemBinding
 import me.tatarka.bindingcollectionadapter2.itembindings.OnItemBindClass
-import timber.log.Timber
-import java.lang.Exception
 import java.util.*
 import java.util.Collections.emptyList
 import javax.inject.Inject
@@ -104,6 +98,9 @@ class TripSegmentsViewModel @Inject internal constructor(
     var tripGroup: TripGroup
         get() = tripGroupRelay.value!!
         internal set(tripGroup) = setTripGroup(tripGroup, -1, null)
+
+    private val _userLocation = MutableLiveData<android.location.Location>()
+    val userLocation: LiveData<android.location.Location> = _userLocation
 
     init {
     }
@@ -395,6 +392,30 @@ class TripSegmentsViewModel @Inject internal constructor(
                     }
                 }.autoClear()
                 viewModel.tripSegment = segment
+
+                if (segment.transportModeId == TransportMode.ID_WALK && previousSegment != null) {
+                    val summarySegments = tripSegments.filter {
+                        it.visibility == Visibilities.VISIBILITY_IN_SUMMARY
+                    }
+
+                    val currentSegmentIndex = summarySegments.indexOfFirst { it.id == segment.id }
+                    val previousSummarySegment = if ((currentSegmentIndex - 1) >= 0) {
+                        summarySegments[currentSegmentIndex - 1]
+                    } else {
+                        null
+                    }
+                    val nextSummarySegment = if ((currentSegmentIndex + 1) < summarySegments.size) {
+                        summarySegments[currentSegmentIndex + 1]
+                    } else {
+                        null
+                    }
+
+                    if (previousSummarySegment?.transportModeId == TransportMode.ID_PUBLIC_TRANSPORT &&
+                            nextSummarySegment?.transportModeId == TransportMode.ID_PUBLIC_TRANSPORT) {
+                        viewModel.setWayWikiSegments(previousSummarySegment, nextSummarySegment)
+                    }
+                }
+
                 if (segment.type == SegmentType.ARRIVAL || segment.type == SegmentType.DEPARTURE) {
                     addTerminalItem(viewModel, segment, previousSegment, nextSegment)
                 } else if (segment.isStationary) {

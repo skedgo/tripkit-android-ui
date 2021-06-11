@@ -6,6 +6,7 @@ import android.graphics.PorterDuff
 import android.graphics.Typeface.BOLD
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
+import android.location.Location
 import android.text.Spannable
 import android.text.SpannableString
 import android.text.style.ForegroundColorSpan
@@ -15,11 +16,13 @@ import android.view.View
 import androidx.core.content.ContextCompat
 import androidx.databinding.ObservableBoolean
 import androidx.databinding.ObservableField
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import com.jakewharton.rxrelay2.BehaviorRelay
-import com.skedgo.tripkit.common.model.Booking
 import com.skedgo.tripkit.common.model.RealtimeAlert
 import com.skedgo.tripkit.common.model.TransportMode
 import com.skedgo.tripkit.datetime.PrintTime
+import com.skedgo.tripkit.location.UserGeoPointRepository
 import com.skedgo.tripkit.routing.SegmentType
 import com.skedgo.tripkit.routing.TripSegment
 import com.skedgo.tripkit.ui.R
@@ -30,20 +33,22 @@ import com.skedgo.tripkit.ui.tripresults.GetTransportIconTintStrategy
 import com.skedgo.tripkit.ui.tripresults.TripSegmentHelper
 import com.skedgo.tripkit.ui.utils.*
 import com.technologies.wikiwayfinder.core.data.Point
-import com.technologies.wikiwayfinder.core.singleton.WikiWayFinder
-import com.technologies.wikiwayfinder.core.singleton.WikiWayFinder.getPointById
-import com.technologies.wikiwayfinder.core.singleton.WikiWayFinder.getPointWithGTFSCode
+import com.technologies.wikiwayfinder.core.singleton.WayWikiFinder
+import com.technologies.wikiwayfinder.core.singleton.WayWikiFinder.getPointById
+import com.technologies.wikiwayfinder.core.singleton.WayWikiFinder.getPointWithGTFSCode
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import timber.log.Timber
 import javax.inject.Inject
 
 
-class TripSegmentItemViewModel @Inject internal constructor(private val context: Context,
-                                                            private val getTransportIconTintStrategy: GetTransportIconTintStrategy,
-                                                            private val tripSegmentHelper: TripSegmentHelper,
-                                                            private val printTime: PrintTime)
-    : RxViewModel() {
+class
+TripSegmentItemViewModel @Inject internal constructor(
+        private val context: Context,
+        private val getTransportIconTintStrategy: GetTransportIconTintStrategy,
+        private val tripSegmentHelper: TripSegmentHelper,
+        private val printTime: PrintTime
+) : RxViewModel() {
     enum class SegmentViewType {
         TERMINAL,
         STATIONARY,
@@ -78,14 +83,23 @@ class TripSegmentItemViewModel @Inject internal constructor(private val context:
 
     val wikiWayFinderRoutes = mutableListOf<Point>()
 
-    var tripSegment: TripSegment? = null
+    var userLocation: LiveData<Location>? = null
         set(value) {
             field = value
 
-            if (tripSegment?.transportModeId == TransportMode.ID_WALK) {
+
+        }
+
+    var tripSegment: TripSegment? = null
+        /*
+        set(value) {
+            field = value
+
+            if (value?.transportModeId == TransportMode.ID_PUBLIC_TRANSPORT) {
+
                 //assuming same area for both from and to point
-                WikiWayFinder.getAreaWithGTFSCode("2000328")?.apply {
-                    WikiWayFinder.let {
+                WayWikiFinder.getAreaWithGTFSCode("2000328")?.apply {
+                    WayWikiFinder.let {
                         it.setCurrentArea(this)
                         it.checkDownloadAreaPoints(this) { area ->
                             //val fromPoint = area.getPointWithGTFSCode("2000328")
@@ -97,7 +111,7 @@ class TripSegmentItemViewModel @Inject internal constructor(private val context:
                             )
 
                             if (fromPoint != null && toPoint != null) {
-                                WikiWayFinder.getRoute(
+                                WayWikiFinder.getRoute(
                                         context,
                                         fromPoint,
                                         toPoint
@@ -110,67 +124,38 @@ class TripSegmentItemViewModel @Inject internal constructor(private val context:
                     }
                 }
             }
-
-            /*
-            if (!value?.startStopCode.isNullOrBlank() && !value?.endStopCode.isNullOrBlank()) {
-                //assuming same area for both from and to point
-                WikiWayFinder.getAreaWithGTFSCode(value!!.startStopCode)?.apply {
-                    WikiWayFinder.let {
-                        it.setCurrentArea(this)
-                        it.checkDownloadAreaPoints(this) { area ->
-                            val fromPoint = area.getPointWithGTFSCode(value.startStopCode)
-                            val toPoint = area.getPointWithGTFSCode(value.endStopCode)
-
-                            if (fromPoint != null && toPoint != null) {
-                                WikiWayFinder.getRoute(
-                                        context,
-                                        fromPoint,
-                                        listOf(toPoint)
-                                ) { routePoints ->
-                                    wikiWayFinderRoutes.clear()
-                                    wikiWayFinderRoutes.addAll(routePoints)
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            */
         }
+        */
 
     val externalAction = ObservableField<String>()
     val externalActionClicked = BehaviorRelay.create<TripSegment>()
 
-    //private val
-
-    /*
-    fun setTripSegment(segment: TripSegment?){
-        _tripSegment = segment
-
-        if(!segment?.startStopCode.isNullOrBlank() && !segment?.endStopCode.isNullOrBlank()){
+    fun setWayWikiSegments(previousPTSegment: TripSegment, nextPTSegment: TripSegment) {
+        if (!previousPTSegment.endStopCode.isNullOrBlank() && !nextPTSegment.startStopCode.isNullOrBlank()) {
             //assuming same area for both from and to point
-            WikiWayFinder.getAreaWithGTFSCode(segment!!.startStopCode)?.apply {
-                WikiWayFinder.let{
-                    it.setCurrentArea(this)
-                    it.checkDownloadAreaPoints(this){ area ->
-                        val fromPoint = area.getPointWithGTFSCode(segment.startStopCode)
-                        val toPoint = area.getPointWithGTFSCode(segment.endStopCode)
+            WayWikiFinder.getAreaWithGTFSCode(previousPTSegment.endStopCode)
+                    ?: WayWikiFinder.getAreaWithGTFSCode(nextPTSegment.startStopCode)?.apply {
+                        WayWikiFinder.let {
+                            it.setCurrentArea(this)
+                            it.checkDownloadAreaPoints(this) { area ->
+                                val fromPoint = area.getPointWithGTFSCode(previousPTSegment.endStopCode)
+                                val toPoint = area.getPointWithGTFSCode(nextPTSegment.startStopCode)
 
-                        if(fromPoint != null && toPoint != null) {
-                            WikiWayFinder.getRoute(
-                                    context,
-                                    fromPoint,
-                                    listOf(toPoint)
-                            ){
-
+                                if (fromPoint != null && toPoint != null) {
+                                    WayWikiFinder.getRoute(
+                                            context,
+                                            fromPoint,
+                                            listOf(toPoint)
+                                    ) { routePoints ->
+                                        wikiWayFinderRoutes.clear()
+                                        wikiWayFinderRoutes.addAll(routePoints)
+                                    }
+                                }
                             }
                         }
                     }
-                }
-            }
         }
     }
-    */
 
     fun setupSegment(viewType: SegmentViewType,
                      title: String,
