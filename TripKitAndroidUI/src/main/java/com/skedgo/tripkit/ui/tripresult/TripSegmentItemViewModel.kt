@@ -12,6 +12,7 @@ import android.text.SpannableString
 import android.text.style.ForegroundColorSpan
 import android.text.style.StrikethroughSpan
 import android.text.style.StyleSpan
+import android.util.Log
 import android.view.View
 import androidx.core.content.ContextCompat
 import androidx.databinding.ObservableBoolean
@@ -81,79 +82,43 @@ TripSegmentItemViewModel @Inject internal constructor(
     val alertsClicked = BehaviorRelay.create<ArrayList<RealtimeAlert>>()
     //var tripSegment: TripSegment? = null
 
-    val wikiWayFinderRoutes = mutableListOf<Point>()
-
-    var userLocation: LiveData<Location>? = null
-        set(value) {
-            field = value
-
-
-        }
+    private val _wikiWayFinderRoutes = MutableLiveData(listOf<Point>())
+    val wikiWayFinderRoutes: LiveData<List<Point>> = _wikiWayFinderRoutes
 
     var tripSegment: TripSegment? = null
-        /*
-        set(value) {
-            field = value
-
-            if (value?.transportModeId == TransportMode.ID_PUBLIC_TRANSPORT) {
-
-                //assuming same area for both from and to point
-                WayWikiFinder.getAreaWithGTFSCode("2000328")?.apply {
-                    WayWikiFinder.let {
-                        it.setCurrentArea(this)
-                        it.checkDownloadAreaPoints(this) { area ->
-                            //val fromPoint = area.getPointWithGTFSCode("2000328")
-                            //val toPoint = area.getPointWithGTFSCode("2000336")
-                            val fromPoint = area.getPointById(348)
-                            val toPoint = listOf(
-                                    area.getPointById(121)!!,
-                                    area.getPointById(177)!!
-                            )
-
-                            if (fromPoint != null && toPoint != null) {
-                                WayWikiFinder.getRoute(
-                                        context,
-                                        fromPoint,
-                                        toPoint
-                                ) { routePoints ->
-                                    wikiWayFinderRoutes.clear()
-                                    wikiWayFinderRoutes.addAll(routePoints)
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        */
 
     val externalAction = ObservableField<String>()
     val externalActionClicked = BehaviorRelay.create<TripSegment>()
 
     fun setWayWikiSegments(previousPTSegment: TripSegment, nextPTSegment: TripSegment) {
         if (!previousPTSegment.endStopCode.isNullOrBlank() && !nextPTSegment.startStopCode.isNullOrBlank()) {
-            //assuming same area for both from and to point
-            WayWikiFinder.getAreaWithGTFSCode(previousPTSegment.endStopCode)
-                    ?: WayWikiFinder.getAreaWithGTFSCode(nextPTSegment.startStopCode)?.apply {
-                        WayWikiFinder.let {
-                            it.setCurrentArea(this)
-                            it.checkDownloadAreaPoints(this) { area ->
-                                val fromPoint = area.getPointWithGTFSCode(previousPTSegment.endStopCode)
-                                val toPoint = area.getPointWithGTFSCode(nextPTSegment.startStopCode)
 
-                                if (fromPoint != null && toPoint != null) {
-                                    WayWikiFinder.getRoute(
-                                            context,
-                                            fromPoint,
-                                            listOf(toPoint)
-                                    ) { routePoints ->
-                                        wikiWayFinderRoutes.clear()
-                                        wikiWayFinderRoutes.addAll(routePoints)
-                                    }
-                                }
+            val startArea = WayWikiFinder.getAreaWithGTFSCode(previousPTSegment.endStopCode)
+            val endArea = WayWikiFinder.getAreaWithGTFSCode(nextPTSegment.startStopCode)
+
+            if (startArea != null || endArea != null) {
+                val area = startArea ?: endArea
+
+                area?.apply {
+                    WayWikiFinder.setCurrentArea(this)
+                    WayWikiFinder.checkDownloadAreaPoints(this) { area ->
+
+                        val fromPoint = area.getPointWithGTFSCode(previousPTSegment.endStopCode)
+                        val toPoint = area.getPointWithGTFSCode(nextPTSegment.startStopCode)
+
+                        if (fromPoint != null && toPoint != null) {
+
+                            WayWikiFinder.getRoute(
+                                    context,
+                                    fromPoint,
+                                    listOf(toPoint)
+                            ) { routePoints ->
+                                _wikiWayFinderRoutes.value = routePoints
                             }
                         }
                     }
+                }
+            }
         }
     }
 

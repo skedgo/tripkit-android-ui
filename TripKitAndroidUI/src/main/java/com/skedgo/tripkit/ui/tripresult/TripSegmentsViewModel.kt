@@ -105,7 +105,7 @@ class TripSegmentsViewModel @Inject internal constructor(
     init {
     }
 
-    fun setShowWikiwayFinder(value: List<Point>){
+    fun setShowWikiwayFinder(value: List<Point>) {
         _showWikiwayFinder.value = value
     }
 
@@ -388,7 +388,11 @@ class TripSegmentsViewModel @Inject internal constructor(
 
                 viewModel.onClick.observable.subscribe {
                     it.tripSegment?.let { segment ->
-                        segmentClicked.accept(segment)
+                        if (it.wikiWayFinderRoutes.value?.isNotEmpty() == true) {
+                            _showWikiwayFinder.value = it.wikiWayFinderRoutes.value
+                        } else {
+                            segmentClicked.accept(segment)
+                        }
                     }
                 }.autoClear()
                 viewModel.tripSegment = segment
@@ -427,8 +431,8 @@ class TripSegmentsViewModel @Inject internal constructor(
                         addMovingItem(bridgeModel, segment)
                         bridgeModel.onClick.observable.subscribe {
                             it.tripSegment?.let { segment ->
-                                if(it.wikiWayFinderRoutes.isNotEmpty()){
-                                    _showWikiwayFinder.value = it.wikiWayFinderRoutes
+                                if (it.wikiWayFinderRoutes.value?.isNotEmpty() == true) {
+                                    _showWikiwayFinder.value = it.wikiWayFinderRoutes.value
                                 } else {
                                     segmentClicked.accept(segment)
                                 }
@@ -466,7 +470,8 @@ class TripSegmentsViewModel @Inject internal constructor(
     }
 
     override fun onItemClick(tag: String, viewModel: ActionButtonViewModel) {
-        actionButtonHandler?.actionClicked(context, tag, this.trip ?: tripGroup.displayTrip!!, viewModel)
+        actionButtonHandler?.actionClicked(context, tag, this.trip
+                ?: tripGroup.displayTrip!!, viewModel)
     }
 
 }
