@@ -4,6 +4,7 @@ package com.skedgo.tripkit.ui.tripresult
 import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
+import android.util.Log
 import androidx.databinding.ObservableArrayList
 import androidx.databinding.ObservableBoolean
 import androidx.databinding.ObservableField
@@ -272,7 +273,11 @@ class TripSegmentsViewModel @Inject internal constructor(
         }
 
         val possibleDescription = when {
-            !nextSegment?.platform.isNullOrBlank() -> context.getString(R.string.platform, nextSegment!!.platform)
+            !nextSegment?.platform.isNullOrBlank() ->
+                context.getString(
+                        R.string.platform,
+                        nextSegment!!.platform!!.replace("Platform", "", true)
+                )
             !tripSegment.action.isNullOrBlank() -> processedText(tripSegment, tripSegment.action)
             else -> null
         }
@@ -286,8 +291,7 @@ class TripSegmentsViewModel @Inject internal constructor(
         }
         if (!nextSegment?.from?.address.isNullOrEmpty()) {
             location = nextSegment?.from?.address!!
-        }
-        if (!previousSegment?.from?.address.isNullOrEmpty()) {
+        } else if (!previousSegment?.from?.address.isNullOrEmpty()) {
             location = previousSegment?.from?.address!!
         }
 
@@ -309,7 +313,11 @@ class TripSegmentsViewModel @Inject internal constructor(
         val possibleTitle = nextSegment?.from?.displayName ?: tripSegment.to?.displayName
 
         val possibleDescription = when {
-            !nextSegment?.platform.isNullOrBlank() -> context.getString(R.string.platform, nextSegment!!.platform)
+            !nextSegment?.platform.isNullOrBlank() ->
+                context.getString(
+                        R.string.platform,
+                        nextSegment!!.platform!!.replace("Platform", "", true)
+                )
             else -> null
         }
 
@@ -399,15 +407,23 @@ class TripSegmentsViewModel @Inject internal constructor(
 
                 if (segment.transportModeId == TransportMode.ID_WALK && previousSegment != null) {
                     val summarySegments = tripSegments.filter {
-                        it.visibility == Visibilities.VISIBILITY_IN_SUMMARY
-                    }
+                        if (segment.visibility == Visibilities.VISIBILITY_IN_DETAILS) {
+                            it.visibility == Visibilities.VISIBILITY_IN_SUMMARY ||
+                                    (it.visibility == Visibilities.VISIBILITY_IN_DETAILS
+                                            && it.id == segment.id)
+                        } else {
+                            it.visibility == Visibilities.VISIBILITY_IN_SUMMARY
+                        }
+                    }.sortedBy { it.id }
 
                     val currentSegmentIndex = summarySegments.indexOfFirst { it.id == segment.id }
+
                     val previousSummarySegment = if ((currentSegmentIndex - 1) >= 0) {
                         summarySegments[currentSegmentIndex - 1]
                     } else {
                         null
                     }
+
                     val nextSummarySegment = if ((currentSegmentIndex + 1) < summarySegments.size) {
                         summarySegments[currentSegmentIndex + 1]
                     } else {
