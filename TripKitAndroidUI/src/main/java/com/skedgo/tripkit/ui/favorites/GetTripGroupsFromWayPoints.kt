@@ -8,10 +8,8 @@ import com.skedgo.tripkit.ui.routingresults.TripGroupRepository
 import io.reactivex.Observable
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.rx2.*
 import kotlinx.coroutines.withContext
-import timber.log.Timber
 import javax.inject.Inject
 
 open class GetTripGroupsFromWayPoints @Inject constructor(

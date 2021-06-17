@@ -13,6 +13,7 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.TextView
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearSmoothScroller
 import androidx.recyclerview.widget.RecyclerView
@@ -202,13 +203,17 @@ class TimetableFragment : BaseTripKitFragment(), View.OnClickListener {
                 }.addTo(autoDisposable)
 
         viewModel.timetableEntryChosen.observeOn(AndroidSchedulers.mainThread()).subscribe {
-            Observable.combineLatest(viewModel.stopRelay, viewModel.startTimeRelay,
-                    BiFunction { one: ScheduledStop, two: Long -> one to two })
-                    .take(1).subscribe { pair ->
-                        timetableEntrySelectedListener.forEach { listener ->
-                            listener.onTimetableEntrySelected(it, pair.first, pair.second)
+            if (viewModel.action.isNotEmpty()) {
+                tripPreviewPagerListener?.onTimetableEntryClicked(viewModel.viewModelScope, it)
+            } else {
+                Observable.combineLatest(viewModel.stopRelay, viewModel.startTimeRelay,
+                        BiFunction { one: ScheduledStop, two: Long -> one to two })
+                        .take(1).subscribe { pair ->
+                            timetableEntrySelectedListener.forEach { listener ->
+                                listener.onTimetableEntrySelected(it, pair.first, pair.second)
+                            }
                         }
-                    }
+            }
         }.addTo(autoDisposable)
 
         binding.recyclerView.scrollToPosition(0)
