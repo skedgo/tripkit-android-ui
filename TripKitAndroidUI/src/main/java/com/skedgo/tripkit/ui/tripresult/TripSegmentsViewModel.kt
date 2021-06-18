@@ -4,7 +4,6 @@ package com.skedgo.tripkit.ui.tripresult
 import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
-import android.util.Log
 import androidx.databinding.ObservableArrayList
 import androidx.databinding.ObservableBoolean
 import androidx.databinding.ObservableField
@@ -23,6 +22,8 @@ import com.skedgo.tripkit.routing.*
 import com.skedgo.tripkit.ui.BR
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.core.RxViewModel
+import com.skedgo.tripkit.ui.core.settings.DeveloperPreferenceRepository
+import com.skedgo.tripkit.ui.core.settings.DeveloperPreferenceRepositoryImpl
 import com.skedgo.tripkit.ui.creditsources.CreditSourcesOfDataViewModel
 import com.skedgo.tripkit.ui.routingresults.TripGroupRepository
 import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButtonContainer
@@ -102,6 +103,13 @@ class TripSegmentsViewModel @Inject internal constructor(
 
     private val _userLocation = MutableLiveData<android.location.Location>()
     val userLocation: LiveData<android.location.Location> = _userLocation
+
+    private val developerPreferenceRepository: DeveloperPreferenceRepository by lazy {
+        DeveloperPreferenceRepositoryImpl(
+                context,
+                context.getSharedPreferences("DeveloperPreferences2", Context.MODE_PRIVATE)
+        )
+    }
 
     init {
     }
@@ -404,8 +412,9 @@ class TripSegmentsViewModel @Inject internal constructor(
                     }
                 }.autoClear()
                 viewModel.tripSegment = segment
-
-                if (segment.transportModeId == TransportMode.ID_WALK && previousSegment != null) {
+                val wikiEnabled = developerPreferenceRepository.wayFinderWikiEnabled
+                if (wikiEnabled &&
+                        segment.transportModeId == TransportMode.ID_WALK && previousSegment != null) {
                     val summarySegments = tripSegments.filter {
                         if (segment.visibility == Visibilities.VISIBILITY_IN_DETAILS) {
                             it.visibility == Visibilities.VISIBILITY_IN_SUMMARY ||
