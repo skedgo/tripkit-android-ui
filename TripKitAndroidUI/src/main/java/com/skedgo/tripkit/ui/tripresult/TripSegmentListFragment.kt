@@ -4,18 +4,12 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
-import android.view.InflateException
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AlertDialog
-import androidx.core.view.ViewCompat
-import androidx.core.view.forEach
 import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.RecyclerView
 import com.skedgo.tripkit.logging.ErrorLogger
-import com.skedgo.tripkit.routing.Trip
 import com.skedgo.tripkit.routing.TripGroup
 import com.skedgo.tripkit.routing.TripSegment
 import com.skedgo.tripkit.routing.getBookingSegment
@@ -30,10 +24,10 @@ import com.skedgo.tripkit.ui.databinding.TripSegmentListFragmentBinding
 import com.skedgo.tripkit.ui.model.TripKitButton
 import com.skedgo.tripkit.ui.model.TripKitButtonConfigurator
 import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButtonHandlerFactory
-import com.squareup.otto.Bus
+import com.skedgo.tripkit.ui.utils.observe
+import com.technologies.wikiwayfinder.core.singleton.WayWikiFinder
 import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.coroutines.launch
-import timber.log.Timber
 import javax.inject.Inject
 
 
@@ -189,6 +183,14 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
                     val dialog = TripSegmentAlertsSheet.newInstance(list)
                     dialog.show(requireFragmentManager(), "alerts_sheet")
                 }.addTo(autoDisposable)
+        viewModel.apply {
+            observe(showWikiwayFinder){
+                if(!it.isNullOrEmpty()){
+                    WayWikiFinder.showRouteActivity(requireContext(), it)
+                    viewModel.setShowWikiwayFinder(emptyList())
+                }
+            }
+        }
     }
 
     private fun startAndLogActivity(tripSegment: TripSegment, intent: Intent) {

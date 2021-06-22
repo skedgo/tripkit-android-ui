@@ -14,6 +14,7 @@ class DeveloperPreferenceRepositoryImpl constructor(
   private val isEnabledKey by lazy { "isEnabled" }
   private val bsbKey by lazy { context.getString(R.string.pref_bsb) }
   private val psbKey by lazy { context.getString(R.string.pref_psb) }
+  private val wfwKey by lazy { context.getString(R.string.pref_wfw) }
   private val serverTypeKey by lazy { context.getString(R.string.pref_server_type) }
   private val customServerKey by lazy { context.getString(R.string.pref_custom_server) }
   private val productionServer by lazy { "" }
@@ -58,6 +59,13 @@ class DeveloperPreferenceRepositoryImpl constructor(
     }
     set(value) {
       preferences.edit().putBoolean(psbKey, value).apply()
+    }
+  override var wayFinderWikiEnabled: Boolean
+    get() {
+      return preferences.getBoolean(wfwKey, false)
+    }
+    set(value) {
+      preferences.edit().putBoolean(wfwKey, value).apply()
     }
 
   override val server: String
