@@ -269,8 +269,8 @@ class TripSegmentsViewModel @Inject internal constructor(
         }
 
         var location = context.resources.getString(R.string.location)
-        if (!tripSegment.singleLocation.address.isNullOrEmpty()) {
-            location = tripSegment.singleLocation.displayAddress
+        if (tripSegment.singleLocation != null && !tripSegment.singleLocation.address.isNullOrEmpty()) {
+            location = tripSegment.singleLocation.displayAddress ?: tripSegment.singleLocation.address
         }
         if (!tripSegment.sharedVehicle?.garage()?.address.isNullOrEmpty()) {
             location = tripSegment.sharedVehicle.garage()?.address!!

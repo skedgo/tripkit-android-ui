@@ -243,7 +243,8 @@ class TripPreviewPagerFragment : BaseTripKitFragment() {
     fun setTripSegment(segment: TripSegment, tripSegments: List<TripSegment>) {
         adapter.setTripSegments(
                 segment.id,
-                tripSegments.filter {
+                tripSegments
+                .filter {
                     !it.isContinuation
                 }.filter {
                     it.type != SegmentType.DEPARTURE && it.type != SegmentType.ARRIVAL
@@ -279,7 +280,7 @@ class TripPreviewPagerFragment : BaseTripKitFragment() {
     }
 
     interface Listener {
-        fun onServiceActionButtonClicked(action: String?)
+        fun onServiceActionButtonClicked(_tripSegment: TripSegment?, action: String?)
         fun onTimetableEntryClicked(scope: CoroutineScope, entry: TimetableEntry)
         @Deprecated("UnusedClass") fun onExternalActionButtonClicked(action: String?)
     }

@@ -12,7 +12,6 @@ import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.TextView
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearSmoothScroller
@@ -27,7 +26,6 @@ import com.skedgo.tripkit.ui.TripKitUI
 import com.skedgo.tripkit.ui.core.BaseTripKitFragment
 import com.skedgo.tripkit.ui.core.OnResultStateListener
 import com.skedgo.tripkit.ui.core.addTo
-import com.skedgo.tripkit.ui.core.rxproperty.asObservable
 import com.skedgo.tripkit.ui.databinding.TimetableFragmentBinding
 import com.skedgo.tripkit.ui.dialog.TimeDatePickerFragment
 import com.skedgo.tripkit.ui.model.TimetableEntry
@@ -35,7 +33,6 @@ import com.skedgo.tripkit.ui.model.TripKitButton
 import com.skedgo.tripkit.ui.search.ARG_SHOW_SEARCH_FIELD
 import com.skedgo.tripkit.ui.views.MultiStateView
 import io.reactivex.Observable
-import io.reactivex.Scheduler
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.functions.BiFunction
@@ -117,6 +114,7 @@ class TimetableFragment : BaseTripKitFragment(), View.OnClickListener {
     private val filterThrottle = PublishSubject.create<String>()
     private lateinit var binding: TimetableFragmentBinding
     protected var buttons: List<TripKitButton> = emptyList()
+    private var tripSegment: TripSegment? = null
     val clickDisposable = CompositeDisposable()
 
     override fun onAttach(context: Context) {
@@ -199,7 +197,7 @@ class TimetableFragment : BaseTripKitFragment(), View.OnClickListener {
                         viewModel.buttonText.set("Booking...")
                         viewModel.enableButton.set(false)
                     }
-                    tripPreviewPagerListener?.onServiceActionButtonClicked(viewModel.action)
+                    tripPreviewPagerListener?.onServiceActionButtonClicked(tripSegment, viewModel.action)
                 }.addTo(autoDisposable)
 
         viewModel.timetableEntryChosen.observeOn(AndroidSchedulers.mainThread()).subscribe {
@@ -359,7 +357,7 @@ class TimetableFragment : BaseTripKitFragment(), View.OnClickListener {
                         setBookingActions(it.second)
                     }
                     */
-                    setBookingActions(it.second)
+                    setBookingActions(tripSegment?.booking?.externalActions ?: it.second)
                 }, {
                     it.printStackTrace()
                 })?.addTo(autoDisposable)
@@ -416,10 +414,15 @@ class TimetableFragment : BaseTripKitFragment(), View.OnClickListener {
         viewModel.setText(requireContext())
     }
 
+    fun setTripSegment(tripSegment: TripSegment?) {
+        this.tripSegment = tripSegment
+    }
+
     class Builder {
         private var showCloseButton = false
         private var showSearchBar = true
         private var stop: ScheduledStop? = null
+        private var tripSegment: TripSegment? = null
         private var bookingActions: ArrayList<String>? = null
         private var buttons: MutableList<TripKitButton> = mutableListOf()
         private var actionStream: BehaviorSubject<Pair<String, List<String>?>>? = null
@@ -459,6 +462,11 @@ class TimetableFragment : BaseTripKitFragment(), View.OnClickListener {
             return this
         }
 
+        fun withTripSegment(tripSegment: TripSegment): Builder {
+            this.tripSegment = tripSegment
+            return this
+        }
+
         fun build(): TimetableFragment {
             val args = Bundle()
             val fragment = TimetableFragment()
@@ -469,6 +477,7 @@ class TimetableFragment : BaseTripKitFragment(), View.OnClickListener {
             fragment.arguments = args
             fragment.buttons = buttons
             fragment.segmentActionStream = actionStream
+            fragment.setTripSegment(tripSegment)
 
             return fragment
         }

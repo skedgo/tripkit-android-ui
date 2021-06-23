@@ -13,4 +13,5 @@ data class Waypoint(
         val serviceTripId: String? = null,
         val operator: String? = null,
         val region: String? = null,
-        val disembarkationRegion: String? = null)
+        val disembarkationRegion: String? = null,
+        val vehicleUUID: String? = null)

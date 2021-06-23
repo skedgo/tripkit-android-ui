@@ -43,7 +43,11 @@ class TripPreviewPagerViewModel : RxViewModel() {
 
     private val headersStream = PublishSubject.create<List<TripPreviewHeader>>()
 
-    init {
+    fun generatePreviewHeaders(
+            context: Context,
+            tripSegments: List<TripSegment>,
+            getTransportIconTintStrategy: GetTransportIconTintStrategy
+    ) {
         headersStream
                 .debounce(500, TimeUnit.MILLISECONDS)
                 .subscribeOn(Schedulers.io())
@@ -52,13 +56,6 @@ class TripPreviewPagerViewModel : RxViewModel() {
                     _headers.value = headers.sortedBy { it.id }
                 }
                 .autoClear()
-    }
-
-    fun generatePreviewHeaders(
-            context: Context,
-            tripSegments: List<TripSegment>,
-            getTransportIconTintStrategy: GetTransportIconTintStrategy
-    ) {
 
         val previewHeaders = mutableListOf<TripPreviewHeader>()
 

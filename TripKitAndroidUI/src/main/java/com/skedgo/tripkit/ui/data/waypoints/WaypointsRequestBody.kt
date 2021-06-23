@@ -59,7 +59,7 @@ class WaypointsAdapter : TypeAdapter<Waypoint>() {
             }
 
             if (!value.serviceTripId.isNullOrEmpty()) {
-                out.name("serviceTripId")
+                out.name("serviceTripID")
                 out.value(value.serviceTripId)
             }
 

@@ -18,7 +18,7 @@ internal class GetTripFromWaypointsImpl(
         private val waypointsApi: WaypointsApi
 ) : GetTripFromWaypoints {
 
-    override fun execute(config: RoutingConfig, waypoints: List<Waypoint>): Observable<TripGroup> {
+    override fun execute(config: RoutingConfig, waypoints: List<Waypoint>): Observable<GetTripFromWaypoints.WaypointResponse?> {
         val wp = waypoints.mapIndexed { index: Int, waypoint: Waypoint ->
             if (index == 0 && waypoint.start.isNullOrEmpty()) {
                 waypoint.copy(time = System.currentTimeMillis().div(1000).plus(60))
@@ -29,8 +29,29 @@ internal class GetTripFromWaypointsImpl(
         return waypointsApi.request(WaypointsRequestBody(config.toConfigDto(), wp.toTypedArray()))
                 .map { response ->
                     response.processRawData(resources, gson)
-                    response.tripGroupList.first()
+                    var tripGroup: TripGroup? = null
+                    response.tripGroupList?.let {
+                        tripGroup = it.first()
+                    }
+                    GetTripFromWaypoints.WaypointResponse(tripGroup, response.errorMessage)
                 }
                 .subscribeOn(Schedulers.io())
+    }
+
+    override suspend fun requestTripGroup(config: RoutingConfig, waypoints: List<Waypoint>): TripGroup? {
+        val wp = waypoints.mapIndexed { index: Int, waypoint: Waypoint ->
+            if (index == 0 && waypoint.start.isNullOrEmpty()) {
+                waypoint.copy(time = System.currentTimeMillis().div(1000).plus(60))
+            } else {
+                waypoint
+            }
+        }
+
+        var tg: TripGroup? = null
+        val response = waypointsApi.requestTripGroup(WaypointsRequestBody(config.toConfigDto(), wp.toTypedArray()))
+        if (response is NetworkResponse.Success) {
+            tg = response.body.tripGroupList.first()
+        }
+        return tg
     }
 }
