@@ -21,9 +21,12 @@ class TripGroupsPagerAdapter(private val fragmentManager: FragmentManager) : Fra
     var tripGroups: List<TripGroup>? = null
     set(value) {
         field = value
+        setupFragments()
         notifyDataSetChanged()
     }
     var tripIds = mutableMapOf<String, Long>()
+
+    var fragmentItems = mutableListOf<TripSegmentListFragment>()
 
     private var actionButtonHandlerFactory: ActionButtonHandlerFactory? = null
     private var showCloseButton = false
@@ -62,7 +65,26 @@ class TripGroupsPagerAdapter(private val fragmentManager: FragmentManager) : Fra
         this.showCloseButton = showCloseButton
     }
 
+    private fun setupFragments(){
+        fragmentItems.clear()
+        tripGroups?.forEach { group ->
+            val tripId = tripIds[group.uuid()]
+            val fragment = TripSegmentListFragment.Builder()
+                    .withTripGroupId(group.uuid())
+                    .withTripId(tripId)
+                    .withActionButtonHandlerFactory(actionButtonHandlerFactory)
+                    .showCloseButton(showCloseButton)
+                    .build()
+            fragment.setOnTripKitButtonClickListener(listener!!)
+            fragment.onCloseButtonListener = closeListener
+            fragment.setOnTripSegmentClickListener(segmentClickListener!!)
+
+            fragmentItems.add(fragment)
+        }
+    }
+
     override fun getItem(position: Int): Fragment {
+        /*
         val tripGroup = tripGroups!![position]
         val tripId = tripIds[tripGroup.uuid()]
         val fragment = TripSegmentListFragment.Builder()
@@ -74,7 +96,8 @@ class TripGroupsPagerAdapter(private val fragmentManager: FragmentManager) : Fra
         fragment.setOnTripKitButtonClickListener(listener!!)
         fragment.onCloseButtonListener = closeListener
         fragment.setOnTripSegmentClickListener(segmentClickListener!!)
-        return fragment
+        */
+        return fragmentItems[position]
     }
 
     override fun getCount(): Int {
