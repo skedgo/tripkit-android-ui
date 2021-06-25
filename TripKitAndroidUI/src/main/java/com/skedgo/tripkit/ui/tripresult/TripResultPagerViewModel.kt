@@ -76,8 +76,10 @@ class TripResultPagerViewModel @Inject internal constructor(
     fun getSortedTripGroups(args: PagerFragmentArguments): Observable<Unit> {
         if (args is FromRoutes) {
             return getSortedTripGroups.execute(args.requestId, args.arriveBy, args.sortOrder, tripResultTransportViewFilter)
-                    .subscribeOn(schedulers.ioScheduler)
-                    .doOnNext { tripGroups.accept(it) }
+                    .subscribeOn(Schedulers.io())
+                    .doOnNext {
+                        tripGroups.accept(it)
+                    }
                     .map { Unit }
         } else if (args is SingleTrip) {
             selectedTripGroupRepository.setSelectedTripGroupId(args.tripGroupId)
@@ -102,10 +104,15 @@ class TripResultPagerViewModel @Inject internal constructor(
     }
 
     fun observeInitialPage(): Observable<Unit> {
-        return Observables.combineLatest(tripGroups.firstOrError().toObservable(), selectedTripGroup.hide().firstOrError().toObservable())
-        { tripGroups: List<TripGroup>, id: TripGroup -> tripGroups.indexOfFirst { id.uuid() == it.uuid() } }
-                .doOnNext { currentPage.set(it) }
-                .map { Unit }
+        return Observables.combineLatest(
+                tripGroups.firstOrError().toObservable(),
+                selectedTripGroup.hide().firstOrError().toObservable()
+        )
+        { tripGroups: List<TripGroup>, id: TripGroup ->
+            tripGroups.indexOfFirst { id.uuid() == it.uuid() }
+        }.doOnNext {
+            currentPage.set(it)
+        }.map { Unit }
     }
 
     fun observeTripGroups(): Observable<Unit> {

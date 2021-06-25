@@ -50,8 +50,8 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
         this.mClickListener = callback
     }
 
-    fun setOnTripKitButtonClickListener(callback:(Int, TripGroup) -> Unit) {
-        this.mClickListener = object: OnTripKitButtonClickListener {
+    fun setOnTripKitButtonClickListener(callback: (Int, TripGroup) -> Unit) {
+        this.mClickListener = object : OnTripKitButtonClickListener {
             override fun tripKitButtonClicked(id: Int, tripGroup: TripGroup) {
                 callback(id, tripGroup)
             }
@@ -62,13 +62,14 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
     interface OnTripSegmentClickListener {
         fun tripSegmentClicked(tripSegment: TripSegment)
     }
+
     private var onTripSegmentClickListener: OnTripSegmentClickListener? = null
     fun setOnTripSegmentClickListener(callback: OnTripSegmentClickListener) {
         this.onTripSegmentClickListener = callback
     }
 
-    fun setOnTripSegmentClickListener(callback:(TripSegment) -> Unit) {
-        this.onTripSegmentClickListener = object: OnTripSegmentClickListener {
+    fun setOnTripSegmentClickListener(callback: (TripSegment) -> Unit) {
+        this.onTripSegmentClickListener = object : OnTripSegmentClickListener {
             override fun tripSegmentClicked(tripSegment: TripSegment) {
                 callback(tripSegment)
             }
@@ -122,10 +123,9 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
 
         viewModel.tripGroupObservable
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe {tripGroup ->
-                    tripGroup.displayTrip?.getBookingSegment()?.booking?.externalActions?.forEach {
-
-                    }
+                .subscribe { tripGroup ->
+                    tripGroup.displayTrip?.getBookingSegment()?.booking
+                            ?.externalActions?.forEach {}
                 }.addTo(autoDisposable)
     }
 
@@ -167,10 +167,10 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
                     onTripSegmentClickListener?.tripSegmentClicked(it)
                 }.addTo(autoDisposable)
         viewModel.externalActionClicked
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe { tripSegment ->
-                handleExternalBooking(tripSegment)
-            }.addTo(autoDisposable)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe { tripSegment ->
+                    handleExternalBooking(tripSegment)
+                }.addTo(autoDisposable)
         viewModel.alertsClicked
                 .subscribe {
                     var list = mutableListOf<TripSegmentAlertsItemViewModel>()
@@ -199,23 +199,24 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
         }
         startActivity(intent)
     }
+
     private fun handleExternalBooking(tripSegment: TripSegment) {
         tripSegment.booking.externalActions?.firstOrNull()?.let { action ->
             val externalActionParams = ExternalActionParams.builder()
-                .action(action)
-                .segment(tripSegment)
-                .build()
+                    .action(action)
+                    .segment(tripSegment)
+                    .build()
             bookingResolver.performExternalActionAsync(externalActionParams)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe { bookingAction ->
-                    if (bookingAction.bookingProvider() == BookingResolver.SMS) {
-                        if (bookingAction.data().resolveActivity(requireActivity().packageManager) != null) {
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe { bookingAction ->
+                        if (bookingAction.bookingProvider() == BookingResolver.SMS) {
+                            if (bookingAction.data().resolveActivity(requireActivity().packageManager) != null) {
+                                startAndLogActivity(tripSegment, bookingAction.data());
+                            }
+                        } else {
                             startAndLogActivity(tripSegment, bookingAction.data());
                         }
-                    } else {
-                        startAndLogActivity(tripSegment, bookingAction.data());
-                    }
-                    //            if (bookingAction.bookingProvider() == BookingResolver.SMS) {
+                        //            if (bookingAction.bookingProvider() == BookingResolver.SMS) {
 //              if (bookingAction.data().resolveActivity(fragment.getActivity().getPackageManager()) != null) {
 //                fragment.startActivity(bookingAction.data());
 //
@@ -235,9 +236,10 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
 //              fragment.startActivity(bookingAction.data());
 //            }
 
-                }
+                    }
         }
     }
+
     override fun onStop() {
         super.onStop()
         viewModel!!.onStop()
@@ -364,7 +366,7 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
     }
 
     class Builder {
-        private var tripGroupId : String? = null
+        private var tripGroupId: String? = null
         private var tripId: Long? = null
         private var buttons: List<TripKitButton>? = null
         private var buttonConfigurator: TripKitButtonConfigurator? = null
@@ -381,7 +383,8 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
             }
             return this
         }
-        fun withActionButtonHandlerFactory(factory: ActionButtonHandlerFactory?) : Builder {
+
+        fun withActionButtonHandlerFactory(factory: ActionButtonHandlerFactory?): Builder {
             this.actionButtonHandlerFactory = factory
             return this
         }
