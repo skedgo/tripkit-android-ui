@@ -126,7 +126,7 @@ class TripPreviewPagerFragment : BaseTripKitFragment() {
     fun load(tripGroupId: String, tripId: String, tripSegmentId: Long, fromTripAction: Boolean) {
         tripGroupRepository.getTripGroup(tripGroupId)
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe { tripGroup ->
+                .subscribe({ tripGroup ->
                     val trip = tripGroup.trips?.find { it.uuid() == tripId }
                     trip?.let {
 
@@ -156,7 +156,9 @@ class TripPreviewPagerFragment : BaseTripKitFragment() {
                         currentPagerIndex = activeIndex
                         binding.tripSegmentPager.currentItem = activeIndex
                     }
-                }
+                }, {
+                    it.printStackTrace()
+                })
                 .addTo(autoDisposable)
     }
 

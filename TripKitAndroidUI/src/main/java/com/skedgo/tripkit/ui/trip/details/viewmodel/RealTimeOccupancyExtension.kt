@@ -12,7 +12,7 @@ fun RealTimeVehicle.getAverageOccupancy(): Occupancy? {
     } else {
       this.flatten()
           .map {
-            it.getOccupancy()!!.ordinal
+            it.getOccupancy()?.ordinal?: 0
           }
           .average()
           .toInt()
