@@ -8,5 +8,6 @@ interface DeveloperPreferenceRepository {
   var isEnabled: Boolean
   var bookingsUseSandbox: Boolean
   var paymentsUseSandbox: Boolean
+  var wayFinderWikiEnabled: Boolean
   val server: String
 }

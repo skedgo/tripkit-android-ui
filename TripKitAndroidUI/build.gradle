@@ -129,6 +129,7 @@ dependencies {
     api project(':TripKitAndroid')
     api project(':TripKitAndroidUIModules:TripKitAndroidUIData')
     api project(':TripKitAndroidUIModules:TripKitAndroidUIDomain')
+    api project(":wikiwayfinder")
 }
 
 group = tripkitGroup

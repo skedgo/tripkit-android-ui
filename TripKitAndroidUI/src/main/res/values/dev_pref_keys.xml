@@ -3,6 +3,7 @@
     <!-- The value is `bsb` to match w/ value of sandbox for booking-related APIs. -->
     <string name="pref_bsb" translatable="false">bsb</string>
     <string name="pref_psb" translatable="false">psb</string>
+    <string name="pref_wfw" translatable="false">wfw</string>
     <string name="pref_server_type" translatable="false">serverType</string>
     <string name="pref_production_server" translatable="false">productionServer</string>
     <string name="pref_beta_server" translatable="false">betaServer</string>

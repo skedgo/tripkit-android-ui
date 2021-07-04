@@ -4,25 +4,26 @@ package com.skedgo.tripkit.ui.tripresult
 import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
-import androidx.core.content.ContextCompat
 import androidx.databinding.ObservableArrayList
 import androidx.databinding.ObservableBoolean
 import androidx.databinding.ObservableField
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.jakewharton.rxrelay2.BehaviorRelay
 import com.jakewharton.rxrelay2.PublishRelay
-import com.skedgo.tripkit.AndroidGeocoder
 import com.skedgo.tripkit.booking.BookingForm
-import com.skedgo.tripkit.common.model.Booking
 import com.skedgo.tripkit.common.model.Location
 import com.skedgo.tripkit.common.model.RealtimeAlert
+import com.skedgo.tripkit.common.model.TransportMode
 import com.skedgo.tripkit.common.util.TimeUtils
 import com.skedgo.tripkit.datetime.PrintTime
 import com.skedgo.tripkit.routing.*
 import com.skedgo.tripkit.ui.BR
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.core.RxViewModel
+import com.skedgo.tripkit.ui.core.settings.DeveloperPreferenceRepository
+import com.skedgo.tripkit.ui.core.settings.DeveloperPreferenceRepositoryImpl
 import com.skedgo.tripkit.ui.creditsources.CreditSourcesOfDataViewModel
 import com.skedgo.tripkit.ui.routingresults.TripGroupRepository
 import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButtonContainer
@@ -30,16 +31,14 @@ import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButtonHandler
 import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButtonHandlerFactory
 import com.skedgo.tripkit.ui.utils.TripSegmentActionProcessor
 import com.squareup.otto.Bus
+import com.technologies.wikiwayfinder.core.data.Point
 import io.reactivex.Observable
-import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
 import io.reactivex.subjects.PublishSubject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import me.tatarka.bindingcollectionadapter2.ItemBinding
 import me.tatarka.bindingcollectionadapter2.itembindings.OnItemBindClass
-import timber.log.Timber
-import java.lang.Exception
 import java.util.*
 import java.util.Collections.emptyList
 import javax.inject.Inject
@@ -84,6 +83,9 @@ class TripSegmentsViewModel @Inject internal constructor(
     private var actionButtonHandler: ActionButtonHandler? = null
     private var trip: Trip? = null
 
+    private val _showWikiwayFinder = MutableLiveData<List<Point>>()
+    val showWikiwayFinder: LiveData<List<Point>> = _showWikiwayFinder
+
     val tripGroupObservable: Observable<TripGroup>
         get() = tripGroupRelay.hide()
 
@@ -99,7 +101,21 @@ class TripSegmentsViewModel @Inject internal constructor(
         get() = tripGroupRelay.value!!
         internal set(tripGroup) = setTripGroup(tripGroup, -1, null)
 
+    private val _userLocation = MutableLiveData<android.location.Location>()
+    val userLocation: LiveData<android.location.Location> = _userLocation
+
+    private val developerPreferenceRepository: DeveloperPreferenceRepository by lazy {
+        DeveloperPreferenceRepositoryImpl(
+                context,
+                context.getSharedPreferences("DeveloperPreferences2", Context.MODE_PRIVATE)
+        )
+    }
+
     init {
+    }
+
+    fun setShowWikiwayFinder(value: List<Point>) {
+        _showWikiwayFinder.value = value
     }
 
     fun setActionButtonHandlerFactory(actionButtonHandlerFactory: ActionButtonHandlerFactory?) {
@@ -114,11 +130,13 @@ class TripSegmentsViewModel @Inject internal constructor(
         tripGroupRepository.getTripGroup(tripGroupId)
                 .observeOn(mainThread())
                 .onErrorResumeNext(Observable.empty())
-                .subscribe { tripGroup ->
-                    setTitleAndSubtitle(tripGroup, tripId)
-                    setTripGroup(tripGroup, tripId, savedInstanceState)
-                    setupButtons(tripGroup)
-                }
+                .subscribe(
+                        { tripGroup ->
+                            setTitleAndSubtitle(tripGroup, tripId)
+                            setTripGroup(tripGroup, tripId, savedInstanceState)
+                            setupButtons(tripGroup)
+                        }, { it.printStackTrace() }
+                )
                 .autoClear()
     }
 
@@ -263,7 +281,11 @@ class TripSegmentsViewModel @Inject internal constructor(
         }
 
         val possibleDescription = when {
-            !nextSegment?.platform.isNullOrBlank() -> context.getString(R.string.platform, nextSegment!!.platform)
+            !nextSegment?.platform.isNullOrBlank() ->
+                context.getString(
+                        R.string.platform,
+                        nextSegment!!.platform!!.replace("Platform", "", true)
+                )
             !tripSegment.action.isNullOrBlank() -> processedText(tripSegment, tripSegment.action)
             else -> null
         }
@@ -278,8 +300,7 @@ class TripSegmentsViewModel @Inject internal constructor(
         }
         if (!nextSegment?.from?.address.isNullOrEmpty()) {
             location = nextSegment?.from?.address!!
-        }
-        if (!previousSegment?.from?.address.isNullOrEmpty()) {
+        } else if (!previousSegment?.from?.address.isNullOrEmpty()) {
             location = previousSegment?.from?.address!!
         }
 
@@ -301,7 +322,11 @@ class TripSegmentsViewModel @Inject internal constructor(
         val possibleTitle = nextSegment?.from?.displayName ?: tripSegment.to?.displayName
 
         val possibleDescription = when {
-            !nextSegment?.platform.isNullOrBlank() -> context.getString(R.string.platform, nextSegment!!.platform)
+            !nextSegment?.platform.isNullOrBlank() ->
+                context.getString(
+                        R.string.platform,
+                        nextSegment!!.platform!!.replace("Platform", "", true)
+                )
             else -> null
         }
 
@@ -380,10 +405,47 @@ class TripSegmentsViewModel @Inject internal constructor(
 
                 viewModel.onClick.observable.subscribe {
                     it.tripSegment?.let { segment ->
-                        segmentClicked.accept(segment)
+                        if (it.wikiWayFinderRoutes.value?.isNotEmpty() == true) {
+                            _showWikiwayFinder.value = it.wikiWayFinderRoutes.value
+                        } else {
+                            segmentClicked.accept(segment)
+                        }
                     }
                 }.autoClear()
                 viewModel.tripSegment = segment
+                val wikiEnabled = developerPreferenceRepository.wayFinderWikiEnabled
+                if (wikiEnabled &&
+                        segment.transportModeId == TransportMode.ID_WALK && previousSegment != null) {
+                    val summarySegments = tripSegments.filter {
+                        if (segment.visibility == Visibilities.VISIBILITY_IN_DETAILS) {
+                            it.visibility == Visibilities.VISIBILITY_IN_SUMMARY ||
+                                    (it.visibility == Visibilities.VISIBILITY_IN_DETAILS
+                                            && it.id == segment.id)
+                        } else {
+                            it.visibility == Visibilities.VISIBILITY_IN_SUMMARY
+                        }
+                    }.sortedBy { it.id }
+
+                    val currentSegmentIndex = summarySegments.indexOfFirst { it.id == segment.id }
+
+                    val previousSummarySegment = if ((currentSegmentIndex - 1) >= 0) {
+                        summarySegments[currentSegmentIndex - 1]
+                    } else {
+                        null
+                    }
+
+                    val nextSummarySegment = if ((currentSegmentIndex + 1) < summarySegments.size) {
+                        summarySegments[currentSegmentIndex + 1]
+                    } else {
+                        null
+                    }
+
+                    if (previousSummarySegment?.transportModeId == TransportMode.ID_PUBLIC_TRANSPORT &&
+                            nextSummarySegment?.transportModeId == TransportMode.ID_PUBLIC_TRANSPORT) {
+                        viewModel.setWayWikiSegments(previousSummarySegment, nextSummarySegment)
+                    }
+                }
+
                 if (segment.type == SegmentType.ARRIVAL || segment.type == SegmentType.DEPARTURE) {
                     addTerminalItem(viewModel, segment, previousSegment, nextSegment)
                 } else if (segment.isStationary && ((segment.type == null && segment.startStopCode == null) || segment.type == SegmentType.STATIONARY)) {
@@ -395,7 +457,11 @@ class TripSegmentsViewModel @Inject internal constructor(
                         addMovingItem(bridgeModel, segment)
                         bridgeModel.onClick.observable.subscribe {
                             it.tripSegment?.let { segment ->
-                                segmentClicked.accept(segment)
+                                if (it.wikiWayFinderRoutes.value?.isNotEmpty() == true) {
+                                    _showWikiwayFinder.value = it.wikiWayFinderRoutes.value
+                                } else {
+                                    segmentClicked.accept(segment)
+                                }
                             }
                         }.autoClear()
                         segmentViewModels.add(bridgeModel)

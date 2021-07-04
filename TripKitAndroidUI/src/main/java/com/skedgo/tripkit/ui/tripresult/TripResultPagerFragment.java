@@ -14,6 +14,7 @@ import androidx.fragment.app.Fragment;
 import androidx.viewpager.widget.ViewPager;
 
 import com.skedgo.tripkit.model.ViewTrip;
+import com.skedgo.tripkit.routing.Trip;
 import com.skedgo.tripkit.ui.TripKitUI;
 import com.skedgo.tripkit.ui.booking.BookViewClickEventHandler;
 import com.skedgo.tripkit.ui.core.BaseTripKitFragment;
@@ -121,6 +122,7 @@ public class TripResultPagerFragment extends BaseTripKitFragment implements View
         return mapContributor;
     }
 
+<<<<<<< HEAD
     public void updatePagerFragmentTripGroup(@NotNull TripGroup tripGroup) {
         viewModel.setInitialSelectedTripGroupId(tripGroup.uuid());
     }
@@ -152,6 +154,31 @@ public class TripResultPagerFragment extends BaseTripKitFragment implements View
     }
 
     @Override
+=======
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mapContributor.cleanup();
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        viewModel.onStart();
+        mapContributor.setup();
+        this.binding.tripGroupsPager.addOnPageChangeListener(this);
+
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        viewModel.onStop();
+        this.binding.tripGroupsPager.removeOnPageChangeListener(this);
+    }
+
+    @Override
+>>>>>>> origin/master
     public void onPause() {
         super.onPause();
         bus.unregister(this);

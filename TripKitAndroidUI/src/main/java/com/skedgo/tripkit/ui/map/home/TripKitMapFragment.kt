@@ -315,7 +315,7 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
     fun setInfoWindowAdapter(infoWindowAdapter: InfoWindowAdapter?) {
         this.infoWindowAdapter = infoWindowAdapter
     }
-//mike
+
     override fun onInfoWindowClick(marker: Marker) {
         markerManager!!.onInfoWindowClick(marker)
     }
