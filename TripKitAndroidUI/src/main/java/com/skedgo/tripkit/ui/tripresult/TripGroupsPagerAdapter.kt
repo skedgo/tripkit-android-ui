@@ -1,21 +1,14 @@
 package com.skedgo.tripkit.ui.tripresult
 
-import android.util.Log
-import android.util.SparseLongArray
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.util.getOrDefault
-import androidx.core.util.getOrElse
-import androidx.core.view.children
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentStatePagerAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.skedgo.tripkit.routing.TripGroup
-import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.tripresult.TripSegmentListFragment.OnTripSegmentClickListener
 import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButtonHandlerFactory
-import timber.log.Timber
 
 class TripGroupsPagerAdapter(private val fragmentManager: FragmentManager) : FragmentStatePagerAdapter(fragmentManager, BEHAVIOR_SET_USER_VISIBLE_HINT) {
     var tripGroups: List<TripGroup>? = null
@@ -53,7 +46,7 @@ class TripGroupsPagerAdapter(private val fragmentManager: FragmentManager) : Fra
                     val otherView = f.view?.findViewWithTag<View>("segmentList")
                     otherView?.isNestedScrollingEnabled = false
                 }
-                container.requestLayout();
+                container.requestLayout()
             }
         }
     }

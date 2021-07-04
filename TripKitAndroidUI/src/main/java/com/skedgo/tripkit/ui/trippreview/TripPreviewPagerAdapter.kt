@@ -198,5 +198,4 @@ class TripPreviewPagerAdapter(fragmentManager: FragmentManager)
         return POSITION_NONE
     }
 
-
 }
