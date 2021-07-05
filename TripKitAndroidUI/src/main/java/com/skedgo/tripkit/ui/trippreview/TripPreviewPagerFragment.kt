@@ -189,11 +189,13 @@ class TripPreviewPagerFragment : BaseTripKitFragment() {
     private fun logAction(segment: TripSegment, action: Action) {
         val trip = segment.trip
         lifecycleScope.launch {
-            trip?.logURL?.let {
+            (segment.booking?.virtualBookingUrl ?: trip?.logURL)?.let {
                 val result = bookingService.logTrip(it)
-                if(result !is NetworkResponse.Success){
-                    result.logError()
+                if (result !is NetworkResponse.Success) {
+                    result.logError() 
                 }
+                proceedWithExternalAction(action)
+            } ?: kotlin.run {
                 proceedWithExternalAction(action)
             }
         }
