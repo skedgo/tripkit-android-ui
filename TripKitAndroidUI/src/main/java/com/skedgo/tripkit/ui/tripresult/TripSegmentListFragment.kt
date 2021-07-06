@@ -184,8 +184,8 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
                     dialog.show(requireFragmentManager(), "alerts_sheet")
                 }.addTo(autoDisposable)
         viewModel.apply {
-            observe(showWikiwayFinder){
-                if(!it.isNullOrEmpty()){
+            observe(showWikiwayFinder) {
+                if (!it.isNullOrEmpty()) {
                     WayWikiFinder.showRouteActivity(requireContext(), it)
                     viewModel.setShowWikiwayFinder(emptyList())
                 }
@@ -194,7 +194,7 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
     }
 
     private fun startAndLogActivity(tripSegment: TripSegment, intent: Intent) {
-        tripSegment.trip.logURL?.let {
+        tripSegment.booking?.virtualBookingUrl ?: tripSegment.trip.logURL?.let {
             lifecycleScope.launch { bookingService.logTrip(it) }
         }
         startActivity(intent)
