@@ -291,8 +291,9 @@ class TripSegmentsViewModel @Inject internal constructor(
         }
 
         var location = context.resources.getString(R.string.location)
-        if (!tripSegment.singleLocation.address.isNullOrEmpty()) {
+        if (tripSegment.singleLocation != null && !tripSegment.singleLocation.address.isNullOrEmpty()) {
             location = tripSegment.singleLocation.displayAddress
+                    ?: tripSegment.singleLocation.address
         }
         if (!tripSegment.sharedVehicle?.garage()?.address.isNullOrEmpty()) {
             location = tripSegment.sharedVehicle.garage()?.address!!
@@ -447,7 +448,7 @@ class TripSegmentsViewModel @Inject internal constructor(
 
                 if (segment.type == SegmentType.ARRIVAL || segment.type == SegmentType.DEPARTURE) {
                     addTerminalItem(viewModel, segment, previousSegment, nextSegment)
-                } else if (segment.isStationary) {
+                } else if (segment.isStationary && ((segment.type == null && segment.startStopCode == null) || segment.type == SegmentType.STATIONARY)) {
                     addStationaryItem(viewModel, segment, previousSegment, nextSegment)
                 } else {
                     if (nextSegment != null && !nextSegment.isStationary && nextSegment.type != SegmentType.ARRIVAL) {

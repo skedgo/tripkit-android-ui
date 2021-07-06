@@ -165,4 +165,8 @@ class TripResultPagerViewModel @Inject internal constructor(
     fun onStop() {
         updateTripProgressSubscription?.dispose()
     }
+
+    fun updateTripGroupResult(tripGroup: List<TripGroup>) {
+        tripGroups.accept(tripGroup)
+    }
 }

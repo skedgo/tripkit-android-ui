@@ -77,7 +77,6 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
         }
     }
 
-
     @Inject
     lateinit var errorLogger: ErrorLogger
 
@@ -102,28 +101,15 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        if (arguments != null) {
-            tripGroupId = requireArguments().getString(ARG_TRIP_GROUP_ID)
-            tripId = requireArguments().getLong(ARG_TRIP_ID)
-        } else if (savedInstanceState != null) {
-            tripGroupId = savedInstanceState.getString(ARG_TRIP_GROUP_ID)
-            tripId = savedInstanceState.getLong(ARG_TRIP_ID)
-
-        }
     }
 
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-
-        tripGroupId?.let {
-            viewModel.loadTripGroup(it, tripId ?: -1, savedInstanceState)
-        }
-
         viewModel.tripGroupObservable
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe { tripGroup ->
+                    /* FIXME: Check if this could be removed */
                     tripGroup.displayTrip?.getBookingSegment()?.booking
                             ?.externalActions?.forEach {}
                 }.addTo(autoDisposable)
@@ -141,6 +127,10 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
         viewModel.showCloseButton.set(showCloseButton)
         binding.closeButton.setOnClickListener(onCloseButtonListener)
         binding.itemsView.isNestedScrollingEnabled = true
+
+        tripGroupId?.let {
+            viewModel.loadTripGroup(it, tripId ?: -1, savedInstanceState)
+        }
         return binding.root
     }
 
@@ -399,13 +389,13 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
             assert(tripGroupId != null)
 
             val args = Bundle()
-            args.putString(ARG_TRIP_GROUP_ID, tripGroupId)
-            args.putLong(ARG_TRIP_ID, tripId ?: -1)
             args.putBoolean(ARG_SHOW_CLOSE_BUTTON, showCloseButton)
 
             // Initialize fragment
             val fragment = TripSegmentListFragment()
             fragment.arguments = args
+            fragment.tripGroupId = tripGroupId
+            fragment.tripId = tripId ?: -1
             fragment.actionButtonHandlerFactory = actionButtonHandlerFactory
             return fragment
 

@@ -56,80 +56,80 @@ class TripGroupRepositoryImpl(
         return createQuery(tripGroupId)
     }
 
-  private fun createQuery(tripGroupId: String): Observable<TripGroup> {
-    val query = routeStore.queryAsync(GroupQueries.hasUuid(tripGroupId))
-        .repeatWhen { _whenTripGroupIsUpdated.hide().filter { it == tripGroupId } }
-        .subscribeOn(io())
-        .replay(1)
-        .autoConnect()
-      map[tripGroupId] = query
-    return query
-  }
+    private fun createQuery(tripGroupId: String): Observable<TripGroup> {
+        val query = routeStore.queryAsync(GroupQueries.hasUuid(tripGroupId))
+                .repeatWhen { _whenTripGroupIsUpdated.hide().filter { it == tripGroupId } }
+                .subscribeOn(io())
+                .replay(1)
+                .autoConnect()
+        map[tripGroupId] = query
+        return query
+    }
 
-  override fun getTripSegmentByIdAndTripId(segmentId: Long, tripId: String): Single<TripSegment> {
-    return routeStore.querySegmentByIdAndTripId(segmentId = segmentId, tripId = tripId)
-  }
+    override fun getTripSegmentByIdAndTripId(segmentId: Long, tripId: String): Single<TripSegment> {
+        return routeStore.querySegmentByIdAndTripId(segmentId = segmentId, tripId = tripId)
+    }
 
-  override fun updateTrip(tripGroupId: String, oldTripUuid: String, trip: Trip): Completable {
-      val done = map.remove(tripGroupId)
-      return routeStore.updateTripAsync(oldTripUuid, trip)
-              .andThen(
-                      Completable.fromAction {
-                          _whenTripGroupIsUpdated.accept(tripGroupId)
-                      })
-              .subscribeOn(io())
-  }
+    override fun updateTrip(tripGroupId: String, oldTripUuid: String, trip: Trip): Completable {
+        val done = map.remove(tripGroupId)
+        return routeStore.updateTripAsync(oldTripUuid, trip)
+                .andThen(
+                        Completable.fromAction {
+                            _whenTripGroupIsUpdated.accept(tripGroupId)
+                        })
+                .subscribeOn(io())
+    }
 
-  override fun updateNotify(tripGroupId: String, isFavorite: Boolean): Completable =
-      routeStore.updateNotifiability(tripGroupId, isFavorite)
-          .andThen(
-              Completable.fromAction {
-                _whenTripGroupIsUpdated.accept(tripGroupId)
-                whenManualTripChanges.accept(Unit)
-              }
-          )
+    override fun updateNotify(tripGroupId: String, isFavorite: Boolean): Completable =
+            routeStore.updateNotifiability(tripGroupId, isFavorite)
+                    .andThen(
+                            Completable.fromAction {
+                                _whenTripGroupIsUpdated.accept(tripGroupId)
+                                whenManualTripChanges.accept(Unit)
+                            }
+                    )
 
-  override fun addTripToTripGroup(tripGroupId: String, displayTrip: Trip): Completable {
-    return routeStore.addTripToTripGroup(tripGroupId, displayTrip)
-        .andThen(
-            Completable.fromAction {
-              _whenTripGroupIsUpdated.accept(tripGroupId)
-            }
-        )
-  }
+    override fun addTripToTripGroup(tripGroupId: String, displayTrip: Trip): Completable {
+        return routeStore.addTripToTripGroup(tripGroupId, displayTrip)
+                .andThen(
+                        Completable.fromAction {
+                            _whenTripGroupIsUpdated.accept(tripGroupId)
+                        }
+                )
+    }
 
-  override fun setTripGroup(tripGroup: TripGroup): Completable {
-    return Observable.just(tripGroup)
-        .flatMap {
-          routeStore.updateAlternativeTrips(mutableListOf(it))
-        }.singleOrError()
-        .doOnSuccess {
-          _whenTripGroupIsUpdated.accept(it.first().uuid())
-        }
-        .toCompletable()
-        .subscribeOn(io())
-  }
+    override fun setTripGroup(tripGroup: TripGroup): Completable {
+        return Observable.just(tripGroup)
+                .flatMap {
+                    routeStore.updateAlternativeTrips(mutableListOf(it))
+                }.singleOrError()
+                .doOnSuccess {
+                    _whenTripGroupIsUpdated.accept(it.first().uuid())
+                }
+                .toCompletable()
+                .subscribeOn(io())
+    }
 
-  override fun deletePastRoutesAsync(): Observable<Int> = routeStore.deleteAsync(
-      WhereClauses.happenedBefore(
-          Days.days(30).toPeriod().toStandardHours().hours.toLong(), /* months */
-          getNow.execute().millis
-      ))
+    override fun deletePastRoutesAsync(): Observable<Int> = routeStore.deleteAsync(
+            WhereClauses.happenedBefore(
+                    Days.days(30).toPeriod().toStandardHours().hours.toLong(), /* months */
+                    getNow.execute().millis
+            ))
 
-  override fun addTripGroups(requestId: String?, groups: List<TripGroup>): Completable {
-    return routeStore.saveAsync(requestId, groups)
-        .ignoreElements()
-        .andThen(Completable.fromAction {
-          groups.forEach {
-            _whenTripGroupIsUpdated.accept(it.uuid())
-          }
-          onNewTripGroupsAvailable.onNext(requestId!!)
-        })
-  }
+    override fun addTripGroups(requestId: String?, groups: List<TripGroup>): Completable {
+        return routeStore.saveAsync(requestId, groups)
+                .ignoreElements()
+                .andThen(Completable.fromAction {
+                    groups.forEach {
+                        _whenTripGroupIsUpdated.accept(it.uuid())
+                    }
+                    onNewTripGroupsAvailable.onNext(requestId!!)
+                })
+    }
 
-  override fun onManualTripChanges(): Observable<Unit> =
-      whenManualTripChanges.hide()
+    override fun onManualTripChanges(): Observable<Unit> =
+            whenManualTripChanges.hide()
 
-  override fun onNewTripGroupsAvailable(): Observable<String> =
-      onNewTripGroupsAvailable.hide()
+    override fun onNewTripGroupsAvailable(): Observable<String> =
+            onNewTripGroupsAvailable.hide()
 }
