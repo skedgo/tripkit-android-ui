@@ -101,9 +101,6 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        tripGroupId?.let {
-            viewModel.loadTripGroup(it, tripId ?: -1, savedInstanceState)
-        }
     }
 
 
@@ -111,15 +108,10 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
         super.onActivityCreated(savedInstanceState)
         viewModel.tripGroupObservable
                 .observeOn(AndroidSchedulers.mainThread())
-<<<<<<< HEAD
-                .subscribe {tripGroup ->
-                    tripGroup.displayTrip?.getBookingSegment()?.booking?.externalActions?.forEach {
-                    }
-=======
                 .subscribe { tripGroup ->
+                    /* FIXME: Check if this could be removed */
                     tripGroup.displayTrip?.getBookingSegment()?.booking
                             ?.externalActions?.forEach {}
->>>>>>> origin/master
                 }.addTo(autoDisposable)
     }
 
@@ -182,8 +174,8 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
                     dialog.show(requireFragmentManager(), "alerts_sheet")
                 }.addTo(autoDisposable)
         viewModel.apply {
-            observe(showWikiwayFinder){
-                if(!it.isNullOrEmpty()){
+            observe(showWikiwayFinder) {
+                if (!it.isNullOrEmpty()) {
                     WayWikiFinder.showRouteActivity(requireContext(), it)
                     viewModel.setShowWikiwayFinder(emptyList())
                 }
