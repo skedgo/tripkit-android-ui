@@ -10,10 +10,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.LinearSmoothScroller
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.flexbox.FlexDirection
@@ -32,6 +34,7 @@ import com.skedgo.tripkit.ui.model.TimetableEntry
 import com.skedgo.tripkit.ui.model.TripKitButton
 import com.skedgo.tripkit.ui.search.ARG_SHOW_SEARCH_FIELD
 import com.skedgo.tripkit.ui.views.MultiStateView
+import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -241,14 +244,32 @@ class TimetableFragment : BaseTripKitFragment(), View.OnClickListener {
         binding.viewModel = viewModel
         binding.serviceLineRecyclerView.isNestedScrollingEnabled = false
         binding.recyclerView.isNestedScrollingEnabled = true
+        binding.recyclerView.setOnTouchListener { view, motionEvent ->
+            view.parent.requestDisallowInterceptTouchEvent(true)
+            view.onTouchEvent(motionEvent)
+            true
+        }
+
         binding.recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
 
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
+                /*
                 if (dy >= 0) {
                     binding.goToNowButton.setVisibility(View.GONE)
                 } else {
                     binding.goToNowButton.setVisibility(View.VISIBLE)
+                }
+                */
+
+                val nowPosition = viewModel.getFirstNowPosition()
+
+                (binding.recyclerView.layoutManager as LinearLayoutManager).let {
+                    if (nowPosition in it.findFirstVisibleItemPosition()..it.findLastVisibleItemPosition()) {
+                        binding.goToNowButton.visibility = View.GONE
+                    } else {
+                        binding.goToNowButton.visibility = View.VISIBLE
+                    }
                 }
             }
 
@@ -260,6 +281,7 @@ class TimetableFragment : BaseTripKitFragment(), View.OnClickListener {
                 }
             }
         })
+
         binding.recyclerView.addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
 
         binding.departuresSearchSetTime.timeSet.setOnClickListener {
@@ -334,7 +356,17 @@ class TimetableFragment : BaseTripKitFragment(), View.OnClickListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         stop = arguments?.getParcelable(ARG_STOP)
-        binding.goToNowButton.setOnClickListener { binding.recyclerView.scrollToPosition(viewModel.getFirstNowPosition()) }
+        binding.goToNowButton.setOnClickListener {
+            val layoutManager = binding.recyclerView.layoutManager as LinearLayoutManager
+            val firstNowPosition = viewModel.getFirstNowPosition()
+            if (layoutManager.findFirstVisibleItemPosition() < firstNowPosition &&
+                    firstNowPosition != 0 &&
+                    (firstNowPosition + 1) < binding.recyclerView.adapter?.itemCount ?: 0) {
+                binding.recyclerView.scrollToPosition(firstNowPosition + 1)
+            } else {
+                binding.recyclerView.scrollToPosition(firstNowPosition)
+            }
+        }
 
         bookingActions = savedInstanceState?.getStringArrayList(ARG_BOOKING_ACTION)
                 ?: arguments?.getStringArrayList(ARG_BOOKING_ACTION)
