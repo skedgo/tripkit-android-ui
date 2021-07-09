@@ -128,6 +128,7 @@ class TripSegmentsViewModel @Inject internal constructor(
 
     fun loadTripGroup(tripGroupId: String, tripId: Long, savedInstanceState: Bundle?) {
         tripGroupRepository.getTripGroup(tripGroupId)
+
                 .observeOn(mainThread())
                 .onErrorResumeNext(Observable.empty())
                 .subscribe(
@@ -144,7 +145,7 @@ class TripSegmentsViewModel @Inject internal constructor(
         if (tripGroup.displayTrip == null) return
         viewModelScope.launch {
             actionButtonHandler?.let { handler ->
-                val actions = handler.getActions(context, tripGroup.displayTrip!!)
+                val actions = handler.getActions(context, tripGroup.displayTrip!!).distinctBy { it.text }
                 if (buttons.size != actions.size) {
                     buttons.clear()
                     actions.forEach {
