@@ -4,7 +4,7 @@ data class Waypoint(
         val lat: Double? = 0.0,
         val lng: Double? = 0.0,
         val mode: String?,
-        val modeTitle: String?,
+        val modeTitle: String? = null,
         val time: Long = 0,
         val start: String? = null,
         val end: String? = null,

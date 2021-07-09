@@ -39,6 +39,7 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.addTo
 import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
+import okhttp3.internal.notifyAll
 import timber.log.Timber
 import java.lang.Exception
 import javax.inject.Inject
@@ -91,7 +92,12 @@ class TripPreviewPagerAdapter(fragmentManager: FragmentManager)
             ITEM_TIMETABLE -> {
                 val scheduledStop = ScheduledStop(page.tripSegment.to)
                 scheduledStop.code = page.tripSegment.startStopCode
+                scheduledStop.endStopCode = page.tripSegment.endStopCode
                 scheduledStop.modeInfo = page.tripSegment.modeInfo
+
+                val disembarkationStopCodes = ArrayList<String>()
+                disembarkationStopCodes.add(page.tripSegment.endStopCode)
+
                 scheduledStop.type = StopType.from(page.tripSegment.modeInfo?.localIconName)
                 val timetableFragment = TimetableFragment.Builder()
                         .withStop(scheduledStop)
@@ -160,7 +166,6 @@ class TripPreviewPagerAdapter(fragmentManager: FragmentManager)
             if (activeTripSegmentId == segment.id && activeTripSegmentPosition <= 0) {
                 activeTripSegmentPosition = index + addedCards
             }
-
         }
 
 //        val excess = pages.size - temp.size

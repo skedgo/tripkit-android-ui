@@ -50,7 +50,7 @@ class TimetableFragment : BaseTripKitFragment(), View.OnClickListener {
      * This callback will be invoked when a specific timetable entry is clicked.
      */
     interface OnTimetableEntrySelectedListener {
-        fun onTimetableEntrySelected(service: TimetableEntry, stop: ScheduledStop, minStartTime: Long)
+        fun onTimetableEntrySelected(segment: TripSegment?, service: TimetableEntry, stop: ScheduledStop, minStartTime: Long)
     }
 
     private var timetableEntrySelectedListener: MutableList<OnTimetableEntrySelectedListener> = mutableListOf()
@@ -62,7 +62,7 @@ class TimetableFragment : BaseTripKitFragment(), View.OnClickListener {
 
     fun addOnTimetableEntrySelectedListener(listener: (TimetableEntry, ScheduledStop, Long) -> Unit) {
         this.timetableEntrySelectedListener.add(object : OnTimetableEntrySelectedListener {
-            override fun onTimetableEntrySelected(service: TimetableEntry, stop: ScheduledStop, minStartTime: Long) {
+            override fun onTimetableEntrySelected(segment: TripSegment?, service: TimetableEntry, stop: ScheduledStop, minStartTime: Long) {
                 listener(service, stop, minStartTime)
             }
         })
@@ -103,6 +103,9 @@ class TimetableFragment : BaseTripKitFragment(), View.OnClickListener {
             }
             field = value
         }
+
+    var cachedStop: ScheduledStop? = null
+    var cachedShowSearchBar: Boolean = true
 
     var bookingActions: ArrayList<String>? = null
         set(value) {
@@ -202,19 +205,23 @@ class TimetableFragment : BaseTripKitFragment(), View.OnClickListener {
 
         viewModel.timetableEntryChosen.observeOn(AndroidSchedulers.mainThread()).subscribe {
             if (viewModel.action.isNotEmpty()) {
-                tripPreviewPagerListener?.onTimetableEntryClicked(viewModel.viewModelScope, it)
+                tripPreviewPagerListener?.onTimetableEntryClicked(tripSegment, viewModel.viewModelScope, it)
             } else {
                 Observable.combineLatest(viewModel.stopRelay, viewModel.startTimeRelay,
                         BiFunction { one: ScheduledStop, two: Long -> one to two })
                         .take(1).subscribe { pair ->
                             timetableEntrySelectedListener.forEach { listener ->
-                                listener.onTimetableEntrySelected(it, pair.first, pair.second)
+                                listener.onTimetableEntrySelected(tripSegment, it, pair.first, pair.second)
                             }
                         }
             }
         }.addTo(autoDisposable)
 
         binding.recyclerView.scrollToPosition(0)
+
+        if (stop == null) {
+            stop = cachedStop
+        }
     }
 
     fun setBookingActions(bookingActions: List<String>?) {
@@ -334,6 +341,10 @@ class TimetableFragment : BaseTripKitFragment(), View.OnClickListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         stop = arguments?.getParcelable(ARG_STOP)
+        if (stop == null) {
+            stop = cachedStop
+        }
+
         binding.goToNowButton.setOnClickListener { binding.recyclerView.scrollToPosition(viewModel.getFirstNowPosition()) }
 
         bookingActions = savedInstanceState?.getStringArrayList(ARG_BOOKING_ACTION)
@@ -342,7 +353,7 @@ class TimetableFragment : BaseTripKitFragment(), View.OnClickListener {
         val showCloseButton = arguments?.getBoolean(ARG_SHOW_CLOSE_BUTTON, false) ?: false
         viewModel.showCloseButton.set(showCloseButton)
 
-        val showSearchBar = arguments?.getBoolean(ARG_SHOW_SEARCH_FIELD, true) ?: true
+        val showSearchBar = arguments?.getBoolean(ARG_SHOW_SEARCH_FIELD) ?: cachedShowSearchBar
         viewModel.showSearch.set(showSearchBar)
 
         binding.closeButton.setOnClickListener(onCloseButtonListener)
@@ -470,13 +481,15 @@ class TimetableFragment : BaseTripKitFragment(), View.OnClickListener {
         fun build(): TimetableFragment {
             val args = Bundle()
             val fragment = TimetableFragment()
-            args.putParcelable(ARG_STOP, stop)
+//            args.putParcelable(ARG_STOP, stop)
             args.putStringArrayList(ARG_BOOKING_ACTION, bookingActions)
             args.putBoolean(ARG_SHOW_CLOSE_BUTTON, showCloseButton)
             args.putBoolean(ARG_SHOW_SEARCH_FIELD, showSearchBar)
             fragment.arguments = args
             fragment.buttons = buttons
             fragment.segmentActionStream = actionStream
+            fragment.cachedStop = stop
+            fragment.cachedShowSearchBar = showSearchBar
             fragment.setTripSegment(tripSegment)
 
             return fragment
