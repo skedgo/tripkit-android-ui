@@ -285,7 +285,7 @@ class TripPreviewPagerFragment : BaseTripKitFragment() {
 
     interface Listener {
         fun onServiceActionButtonClicked(_tripSegment: TripSegment?, action: String?)
-        fun onTimetableEntryClicked(scope: CoroutineScope, entry: TimetableEntry)
+        fun onTimetableEntryClicked(segment: TripSegment?, scope: CoroutineScope, entry: TimetableEntry)
         @Deprecated("UnusedClass") fun onExternalActionButtonClicked(action: String?)
     }
 

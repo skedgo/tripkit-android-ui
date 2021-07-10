@@ -113,7 +113,7 @@ class TimetableViewModel @Inject constructor(
                     val subscription = loadMore
                             .startWith(Unit)
                             .switchMap {
-                                fetchAndLoadTimetable.execute(stop.embarkationStopCode, region, timeInSecs.get())
+                                fetchAndLoadTimetable.execute(stop.embarkationStopCode, stop.disembarkationStopCode, region, timeInSecs.get())
                                         .toObservable()
                                         .ignoreNetworkErrors()
                                         .isExecuting { showLoading.set(it) }
@@ -179,7 +179,7 @@ class TimetableViewModel @Inject constructor(
 //                            if (action.isNotEmpty()) {
 //
 //                            } else {
-                                timetableEntryChosen.accept(entry)
+                            timetableEntryChosen.accept(entry)
 //                            }
                         }
                     }

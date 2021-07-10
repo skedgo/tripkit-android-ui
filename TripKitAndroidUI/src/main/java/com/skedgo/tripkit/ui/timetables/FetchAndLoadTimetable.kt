@@ -26,10 +26,11 @@ open class FetchAndLoadTimetable @Inject constructor(
         private val fetchTimetable: FetchTimetable) {
 
   open fun execute(embarkationStopCodes: List<String>,
+                   disembarkationStopCodes: List<String>,
                    region: Region,
                    startTimeInSecs: Long): Single<Pair<List<TimetableEntry>, Optional<ScheduledStop>>> {
 
-    return fetchTimetable.execute(embarkationStopCodes, region, startTimeInSecs)
+    return fetchTimetable.execute(embarkationStopCodes, disembarkationStopCodes, region, startTimeInSecs)
         .flatMap { (_, parentStop) ->
           loadTimetable(embarkationStopCodes, startTimeInSecs)
               .map { it to parentStop }
