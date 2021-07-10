@@ -72,6 +72,11 @@ class WaypointsAdapter : TypeAdapter<Waypoint>() {
                 out.name("disembarkationRegion")
                 out.value(value.disembarkationRegion)
             }
+
+            if (!value.vehicleUUID.isNullOrEmpty()) {
+                out.name("vehicleUUID")
+                out.value(value.vehicleUUID)
+            }
         }
         out.endObject()
     }

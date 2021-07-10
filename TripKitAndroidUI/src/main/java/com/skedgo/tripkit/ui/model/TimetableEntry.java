@@ -53,6 +53,7 @@ public class TimetableEntry implements Parcelable, IRealTimeElement, ITimeRange,
             service.wheelchairAccessible = (Boolean) in.readValue(Boolean.class.getClassLoader());
             service.startStopShortName = in.readString();
             service.alertHashCodes = in.readArrayList(Long.class.getClassLoader());
+            service.serviceColor = in.readParcelable(ServiceColor.class.getClassLoader());
             return service;
         }
 
