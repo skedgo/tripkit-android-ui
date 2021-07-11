@@ -128,6 +128,7 @@ class TripSegmentsViewModel @Inject internal constructor(
 
     fun loadTripGroup(tripGroupId: String, tripId: Long, savedInstanceState: Bundle?) {
         tripGroupRepository.getTripGroup(tripGroupId)
+
                 .observeOn(mainThread())
                 .onErrorResumeNext(Observable.empty())
                 .subscribe(
@@ -144,7 +145,7 @@ class TripSegmentsViewModel @Inject internal constructor(
         if (tripGroup.displayTrip == null) return
         viewModelScope.launch {
             actionButtonHandler?.let { handler ->
-                val actions = handler.getActions(context, tripGroup.displayTrip!!)
+                val actions = handler.getActions(context, tripGroup.displayTrip!!).distinctBy { it.text }
                 if (buttons.size != actions.size) {
                     buttons.clear()
                     actions.forEach {
@@ -291,8 +292,9 @@ class TripSegmentsViewModel @Inject internal constructor(
         }
 
         var location = context.resources.getString(R.string.location)
-        if (!tripSegment.singleLocation.address.isNullOrEmpty()) {
+        if (tripSegment.singleLocation != null && !tripSegment.singleLocation.address.isNullOrEmpty()) {
             location = tripSegment.singleLocation.displayAddress
+                    ?: tripSegment.singleLocation.address
         }
         if (!tripSegment.sharedVehicle?.garage()?.address.isNullOrEmpty()) {
             location = tripSegment.sharedVehicle.garage()?.address!!
@@ -447,7 +449,7 @@ class TripSegmentsViewModel @Inject internal constructor(
 
                 if (segment.type == SegmentType.ARRIVAL || segment.type == SegmentType.DEPARTURE) {
                     addTerminalItem(viewModel, segment, previousSegment, nextSegment)
-                } else if (segment.isStationary) {
+                } else if (segment.isStationary && ((segment.type == null && segment.startStopCode == null) || segment.type == SegmentType.STATIONARY)) {
                     addStationaryItem(viewModel, segment, previousSegment, nextSegment)
                 } else {
                     if (nextSegment != null && !nextSegment.isStationary && nextSegment.type != SegmentType.ARRIVAL) {

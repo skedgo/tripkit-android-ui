@@ -1,5 +1,7 @@
 package com.skedgo.tripkit.ui.data.waypoints
 
+import com.haroldadmin.cnradapter.NetworkResponse
+import com.skedgo.tripkit.ApiError
 import com.skedgo.tripkit.routing.RoutingResponse
 import io.reactivex.Observable
 import retrofit2.http.Body
@@ -9,4 +11,7 @@ interface WaypointsApi {
 
   @POST("waypoint.json")
   fun request(@Body body: WaypointsRequestBody): Observable<RoutingResponse>
+
+  @POST("waypoint.json")
+  suspend fun requestTripGroup(@Body body: WaypointsRequestBody): NetworkResponse<RoutingResponse, ApiError>
 }

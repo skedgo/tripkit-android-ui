@@ -17,9 +17,11 @@ fun TripSegment.correctItemType(): Int {
         ITEM_DIRECTIONS
     } else if (this.type == SegmentType.SCHEDULED) {
         ITEM_SERVICE
+    } else if (this.type == null && !startStopCode.isNullOrEmpty()) {
+        ITEM_SERVICE
     } else if (this.modeInfo?.id == "stationary_vehicle-collect" || this.hasCarParks()) {
         ITEM_NEARBY
-    }  else if (this.booking?.quickBookingsUrl != null || this.booking?.confirmation != null) {
+    } else if (this.booking?.quickBookingsUrl != null || this.booking?.confirmation != null) {
         ITEM_QUICK_BOOKING
     } else if (this.booking?.externalActions != null && this.booking.externalActions!!.count() > 0) {
         ITEM_EXTERNAL_BOOKING

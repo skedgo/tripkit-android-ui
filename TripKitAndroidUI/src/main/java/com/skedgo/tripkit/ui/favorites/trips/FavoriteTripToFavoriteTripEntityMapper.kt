@@ -10,4 +10,4 @@ internal fun FavoriteTripEntity.toFavoriteTrip(waypoints: List<Waypoint>): Favor
 internal fun WaypointEntity.toWaypoint(): Waypoint = Waypoint(lat, lng, mode, modeTitle)
 
 internal fun Waypoint.toWaypointEntity(tripId: String, order: Int): WaypointEntity =
-    WaypointEntity(lat, lng, mode, modeTitle, order, tripId)
+    WaypointEntity(lat ?: 0.0, lng ?: 0.0, mode, modeTitle, order, tripId)

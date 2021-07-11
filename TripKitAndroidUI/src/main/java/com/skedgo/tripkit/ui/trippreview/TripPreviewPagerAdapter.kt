@@ -39,7 +39,9 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.addTo
 import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
+import okhttp3.internal.notifyAll
 import timber.log.Timber
+import java.lang.Exception
 import javax.inject.Inject
 
 data class TripPreviewPagerAdapterItem(val type: Int, val tripSegment: TripSegment)
@@ -90,16 +92,22 @@ class TripPreviewPagerAdapter(fragmentManager: FragmentManager)
             ITEM_TIMETABLE -> {
                 val scheduledStop = ScheduledStop(page.tripSegment.to)
                 scheduledStop.code = page.tripSegment.startStopCode
+                scheduledStop.endStopCode = page.tripSegment.endStopCode
                 scheduledStop.modeInfo = page.tripSegment.modeInfo
+
+                val disembarkationStopCodes = ArrayList<String>()
+                disembarkationStopCodes.add(page.tripSegment.endStopCode)
+
                 scheduledStop.type = StopType.from(page.tripSegment.modeInfo?.localIconName)
                 val timetableFragment = TimetableFragment.Builder()
                         .withStop(scheduledStop)
                         .withBookingAction(page.tripSegment.booking?.externalActions)
                         .withSegmentActionStream(segmentActionStream)
+                        .withTripSegment(page.tripSegment)
                         .hideSearchBar()
                         .showCloseButton()
                         .build()
-
+                timetableFragment.setTripSegment(page.tripSegment)
                 timetableFragment
             }
             else -> StandardTripPreviewItemFragment.newInstance(page.tripSegment)
@@ -125,9 +133,9 @@ class TripPreviewPagerAdapter(fragmentManager: FragmentManager)
             activeTripSegmentId: Long,
             tripSegments: List<TripSegment>,
             fromAction: Boolean = false): Int {
-        pages.clear()
         var activeTripSegmentPosition = 0
         var addedCards = 0
+        val temp = ArrayList<TripPreviewPagerAdapterItem>()
         tripSegments.forEachIndexed { index, segment ->
             val itemType = segment.correctItemType()
 
@@ -138,7 +146,7 @@ class TripPreviewPagerAdapter(fragmentManager: FragmentManager)
                 }
 
                 // Add the timetable card as well
-                pages.add(TripPreviewPagerAdapterItem(ITEM_TIMETABLE, segment))
+                temp.add(TripPreviewPagerAdapterItem(ITEM_TIMETABLE, segment))
                 addedCards++
             }
 
@@ -149,17 +157,34 @@ class TripPreviewPagerAdapter(fragmentManager: FragmentManager)
                 }
 
                 // Add the mode location card as well
-                pages.add(TripPreviewPagerAdapterItem(ITEM_MODE_LOCATION, segment))
+                temp.add(TripPreviewPagerAdapterItem(ITEM_MODE_LOCATION, segment))
                 addedCards++
             } else {
-                pages.add(TripPreviewPagerAdapterItem(itemType, segment))
+                temp.add(TripPreviewPagerAdapterItem(itemType, segment))
             }
 
             if (activeTripSegmentId == segment.id && activeTripSegmentPosition <= 0) {
                 activeTripSegmentPosition = index + addedCards
             }
-
         }
+
+//        val excess = pages.size - temp.size
+//        if (excess > 0) {
+//            val startExcess = pages.size - excess - 1
+//
+//            for (i in startExcess until pages.size - 1) {
+//                pages.removeAt(i)
+//            }
+//        }
+        pages = temp.toMutableList()
+
+//        temp.forEachIndexed { index, it ->
+//            try {
+//                pages.remove(it)
+//            } catch (e: Exception) {}
+//            pages.add(index, it)
+//        }
+
         notifyDataSetChanged()
 
         if (fromAction) {
@@ -177,6 +202,5 @@ class TripPreviewPagerAdapter(fragmentManager: FragmentManager)
     override fun getItemPosition(`object`: Any): Int {
         return POSITION_NONE
     }
-
 
 }

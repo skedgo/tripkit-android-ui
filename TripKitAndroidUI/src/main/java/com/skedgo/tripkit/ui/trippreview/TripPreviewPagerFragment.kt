@@ -28,6 +28,7 @@ import com.skedgo.tripkit.ui.core.BaseTripKitFragment
 import com.skedgo.tripkit.ui.core.addTo
 import com.skedgo.tripkit.ui.core.logError
 import com.skedgo.tripkit.ui.databinding.TripPreviewPagerBinding
+import com.skedgo.tripkit.ui.model.TimetableEntry
 import com.skedgo.tripkit.ui.routingresults.TripGroupRepository
 import com.skedgo.tripkit.ui.tripresult.ARG_TRIP_GROUP_ID
 import com.skedgo.tripkit.ui.tripresults.GetTransportIconTintStrategy
@@ -36,6 +37,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.rxkotlin.subscribeBy
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.PublishSubject
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -126,7 +128,7 @@ class TripPreviewPagerFragment : BaseTripKitFragment() {
     fun load(tripGroupId: String, tripId: String, tripSegmentId: Long, fromTripAction: Boolean) {
         tripGroupRepository.getTripGroup(tripGroupId)
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe { tripGroup ->
+                .subscribe({ tripGroup ->
                     val trip = tripGroup.trips?.find { it.uuid() == tripId }
                     trip?.let {
 
@@ -156,7 +158,9 @@ class TripPreviewPagerFragment : BaseTripKitFragment() {
                         currentPagerIndex = activeIndex
                         binding.tripSegmentPager.currentItem = activeIndex
                     }
-                }
+                }, {
+                    it.printStackTrace()
+                })
                 .addTo(autoDisposable)
     }
 
@@ -187,11 +191,13 @@ class TripPreviewPagerFragment : BaseTripKitFragment() {
     private fun logAction(segment: TripSegment, action: Action) {
         val trip = segment.trip
         lifecycleScope.launch {
-            trip?.logURL?.let {
+            (segment.booking?.virtualBookingUrl ?: trip?.logURL)?.let {
                 val result = bookingService.logTrip(it)
-                if(result !is NetworkResponse.Success){
-                    result.logError()
+                if (result !is NetworkResponse.Success) {
+                    result.logError() 
                 }
+                proceedWithExternalAction(action)
+            } ?: kotlin.run {
                 proceedWithExternalAction(action)
             }
         }
@@ -241,7 +247,8 @@ class TripPreviewPagerFragment : BaseTripKitFragment() {
     fun setTripSegment(segment: TripSegment, tripSegments: List<TripSegment>) {
         adapter.setTripSegments(
                 segment.id,
-                tripSegments.filter {
+                tripSegments
+                .filter {
                     !it.isContinuation
                 }.filter {
                     it.type != SegmentType.DEPARTURE && it.type != SegmentType.ARRIVAL
@@ -277,7 +284,8 @@ class TripPreviewPagerFragment : BaseTripKitFragment() {
     }
 
     interface Listener {
-        fun onServiceActionButtonClicked(action: String?)
+        fun onServiceActionButtonClicked(_tripSegment: TripSegment?, action: String?)
+        fun onTimetableEntryClicked(segment: TripSegment?, scope: CoroutineScope, entry: TimetableEntry)
         @Deprecated("UnusedClass") fun onExternalActionButtonClicked(action: String?)
     }
 

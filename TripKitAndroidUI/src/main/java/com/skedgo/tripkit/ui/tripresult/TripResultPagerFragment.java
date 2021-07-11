@@ -122,6 +122,14 @@ public class TripResultPagerFragment extends BaseTripKitFragment implements View
         return mapContributor;
     }
 
+    public void updatePagerFragmentTripGroup(@NotNull TripGroup tripGroup) {
+        viewModel.setInitialSelectedTripGroupId(tripGroup.uuid());
+    }
+
+    public void updateTripGroupResult(@NotNull List<TripGroup> tripGroup) {
+        viewModel.updateTripGroupResult(tripGroup);
+    }
+
     @Override
     public void onDestroy() {
         super.onDestroy();
