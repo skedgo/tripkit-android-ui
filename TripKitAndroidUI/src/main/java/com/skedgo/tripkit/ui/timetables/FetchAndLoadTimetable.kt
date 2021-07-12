@@ -26,7 +26,7 @@ open class FetchAndLoadTimetable @Inject constructor(
         private val fetchTimetable: FetchTimetable) {
 
   open fun execute(embarkationStopCodes: List<String>,
-                   disembarkationStopCodes: List<String>,
+                   disembarkationStopCodes: List<String>?,
                    region: Region,
                    startTimeInSecs: Long): Single<Pair<List<TimetableEntry>, Optional<ScheduledStop>>> {
 
