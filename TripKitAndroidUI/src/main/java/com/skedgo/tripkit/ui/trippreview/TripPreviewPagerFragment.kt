@@ -273,7 +273,7 @@ class TripPreviewPagerFragment : BaseTripKitFragment() {
             when (segment.correctItemType()) {
                 ITEM_SERVICE -> {
                     //adapter.timetableFragment?.setBookingActions(segment.booking?.externalActions)
-                    adapter.segmentActionStream.onNext(Pair(segment.startStopCode, segment.booking?.externalActions))
+                    adapter.segmentActionStream.onNext(segment)
                 }
             }
         }

@@ -54,7 +54,7 @@ class TripPreviewPagerAdapter(fragmentManager: FragmentManager)
     var tripPreviewPagerListener: TripPreviewPagerFragment.Listener? = null
 
     //To emit booking actions updates to TimetableFragment instead of getting and using the fragments instance
-    var segmentActionStream = BehaviorSubject.create<Pair<String, List<String>?>>()
+    var segmentActionStream = PublishSubject.create<TripSegment>()
 
     //var timetableFragment: TimetableFragment? = null
 
