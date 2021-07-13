@@ -140,7 +140,7 @@
                 android:visibility="@{viewModel.showSearch}" />
         </FrameLayout>
 
-        <com.skedgo.tripkit.ui.views.MultiStateView
+        <com.skedgo.tripkit.ui.views.CustomTouchInterceptor
             android:id="@+id/multiStateView"
             android:layout_width="0dp"
             android:layout_height="0dp"
@@ -158,10 +158,10 @@
                 android:focusableInTouchMode="true"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                 app:layout_behavior="@string/appbar_scrolling_view_behavior"
-                tools:listitem="@layout/timetable_fragment_list_item"></androidx.recyclerview.widget.RecyclerView>
+                tools:listitem="@layout/timetable_fragment_list_item"/>
 
 
-        </com.skedgo.tripkit.ui.views.MultiStateView>
+        </com.skedgo.tripkit.ui.views.CustomTouchInterceptor>
 
         <ProgressBar
             android:id="@+id/progressBar"

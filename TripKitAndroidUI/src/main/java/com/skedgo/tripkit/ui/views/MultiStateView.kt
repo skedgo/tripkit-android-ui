@@ -19,7 +19,7 @@ import timber.log.Timber
     Adapted from https://github.com/Kennyc1012/MultiStateView/blob/master/library/src/main/java/com/kennyc/view/MultiStateView.kt
  */
 
-class MultiStateView(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0)
+open class MultiStateView(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0)
     : FrameLayout(context, attrs, defStyle) {
 
     constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0) {

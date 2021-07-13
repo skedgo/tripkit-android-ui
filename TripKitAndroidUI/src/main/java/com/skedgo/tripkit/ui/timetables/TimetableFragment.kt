@@ -1,14 +1,12 @@
 package com.skedgo.tripkit.ui.timetables
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.view.InflateException
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.view.inputmethod.InputMethodManager
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -240,6 +238,7 @@ class TimetableFragment : BaseTripKitFragment(), View.OnClickListener {
         }
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         binding = TimetableFragmentBinding.inflate(layoutInflater)
@@ -251,11 +250,24 @@ class TimetableFragment : BaseTripKitFragment(), View.OnClickListener {
         binding.viewModel = viewModel
         binding.serviceLineRecyclerView.isNestedScrollingEnabled = false
         binding.recyclerView.isNestedScrollingEnabled = true
+
+        /*
         binding.recyclerView.setOnTouchListener { view, motionEvent ->
-            view.parent.requestDisallowInterceptTouchEvent(true)
-            view.onTouchEvent(motionEvent)
+
+            when(motionEvent.action){
+                MotionEvent.ACTION_DOWN ->
+                    view.parent.requestDisallowInterceptTouchEvent(true)
+                MotionEvent.ACTION_UP ->
+                    view.parent.requestDisallowInterceptTouchEvent(false)
+                MotionEvent.ACTION_MOVE ->
+                    view.parent.requestDisallowInterceptTouchEvent(true)
+            }
+
+
+            //view.onTouchEvent(motionEvent)
             true
         }
+        */
 
         binding.recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
 
@@ -288,6 +300,7 @@ class TimetableFragment : BaseTripKitFragment(), View.OnClickListener {
                 }
             }
         })
+
 
         binding.recyclerView.addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
 
