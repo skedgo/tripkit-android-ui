@@ -90,7 +90,7 @@ class TimetableFragment : BaseTripKitFragment(), View.OnClickListener {
         }
     }
 
-    var segmentActionStream: BehaviorSubject<Pair<String, List<String>?>>? = null
+    var segmentActionStream: PublishSubject<TripSegment>? = null
 
     private val viewModel: TimetableViewModel by viewModels() { viewModelFactory }
 
@@ -206,6 +206,7 @@ class TimetableFragment : BaseTripKitFragment(), View.OnClickListener {
 
         viewModel.timetableEntryChosen.observeOn(AndroidSchedulers.mainThread()).subscribe {
             if (viewModel.action.isNotEmpty()) {
+                tripSegment?.let { segmentActionStream?.onNext(it) }
                 tripPreviewPagerListener?.onTimetableEntryClicked(tripSegment, viewModel.viewModelScope, it)
             } else {
                 Observable.combineLatest(viewModel.stopRelay, viewModel.startTimeRelay,
@@ -406,14 +407,14 @@ class TimetableFragment : BaseTripKitFragment(), View.OnClickListener {
         segmentActionStream
                 ?.subscribeOn(Schedulers.io())
                 ?.observeOn(AndroidSchedulers.mainThread())
-                ?.take(1)
                 ?.subscribe({
                     /*
                     if (it.first == stop?.code) {
                         setBookingActions(it.second)
                     }
                     */
-                    setBookingActions(tripSegment?.booking?.externalActions ?: it.second)
+                    //setBookingActions(tripSegment?.booking?.externalActions ?: it.second)
+                    setBookingActions(it.booking?.externalActions)
                 }, {
                     it.printStackTrace()
                 })?.addTo(autoDisposable)
@@ -481,7 +482,7 @@ class TimetableFragment : BaseTripKitFragment(), View.OnClickListener {
         private var tripSegment: TripSegment? = null
         private var bookingActions: ArrayList<String>? = null
         private var buttons: MutableList<TripKitButton> = mutableListOf()
-        private var actionStream: BehaviorSubject<Pair<String, List<String>?>>? = null
+        private var actionStream: PublishSubject<TripSegment>? = null
 
         fun withStop(stop: ScheduledStop?): Builder {
             this.stop = stop
@@ -513,7 +514,7 @@ class TimetableFragment : BaseTripKitFragment(), View.OnClickListener {
             return this
         }
 
-        fun withSegmentActionStream(actionStream: BehaviorSubject<Pair<String, List<String>?>>?): Builder {
+        fun withSegmentActionStream(actionStream: PublishSubject<TripSegment>?): Builder {
             this.actionStream = actionStream
             return this
         }
