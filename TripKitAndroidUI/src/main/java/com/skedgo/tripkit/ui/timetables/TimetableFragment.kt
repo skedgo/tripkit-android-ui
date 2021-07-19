@@ -1,5 +1,6 @@
 package com.skedgo.tripkit.ui.timetables
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -241,6 +242,7 @@ class TimetableFragment : BaseTripKitFragment(), View.OnClickListener {
         }
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         binding = TimetableFragmentBinding.inflate(layoutInflater)
