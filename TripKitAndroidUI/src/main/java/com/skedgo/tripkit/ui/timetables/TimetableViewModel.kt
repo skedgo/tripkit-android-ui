@@ -307,7 +307,7 @@ class TimetableViewModel @Inject constructor(
 
     fun setText(context: Context) {
         this.stop.value?.let {
-            stationName.set(context.getString(R.string.get_on_service_to__pattern, this.stop.value?.name))
+            stationName.set(this.stop.value?.name)
             stationType.set(this.stop.value?.type.toString())
         }
     }
