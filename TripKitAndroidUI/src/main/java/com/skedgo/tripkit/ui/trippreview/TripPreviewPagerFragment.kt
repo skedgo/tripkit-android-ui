@@ -30,6 +30,7 @@ import com.skedgo.tripkit.ui.core.logError
 import com.skedgo.tripkit.ui.databinding.TripPreviewPagerBinding
 import com.skedgo.tripkit.ui.model.TimetableEntry
 import com.skedgo.tripkit.ui.routingresults.TripGroupRepository
+import com.skedgo.tripkit.ui.timetables.TimetableFragment
 import com.skedgo.tripkit.ui.tripresult.ARG_TRIP_GROUP_ID
 import com.skedgo.tripkit.ui.tripresults.GetTransportIconTintStrategy
 import com.skedgo.tripkit.ui.utils.*
@@ -226,9 +227,8 @@ class TripPreviewPagerFragment : BaseTripKitFragment() {
             override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {}
 
             override fun onPageSelected(position: Int) {
-                (adapter.instantiateItem(
-                        binding.tripSegmentPager,
-                        position) as? BaseTripKitFragment)?.let {
+                val selectedFragment = adapter.instantiateItem(binding.tripSegmentPager, position)
+                (selectedFragment as? BaseTripKitFragment)?.let {
                     it.onCloseButtonListener = this@TripPreviewPagerFragment.onCloseButtonListener
                     it.tripPreviewPagerListener = this@TripPreviewPagerFragment.tripPreviewPagerListener
                     it.refresh(position)
@@ -237,6 +237,11 @@ class TripPreviewPagerFragment : BaseTripKitFragment() {
                 adapter.getSegmentByPosition(position).let {
                     fromPageListener = true
                     pageIndexStream?.onNext(Pair(it.id, it.transportModeId.toString()))
+                }
+                if(selectedFragment is TimetableFragment){
+                    adapter.bookingActions?.let {
+                        selectedFragment.setBookingActions(it)
+                    }
                 }
             }
 
@@ -273,6 +278,7 @@ class TripPreviewPagerFragment : BaseTripKitFragment() {
             when (segment.correctItemType()) {
                 ITEM_SERVICE -> {
                     //adapter.timetableFragment?.setBookingActions(segment.booking?.externalActions)
+                    adapter.bookingActions = segment.booking?.externalActions
                     adapter.segmentActionStream.onNext(segment)
                 }
             }
