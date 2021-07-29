@@ -59,10 +59,6 @@ class TripPreviewPagerFragment : BaseTripKitFragment() {
     lateinit var adapter: TripPreviewPagerAdapter
     lateinit var binding: TripPreviewPagerBinding
 
-    private val viewPagerAdapter: ViewPagerAdapter by lazy {
-        ViewPagerAdapter(childFragmentManager)
-    }
-
     var currentPagerIndex = 0
 
     private var previewHeadersCallback: ((List<TripPreviewHeader>) -> Unit)? = null
@@ -301,40 +297,6 @@ class TripPreviewPagerFragment : BaseTripKitFragment() {
         @Deprecated("UnusedClass")
         fun onExternalActionButtonClicked(action: String?)
     }
-
-    /*
-    class Builder(val tripGroupId: String, val tripId: String, val tripSegmentHashCode: Long, val _tripPreviewPagerListener: Listener) {
-        fun build(): TripPreviewPagerFragment {
-            return TripPreviewPagerFragment().apply {
-                val b = Bundle()
-                b.putString(ARG_TRIP_GROUP_ID, tripGroupId)
-                b.putString(ARG_TRIP_ID, tripId)
-                b.putLong(ARG_TRIP_SEGMENT_ID, tripSegmentHashCode)
-                this.tripPreviewPagerListener = _tripPreviewPagerListener
-                arguments = b
-            }
-        }
-    }
-    */
-
-
-    private fun getAdapterData(tripSegments: List<TripSegment>, tripSegmentId: Long, fromTripAction: Boolean = false) {
-
-        val pairPagerItems = viewModel.generateTripPreviewPagerAdapterItems(
-                tripSegmentId,
-                tripSegments
-                        .filter {
-                            !it.isContinuation
-                        }
-                        .filter {
-                            it.type != SegmentType.DEPARTURE &&
-                                    it.type  != SegmentType.ARRIVAL
-                        },
-                fromTripAction
-        )
-
-    }
-
 
     companion object {
 

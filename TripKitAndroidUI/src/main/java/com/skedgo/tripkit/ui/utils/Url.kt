@@ -26,7 +26,12 @@ fun String.isAppInstalled(packageManager: PackageManager): Boolean {
 }
 
 fun String.getPackageNameFromStoreUrl(): String? {
-    return Uri.parse(this).getQueryParameter("id") ?: Uri.parse(this).getQueryParameter("apn")
+    return try {
+        Uri.parse(this).getQueryParameter("id") ?: Uri.parse(this).getQueryParameter("apn")
+    }catch (e: Exception){
+        e.printStackTrace()
+        null
+    }
 }
 
 fun String.checkUrl(): String? {
