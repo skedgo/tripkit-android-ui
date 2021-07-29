@@ -23,7 +23,7 @@ import com.skedgo.tripkit.ui.TripKitUI
 import com.skedgo.tripkit.ui.core.RxViewModel
 import com.skedgo.tripkit.ui.core.fetchAsync
 import com.skedgo.tripkit.ui.tripresults.GetTransportIconTintStrategy
-import com.skedgo.tripkit.ui.utils.DistanceFormatter
+import com.skedgo.tripkit.ui.utils.*
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
@@ -172,6 +172,57 @@ class TripPreviewPagerViewModel : RxViewModel() {
                 ""
             }
         }
+    }
+
+    fun generateTripPreviewPagerAdapterItems(
+            activeTripSegmentId: Long,
+            tripSegments: List<TripSegment>,
+            fromAction: Boolean = false): Pair<List<TripPreviewPagerAdapterItem>, Int> {
+        var activeTripSegmentPosition = 0
+        var addedCards = 0
+        val result = mutableListOf<TripPreviewPagerAdapterItem>()
+        tripSegments.forEachIndexed { index, segment ->
+            val itemType = segment.correctItemType()
+
+            if (itemType == ITEM_SERVICE) {
+                if (activeTripSegmentId == segment.id && itemType == ITEM_SERVICE
+                        && activeTripSegmentPosition <= 0) {
+                    activeTripSegmentPosition = index + addedCards
+                }
+
+                // Add the timetable card as well
+                result.add(TripPreviewPagerAdapterItem(ITEM_TIMETABLE, segment))
+                addedCards++
+            }
+
+            if (itemType == ITEM_NEARBY) {
+                if (activeTripSegmentId == segment.id && itemType == ITEM_NEARBY
+                        && activeTripSegmentPosition <= 0) {
+                    activeTripSegmentPosition = index + addedCards
+                }
+
+                // Add the mode location card as well
+                result.add(TripPreviewPagerAdapterItem(ITEM_MODE_LOCATION, segment))
+                addedCards++
+            } else {
+                result.add(TripPreviewPagerAdapterItem(itemType, segment))
+            }
+
+            if (activeTripSegmentId == segment.id && activeTripSegmentPosition <= 0) {
+                activeTripSegmentPosition = index + addedCards
+            }
+        }
+
+        if (fromAction) {
+            activeTripSegmentPosition = result.indexOfFirst {
+                !it.tripSegment.booking?.externalActions.isNullOrEmpty()
+            }
+        } else {
+            if (activeTripSegmentPosition < 0) {
+                activeTripSegmentPosition = 0
+            }
+        }
+        return Pair(result, activeTripSegmentPosition)
     }
 
 }

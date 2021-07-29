@@ -131,6 +131,7 @@ class TripPreviewPagerAdapter(fragmentManager: FragmentManager)
         return pages.size
     }
 
+    /*
     fun setTripSegments(
             activeTripSegmentId: Long,
             tripSegments: List<TripSegment>,
@@ -200,6 +201,7 @@ class TripPreviewPagerAdapter(fragmentManager: FragmentManager)
         }
         return activeTripSegmentPosition
     }
+    */
 
     override fun getItemPosition(`object`: Any): Int {
         return POSITION_NONE
