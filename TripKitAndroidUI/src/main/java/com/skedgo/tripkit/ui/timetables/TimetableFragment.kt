@@ -110,6 +110,7 @@ class TimetableFragment : BaseTripKitFragment(), View.OnClickListener {
 
     var cachedStop: ScheduledStop? = null
     var cachedShowSearchBar: Boolean = true
+    var fromPreview: Boolean = false
 
     var bookingActions: ArrayList<String>? = null
         set(value) {
@@ -208,7 +209,7 @@ class TimetableFragment : BaseTripKitFragment(), View.OnClickListener {
                 }.addTo(autoDisposable)
 
         viewModel.timetableEntryChosen.observeOn(AndroidSchedulers.mainThread()).subscribe {
-            if (viewModel.action.isNotEmpty()) {
+            if (viewModel.action.isNotEmpty() || fromPreview) {
                 tripSegment?.let { segmentActionStream?.onNext(it) }
                 tripPreviewPagerListener?.onTimetableEntryClicked(tripSegment, viewModel.viewModelScope, it)
             } else {
@@ -472,6 +473,7 @@ class TimetableFragment : BaseTripKitFragment(), View.OnClickListener {
         private var bookingActions: ArrayList<String>? = null
         private var buttons: MutableList<TripKitButton> = mutableListOf()
         private var actionStream: PublishSubject<TripSegment>? = null
+        private var fromPreview: Boolean = false
 
         fun withStop(stop: ScheduledStop?): Builder {
             this.stop = stop
@@ -513,6 +515,11 @@ class TimetableFragment : BaseTripKitFragment(), View.OnClickListener {
             return this
         }
 
+        fun isFromPreview(fromPreview: Boolean): Builder {
+            this.fromPreview = fromPreview
+            return this
+        }
+
         fun build(): TimetableFragment {
             val args = Bundle()
             val fragment = TimetableFragment()
@@ -526,6 +533,7 @@ class TimetableFragment : BaseTripKitFragment(), View.OnClickListener {
             fragment.cachedStop = stop
             fragment.cachedShowSearchBar = showSearchBar
             fragment.setTripSegment(tripSegment)
+            fragment.fromPreview = fromPreview
 
             return fragment
         }

@@ -108,6 +108,7 @@ class TripPreviewPagerAdapter(fragmentManager: FragmentManager)
                         .withTripSegment(page.tripSegment)
                         .hideSearchBar()
                         .showCloseButton()
+                        .isFromPreview(true)
                         .build()
                 timetableFragment.setTripSegment(page.tripSegment)
                 timetableFragment
