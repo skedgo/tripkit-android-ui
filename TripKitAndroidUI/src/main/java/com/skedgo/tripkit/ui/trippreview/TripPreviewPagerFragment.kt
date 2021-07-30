@@ -5,10 +5,12 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.os.bundleOf
+import androidx.core.view.size
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager.widget.ViewPager
@@ -184,6 +186,18 @@ class TripPreviewPagerFragment : BaseTripKitFragment() {
         adapter.externalActionCallback = { segment, action ->
             if (segment != null && action != null) {
                 logAction(segment, action)
+            }
+        }
+
+        adapter.onSwipePage = {
+            if (it) {
+                if (binding.tripSegmentPager.currentItem + 1 < adapter.pages.size) {
+                    binding.tripSegmentPager.currentItem = binding.tripSegmentPager.currentItem + 1
+                }
+            } else {
+                if (binding.tripSegmentPager.currentItem > 0) {
+                    binding.tripSegmentPager.currentItem = binding.tripSegmentPager.currentItem - 1
+                }
             }
         }
     }

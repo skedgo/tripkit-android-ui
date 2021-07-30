@@ -6,6 +6,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.InflateException
 import android.view.LayoutInflater
 import android.view.View
@@ -27,6 +28,7 @@ import com.skedgo.tripkit.routing.TripSegment
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.TripKitUI
 import com.skedgo.tripkit.ui.core.BaseTripKitFragment
+import com.skedgo.tripkit.ui.core.BaseTripKitPagerFragment
 import com.skedgo.tripkit.ui.core.OnResultStateListener
 import com.skedgo.tripkit.ui.core.addTo
 import com.skedgo.tripkit.ui.databinding.TimetableFragmentBinding
@@ -34,6 +36,7 @@ import com.skedgo.tripkit.ui.dialog.TimeDatePickerFragment
 import com.skedgo.tripkit.ui.model.TimetableEntry
 import com.skedgo.tripkit.ui.model.TripKitButton
 import com.skedgo.tripkit.ui.search.ARG_SHOW_SEARCH_FIELD
+import com.skedgo.tripkit.ui.utils.OnSwipeTouchListener
 import com.skedgo.tripkit.ui.views.MultiStateView
 import io.reactivex.Completable
 import io.reactivex.Observable
@@ -48,7 +51,7 @@ import java.lang.Exception
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
-class TimetableFragment : BaseTripKitFragment(), View.OnClickListener {
+class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
 
     /**
      * This callback will be invoked when a specific timetable entry is clicked.
@@ -255,11 +258,33 @@ class TimetableFragment : BaseTripKitFragment(), View.OnClickListener {
         binding.viewModel = viewModel
         binding.serviceLineRecyclerView.isNestedScrollingEnabled = false
         binding.recyclerView.isNestedScrollingEnabled = true
+
+        /*
         binding.recyclerView.setOnTouchListener { view, motionEvent ->
             view.parent.requestDisallowInterceptTouchEvent(true)
             view.onTouchEvent(motionEvent)
             true
         }
+        */
+
+        val swipeListener = OnSwipeTouchListener(requireContext(),
+                object : OnSwipeTouchListener.SwipeGestureListener {
+                    override fun onSwipeRight() {
+                        onNextPage?.invoke()
+                    }
+
+                    override fun onSwipeLeft() {
+                        onPreviousPage?.invoke()
+                    }
+                })
+
+        swipeListener.touchCallback = { v, event ->
+            v?.parent?.requestDisallowInterceptTouchEvent(true)
+            v?.onTouchEvent(event)
+        }
+
+        binding.recyclerView.setOnTouchListener(swipeListener)
+
 
         binding.recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
 
