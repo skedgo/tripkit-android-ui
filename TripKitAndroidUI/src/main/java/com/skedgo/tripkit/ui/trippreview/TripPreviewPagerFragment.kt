@@ -16,9 +16,7 @@ import com.haroldadmin.cnradapter.NetworkResponse
 import com.skedgo.TripKit
 import com.skedgo.tripkit.ExternalActionParams
 import com.skedgo.tripkit.bookingproviders.BookingResolver
-import com.skedgo.tripkit.routing.SegmentType
-import com.skedgo.tripkit.routing.TripSegment
-import com.skedgo.tripkit.routing.getSummarySegments
+import com.skedgo.tripkit.routing.*
 import com.skedgo.tripkit.ui.ARG_FROM_TRIP_ACTION
 import com.skedgo.tripkit.ui.ARG_TRIP_ID
 import com.skedgo.tripkit.ui.ARG_TRIP_SEGMENT_ID
@@ -132,6 +130,10 @@ class TripPreviewPagerFragment : BaseTripKitFragment() {
                 .subscribe({ tripGroup ->
                     val trip = tripGroup.trips?.find { it.uuid() == tripId }
                     trip?.let {
+
+                        val list = ArrayList<TripGroup>()
+                        list.add(tripGroup)
+                        tripPreviewPagerListener?.reportPlannedTrip(trip, list)
 
                         viewModel.generatePreviewHeaders(
                                 requireContext(),
@@ -292,6 +294,7 @@ class TripPreviewPagerFragment : BaseTripKitFragment() {
     interface Listener {
         fun onServiceActionButtonClicked(_tripSegment: TripSegment?, action: String?)
         fun onTimetableEntryClicked(segment: TripSegment?, scope: CoroutineScope, entry: TimetableEntry)
+        fun reportPlannedTrip(trip: Trip?, tripGroups: List<TripGroup>)
         @Deprecated("UnusedClass") fun onExternalActionButtonClicked(action: String?)
     }
 
