@@ -6,8 +6,9 @@ import androidx.databinding.ObservableBoolean
 import androidx.databinding.ObservableField
 import androidx.databinding.ObservableInt
 import com.jakewharton.rxrelay2.BehaviorRelay
-import com.skedgo.tripkit.analytics.TripSource
+import com.skedgo.tripkit.analytics.*
 import com.skedgo.tripkit.logging.ErrorLogger
+import com.skedgo.tripkit.routing.Trip
 import com.skedgo.tripkit.routing.TripGroup
 import com.skedgo.tripkit.ui.core.RxViewModel
 import com.skedgo.tripkit.ui.core.SchedulerFactory
@@ -25,7 +26,7 @@ import io.reactivex.disposables.Disposable
 import io.reactivex.functions.BiFunction
 import io.reactivex.rxkotlin.Observables
 import io.reactivex.schedulers.Schedulers
-import timber.log.Timber
+import kotlinx.coroutines.channels.Channel
 import java.util.concurrent.atomic.AtomicReference
 import javax.inject.Inject
 
@@ -35,13 +36,11 @@ class TripResultPagerViewModel @Inject internal constructor(
         private val context: Context,
         private val getSortedTripGroups: GetSortedTripGroups,
 //        private val reportPlannedTrip: ReportPlannedTrip,
-//        private val userInfoRepository: UserInfoRepository,
-//        private val getChoiceSet: GetChoiceSet,
         private val trackViewingTrip: TrackViewingTrip,
         private val errorLogger: ErrorLogger,
 //        private val eventTracker: EventTracker,
         private val selectedTripGroupRepository: SelectedTripGroupRepository,
-
+//        private val userInfoRepository: UserInfoRepository,
         private val updateTripProgress: UpdateTripProgressWithUserLocation,
         private val tripGroupRepository: TripGroupRepository,
         private val fetchingRealtimeStatusRepository: FetchingRealtimeStatusRepository,
@@ -123,7 +122,7 @@ class TripResultPagerViewModel @Inject internal constructor(
                 .map { Unit }
     }
 
-    fun updateSelectedTripGroup(): Observable<Unit> {
+    fun updateSelectedTripGroup(): Observable<TripGroup> {
         return currentPage
                 .asObservable()
                 .skip(1)
@@ -133,7 +132,20 @@ class TripResultPagerViewModel @Inject internal constructor(
                 .doOnNext {
                     setInitialSelectedTripGroupId(it.uuid())
                 }
-                .map { Unit }
+                .map { it }
+    }
+
+    fun getCurrentDisplayTrip(): Observable<Trip> {
+        return currentPage
+                .asObservable()
+                .skip(1)
+                .withLatestFrom(tripGroups.hide(), BiFunction<Int, List<TripGroup>, TripGroup>
+                { id, tripGroups -> tripGroups[id] })
+                .observeOn(Schedulers.computation())
+                .doOnNext {
+                    setInitialSelectedTripGroupId(it.uuid())
+                }
+                .map { it.displayTrip }
     }
 
     fun loadFetchingRealtimeStatus(): Observable<Boolean> {
@@ -143,13 +155,6 @@ class TripResultPagerViewModel @Inject internal constructor(
     }
 
     fun trackViewingTrip() = trackViewingTrip.execute(tripSource.hide())
-//
-//  fun reportPlannedTrip(): Observable<Unit> = reportPlannedTrip.execute(
-//      selectedTrip = selectedTrip,
-//      getVisibleTripGroups = { tripGroups.asObservable() },
-//      getSource = tripSource.asObservable(),
-//      getChoiceSet = { trip, visibleTripGroups -> getChoiceSet.execute(trip, visibleTripGroups) },
-//      userInfoRepository = userInfoRepository)
 
     fun setInitialSelectedTripGroupId(tripGroupId: String) {
         currentTripGroupId.set(tripGroupId)

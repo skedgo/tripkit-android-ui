@@ -1,3 +1,3 @@
 package com.skedgo.tripkit.analytics
 
-data class UserInfo(val source: TripSource, val choiceSet: List<Choice>)
+data class UserInfo(val choiceSet: List<Choice>)

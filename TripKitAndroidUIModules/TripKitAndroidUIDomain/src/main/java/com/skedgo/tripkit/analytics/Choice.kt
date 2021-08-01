@@ -8,7 +8,7 @@ data class Choice(
         val calories: Float,
         val segments: List<MiniSegment>,
         val selected: Boolean,
-        val visibility: Visibility,
+        val visibility: String,
         val arrivalTime: Long,
         val departureTime: Long
 )
