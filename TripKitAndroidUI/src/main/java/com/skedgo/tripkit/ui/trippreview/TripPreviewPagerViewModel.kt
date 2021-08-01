@@ -23,7 +23,7 @@ import com.skedgo.tripkit.ui.TripKitUI
 import com.skedgo.tripkit.ui.core.RxViewModel
 import com.skedgo.tripkit.ui.core.fetchAsync
 import com.skedgo.tripkit.ui.tripresults.GetTransportIconTintStrategy
-import com.skedgo.tripkit.ui.utils.DistanceFormatter
+import com.skedgo.tripkit.ui.utils.*
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers

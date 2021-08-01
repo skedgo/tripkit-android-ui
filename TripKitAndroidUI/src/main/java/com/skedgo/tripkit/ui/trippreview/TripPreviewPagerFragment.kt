@@ -5,10 +5,12 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.os.bundleOf
+import androidx.core.view.size
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager.widget.ViewPager
@@ -68,7 +70,7 @@ class TripPreviewPagerFragment : BaseTripKitFragment() {
 
         pageIndexStream?.observeOn(AndroidSchedulers.mainThread())
                 ?.subscribeBy {
-                    if(!fromPageListener) {
+                    if (!fromPageListener) {
                         if (::adapter.isInitialized) {
                             val index = adapter.getSegmentPositionById(it)
                             if (index != -1) {
@@ -108,7 +110,7 @@ class TripPreviewPagerFragment : BaseTripKitFragment() {
             observe(headers) {
                 it?.let {
                     previewHeadersCallback?.invoke(it)
-                    if(currentPagerIndex > 0){
+                    if (currentPagerIndex > 0) {
                         adapter.getSegmentByPosition(currentPagerIndex).let {
                             fromPageListener = true
                             pageIndexStream?.onNext(Pair(it.id, it.transportModeId.toString()))
@@ -183,8 +185,20 @@ class TripPreviewPagerFragment : BaseTripKitFragment() {
         binding.tripSegmentPager.offscreenPageLimit = 2
         setViewPagerListeners()
         adapter.externalActionCallback = { segment, action ->
-            if(segment != null && action != null){
+            if (segment != null && action != null) {
                 logAction(segment, action)
+            }
+        }
+
+        adapter.onSwipePage = {
+            if (it) {
+                if (binding.tripSegmentPager.currentItem + 1 < adapter.pages.size) {
+                    binding.tripSegmentPager.currentItem = binding.tripSegmentPager.currentItem + 1
+                }
+            } else {
+                if (binding.tripSegmentPager.currentItem > 0) {
+                    binding.tripSegmentPager.currentItem = binding.tripSegmentPager.currentItem - 1
+                }
             }
         }
     }
@@ -197,7 +211,7 @@ class TripPreviewPagerFragment : BaseTripKitFragment() {
             (segment.booking?.virtualBookingUrl ?: trip?.logURL)?.let {
                 val result = bookingService.logTrip(it)
                 if (result !is NetworkResponse.Success) {
-                    result.logError() 
+                    result.logError()
                 }
                 proceedWithExternalAction(action)
             } ?: kotlin.run {
@@ -215,7 +229,7 @@ class TripPreviewPagerFragment : BaseTripKitFragment() {
             action.data?.let { dataUrl ->
                 try {
                     activity?.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(dataUrl)))
-                }catch (e: ActivityNotFoundException){
+                } catch (e: ActivityNotFoundException) {
                     action.fallbackUrl?.let { fallbackUrl ->
                         activity?.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(fallbackUrl)))
                     }
@@ -224,8 +238,8 @@ class TripPreviewPagerFragment : BaseTripKitFragment() {
         }
     }
 
-    private fun setViewPagerListeners(){
-        binding.tripSegmentPager.addOnPageChangeListener(object: ViewPager.OnPageChangeListener{
+    private fun setViewPagerListeners() {
+        binding.tripSegmentPager.addOnPageChangeListener(object : ViewPager.OnPageChangeListener {
             override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {}
 
             override fun onPageSelected(position: Int) {
@@ -240,7 +254,7 @@ class TripPreviewPagerFragment : BaseTripKitFragment() {
                     fromPageListener = true
                     pageIndexStream?.onNext(Pair(it.id, it.transportModeId.toString()))
                 }
-                if(selectedFragment is TimetableFragment){
+                if (selectedFragment is TimetableFragment) {
                     adapter.bookingActions?.let {
                         selectedFragment.setBookingActions(it)
                     }
@@ -255,11 +269,11 @@ class TripPreviewPagerFragment : BaseTripKitFragment() {
         adapter.setTripSegments(
                 segment.id,
                 tripSegments
-                .filter {
-                    !it.isContinuation
-                }.filter {
-                    it.type != SegmentType.DEPARTURE && it.type != SegmentType.ARRIVAL
-                }
+                        .filter {
+                            !it.isContinuation
+                        }.filter {
+                            it.type != SegmentType.DEPARTURE && it.type != SegmentType.ARRIVAL
+                        }
         )
 
         viewModel.generatePreviewHeaders(
@@ -298,22 +312,11 @@ class TripPreviewPagerFragment : BaseTripKitFragment() {
         @Deprecated("UnusedClass") fun onExternalActionButtonClicked(action: String?)
     }
 
-    /*
-    class Builder(val tripGroupId: String, val tripId: String, val tripSegmentHashCode: Long, val _tripPreviewPagerListener: Listener) {
-        fun build(): TripPreviewPagerFragment {
-            return TripPreviewPagerFragment().apply {
-                val b = Bundle()
-                b.putString(ARG_TRIP_GROUP_ID, tripGroupId)
-                b.putString(ARG_TRIP_ID, tripId)
-                b.putLong(ARG_TRIP_SEGMENT_ID, tripSegmentHashCode)
-                this.tripPreviewPagerListener = _tripPreviewPagerListener
-                arguments = b
-            }
-        }
+        @Deprecated("UnusedClass")
+        fun onExternalActionButtonClicked(action: String?)
     }
-    */
 
-    companion object{
+    companion object {
 
         const val ARG_CURRENT_PAGER_INDEX = "_a_current_pager_index"
         const val TAG = "tripPreview"

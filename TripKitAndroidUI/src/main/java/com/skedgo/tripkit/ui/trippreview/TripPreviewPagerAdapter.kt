@@ -49,6 +49,8 @@ data class TripPreviewPagerAdapterItem(val type: Int, val tripSegment: TripSegme
 class TripPreviewPagerAdapter(fragmentManager: FragmentManager)
     : FragmentStatePagerAdapter(fragmentManager, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
 
+    internal var onSwipePage: (Boolean /*true = Next, false = Previous*/) -> Unit = {_ ->}
+
     var pages = mutableListOf<TripPreviewPagerAdapterItem>()
     var onCloseButtonListener: View.OnClickListener? = null
     var tripPreviewPagerListener: TripPreviewPagerFragment.Listener? = null
@@ -108,8 +110,15 @@ class TripPreviewPagerAdapter(fragmentManager: FragmentManager)
                         .withTripSegment(page.tripSegment)
                         .hideSearchBar()
                         .showCloseButton()
+                        .isFromPreview(true)
                         .build()
                 timetableFragment.setTripSegment(page.tripSegment)
+                timetableFragment.onNextPage = {
+                    onSwipePage.invoke(true)
+                }
+                timetableFragment.onPreviousPage = {
+                    onSwipePage.invoke(false)
+                }
                 timetableFragment
             }
             else -> StandardTripPreviewItemFragment.newInstance(page.tripSegment)
