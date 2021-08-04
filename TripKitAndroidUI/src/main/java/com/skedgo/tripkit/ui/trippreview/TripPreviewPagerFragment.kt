@@ -312,10 +312,6 @@ class TripPreviewPagerFragment : BaseTripKitFragment() {
         @Deprecated("UnusedClass") fun onExternalActionButtonClicked(action: String?)
     }
 
-        @Deprecated("UnusedClass")
-        fun onExternalActionButtonClicked(action: String?)
-    }
-
     companion object {
 
         const val ARG_CURRENT_PAGER_INDEX = "_a_current_pager_index"
