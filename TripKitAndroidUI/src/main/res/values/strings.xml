@@ -40,4 +40,7 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="str_updating">Updating...</string>
+    <string name="lbl_pickup">Pickup</string>
+    <string name="lbl_drop_off">Drop off</string>
+    <string name="lbl_required">required</string>
 </resources>

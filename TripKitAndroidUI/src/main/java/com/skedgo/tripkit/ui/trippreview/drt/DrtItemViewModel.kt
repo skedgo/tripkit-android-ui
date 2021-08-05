@@ -1,0 +1,48 @@
+package com.skedgo.tripkit.ui.trippreview.drt
+
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.launch
+
+class DrtItemViewModel : ViewModel() {
+
+    var onChangeStream: MutableSharedFlow<DrtItemViewModel>? = null
+
+    private val _icon = MutableLiveData<Int>()
+    val icon: LiveData<Int> = _icon
+
+    private val _label = MutableLiveData<String>()
+    val label: LiveData<String> = _label
+
+    private val _value = MutableLiveData<String>()
+    val value: LiveData<String> = _value
+
+    private val _required = MutableLiveData<Boolean>()
+    val required: LiveData<Boolean> = _required
+
+    fun setIcon(value: Int) {
+        _icon.value = value
+    }
+
+    fun setLabel(value: String) {
+        _label.value = value
+    }
+
+    fun setValue(value: String) {
+        _value.value = value
+    }
+
+    fun setRequired(value: Boolean) {
+        _required.value = value
+    }
+
+    fun onChange() {
+        viewModelScope.launch {
+            onChangeStream?.emit(this@DrtItemViewModel)
+        }
+    }
+
+}
