@@ -16,6 +16,14 @@
         android:padding="@dimen/spacing_normal"
         tools:context=".trippreview.drt.DRTFragment">
 
+
+        <ImageView
+            android:layout_width="@dimen/icon_regular"
+            android:layout_height="@dimen/icon_regular"
+            android:src="@drawable/close"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
+
         <ImageView
             android:id="@+id/drt_ivIcon"
             android:layout_width="@dimen/icon_medium"
@@ -32,6 +40,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/spacing_normal"
             android:textStyle="bold"
+            android:layout_marginTop="@dimen/spacing_medium"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/drt_ivIcon"
             app:layout_constraintTop_toTopOf="parent"

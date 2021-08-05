@@ -1,7 +1,11 @@
 package com.skedgo.tripkit.ui.trippreview.drt
 
+import android.util.Log
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.DiffUtil
+import com.skedgo.tripkit.routing.TripSegment
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.core.RxViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -14,7 +18,10 @@ import javax.inject.Inject
 
 class DrtViewModel @Inject constructor() : RxViewModel() {
 
-    val onItemChangeStream = MutableSharedFlow<DrtItemViewModel>()
+    private val _segment = MutableLiveData<TripSegment>()
+    val segment: LiveData<TripSegment> = _segment
+
+    val onItemChangeActionStream = MutableSharedFlow<DrtItemViewModel>()
 
     val items = DiffObservableList<DrtItemViewModel>(DrtItemsDiffCallBack)
     val itemBinding = ItemBinding.of<DrtItemViewModel>(BR.viewModel, R.layout.item_drt)
@@ -29,43 +36,46 @@ class DrtViewModel @Inject constructor() : RxViewModel() {
     }
 
     init {
-        onItemChangeStream.onEach {
-            when(it.label.value){
-                "Mobility Options" -> {}
-                "Purpose" -> {}
-                "Add note" -> {}
-            }
-        }.launchIn(viewModelScope)
+        getDrtItems()
     }
 
 
-    fun generateDrtItems(){
+    private fun getDrtItems() {
         val result = mutableListOf<DrtItemViewModel>()
 
-        val mobilityOptions = DrtItemViewModel()
-        mobilityOptions.setIcon(R.drawable.ic_person)
-        mobilityOptions.setLabel("Mobility Options")
-        mobilityOptions.setValue("Tap Change to make selections")
-        mobilityOptions.setRequired(true)
-        mobilityOptions.onChangeStream = onItemChangeStream
+        generateDrtItem(DrtItem.MOBILITY_OPTIONS)?.let { result.add(it) }
+        generateDrtItem(DrtItem.PURPOSE)?.let { result.add(it) }
+        generateDrtItem(DrtItem.ADD_NOTE)?.let { result.add(it) }
 
-        val purpose = DrtItemViewModel()
-        purpose.setIcon(R.drawable.ic_flag)
-        purpose.setLabel("Purpose")
-        purpose.setValue("Tap Change to make selections")
-        purpose.setRequired(true)
-        purpose.onChangeStream = onItemChangeStream
+        items.update(result)
+    }
 
-        val addNote = DrtItemViewModel()
-        addNote.setIcon(R.drawable.ic_edit)
-        addNote.setLabel("Add note")
-        addNote.setValue("Tap Change to add notes")
-        addNote.setRequired(true)
-        addNote.onChangeStream = onItemChangeStream
+    private fun generateDrtItem(@DrtItem item: String): DrtItemViewModel? {
 
-        items.add(mobilityOptions)
-        items.add(purpose)
-        items.add(addNote)
+        return when (item) {
+            DrtItem.MOBILITY_OPTIONS -> DrtItemViewModel().apply {
+                setIcon(R.drawable.ic_person)
+                setLabel(item)
+                setValue("Tap Change to make selections")
+                setRequired(true)
+                onChangeStream = onItemChangeActionStream
+            }
+            DrtItem.PURPOSE -> DrtItemViewModel().apply {
+                setIcon(R.drawable.ic_flag)
+                setLabel(item)
+                setValue("Tap Change to make selections")
+                setRequired(true)
+                onChangeStream = onItemChangeActionStream
+            }
+            DrtItem.ADD_NOTE -> DrtItemViewModel().apply {
+                setIcon(R.drawable.ic_edit)
+                setLabel(item)
+                setValue("Tap Change to add notes")
+                setRequired(false)
+                onChangeStream = onItemChangeActionStream
+            }
+            else -> null
+        }
 
     }
 
