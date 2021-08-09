@@ -106,7 +106,7 @@ TripSegmentItemViewModel @Inject internal constructor(
                         val fromPoints = area.getPointWithGTFSCode(previousPTSegment.endStopCode)
                         val toPoints = area.getPointWithGTFSCode(nextPTSegment.startStopCode)
 
-                        if (! fromPoints.isEmpty() && ! toPoints.isEmpty()) {
+                        if (fromPoints.isNotEmpty() && toPoints.isNotEmpty()) {
 
                             WayWikiFinder.getRoute(
                                     context,
