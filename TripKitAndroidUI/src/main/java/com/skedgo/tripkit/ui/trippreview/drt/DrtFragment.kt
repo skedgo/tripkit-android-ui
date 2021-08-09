@@ -12,9 +12,11 @@ import com.skedgo.tripkit.routing.TripSegment
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.core.BaseFragment
 import com.skedgo.tripkit.ui.core.BaseTripKitFragment
+import com.skedgo.tripkit.ui.core.addTo
 import com.skedgo.tripkit.ui.databinding.FragmentDrtBinding
 import com.skedgo.tripkit.ui.trippreview.TripPreviewPagerItemViewModel
 import com.skedgo.tripkit.ui.trippreview.standard.StandardTripPreviewItemFragment
+import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
@@ -59,6 +61,10 @@ class DrtFragment : BaseFragment<FragmentDrtBinding>() {
         segment?.let {
             pagerItemViewModel.setSegment(requireContext(), it)
         }
+
+        pagerItemViewModel.closeClicked.observable
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe{ onCloseButtonListener?.onClick(null) }.addTo(autoDisposable)
     }
 
     companion object {
