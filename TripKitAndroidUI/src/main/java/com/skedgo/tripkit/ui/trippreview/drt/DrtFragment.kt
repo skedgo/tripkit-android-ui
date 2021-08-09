@@ -13,6 +13,7 @@ import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.core.BaseFragment
 import com.skedgo.tripkit.ui.core.BaseTripKitFragment
 import com.skedgo.tripkit.ui.databinding.FragmentDrtBinding
+import com.skedgo.tripkit.ui.trippreview.TripPreviewPagerItemViewModel
 import com.skedgo.tripkit.ui.trippreview.standard.StandardTripPreviewItemFragment
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -20,6 +21,8 @@ import kotlinx.coroutines.flow.onEach
 class DrtFragment : BaseFragment<FragmentDrtBinding>() {
 
     private val viewModel: DrtViewModel by viewModels()
+
+    private val pagerItemViewModel: TripPreviewPagerItemViewModel by viewModels()
 
     private var segment: TripSegment? = null
 
@@ -34,6 +37,7 @@ class DrtFragment : BaseFragment<FragmentDrtBinding>() {
     private fun initBinding() {
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
+        binding.pagerItemViewModel = pagerItemViewModel
     }
 
     private fun initObserver() {
@@ -52,6 +56,9 @@ class DrtFragment : BaseFragment<FragmentDrtBinding>() {
                     }
                     Log.e("MIKE", "value: ${it.label.value}")
                 }.launchIn(lifecycleScope)
+        segment?.let {
+            pagerItemViewModel.setSegment(requireContext(), it)
+        }
     }
 
     companion object {

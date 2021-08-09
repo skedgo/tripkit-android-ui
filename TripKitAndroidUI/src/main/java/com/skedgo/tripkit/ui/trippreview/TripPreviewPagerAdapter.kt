@@ -124,7 +124,7 @@ class TripPreviewPagerAdapter(fragmentManager: FragmentManager)
                 timetableFragment
             }
             ITEM_QUICK_BOOKING -> {
-                DrtFragment()
+                DrtFragment.newInstance(page.tripSegment)
             }
             else -> StandardTripPreviewItemFragment.newInstance(page.tripSegment)
         }

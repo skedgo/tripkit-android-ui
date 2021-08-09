@@ -6,6 +6,10 @@
     <data>
 
         <variable
+            name="pagerItemViewModel"
+            type="com.skedgo.tripkit.ui.trippreview.TripPreviewPagerItemViewModel" />
+
+        <variable
             name="viewModel"
             type="com.skedgo.tripkit.ui.trippreview.drt.DrtViewModel" />
     </data>
@@ -22,13 +26,13 @@
             android:layout_height="@dimen/icon_regular"
             android:src="@drawable/close"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"/>
+            app:layout_constraintTop_toTopOf="parent" />
 
         <ImageView
             android:id="@+id/drt_ivIcon"
             android:layout_width="@dimen/icon_medium"
             android:layout_height="@dimen/icon_medium"
-            android:src="@drawable/ic_car_ride_share"
+            app:drawableSource="@{pagerItemViewModel.icon}"
             app:layout_constraintBottom_toBottomOf="@+id/drt_tvSubTitle"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@+id/drt_tvTitle" />
@@ -39,8 +43,9 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/spacing_normal"
-            android:textStyle="bold"
             android:layout_marginTop="@dimen/spacing_medium"
+            android:text="@{pagerItemViewModel.instructionTitle}"
+            android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/drt_ivIcon"
             app:layout_constraintTop_toTopOf="parent"
@@ -53,7 +58,9 @@
             android:layout_height="wrap_content"
             android:ellipsize="end"
             android:maxLines="2"
+            android:text="@{pagerItemViewModel.description}"
             android:textColor="@color/black1"
+            android:visibility="@{pagerItemViewModel.showDescription}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="@+id/drt_tvTitle"
             app:layout_constraintTop_toBottomOf="@+id/drt_tvTitle"
@@ -99,6 +106,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/spacing_normal"
             android:layout_marginTop="@dimen/spacing_small"
+            android:text="@{pagerItemViewModel.fromLocation}"
             app:layout_constraintStart_toEndOf="@+id/drt_ivPickUpIcon"
             app:layout_constraintTop_toBottomOf="@+id/drt_tvPickUpLabel"
             tools:text="Near Scott Street" />
@@ -133,6 +141,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/spacing_normal"
             android:layout_marginTop="@dimen/spacing_small"
+            android:text="@{pagerItemViewModel.toLocation}"
             app:layout_constraintStart_toEndOf="@+id/drt_ivDropOffIcon"
             app:layout_constraintTop_toBottomOf="@+id/drt_tvDropOffLabel"
             tools:text="Near Scott Street" />
