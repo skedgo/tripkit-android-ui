@@ -27,6 +27,7 @@ import com.skedgo.tripkit.ui.utils.TapAction
 import com.skedgo.tripkit.ui.utils.TapStateFlow
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
+import org.joda.time.format.DateTimeFormat
 import timber.log.Timber
 import java.time.ZonedDateTime
 import java.util.*
@@ -34,6 +35,7 @@ import java.util.concurrent.TimeUnit
 
 open class TripPreviewPagerItemViewModel : RxViewModel() {
     var title = ObservableField<String>()
+    var instructionTitle = ObservableField<String>()
     var icon = ObservableField<Drawable>()
     var description = ObservableField<String>()
     var showDescription = ObservableBoolean(true)
@@ -44,6 +46,9 @@ open class TripPreviewPagerItemViewModel : RxViewModel() {
     var messageVisible = ObservableBoolean(false)
     var showLaunchInMaps = ObservableBoolean(false)
     var showLaunchInMapsClicked = TapStateFlow { this }
+    val fromLocation = ObservableField<String>()
+    val toLocation = ObservableField<String>()
+    val duration = ObservableField<String>()
 
     var segment: TripSegment? = null
 
@@ -53,7 +58,9 @@ open class TripPreviewPagerItemViewModel : RxViewModel() {
     open fun setSegment(context: Context, segment: TripSegment) {
         this.segment = segment
         title.set(TripSegmentUtils.getTripSegmentAction(context, segment) ?: "Unknown Action")
+        instructionTitle.set(segment.miniInstruction?.instruction ?: title.get())
         val instruction = segment.miniInstruction?.description
+
         if (segment.metres > 0) {
             notes.set(DistanceFormatter.format(segment.metres))
         } else {
@@ -104,5 +111,11 @@ open class TripPreviewPagerItemViewModel : RxViewModel() {
 
             }
         }
+
+        fromLocation.set(segment.from.address)
+        toLocation.set(segment.to.address)
+
+        val dateTimeFormatter = DateTimeFormat.forPattern("HH:mm")
+        duration.set(segment.endDateTime.toString(dateTimeFormatter))
     }
 }

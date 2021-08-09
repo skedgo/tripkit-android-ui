@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="pagerItemViewModel"
+            type="com.skedgo.tripkit.ui.trippreview.TripPreviewPagerItemViewModel" />
+
+        <variable
+            name="viewModel"
+            type="com.skedgo.tripkit.ui.trippreview.drt.DrtViewModel" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="@dimen/spacing_normal"
+        tools:context=".trippreview.drt.DRTFragment">
+
+
+        <ImageView
+            android:layout_width="@dimen/icon_regular"
+            android:layout_height="@dimen/icon_regular"
+            android:onClick="@{() -> pagerItemViewModel.closeClicked.perform()}"
+            android:src="@drawable/close"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:id="@+id/drt_ivIcon"
+            android:layout_width="@dimen/icon_medium"
+            android:layout_height="@dimen/icon_medium"
+            app:drawableSource="@{pagerItemViewModel.icon}"
+            app:layout_constraintBottom_toBottomOf="@+id/drt_tvSubTitle"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/drt_tvTitle" />
+
+        <TextView
+            android:id="@+id/drt_tvTitle"
+            style="@style/TextAppearance.MaterialComponents.Headline5"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/spacing_normal"
+            android:layout_marginTop="@dimen/spacing_medium"
+            android:text="@{pagerItemViewModel.instructionTitle}"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/drt_ivIcon"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="Ride" />
+
+        <TextView
+            android:id="@+id/drt_tvSubTitle"
+            style="@style/TextAppearance.MaterialComponents.Body1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="2"
+            android:text="@{pagerItemViewModel.description}"
+            android:textColor="@color/black1"
+            android:visibility="@{pagerItemViewModel.showDescription}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@+id/drt_tvTitle"
+            app:layout_constraintTop_toBottomOf="@+id/drt_tvTitle"
+            tools:text="Newark St, Detroit MI 48216, United States" />
+
+        <TextView
+            android:id="@+id/drt_tvSchedule"
+            style="@style/TextAppearance.MaterialComponents.Body1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_medium"
+            android:text="@{`Today ` + pagerItemViewModel.duration}"
+            android:textStyle="bold"
+            app:layout_constraintTop_toBottomOf="@+id/drt_tvSubTitle"
+            tools:text="Today 15:07" />
+
+        <ImageView
+            android:id="@+id/drt_ivPickUpIcon"
+            android:layout_width="@dimen/icon_small"
+            android:layout_height="@dimen/icon_small"
+            android:layout_marginTop="@dimen/spacing_normal"
+            android:adjustViewBounds="true"
+            android:src="@drawable/small_circle"
+            app:layout_constraintStart_toStartOf="@+id/drt_tvSchedule"
+            app:layout_constraintTop_toBottomOf="@+id/drt_tvSchedule"
+            app:tint="@color/colorPrimary" />
+
+        <TextView
+            android:id="@+id/drt_tvPickUpLabel"
+            style="@style/TextAppearance.MaterialComponents.Body2"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/spacing_normal"
+            android:text="@string/lbl_pickup"
+            android:textColor="@color/black1"
+            app:layout_constraintBottom_toBottomOf="@+id/drt_ivPickUpIcon"
+            app:layout_constraintStart_toEndOf="@+id/drt_ivPickUpIcon"
+            app:layout_constraintTop_toTopOf="@+id/drt_ivPickUpIcon" />
+
+        <TextView
+            android:id="@+id/drt_tvPickUp"
+            style="@style/TextAppearance.MaterialComponents.Body1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/spacing_normal"
+            android:layout_marginTop="@dimen/spacing_small"
+            android:text="@{pagerItemViewModel.fromLocation}"
+            app:layout_constraintStart_toEndOf="@+id/drt_ivPickUpIcon"
+            app:layout_constraintTop_toBottomOf="@+id/drt_tvPickUpLabel"
+            tools:text="Near Scott Street" />
+
+        <ImageView
+            android:id="@+id/drt_ivDropOffIcon"
+            android:layout_width="@dimen/icon_small"
+            android:layout_height="@dimen/icon_small"
+            android:layout_marginTop="@dimen/spacing_medium"
+            android:adjustViewBounds="true"
+            android:src="@drawable/small_circle"
+            app:layout_constraintStart_toStartOf="@+id/drt_tvSchedule"
+            app:layout_constraintTop_toBottomOf="@+id/drt_tvPickUp"
+            app:tint="@color/colorPrimary" />
+
+        <TextView
+            android:id="@+id/drt_tvDropOffLabel"
+            style="@style/TextAppearance.MaterialComponents.Body2"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/spacing_normal"
+            android:text="@string/lbl_drop_off"
+            android:textColor="@color/black1"
+            app:layout_constraintBottom_toBottomOf="@+id/drt_ivDropOffIcon"
+            app:layout_constraintStart_toEndOf="@+id/drt_ivDropOffIcon"
+            app:layout_constraintTop_toTopOf="@+id/drt_ivDropOffIcon" />
+
+        <TextView
+            android:id="@+id/drt_tvDropOff"
+            style="@style/TextAppearance.MaterialComponents.Body1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/spacing_normal"
+            android:layout_marginTop="@dimen/spacing_small"
+            android:text="@{pagerItemViewModel.toLocation}"
+            app:layout_constraintStart_toEndOf="@+id/drt_ivDropOffIcon"
+            app:layout_constraintTop_toBottomOf="@+id/drt_tvDropOffLabel"
+            tools:text="Near Scott Street" />
+
+        <View
+            android:layout_width="1dp"
+            android:layout_height="0dp"
+            android:background="@color/colorPrimary"
+            app:layout_constraintBottom_toTopOf="@+id/drt_ivDropOffIcon"
+            app:layout_constraintEnd_toEndOf="@+id/drt_ivPickUpIcon"
+            app:layout_constraintStart_toStartOf="@+id/drt_ivPickUpIcon"
+            app:layout_constraintTop_toBottomOf="@+id/drt_ivPickUpIcon" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/drt_rvData"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_medium"
+            app:itemBinding="@{viewModel.itemBinding}"
+            app:items="@{viewModel.items}"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            app:layout_constraintTop_toBottomOf="@+id/drt_tvDropOff"
+            tools:itemCount="3"
+            tools:listitem="@layout/item_drt" />
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_round_rect_primary"
+            android:text="@string/book"
+            android:textColor="@android:color/white"
+            android:layout_marginTop="@dimen/spacing_medium"
+            app:layout_constraintTop_toBottomOf="@+id/drt_rvData" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

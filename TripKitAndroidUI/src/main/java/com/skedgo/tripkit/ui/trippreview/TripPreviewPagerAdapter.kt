@@ -1,3 +1,4 @@
+
 package com.skedgo.tripkit.ui.trippreview
 
 import android.content.Context
@@ -25,6 +26,7 @@ import com.skedgo.tripkit.ui.core.fetchAsync
 import com.skedgo.tripkit.ui.timetables.TimetableFragment
 import com.skedgo.tripkit.ui.trippreview.standard.StandardTripPreviewItemFragment
 import com.skedgo.tripkit.ui.trippreview.directions.DirectionsTripPreviewItemFragment
+import com.skedgo.tripkit.ui.trippreview.drt.DrtFragment
 import com.skedgo.tripkit.ui.trippreview.external.ExternalActionTripPreviewItemFragment
 import com.skedgo.tripkit.ui.trippreview.nearby.ModeLocationTripPreviewItemFragment
 import com.skedgo.tripkit.ui.trippreview.nearby.NearbyTripPreviewItemFragment
@@ -120,6 +122,9 @@ class TripPreviewPagerAdapter(fragmentManager: FragmentManager)
                     onSwipePage.invoke(false)
                 }
                 timetableFragment
+            }
+            ITEM_QUICK_BOOKING -> {
+                DrtFragment.newInstance(page.tripSegment)
             }
             else -> StandardTripPreviewItemFragment.newInstance(page.tripSegment)
         }

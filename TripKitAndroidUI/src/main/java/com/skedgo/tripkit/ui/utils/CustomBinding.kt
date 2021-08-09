@@ -1,6 +1,7 @@
 package com.skedgo.tripkit.ui.utils
 
 import android.content.res.Resources
+import android.graphics.drawable.Drawable
 import android.os.SystemClock
 import android.view.View
 import android.widget.ImageView
@@ -15,6 +16,15 @@ fun setIcon(view: ImageView, iconResource: Int) {
         ContextCompat.getDrawable(view.context, iconResource)?.let {
             view.setImageDrawable(it)
         }
+    } catch (e: Exception) {
+        e.printStackTrace()
+    }
+}
+
+@BindingAdapter("drawableSource")
+fun setIcon(view: ImageView, iconResource: Drawable?) {
+    try {
+        view.setImageDrawable(iconResource)
     } catch (e: Exception) {
         e.printStackTrace()
     }
