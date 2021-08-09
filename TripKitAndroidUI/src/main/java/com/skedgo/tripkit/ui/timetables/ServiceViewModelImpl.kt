@@ -17,6 +17,8 @@ import com.skedgo.tripkit.ui.utils.TimeSpanUtils
 import org.joda.time.DateTimeZone
 import com.skedgo.tripkit.logging.ErrorLogger
 import com.skedgo.tripkit.routing.ModeInfo
+import org.joda.time.DateTime
+import org.joda.time.format.DateTimeFormat
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -65,6 +67,7 @@ internal class ServiceViewModelImpl @Inject constructor(
   }
 
   private fun updateInfo() {
+
     modeInfo.set(service.modeInfo)
     if (service.serviceNumber.isNullOrBlank()) {
       serviceNumber.set(service.serviceName)

@@ -1,10 +1,12 @@
 package com.skedgo.tripkit.ui.timetables
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.InflateException
 import android.view.LayoutInflater
 import android.view.View
@@ -26,6 +28,7 @@ import com.skedgo.tripkit.routing.TripSegment
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.TripKitUI
 import com.skedgo.tripkit.ui.core.BaseTripKitFragment
+import com.skedgo.tripkit.ui.core.BaseTripKitPagerFragment
 import com.skedgo.tripkit.ui.core.OnResultStateListener
 import com.skedgo.tripkit.ui.core.addTo
 import com.skedgo.tripkit.ui.databinding.TimetableFragmentBinding
@@ -33,6 +36,7 @@ import com.skedgo.tripkit.ui.dialog.TimeDatePickerFragment
 import com.skedgo.tripkit.ui.model.TimetableEntry
 import com.skedgo.tripkit.ui.model.TripKitButton
 import com.skedgo.tripkit.ui.search.ARG_SHOW_SEARCH_FIELD
+import com.skedgo.tripkit.ui.utils.OnSwipeTouchListener
 import com.skedgo.tripkit.ui.views.MultiStateView
 import io.reactivex.Completable
 import io.reactivex.Observable
@@ -47,7 +51,7 @@ import java.lang.Exception
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
-class TimetableFragment : BaseTripKitFragment(), View.OnClickListener {
+class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
 
     /**
      * This callback will be invoked when a specific timetable entry is clicked.
@@ -109,6 +113,7 @@ class TimetableFragment : BaseTripKitFragment(), View.OnClickListener {
 
     var cachedStop: ScheduledStop? = null
     var cachedShowSearchBar: Boolean = true
+    var fromPreview: Boolean = false
 
     var bookingActions: ArrayList<String>? = null
         set(value) {
@@ -207,7 +212,7 @@ class TimetableFragment : BaseTripKitFragment(), View.OnClickListener {
                 }.addTo(autoDisposable)
 
         viewModel.timetableEntryChosen.observeOn(AndroidSchedulers.mainThread()).subscribe {
-            if (viewModel.action.isNotEmpty()) {
+            if (viewModel.action.isNotEmpty() || fromPreview) {
                 tripSegment?.let { segmentActionStream?.onNext(it) }
                 tripPreviewPagerListener?.onTimetableEntryClicked(tripSegment, viewModel.viewModelScope, it)
             } else {
@@ -241,6 +246,7 @@ class TimetableFragment : BaseTripKitFragment(), View.OnClickListener {
         }
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         binding = TimetableFragmentBinding.inflate(layoutInflater)
@@ -252,11 +258,33 @@ class TimetableFragment : BaseTripKitFragment(), View.OnClickListener {
         binding.viewModel = viewModel
         binding.serviceLineRecyclerView.isNestedScrollingEnabled = false
         binding.recyclerView.isNestedScrollingEnabled = true
+
+        /*
         binding.recyclerView.setOnTouchListener { view, motionEvent ->
             view.parent.requestDisallowInterceptTouchEvent(true)
             view.onTouchEvent(motionEvent)
             true
         }
+        */
+
+        val swipeListener = OnSwipeTouchListener(requireContext(),
+                object : OnSwipeTouchListener.SwipeGestureListener {
+                    override fun onSwipeRight() {
+                        onNextPage?.invoke()
+                    }
+
+                    override fun onSwipeLeft() {
+                        onPreviousPage?.invoke()
+                    }
+                })
+
+        swipeListener.touchCallback = { v, event ->
+            v?.parent?.requestDisallowInterceptTouchEvent(true)
+            v?.onTouchEvent(event)
+        }
+
+        binding.recyclerView.setOnTouchListener(swipeListener)
+
 
         binding.recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
 
@@ -470,6 +498,7 @@ class TimetableFragment : BaseTripKitFragment(), View.OnClickListener {
         private var bookingActions: ArrayList<String>? = null
         private var buttons: MutableList<TripKitButton> = mutableListOf()
         private var actionStream: PublishSubject<TripSegment>? = null
+        private var fromPreview: Boolean = false
 
         fun withStop(stop: ScheduledStop?): Builder {
             this.stop = stop
@@ -511,6 +540,11 @@ class TimetableFragment : BaseTripKitFragment(), View.OnClickListener {
             return this
         }
 
+        fun isFromPreview(fromPreview: Boolean): Builder {
+            this.fromPreview = fromPreview
+            return this
+        }
+
         fun build(): TimetableFragment {
             val args = Bundle()
             val fragment = TimetableFragment()
@@ -524,6 +558,7 @@ class TimetableFragment : BaseTripKitFragment(), View.OnClickListener {
             fragment.cachedStop = stop
             fragment.cachedShowSearchBar = showSearchBar
             fragment.setTripSegment(tripSegment)
+            fragment.fromPreview = fromPreview
 
             return fragment
         }
