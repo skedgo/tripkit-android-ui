@@ -103,15 +103,15 @@ TripSegmentItemViewModel @Inject internal constructor(
                     WayWikiFinder.setCurrentArea(this)
                     WayWikiFinder.checkDownloadAreaPoints(this) { area ->
 
-                        val fromPoint = area.getPointWithGTFSCode(previousPTSegment.endStopCode)
-                        val toPoint = area.getPointWithGTFSCode(nextPTSegment.startStopCode)
+                        val fromPoints = area.getPointWithGTFSCode(previousPTSegment.endStopCode)
+                        val toPoints = area.getPointWithGTFSCode(nextPTSegment.startStopCode)
 
-                        if (fromPoint != null && toPoint != null) {
+                        if (! fromPoints.isEmpty() && ! toPoints.isEmpty()) {
 
                             WayWikiFinder.getRoute(
                                     context,
-                                    fromPoint,
-                                    listOf(toPoint)
+                                    fromPoints.firstOrNull(),
+                                    toPoints
                             ) { routePoints ->
                                 _wikiWayFinderRoutes.value = routePoints
                             }
