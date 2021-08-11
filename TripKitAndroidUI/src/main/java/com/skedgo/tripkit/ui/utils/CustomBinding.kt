@@ -54,3 +54,12 @@ fun ImageView.setImageTint(@ColorInt color: Int) {
         clearColorFilter()
     }
 }
+
+@BindingAdapter("visibilityInv")
+fun setVisibilityInv(view: View, visible: Boolean?) {
+    view.visibility = if (visible == true) {
+        View.VISIBLE
+    } else {
+        View.INVISIBLE
+    }
+}
