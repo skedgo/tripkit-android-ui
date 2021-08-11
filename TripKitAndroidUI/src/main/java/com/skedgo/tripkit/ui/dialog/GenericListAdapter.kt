@@ -2,57 +2,73 @@ package com.skedgo.tripkit.ui.dialog
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.RecyclerView
-import com.skedgo.tripkit.ui.databinding.ViewholderGenericListBinding
-import kotlin.collections.ArrayList
+import com.skedgo.tripkit.ui.R
+import com.skedgo.tripkit.ui.databinding.ViewGenericListItemBinding
+import com.skedgo.tripkit.ui.utils.AutoUpdatableAdapter
+import javax.inject.Inject
+import kotlin.properties.Delegates
 
-class GenericListAdapter(private val onClickListener: OnSelectListener) :
-        RecyclerView.Adapter<GenericListViewHolder>() {
-    interface OnSelectListener {
-        fun onSelect(selection: String)
-        fun isSelected(selection: String): Boolean
+class GenericListAdapter @Inject constructor() :
+        RecyclerView.Adapter<GenericListAdapter.Holder>(),
+        AutoUpdatableAdapter {
+
+    internal var collection: List<GenericListItem> by Delegates.observable(emptyList()) { prop, old, new ->
+        autoNotify(old, new) { o, n -> o.label == n.label }
     }
 
-    private val selectionList = ArrayList<String>()
+    internal var isSingleSelection: Boolean = false
+    internal var clickListener: (GenericListItem) -> Unit = { _ -> }
 
-    fun setSelectionList(selectionList: List<String>) {
-        this.selectionList.clear()
-        this.selectionList.addAll(selectionList)
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
+            Holder.from(
+                    parent,
+                    R.layout.view_generic_list_item
+            )
+
+    override fun getItemCount() = collection.size
+
+    override fun onBindViewHolder(holder: Holder, position: Int) {
+        holder.binding.apply {
+            val listItem = collection[position]
+            item = listItem
+            executePendingBindings()
+            holder.itemView.setOnClickListener {
+                if (isSingleSelection) {
+                    updateSelected(listItem)
+                } else {
+                    listItem.selected = !listItem.selected
+                    notifyItemChanged(position)
+                }
+                clickListener.invoke(listItem)
+            }
+        }
+    }
+
+    private fun updateSelected(selectedItem: GenericListItem) {
+        collection.map {
+            it.selected = it.label == selectedItem.label
+        }
         notifyDataSetChanged()
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): GenericListViewHolder {
-        val binding: ViewholderGenericListBinding =
-                ViewholderGenericListBinding.inflate(
-                        LayoutInflater.from(parent.context),
-                        parent,
-                        false
-                )
-        return GenericListViewHolder(binding, onClickListener)
+
+    override fun getItemViewType(position: Int): Int {
+        return position
     }
 
-    override fun getItemCount(): Int = selectionList.size
-
-    override fun onBindViewHolder(holder: GenericListViewHolder, position: Int) =
-            holder.bind(selectionList[position])
-}
-
-class GenericListViewHolder(
-        private val binding: ViewholderGenericListBinding,
-        private val onSelectListener: GenericListAdapter.OnSelectListener
-) :
-        RecyclerView.ViewHolder(binding.root) {
-
-    private lateinit var selection: String
-
-    fun bind(selection: String) {
-        binding.txtLabel.text = selection
-
-        binding.isChecked = onSelectListener.isSelected(selection)
-
-        binding.root.setOnClickListener {
-            onSelectListener.onSelect(selection)
-            binding.isChecked = onSelectListener.isSelected(selection)
+    class Holder(val binding: ViewGenericListItemBinding) : RecyclerView.ViewHolder(binding.root) {
+        companion object {
+            fun from(parent: ViewGroup, layout: Int): Holder {
+                val inflater = LayoutInflater.from(parent.context)
+                val binding =
+                        DataBindingUtil.inflate<ViewGenericListItemBinding>(
+                                inflater, layout,
+                                parent, false
+                        )
+                return Holder(binding)
+            }
         }
     }
 }

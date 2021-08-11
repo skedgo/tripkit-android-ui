@@ -8,20 +8,21 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.DialogFragment
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.skedgo.tripkit.ui.databinding.DialogGenericListBinding
+import com.skedgo.tripkit.ui.databinding.DialogGenericListOldBinding
 
-class GenericListFragment(private val listener: Listener) : DialogFragment(), GenericListAdapter.OnSelectListener {
+@Deprecated("Use GenericListDialogFragment")
+class GenericListFragmentOld(private val listener: Listener) : DialogFragment(), GenericListAdapterOld.OnSelectListener {
 
-    private lateinit var binding: DialogGenericListBinding
+    private lateinit var binding: DialogGenericListOldBinding
     private lateinit var selection: List<String>
-    private lateinit var adapter: GenericListAdapter
+    private lateinit var adapter: GenericListAdapterOld
     private lateinit var title: String
 
     private var isMultiSelect = true
     private val selectedList = ArrayList<String>()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        binding = DialogGenericListBinding.inflate(inflater, container, false)
+        binding = DialogGenericListOldBinding.inflate(inflater, container, false)
 
         setupSelectionRecyclerView()
         setupLabel()
@@ -44,7 +45,7 @@ class GenericListFragment(private val listener: Listener) : DialogFragment(), Ge
     }
 
     private fun setupSelectionRecyclerView() {
-        adapter = GenericListAdapter(this)
+        adapter = GenericListAdapterOld(this)
         binding.rvSelection.layoutManager = LinearLayoutManager(requireActivity())
         binding.rvSelection.adapter = adapter
 
@@ -75,8 +76,8 @@ class GenericListFragment(private val listener: Listener) : DialogFragment(), Ge
     }
 
     interface Listener {
-        fun onAccept(selectedList: List<String>, fragment: GenericListFragment)
-        fun onClose(fragment: GenericListFragment)
+        fun onAccept(selectedList: List<String>, fragmentOld: GenericListFragmentOld)
+        fun onClose(fragmentOld: GenericListFragmentOld)
     }
 
     override fun onSelect(selection: String) {
