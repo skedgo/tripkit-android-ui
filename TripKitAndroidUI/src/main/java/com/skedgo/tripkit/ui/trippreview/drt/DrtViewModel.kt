@@ -1,16 +1,12 @@
 package com.skedgo.tripkit.ui.trippreview.drt
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.DiffUtil
 import com.skedgo.tripkit.routing.TripSegment
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.core.RxViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
 import me.tatarka.bindingcollectionadapter2.BR
 import me.tatarka.bindingcollectionadapter2.ItemBinding
 import me.tatarka.bindingcollectionadapter2.collections.DiffObservableList
@@ -20,6 +16,9 @@ class DrtViewModel @Inject constructor() : RxViewModel() {
 
     private val _segment = MutableLiveData<TripSegment>()
     val segment: LiveData<TripSegment> = _segment
+
+    private val _bookingInProgress = MutableLiveData<Boolean>()
+    val bookingInProgress: LiveData<Boolean> = _bookingInProgress
 
     val onItemChangeActionStream = MutableSharedFlow<DrtItemViewModel>()
 
@@ -32,7 +31,7 @@ class DrtViewModel @Inject constructor() : RxViewModel() {
 
         override fun areContentsTheSame(oldItem: DrtItemViewModel, newItem: DrtItemViewModel): Boolean =
                 oldItem.label.value == newItem.label.value
-                        && oldItem.value.value == newItem.value.value
+                        && oldItem.values.value == newItem.values.value
     }
 
     init {
@@ -56,21 +55,21 @@ class DrtViewModel @Inject constructor() : RxViewModel() {
             DrtItem.MOBILITY_OPTIONS -> DrtItemViewModel().apply {
                 setIcon(R.drawable.ic_person)
                 setLabel(item)
-                setValue("Tap Change to make selections")
+                setValue(listOf("Tap Change to make selections"))
                 setRequired(true)
                 onChangeStream = onItemChangeActionStream
             }
             DrtItem.PURPOSE -> DrtItemViewModel().apply {
                 setIcon(R.drawable.ic_flag)
                 setLabel(item)
-                setValue("Tap Change to make selections")
+                setValue(listOf("Tap Change to make selections"))
                 setRequired(true)
                 onChangeStream = onItemChangeActionStream
             }
             DrtItem.ADD_NOTE -> DrtItemViewModel().apply {
                 setIcon(R.drawable.ic_edit)
                 setLabel(item)
-                setValue("Tap Change to add notes")
+                setValue(listOf("Tap Change to add notes"))
                 setRequired(false)
                 onChangeStream = onItemChangeActionStream
             }
@@ -79,4 +78,11 @@ class DrtViewModel @Inject constructor() : RxViewModel() {
 
     }
 
+    fun setBookingInProgress(value: Boolean){
+        _bookingInProgress.value = value
+
+        items.forEach {
+            it.setViewMode(value)
+        }
+    }
 }

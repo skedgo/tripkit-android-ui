@@ -30,6 +30,7 @@
     <dimen name="icon_small">16dp</dimen>
     <dimen name="icon_regular">24dp</dimen>
     <dimen name="icon_medium">32dp</dimen>
+    <dimen name="icon_huge">120dp</dimen>
 
     <dimen name="font_size_small">10sp</dimen>
 </resources>

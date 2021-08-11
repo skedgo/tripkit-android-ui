@@ -43,4 +43,6 @@
     <string name="lbl_pickup">Pickup</string>
     <string name="lbl_drop_off">Drop off</string>
     <string name="lbl_required">required</string>
+    <string name="lbl_processing">Processing</string>
+    <string name="lbl_processing_desc">Your request is matching to the most efficient available driver.</string>
 </resources>

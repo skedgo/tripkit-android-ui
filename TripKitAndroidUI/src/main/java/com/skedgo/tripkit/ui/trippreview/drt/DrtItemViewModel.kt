@@ -17,11 +17,14 @@ class DrtItemViewModel : ViewModel() {
     private val _label = MutableLiveData<String>()
     val label: LiveData<String> = _label
 
-    private val _value = MutableLiveData<String>()
-    val value: LiveData<String> = _value
+    private val _values = MutableLiveData<List<String>>()
+    val values: LiveData<List<String>> = _values
 
     private val _required = MutableLiveData<Boolean>()
     val required: LiveData<Boolean> = _required
+
+    private val _viewMode = MutableLiveData<Boolean>()
+    val viewMode: LiveData<Boolean> = _viewMode
 
     fun setIcon(value: Int) {
         _icon.value = value
@@ -31,8 +34,8 @@ class DrtItemViewModel : ViewModel() {
         _label.value = value
     }
 
-    fun setValue(value: String) {
-        _value.value = value
+    fun setValue(values: List<String>) {
+        _values.value = values
     }
 
     fun setRequired(value: Boolean) {
@@ -45,4 +48,7 @@ class DrtItemViewModel : ViewModel() {
         }
     }
 
+    fun setViewMode(value: Boolean){
+        _viewMode.value = value
+    }
 }

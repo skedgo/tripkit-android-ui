@@ -6,6 +6,10 @@
     <data>
 
         <variable
+            name="handler"
+            type="com.skedgo.tripkit.ui.trippreview.drt.DrtHandler" />
+
+        <variable
             name="pagerItemViewModel"
             type="com.skedgo.tripkit.ui.trippreview.TripPreviewPagerItemViewModel" />
 
@@ -80,6 +84,7 @@
                 android:layout_marginTop="@dimen/spacing_normal"
                 android:text="@{`Today ` + pagerItemViewModel.duration}"
                 android:textStyle="bold"
+                android:visibility="@{!viewModel.bookingInProgress}"
                 app:layout_constraintTop_toBottomOf="@+id/drt_tvSubTitle"
                 tools:text="Today 15:07" />
 
@@ -90,6 +95,7 @@
                 android:layout_marginTop="@dimen/spacing_normal"
                 android:adjustViewBounds="true"
                 android:src="@drawable/small_circle"
+                android:visibility="@{!viewModel.bookingInProgress}"
                 app:layout_constraintStart_toStartOf="@+id/drt_tvSchedule"
                 app:layout_constraintTop_toBottomOf="@+id/drt_tvSchedule"
                 app:tint="@color/colorPrimary" />
@@ -102,6 +108,7 @@
                 android:layout_marginStart="@dimen/spacing_normal"
                 android:text="@string/lbl_pickup"
                 android:textColor="@color/black1"
+                android:visibility="@{!viewModel.bookingInProgress}"
                 app:layout_constraintBottom_toBottomOf="@+id/drt_ivPickUpIcon"
                 app:layout_constraintStart_toEndOf="@+id/drt_ivPickUpIcon"
                 app:layout_constraintTop_toTopOf="@+id/drt_ivPickUpIcon" />
@@ -114,6 +121,7 @@
                 android:layout_marginStart="@dimen/spacing_normal"
                 android:layout_marginTop="@dimen/spacing_small"
                 android:text="@{pagerItemViewModel.fromLocation}"
+                android:visibility="@{!viewModel.bookingInProgress}"
                 app:layout_constraintStart_toEndOf="@+id/drt_ivPickUpIcon"
                 app:layout_constraintTop_toBottomOf="@+id/drt_tvPickUpLabel"
                 tools:text="Near Scott Street" />
@@ -125,6 +133,7 @@
                 android:layout_marginTop="@dimen/spacing_medium"
                 android:adjustViewBounds="true"
                 android:src="@drawable/small_circle"
+                android:visibility="@{!viewModel.bookingInProgress}"
                 app:layout_constraintStart_toStartOf="@+id/drt_tvSchedule"
                 app:layout_constraintTop_toBottomOf="@+id/drt_tvPickUp"
                 app:tint="@color/colorPrimary" />
@@ -137,6 +146,7 @@
                 android:layout_marginStart="@dimen/spacing_normal"
                 android:text="@string/lbl_drop_off"
                 android:textColor="@color/black1"
+                android:visibility="@{!viewModel.bookingInProgress}"
                 app:layout_constraintBottom_toBottomOf="@+id/drt_ivDropOffIcon"
                 app:layout_constraintStart_toEndOf="@+id/drt_ivDropOffIcon"
                 app:layout_constraintTop_toTopOf="@+id/drt_ivDropOffIcon" />
@@ -149,6 +159,7 @@
                 android:layout_marginStart="@dimen/spacing_normal"
                 android:layout_marginTop="@dimen/spacing_small"
                 android:text="@{pagerItemViewModel.toLocation}"
+                android:visibility="@{!viewModel.bookingInProgress}"
                 app:layout_constraintStart_toEndOf="@+id/drt_ivDropOffIcon"
                 app:layout_constraintTop_toBottomOf="@+id/drt_tvDropOffLabel"
                 tools:text="Near Scott Street" />
@@ -157,6 +168,7 @@
                 android:layout_width="1dp"
                 android:layout_height="0dp"
                 android:background="@color/colorPrimary"
+                android:visibility="@{!viewModel.bookingInProgress}"
                 app:layout_constraintBottom_toTopOf="@+id/drt_ivDropOffIcon"
                 app:layout_constraintEnd_toEndOf="@+id/drt_ivPickUpIcon"
                 app:layout_constraintStart_toStartOf="@+id/drt_ivPickUpIcon"
@@ -170,18 +182,71 @@
                 app:itemBinding="@{viewModel.itemBinding}"
                 app:items="@{viewModel.items}"
                 app:layoutManager="com.skedgo.tripkit.ui.utils.UnScrollableLinearLayoutManager"
-                app:layout_constraintTop_toBottomOf="@+id/drt_tvDropOff"
+                app:layout_constraintTop_toBottomOf="@+id/drt_br_dataList"
                 tools:itemCount="3"
                 tools:listitem="@layout/item_drt" />
 
             <Button
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/spacing_normal"
+                android:layout_marginTop="@dimen/spacing_small"
                 android:background="@drawable/bg_round_rect_primary"
                 android:text="@string/book"
                 android:textColor="@android:color/white"
+                android:visibility="@{!viewModel.bookingInProgress}"
+                app:clickWithDebounce="@{() -> handler.onBook()}"
                 app:layout_constraintTop_toBottomOf="@+id/drt_rvData" />
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/drt_cl_progressHeader"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_small"
+                android:background="@color/colorPrimary"
+                android:padding="@dimen/spacing_normal"
+                android:visibility="@{viewModel.bookingInProgress}"
+                app:layout_constraintTop_toBottomOf="@+id/drt_tvSubTitle">
+
+                <TextView
+                    android:id="@+id/drt_tv_progressHeader"
+                    style="@style/TextAppearance.MaterialComponents.Body1"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/lbl_processing"
+                    android:textColor="@android:color/white"
+                    android:textStyle="bold"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    style="@style/TextAppearance.MaterialComponents.Body2"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/shadow_height"
+                    android:text="@string/lbl_processing_desc"
+                    android:textColor="@android:color/white"
+                    app:layout_constraintTop_toBottomOf="@+id/drt_tv_progressHeader" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <ImageView
+                android:id="@+id/drt_iv_progress"
+                android:layout_width="@dimen/icon_huge"
+                android:layout_height="@dimen/icon_huge"
+                android:src="@drawable/ic_wait"
+                android:layout_marginTop="@dimen/spacing_medium"
+                android:visibility="@{viewModel.bookingInProgress}"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/drt_cl_progressHeader" />
+
+            <androidx.constraintlayout.widget.Barrier
+                android:id="@+id/drt_br_dataList"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:elevation="0dp"
+                app:barrierDirection="bottom"
+                app:constraint_referenced_ids="drt_tvDropOff, drt_iv_progress" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

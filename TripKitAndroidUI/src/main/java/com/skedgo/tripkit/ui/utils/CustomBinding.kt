@@ -5,6 +5,7 @@ import android.graphics.drawable.Drawable
 import android.os.SystemClock
 import android.view.View
 import android.widget.ImageView
+import android.widget.TextView
 import androidx.annotation.ColorInt
 import androidx.core.content.ContextCompat
 import androidx.databinding.BindingAdapter
@@ -61,5 +62,19 @@ fun setVisibilityInv(view: View, visible: Boolean?) {
         View.VISIBLE
     } else {
         View.INVISIBLE
+    }
+}
+
+@BindingAdapter("android:text")
+fun setListValuesToText(textView: TextView, values: List<String>?) {
+    if (values != null && values.isNotEmpty()) {
+        val sb = StringBuilder()
+        values.forEachIndexed { index, s ->
+            sb.append(s)
+            if (index < values.size - 1) {
+                sb.append(System.lineSeparator())
+            }
+        }
+        textView.text = sb.toString()
     }
 }
