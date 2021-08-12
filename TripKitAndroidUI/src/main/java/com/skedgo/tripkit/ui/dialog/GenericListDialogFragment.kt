@@ -126,5 +126,4 @@ class GenericListDialogFragment : DialogFragment(), GenericListDialogFragmentHan
             }
         }
     }
-
 }
