@@ -70,7 +70,8 @@ import java.util.concurrent.Callable;
         SchedulerFactoryModule.class,
         WaypointsModule.class,
         FavoriteTripsModule.class,
-        UserInfoRepositoryModule.class
+        UserInfoRepositoryModule.class,
+        ViewModelModule.class
         })
 public abstract class TripKitUI {
     private static TripKitUI instance;

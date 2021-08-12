@@ -26,6 +26,9 @@ class DrtItemViewModel : ViewModel() {
     private val _viewMode = MutableLiveData<Boolean>()
     val viewMode: LiveData<Boolean> = _viewMode
 
+    private val _itemId = MutableLiveData<String>()
+    val itemId: LiveData<String> = _itemId
+
     fun setIcon(value: Int) {
         _icon.value = value
     }
@@ -48,7 +51,11 @@ class DrtItemViewModel : ViewModel() {
         }
     }
 
-    fun setViewMode(value: Boolean){
+    fun setViewMode(value: Boolean) {
         _viewMode.value = value
+    }
+
+    fun setItemId(value: String) {
+        _itemId.value = value
     }
 }

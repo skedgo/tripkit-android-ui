@@ -2,23 +2,39 @@ package com.skedgo.tripkit.ui.trippreview.drt
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.DiffUtil
+import com.skedgo.tripkit.booking.quickbooking.Input
+import com.skedgo.tripkit.booking.quickbooking.QuickBooking
+import com.skedgo.tripkit.booking.quickbooking.QuickBookingService
+import com.skedgo.tripkit.booking.quickbooking.QuickBookingType
 import com.skedgo.tripkit.routing.TripSegment
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.core.RxViewModel
+import com.skedgo.tripkit.ui.core.addTo
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.rxkotlin.subscribeBy
 import kotlinx.coroutines.flow.MutableSharedFlow
 import me.tatarka.bindingcollectionadapter2.BR
 import me.tatarka.bindingcollectionadapter2.ItemBinding
 import me.tatarka.bindingcollectionadapter2.collections.DiffObservableList
 import javax.inject.Inject
 
-class DrtViewModel @Inject constructor() : RxViewModel() {
+class DrtViewModel @Inject constructor(
+        private val quickBookingService: QuickBookingService
+) : RxViewModel() {
+
+    private val _quickBooking = MutableLiveData<QuickBooking>()
+    val quickBooking: LiveData<QuickBooking> = _quickBooking
 
     private val _segment = MutableLiveData<TripSegment>()
     val segment: LiveData<TripSegment> = _segment
 
     private val _bookingInProgress = MutableLiveData<Boolean>()
     val bookingInProgress: LiveData<Boolean> = _bookingInProgress
+
+    private val _loading = MutableLiveData<Boolean>()
+    val loading: LiveData<Boolean> = _loading
 
     val onItemChangeActionStream = MutableSharedFlow<DrtItemViewModel>()
 
@@ -34,10 +50,62 @@ class DrtViewModel @Inject constructor() : RxViewModel() {
                         && oldItem.values.value == newItem.values.value
     }
 
-    init {
-        getDrtItems()
+    private val quickBookingObserver = Observer<QuickBooking> {
+        if (it.input.isNotEmpty()) {
+            generateDrtItems(it.input)
+        }
     }
 
+    init {
+        //getDrtItems()
+        _quickBooking.observeForever(quickBookingObserver)
+    }
+
+    private fun generateDrtItems(input: List<Input>) {
+
+        val result = mutableListOf<DrtItemViewModel>()
+
+        input.forEach {
+            result.add(
+                    DrtItemViewModel().apply {
+                        setIcon(getIconById(it.id))
+                        setLabel(it.title)
+                        setValue(listOf(getDefaultValueByType(it.type, it.title)))
+                        setRequired(it.required)
+                        onChangeStream = onItemChangeActionStream
+                    }
+            )
+        }
+
+        items.clear()
+        items.update(result)
+
+    }
+
+    private fun getIconById(id: String): Int {
+        return when (id) {
+            "mobilityOptions" -> {
+                R.drawable.ic_person
+            }
+            "purpose" -> {
+                R.drawable.ic_flag
+            }
+            "notes" -> {
+                R.drawable.ic_edit
+            }
+            else -> {
+                R.drawable.ic_car
+            }
+        }
+    }
+
+    private fun getDefaultValueByType(@QuickBookingType type: String, title: String): String {
+        return if (type == QuickBookingType.LONG_TEXT) {
+            "Tap to $title"
+        } else {
+            "Tap Change to make selections"
+        }
+    }
 
     private fun getDrtItems() {
         val result = mutableListOf<DrtItemViewModel>()
@@ -75,14 +143,41 @@ class DrtViewModel @Inject constructor() : RxViewModel() {
             }
             else -> null
         }
-
     }
 
-    fun setBookingInProgress(value: Boolean){
+    fun setTripSegment(segment: TripSegment) {
+        _segment.value = segment
+        segment.booking.quickBookingsUrl?.let {
+            fetchQuickBooking(it)
+        }
+    }
+
+    fun setBookingInProgress(value: Boolean) {
         _bookingInProgress.value = value
 
         items.forEach {
             it.setViewMode(value)
         }
+    }
+
+
+    private fun fetchQuickBooking(url: String) {
+        quickBookingService.getQuickBooking(url)
+                .observeOn(AndroidSchedulers.mainThread())
+                .doOnSubscribe {
+                    _loading.value = true
+                }
+                .subscribeBy(
+                        onError = {
+                            it.printStackTrace()
+                            _loading.value = false
+                        },
+                        onSuccess = {
+                            it.firstOrNull()?.let {
+                                _quickBooking.value = it
+                            }
+                            _loading.value = false
+                        }
+                ).autoClear()
     }
 }

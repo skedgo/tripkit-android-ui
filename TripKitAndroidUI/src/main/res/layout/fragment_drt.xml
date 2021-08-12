@@ -232,8 +232,8 @@
                 android:id="@+id/drt_iv_progress"
                 android:layout_width="@dimen/icon_huge"
                 android:layout_height="@dimen/icon_huge"
-                android:src="@drawable/ic_wait"
                 android:layout_marginTop="@dimen/spacing_medium"
+                android:src="@drawable/ic_wait"
                 android:visibility="@{viewModel.bookingInProgress}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -247,6 +247,17 @@
                 android:elevation="0dp"
                 app:barrierDirection="bottom"
                 app:constraint_referenced_ids="drt_tvDropOff, drt_iv_progress" />
+
+            <ProgressBar
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:elevation="@dimen/spacing_medium"
+                android:visibility="@{viewModel.loading}"
+                app:elevation="@dimen/spacing_medium"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/drt_tvSubTitle" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
