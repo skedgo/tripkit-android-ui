@@ -5,7 +5,7 @@ import android.os.Bundle
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
-import com.skedgo.tripkit.booking.quickbooking.QuickBookingService
+import com.skedgo.tripkit.booking.quickbooking.QuickBookingType
 import com.skedgo.tripkit.routing.TripSegment
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.TripKitUI
@@ -58,15 +58,42 @@ class DrtFragment : BaseFragment<FragmentDrtBinding>(), DrtHandler {
     private fun initObserver() {
         viewModel.onItemChangeActionStream
                 .onEach { drtItem ->
-
                     if (viewModel.bookingInProgress.value != true) {
+
+                        if (drtItem.label.value == DrtItem.ADD_NOTE) {
+                            //ADD Note
+                        } else {
+                            GenericListDialogFragment.newInstance(
+                                    GenericListItem.parseOptions(
+                                            drtItem.options.value ?: emptyList()
+                                    ),
+                                    isSingleSelection = drtItem.type.value == QuickBookingType.SINGLE_CHOICE,
+                                    title = drtItem.label.value ?: "",
+                                    onConfirmCallback = { selectedItems ->
+                                        drtItem.setValue(
+                                                if (selectedItems.isEmpty()) {
+                                                    listOf(
+                                                            viewModel.getDefaultValueByType(
+                                                                    drtItem.type.value ?: "",
+                                                                    drtItem.label.value ?: ""
+                                                            )
+                                                    )
+                                                } else {
+                                                    selectedItems.map { it.label }
+                                                }
+                                        )
+                                    }
+                            ).show(childFragmentManager, drtItem.label.value ?: "")
+                        }
+
+                        /*
                         when (drtItem.label.value) {
                             DrtItem.MOBILITY_OPTIONS -> {
                                 GenericListDialogFragment.newInstance(
-                                        GenericListItem.parse(
-                                                listOf("Test 1", "Test 2", "Test 3")
+                                        GenericListItem.parseOptions(
+                                                drtItem.options.value ?: emptyList()
                                         ), isSingleSelection = false,
-                                        title = DrtItem.MOBILITY_OPTIONS,
+                                        title = drtItem.label.value ?: "",
                                         onConfirmCallback = { selectedItems ->
                                             drtItem.setValue(
                                                     if (selectedItems.isEmpty()) {
@@ -76,12 +103,12 @@ class DrtFragment : BaseFragment<FragmentDrtBinding>(), DrtHandler {
                                                     }
                                             )
                                         }
-                                ).show(childFragmentManager, DrtItem.MOBILITY_OPTIONS)
+                                ).show(childFragmentManager, drtItem.label.value ?: "")
                             }
                             DrtItem.PURPOSE -> {
                                 GenericListDialogFragment.newInstance(
-                                        GenericListItem.parse(
-                                                listOf("Test A", "Test B", "Test C")
+                                        GenericListItem.parseOptions(
+                                                drtItem.options.value ?: emptyList()
                                         ), isSingleSelection = true,
                                         title = DrtItem.PURPOSE,
                                         onConfirmCallback = { selectedItems ->
@@ -100,6 +127,7 @@ class DrtFragment : BaseFragment<FragmentDrtBinding>(), DrtHandler {
 
                             }
                         }
+                        */
                     }
                 }.launchIn(lifecycleScope)
         segment?.let {

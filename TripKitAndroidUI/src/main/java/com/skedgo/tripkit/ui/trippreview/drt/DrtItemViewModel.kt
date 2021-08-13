@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.skedgo.tripkit.booking.quickbooking.Option
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 
@@ -28,6 +29,12 @@ class DrtItemViewModel : ViewModel() {
 
     private val _itemId = MutableLiveData<String>()
     val itemId: LiveData<String> = _itemId
+
+    private val _options = MutableLiveData<List<Option>>()
+    val options: LiveData<List<Option>> = _options
+
+    private val _type = MutableLiveData<String>()
+    val type: LiveData<String> = _type
 
     fun setIcon(value: Int) {
         _icon.value = value
@@ -57,5 +64,13 @@ class DrtItemViewModel : ViewModel() {
 
     fun setItemId(value: String) {
         _itemId.value = value
+    }
+
+    fun setOptions(value: List<Option>) {
+        _options.value = value
+    }
+
+    fun setType(value: String) {
+        _type.value = value
     }
 }

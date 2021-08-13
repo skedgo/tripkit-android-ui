@@ -66,12 +66,18 @@ class DrtViewModel @Inject constructor(
         val result = mutableListOf<DrtItemViewModel>()
 
         input.forEach {
+            if (it.type != QuickBookingType.LONG_TEXT && it.options.isNullOrEmpty()) {
+                return@forEach
+            }
             result.add(
                     DrtItemViewModel().apply {
                         setIcon(getIconById(it.id))
                         setLabel(it.title)
+                        setType(it.type)
                         setValue(listOf(getDefaultValueByType(it.type, it.title)))
                         setRequired(it.required)
+                        setItemId(it.id)
+                        it.options?.let { opt -> setOptions(opt) }
                         onChangeStream = onItemChangeActionStream
                     }
             )
@@ -99,7 +105,7 @@ class DrtViewModel @Inject constructor(
         }
     }
 
-    private fun getDefaultValueByType(@QuickBookingType type: String, title: String): String {
+    fun getDefaultValueByType(@QuickBookingType type: String, title: String): String {
         return if (type == QuickBookingType.LONG_TEXT) {
             "Tap to $title"
         } else {
@@ -107,6 +113,7 @@ class DrtViewModel @Inject constructor(
         }
     }
 
+    /* Using static values
     private fun getDrtItems() {
         val result = mutableListOf<DrtItemViewModel>()
 
@@ -144,6 +151,7 @@ class DrtViewModel @Inject constructor(
             else -> null
         }
     }
+    */
 
     fun setTripSegment(segment: TripSegment) {
         _segment.value = segment
