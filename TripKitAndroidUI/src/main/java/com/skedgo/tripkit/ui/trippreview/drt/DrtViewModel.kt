@@ -177,9 +177,11 @@ class DrtViewModel @Inject constructor(
             _quickBooking.value?.let { quickBooking ->
                 quickBookingService.quickBook(
                         quickBooking.bookingURL,
-                        inputs.filter {
-                            !it.value.isNullOrEmpty() || !it.values.isNullOrEmpty()
-                        }
+                        QuickBookRequest(
+                                inputs.filter {
+                                    !it.value.isNullOrEmpty() || !it.values.isNullOrEmpty()
+                                }
+                        )
                 ).observeOn(AndroidSchedulers.mainThread())
                         .doOnSubscribe {
                             _loading.value = true
