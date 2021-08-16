@@ -3,6 +3,17 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <data>
+
+        <variable
+            name="handler"
+            type="com.skedgo.tripkit.ui.dialog.GenericNoteDialogFragmentHandler" />
+
+        <variable
+            name="viewModel"
+            type="com.skedgo.tripkit.ui.dialog.GenericNoteViewModel" />
+    </data>
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -12,7 +23,9 @@
             android:id="@+id/genericList_rv_selection"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:text="@{viewModel.inputValue}"
+            android:gravity="top|start"
+            android:textAlignment="textStart"
+            android:text="@={viewModel.inputValue}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/genericList_cl_header" />
 
@@ -71,16 +84,5 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
-
-    <data>
-
-        <variable
-            name="handler"
-            type="com.skedgo.tripkit.ui.dialog.GenericNoteDialogFragmentHandler" />
-
-        <variable
-            name="viewModel"
-            type="com.skedgo.tripkit.ui.dialog.GenericNoteViewModel" />
-    </data>
 
 </layout>

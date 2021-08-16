@@ -1,17 +1,18 @@
 package com.skedgo.tripkit.ui.trippreview.drt
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.DiffUtil
-import com.skedgo.tripkit.booking.quickbooking.Input
-import com.skedgo.tripkit.booking.quickbooking.QuickBooking
-import com.skedgo.tripkit.booking.quickbooking.QuickBookingService
-import com.skedgo.tripkit.booking.quickbooking.QuickBookingType
+import com.google.gson.Gson
+import com.skedgo.tripkit.booking.BookingService
+import com.skedgo.tripkit.booking.quickbooking.*
 import com.skedgo.tripkit.routing.TripSegment
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.core.RxViewModel
 import com.skedgo.tripkit.ui.core.addTo
+import com.skedgo.tripkit.ui.utils.updateFields
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.rxkotlin.subscribeBy
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -27,14 +28,20 @@ class DrtViewModel @Inject constructor(
     private val _quickBooking = MutableLiveData<QuickBooking>()
     val quickBooking: LiveData<QuickBooking> = _quickBooking
 
+    private val _inputs = MutableLiveData<List<Input>>()
+    val inputs: LiveData<List<Input>> = _inputs
+
     private val _segment = MutableLiveData<TripSegment>()
     val segment: LiveData<TripSegment> = _segment
 
-    private val _bookingInProgress = MutableLiveData<Boolean>()
-    val bookingInProgress: LiveData<Boolean> = _bookingInProgress
-
     private val _loading = MutableLiveData<Boolean>()
     val loading: LiveData<Boolean> = _loading
+
+    private val _areInputsValid = MutableLiveData<Boolean>()
+    val areInputsValid: LiveData<Boolean> = _areInputsValid
+
+    private val _bookingResponse = MutableLiveData<QuickBookResponse>()
+    val bookingResponse: LiveData<QuickBookResponse> = _bookingResponse
 
     val onItemChangeActionStream = MutableSharedFlow<DrtItemViewModel>()
 
@@ -56,16 +63,34 @@ class DrtViewModel @Inject constructor(
         }
     }
 
+    private val inputsObserver = Observer<List<Input>> { inputs ->
+        _areInputsValid.value = inputs.none {
+            it.required &&
+                    (
+                            (it.type == QuickBookingType.MULTIPLE_CHOICE && !it.options.isNullOrEmpty() && it.values.isNullOrEmpty()) ||
+                                    (it.type == QuickBookingType.SINGLE_CHOICE && !it.options.isNullOrEmpty() && it.value.isNullOrEmpty()) ||
+                                    (it.type == QuickBookingType.LONG_TEXT && it.value.isNullOrEmpty())
+                            )
+
+        }
+    }
+
+    private val bookingResponseObserver = Observer<QuickBookResponse> { response ->
+        items.forEach { it.setViewMode(response != null) }
+    }
+
     init {
         //getDrtItems()
         _quickBooking.observeForever(quickBookingObserver)
+        _inputs.observeForever(inputsObserver)
+        _bookingResponse.observeForever(bookingResponseObserver)
     }
 
-    private fun generateDrtItems(input: List<Input>) {
+    private fun generateDrtItems(inputs: List<Input>) {
 
         val result = mutableListOf<DrtItemViewModel>()
 
-        input.forEach {
+        inputs.forEach {
             if (it.type != QuickBookingType.LONG_TEXT && it.options.isNullOrEmpty()) {
                 return@forEach
             }
@@ -83,25 +108,33 @@ class DrtViewModel @Inject constructor(
             )
         }
 
+        _inputs.value = inputs
+
         items.clear()
         items.update(result)
 
     }
 
+    fun updateInputValue(item: DrtItemViewModel) {
+        _inputs.updateFields {
+            it.value?.let { list ->
+                list.filter { input -> input.id == item.itemId.value }.map { input ->
+                    if (input.type == QuickBookingType.MULTIPLE_CHOICE) {
+                        input.values = item.values.value
+                    } else {
+                        input.value = item.values.value?.firstOrNull()
+                    }
+                }
+            }
+        }
+    }
+
     private fun getIconById(id: String): Int {
         return when (id) {
-            "mobilityOptions" -> {
-                R.drawable.ic_person
-            }
-            "purpose" -> {
-                R.drawable.ic_flag
-            }
-            "notes" -> {
-                R.drawable.ic_edit
-            }
-            else -> {
-                R.drawable.ic_car
-            }
+            "mobilityOptions" -> R.drawable.ic_person
+            "purpose" -> R.drawable.ic_flag
+            "notes" -> R.drawable.ic_edit
+            else -> R.drawable.ic_car
         }
     }
 
@@ -113,61 +146,10 @@ class DrtViewModel @Inject constructor(
         }
     }
 
-    /* Using static values
-    private fun getDrtItems() {
-        val result = mutableListOf<DrtItemViewModel>()
-
-        generateDrtItem(DrtItem.MOBILITY_OPTIONS)?.let { result.add(it) }
-        generateDrtItem(DrtItem.PURPOSE)?.let { result.add(it) }
-        generateDrtItem(DrtItem.ADD_NOTE)?.let { result.add(it) }
-
-        items.update(result)
-    }
-
-    private fun generateDrtItem(@DrtItem item: String): DrtItemViewModel? {
-
-        return when (item) {
-            DrtItem.MOBILITY_OPTIONS -> DrtItemViewModel().apply {
-                setIcon(R.drawable.ic_person)
-                setLabel(item)
-                setValue(listOf("Tap Change to make selections"))
-                setRequired(true)
-                onChangeStream = onItemChangeActionStream
-            }
-            DrtItem.PURPOSE -> DrtItemViewModel().apply {
-                setIcon(R.drawable.ic_flag)
-                setLabel(item)
-                setValue(listOf("Tap Change to make selections"))
-                setRequired(true)
-                onChangeStream = onItemChangeActionStream
-            }
-            DrtItem.ADD_NOTE -> DrtItemViewModel().apply {
-                setIcon(R.drawable.ic_edit)
-                setLabel(item)
-                setValue(listOf("Tap Change to add notes"))
-                setRequired(false)
-                onChangeStream = onItemChangeActionStream
-            }
-            else -> null
-        }
-    }
-    */
-
     fun setTripSegment(segment: TripSegment) {
         _segment.value = segment
-        segment.booking.quickBookingsUrl?.let {
-            fetchQuickBooking(it)
-        }
+        segment.booking.quickBookingsUrl?.let { fetchQuickBooking(it) }
     }
-
-    fun setBookingInProgress(value: Boolean) {
-        _bookingInProgress.value = value
-
-        items.forEach {
-            it.setViewMode(value)
-        }
-    }
-
 
     private fun fetchQuickBooking(url: String) {
         quickBookingService.getQuickBooking(url)
@@ -187,5 +169,32 @@ class DrtViewModel @Inject constructor(
                             _loading.value = false
                         }
                 ).autoClear()
+    }
+
+    fun book() {
+        _inputs.value?.let { inputs ->
+            inputs.singleOrNull { it.id == "mobilityOptions" }?.values = listOf("Guest")
+            _quickBooking.value?.let { quickBooking ->
+                quickBookingService.quickBook(
+                        quickBooking.bookingURL,
+                        inputs.filter {
+                            !it.value.isNullOrEmpty() || !it.values.isNullOrEmpty()
+                        }
+                ).observeOn(AndroidSchedulers.mainThread())
+                        .doOnSubscribe {
+                            _loading.value = true
+                        }
+                        .subscribeBy(
+                                onError = {
+                                    it.printStackTrace()
+                                    _loading.value = false
+                                },
+                                onSuccess = {
+                                    _loading.value = false
+                                    _bookingResponse.value = it
+                                }
+                        ).autoClear()
+            }
+        }
     }
 }

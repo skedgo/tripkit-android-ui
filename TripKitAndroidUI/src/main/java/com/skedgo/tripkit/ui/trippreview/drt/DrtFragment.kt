@@ -14,6 +14,7 @@ import com.skedgo.tripkit.ui.core.addTo
 import com.skedgo.tripkit.ui.databinding.FragmentDrtBinding
 import com.skedgo.tripkit.ui.dialog.GenericListDialogFragment
 import com.skedgo.tripkit.ui.dialog.GenericListItem
+import com.skedgo.tripkit.ui.dialog.GenericNoteDialogFragment
 import com.skedgo.tripkit.ui.trippreview.TripPreviewPagerItemViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.coroutines.flow.launchIn
@@ -35,7 +36,7 @@ class DrtFragment : BaseFragment<FragmentDrtBinding>(), DrtHandler {
         get() = R.layout.fragment_drt
 
     override fun onBook() {
-        viewModel.setBookingInProgress(true)
+        viewModel.book()
     }
 
     override fun onAttach(context: Context) {
@@ -58,10 +59,29 @@ class DrtFragment : BaseFragment<FragmentDrtBinding>(), DrtHandler {
     private fun initObserver() {
         viewModel.onItemChangeActionStream
                 .onEach { drtItem ->
-                    if (viewModel.bookingInProgress.value != true) {
+                    if (viewModel.bookingResponse.value == null) {
 
                         if (drtItem.label.value == DrtItem.ADD_NOTE) {
+                            val defaultValue = viewModel.getDefaultValueByType(
+                                    drtItem.type.value ?: "",
+                                    drtItem.label.value ?: ""
+                            )
                             //ADD Note
+                            GenericNoteDialogFragment.newInstance(
+                                    drtItem.label.value ?: "",
+                                    if (drtItem.values.value?.firstOrNull() != defaultValue) {
+                                        drtItem.values.value?.firstOrNull() ?: ""
+                                    } else {
+                                        ""
+                                    }
+                            ) {
+                                if (it.isEmpty()) {
+                                    listOf(defaultValue)
+                                } else {
+                                    drtItem.setValue(listOf(it))
+                                    viewModel.updateInputValue(drtItem)
+                                }
+                            }.show(childFragmentManager, drtItem.label.value ?: "")
                         } else {
                             GenericListDialogFragment.newInstance(
                                     GenericListItem.parseOptions(
@@ -82,52 +102,10 @@ class DrtFragment : BaseFragment<FragmentDrtBinding>(), DrtHandler {
                                                     selectedItems.map { it.label }
                                                 }
                                         )
+                                        viewModel.updateInputValue(drtItem)
                                     }
                             ).show(childFragmentManager, drtItem.label.value ?: "")
                         }
-
-                        /*
-                        when (drtItem.label.value) {
-                            DrtItem.MOBILITY_OPTIONS -> {
-                                GenericListDialogFragment.newInstance(
-                                        GenericListItem.parseOptions(
-                                                drtItem.options.value ?: emptyList()
-                                        ), isSingleSelection = false,
-                                        title = drtItem.label.value ?: "",
-                                        onConfirmCallback = { selectedItems ->
-                                            drtItem.setValue(
-                                                    if (selectedItems.isEmpty()) {
-                                                        listOf("Tap Change to make selections")
-                                                    } else {
-                                                        selectedItems.map { it.label }
-                                                    }
-                                            )
-                                        }
-                                ).show(childFragmentManager, drtItem.label.value ?: "")
-                            }
-                            DrtItem.PURPOSE -> {
-                                GenericListDialogFragment.newInstance(
-                                        GenericListItem.parseOptions(
-                                                drtItem.options.value ?: emptyList()
-                                        ), isSingleSelection = true,
-                                        title = DrtItem.PURPOSE,
-                                        onConfirmCallback = { selectedItems ->
-                                            drtItem.setValue(
-                                                    if (selectedItems.isEmpty()) {
-                                                        listOf("Tap Change to make selections")
-                                                    } else {
-                                                        selectedItems.map { it.label }
-                                                    }
-                                            )
-                                        }
-                                ).show(childFragmentManager, DrtItem.PURPOSE)
-                            }
-                            DrtItem.ADD_NOTE -> {
-                                //TODO Open Add note
-
-                            }
-                        }
-                        */
                     }
                 }.launchIn(lifecycleScope)
         segment?.let {
