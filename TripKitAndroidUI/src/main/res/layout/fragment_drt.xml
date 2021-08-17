@@ -84,7 +84,7 @@
                 android:layout_marginTop="@dimen/spacing_normal"
                 android:text="@{`Today ` + pagerItemViewModel.duration}"
                 android:textStyle="bold"
-                android:visibility="@{viewModel.bookingResponse == null}"
+                android:visibility="@{viewModel.bookingConfirmation == null}"
                 app:layout_constraintTop_toBottomOf="@+id/drt_tvSubTitle"
                 tools:text="Today 15:07" />
 
@@ -95,7 +95,7 @@
                 android:layout_marginTop="@dimen/spacing_normal"
                 android:adjustViewBounds="true"
                 android:src="@drawable/small_circle"
-                android:visibility="@{viewModel.bookingResponse == null}"
+                android:visibility="@{viewModel.bookingConfirmation == null}"
                 app:layout_constraintStart_toStartOf="@+id/drt_tvSchedule"
                 app:layout_constraintTop_toBottomOf="@+id/drt_tvSchedule"
                 app:tint="@color/colorPrimary" />
@@ -108,7 +108,7 @@
                 android:layout_marginStart="@dimen/spacing_normal"
                 android:text="@string/lbl_pickup"
                 android:textColor="@color/black1"
-                android:visibility="@{viewModel.bookingResponse == null}"
+                android:visibility="@{viewModel.bookingConfirmation == null}"
                 app:layout_constraintBottom_toBottomOf="@+id/drt_ivPickUpIcon"
                 app:layout_constraintStart_toEndOf="@+id/drt_ivPickUpIcon"
                 app:layout_constraintTop_toTopOf="@+id/drt_ivPickUpIcon" />
@@ -121,7 +121,7 @@
                 android:layout_marginStart="@dimen/spacing_normal"
                 android:layout_marginTop="@dimen/spacing_small"
                 android:text="@{pagerItemViewModel.fromLocation}"
-                android:visibility="@{viewModel.bookingResponse == null}"
+                android:visibility="@{viewModel.bookingConfirmation == null}"
                 app:layout_constraintStart_toEndOf="@+id/drt_ivPickUpIcon"
                 app:layout_constraintTop_toBottomOf="@+id/drt_tvPickUpLabel"
                 tools:text="Near Scott Street" />
@@ -133,7 +133,7 @@
                 android:layout_marginTop="@dimen/spacing_medium"
                 android:adjustViewBounds="true"
                 android:src="@drawable/small_circle"
-                android:visibility="@{viewModel.bookingResponse == null}"
+                android:visibility="@{viewModel.bookingConfirmation == null}"
                 app:layout_constraintStart_toStartOf="@+id/drt_tvSchedule"
                 app:layout_constraintTop_toBottomOf="@+id/drt_tvPickUp"
                 app:tint="@color/colorPrimary" />
@@ -146,7 +146,7 @@
                 android:layout_marginStart="@dimen/spacing_normal"
                 android:text="@string/lbl_drop_off"
                 android:textColor="@color/black1"
-                android:visibility="@{viewModel.bookingResponse == null}"
+                android:visibility="@{viewModel.bookingConfirmation == null}"
                 app:layout_constraintBottom_toBottomOf="@+id/drt_ivDropOffIcon"
                 app:layout_constraintStart_toEndOf="@+id/drt_ivDropOffIcon"
                 app:layout_constraintTop_toTopOf="@+id/drt_ivDropOffIcon" />
@@ -159,7 +159,7 @@
                 android:layout_marginStart="@dimen/spacing_normal"
                 android:layout_marginTop="@dimen/spacing_small"
                 android:text="@{pagerItemViewModel.toLocation}"
-                android:visibility="@{viewModel.bookingResponse == null}"
+                android:visibility="@{viewModel.bookingConfirmation == null}"
                 app:layout_constraintStart_toEndOf="@+id/drt_ivDropOffIcon"
                 app:layout_constraintTop_toBottomOf="@+id/drt_tvDropOffLabel"
                 tools:text="Near Scott Street" />
@@ -168,7 +168,7 @@
                 android:layout_width="1dp"
                 android:layout_height="0dp"
                 android:background="@color/colorPrimary"
-                android:visibility="@{viewModel.bookingResponse == null}"
+                android:visibility="@{viewModel.bookingConfirmation == null}"
                 app:layout_constraintBottom_toTopOf="@+id/drt_ivDropOffIcon"
                 app:layout_constraintEnd_toEndOf="@+id/drt_ivPickUpIcon"
                 app:layout_constraintStart_toStartOf="@+id/drt_ivPickUpIcon"
@@ -194,8 +194,24 @@
                 android:enabled="@{viewModel.areInputsValid}"
                 android:text="@string/book"
                 android:textColor="@android:color/white"
-                android:visibility="@{viewModel.bookingResponse == null}"
+                android:visibility="@{viewModel.bookingConfirmation == null}"
                 app:clickWithDebounce="@{() -> handler.onBook()}"
+                app:layout_constraintTop_toBottomOf="@+id/drt_rvData" />
+
+
+            <TextView
+                style="@style/TextAppearance.MaterialComponents.Body1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_large"
+                android:enabled="@{viewModel.areInputsValid}"
+                android:gravity="center"
+                android:text="@string/cancel_ride"
+                android:textAlignment="center"
+                android:textColor="@color/tripKitError"
+                android:textStyle="bold"
+                android:visibility="@{viewModel.bookingConfirmation != null}"
+                app:clickWithDebounce="@{() -> handler.onCancelRide()}"
                 app:layout_constraintTop_toBottomOf="@+id/drt_rvData" />
 
             <androidx.constraintlayout.widget.ConstraintLayout
@@ -205,7 +221,7 @@
                 android:layout_marginTop="@dimen/spacing_small"
                 android:background="@color/colorPrimary"
                 android:padding="@dimen/spacing_normal"
-                android:visibility="@{viewModel.bookingResponse != null}"
+                android:visibility="@{viewModel.bookingConfirmation != null}"
                 app:layout_constraintTop_toBottomOf="@+id/drt_tvSubTitle">
 
                 <TextView
@@ -213,29 +229,31 @@
                     style="@style/TextAppearance.MaterialComponents.Body1"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/lbl_processing"
+                    android:text="@{viewModel.bookingConfirmation.status().title()}"
                     android:textColor="@android:color/white"
                     android:textStyle="bold"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:text="Processing" />
 
                 <TextView
                     style="@style/TextAppearance.MaterialComponents.Body2"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/shadow_height"
-                    android:text="@string/lbl_processing_desc"
+                    android:text="@{viewModel.bookingConfirmation.status().subtitle()}"
                     android:textColor="@android:color/white"
-                    app:layout_constraintTop_toBottomOf="@+id/drt_tv_progressHeader" />
+                    app:layout_constraintTop_toBottomOf="@+id/drt_tv_progressHeader"
+                    tools:text="Subtitlex" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
             <ImageView
                 android:id="@+id/drt_iv_progress"
-                android:layout_width="@dimen/icon_huge"
-                android:layout_height="@dimen/icon_huge"
+                android:layout_width="152dp"
+                android:layout_height="152dp"
                 android:layout_marginTop="@dimen/spacing_medium"
-                android:src="@drawable/ic_wait"
-                android:visibility="@{viewModel.bookingResponse != null}"
+                android:src="@drawable/ic_in_progress"
+                android:visibility="@{viewModel.bookingConfirmation != null}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/drt_cl_progressHeader" />

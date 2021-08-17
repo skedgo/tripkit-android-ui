@@ -45,4 +45,5 @@
     <string name="lbl_required">required</string>
     <string name="lbl_processing">Processing</string>
     <string name="lbl_processing_desc">Your request is matching to the most efficient available driver.</string>
+    <string name="cancel_ride">Cancel Ride</string>
 </resources>

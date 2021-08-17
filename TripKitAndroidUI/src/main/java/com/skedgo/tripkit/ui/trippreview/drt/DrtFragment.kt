@@ -39,6 +39,10 @@ class DrtFragment : BaseFragment<FragmentDrtBinding>(), DrtHandler {
         viewModel.book()
     }
 
+    override fun onCancelRide() {
+
+    }
+
     override fun onAttach(context: Context) {
         TripKitUI.getInstance().tripPreviewComponent().inject(this)
         super.onAttach(context)
@@ -59,14 +63,13 @@ class DrtFragment : BaseFragment<FragmentDrtBinding>(), DrtHandler {
     private fun initObserver() {
         viewModel.onItemChangeActionStream
                 .onEach { drtItem ->
-                    if (viewModel.bookingResponse.value == null) {
+                    if (viewModel.bookingConfirmation.value == null) {
 
                         if (drtItem.label.value == DrtItem.ADD_NOTE) {
                             val defaultValue = viewModel.getDefaultValueByType(
                                     drtItem.type.value ?: "",
                                     drtItem.label.value ?: ""
                             )
-                            //ADD Note
                             GenericNoteDialogFragment.newInstance(
                                     drtItem.label.value ?: "",
                                     if (drtItem.values.value?.firstOrNull() != defaultValue) {
