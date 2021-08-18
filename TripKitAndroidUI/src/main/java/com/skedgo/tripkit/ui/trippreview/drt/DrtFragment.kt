@@ -1,11 +1,14 @@
 package com.skedgo.tripkit.ui.trippreview.drt
 
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.skedgo.tripkit.booking.quickbooking.QuickBookingType
+import com.skedgo.tripkit.common.model.BookingConfirmationAction
 import com.skedgo.tripkit.routing.TripSegment
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.TripKitUI
@@ -15,7 +18,9 @@ import com.skedgo.tripkit.ui.databinding.FragmentDrtBinding
 import com.skedgo.tripkit.ui.dialog.GenericListDialogFragment
 import com.skedgo.tripkit.ui.dialog.GenericListItem
 import com.skedgo.tripkit.ui.dialog.GenericNoteDialogFragment
+import com.skedgo.tripkit.ui.generic.action_list.ActionListAdapter
 import com.skedgo.tripkit.ui.trippreview.TripPreviewPagerItemViewModel
+import com.skedgo.tripkit.ui.utils.observe
 import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -31,6 +36,9 @@ class DrtFragment : BaseFragment<FragmentDrtBinding>(), DrtHandler {
     private val pagerItemViewModel: TripPreviewPagerItemViewModel by viewModels()
 
     private var segment: TripSegment? = null
+
+    @Inject
+    lateinit var actionsAdapter: ActionListAdapter
 
     override val layoutRes: Int
         get() = R.layout.fragment_drt
@@ -51,6 +59,7 @@ class DrtFragment : BaseFragment<FragmentDrtBinding>(), DrtHandler {
     override fun onCreated(savedInstance: Bundle?) {
         initBinding()
         initObserver()
+        initViews()
     }
 
     private fun initBinding() {
@@ -116,9 +125,30 @@ class DrtFragment : BaseFragment<FragmentDrtBinding>(), DrtHandler {
             viewModel.setTripSegment(it)
         }
 
+        observe(viewModel.confirmationActions) {
+            it?.let { actionsAdapter.collection = it }
+        }
+
         pagerItemViewModel.closeClicked.observable
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe { onCloseButtonListener?.onClick(null) }.addTo(autoDisposable)
+    }
+
+    private fun initViews() {
+        binding.drtRvActions.adapter = actionsAdapter
+        actionsAdapter.clickListener = {
+            if (it.bookingConfirmationAction?.externalURL() != null) {
+                if (it.bookingConfirmationAction.type() == BookingConfirmationAction.TYPE_CALL) {
+                    val intent = Intent(
+                            Intent.ACTION_DIAL,
+                            Uri.parse(it.bookingConfirmationAction.externalURL())
+                    )
+                    requireActivity().startActivity(intent)
+                }
+            } else {
+                viewModel.processAction(it.bookingConfirmationAction)
+            }
+        }
     }
 
     companion object {

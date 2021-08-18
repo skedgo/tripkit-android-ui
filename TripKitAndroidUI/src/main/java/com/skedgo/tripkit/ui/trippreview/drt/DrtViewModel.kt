@@ -1,19 +1,22 @@
 package com.skedgo.tripkit.ui.trippreview.drt
 
+import android.content.Context
+import android.content.Intent
 import android.content.res.Resources
-import android.util.Log
+import android.net.Uri
+import androidx.core.content.ContextCompat.startActivity
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.DiffUtil
 import com.google.gson.Gson
-import com.skedgo.tripkit.booking.BookingService
 import com.skedgo.tripkit.booking.quickbooking.*
 import com.skedgo.tripkit.common.model.BookingConfirmation
+import com.skedgo.tripkit.common.model.BookingConfirmationAction
+import com.skedgo.tripkit.common.model.BookingConfirmationStatusValue
 import com.skedgo.tripkit.routing.TripSegment
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.core.RxViewModel
-import com.skedgo.tripkit.ui.core.addTo
 import com.skedgo.tripkit.ui.utils.updateFields
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -28,7 +31,9 @@ import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 
+
 class DrtViewModel @Inject constructor(
+        private val context: Context,
         private val quickBookingService: QuickBookingService,
         private val resources: Resources
 ) : RxViewModel() {
@@ -50,13 +55,18 @@ class DrtViewModel @Inject constructor(
 
     val onItemChangeActionStream = MutableSharedFlow<DrtItemViewModel>()
 
-    val items = DiffObservableList<DrtItemViewModel>(DrtItemsDiffCallBack)
+    val items = DiffObservableList<DrtItemViewModel>(diffCallback())
     val itemBinding = ItemBinding.of<DrtItemViewModel>(BR.viewModel, R.layout.item_drt)
 
     private val _bookingConfirmation = MutableLiveData<BookingConfirmation>()
     val bookingConfirmation: LiveData<BookingConfirmation> = _bookingConfirmation
 
-    object DrtItemsDiffCallBack : DiffUtil.ItemCallback<DrtItemViewModel>() {
+    private val _confirmationActions = MutableLiveData<List<com.skedgo.tripkit.ui.generic.action_list.Action>>()
+    val confirmationActions: LiveData<List<com.skedgo.tripkit.ui.generic.action_list.Action>> = _confirmationActions
+
+    private val stopPollingUpdate = AtomicBoolean()
+
+    private fun diffCallback() = object : DiffUtil.ItemCallback<DrtItemViewModel>() {
         override fun areItemsTheSame(oldItem: DrtItemViewModel, newItem: DrtItemViewModel): Boolean =
                 oldItem.label == newItem.label
 
@@ -82,10 +92,7 @@ class DrtViewModel @Inject constructor(
 
     private val bookingConfirmationObserver = Observer<BookingConfirmation> {
         it?.let {
-            items.clear()
-
             val result = mutableListOf<DrtItemViewModel>()
-
             it.input().forEach { input ->
                 if (!input.value().isNullOrEmpty() || !input.values().isNullOrEmpty()) {
                     result.add(
@@ -95,9 +102,9 @@ class DrtViewModel @Inject constructor(
                                 setType(input.type())
                                 setValue(
                                         if (!input.value().isNullOrEmpty()) {
-                                            listOf(input.value())
+                                            listOf(input.value() ?: "")
                                         } else {
-                                            input.values()
+                                            input.values() ?: emptyList()
                                         }
                                 )
                                 setRequired(input.required())
@@ -115,23 +122,26 @@ class DrtViewModel @Inject constructor(
                     )
                 }
             }
-        }
-    }
+            items.update(result)
 
-    /*
-    private val bookingResponseObserver = Observer<QuickBookResponse> { response ->
-        items.forEach { it.setViewMode(response != null) }
-        response?.let {
-            setBookingUpdatePolling(it.refreshURLForSourceObject)
+            _confirmationActions.value = it.actions().map { confirmationAction ->
+                com.skedgo.tripkit.ui.generic.action_list.Action(
+                        confirmationAction.title(),
+                        if (confirmationAction.isDestructive) {
+                            R.color.tripKitError
+                        } else {
+                            R.color.colorPrimary
+                        },
+                        confirmationAction
+                )
+            }
         }
     }
-    */
 
     init {
         //getDrtItems()
         _quickBooking.observeForever(quickBookingObserver)
         _inputs.observeForever(inputsObserver)
-        //_bookingResponse.observeForever(bookingResponseObserver)
         _bookingConfirmation.observeForever(bookingConfirmationObserver)
     }
 
@@ -250,26 +260,79 @@ class DrtViewModel @Inject constructor(
     }
 
     private fun processBookingResponse(response: QuickBookResponse) {
-        setBookingUpdatePolling(response.refreshURLForSourceObject)
+        getBookingUpdate(response.refreshURLForSourceObject)
     }
 
     private fun setBookingUpdatePolling(url: String) {
-        val stopUpdate = AtomicBoolean()
-        Observable.interval(2L, TimeUnit.SECONDS, Schedulers.io())
-                .takeWhile { !stopUpdate.get() }
+        //For the initial call before the polling
+        stopPollingUpdate.set(false)
+        Observable.interval(10L, TimeUnit.SECONDS, Schedulers.io())
+                .takeWhile { !stopPollingUpdate.get() }
                 .flatMapSingle {
                     quickBookingService.getBookingUpdate(url)
                             .observeOn(AndroidSchedulers.mainThread())
                             .doOnSuccess { response ->
                                 response.processRawData(resources, Gson())
                                 val confirmation = response.tripGroupList.firstOrNull()?.trips
-                                        ?.firstOrNull()?.segments?.firstOrNull()
+                                        ?.firstOrNull()?.segments?.firstOrNull { it.booking != null }
                                         ?.booking?.confirmation
                                 confirmation?.let {
-                                    _bookingConfirmation.value = it
+                                    _bookingConfirmation.postValue(it)
+                                    if (it.status().value() != BookingConfirmationStatusValue.PROCESSING) {
+                                        stopPollingUpdate.set(true)
+                                    }
                                 }
                             }
-                }.subscribe().autoClear()
+                }.subscribeBy(
+                        onError = {
+                            it.printStackTrace()
+                        }
+                ).autoClear()
+    }
+
+    private fun getBookingUpdate(url: String) {
+        quickBookingService.getBookingUpdate(url)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeBy(
+                        onSuccess = { response ->
+                            response.processRawData(resources, Gson())
+                            val confirmation = response.tripGroupList.firstOrNull()?.trips
+                                    ?.firstOrNull()?.segments?.firstOrNull { it.booking != null }
+                                    ?.booking?.confirmation
+                            confirmation?.let {
+                                _bookingConfirmation.postValue(it)
+
+                                if (it.status().value() == BookingConfirmationStatusValue.PROCESSING) {
+                                    setBookingUpdatePolling(url)
+                                } else {
+                                    stopPollingUpdate.set(true)
+                                }
+                            }
+                        },
+                        onError = {
+                            it.printStackTrace()
+                        }
+                ).autoClear()
+    }
+
+    fun processAction(action: BookingConfirmationAction?) {
+        action?.let {
+            it.internalURL()?.let {
+                quickBookingService.executeBookingAction(it)
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .doOnSubscribe { _loading.value = true }
+                        .subscribeBy(
+                                onError = { e ->
+                                    e.printStackTrace()
+                                    _loading.value = false
+                                },
+                                onSuccess = { response ->
+                                    getBookingUpdate(response.refreshURLForSourceObject)
+                                    _loading.value = false
+                                }
+                        ).autoClear()
+            }
+        }
     }
 
 }

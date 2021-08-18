@@ -9,6 +9,7 @@ import android.widget.TextView
 import androidx.annotation.ColorInt
 import androidx.core.content.ContextCompat
 import androidx.databinding.BindingAdapter
+import com.bumptech.glide.Glide
 
 //To databind resource id(int) on image views
 @BindingAdapter("android:src")
@@ -76,5 +77,16 @@ fun setListValuesToText(textView: TextView, values: List<String>?) {
             }
         }
         textView.text = sb.toString()
+    }
+}
+
+@BindingAdapter("imageUrl")
+fun setImageFromUrl(imageView: ImageView, source: String?) {
+    source?.let {
+        if (it.isNotBlank()) {
+            Glide.with(imageView.context)
+                    .load(it)
+                    .into(imageView)
+        }
     }
 }

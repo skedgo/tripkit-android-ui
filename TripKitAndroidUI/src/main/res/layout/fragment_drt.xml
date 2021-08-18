@@ -198,20 +198,16 @@
                 app:clickWithDebounce="@{() -> handler.onBook()}"
                 app:layout_constraintTop_toBottomOf="@+id/drt_rvData" />
 
-
-            <TextView
-                style="@style/TextAppearance.MaterialComponents.Body1"
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/drt_rv_actions"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/spacing_large"
-                android:enabled="@{viewModel.areInputsValid}"
-                android:gravity="center"
-                android:text="@string/cancel_ride"
-                android:textAlignment="center"
-                android:textColor="@color/tripKitError"
-                android:textStyle="bold"
+                tools:itemCount="2"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                android:layout_marginTop="@dimen/spacing_small"
                 android:visibility="@{viewModel.bookingConfirmation != null}"
-                app:clickWithDebounce="@{() -> handler.onCancelRide()}"
+                tools:listitem="@layout/item_action"
+                tools:visibility="visible"
                 app:layout_constraintTop_toBottomOf="@+id/drt_rvData" />
 
             <androidx.constraintlayout.widget.ConstraintLayout
@@ -243,7 +239,7 @@
                     android:text="@{viewModel.bookingConfirmation.status().subtitle()}"
                     android:textColor="@android:color/white"
                     app:layout_constraintTop_toBottomOf="@+id/drt_tv_progressHeader"
-                    tools:text="Subtitlex" />
+                    tools:text="Subtitle" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -252,7 +248,7 @@
                 android:layout_width="152dp"
                 android:layout_height="152dp"
                 android:layout_marginTop="@dimen/spacing_medium"
-                android:src="@drawable/ic_in_progress"
+                app:imageUrl="@{viewModel.bookingConfirmation.status().imageURL()}"
                 android:visibility="@{viewModel.bookingConfirmation != null}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"

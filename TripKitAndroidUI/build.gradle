@@ -114,6 +114,8 @@ dependencies {
     implementation libs.cameraxView
     implementation libs.cameraxLifecycle
 
+    implementation libs.glide
+
     implementation libs.timber
     implementation libs.gson
     kapt libs.daggerCompiler
