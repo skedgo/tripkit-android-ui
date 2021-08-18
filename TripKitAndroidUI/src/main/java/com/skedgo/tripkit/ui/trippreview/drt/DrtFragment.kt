@@ -74,11 +74,12 @@ class DrtFragment : BaseFragment<FragmentDrtBinding>(), DrtHandler {
                 .onEach { drtItem ->
                     if (viewModel.bookingConfirmation.value == null) {
 
+                        val defaultValue = viewModel.getDefaultValueByType(
+                                drtItem.type.value ?: "",
+                                drtItem.label.value ?: ""
+                        )
+
                         if (drtItem.label.value == DrtItem.ADD_NOTE) {
-                            val defaultValue = viewModel.getDefaultValueByType(
-                                    drtItem.type.value ?: "",
-                                    drtItem.label.value ?: ""
-                            )
                             GenericNoteDialogFragment.newInstance(
                                     drtItem.label.value ?: "",
                                     if (drtItem.values.value?.firstOrNull() != defaultValue) {
@@ -99,7 +100,7 @@ class DrtFragment : BaseFragment<FragmentDrtBinding>(), DrtHandler {
                                     GenericListItem.parseOptions(
                                             drtItem.options.value ?: emptyList()
                                     ),
-                                    isSingleSelection = drtItem.type.value == QuickBookingType.SINGLE_CHOICE,
+                                    isSingleSelection = drtItem.type.value != QuickBookingType.SINGLE_CHOICE,
                                     title = drtItem.label.value ?: "",
                                     onConfirmCallback = { selectedItems ->
                                         drtItem.setValue(
@@ -115,6 +116,11 @@ class DrtFragment : BaseFragment<FragmentDrtBinding>(), DrtHandler {
                                                 }
                                         )
                                         viewModel.updateInputValue(drtItem)
+                                    },
+                                    previousSelectedValues = if (drtItem.values.value != listOf(defaultValue)) {
+                                        drtItem.values.value
+                                    } else {
+                                        null
                                     }
                             ).show(childFragmentManager, drtItem.label.value ?: "")
                         }
