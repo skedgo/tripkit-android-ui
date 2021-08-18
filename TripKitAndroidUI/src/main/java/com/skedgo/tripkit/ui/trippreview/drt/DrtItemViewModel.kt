@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.recyclerview.widget.DiffUtil
 import com.skedgo.tripkit.booking.quickbooking.Option
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
@@ -72,5 +73,16 @@ class DrtItemViewModel : ViewModel() {
 
     fun setType(value: String) {
         _type.value = value
+    }
+
+    companion object {
+        fun diffCallback() = object : DiffUtil.ItemCallback<DrtItemViewModel>() {
+            override fun areItemsTheSame(oldItem: DrtItemViewModel, newItem: DrtItemViewModel): Boolean =
+                    oldItem.label == newItem.label
+
+            override fun areContentsTheSame(oldItem: DrtItemViewModel, newItem: DrtItemViewModel): Boolean =
+                    oldItem.label.value == newItem.label.value
+                            && oldItem.values.value == newItem.values.value
+        }
     }
 }

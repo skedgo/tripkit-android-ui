@@ -100,7 +100,7 @@ class DrtFragment : BaseFragment<FragmentDrtBinding>(), DrtHandler {
                                     GenericListItem.parseOptions(
                                             drtItem.options.value ?: emptyList()
                                     ),
-                                    isSingleSelection = drtItem.type.value != QuickBookingType.SINGLE_CHOICE,
+                                    isSingleSelection = drtItem.type.value == QuickBookingType.SINGLE_CHOICE,
                                     title = drtItem.label.value ?: "",
                                     onConfirmCallback = { selectedItems ->
                                         drtItem.setValue(

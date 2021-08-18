@@ -1,28 +1,30 @@
 package com.skedgo.tripkit.ui.trippreview.drt
 
-import android.content.Context
-import android.content.Intent
 import android.content.res.Resources
-import android.net.Uri
-import androidx.core.content.ContextCompat.startActivity
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
+import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.DiffUtil
 import com.google.gson.Gson
+import com.haroldadmin.cnradapter.NetworkResponse
 import com.skedgo.tripkit.booking.quickbooking.*
 import com.skedgo.tripkit.common.model.BookingConfirmation
 import com.skedgo.tripkit.common.model.BookingConfirmationAction
 import com.skedgo.tripkit.common.model.BookingConfirmationStatusValue
 import com.skedgo.tripkit.routing.TripSegment
 import com.skedgo.tripkit.ui.R
+import com.skedgo.tripkit.ui.booking.apiv2.BookingV2TrackingService
 import com.skedgo.tripkit.ui.core.RxViewModel
+import com.skedgo.tripkit.ui.core.logError
 import com.skedgo.tripkit.ui.utils.updateFields
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.rxkotlin.subscribeBy
 import io.reactivex.schedulers.Schedulers
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.launch
 import me.tatarka.bindingcollectionadapter2.BR
 import me.tatarka.bindingcollectionadapter2.ItemBinding
 import me.tatarka.bindingcollectionadapter2.collections.DiffObservableList
@@ -33,16 +35,14 @@ import javax.inject.Inject
 
 
 class DrtViewModel @Inject constructor(
-        private val context: Context,
         private val quickBookingService: QuickBookingService,
-        private val resources: Resources
+        private val resources: Resources,
+        private val bookingService: BookingV2TrackingService
 ) : RxViewModel() {
 
     private val _quickBooking = MutableLiveData<QuickBooking>()
-    //val quickBooking: LiveData<QuickBooking> = _quickBooking
 
     private val _inputs = MutableLiveData<List<Input>>()
-    //val inputs: LiveData<List<Input>> = _inputs
 
     private val _segment = MutableLiveData<TripSegment>()
     val segment: LiveData<TripSegment> = _segment
@@ -55,7 +55,7 @@ class DrtViewModel @Inject constructor(
 
     val onItemChangeActionStream = MutableSharedFlow<DrtItemViewModel>()
 
-    val items = DiffObservableList<DrtItemViewModel>(diffCallback())
+    val items = DiffObservableList<DrtItemViewModel>(DrtItemViewModel.diffCallback())
     val itemBinding = ItemBinding.of<DrtItemViewModel>(BR.viewModel, R.layout.item_drt)
 
     private val _bookingConfirmation = MutableLiveData<BookingConfirmation>()
@@ -65,15 +65,6 @@ class DrtViewModel @Inject constructor(
     val confirmationActions: LiveData<List<com.skedgo.tripkit.ui.generic.action_list.Action>> = _confirmationActions
 
     private val stopPollingUpdate = AtomicBoolean()
-
-    private fun diffCallback() = object : DiffUtil.ItemCallback<DrtItemViewModel>() {
-        override fun areItemsTheSame(oldItem: DrtItemViewModel, newItem: DrtItemViewModel): Boolean =
-                oldItem.label == newItem.label
-
-        override fun areContentsTheSame(oldItem: DrtItemViewModel, newItem: DrtItemViewModel): Boolean =
-                oldItem.label.value == newItem.label.value
-                        && oldItem.values.value == newItem.values.value
-    }
 
     private val quickBookingObserver = Observer<QuickBooking> {
         if (it.input.isNotEmpty()) {
@@ -230,7 +221,27 @@ class DrtViewModel @Inject constructor(
                 ).autoClear()
     }
 
+
     fun book() {
+        _quickBooking.value?.let { quickBooking ->
+            logAction(quickBooking.bookingURL)
+        }
+    }
+
+    private fun logAction(url: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val result = bookingService.logTrip(url)
+            if (result !is NetworkResponse.Success) {
+                result.logError()
+            }
+            viewModelScope.launch(Dispatchers.Main) {
+                proceedBooking()
+            }
+        }
+    }
+
+
+    private fun proceedBooking() {
         _inputs.value?.let { inputs ->
             //inputs.singleOrNull { it.id == "mobilityOptions" }?.values = listOf("Guest")
             _quickBooking.value?.let { quickBooking ->
@@ -266,7 +277,7 @@ class DrtViewModel @Inject constructor(
     private fun setBookingUpdatePolling(url: String) {
         //For the initial call before the polling
         stopPollingUpdate.set(false)
-        Observable.interval(10L, TimeUnit.SECONDS, Schedulers.io())
+        Observable.interval(30L, TimeUnit.SECONDS, Schedulers.io())
                 .takeWhile { !stopPollingUpdate.get() }
                 .flatMapSingle {
                     quickBookingService.getBookingUpdate(url)
