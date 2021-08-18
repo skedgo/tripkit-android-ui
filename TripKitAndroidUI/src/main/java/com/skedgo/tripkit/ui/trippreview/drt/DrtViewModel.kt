@@ -22,6 +22,7 @@ import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.rxkotlin.subscribeBy
 import io.reactivex.schedulers.Schedulers
+import io.reactivex.subjects.PublishSubject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
@@ -67,9 +68,8 @@ class DrtViewModel @Inject constructor(
     private val stopPollingUpdate = AtomicBoolean()
 
     private val quickBookingObserver = Observer<QuickBooking> {
-        if (it.input.isNotEmpty()) {
-            generateDrtItems(it.input)
-        }
+        generateDrtItems(it.input)
+        getBookingUpdate(it.tripUpdateURL)
     }
 
     private val inputsObserver = Observer<List<Input>> { inputs ->
@@ -284,9 +284,12 @@ class DrtViewModel @Inject constructor(
                             .observeOn(AndroidSchedulers.mainThread())
                             .doOnSuccess { response ->
                                 response.processRawData(resources, Gson())
-                                val confirmation = response.tripGroupList.firstOrNull()?.trips
+                                val segment = response.tripGroupList.firstOrNull()?.trips
                                         ?.firstOrNull()?.segments?.firstOrNull { it.booking != null }
-                                        ?.booking?.confirmation
+
+                                updateSegment(segment)
+
+                                val confirmation = segment?.booking?.confirmation
                                 confirmation?.let {
                                     _bookingConfirmation.postValue(it)
                                     if (it.status().value() != BookingConfirmationStatusValue.PROCESSING) {
@@ -307,9 +310,12 @@ class DrtViewModel @Inject constructor(
                 .subscribeBy(
                         onSuccess = { response ->
                             response.processRawData(resources, Gson())
-                            val confirmation = response.tripGroupList.firstOrNull()?.trips
+                            val segment = response.tripGroupList.firstOrNull()?.trips
                                     ?.firstOrNull()?.segments?.firstOrNull { it.booking != null }
-                                    ?.booking?.confirmation
+
+                            updateSegment(segment)
+
+                            val confirmation = segment?.booking?.confirmation
                             confirmation?.let {
                                 _bookingConfirmation.postValue(it)
 
@@ -324,6 +330,15 @@ class DrtViewModel @Inject constructor(
                             it.printStackTrace()
                         }
                 ).autoClear()
+    }
+
+
+    private fun updateSegment(segment: TripSegment?) {
+        if (segment?.id == _segment.value?.id) {
+            _segment.updateFields {
+                it.value?.booking = segment?.booking
+            }
+        }
     }
 
     fun processAction(action: BookingConfirmationAction?) {

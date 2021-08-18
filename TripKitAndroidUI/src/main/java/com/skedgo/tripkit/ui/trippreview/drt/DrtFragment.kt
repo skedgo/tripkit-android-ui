@@ -37,6 +37,8 @@ class DrtFragment : BaseFragment<FragmentDrtBinding>(), DrtHandler {
 
     private var segment: TripSegment? = null
 
+    private var tripSegmentUpdateCallback: ((TripSegment) -> Unit)? = null
+
     @Inject
     lateinit var actionsAdapter: ActionListAdapter
 
@@ -135,6 +137,10 @@ class DrtFragment : BaseFragment<FragmentDrtBinding>(), DrtHandler {
             it?.let { actionsAdapter.collection = it }
         }
 
+        observe(viewModel.segment){
+            it?.let { tripSegmentUpdateCallback?.invoke(it) }
+        }
+
         pagerItemViewModel.closeClicked.observable
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe { onCloseButtonListener?.onClick(null) }.addTo(autoDisposable)
@@ -158,9 +164,13 @@ class DrtFragment : BaseFragment<FragmentDrtBinding>(), DrtHandler {
     }
 
     companion object {
-        fun newInstance(segment: TripSegment): DrtFragment {
+        fun newInstance(
+                segment: TripSegment,
+                tripSegmentUpdateCallback: ((TripSegment) -> Unit)? = null
+        ): DrtFragment {
             val fragment = DrtFragment()
             fragment.segment = segment
+            fragment.tripSegmentUpdateCallback = tripSegmentUpdateCallback
             return fragment
         }
     }

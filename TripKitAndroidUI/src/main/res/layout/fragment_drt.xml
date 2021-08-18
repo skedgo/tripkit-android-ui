@@ -245,8 +245,8 @@
 
             <ImageView
                 android:id="@+id/drt_iv_progress"
-                android:layout_width="152dp"
-                android:layout_height="152dp"
+                android:layout_width="112dp"
+                android:layout_height="112dp"
                 android:layout_marginTop="@dimen/spacing_medium"
                 app:imageUrl="@{viewModel.bookingConfirmation.status().imageURL()}"
                 android:visibility="@{viewModel.bookingConfirmation != null}"
