@@ -112,8 +112,8 @@ open class TripPreviewPagerItemViewModel : RxViewModel() {
             }
         }
 
-        fromLocation.set(segment.from.address)
-        toLocation.set(segment.to.address)
+        fromLocation.set(segment.from?.address ?: "")
+        toLocation.set(segment.to?.address ?: "")
 
         val dateTimeFormatter = DateTimeFormat.forPattern("HH:mm")
         duration.set(segment.endDateTime.toString(dateTimeFormatter))
