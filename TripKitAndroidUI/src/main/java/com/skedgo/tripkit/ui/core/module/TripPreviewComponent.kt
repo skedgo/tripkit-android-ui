@@ -9,7 +9,7 @@ import com.skedgo.tripkit.ui.trippreview.service.ServiceTripPreviewItemFragment
 import dagger.Subcomponent
 
 @ActivityScope
-@Subcomponent(modules = arrayOf(ServiceDetailsModule::class))
+@Subcomponent(modules = [ServiceDetailsModule::class])
 interface TripPreviewComponent {
     fun inject(fragment: StandardTripPreviewItemFragment)
     fun inject(fragment: ModeLocationTripPreviewItemFragment)

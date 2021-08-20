@@ -1,4 +1,3 @@
-
 package com.skedgo.tripkit.ui.trippreview
 
 import android.content.Context
@@ -46,12 +45,12 @@ import timber.log.Timber
 import java.lang.Exception
 import javax.inject.Inject
 
-data class TripPreviewPagerAdapterItem(val type: Int, val tripSegment: TripSegment)
+data class TripPreviewPagerAdapterItem(val type: Int, var tripSegment: TripSegment)
 
 class TripPreviewPagerAdapter(fragmentManager: FragmentManager)
     : FragmentStatePagerAdapter(fragmentManager, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
 
-    internal var onSwipePage: (Boolean /*true = Next, false = Previous*/) -> Unit = {_ ->}
+    internal var onSwipePage: (Boolean /*true = Next, false = Previous*/) -> Unit = { _ -> }
 
     var pages = mutableListOf<TripPreviewPagerAdapterItem>()
     var onCloseButtonListener: View.OnClickListener? = null
@@ -124,7 +123,9 @@ class TripPreviewPagerAdapter(fragmentManager: FragmentManager)
                 timetableFragment
             }
             ITEM_QUICK_BOOKING -> {
-                DrtFragment.newInstance(page.tripSegment)
+                DrtFragment.newInstance(page.tripSegment) { segment ->
+                    pages.firstOrNull { it.tripSegment.id == segment.id }?.tripSegment = segment
+                }
             }
             else -> StandardTripPreviewItemFragment.newInstance(page.tripSegment)
         }

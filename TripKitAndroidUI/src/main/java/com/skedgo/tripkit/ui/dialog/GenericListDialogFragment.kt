@@ -57,8 +57,8 @@ class GenericListDialogFragment : DialogFragment(), GenericListDialogFragmentHan
 
         initBinding()
         initViews()
-        checkArgs()
         initObserver()
+        checkArgs()
     }
 
     private fun initBinding() {
@@ -91,6 +91,13 @@ class GenericListDialogFragment : DialogFragment(), GenericListDialogFragmentHan
                     adapter.isSingleSelection = it.getBoolean(ARGS_IS_SINGLE_SELECTION)
                 }
             }
+
+            if (it.containsKey(ARGS_PREVIOUSLY_SELECTED) &&
+                    it.getStringArrayList(ARGS_PREVIOUSLY_SELECTED) != null) {
+                it.getStringArrayList(ARGS_PREVIOUSLY_SELECTED)?.let {
+                    viewModel.setSelectedItems(it)
+                }
+            }
         }
     }
 
@@ -107,11 +114,13 @@ class GenericListDialogFragment : DialogFragment(), GenericListDialogFragmentHan
         private const val ARGS_TITLE = "_title"
         private const val ARGS_LIST_SELECTION = "_list_selection"
         private const val ARGS_IS_SINGLE_SELECTION = "_is_single_selection"
+        private const val ARGS_PREVIOUSLY_SELECTED = "_previously_seleted"
 
         fun newInstance(
                 selection: List<GenericListItem>,
                 isSingleSelection: Boolean,
                 title: String = "",
+                previousSelectedValues: List<String>? = null,
                 onConfirmCallback: ((List<GenericListItem>) -> Unit)? = null,
                 onCloseCallback: (() -> Unit)? = null
         ): GenericListDialogFragment {
@@ -119,7 +128,8 @@ class GenericListDialogFragment : DialogFragment(), GenericListDialogFragmentHan
                 arguments = bundleOf(
                         ARGS_TITLE to title,
                         ARGS_LIST_SELECTION to Gson().toJson(selection),
-                        ARGS_IS_SINGLE_SELECTION to isSingleSelection
+                        ARGS_IS_SINGLE_SELECTION to isSingleSelection,
+                        ARGS_PREVIOUSLY_SELECTED to previousSelectedValues
                 )
                 this.onConfirm = onConfirmCallback
                 this.onClose = onCloseCallback

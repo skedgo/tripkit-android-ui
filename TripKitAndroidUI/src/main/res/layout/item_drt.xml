@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
+
         <variable
             name="viewModel"
             type="com.skedgo.tripkit.ui.trippreview.drt.DrtItemViewModel" />
@@ -18,11 +19,11 @@
             android:id="@+id/itemDrt_ivIcon"
             android:layout_width="@dimen/icon_medium"
             android:layout_height="@dimen/icon_medium"
+            android:src="@{viewModel.icon}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:tint="@color/colorPrimary"
-            android:src="@{viewModel.icon}"
             tools:src="@drawable/ic_car" />
 
         <TextView
@@ -32,9 +33,9 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/spacing_normal"
             android:layout_marginTop="@dimen/shadow_height"
+            android:text="@{viewModel.label}"
             android:textColor="@color/black1"
             android:textSize="@dimen/font_size_small"
-            android:text="@{viewModel.label}"
             app:layout_constraintStart_toEndOf="@+id/itemDrt_ivIcon"
             app:layout_constraintTop_toTopOf="parent"
             tools:text="Mobility Options" />
@@ -54,7 +55,7 @@
             android:textAlignment="center"
             android:textColor="@color/grey3"
             android:textSize="@dimen/font_size_small"
-            android:visibility="@{viewModel.required}"
+            android:visibility="@{viewModel.required &amp;&amp; !viewModel.viewMode}"
             app:layout_constraintBottom_toBottomOf="@+id/itemDrt_tvLabel"
             app:layout_constraintStart_toEndOf="@+id/itemDrt_tvLabel"
             app:layout_constraintTop_toTopOf="parent" />
@@ -67,8 +68,8 @@
             android:layout_marginStart="@dimen/spacing_normal"
             android:layout_marginTop="@dimen/spacing_small"
             android:layout_marginEnd="@dimen/spacing_small"
+            android:text="@{viewModel.values}"
             android:textColor="@color/black"
-            android:text="@{viewModel.value}"
             app:layout_constraintEnd_toStartOf="@+id/itemDrt_tvChange"
             app:layout_constraintStart_toEndOf="@+id/itemDrt_ivIcon"
             app:layout_constraintTop_toBottomOf="@+id/itemDrt_tvLabel"
@@ -79,12 +80,13 @@
             style="@style/TextAppearance.MaterialComponents.Body1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/change"
-            app:clickWithDebounce="@{() -> viewModel.onChange()}"
+            android:text="@{viewModel.viewMode? @string/view: @string/change}"
             android:textColor="@color/colorPrimary"
+            app:clickWithDebounce="@{() -> viewModel.onChange()}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="Change"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

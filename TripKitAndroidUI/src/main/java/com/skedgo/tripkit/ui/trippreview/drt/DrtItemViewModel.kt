@@ -4,6 +4,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.recyclerview.widget.DiffUtil
+import com.skedgo.tripkit.booking.quickbooking.Option
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 
@@ -17,11 +19,23 @@ class DrtItemViewModel : ViewModel() {
     private val _label = MutableLiveData<String>()
     val label: LiveData<String> = _label
 
-    private val _value = MutableLiveData<String>()
-    val value: LiveData<String> = _value
+    private val _values = MutableLiveData<List<String>>()
+    val values: LiveData<List<String>> = _values
 
     private val _required = MutableLiveData<Boolean>()
     val required: LiveData<Boolean> = _required
+
+    private val _viewMode = MutableLiveData<Boolean>()
+    val viewMode: LiveData<Boolean> = _viewMode
+
+    private val _itemId = MutableLiveData<String>()
+    val itemId: LiveData<String> = _itemId
+
+    private val _options = MutableLiveData<List<Option>>()
+    val options: LiveData<List<Option>> = _options
+
+    private val _type = MutableLiveData<String>()
+    val type: LiveData<String> = _type
 
     fun setIcon(value: Int) {
         _icon.value = value
@@ -31,8 +45,8 @@ class DrtItemViewModel : ViewModel() {
         _label.value = value
     }
 
-    fun setValue(value: String) {
-        _value.value = value
+    fun setValue(values: List<String>) {
+        _values.value = values
     }
 
     fun setRequired(value: Boolean) {
@@ -45,4 +59,30 @@ class DrtItemViewModel : ViewModel() {
         }
     }
 
+    fun setViewMode(value: Boolean) {
+        _viewMode.value = value
+    }
+
+    fun setItemId(value: String) {
+        _itemId.value = value
+    }
+
+    fun setOptions(value: List<Option>) {
+        _options.value = value
+    }
+
+    fun setType(value: String) {
+        _type.value = value
+    }
+
+    companion object {
+        fun diffCallback() = object : DiffUtil.ItemCallback<DrtItemViewModel>() {
+            override fun areItemsTheSame(oldItem: DrtItemViewModel, newItem: DrtItemViewModel): Boolean =
+                    oldItem.label == newItem.label
+
+            override fun areContentsTheSame(oldItem: DrtItemViewModel, newItem: DrtItemViewModel): Boolean =
+                    oldItem.label.value == newItem.label.value
+                            && oldItem.values.value == newItem.values.value
+        }
+    }
 }

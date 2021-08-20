@@ -3,9 +3,7 @@ package com.skedgo.tripkit.ui.core.module;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.skedgo.tripkit.booking.*;
-import com.skedgo.tripkit.booking.viewmodel.AuthenticationViewModel;
 import com.skedgo.tripkit.configuration.Server;
-import com.skedgo.tripkit.ui.booking.apiv2.BookingV2ListResponse;
 import com.skedgo.tripkit.ui.booking.apiv2.BookingV2TrackingApi;
 import com.skedgo.tripkit.ui.booking.apiv2.BookingV2TrackingService;
 import com.skedgo.tripkit.ui.booking.apiv2.GsonAdaptersBookingV2LogTripResponse;
@@ -49,7 +47,22 @@ public class BookingModule {
                 .create(QuickBookingApi.class);
     }
 
-    @Provides AuthApi authApi(OkHttpClient httpClient) {
+    @Provides
+    com.skedgo.tripkit.booking.quickbooking.QuickBookingApi newQuickBookingApi(
+            OkHttpClient httpClient
+    ) {
+        return new Retrofit.Builder()
+                /* This base url is ignored as the api relies on @Url. */
+                .baseUrl(Server.ApiTripGo.getValue())
+                .addCallAdapterFactory(RxJava2CallAdapterFactory.createWithScheduler(Schedulers.io()))
+                .addConverterFactory(GsonConverterFactory.create())
+                .client(httpClient)
+                .build()
+                .create(com.skedgo.tripkit.booking.quickbooking.QuickBookingApi.class);
+    }
+
+    @Provides
+    AuthApi authApi(OkHttpClient httpClient) {
         final Gson gson = new GsonBuilder()
                 .registerTypeAdapter(FormField.class, new FormFieldJsonAdapter())
                 .registerTypeAdapterFactory(new GsonAdaptersAuthProvider())
@@ -88,6 +101,7 @@ public class BookingModule {
                 .build()
                 .create(BookingV2TrackingApi.class);
     }
+
     @Provides
     BookingV2TrackingService provideBookingV2TrackingService(BookingV2TrackingApi api) {
         return new BookingV2TrackingService(api);
@@ -101,12 +115,13 @@ public class BookingModule {
 //        return new BookingViewModelImpl(bookingService);
 //    }
 
-//    @Provides
+    //    @Provides
 //    AuthenticationViewModel authenticationViewModel() {
 //        return new AuthenticationViewModelImpl();
 //    }
 //
-    @Provides ExternalOAuthServiceGenerator provideExternalOAuthServiceGenerator() {
+    @Provides
+    ExternalOAuthServiceGenerator provideExternalOAuthServiceGenerator() {
         return new ExternalOAuthServiceGenerator(new OkHttpClient.Builder());
     }
 
@@ -120,7 +135,17 @@ public class BookingModule {
         return new BookingServiceImpl(bookingApi, new Gson());
     }
 
-    @Provides QuickBookingService getQuickBookingService(QuickBookingApi quickBookingApi) {
+    @Provides
+    QuickBookingService getQuickBookingService(QuickBookingApi quickBookingApi) {
         return new QuickBookingServiceImpl(quickBookingApi);
+    }
+
+    @Provides
+    com.skedgo.tripkit.booking.quickbooking.QuickBookingService getNewQuickBookingService(
+            com.skedgo.tripkit.booking.quickbooking.QuickBookingApi quickBookingApi
+    ) {
+        return new com.skedgo.tripkit.booking.quickbooking.QuickBookingService.QuickBookingServiceImpl(
+                quickBookingApi
+        );
     }
 }

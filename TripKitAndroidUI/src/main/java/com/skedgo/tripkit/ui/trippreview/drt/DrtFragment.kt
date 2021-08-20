@@ -1,76 +1,176 @@
 package com.skedgo.tripkit.ui.trippreview.drt
 
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
-import android.util.Log
-import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import com.skedgo.tripkit.booking.quickbooking.QuickBookingType
+import com.skedgo.tripkit.common.model.BookingConfirmationAction
 import com.skedgo.tripkit.routing.TripSegment
 import com.skedgo.tripkit.ui.R
+import com.skedgo.tripkit.ui.TripKitUI
 import com.skedgo.tripkit.ui.core.BaseFragment
-import com.skedgo.tripkit.ui.core.BaseTripKitFragment
 import com.skedgo.tripkit.ui.core.addTo
 import com.skedgo.tripkit.ui.databinding.FragmentDrtBinding
+import com.skedgo.tripkit.ui.dialog.GenericListDialogFragment
+import com.skedgo.tripkit.ui.dialog.GenericListItem
+import com.skedgo.tripkit.ui.dialog.GenericNoteDialogFragment
+import com.skedgo.tripkit.ui.generic.action_list.ActionListAdapter
 import com.skedgo.tripkit.ui.trippreview.TripPreviewPagerItemViewModel
-import com.skedgo.tripkit.ui.trippreview.standard.StandardTripPreviewItemFragment
+import com.skedgo.tripkit.ui.utils.observe
 import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import javax.inject.Inject
 
-class DrtFragment : BaseFragment<FragmentDrtBinding>() {
+class DrtFragment : BaseFragment<FragmentDrtBinding>(), DrtHandler {
 
-    private val viewModel: DrtViewModel by viewModels()
+    @Inject
+    lateinit var viewModelFactory: ViewModelProvider.Factory
+
+    private val viewModel: DrtViewModel by viewModels { viewModelFactory }
 
     private val pagerItemViewModel: TripPreviewPagerItemViewModel by viewModels()
 
     private var segment: TripSegment? = null
 
+    private var tripSegmentUpdateCallback: ((TripSegment) -> Unit)? = null
+
+    @Inject
+    lateinit var actionsAdapter: ActionListAdapter
+
     override val layoutRes: Int
         get() = R.layout.fragment_drt
+
+    override fun onBook() {
+        viewModel.book()
+    }
+
+    override fun onCancelRide() {
+
+    }
+
+    override fun onAttach(context: Context) {
+        TripKitUI.getInstance().tripPreviewComponent().inject(this)
+        super.onAttach(context)
+    }
 
     override fun onCreated(savedInstance: Bundle?) {
         initBinding()
         initObserver()
+        initViews()
     }
 
     private fun initBinding() {
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
         binding.pagerItemViewModel = pagerItemViewModel
+        binding.handler = this
     }
 
     private fun initObserver() {
         viewModel.onItemChangeActionStream
-                .onEach {
-                    when (it.label.value) {
-                        DrtItem.MOBILITY_OPTIONS -> {
-                            //TODO Open Mobility option list
-                        }
-                        DrtItem.PURPOSE -> {
-                            //TODO Open Purpose list
-                        }
-                        DrtItem.ADD_NOTE -> {
-                            //TODO Open Add note
+                .onEach { drtItem ->
+                    if (viewModel.bookingConfirmation.value == null) {
+
+                        val defaultValue = viewModel.getDefaultValueByType(
+                                drtItem.type.value ?: "",
+                                drtItem.label.value ?: ""
+                        )
+
+                        if (drtItem.label.value == DrtItem.ADD_NOTE) {
+                            GenericNoteDialogFragment.newInstance(
+                                    drtItem.label.value ?: "",
+                                    if (drtItem.values.value?.firstOrNull() != defaultValue) {
+                                        drtItem.values.value?.firstOrNull() ?: ""
+                                    } else {
+                                        ""
+                                    }
+                            ) {
+                                if (it.isEmpty()) {
+                                    listOf(defaultValue)
+                                } else {
+                                    drtItem.setValue(listOf(it))
+                                    viewModel.updateInputValue(drtItem)
+                                }
+                            }.show(childFragmentManager, drtItem.label.value ?: "")
+                        } else {
+                            GenericListDialogFragment.newInstance(
+                                    GenericListItem.parseOptions(
+                                            drtItem.options.value ?: emptyList()
+                                    ),
+                                    isSingleSelection = drtItem.type.value == QuickBookingType.SINGLE_CHOICE,
+                                    title = drtItem.label.value ?: "",
+                                    onConfirmCallback = { selectedItems ->
+                                        drtItem.setValue(
+                                                if (selectedItems.isEmpty()) {
+                                                    listOf(
+                                                            viewModel.getDefaultValueByType(
+                                                                    drtItem.type.value ?: "",
+                                                                    drtItem.label.value ?: ""
+                                                            )
+                                                    )
+                                                } else {
+                                                    selectedItems.map { it.label }
+                                                }
+                                        )
+                                        viewModel.updateInputValue(drtItem)
+                                    },
+                                    previousSelectedValues = if (drtItem.values.value != listOf(defaultValue)) {
+                                        drtItem.values.value
+                                    } else {
+                                        null
+                                    }
+                            ).show(childFragmentManager, drtItem.label.value ?: "")
                         }
                     }
-                    Log.e("MIKE", "value: ${it.label.value}")
                 }.launchIn(lifecycleScope)
         segment?.let {
             pagerItemViewModel.setSegment(requireContext(), it)
+            viewModel.setTripSegment(it)
+        }
+
+        observe(viewModel.confirmationActions) {
+            it?.let { actionsAdapter.collection = it }
+        }
+
+        observe(viewModel.segment){
+            it?.let { tripSegmentUpdateCallback?.invoke(it) }
         }
 
         pagerItemViewModel.closeClicked.observable
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe{ onCloseButtonListener?.onClick(null) }.addTo(autoDisposable)
+                .subscribe { onCloseButtonListener?.onClick(null) }.addTo(autoDisposable)
+    }
+
+    private fun initViews() {
+        binding.drtRvActions.adapter = actionsAdapter
+        actionsAdapter.clickListener = {
+            if (it.bookingConfirmationAction?.externalURL() != null) {
+                if (it.bookingConfirmationAction.type() == BookingConfirmationAction.TYPE_CALL) {
+                    val intent = Intent(
+                            Intent.ACTION_DIAL,
+                            Uri.parse(it.bookingConfirmationAction.externalURL())
+                    )
+                    requireActivity().startActivity(intent)
+                }
+            } else {
+                viewModel.processAction(it.bookingConfirmationAction)
+            }
+        }
     }
 
     companion object {
-        fun newInstance(segment: TripSegment): DrtFragment {
+        fun newInstance(
+                segment: TripSegment,
+                tripSegmentUpdateCallback: ((TripSegment) -> Unit)? = null
+        ): DrtFragment {
             val fragment = DrtFragment()
             fragment.segment = segment
+            fragment.tripSegmentUpdateCallback = tripSegmentUpdateCallback
             return fragment
         }
     }

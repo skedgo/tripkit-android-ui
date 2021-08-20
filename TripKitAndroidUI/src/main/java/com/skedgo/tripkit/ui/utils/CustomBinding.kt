@@ -5,9 +5,11 @@ import android.graphics.drawable.Drawable
 import android.os.SystemClock
 import android.view.View
 import android.widget.ImageView
+import android.widget.TextView
 import androidx.annotation.ColorInt
 import androidx.core.content.ContextCompat
 import androidx.databinding.BindingAdapter
+import com.bumptech.glide.Glide
 
 //To databind resource id(int) on image views
 @BindingAdapter("android:src")
@@ -61,5 +63,30 @@ fun setVisibilityInv(view: View, visible: Boolean?) {
         View.VISIBLE
     } else {
         View.INVISIBLE
+    }
+}
+
+@BindingAdapter("android:text")
+fun setListValuesToText(textView: TextView, values: List<String>?) {
+    if (values != null && values.isNotEmpty()) {
+        val sb = StringBuilder()
+        values.forEachIndexed { index, s ->
+            sb.append(s)
+            if (index < values.size - 1) {
+                sb.append(System.lineSeparator())
+            }
+        }
+        textView.text = sb.toString()
+    }
+}
+
+@BindingAdapter("imageUrl")
+fun setImageFromUrl(imageView: ImageView, source: String?) {
+    source?.let {
+        if (it.isNotBlank()) {
+            Glide.with(imageView.context)
+                    .load(it)
+                    .into(imageView)
+        }
     }
 }

@@ -21,4 +21,16 @@ class GenericListViewModel @Inject constructor() : RxViewModel() {
         _selection.value = value
     }
 
+    fun setSelectedItems(selectedValues: List<String>) {
+        _selection.value?.let {
+            val result = it.toMutableList()
+            result.filter { item ->
+                selectedValues.any { selectedValue -> item.label == selectedValue }
+            }.map {
+                it.selected = true
+            }
+
+            _selection.value = result
+        }
+    }
 }
