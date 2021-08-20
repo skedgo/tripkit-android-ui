@@ -51,6 +51,7 @@ class DrtViewModel @Inject constructor(
     private val _loading = MutableLiveData<Boolean>()
     val loading: LiveData<Boolean> = _loading
 
+
     private val _areInputsValid = MutableLiveData<Boolean>()
     val areInputsValid: LiveData<Boolean> = _areInputsValid
 
