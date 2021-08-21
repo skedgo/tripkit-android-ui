@@ -5,107 +5,128 @@ import com.skedgo.tripkit.routing.ModeInfo
 
 data class BookingV2ListResponse(
         @SerializedName("bookings")
-    val bookings: List<Booking?>? = null,
+        val bookings: List<Booking?>? = null,
         @SerializedName("count")
-    val count: Int? = null
+        val count: Int? = null
 ) {
     data class Booking(
             @SerializedName("confirmation")
-        val confirmation: Confirmation,
+            val confirmation: Confirmation,
             @SerializedName("datetime")
-        val datetime: String,
+            val datetime: String,
             @SerializedName("id")
-        val id: String? = null,
+            val id: String? = null,
             @SerializedName("index")
-        val index: Int? = null,
+            val index: Int? = null,
             @SerializedName("isExternal")
-        val isExternal: Boolean? = null,
+            val isExternal: Boolean? = null,
             @SerializedName("mode")
-        val mode: String? = null,
+            val mode: String? = null,
             @SerializedName("timeZone")
-        val timeZone: String? = null,
+            val timeZone: String? = null,
             @SerializedName("trips")
-        val trips: List<String>? = null,
+            val trips: List<String>? = null,
             @SerializedName("tripsInfo")
-        val tripsInfo: List<TripsInfo?>? = null,
+            val tripsInfo: List<TripsInfo?>? = null,
             // This does NOT come from the API, but is used later
-        @SerializedName("tripGroup")
-        var tripGroup: String? = null
+            @SerializedName("tripGroup")
+            var tripGroup: String? = null
     ) {
         data class Confirmation(
-            @SerializedName("purchase")
-            val purchase: Purchase? = null
+                @SerializedName("purchase")
+                val purchase: Purchase? = null,
+                @SerializedName("provider")
+                val provider: Provider? = null,
+                @SerializedName("status")
+                val status: Status? = null,
+
         ) {
             data class Purchase(
-                @SerializedName("budgetPoints")
-                val budgetPoints: Int? = null,
-                @SerializedName("currency")
-                val currency: String? = null,
-                @SerializedName("date")
-                val date: String? = null,
-                @SerializedName("id")
-                val id: String? = null,
-                @SerializedName("price")
-                val price: Double? = null,
-                @SerializedName("productName")
-                val productName: String? = null,
-                @SerializedName("productType")
-                val productType: String? = null
+                    @SerializedName("budgetPoints")
+                    val budgetPoints: Int? = null,
+                    @SerializedName("currency")
+                    val currency: String? = null,
+                    @SerializedName("date")
+                    val date: String? = null,
+                    @SerializedName("id")
+                    val id: String? = null,
+                    @SerializedName("price")
+                    val price: Double? = null,
+                    @SerializedName("productName")
+                    val productName: String? = null,
+                    @SerializedName("productType")
+                    val productType: String? = null
+            )
+
+            data class Provider(
+                    @SerializedName("title")
+                    val title: String? = null
+            )
+
+            data class Status(
+                    @SerializedName("title")
+                    val title: String? = null,
+                    @SerializedName("subtitle")
+                    val subtitle: String? = null,
+                    @SerializedName("imageURL")
+                    val imageURL: String? = null,
+                    @SerializedName("value")
+                    val value: String? = null
             )
         }
 
         data class TripsInfo(
                 @SerializedName("destination")
-            val destination: Destination? = null,
+                val destination: Destination? = null,
                 @SerializedName("legs")
-            val legs: List<Leg>? = null,
+                val legs: List<Leg>? = null,
                 @SerializedName("origin")
-            val origin: Origin? = null
+                val origin: Origin? = null
         ) {
             data class Destination(
-                @SerializedName("address")
-                val address: String? = null,
-                @SerializedName("lat")
-                val lat: Double? = null,
-                @SerializedName("lng")
-                val lng: Double? = null,
-                @SerializedName("name")
-                val name: String? = null
+                    @SerializedName("address")
+                    val address: String? = null,
+                    @SerializedName("lat")
+                    val lat: Double? = null,
+                    @SerializedName("lng")
+                    val lng: Double? = null,
+                    @SerializedName("name")
+                    val name: String? = null
             )
 
             data class Leg(
                     @SerializedName("metric")
-                val metric: Metric? = null,
+                    val metric: Metric? = null,
                     @SerializedName("modeInfo")
-                val modeInfo: ModeInfo
+                    val modeInfo: ModeInfo
             ) {
                 data class Metric(
-                    @SerializedName("calories")
-                    val calories: Double? = null,
-                    @SerializedName("carbon")
-                    val carbon: Double? = null,
-                    @SerializedName("currencySymbol")
-                    val currencySymbol: String? = null,
-                    @SerializedName("duration")
-                    val duration: Int? = null,
-                    @SerializedName("hassle")
-                    val hassle: Double? = null,
-                    @SerializedName("localCost")
-                    val localCost: Double? = null,
-                    @SerializedName("usdCost")
-                    val usdCost: Double? = null
+                        @SerializedName("calories")
+                        val calories: Double? = null,
+                        @SerializedName("carbon")
+                        val carbon: Double? = null,
+                        @SerializedName("currencySymbol")
+                        val currencySymbol: String? = null,
+                        @SerializedName("duration")
+                        val duration: Int? = null,
+                        @SerializedName("hassle")
+                        val hassle: Double? = null,
+                        @SerializedName("localCost")
+                        val localCost: Double? = null,
+                        @SerializedName("usdCost")
+                        val usdCost: Double? = null
                 )
             }
 
             data class Origin(
-                @SerializedName("address")
-                val address: String? = null,
-                @SerializedName("lat")
-                val lat: Double? = null,
-                @SerializedName("lng")
-                val lng: Double? = null,
-                @SerializedName("name")
-                val name: String? = null
+                    @SerializedName("address")
+                    val address: String? = null,
+                    @SerializedName("lat")
+                    val lat: Double? = null,
+                    @SerializedName("lng")
+                    val lng: Double? = null,
+                    @SerializedName("name")
+                    val name: String? = null
             )
         }
     }
