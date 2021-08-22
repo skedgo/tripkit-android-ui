@@ -21,4 +21,8 @@ class BookingV2TrackingService(private var trackingApi: BookingV2TrackingApi) {
     suspend fun deleteBooking(bookingId: String): NetworkResponse<Unit, Unit> {
         return trackingApi.deleteBooking(bookingId)
     }
+
+    suspend fun getActiveBooking(mode: String? = null): NetworkResponse<BookingV2ListResponse.Booking, Unit> {
+        return trackingApi.getActiveBooking()
+    }
 }
