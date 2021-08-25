@@ -27,21 +27,26 @@
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:padding="@dimen/spacing_small">
+            android:layout_height="match_parent">
 
-            <ImageView
-                android:layout_width="@dimen/icon_small"
-                android:layout_height="@dimen/icon_small"
-                android:onClick="@{() -> pagerItemViewModel.closeClicked.perform()}"
+            <ImageButton
+                android:id="@+id/btnClose"
+                android:layout_width="@dimen/close_button_size"
+                android:layout_height="@dimen/close_button_size"
+                android:background="?attr/selectableItemBackgroundBorderless"
                 android:src="@drawable/close"
+                android:layout_marginEnd="@dimen/spacing_normal"
+                android:onClick="@{() -> pagerItemViewModel.closeClicked.perform()}"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="@id/drt_tvTitle"
+                app:layout_constraintBottom_toBottomOf="@id/drt_tvTitle"/>
 
             <ImageView
                 android:id="@+id/drt_ivIcon"
                 android:layout_width="@dimen/icon_medium"
                 android:layout_height="@dimen/icon_medium"
+                android:layout_marginTop="@dimen/spacing_small"
+                android:layout_marginStart="@dimen/spacing_small"
                 app:drawableSource="@{pagerItemViewModel.icon}"
                 app:layout_constraintBottom_toBottomOf="@+id/drt_tvSubTitle"
                 app:layout_constraintStart_toStartOf="parent"
@@ -56,7 +61,7 @@
                 android:layout_marginTop="@dimen/spacing_normal"
                 android:text="@{pagerItemViewModel.instructionTitle}"
                 android:textStyle="bold"
-                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/btnClose"
                 app:layout_constraintStart_toEndOf="@+id/drt_ivIcon"
                 app:layout_constraintTop_toTopOf="parent"
                 tools:text="Ride" />
@@ -82,6 +87,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/spacing_normal"
+                android:layout_marginStart="@dimen/spacing_small"
+                android:layout_marginEnd="@dimen/spacing_small"
                 android:text="@{`Today ` + pagerItemViewModel.duration}"
                 android:textStyle="bold"
                 android:visibility="@{viewModel.bookingConfirmation == null}"
@@ -93,6 +100,7 @@
                 android:layout_width="@dimen/icon_small"
                 android:layout_height="@dimen/icon_small"
                 android:layout_marginTop="@dimen/spacing_normal"
+                android:layout_marginStart="@dimen/spacing_small"
                 android:adjustViewBounds="true"
                 android:src="@drawable/small_circle"
                 android:visibility="@{viewModel.bookingConfirmation == null}"
@@ -131,6 +139,7 @@
                 android:layout_width="@dimen/icon_small"
                 android:layout_height="@dimen/icon_small"
                 android:layout_marginTop="@dimen/spacing_medium"
+                android:layout_marginStart="@dimen/spacing_small"
                 android:adjustViewBounds="true"
                 android:src="@drawable/small_circle"
                 android:visibility="@{viewModel.bookingConfirmation == null}"
@@ -179,6 +188,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/spacing_normal"
+                android:layout_marginStart="@dimen/spacing_small"
+                android:layout_marginEnd="@dimen/spacing_small"
                 app:itemBinding="@{viewModel.itemBinding}"
                 app:items="@{viewModel.items}"
                 app:layoutManager="com.skedgo.tripkit.ui.utils.UnScrollableLinearLayoutManager"
@@ -190,6 +201,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/spacing_small"
+                android:layout_marginStart="@dimen/spacing_small"
+                android:layout_marginEnd="@dimen/spacing_small"
                 android:background="@drawable/bg_button_primary"
                 android:enabled="@{viewModel.areInputsValid}"
                 android:text="@string/book"
@@ -205,6 +218,8 @@
                 tools:itemCount="2"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                 android:layout_marginTop="@dimen/spacing_small"
+                android:layout_marginStart="@dimen/spacing_small"
+                android:layout_marginEnd="@dimen/spacing_small"
                 android:visibility="@{viewModel.bookingConfirmation != null}"
                 tools:listitem="@layout/item_action"
                 tools:visibility="visible"
