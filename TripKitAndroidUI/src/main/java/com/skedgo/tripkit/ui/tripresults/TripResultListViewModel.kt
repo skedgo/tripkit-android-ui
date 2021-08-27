@@ -227,7 +227,7 @@ class TripResultListViewModel @Inject constructor(
     }
 
     fun load() {
-        query = query.clone(false)
+        query = query.clone(true)
         query.setUseWheelchair(transportVisibilityFilter!!.isSelected(TransportMode.ID_WHEEL_CHAIR))
         val request = Observable.defer {
             routeService.routeAsync(query = query, transportModeFilter = TripResultListViewTransportModeFilter(transportModeFilter!!, transportVisibilityFilter!!))
