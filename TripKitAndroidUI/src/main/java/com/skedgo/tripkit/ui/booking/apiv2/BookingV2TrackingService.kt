@@ -23,6 +23,10 @@ class BookingV2TrackingService(private var trackingApi: BookingV2TrackingApi) {
     }
 
     suspend fun getActiveBooking(mode: String? = null): NetworkResponse<BookingV2ListResponse.Booking, Unit> {
+        return trackingApi.getActiveBooking(mode)
+    }
+
+    suspend fun getActiveBooking(): NetworkResponse<BookingV2ListResponse.Booking, Unit> {
         return trackingApi.getActiveBooking()
     }
 }
