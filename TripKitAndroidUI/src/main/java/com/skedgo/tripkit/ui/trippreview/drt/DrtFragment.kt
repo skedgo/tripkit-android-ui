@@ -140,7 +140,10 @@ class DrtFragment : BaseFragment<FragmentDrtBinding>(), DrtHandler {
         observe(viewModel.segment){
             it?.let { tripSegmentUpdateCallback?.invoke(it) }
         }
+    }
 
+    override fun onResume() {
+        super.onResume()
         pagerItemViewModel.closeClicked.observable
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe { onCloseButtonListener?.onClick(null) }.addTo(autoDisposable)

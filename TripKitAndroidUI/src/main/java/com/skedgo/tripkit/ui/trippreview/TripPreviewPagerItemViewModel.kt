@@ -39,7 +39,7 @@ open class TripPreviewPagerItemViewModel : RxViewModel() {
     var icon = ObservableField<Drawable>()
     var description = ObservableField<String>()
     var showDescription = ObservableBoolean(true)
-    var closeClicked = TapAction<TripPreviewPagerItemViewModel> { this }
+    var closeClicked = TapAction { this }
     var notes = ObservableField<String>()
     var messageTitle = ObservableField<String>()
     var message = ObservableField<String>()
