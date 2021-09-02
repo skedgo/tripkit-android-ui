@@ -89,7 +89,7 @@
                 android:layout_marginTop="@dimen/spacing_normal"
                 android:layout_marginStart="@dimen/spacing_small"
                 android:layout_marginEnd="@dimen/spacing_small"
-                android:text="@{`Today ` + pagerItemViewModel.duration}"
+                android:text="@{pagerItemViewModel.duration}"
                 android:textStyle="bold"
                 android:visibility="@{viewModel.bookingConfirmation == null}"
                 app:layout_constraintTop_toBottomOf="@+id/drt_tvSubTitle"

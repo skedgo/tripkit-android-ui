@@ -6,6 +6,7 @@ import android.graphics.Color
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.net.Uri
+import android.text.format.DateUtils
 import androidx.core.content.ContextCompat
 import androidx.databinding.ObservableBoolean
 import androidx.databinding.ObservableField
@@ -49,6 +50,7 @@ open class TripPreviewPagerItemViewModel : RxViewModel() {
     val fromLocation = ObservableField<String>()
     val toLocation = ObservableField<String>()
     val duration = ObservableField<String>()
+    val startDateTime = ObservableField<String>()
 
     var segment: TripSegment? = null
 
@@ -114,8 +116,11 @@ open class TripPreviewPagerItemViewModel : RxViewModel() {
 
         fromLocation.set(segment.from?.address ?: "")
         toLocation.set(segment.to?.address ?: "")
-
-        val dateTimeFormatter = DateTimeFormat.forPattern("HH:mm")
-        duration.set(segment.endDateTime.toString(dateTimeFormatter))
+        
+        if (!DateUtils.isToday(segment.startTimeInSecs)) {
+            duration.set(segment.startDateTime.toString(DateTimeFormat.forPattern("MMMM dd HH:mm")))
+        } else {
+            duration.set("Today ${segment.startDateTime.toString(DateTimeFormat.forPattern("HH:mm"))}")
+        }
     }
 }

@@ -1,8 +1,6 @@
 package com.skedgo.tripkit.ui.booking.apiv2
 
 import com.haroldadmin.cnradapter.NetworkResponse
-import io.reactivex.Completable
-import io.reactivex.Observable
 
 
 class BookingV2TrackingService(private var trackingApi: BookingV2TrackingApi) {
@@ -23,6 +21,10 @@ class BookingV2TrackingService(private var trackingApi: BookingV2TrackingApi) {
     }
 
     suspend fun getActiveBooking(mode: String? = null): NetworkResponse<BookingV2ListResponse.Booking, Unit> {
+        return trackingApi.getActiveBooking(mode)
+    }
+
+    suspend fun getActiveBooking(mode: String): NetworkResponse<BookingV2ListResponse.Booking, Unit> {
         return trackingApi.getActiveBooking(mode)
     }
 }
