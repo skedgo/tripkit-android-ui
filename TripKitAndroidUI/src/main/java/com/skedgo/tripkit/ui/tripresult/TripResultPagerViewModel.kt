@@ -140,7 +140,13 @@ class TripResultPagerViewModel @Inject internal constructor(
                 .asObservable()
                 .skip(1)
                 .withLatestFrom(tripGroups.hide(), BiFunction<Int, List<TripGroup>, TripGroup>
-                { id, tripGroups -> tripGroups[id] })
+                { id, tripGroups ->
+                    if(id > 0) {
+                        tripGroups[id]
+                    } else {
+                        tripGroups.first()
+                    }
+                })
                 .observeOn(Schedulers.computation())
                 .doOnNext {
                     setInitialSelectedTripGroupId(it.uuid())

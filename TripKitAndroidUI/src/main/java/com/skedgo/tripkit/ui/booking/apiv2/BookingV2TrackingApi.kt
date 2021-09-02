@@ -16,7 +16,7 @@ interface BookingV2TrackingApi {
     suspend fun getBookingMonth(@Query("month") month: String): NetworkResponse<BookingV2ListResponse, Unit>
 
     @GET("booking/v2/active")
-    suspend fun getActiveBooking(@Query("mode") mode: String? = null): NetworkResponse<BookingV2ListResponse.Booking, Unit>
+    suspend fun getActiveBooking(@Query("mode") mode: String?): NetworkResponse<BookingV2ListResponse.Booking, Unit>
 
     @DELETE("booking/v2/{id}")
     suspend fun deleteBooking(@Path("id") bookingId: String): NetworkResponse<Unit, Unit>
