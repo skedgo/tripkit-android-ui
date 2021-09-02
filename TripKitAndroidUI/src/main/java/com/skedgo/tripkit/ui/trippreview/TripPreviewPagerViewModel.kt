@@ -61,7 +61,7 @@ class TripPreviewPagerViewModel : RxViewModel() {
 
         tripSegments.filter { it.visibility == Visibilities.VISIBILITY_IN_SUMMARY }.forEach { segment ->
             getSegmentIcon(context, segment, getTransportIconTintStrategy) {
-                val dateTimeFormatter = DateTimeFormat.forPattern("HH:mma")
+                val dateTimeFormatter = DateTimeFormat.forPattern("hh:mm a")
                 if (previewHeaders.none { it.id == segment.id })
                     previewHeaders.add(
                             TripPreviewHeader(

@@ -33,13 +33,14 @@
 
         <TextView
             android:id="@+id/tvTime"
-            style="@style/TextAppearance.MaterialComponents.Caption"
+            style="@style/TextAppearance.MaterialComponents.Body2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/shadow_height"
             android:gravity="center"
             android:text="@{viewModel.description}"
             android:textAlignment="center"
+            android:textColor="@color/black1"
             android:visibility="@{viewModel.showDescription}"
             app:layout_constraintTop_toBottomOf="@+id/rvHeaders"
             tools:text="8:00pm - 9:30pm"
