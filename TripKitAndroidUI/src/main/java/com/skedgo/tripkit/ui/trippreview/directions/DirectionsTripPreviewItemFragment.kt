@@ -35,9 +35,9 @@ class DirectionsTripPreviewItemFragment : BaseTripKitFragment() {
 
         segment?.let {
             viewModel.setSegment(requireContext(), it)
-        }?: kotlin.run {
+        } ?: kotlin.run {
             savedInstanceState?.let {
-                if(it.containsKey(ARGS_SEGMENT)){
+                if (it.containsKey(ARGS_SEGMENT)) {
                     segment = Gson().fromJson(it.getString(ARGS_SEGMENT), TripSegment::class.java)
                     segment?.let { viewModel.setSegment(requireContext(), it) }
                 }
@@ -50,6 +50,7 @@ class DirectionsTripPreviewItemFragment : BaseTripKitFragment() {
         viewModel.closeClicked.observable.observeOn(AndroidSchedulers.mainThread()).subscribe { onCloseButtonListener?.onClick(null) }.addTo(autoDisposable)
         viewModel.showLaunchInMapsClicked.observable.onEach {
             it.segment?.let {
+                /*
                 val mode = if (it.isCycling) {
                     "b"
                 } else if (it.isWalking || it.isWheelchair) {
@@ -58,8 +59,17 @@ class DirectionsTripPreviewItemFragment : BaseTripKitFragment() {
                     "d"
                 }
                 val uri = Uri.parse("google.navigation:mode=$mode&q=${it.to.lat},${it.to.lon}")
+                */
+                val mode = if (it.isCycling) {
+                    "bicycling"
+                } else if (it.isWalking || it.isWheelchair) {
+                    "walking"
+                } else {
+                    "driving"
+                }
+                val uri = Uri.parse("https://www.google.com/maps/dir/?api=1&origin=${it.from.lat},${it.from.lon}&destination=${it.to.lat},${it.to.lon}&travelmode=$mode")
                 val mapIntent = Intent(Intent.ACTION_VIEW, uri)
-                mapIntent.setPackage("com.google.android.apps.maps")
+                //mapIntent.setPackage("com.google.android.apps.maps")
                 if (mapIntent.resolveActivity(requireActivity().packageManager) != null) {
                     startActivity(mapIntent)
                 }
