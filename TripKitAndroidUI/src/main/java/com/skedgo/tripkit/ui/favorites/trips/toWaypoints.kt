@@ -16,11 +16,14 @@ fun Trip.toWaypoints(): List<Waypoint> {
   )
 }
 
-fun TripSegment.getModeForWayPoint(): Pair<String, String> {
+fun TripSegment.getModeForWayPoint(): Pair<String?, String?> {
+    /*
     return if (this.modeInfo!!.modeCompat.isPublicTransport) {
 //          segment.modeInfo!!.id
         this.transportModeId!! to this.modeInfo!!.alternativeText
     } else {
         this.transportModeId!! to this.modeInfo!!.alternativeText
     }
+    */
+    return this.transportModeId to this.modeInfo?.alternativeText
 }
