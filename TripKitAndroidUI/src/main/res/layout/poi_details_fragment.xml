@@ -63,7 +63,7 @@
             android:text="@{viewModel.openAppButtonText}"
             android:textColor="@android:color/white"
             android:theme="@style/Theme.MaterialComponents"
-            android:visibility="@{viewModel.type == Location.TYPE_E_BIKE? View.VISIBLE: View.GONE}"
+            android:visibility="@{viewModel.withExternalApp}"
             app:backgroundTint="@color/tripKitSuccess"
             app:icon="@drawable/ic_open"
             app:iconTint="@android:color/white"
