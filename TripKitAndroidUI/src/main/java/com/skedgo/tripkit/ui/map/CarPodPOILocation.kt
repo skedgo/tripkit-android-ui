@@ -30,6 +30,8 @@ class CarPodPOILocation(private val carPod: CarPod) : IMapPoiLocation {
     location.address = carPod.address
     location.phoneNumber = carPod.operator.phone
     location.url = carPod.operator.website
+    location.appUrl = carPod.operator.appInfo?.appURLAndroid
+    location.isWithExternalApp = !carPod.operator.appInfo?.appURLAndroid.isNullOrEmpty()
     return location
   }
 

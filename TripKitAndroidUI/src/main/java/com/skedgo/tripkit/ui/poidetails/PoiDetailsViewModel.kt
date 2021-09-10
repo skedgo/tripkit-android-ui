@@ -24,6 +24,7 @@ class PoiDetailsViewModel @Inject constructor(private val locationInfoService: L
     val website = ObservableField<String>("")
     val showWebsite = ObservableBoolean(false)
     val type = ObservableField(Location.TYPE_UNKNOWN)
+    val withExternalApp = ObservableBoolean(false)
     val openAppButtonText = ObservableField("")
 
     var what3words = ObservableField<String>("")
@@ -45,6 +46,7 @@ class PoiDetailsViewModel @Inject constructor(private val locationInfoService: L
         this.address.set(location.address)
         this.website.set(location.url)
         this.type.set(location.locationType)
+        this.withExternalApp.set(location.isWithExternalApp)
 
         openAppButtonText.set(if (location.appUrl?.isAppInstalled(context.packageManager) == true) {
             context.getString(R.string.open_app)
