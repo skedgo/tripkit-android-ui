@@ -113,6 +113,29 @@ class DrtViewModel @Inject constructor(
                     )
                 }
             }
+
+            result.add(
+                    DrtItemViewModel().apply {
+                        setIcon(getIconById(null))
+                        setLabel("Notes from operator")
+                        setType("Notes")
+                        setValue(
+                                listOf(String.format("You have %d note", it.notes().size))
+                        )
+                        setRequired(false)
+//                        setItemId(input.id())
+                        it.notes()?.let { opt ->
+                            setOptions(
+                                    opt.map { note ->
+                                        Option.parseBookingConfirmationInputOptions(note)
+                                    }
+                            )
+                        }
+                        setViewMode(true)
+                        onChangeStream = onItemChangeActionStream
+                    }
+            )
+
             items.update(result)
 
             _confirmationActions.value = it.actions().map { confirmationAction ->
@@ -179,12 +202,12 @@ class DrtViewModel @Inject constructor(
         }
     }
 
-    private fun getIconById(id: String): Int {
+    private fun getIconById(id: String?): Int {
         return when (id) {
             "mobilityOptions" -> R.drawable.ic_person
             "purpose" -> R.drawable.ic_flag
             "notes" -> R.drawable.ic_edit
-            else -> R.drawable.ic_car
+            else -> R.drawable.ic_note
         }
     }
 
@@ -198,7 +221,11 @@ class DrtViewModel @Inject constructor(
 
     fun setTripSegment(segment: TripSegment) {
         _segment.value = segment
-        segment.booking.quickBookingsUrl?.let { fetchQuickBooking(it) }
+        if (segment.booking.quickBookingsUrl.isNullOrEmpty()) {
+            segment.trip.temporaryURL?.let { getBookingUpdate(it) }
+        } else {
+            segment.booking.quickBookingsUrl?.let { fetchQuickBooking(it) }
+        }
     }
 
     private fun fetchQuickBooking(url: String) {
