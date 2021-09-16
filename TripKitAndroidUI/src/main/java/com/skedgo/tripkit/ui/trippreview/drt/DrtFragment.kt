@@ -16,6 +16,7 @@ import com.skedgo.tripkit.ui.core.BaseFragment
 import com.skedgo.tripkit.ui.core.addTo
 import com.skedgo.tripkit.ui.databinding.FragmentDrtBinding
 import com.skedgo.tripkit.ui.dialog.GenericListDialogFragment
+import com.skedgo.tripkit.ui.dialog.GenericListDisplayDialogFragment
 import com.skedgo.tripkit.ui.dialog.GenericListItem
 import com.skedgo.tripkit.ui.dialog.GenericNoteDialogFragment
 import com.skedgo.tripkit.ui.generic.action_list.ActionListAdapter
@@ -126,6 +127,15 @@ class DrtFragment : BaseFragment<FragmentDrtBinding>(), DrtHandler {
                                     }
                             ).show(childFragmentManager, drtItem.label.value ?: "")
                         }
+                    } else {
+                        if (drtItem.type.value.equals("notes", true)) {
+                            GenericListDisplayDialogFragment.newInstance(
+                                    GenericListItem.parseOptions(
+                                            drtItem.options.value ?: emptyList()
+                                    ),
+                                    title = drtItem.type.value ?: ""
+                            ).show(childFragmentManager, drtItem.label.value ?: "")
+                        }
                     }
                 }.launchIn(lifecycleScope)
         segment?.let {
@@ -137,7 +147,7 @@ class DrtFragment : BaseFragment<FragmentDrtBinding>(), DrtHandler {
             it?.let { actionsAdapter.collection = it }
         }
 
-        observe(viewModel.segment){
+        observe(viewModel.segment) {
             it?.let { tripSegmentUpdateCallback?.invoke(it) }
         }
     }

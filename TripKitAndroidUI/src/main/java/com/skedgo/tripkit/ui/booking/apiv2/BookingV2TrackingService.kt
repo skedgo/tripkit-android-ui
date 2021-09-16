@@ -1,7 +1,8 @@
 package com.skedgo.tripkit.ui.booking.apiv2
 
 import com.haroldadmin.cnradapter.NetworkResponse
-
+import com.skedgo.tripkit.ApiError
+import com.skedgo.tripkit.routing.RoutingResponse
 
 class BookingV2TrackingService(private var trackingApi: BookingV2TrackingApi) {
     suspend fun logTrip(logUrl: String): NetworkResponse<BookingV2LogTripResponse, Unit> {
@@ -22,5 +23,9 @@ class BookingV2TrackingService(private var trackingApi: BookingV2TrackingApi) {
 
     suspend fun getActiveBooking(mode: String? = null): NetworkResponse<BookingV2ListResponse.Booking, Unit> {
         return trackingApi.getActiveBooking(mode)
+    }
+
+    suspend fun getTripGroup(tripUrl: String): NetworkResponse<RoutingResponse, ApiError> {
+        return trackingApi.getTripGroup(tripUrl, mapOf("v" to "11"))
     }
 }
