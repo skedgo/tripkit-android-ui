@@ -40,7 +40,7 @@ data class BookingV2ListResponse(
                 @SerializedName("status")
                 val status: Status? = null,
 
-        ) {
+                ) {
             data class Purchase(
                     @SerializedName("budgetPoints")
                     val budgetPoints: Int? = null,
@@ -55,7 +55,9 @@ data class BookingV2ListResponse(
                     @SerializedName("productName")
                     val productName: String? = null,
                     @SerializedName("productType")
-                    val productType: String? = null
+                    val productType: String? = null,
+                    @SerializedName("validFromTimestamp")
+                    val validFrom: String? = null
             )
 
             data class Provider(

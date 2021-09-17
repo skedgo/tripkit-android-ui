@@ -9,13 +9,17 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.Window
 import androidx.fragment.app.DialogFragment
+import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.databinding.DialogUpdateBinding
 
 class UpdateModalDialog : DialogFragment() {
     private lateinit var binding: DialogUpdateBinding
 
+    private var title: String? = ""
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = DialogUpdateBinding.inflate(inflater, container, false)
+        binding.txtUpdate.text = title
         return binding.root
     }
 
@@ -33,6 +37,16 @@ class UpdateModalDialog : DialogFragment() {
             dialog.window?.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
             dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
             dialog.setCancelable(false)
+        }
+    }
+
+    companion object {
+        fun newInstance(title: String): UpdateModalDialog {
+            val args = Bundle()
+            val fragment = UpdateModalDialog()
+            fragment.arguments = args
+            fragment.title = title
+            return fragment
         }
     }
 }

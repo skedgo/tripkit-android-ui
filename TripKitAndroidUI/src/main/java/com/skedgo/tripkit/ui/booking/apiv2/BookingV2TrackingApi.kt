@@ -13,7 +13,10 @@ interface BookingV2TrackingApi {
     suspend fun summary(): NetworkResponse<BookingV2SummaryResponse, Unit>
 
     @GET("booking/v2")
-    suspend fun getBookingMonth(@Query("month") month: String): NetworkResponse<BookingV2ListResponse, Unit>
+    suspend fun getBookingMonth(@Query("month") month: String?): NetworkResponse<BookingV2ListResponse, Unit>
+
+    @GET("booking")
+    suspend fun getBookings(): NetworkResponse<BookingV2ListResponse, Unit>
 
     @GET("booking/v2/active")
     suspend fun getActiveBooking(@Query("mode") mode: String?): NetworkResponse<BookingV2ListResponse.Booking, Unit>
