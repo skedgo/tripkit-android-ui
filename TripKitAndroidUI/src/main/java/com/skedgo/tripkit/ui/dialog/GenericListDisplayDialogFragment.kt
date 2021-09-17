@@ -9,7 +9,6 @@ import android.view.ViewGroup
 import androidx.core.os.bundleOf
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.viewModels
-import androidx.recyclerview.widget.DividerItemDecoration
 import com.google.gson.Gson
 import com.skedgo.tripkit.ui.databinding.DialogGenericListDisplayBinding
 import com.skedgo.tripkit.ui.utils.fromJson
