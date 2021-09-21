@@ -22,6 +22,7 @@ import com.skedgo.tripkit.ui.dialog.GenericNoteDialogFragment
 import com.skedgo.tripkit.ui.generic.action_list.ActionListAdapter
 import com.skedgo.tripkit.ui.trippreview.TripPreviewPagerItemViewModel
 import com.skedgo.tripkit.ui.utils.observe
+import com.skedgo.tripkit.ui.utils.showConfirmationPopUpDialog
 import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -162,16 +163,30 @@ class DrtFragment : BaseFragment<FragmentDrtBinding>(), DrtHandler {
     private fun initViews() {
         binding.drtRvActions.adapter = actionsAdapter
         actionsAdapter.clickListener = {
-            if (it.bookingConfirmationAction?.externalURL() != null) {
-                if (it.bookingConfirmationAction.type() == BookingConfirmationAction.TYPE_CALL) {
-                    val intent = Intent(
-                            Intent.ACTION_DIAL,
-                            Uri.parse(it.bookingConfirmationAction.externalURL())
-                    )
-                    requireActivity().startActivity(intent)
+            when {
+                it.bookingConfirmationAction?.externalURL() != null -> {
+                    if (it.bookingConfirmationAction.type() == BookingConfirmationAction.TYPE_CALL) {
+                        val intent = Intent(
+                                Intent.ACTION_DIAL,
+                                Uri.parse(it.bookingConfirmationAction.externalURL())
+                        )
+                        requireActivity().startActivity(intent)
+                    }
                 }
-            } else {
-                viewModel.processAction(it.bookingConfirmationAction)
+                it.label == "Cancel Ride" || it.bookingConfirmationAction?.type() == BookingConfirmationAction.TYPE_CANCEL -> {
+                    requireContext().showConfirmationPopUpDialog(
+                            title = "Cancel Ride",
+                            message = "Are you sure you want to cancel this ride?",
+                            positiveLabel = "Yes",
+                            positiveCallback = {
+                                viewModel.processAction(it.bookingConfirmationAction)
+                            },
+                            negativeLabel = "No"
+                    )
+                }
+                else -> {
+                    viewModel.processAction(it.bookingConfirmationAction)
+                }
             }
         }
     }

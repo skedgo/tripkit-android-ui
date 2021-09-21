@@ -20,14 +20,13 @@
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:fillViewport="true"
+        android:layout_height="wrap_content"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
         tools:context=".trippreview.drt.DRTFragment">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="wrap_content">
 
             <ImageButton
                 android:id="@+id/btnClose"
@@ -187,7 +186,7 @@
                 android:id="@+id/drt_rvData"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/spacing_normal"
+                android:layout_marginTop="@dimen/spacing_small"
                 android:layout_marginStart="@dimen/spacing_small"
                 android:layout_marginEnd="@dimen/spacing_small"
                 app:itemBinding="@{viewModel.itemBinding}"
@@ -260,9 +259,9 @@
 
             <ImageView
                 android:id="@+id/drt_iv_progress"
-                android:layout_width="112dp"
-                android:layout_height="112dp"
-                android:layout_marginTop="@dimen/spacing_medium"
+                android:layout_width="96dp"
+                android:layout_height="96dp"
+                android:layout_marginTop="@dimen/spacing_normal"
                 app:imageUrl="@{viewModel.bookingConfirmation.status().imageURL()}"
                 android:visibility="@{viewModel.bookingConfirmation != null}"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -288,6 +287,11 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/drt_tvSubTitle" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                app:layout_constraintBottom_toBottomOf="parent"/>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
