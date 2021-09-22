@@ -129,7 +129,7 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
         binding.itemsView.isNestedScrollingEnabled = true
 
         tripGroupId?.let {
-            viewModel.loadTripGroup(it, tripId ?: -1, savedInstanceState)
+            viewModel.loadTripGroup(it, tripId ?: -1L, savedInstanceState)
         }
         return binding.root
     }

@@ -89,6 +89,9 @@ class TripResultPagerViewModel @Inject internal constructor(
             fetchingRealtimeStatus.set(true)
             return getTripGroupsFromWayPoints.execute(args.favoriteTripId)
                     .doOnNext {
+                        it.trips?.firstOrNull { trip -> trip.uuid() == args.favoriteTripId}?.let { trip ->
+                            it.displayTripId = trip.id
+                        }
                         setInitialSelectedTripGroupId(it.uuid())
                         fetchingRealtimeStatus.set(false)
                     }
