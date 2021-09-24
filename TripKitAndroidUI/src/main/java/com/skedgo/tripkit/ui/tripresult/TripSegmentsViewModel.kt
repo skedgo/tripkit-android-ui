@@ -126,13 +126,15 @@ class TripSegmentsViewModel @Inject internal constructor(
         this.internalBus = bus
     }
 
-    fun loadTripGroup(tripGroupId: String, tripId: Long, savedInstanceState: Bundle?) {
+    fun loadTripGroup(tripGroupId: String, tripId: Long, savedInstanceState: Bundle?, displayTripId: Int? = null) {
         tripGroupRepository.getTripGroup(tripGroupId)
-
                 .observeOn(mainThread())
                 .onErrorResumeNext(Observable.empty())
                 .subscribe(
                         { tripGroup ->
+                            if(tripId != -1L) {
+                                tripGroup.displayTripId = tripId
+                            }
                             setTitleAndSubtitle(tripGroup, tripId)
                             setTripGroup(tripGroup, tripId, savedInstanceState)
                             setupButtons(tripGroup)
