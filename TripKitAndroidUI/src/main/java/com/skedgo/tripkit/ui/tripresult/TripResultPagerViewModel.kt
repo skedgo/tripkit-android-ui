@@ -5,6 +5,8 @@ import android.os.Bundle
 import androidx.databinding.ObservableBoolean
 import androidx.databinding.ObservableField
 import androidx.databinding.ObservableInt
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
 import com.jakewharton.rxrelay2.BehaviorRelay
 import com.skedgo.tripkit.analytics.*
 import com.skedgo.tripkit.logging.ErrorLogger
@@ -27,6 +29,7 @@ import io.reactivex.functions.BiFunction
 import io.reactivex.rxkotlin.Observables
 import io.reactivex.schedulers.Schedulers
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.launch
 import java.util.concurrent.atomic.AtomicReference
 import javax.inject.Inject
 
@@ -59,6 +62,8 @@ class TripResultPagerViewModel @Inject internal constructor(
     val currentTripGroupId = AtomicReference<String?>(null)
     private var updateTripProgressSubscription: Disposable? = null
     private val tripResultTransportViewFilter = PermissiveTransportViewFilter()
+
+    var currentTrip: MutableLiveData<Trip?> = MutableLiveData(null)
 
     fun onCreate(savedInstanceState: Bundle?) {
         savedInstanceState?.getString(ARG_TRIP_GROUP_ID)?.let {
@@ -108,6 +113,9 @@ class TripResultPagerViewModel @Inject internal constructor(
                 selectedTripGroup.hide().firstOrError().toObservable()
         )
         { tripGroups: List<TripGroup>, id: TripGroup ->
+            viewModelScope.launch {
+                currentTrip.value = tripGroups.first().trips?.first()
+            }
             tripGroups.indexOfFirst { id.uuid() == it.uuid() }
         }.doOnNext {
             currentPage.set(it)

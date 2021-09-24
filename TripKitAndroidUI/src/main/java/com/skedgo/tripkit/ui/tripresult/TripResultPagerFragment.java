@@ -130,6 +130,12 @@ public class TripResultPagerFragment extends BaseTripKitFragment implements View
                         mapContributor.setTripGroupId(viewModel.getCurrentTripGroupId().get());
                     }
                 }, errorLogger::trackError));
+
+        viewModel.getCurrentTrip().observe(requireActivity(), trip -> {
+            if (tripUpdatedListener != null) {
+                tripUpdatedListener.onTripUpdated(trip);
+            }
+        });
     }
 
     public TripKitMapContributor contributor() {
@@ -203,14 +209,6 @@ public class TripResultPagerFragment extends BaseTripKitFragment implements View
         if (savedInstanceState != null) {
             currentPage = savedInstanceState.getInt(KEY_CURRENT_PAGE);
         }
-
-        getAutoDisposable().add(viewModel.getCurrentDisplayTrip()
-                .subscribe(trip ->
-                {
-                    if (tripUpdatedListener != null) {
-                        tripUpdatedListener.onTripUpdated(trip);
-                    }
-                }));
 
         viewModel.onCreate(savedInstanceState);
         Long tripId = null;
