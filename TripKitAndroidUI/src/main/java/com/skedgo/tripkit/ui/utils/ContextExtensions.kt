@@ -6,10 +6,6 @@ import android.net.ConnectivityManager
 import android.net.Uri
 import android.provider.Settings
 import com.afollestad.materialdialogs.MaterialDialog
-import com.afollestad.materialdialogs.bottomsheets.BasicGridItem
-import com.afollestad.materialdialogs.bottomsheets.BottomSheet
-import com.afollestad.materialdialogs.bottomsheets.GridItem
-import com.afollestad.materialdialogs.bottomsheets.gridItems
 import com.afollestad.materialdialogs.list.listItems
 
 fun Context.viewAppDetailsSettingsIntent(): Intent = Intent(
@@ -28,5 +24,24 @@ fun Context.showSingleSelectionPopUpDialog(items: List<String>, onItemSelected: 
             onItemSelected.invoke(text.toString())
             dialog.dismiss()
         })
+    }
+}
+
+fun Context.showConfirmationPopUpDialog(
+        title: String? = null, message: String? = null, positiveLabel: String,
+        positiveCallback: () -> Unit, negativeLabel: String,
+        negativeCallback: (() -> Unit)? = null
+) {
+    MaterialDialog(this).show {
+        title?.let { title(text = it) }
+        message?.let { message(text = it) }
+        positiveButton(text = positiveLabel) {
+            positiveCallback()
+            it.dismiss()
+        }
+        negativeButton(text = negativeLabel) {
+            negativeCallback?.invoke()
+            it.dismiss()
+        }
     }
 }
