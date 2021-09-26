@@ -14,14 +14,15 @@ import com.skedgo.tripkit.routing.Trip
 import com.skedgo.tripkit.routing.TripGroup
 import com.skedgo.tripkit.routing.TripSegment
 import com.skedgo.tripkit.ui.TripKitUI
-import com.skedgo.tripkit.ui.core.BaseTripKitFragment
+import com.skedgo.tripkit.ui.core.BaseTripKitPagerFragment
 import com.skedgo.tripkit.ui.databinding.TripPreviewServiceItemBinding
 import com.skedgo.tripkit.ui.servicedetail.ServiceDetailViewModel
 import com.skedgo.tripkit.ui.timetables.FetchAndLoadTimetable
+import com.skedgo.tripkit.ui.utils.OnSwipeTouchListener
 import javax.inject.Inject
 
 
-class ServiceTripPreviewItemFragment : BaseTripKitFragment() {
+class ServiceTripPreviewItemFragment : BaseTripKitPagerFragment() {
     var time = 0L
 
     var segment: TripSegment? = null
@@ -79,6 +80,37 @@ class ServiceTripPreviewItemFragment : BaseTripKitFragment() {
         binding.viewModel = viewModel
         binding.lifecycleOwner = this
         binding.content.occupancyList.layoutManager = LinearLayoutManager(context, RecyclerView.HORIZONTAL, false)
+
+        binding.content.occupancyList.isNestedScrollingEnabled = false
+        binding.content.recyclerView.isNestedScrollingEnabled = true
+
+        val swipeListener = OnSwipeTouchListener(requireContext(),
+                object : OnSwipeTouchListener.SwipeGestureListener {
+                    override fun onSwipeRight() {
+                        onNextPage?.invoke()
+                    }
+
+                    override fun onSwipeLeft() {
+                        onPreviousPage?.invoke()
+                    }
+                })
+
+        swipeListener.touchCallback = { v, event ->
+            v?.parent?.requestDisallowInterceptTouchEvent(true)
+            v?.onTouchEvent(event)
+        }
+
+        binding.content.recyclerView.setOnTouchListener(swipeListener)
+
+//        val params = binding.content.recyclerView.layoutParams as ViewGroup.MarginLayoutParams
+//        params.bottomMargin = tripPreviewPagerListener?.onBottomSheetResize() ?: 0
+//        binding.content.recyclerView.layoutParams = params
+        tripPreviewPagerListener?.onBottomSheetResize()?.observe(requireActivity(), {
+            val params = binding.content.recyclerView.layoutParams as ViewGroup.MarginLayoutParams
+            params.bottomMargin = it
+            binding.content.recyclerView.layoutParams = params
+        })
+
         binding.closeButton.setOnClickListener(onCloseButtonListener)
 
         handleSegment()
@@ -86,7 +118,7 @@ class ServiceTripPreviewItemFragment : BaseTripKitFragment() {
         return binding.root
     }
 
-    private fun handleSegment(){
+    private fun handleSegment() {
         segment?.let {
             viewModel.setup(it)
         } ?: kotlin.run {

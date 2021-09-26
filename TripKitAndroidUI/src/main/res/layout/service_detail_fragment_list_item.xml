@@ -10,9 +10,9 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout android:layout_width="match_parent"
                                                    android:layout_height="wrap_content"
-                                                       android:background="?android:attr/selectableItemBackground"
-                                                       android:onClick="@{() -> viewModel.onItemClick.perform()}"
-    >
+                                                       android:background="?android:attr/selectableItemBackground">
+<!--                                                       android:onClick="@{() -> viewModel.onItemClick.perform()}"-->
+<!--    >-->
     <TextView
             tools:text="11:03"
             android:layout_width="64dp"

@@ -10,8 +10,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.os.bundleOf
-import androidx.core.view.size
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager.widget.ViewPager
 import com.haroldadmin.cnradapter.NetworkResponse
@@ -266,6 +266,8 @@ class TripPreviewPagerFragment : BaseTripKitFragment() {
     }
 
     fun setTripSegment(segment: TripSegment, tripSegments: List<TripSegment>) {
+        tripPreviewPagerListener?.reportPlannedTrip(segment.trip, listOf(segment.trip.group))
+
         adapter.setTripSegments(
                 segment.id,
                 tripSegments
@@ -309,6 +311,7 @@ class TripPreviewPagerFragment : BaseTripKitFragment() {
         fun onServiceActionButtonClicked(_tripSegment: TripSegment?, action: String?)
         fun onTimetableEntryClicked(segment: TripSegment?, scope: CoroutineScope, entry: TimetableEntry)
         fun reportPlannedTrip(trip: Trip?, tripGroups: List<TripGroup>)
+        fun onBottomSheetResize(): MutableLiveData<Int>
         @Deprecated("UnusedClass") fun onExternalActionButtonClicked(action: String?)
     }
 
