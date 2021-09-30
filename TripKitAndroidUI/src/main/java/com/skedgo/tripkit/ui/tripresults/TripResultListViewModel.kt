@@ -107,7 +107,6 @@ class TripResultListViewModel @Inject constructor(
                         { load() },
                         { errorLogger.trackError(it) })
                 .autoClear()
-
     }
 
     fun transportLayoutClicked(view: View) {

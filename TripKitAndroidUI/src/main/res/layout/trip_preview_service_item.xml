@@ -84,10 +84,128 @@
                 tools:text="Scheduled" />
         </LinearLayout>
 
-        <include
-            android:id="@+id/content"
-            layout="@layout/service_detail_fragment_content"
-            bind:viewModel="@{viewModel}" />
+<!--        <include-->
+<!--            android:id="@+id/content"-->
+<!--            layout="@layout/service_detail_fragment_content"-->
+<!--            bind:viewModel="@{viewModel}" />-->
+
+        <TextView
+            tools:text="Fürth"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/details"
+            android:text="@{viewModel.tertiaryText}"
+            android:layout_marginTop="8dp"
+            android:textColor="@color/black1"
+            style="@style/TextAppearance.MaterialComponents.Caption"
+            app:layout_constraintStart_toStartOf="@+id/iconLayout"
+            app:layout_constraintTop_toBottomOf="@+id/iconLayout"/>
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:id="@+id/firstDividingLine"
+            android:background="@color/black4"
+            android:layout_marginTop="8dp"
+            android:visibility="@{viewModel.showExpandableMenu}"
+            app:layout_constraintTop_toBottomOf="@+id/details"
+            app:layout_constraintStart_toStartOf="parent"/>
+
+        <androidx.constraintlayout.motion.widget.MotionLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:id="@+id/motionLayout"
+            android:visibility="@{viewModel.showExpandableMenu}"
+            app:layoutDescription="@xml/service_detail_motion"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/firstDividingLine">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="8dp"
+                android:src="@{viewModel.wheelchairIcon}"
+                android:tint="@color/black2"
+                android:visibility="@{viewModel.showWheelchairAccessible}"
+                android:id="@+id/wheelchair"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"/>
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="@{viewModel.wheelchairAccessibleText}"
+                android:id="@+id/wheelchairLabel"
+                android:layout_marginStart="32dp"
+                android:visibility="@{viewModel.showWheelchairAccessible}"
+                style="@style/TextAppearance.MaterialComponents.Body1"
+                app:layout_constraintTop_toTopOf="@+id/wheelchair"
+                app:layout_constraintStart_toEndOf="@id/wheelchair"/>
+            <ImageView
+                android:id="@+id/occupancyView"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@{viewModel.occupancyViewModel.drawableLeft}"
+                android:visibility="@{viewModel.showOccupancyInfo}"
+                app:layout_constraintTop_toTopOf="@id/wheelchair"
+                app:layout_constraintStart_toEndOf="@id/wheelchair"/>
+
+            <TextView android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@{viewModel.occupancyViewModel.occupancyText}"
+                android:id="@+id/occupancyLabel"
+                android:layout_marginStart="32dp"
+                android:visibility="@{viewModel.showOccupancyInfo}"
+                style="@style/TextAppearance.MaterialComponents.Body1"
+                app:layout_constraintTop_toTopOf="@+id/occupancyView"
+                app:layout_constraintStart_toEndOf="@id/occupancyView"/>
+
+            <ImageView
+                android:src="@drawable/chevron_down"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:clickable="true"
+                android:focusable="true"
+                android:id="@+id/expandButton"
+                android:layout_marginEnd="16dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"/>
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/occupancyList"
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:nestedScrollingEnabled="false"
+                android:layout_marginTop="10dp"
+                android:layout_gravity="center"
+                android:visibility="@{viewModel.showOccupancyInfo}"
+                app:itemBinding="@{viewModel.occupancyViewModel.itemBinding}"
+                app:items="@{viewModel.occupancyViewModel.items}"
+                app:layout_constraintTop_toBottomOf="@+id/occupancyView"
+                app:layout_constraintStart_toStartOf="@+id/occupancyLabel"
+                app:layout_constraintHorizontal_chainStyle="packed"/>
+
+        </androidx.constraintlayout.motion.widget.MotionLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:id="@+id/secondDividingLine"
+            android:background="@color/black4"
+            android:layout_marginTop="8dp"
+            android:visibility="@{viewModel.showExpandableMenu}"
+            app:layout_constraintTop_toBottomOf="@+id/motionLayout"
+            app:layout_constraintStart_toStartOf="parent"/>
+
+        <androidx.recyclerview.widget.RecyclerView android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/recyclerView"
+            android:nestedScrollingEnabled="true"
+            android:focusableInTouchMode="true"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/secondDividingLine"
+            android:requiresFadingEdge="vertical|horizontal"
+            app:itemBinding="@{viewModel.itemBinding}"
+            app:items="@{viewModel.items}"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </layout>
