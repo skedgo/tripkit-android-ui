@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.gson.Gson
@@ -79,10 +80,10 @@ class ServiceTripPreviewItemFragment : BaseTripKitPagerFragment() {
         val binding = TripPreviewServiceItemBinding.inflate(inflater)
         binding.viewModel = viewModel
         binding.lifecycleOwner = this
-        binding.content.occupancyList.layoutManager = LinearLayoutManager(context, RecyclerView.HORIZONTAL, false)
+        binding.occupancyList.layoutManager = LinearLayoutManager(context, RecyclerView.HORIZONTAL, false)
 
-        binding.content.occupancyList.isNestedScrollingEnabled = false
-        binding.content.recyclerView.isNestedScrollingEnabled = true
+        binding.occupancyList.isNestedScrollingEnabled = false
+        binding.recyclerView.isNestedScrollingEnabled = true
 
         val swipeListener = OnSwipeTouchListener(requireContext(),
                 object : OnSwipeTouchListener.SwipeGestureListener {
@@ -100,15 +101,13 @@ class ServiceTripPreviewItemFragment : BaseTripKitPagerFragment() {
             v?.onTouchEvent(event)
         }
 
-        binding.content.recyclerView.setOnTouchListener(swipeListener)
+        binding.recyclerView.setOnTouchListener(swipeListener)
 
-//        val params = binding.content.recyclerView.layoutParams as ViewGroup.MarginLayoutParams
-//        params.bottomMargin = tripPreviewPagerListener?.onBottomSheetResize() ?: 0
-//        binding.content.recyclerView.layoutParams = params
         tripPreviewPagerListener?.onBottomSheetResize()?.observe(requireActivity(), {
-            val params = binding.content.recyclerView.layoutParams as ViewGroup.MarginLayoutParams
-            params.bottomMargin = it
-            binding.content.recyclerView.layoutParams = params
+            val titleHeight = binding.secondDividingLine.bottom - binding.stopName.top
+            val params = binding.recyclerView.layoutParams as ConstraintLayout.LayoutParams
+            params.height = it - (titleHeight + 250)
+            binding.recyclerView.layoutParams = params
         })
 
         binding.closeButton.setOnClickListener(onCloseButtonListener)
