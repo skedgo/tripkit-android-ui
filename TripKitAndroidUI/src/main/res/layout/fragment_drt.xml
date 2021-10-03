@@ -90,8 +90,7 @@
                 android:layout_marginEnd="@dimen/spacing_small"
                 android:text="@{pagerItemViewModel.duration}"
                 android:textStyle="bold"
-                android:visibility="@{viewModel.bookingConfirmation == null}"
-                app:layout_constraintTop_toBottomOf="@+id/drt_tvSubTitle"
+                app:layout_constraintTop_toBottomOf="@+id/drt_iv_progress"
                 tools:text="Today 15:07" />
 
             <ImageView
@@ -102,7 +101,6 @@
                 android:layout_marginStart="@dimen/spacing_small"
                 android:adjustViewBounds="true"
                 android:src="@drawable/small_circle"
-                android:visibility="@{viewModel.bookingConfirmation == null}"
                 app:layout_constraintStart_toStartOf="@+id/drt_tvSchedule"
                 app:layout_constraintTop_toBottomOf="@+id/drt_tvSchedule"
                 app:tint="@color/colorPrimary" />
@@ -115,7 +113,6 @@
                 android:layout_marginStart="@dimen/spacing_normal"
                 android:text="@string/lbl_pickup"
                 android:textColor="@color/black1"
-                android:visibility="@{viewModel.bookingConfirmation == null}"
                 app:layout_constraintBottom_toBottomOf="@+id/drt_ivPickUpIcon"
                 app:layout_constraintStart_toEndOf="@+id/drt_ivPickUpIcon"
                 app:layout_constraintTop_toTopOf="@+id/drt_ivPickUpIcon" />
@@ -128,7 +125,6 @@
                 android:layout_marginStart="@dimen/spacing_normal"
                 android:layout_marginTop="@dimen/spacing_small"
                 android:text="@{pagerItemViewModel.fromLocation}"
-                android:visibility="@{viewModel.bookingConfirmation == null}"
                 app:layout_constraintStart_toEndOf="@+id/drt_ivPickUpIcon"
                 app:layout_constraintTop_toBottomOf="@+id/drt_tvPickUpLabel"
                 tools:text="Near Scott Street" />
@@ -141,7 +137,6 @@
                 android:layout_marginStart="@dimen/spacing_small"
                 android:adjustViewBounds="true"
                 android:src="@drawable/small_circle"
-                android:visibility="@{viewModel.bookingConfirmation == null}"
                 app:layout_constraintStart_toStartOf="@+id/drt_tvSchedule"
                 app:layout_constraintTop_toBottomOf="@+id/drt_tvPickUp"
                 app:tint="@color/colorPrimary" />
@@ -154,7 +149,6 @@
                 android:layout_marginStart="@dimen/spacing_normal"
                 android:text="@string/lbl_drop_off"
                 android:textColor="@color/black1"
-                android:visibility="@{viewModel.bookingConfirmation == null}"
                 app:layout_constraintBottom_toBottomOf="@+id/drt_ivDropOffIcon"
                 app:layout_constraintStart_toEndOf="@+id/drt_ivDropOffIcon"
                 app:layout_constraintTop_toTopOf="@+id/drt_ivDropOffIcon" />
@@ -166,17 +160,17 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/spacing_normal"
                 android:layout_marginTop="@dimen/spacing_small"
+                android:layout_marginBottom="@dimen/spacing_normal"
                 android:text="@{pagerItemViewModel.toLocation}"
-                android:visibility="@{viewModel.bookingConfirmation == null}"
                 app:layout_constraintStart_toEndOf="@+id/drt_ivDropOffIcon"
                 app:layout_constraintTop_toBottomOf="@+id/drt_tvDropOffLabel"
+                app:layout_constraintBottom_toTopOf="@id/drt_br_dataList"
                 tools:text="Near Scott Street" />
 
             <View
                 android:layout_width="1dp"
                 android:layout_height="0dp"
                 android:background="@color/colorPrimary"
-                android:visibility="@{viewModel.bookingConfirmation == null}"
                 app:layout_constraintBottom_toTopOf="@+id/drt_ivDropOffIcon"
                 app:layout_constraintEnd_toEndOf="@+id/drt_ivPickUpIcon"
                 app:layout_constraintStart_toStartOf="@+id/drt_ivPickUpIcon"
