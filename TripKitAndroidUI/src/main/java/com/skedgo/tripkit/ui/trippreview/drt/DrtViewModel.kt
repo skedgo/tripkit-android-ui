@@ -250,8 +250,8 @@ class DrtViewModel @Inject constructor(
                             try {
                                 val errorString = (it as HttpException).response()?.errorBody()?.string()
                                 errorString?.let {
-                                    val json = JSONObject(errorString)
-                                    error.set(json.getString("error"))
+                                    val json = Gson().fromJson(errorString, DRTError::class.java)
+                                    error.set(json.error)
                                 }
                             } catch (e: Exception) {}
                         },
