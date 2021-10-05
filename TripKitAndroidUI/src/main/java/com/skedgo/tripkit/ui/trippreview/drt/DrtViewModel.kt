@@ -1,11 +1,13 @@
 package com.skedgo.tripkit.ui.trippreview.drt
 
 import android.content.res.Resources
+import androidx.databinding.ObservableField
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.DiffUtil
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.gson.Gson
 import com.haroldadmin.cnradapter.NetworkResponse
 import com.skedgo.tripkit.booking.quickbooking.*
@@ -29,6 +31,10 @@ import kotlinx.coroutines.launch
 import me.tatarka.bindingcollectionadapter2.BR
 import me.tatarka.bindingcollectionadapter2.ItemBinding
 import me.tatarka.bindingcollectionadapter2.collections.DiffObservableList
+import org.json.JSONObject
+import retrofit2.HttpException
+import retrofit2.Response
+import java.lang.Exception
 import java.util.*
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
@@ -53,6 +59,8 @@ class DrtViewModel @Inject constructor(
 
     private val _areInputsValid = MutableLiveData<Boolean>()
     val areInputsValid: LiveData<Boolean> = _areInputsValid
+
+    val error = ObservableField<String>()
 
     val onItemChangeActionStream = MutableSharedFlow<DrtItemViewModel>()
 
@@ -238,6 +246,14 @@ class DrtViewModel @Inject constructor(
                         onError = {
                             it.printStackTrace()
                             _loading.value = false
+
+                            try {
+                                val errorString = (it as HttpException).response()?.errorBody()?.string()
+                                errorString?.let {
+                                    val json = Gson().fromJson(errorString, DRTError::class.java)
+                                    error.set(json.error)
+                                }
+                            } catch (e: Exception) {}
                         },
                         onSuccess = {
                             it.firstOrNull()?.let {
