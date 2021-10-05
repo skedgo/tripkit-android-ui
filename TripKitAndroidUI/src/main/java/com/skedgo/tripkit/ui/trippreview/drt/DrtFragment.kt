@@ -7,6 +7,7 @@ import android.os.Bundle
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.skedgo.tripkit.booking.quickbooking.QuickBookingType
 import com.skedgo.tripkit.common.model.BookingConfirmationAction
 import com.skedgo.tripkit.routing.TripSegment
@@ -14,6 +15,7 @@ import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.TripKitUI
 import com.skedgo.tripkit.ui.core.BaseFragment
 import com.skedgo.tripkit.ui.core.addTo
+import com.skedgo.tripkit.ui.core.rxproperty.asObservable
 import com.skedgo.tripkit.ui.databinding.FragmentDrtBinding
 import com.skedgo.tripkit.ui.dialog.GenericListDialogFragment
 import com.skedgo.tripkit.ui.dialog.GenericListDisplayDialogFragment
@@ -158,6 +160,18 @@ class DrtFragment : BaseFragment<FragmentDrtBinding>(), DrtHandler {
         pagerItemViewModel.closeClicked.observable
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe { onCloseButtonListener?.onClick(null) }.addTo(autoDisposable)
+
+        viewModel.error.asObservable().observeOn(AndroidSchedulers.mainThread())
+                .subscribe {
+                    if (!it.isNullOrEmpty()) {
+                        MaterialAlertDialogBuilder(requireContext())
+                                .setMessage(it)
+                                .setPositiveButton(resources.getString(R.string.ok)) { dialog, _ ->
+                                    dialog.cancel()
+                                }
+                                .show()
+                    }
+                }.addTo(autoDisposable)
     }
 
     private fun initViews() {
