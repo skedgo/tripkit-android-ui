@@ -19,6 +19,7 @@
         <ImageView android:layout_width="24dp" android:layout_height="24dp"
                    android:id="@+id/closeButton"
                    android:src="@drawable/close"
+                android:contentDescription="@string/desc_close"
                    android:background="?attr/selectableItemBackgroundBorderless"
                    android:layout_marginEnd="16dp"
                    app:layout_constraintTop_toTopOf="@+id/alertTitle"
