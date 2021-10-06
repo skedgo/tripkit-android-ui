@@ -69,6 +69,7 @@
             android:background="?attr/selectableItemBackgroundBorderless"
             android:onClick="@{() -> viewModel.closeClicked.perform()}"
             android:src="@drawable/close"
+            android:contentDescription="@string/desc_close"
             app:layout_constraintBottom_toBottomOf="@+id/actionText"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@+id/actionText" />
