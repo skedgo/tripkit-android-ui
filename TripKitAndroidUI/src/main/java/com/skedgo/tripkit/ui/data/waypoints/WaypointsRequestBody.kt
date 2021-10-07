@@ -33,10 +33,12 @@ class WaypointsAdapter : TypeAdapter<Waypoint>() {
             out.name("end")
             out.value(value.end)
 
-            out.name("modes")
-            out.beginArray()
-            out.value(value.mode)
-            out.endArray()
+            value.mode?.let {
+                out.name("modes")
+                out.beginArray()
+                out.value(value.mode)
+                out.endArray()
+            }
 
             if (!value.modeTitle.isNullOrEmpty()) {
                 out.name("modeTitle")
