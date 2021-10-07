@@ -107,10 +107,10 @@ class LocationSearchViewModel @Inject constructor(private val context: Context,
 
     init {
         allSuggestions.insertList(fixedSuggestions)
-        allSuggestions.insertList(citiesSuggestions)
         allSuggestions.insertList(historySuggestions)
         allSuggestions.insertList(providedSuggestions)
         allSuggestions.insertList(googleAndTripGoSuggestions)
+        allSuggestions.insertList(citiesSuggestions)
         allSuggestions.asObservable()
                 .map {
                     onFinishLoad.accept(false)
@@ -159,7 +159,7 @@ class LocationSearchViewModel @Inject constructor(private val context: Context,
                             fixedSuggestions.add(FixedSuggestionViewModel(context, suggestion))
                         }
                     }
-                    if (!isRouting) {
+                    if (!isRouting && params.term().isNotEmpty()) {
                         loadFromRegions(params.term())
                     }
                     providedSuggestions.clear()
