@@ -1,6 +1,8 @@
 package com.skedgo.tripkit.ui.map.home
 
+import android.annotation.SuppressLint
 import android.content.res.Resources
+import android.util.Log
 import androidx.databinding.ObservableBoolean
 import com.google.android.gms.maps.CameraUpdate
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -31,9 +33,11 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import com.skedgo.tripkit.location.GeoPoint
 import com.skedgo.tripkit.logging.ErrorLogger
+import com.skedgo.tripkit.ui.core.addTo
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
+@SuppressLint("StaticFieldLeak")
 class MapViewModel @Inject internal constructor(
         private val putMapCameraPosition: PutMapCameraPosition,
         private val getInitialMapCameraPosition: GetInitialMapCameraPosition,
@@ -67,9 +71,9 @@ class MapViewModel @Inject internal constructor(
             .map { it.first }
             .observeOn(Schedulers.io())
             .switchMap {
-                if(showMarkers.get()){
+                if (showMarkers.get()) {
                     loadPOILocationsByViewPort.execute(it)
-                }else {
+                } else {
                     Observable.empty()
                 }
             }
@@ -103,6 +107,14 @@ class MapViewModel @Inject internal constructor(
                 }
                 .subscribe({}, { errorLogger.logError(it) })
                 .autoClear()
+    }
+
+    fun clearCarPods() {
+        fetchStopsByViewport.clearData(FetchStopsByViewport.ClearDataType.CAR_PODS)?.subscribe({
+            Log.e("MapViewModel", "cleared")
+        }, {
+            it.printStackTrace()
+        })?.autoClear()
     }
 
     fun goToMyLocation() = goToMyLocationRepository.goToMyLocation()
