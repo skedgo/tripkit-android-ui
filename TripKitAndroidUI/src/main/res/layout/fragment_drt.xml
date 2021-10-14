@@ -21,6 +21,8 @@
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:clickable="true"
+        android:focusable="true"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
         tools:context=".trippreview.drt.DRTFragment">
 
@@ -32,21 +34,21 @@
                 android:id="@+id/btnClose"
                 android:layout_width="@dimen/close_button_size"
                 android:layout_height="@dimen/close_button_size"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:src="@drawable/close"
                 android:layout_marginEnd="@dimen/spacing_normal"
+                android:background="?attr/selectableItemBackgroundBorderless"
                 android:contentDescription="@string/close"
                 android:onClick="@{() -> pagerItemViewModel.closeClicked.perform()}"
+                android:src="@drawable/close"
+                app:layout_constraintBottom_toBottomOf="@id/drt_tvTitle"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="@id/drt_tvTitle"
-                app:layout_constraintBottom_toBottomOf="@id/drt_tvTitle"/>
+                app:layout_constraintTop_toTopOf="@id/drt_tvTitle" />
 
             <ImageView
                 android:id="@+id/drt_ivIcon"
                 android:layout_width="@dimen/icon_medium"
                 android:layout_height="@dimen/icon_medium"
-                android:layout_marginTop="@dimen/spacing_small"
                 android:layout_marginStart="@dimen/spacing_small"
+                android:layout_marginTop="@dimen/spacing_small"
                 app:drawableSource="@{pagerItemViewModel.icon}"
                 app:layout_constraintBottom_toBottomOf="@+id/drt_tvSubTitle"
                 app:layout_constraintStart_toStartOf="parent"
@@ -86,8 +88,8 @@
                 style="@style/TextAppearance.MaterialComponents.Body2"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/spacing_normal"
                 android:layout_marginStart="@dimen/spacing_small"
+                android:layout_marginTop="@dimen/spacing_normal"
                 android:layout_marginEnd="@dimen/spacing_small"
                 android:text="@{pagerItemViewModel.duration}"
                 android:textStyle="bold"
@@ -98,8 +100,8 @@
                 android:id="@+id/drt_ivPickUpIcon"
                 android:layout_width="@dimen/icon_small"
                 android:layout_height="@dimen/icon_small"
-                android:layout_marginTop="@dimen/spacing_normal"
                 android:layout_marginStart="@dimen/spacing_small"
+                android:layout_marginTop="@dimen/spacing_normal"
                 android:adjustViewBounds="true"
                 android:src="@drawable/small_circle"
                 app:layout_constraintStart_toStartOf="@+id/drt_tvSchedule"
@@ -134,8 +136,8 @@
                 android:id="@+id/drt_ivDropOffIcon"
                 android:layout_width="@dimen/icon_small"
                 android:layout_height="@dimen/icon_small"
-                android:layout_marginTop="@dimen/spacing_medium"
                 android:layout_marginStart="@dimen/spacing_small"
+                android:layout_marginTop="@dimen/spacing_medium"
                 android:adjustViewBounds="true"
                 android:src="@drawable/small_circle"
                 app:layout_constraintStart_toStartOf="@+id/drt_tvSchedule"
@@ -163,9 +165,9 @@
                 android:layout_marginTop="@dimen/spacing_small"
                 android:layout_marginBottom="@dimen/spacing_normal"
                 android:text="@{pagerItemViewModel.toLocation}"
+                app:layout_constraintBottom_toTopOf="@id/drt_br_dataList"
                 app:layout_constraintStart_toEndOf="@+id/drt_ivDropOffIcon"
                 app:layout_constraintTop_toBottomOf="@+id/drt_tvDropOffLabel"
-                app:layout_constraintBottom_toTopOf="@id/drt_br_dataList"
                 tools:text="Near Scott Street" />
 
             <View
@@ -181,8 +183,8 @@
                 android:id="@+id/drt_rvData"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/spacing_small"
                 android:layout_marginStart="@dimen/spacing_small"
+                android:layout_marginTop="@dimen/spacing_small"
                 android:layout_marginEnd="@dimen/spacing_small"
                 app:itemBinding="@{viewModel.itemBinding}"
                 app:items="@{viewModel.items}"
@@ -194,8 +196,8 @@
             <Button
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/spacing_small"
                 android:layout_marginStart="@dimen/spacing_small"
+                android:layout_marginTop="@dimen/spacing_small"
                 android:layout_marginEnd="@dimen/spacing_small"
                 android:background="@drawable/bg_button_primary"
                 android:enabled="@{viewModel.areInputsValid}"
@@ -209,16 +211,16 @@
                 android:id="@+id/drt_rv_actions"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                tools:itemCount="4"
-                app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
-                app:spanCount="2"
-                android:layout_marginTop="@dimen/spacing_small"
                 android:layout_marginStart="@dimen/spacing_small"
+                android:layout_marginTop="@dimen/spacing_small"
                 android:layout_marginEnd="@dimen/spacing_small"
                 android:visibility="@{viewModel.bookingConfirmation != null}"
+                app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+                app:layout_constraintTop_toBottomOf="@+id/drt_rvData"
+                app:spanCount="2"
+                tools:itemCount="4"
                 tools:listitem="@layout/item_action"
-                tools:visibility="visible"
-                app:layout_constraintTop_toBottomOf="@+id/drt_rvData" />
+                tools:visibility="visible" />
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/drt_cl_progressHeader"
@@ -258,8 +260,8 @@
                 android:layout_width="96dp"
                 android:layout_height="96dp"
                 android:layout_marginTop="@dimen/spacing_normal"
-                app:imageUrl="@{viewModel.bookingConfirmation.status().imageURL()}"
                 android:visibility="@{viewModel.bookingConfirmation != null}"
+                app:imageUrl="@{viewModel.bookingConfirmation.status().imageURL()}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/drt_cl_progressHeader" />
@@ -287,7 +289,7 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="200dp"
-                app:layout_constraintBottom_toBottomOf="parent"/>
+                app:layout_constraintBottom_toBottomOf="parent" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
