@@ -5,6 +5,7 @@ import android.view.View
 import androidx.databinding.ObservableArrayList
 import androidx.databinding.ObservableBoolean
 import androidx.databinding.ObservableField
+import androidx.databinding.ObservableList
 import androidx.lifecycle.viewModelScope
 import com.jakewharton.rxrelay2.PublishRelay
 import com.skedgo.tripkit.common.model.Query
@@ -94,6 +95,8 @@ class TripResultListViewModel @Inject constructor(
     val isError = ObservableBoolean(false)
     val showCloseButton = ObservableBoolean(false)
     private val transportModeChangeThrottle = PublishSubject.create<Unit>()
+
+    val tripGroupList = ObservableArrayList<TripGroup>()
 
     lateinit var query: Query
     private var transportModeFilter: TransportModeFilter? = null
@@ -296,6 +299,8 @@ class TripResultListViewModel @Inject constructor(
                 .observeOn(AndroidSchedulers.mainThread())
                 .map {
                     val list = it.first
+                    tripGroupList.clear()
+                    tripGroupList.addAll(list)
                     val classifier = TripGroupClassifier(list)
                     list.map { group ->
                         val vm = tripResultViewModelProvider.get().apply {

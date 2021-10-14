@@ -1,6 +1,5 @@
 package com.skedgo.tripkit.ui.map.home
 
-import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
@@ -8,7 +7,6 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.Toast
-import androidx.lifecycle.lifecycleScope
 import com.araujo.jordan.excuseme.ExcuseMe
 import com.google.android.gms.maps.CameraUpdate
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -21,7 +19,6 @@ import com.skedgo.tripkit.common.model.Location
 import com.skedgo.tripkit.common.model.Region
 import com.skedgo.tripkit.common.model.Region.City
 import com.skedgo.tripkit.data.regions.RegionService
-import com.skedgo.tripkit.geocoding.ReverseGeocodable
 import com.skedgo.tripkit.routing.ModeInfo
 import com.skedgo.tripkit.routing.VehicleDrawables
 import com.skedgo.tripkit.tripplanner.NonCurrentType
@@ -31,7 +28,6 @@ import com.skedgo.tripkit.ui.TripKitUI
 import com.skedgo.tripkit.ui.core.addTo
 import com.skedgo.tripkit.ui.core.module.HomeMapFragmentModule
 import com.skedgo.tripkit.ui.core.permissions.*
-import com.skedgo.tripkit.ui.core.permissions.PermissionResult.Granted
 import com.skedgo.tripkit.ui.data.toLocation
 import com.skedgo.tripkit.ui.map.*
 import com.skedgo.tripkit.ui.map.adapter.CityInfoWindowAdapter
@@ -46,16 +42,11 @@ import com.skedgo.tripkit.ui.trip.options.SelectionType
 import com.skedgo.tripkit.ui.utils.getVersionCode
 import com.squareup.otto.Bus
 import dagger.Lazy
-import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.functions.Action
 import io.reactivex.functions.Consumer
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.qr_scan_activity.*
-import kotlinx.coroutines.launch
-import timber.log.Timber
-import java.io.InvalidClassException
 import java.util.*
 import javax.inject.Inject
 
@@ -143,7 +134,7 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
     fun setOnInfoWindowClickListener(listener: OnInfoWindowClickListener?) {
         onInfoWindowClickListener = listener
     }
-    fun setOnInfoWindowClickListener(listener:(Location?) -> Unit) {
+    fun setOnInfoWindowClickListener(listener: (Location?) -> Unit) {
         onInfoWindowClickListener = object: TripKitMapFragment.OnInfoWindowClickListener {
             override fun onInfoWindowClick(location: Location?) {
                 listener(location)
@@ -162,7 +153,7 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
     fun setOnZoomLevelChangedListener(listener: OnZoomLevelChangedListener?) {
         onZoomLevelChangedListener = listener
     }
-    fun setOnZoomLevelChangedListener(listener:(Float) -> Unit) {
+    fun setOnZoomLevelChangedListener(listener: (Float) -> Unit) {
         onZoomLevelChangedListener = object: OnZoomLevelChangedListener {
             override fun onZoomLevelChanged(zoomLevel: Float) {
                 listener(zoomLevel)
@@ -210,6 +201,7 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
         contributor = newContributor
         contributor?.let {
             whenSafeToUseMap(Consumer { map: GoogleMap ->
+                Log.i("mapContributor", "safe to use")
                 contributor?.safeToUseMap(requireContext(), map)
             })
         }
@@ -243,10 +235,10 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
         viewModel.markers
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe( { (first, second) ->
+                .subscribe({ (first, second) ->
                     val toRemove: MutableList<Marker> = ArrayList()
                     for (marker in poiMarkers!!.markers) {
-                        marker.tag?.let {tag ->
+                        marker.tag?.let { tag ->
                             val identifier = (tag as IMapPoiLocation?)!!.identifier
                             if (second.contains(identifier)) {
                                 toRemove.add(marker)
@@ -297,7 +289,7 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
             geocoder.getAddress(point.latitude, point.longitude)
                 .observeOn(AndroidSchedulers.mainThread())
                 .take(1)
-                .subscribe ({
+                .subscribe({
                     marker.title = it
                     (marker.tag as LongPressIMapPoiLocation).setName(it)
                     marker.showInfoWindow()
@@ -419,7 +411,7 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
 //  }
 
     fun moveToLatLng(latLng: com.skedgo.geocoding.LatLng) {
-        whenSafeToUseMap (Consumer { map ->
+        whenSafeToUseMap(Consumer { map ->
             cameraController.moveToLatLng(map, LatLng(latLng.lat, latLng.lng))
         })
     }
@@ -667,12 +659,12 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
                 .build().first
 
         fromMarker = map.addMarker(MarkerOptions()
-                .position(LatLng(0.0,0.0))
+                .position(LatLng(0.0, 0.0))
                 .visible(false)
                 .icon(BitmapDescriptorFactory.fromBitmap(fromBitmap)))
 
         toMarker = map.addMarker(MarkerOptions()
-                .position(LatLng(0.0,0.0))
+                .position(LatLng(0.0, 0.0))
                 .visible(false)
                 .icon(BitmapDescriptorFactory.fromBitmap(toBitmap)))
 
@@ -713,7 +705,7 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
             if (tag is LocationTag) {
                 val location = tag.location
                 if (location != null) {
-                //          bus.post(new InfoWindowClickEvent(location));
+                    //          bus.post(new InfoWindowClickEvent(location));
                 }
             }
         })
@@ -735,14 +727,14 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
         val poiMarkers = poiMarkers
 
         // This invisible marker is used to show the InfoWindow when a user clicks on a Google POI or long-presses somewhere
-        poiMarker = poiMarkers!!.addMarker(MarkerOptions().position(LatLng(0.0,0.0))).apply {
+        poiMarker = poiMarkers!!.addMarker(MarkerOptions().position(LatLng(0.0, 0.0))).apply {
             alpha = 0F
         }
 
         longPressMarker =  poiMarkers!!.addMarker(MarkerOptions()
-            .position(LatLng(0.0,0.0))
-            .infoWindowAnchor(0.5f, 1f)
-            .visible(false)).apply {
+                .position(LatLng(0.0, 0.0))
+                .infoWindowAnchor(0.5f, 1f)
+                .visible(false)).apply {
                 alpha = 0F
             }
         val poiLocationInfoWindowAdapter = POILocationInfoWindowAdapter(context!!)
