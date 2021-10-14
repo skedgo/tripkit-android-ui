@@ -7,6 +7,7 @@ import android.net.Uri
 import android.provider.Settings
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.list.listItems
+import java.lang.Exception
 
 fun Context.viewAppDetailsSettingsIntent(): Intent = Intent(
         Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
@@ -43,5 +44,19 @@ fun Context.showConfirmationPopUpDialog(
             negativeCallback?.invoke()
             it.dismiss()
         }
+    }
+}
+
+
+fun Context.getVersionCode(): Long?{
+    return try {
+        val pInfo = packageManager.getPackageInfo(packageName, 0)
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
+            pInfo.longVersionCode
+        } else {
+            pInfo.versionCode.toLong()
+        }
+    } catch (e: Exception) {
+        null
     }
 }

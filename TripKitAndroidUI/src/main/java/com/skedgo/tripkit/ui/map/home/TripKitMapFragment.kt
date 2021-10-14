@@ -3,6 +3,7 @@ package com.skedgo.tripkit.ui.map.home
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -42,6 +43,7 @@ import com.skedgo.tripkit.ui.map.home.ViewPort.NotCloseEnough
 import com.skedgo.tripkit.ui.model.LocationTag
 import com.skedgo.tripkit.ui.tracking.EventTracker
 import com.skedgo.tripkit.ui.trip.options.SelectionType
+import com.skedgo.tripkit.ui.utils.getVersionCode
 import com.squareup.otto.Bus
 import dagger.Lazy
 import io.reactivex.Single
@@ -91,6 +93,8 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
     lateinit var myLocationWindowAdapter: NoActionWindowAdapter
     @Inject
     lateinit var stopMarkerIconFetcherLazy: Lazy<StopMarkerIconFetcher>
+    @Inject
+    lateinit var preferences: SharedPreferences
 
     @Inject
     lateinit var eventTracker: EventTracker
@@ -174,6 +178,14 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        //TODO remove on future releases(version > 75).
+        val prefs = requireContext().getSharedPreferences("app", Context.MODE_PRIVATE)
+        if (context?.getVersionCode() == 75L && !prefs.getBoolean("clear_car_pods_once", false)) {
+            viewModel.clearCarPods()
+            prefs.edit().putBoolean("clear_car_pods_once", true).apply()
+        }
+
         geocoder = AndroidGeocoder(requireContext())
 
         getMapAsync { map ->
