@@ -81,6 +81,7 @@ public class TripResultPagerFragment extends BaseTripKitFragment implements View
     private TripResultMapContributor mapContributor = new TripResultMapContributor();
     public TripSegmentListFragment.OnTripSegmentClickListener tripSegmentClickListener = null;
     private ActionButtonHandlerFactory actionButtonHandlerFactory = null;
+    private List<TripGroup> initialTripGroupList = null;
 
     public void setActionButtonHandlerFactory(ActionButtonHandlerFactory actionButtonHandlerFactory) {
         this.actionButtonHandlerFactory = actionButtonHandlerFactory;
@@ -98,6 +99,12 @@ public class TripResultPagerFragment extends BaseTripKitFragment implements View
             @Nullable Bundle savedInstanceState) {
         final TripResultPagerBinding binding = TripResultPagerBinding.inflate(inflater);
         this.binding = binding;
+
+        binding.setViewModel(viewModel);
+        binding.tripGroupsPager.setAdapter(tripGroupsPagerAdapter);
+
+        binding.tripGroupsPager.setCurrentItem(currentPage);
+        viewModel.getCurrentPage().set(currentPage);
         return binding.getRoot();
     }
 
@@ -123,7 +130,7 @@ public class TripResultPagerFragment extends BaseTripKitFragment implements View
                 .subscribe());
 
         assert args != null;
-        getAutoDisposable().add(viewModel.getSortedTripGroups(args)
+        getAutoDisposable().add(viewModel.getSortedTripGroups(args, initialTripGroupList)
                 .subscribe(tripGroup -> {
                     if (args instanceof FavoriteTrip) {
                         // The trip group will possibly have changed after reloading it, so set the map to the correct one here
@@ -203,9 +210,8 @@ public class TripResultPagerFragment extends BaseTripKitFragment implements View
     }
 
     @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        binding.setViewModel(viewModel);
+    public void onCreate(@org.jetbrains.annotations.Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
         if (savedInstanceState != null) {
             currentPage = savedInstanceState.getInt(KEY_CURRENT_PAGE);
         }
@@ -234,8 +240,42 @@ public class TripResultPagerFragment extends BaseTripKitFragment implements View
         tripGroupsPagerAdapter.segmentClickListener = tripSegmentClickListener;
         tripGroupsPagerAdapter.closeListener = getOnCloseButtonListener();
         tripGroupsPagerAdapter.setActionButtonHandlerFactory(actionButtonHandlerFactory);
-        binding.tripGroupsPager.setAdapter(tripGroupsPagerAdapter);
     }
+
+//    @Override
+//    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+//        super.onActivityCreated(savedInstanceState);
+//        binding.setViewModel(viewModel);
+//        if (savedInstanceState != null) {
+//            currentPage = savedInstanceState.getInt(KEY_CURRENT_PAGE);
+//        }
+//
+//        viewModel.onCreate(savedInstanceState);
+//        Long tripId = null;
+//        tripGroupsPagerAdapter = new TripGroupsPagerAdapter(getChildFragmentManager());
+//
+//        if (savedInstanceState == null) {
+//            if (args instanceof HasInitialTripGroupId) {
+//                String id = ((HasInitialTripGroupId) args).tripGroupId();
+//                tripId = ((HasInitialTripGroupId) args).tripId();
+//                tripGroupsPagerAdapter.getTripIds().put(id, tripId);
+//                viewModel.setInitialSelectedTripGroupId(id);
+//                mapContributor.setTripGroupId(id);
+//            }
+//        }
+//
+//        TripKitButtonConfigurator configurator = null;
+//        Bundle b = getArguments();
+//        if (b != null) {
+//            tripGroupsPagerAdapter.setShowCloseButton(b.getBoolean(KEY_SHOW_CLOSE_BUTTON, false));
+//        }
+//
+//        tripGroupsPagerAdapter.listener = this;
+//        tripGroupsPagerAdapter.segmentClickListener = tripSegmentClickListener;
+//        tripGroupsPagerAdapter.closeListener = getOnCloseButtonListener();
+//        tripGroupsPagerAdapter.setActionButtonHandlerFactory(actionButtonHandlerFactory);
+//        binding.tripGroupsPager.setAdapter(tripGroupsPagerAdapter);
+//    }
 
     public void setArgs(@NonNull PagerFragmentArguments args) {
         this.args = args;
@@ -274,6 +314,7 @@ public class TripResultPagerFragment extends BaseTripKitFragment implements View
         private Long arriveBy = 0L;
         private boolean showCloseButton = false;
         private boolean singleRoute = false;
+        private List<TripGroup> initialTripGroupList = null;
         private ActionButtonHandlerFactory actionButtonHandlerFactory = null;
 
         public Builder withActionButtonHandlerFactory(ActionButtonHandlerFactory factory) {
@@ -326,6 +367,11 @@ public class TripResultPagerFragment extends BaseTripKitFragment implements View
             return this;
         }
 
+        public Builder withInitialTripGroupList(List<TripGroup> initialTripGroupList) {
+            this.initialTripGroupList = initialTripGroupList;
+            return this;
+        }
+
         public Builder showCloseButton() {
             this.showCloseButton = true;
             return this;
@@ -347,6 +393,7 @@ public class TripResultPagerFragment extends BaseTripKitFragment implements View
             fragment.setActionButtonHandlerFactory(actionButtonHandlerFactory);
             Bundle b = new Bundle();
             b.putBoolean(KEY_SHOW_CLOSE_BUTTON, showCloseButton);
+            fragment.initialTripGroupList = initialTripGroupList;
             fragment.setArguments(b);
             return fragment;
         }

@@ -2,6 +2,7 @@ package com.skedgo.tripkit.ui.tripresult
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import androidx.databinding.ObservableBoolean
 import androidx.databinding.ObservableField
 import androidx.databinding.ObservableInt
@@ -65,6 +66,8 @@ class TripResultPagerViewModel @Inject internal constructor(
 
     var currentTrip: MutableLiveData<Trip?> = MutableLiveData(null)
 
+    val isLoading = ObservableField<Boolean>()
+
     fun onCreate(savedInstanceState: Bundle?) {
         savedInstanceState?.getString(ARG_TRIP_GROUP_ID)?.let {
             setInitialSelectedTripGroupId(it)
@@ -77,33 +80,48 @@ class TripResultPagerViewModel @Inject internal constructor(
         }
     }
 
-    fun getSortedTripGroups(args: PagerFragmentArguments): Observable<Unit> {
+    fun getSortedTripGroups(args: PagerFragmentArguments, initialList: List<TripGroup>): Observable<Unit> {
+        isLoading.set(true)
         if (args is FromRoutes) {
-            return getSortedTripGroups.execute(args.requestId, args.arriveBy, args.sortOrder, tripResultTransportViewFilter)
-                    .subscribeOn(Schedulers.io())
-                    .doOnNext {
-                        tripGroups.accept(it)
-                    }
-                    .map { Unit }
+            return if (!initialList.isNullOrEmpty()) {
+                tripGroups.accept(initialList)
+                isLoading.set(false)
+                tripGroups.map {
+                    Unit
+                }
+            } else {
+                getSortedTripGroups.execute(args.requestId, args.arriveBy, args.sortOrder, tripResultTransportViewFilter)
+                        .subscribeOn(Schedulers.io())
+                        .doOnNext {
+                            tripGroups.accept(initialList)
+                            isLoading.set(false)
+                        }
+                        .map { Unit }
+            }
         } else if (args is SingleTrip) {
             selectedTripGroupRepository.setSelectedTripGroupId(args.tripGroupId)
             return selectedTripGroupRepository.getSelectedTripGroup().map { listOf(it) }
-                    .doOnNext { tripGroups.accept(it) }
+                    .doOnNext {
+                        tripGroups.accept(it)
+                        isLoading.set(false)
+                    }
                     .map { Unit }
         } else if (args is FavoriteTrip) {
             fetchingRealtimeStatus.set(true)
             return getTripGroupsFromWayPoints.execute(args.favoriteTripId)
                     .doOnNext {
-                        it.trips?.firstOrNull { trip -> trip.uuid() == args.favoriteTripId}?.let { trip ->
+                        it.trips?.firstOrNull { trip -> trip.uuid() == args.favoriteTripId }?.let { trip ->
                             it.displayTripId = trip.id
                         }
                         setInitialSelectedTripGroupId(it.uuid())
-                        fetchingRealtimeStatus.set(false)
                     }
                     .map {
                         listOf(it)
                     }
-                    .doOnNext { tripGroups.accept(it) }
+                    .doOnNext {
+                        tripGroups.accept(it)
+                        isLoading.set(false)
+                    }
                     .map { Unit }
         } else {
             throw IllegalArgumentException("Unknown Argument: $args")
@@ -128,6 +146,7 @@ class TripResultPagerViewModel @Inject internal constructor(
     fun observeTripGroups(): Observable<Unit> {
         return tripGroups
                 .doOnNext {
+                    Log.i("viewModel", "tripGroupsBinding set")
                     tripGroupsBinding.set(it)
                 }
                 .map { Unit }
@@ -152,7 +171,7 @@ class TripResultPagerViewModel @Inject internal constructor(
                 .skip(1)
                 .withLatestFrom(tripGroups.hide(), BiFunction<Int, List<TripGroup>, TripGroup>
                 { id, tripGroups ->
-                    if(id > 0) {
+                    if (id > 0) {
                         tripGroups[id]
                     } else {
                         tripGroups.first()

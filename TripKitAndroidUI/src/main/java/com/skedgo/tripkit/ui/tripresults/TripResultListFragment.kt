@@ -40,7 +40,7 @@ class TripResultListFragment : BaseTripKitFragment() {
      * This callback will be invoked when a search result is clicked.
      */
     interface OnTripSelectedListener {
-        fun onTripSelected(viewTrip: ViewTrip)
+        fun onTripSelected(viewTrip: ViewTrip, tripGroupList: List<TripGroup>)
     }
 
     private var multiStateErrorTextId: Int = View.NO_ID
@@ -49,10 +49,10 @@ class TripResultListFragment : BaseTripKitFragment() {
         this.tripSelectedListener = callback
     }
 
-    fun setOnTripSelectedListener(callback:(ViewTrip) -> Unit) {
+    fun setOnTripSelectedListener(callback:(ViewTrip, List<TripGroup>) -> Unit) {
         this.tripSelectedListener = object: OnTripSelectedListener {
-            override fun onTripSelected(viewTrip: ViewTrip) {
-                callback(viewTrip)
+            override fun onTripSelected(viewTrip: ViewTrip, tripGroupList: List<TripGroup>) {
+                callback(viewTrip, tripGroupList)
             }
         }
     }
@@ -161,7 +161,7 @@ class TripResultListFragment : BaseTripKitFragment() {
 
         viewModel.onItemClicked
                 .observeOn(AndroidSchedulers.mainThread())
-                .doOnNext { viewTrip -> tripSelectedListener?.onTripSelected(viewTrip)
+                .doOnNext { viewTrip -> tripSelectedListener?.onTripSelected(viewTrip, viewModel.tripGroupList)
                 }.subscribe().addTo(autoDisposable)
 
 //        viewModel.onMoreButtonClicked
