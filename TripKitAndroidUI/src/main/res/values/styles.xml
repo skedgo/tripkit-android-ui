@@ -1,5 +1,7 @@
 <resources>
-    <style name="AppTheme" parent="Theme.MaterialComponents.Light"/>
+
+    <style name="AppTheme" parent="Theme.MaterialComponents.Light" />
+
     <style name="ToNowButtonStyle">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">40dp</item>
@@ -44,7 +46,7 @@
         <item name="android:background">?attr/selectableItemBackground</item>
         <item name="android:layout_width">0dp</item>
         <item name="android:layout_weight">0.5</item>
-        <item name="android:layout_height">48dp</item>
+        <item name="android:layout_height">wrap_content</item>
         <item name="android:textSize">14sp</item>
         <item name="android:textAllCaps">true</item>
         <item name="android:textColor">@color/v4_title_text</item>
