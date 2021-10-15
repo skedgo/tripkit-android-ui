@@ -40,6 +40,13 @@ open class LocationEnhancedMapFragment : BaseMapFragment() {
         settingsButton?.visibility = View.VISIBLE
     }
 
+    fun setSettingsButtonVisibility(show: Boolean){
+        settingsButton?.visibility = if(show){
+            View.VISIBLE
+        } else {
+            View.GONE
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
