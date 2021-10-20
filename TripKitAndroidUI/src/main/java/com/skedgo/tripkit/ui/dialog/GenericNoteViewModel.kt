@@ -7,5 +7,6 @@ class GenericNoteViewModel : ViewModel() {
 
     val fragmentTitle = ObservableField<String>()
     val inputValue = ObservableField<String>()
+    val viewOnly = ObservableField<Boolean>()
 
 }

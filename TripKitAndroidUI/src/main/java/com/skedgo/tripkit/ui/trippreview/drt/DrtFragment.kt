@@ -78,6 +78,70 @@ class DrtFragment : BaseFragment<FragmentDrtBinding>(), DrtHandler {
     private fun initObserver() {
         viewModel.onItemChangeActionStream
                 .onEach { drtItem ->
+
+                    if (drtItem.type.value.equals("notes", true)) {
+                        GenericListDisplayDialogFragment.newInstance(
+                                GenericListItem.parseOptions(
+                                        drtItem.options.value ?: emptyList()
+                                ),
+                                title = drtItem.type.value ?: ""
+                        ).show(childFragmentManager, drtItem.label.value ?: "")
+                    } else {
+                        val defaultValue = viewModel.getDefaultValueByType(
+                                drtItem.type.value ?: "",
+                                drtItem.label.value ?: ""
+                        )
+
+                        if (drtItem.label.value == DrtItem.ADD_NOTE) {
+                            GenericNoteDialogFragment.newInstance(
+                                    drtItem.label.value ?: "",
+                                    if (drtItem.values.value?.firstOrNull() != defaultValue) {
+                                        drtItem.values.value?.firstOrNull() ?: ""
+                                    } else {
+                                        ""
+                                    },
+                                    viewModel.bookingConfirmation.value != null
+                            ) {
+                                if (it.isEmpty()) {
+                                    listOf(defaultValue)
+                                } else {
+                                    drtItem.setValue(listOf(it))
+                                    viewModel.updateInputValue(drtItem)
+                                }
+                            }.show(childFragmentManager, drtItem.label.value ?: "")
+                        } else {
+                            GenericListDialogFragment.newInstance(
+                                    GenericListItem.parseOptions(
+                                            drtItem.options.value ?: emptyList()
+                                    ),
+                                    isSingleSelection = drtItem.type.value == QuickBookingType.SINGLE_CHOICE,
+                                    title = drtItem.label.value ?: "",
+                                    onConfirmCallback = { selectedItems ->
+                                        drtItem.setValue(
+                                                if (selectedItems.isEmpty()) {
+                                                    listOf(
+                                                            viewModel.getDefaultValueByType(
+                                                                    drtItem.type.value ?: "",
+                                                                    drtItem.label.value ?: ""
+                                                            )
+                                                    )
+                                                } else {
+                                                    selectedItems.map { it.label }
+                                                }
+                                        )
+                                        viewModel.updateInputValue(drtItem)
+                                    },
+                                    previousSelectedValues = if (drtItem.values.value != listOf(defaultValue)) {
+                                        drtItem.values.value
+                                    } else {
+                                        null
+                                    },
+                                    viewOnlyMode = viewModel.bookingConfirmation.value != null
+                            ).show(childFragmentManager, drtItem.label.value ?: "")
+                        }
+                    }
+
+                    /*
                     if (viewModel.bookingConfirmation.value == null) {
 
                         val defaultValue = viewModel.getDefaultValueByType(
@@ -140,6 +204,7 @@ class DrtFragment : BaseFragment<FragmentDrtBinding>(), DrtHandler {
                             ).show(childFragmentManager, drtItem.label.value ?: "")
                         }
                     }
+                    */
                 }.launchIn(lifecycleScope)
         segment?.let {
             pagerItemViewModel.setSegment(requireContext(), it)

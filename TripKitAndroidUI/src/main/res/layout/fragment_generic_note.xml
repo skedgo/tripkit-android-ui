@@ -23,9 +23,10 @@
             android:id="@+id/genericList_rv_selection"
             android:layout_width="match_parent"
             android:layout_height="0dp"
+            android:enabled="@{!viewModel.viewOnly}"
             android:gravity="top|start"
-            android:textAlignment="textStart"
             android:text="@={viewModel.inputValue}"
+            android:textAlignment="textStart"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/genericList_cl_header" />
 
@@ -76,6 +77,7 @@
                 android:paddingEnd="@dimen/spacing_normal"
                 android:text="@string/done"
                 android:textColor="@android:color/white"
+                android:visibility="@{!viewModel.viewOnly}"
                 app:clickWithDebounce="@{() -> handler.onDone()}"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"

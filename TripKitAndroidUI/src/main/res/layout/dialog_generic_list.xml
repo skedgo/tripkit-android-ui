@@ -82,6 +82,7 @@
             android:text="@string/confirm"
             android:textColor="@android:color/white"
             android:theme="@style/Theme.MaterialComponents"
+            android:visibility="@{!viewModel.viewModeOnly}"
             app:clickWithDebounce="@{() -> handler.onConfirm()}"
             app:layout_constraintBottom_toBottomOf="parent" />
 

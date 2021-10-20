@@ -69,6 +69,7 @@ class GenericListDialogFragment : DialogFragment(), GenericListDialogFragmentHan
 
     private fun initViews() {
         adapter = GenericListAdapter()
+        adapter.isViewOnlyMode = arguments?.getBoolean(ARGS_VIEW_ONLY_MODE, false) ?: false
         binding.genericListRvSelection.adapter = adapter
         binding.genericListRvSelection.addItemDecoration(
                 DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL)
@@ -78,6 +79,11 @@ class GenericListDialogFragment : DialogFragment(), GenericListDialogFragmentHan
 
     private fun checkArgs() {
         arguments?.let {
+
+            if (it.containsKey(ARGS_VIEW_ONLY_MODE)) {
+                viewModel.setViewModeOnly(it.getBoolean(ARGS_VIEW_ONLY_MODE, false))
+            }
+
             if (it.containsKey(ARGS_TITLE)) {
                 viewModel.setTitle(it.getString(ARGS_TITLE, ""))
             }
@@ -93,10 +99,10 @@ class GenericListDialogFragment : DialogFragment(), GenericListDialogFragmentHan
             }
 
             if (it.containsKey(ARGS_PREVIOUSLY_SELECTED) &&
-                    it.getStringArrayList(ARGS_PREVIOUSLY_SELECTED) != null) {
-                it.getStringArrayList(ARGS_PREVIOUSLY_SELECTED)?.let {
-                    viewModel.setSelectedItems(it)
-                }
+                    !it.getString(ARGS_PREVIOUSLY_SELECTED).isNullOrEmpty()) {
+                viewModel.setSelectedItems(
+                        Gson().fromJson(it.getString(ARGS_PREVIOUSLY_SELECTED, ""))
+                )
             }
         }
     }
@@ -115,6 +121,7 @@ class GenericListDialogFragment : DialogFragment(), GenericListDialogFragmentHan
         private const val ARGS_LIST_SELECTION = "_list_selection"
         private const val ARGS_IS_SINGLE_SELECTION = "_is_single_selection"
         private const val ARGS_PREVIOUSLY_SELECTED = "_previously_seleted"
+        private const val ARGS_VIEW_ONLY_MODE = "_view_only_mode"
 
         fun newInstance(
                 selection: List<GenericListItem>,
@@ -122,14 +129,17 @@ class GenericListDialogFragment : DialogFragment(), GenericListDialogFragmentHan
                 title: String = "",
                 previousSelectedValues: List<String>? = null,
                 onConfirmCallback: ((List<GenericListItem>) -> Unit)? = null,
-                onCloseCallback: (() -> Unit)? = null
+                onCloseCallback: (() -> Unit)? = null,
+                viewOnlyMode: Boolean = false
         ): GenericListDialogFragment {
             return GenericListDialogFragment().apply {
                 arguments = bundleOf(
                         ARGS_TITLE to title,
                         ARGS_LIST_SELECTION to Gson().toJson(selection),
                         ARGS_IS_SINGLE_SELECTION to isSingleSelection,
-                        ARGS_PREVIOUSLY_SELECTED to previousSelectedValues
+                        ARGS_PREVIOUSLY_SELECTED to Gson().toJson(previousSelectedValues
+                                ?: emptyList<String>()),
+                        ARGS_VIEW_ONLY_MODE to viewOnlyMode,
                 )
                 this.onConfirm = onConfirmCallback
                 this.onClose = onCloseCallback

@@ -57,6 +57,10 @@ class GenericNoteDialogFragment : DialogFragment(), GenericNoteDialogFragmentHan
             if (it.containsKey(ARG_INPUT_VALUE)) {
                 viewModel.inputValue.set(it.getString(ARG_INPUT_VALUE))
             }
+
+            if (it.containsKey(ARG_VIEW_ONLY_MODE)) {
+                viewModel.viewOnly.set(it.getBoolean(ARG_VIEW_ONLY_MODE, false))
+            }
         }
     }
 
@@ -64,16 +68,19 @@ class GenericNoteDialogFragment : DialogFragment(), GenericNoteDialogFragmentHan
 
         private const val ARG_TITLE = "arg_detail_title"
         private const val ARG_INPUT_VALUE = "arg_input_value"
+        private const val ARG_VIEW_ONLY_MODE = "arg_view_only_mode"
 
         @JvmStatic
         fun newInstance(
                 fragmentTitle: String = "",
                 inputValue: String = "",
+                viewOnlyMode: Boolean = false,
                 doneCallback: ((String) -> Unit)? = null
         ) = GenericNoteDialogFragment().apply {
             arguments = Bundle().apply {
                 putString(ARG_TITLE, fragmentTitle)
                 putString(ARG_INPUT_VALUE, inputValue)
+                putBoolean(ARG_VIEW_ONLY_MODE, viewOnlyMode)
             }
             onDone = doneCallback
         }
