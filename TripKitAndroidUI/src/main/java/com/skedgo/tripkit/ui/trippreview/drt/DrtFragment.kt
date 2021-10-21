@@ -252,6 +252,18 @@ class DrtFragment : BaseFragment<FragmentDrtBinding>(), DrtHandler {
                         requireActivity().startActivity(intent)
                     }
                 }
+                !it.bookingConfirmationAction?.confirmationMessage().isNullOrEmpty() -> {
+                    requireContext().showConfirmationPopUpDialog(
+                            title = it.bookingConfirmationAction?.title(),
+                            message = it.bookingConfirmationAction?.confirmationMessage(),
+                            positiveLabel = "Yes",
+                            positiveCallback = {
+                                viewModel.processAction(it.bookingConfirmationAction)
+                            },
+                            negativeLabel = "No"
+                    )
+                }
+                /*
                 it.label == "Cancel Ride" || it.bookingConfirmationAction?.type() == BookingConfirmationAction.TYPE_CANCEL -> {
                     requireContext().showConfirmationPopUpDialog(
                             title = "Cancel Ride",
@@ -263,6 +275,7 @@ class DrtFragment : BaseFragment<FragmentDrtBinding>(), DrtHandler {
                             negativeLabel = "No"
                     )
                 }
+                */
                 else -> {
                     viewModel.processAction(it.bookingConfirmationAction)
                 }
