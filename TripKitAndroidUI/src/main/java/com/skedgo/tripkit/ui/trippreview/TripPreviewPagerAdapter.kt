@@ -77,11 +77,8 @@ class TripPreviewPagerAdapter(fragmentManager: FragmentManager)
             ITEM_TIMETABLE -> {
                 val scheduledStop = ScheduledStop(page.tripSegment.to)
                 scheduledStop.code = page.tripSegment.startStopCode
-                scheduledStop.endStopCode = page.tripSegment.endStopCode
                 scheduledStop.modeInfo = page.tripSegment.modeInfo
 
-                val disembarkationStopCodes = ArrayList<String>()
-                disembarkationStopCodes.add(page.tripSegment.endStopCode)
 
                 scheduledStop.type = StopType.from(page.tripSegment.modeInfo?.localIconName)
                 val timetableFragment = TimetableFragment.Builder()
