@@ -234,6 +234,16 @@ class DrtViewModel @Inject constructor(
         } else {
             segment.booking.quickBookingsUrl?.let { fetchQuickBooking(it) }
         }
+
+        updateSegment(segment)
+
+        val confirmation = segment.booking?.confirmation
+        confirmation?.let {
+            _bookingConfirmation.postValue(it)
+            if (it.status().value() != BookingConfirmationStatusValue.PROCESSING) {
+                stopPollingUpdate.set(true)
+            }
+        }
     }
 
     private fun fetchQuickBooking(url: String) {
