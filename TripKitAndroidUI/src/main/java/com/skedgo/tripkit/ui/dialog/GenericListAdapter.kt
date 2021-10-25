@@ -19,6 +19,7 @@ class GenericListAdapter @Inject constructor() :
     }
 
     internal var isSingleSelection: Boolean = false
+    internal var isViewOnlyMode: Boolean = false
     internal var clickListener: (GenericListItem) -> Unit = { _ -> }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
@@ -33,15 +34,18 @@ class GenericListAdapter @Inject constructor() :
         holder.binding.apply {
             val listItem = collection[position]
             item = listItem
+            viewMode = isViewOnlyMode
             executePendingBindings()
-            holder.itemView.setOnClickListener {
-                if (isSingleSelection) {
-                    updateSelected(listItem)
-                } else {
-                    listItem.selected = !listItem.selected
-                    notifyItemChanged(position)
+            if (!isViewOnlyMode) {
+                holder.itemView.setOnClickListener {
+                    if (isSingleSelection) {
+                        updateSelected(listItem)
+                    } else {
+                        listItem.selected = !listItem.selected
+                        notifyItemChanged(position)
+                    }
+                    clickListener.invoke(listItem)
                 }
-                clickListener.invoke(listItem)
             }
         }
     }
