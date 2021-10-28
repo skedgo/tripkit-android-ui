@@ -6,6 +6,8 @@ import androidx.databinding.ObservableBoolean
 import androidx.databinding.ObservableField
 import androidx.lifecycle.ViewModel
 import com.skedgo.tripkit.LocationInfoService
+import com.skedgo.tripkit.common.model.SharedVehicleType
+import com.skedgo.tripkit.common.model.getSharedVehicleType
 import com.skedgo.tripkit.routing.TripSegment
 import com.skedgo.tripkit.ui.BR
 import com.skedgo.tripkit.ui.R
@@ -19,7 +21,7 @@ import javax.inject.Inject
 class ModeLocationTripPreviewViewModel @Inject constructor(private val locationInfoService: LocationInfoService)
     : RxViewModel() {
     val infoGroups = ObservableArrayList<InfoGroupViewModel>()
-    val infoGroupBinding : ItemBinding<InfoGroupViewModel> = ItemBinding.of(BR.viewModel, R.layout.trip_preview_pager_nearby_info_group_item)
+    val infoGroupBinding: ItemBinding<InfoGroupViewModel> = ItemBinding.of(BR.viewModel, R.layout.trip_preview_pager_nearby_info_group_item)
 
     var address = ObservableField<String>("")
     var showAddress = ObservableBoolean(false)
@@ -39,14 +41,17 @@ class ModeLocationTripPreviewViewModel @Inject constructor(private val locationI
                         this.what3words.set(w3w)
                         this.showWhat3words.set(true)
                     }
-                }, { Timber.e(it)} )
+                }, { Timber.e(it) })
                 .autoClear()
         if (segment.sharedVehicle != null) {
             val vehicle = segment.sharedVehicle
-            val vehicleVm =  InfoGroupViewModel()
-            vehicleVm.title.set(vehicle.vehicleType()?.title() ?: R.string.car)
+            val vehicleVm = InfoGroupViewModel()
+            vehicleVm.title.set(vehicle.vehicleType()?.title()
+                    ?: getSharedVehicleType(vehicle.vehicleTypeInfo()?.formFactor ?: "")?.title()
+                    ?: R.string.car)
             vehicleVm.value.set(vehicle.name())
-            vehicleVm.icon.set(vehicle.vehicleType()?.iconId)
+            vehicleVm.icon.set(vehicle.vehicleType()?.iconId
+                    ?: getSharedVehicleType(vehicle.vehicleTypeInfo()?.formFactor ?: "")?.iconId)
             infoGroups.add(vehicleVm)
 
             if (vehicle.batteryRange() != null) {
