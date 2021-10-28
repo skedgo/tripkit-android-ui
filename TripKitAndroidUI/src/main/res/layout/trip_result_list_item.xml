@@ -158,28 +158,38 @@
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="12dp"
                 android:layout_marginBottom="12dp"
+                android:ellipsize="end"
+                android:maxLines="2"
                 android:text="@{viewModel.cost}"
                 android:visibility="@{viewModel.costVisible}"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/moreButton"
+                app:layout_constraintHorizontal_weight="1.5"
+                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/footerLine"
                 tools:text="0kg CO2" />
 
-            <com.google.android.material.button.MaterialButton
+            <Button
                 android:id="@+id/moreButton"
-                style="@style/Widget.MaterialComponents.Button.TextButton"
-                android:layout_width="wrap_content"
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
                 android:layout_marginEnd="2dp"
+                android:background="@null"
+                android:backgroundTint="@android:color/transparent"
+                android:ellipsize="middle"
+                android:gravity="end|center_vertical"
                 android:onClick="@{() -> viewModel.onMoreButtonClicked.perform()}"
+                android:singleLine="true"
                 android:text="@{viewModel.moreButtonText}"
                 android:textColor="@color/colorPrimary"
-                android:theme="@style/Theme.MaterialComponents"
                 android:visibility="@{viewModel.moreButtonVisible}"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/footerLine" />
+                app:layout_constraintHorizontal_weight="1"
+                app:layout_constraintStart_toEndOf="@+id/cost"
+                app:layout_constraintTop_toBottomOf="@+id/footerLine"
+                tools:text="ButtonTextButtonTextButtonTextButtonText" />
 
 
         </androidx.constraintlayout.widget.ConstraintLayout>
