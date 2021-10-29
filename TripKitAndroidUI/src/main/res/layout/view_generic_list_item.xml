@@ -44,7 +44,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:visibilityInv="@{!viewMode &amp;&amp; item.selected}" />
+            app:visibilityInv="@{item.selected}" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
