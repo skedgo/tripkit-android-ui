@@ -135,7 +135,7 @@ class TripResultPagerViewModel @Inject internal constructor(
         )
         { tripGroups: List<TripGroup>, id: TripGroup ->
             viewModelScope.launch {
-                currentTrip.value = tripGroups.first().trips?.first()
+                currentTrip.value = tripGroups.firstOrNull()?.trips?.first()
             }
             tripGroups.indexOfFirst { id.uuid() == it.uuid() }
         }.doOnNext {
