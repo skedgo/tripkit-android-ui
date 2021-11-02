@@ -30,6 +30,8 @@ class BikePodPOILocation(
     location.name = bikePodEntity.bikePod.operator.name
     location.address = bikePodEntity.address
     location.url = bikePodEntity.bikePod.operator.website
+    location.appUrl = bikePodEntity.bikePod.operator.appInfo?.appURLAndroid
+    location.isWithExternalApp = !bikePodEntity.bikePod.operator.appInfo?.appURLAndroid.isNullOrEmpty()
     return location
   }
 
