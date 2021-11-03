@@ -1,7 +1,5 @@
 package com.skedgo.tripkit.ui.timetables
 
-
-import com.skedgo.tripkit.common.model.RealTimeStatus
 import com.skedgo.tripkit.ui.model.TimetableEntry
 import io.reactivex.Observable
 import com.skedgo.tripkit.routing.RealTimeVehicle
