@@ -7,6 +7,7 @@ import android.os.Bundle
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.GridLayoutManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.skedgo.tripkit.booking.quickbooking.QuickBookingType
 import com.skedgo.tripkit.common.model.BookingConfirmationAction
@@ -21,6 +22,7 @@ import com.skedgo.tripkit.ui.dialog.GenericListDialogFragment
 import com.skedgo.tripkit.ui.dialog.GenericListDisplayDialogFragment
 import com.skedgo.tripkit.ui.dialog.GenericListItem
 import com.skedgo.tripkit.ui.dialog.GenericNoteDialogFragment
+import com.skedgo.tripkit.ui.generic.action_list.Action
 import com.skedgo.tripkit.ui.generic.action_list.ActionListAdapter
 import com.skedgo.tripkit.ui.trippreview.TripPreviewPagerItemViewModel
 import com.skedgo.tripkit.ui.utils.observe
@@ -175,6 +177,19 @@ class DrtFragment : BaseFragment<FragmentDrtBinding>(), DrtHandler {
     }
 
     private fun initViews() {
+        val gridLayoutManager = GridLayoutManager(requireActivity(), 2)
+        gridLayoutManager.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
+            override fun getSpanSize(position: Int): Int {
+                if (actionsAdapter.collection.size % 2 > 0) {
+                    if (position == actionsAdapter.collection.size - 1) {
+                        return 2
+                    }
+                }
+                return 1
+            }
+        }
+
+        binding.drtRvActions.layoutManager = gridLayoutManager
         binding.drtRvActions.adapter = actionsAdapter
         actionsAdapter.clickListener = {
             when {
