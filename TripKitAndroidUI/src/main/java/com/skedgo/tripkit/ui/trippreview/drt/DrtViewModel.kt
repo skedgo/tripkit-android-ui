@@ -122,27 +122,29 @@ class DrtViewModel @Inject constructor(
                 }
             }
 
-            result.add(
-                    DrtItemViewModel().apply {
-                        setIcon(getIconById(null))
-                        setLabel("Notes from operator")
-                        setType("Notes")
-                        setValue(
-                                listOf(String.format("You have %d note", it.notes().size))
-                        )
-                        setRequired(false)
-//                        setItemId(input.id())
-                        it.notes()?.let { opt ->
-                            setOptions(
-                                    opt.map { note ->
-                                        Option.parseBookingConfirmationInputOptions(note)
-                                    }
+            if (it.notes().size > 0) {
+                result.add(
+                        DrtItemViewModel().apply {
+                            setIcon(getIconById(null))
+                            setLabel("Notes from operator")
+                            setType("Notes")
+                            setValue(
+                                    listOf(String.format("You have %d note", it.notes().size))
                             )
+                            setRequired(false)
+//                        setItemId(input.id())
+                            it.notes()?.let { opt ->
+                                setOptions(
+                                        opt.map { note ->
+                                            Option.parseBookingConfirmationInputOptions(note)
+                                        }
+                                )
+                            }
+                            setViewMode(true)
+                            onChangeStream = onItemChangeActionStream
                         }
-                        setViewMode(true)
-                        onChangeStream = onItemChangeActionStream
-                    }
-            )
+                )
+            }
 
             items.update(result)
 
@@ -263,7 +265,8 @@ class DrtViewModel @Inject constructor(
                                     val json = Gson().fromJson(errorString, DRTError::class.java)
                                     error.set(json.error)
                                 }
-                            } catch (e: Exception) {}
+                            } catch (e: Exception) {
+                            }
                         },
                         onSuccess = {
                             it.firstOrNull()?.let {
