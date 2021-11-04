@@ -3,17 +3,6 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <data>
-
-        <variable
-            name="handler"
-            type="com.skedgo.tripkit.ui.dialog.GenericNoteDialogFragmentHandler" />
-
-        <variable
-            name="viewModel"
-            type="com.skedgo.tripkit.ui.dialog.GenericNoteViewModel" />
-    </data>
-
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -59,6 +48,7 @@
                 style="@style/TextAppearance.MaterialComponents.Body1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:contentDescription="@string/desc_close_button"
                 android:paddingStart="@dimen/spacing_normal"
                 android:paddingEnd="@dimen/spacing_normal"
                 android:text="@string/close"
@@ -73,6 +63,7 @@
                 style="@style/TextAppearance.MaterialComponents.Body1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:contentDescription="@string/desc_done_button"
                 android:paddingStart="@dimen/spacing_normal"
                 android:paddingEnd="@dimen/spacing_normal"
                 android:text="@string/done"
@@ -86,5 +77,16 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <data>
+
+        <variable
+            name="handler"
+            type="com.skedgo.tripkit.ui.dialog.GenericNoteDialogFragmentHandler" />
+
+        <variable
+            name="viewModel"
+            type="com.skedgo.tripkit.ui.dialog.GenericNoteViewModel" />
+    </data>
 
 </layout>

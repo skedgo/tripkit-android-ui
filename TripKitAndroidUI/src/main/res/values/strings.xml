@@ -47,6 +47,9 @@
     <string name="lbl_processing_desc">Your request is matching to the most efficient available driver.</string>
     <string name="cancel_ride">Cancel Ride</string>
     <string name="desc_close">Close</string>
+    <string name="desc_close_button">Close Button</string>
     <string name="desc_tap_to_close">Tap to close</string>
     <string name="desc_tap_to_close_or_go_back">Tap to close or go back</string>
+    <string name="desc_change_button">Change Button</string>
+    <string name="desc_done_button">Done Button</string>
 </resources>
