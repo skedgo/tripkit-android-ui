@@ -200,7 +200,9 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
                     smoothScroller.targetPosition = integer.toInt()
                     binding.recyclerView.layoutManager?.startSmoothScroll(smoothScroller)
                 }.addTo(autoDisposable)
-        viewModel.downloadTimetable.accept(System.currentTimeMillis() - TimeUtils.InMillis.MINUTE * 10)
+//        viewModel.downloadTimetable.accept(System.currentTimeMillis() - TimeUtils.InMillis.MINUTE * 10)
+        viewModel.downloadTimetable.accept((tripSegment?.startTimeInSecs
+                ?: System.currentTimeMillis()) - (60 * 20))
 
         viewModel.actionChosen.observeOn(AndroidSchedulers.mainThread())
                 .subscribe {

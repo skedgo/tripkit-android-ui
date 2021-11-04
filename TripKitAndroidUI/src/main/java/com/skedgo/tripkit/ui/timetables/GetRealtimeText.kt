@@ -27,7 +27,7 @@ open class GetRealtimeText @Inject constructor(
         val endTime = realTimeArrival(service, service.realtimeVehicle)
         val startDateTime = DateTime(TimeUnit.SECONDS.toMillis(startTime))
         val endDateTime = DateTime(TimeUnit.SECONDS.toMillis(endTime))
-        val schedule = "${startDateTime.toString(dateTimeFormatter)} - ${endDateTime.toString(dateTimeFormatter)}"
+        val schedule = "${startDateTime.toString(dateTimeFormatter.withZone(dateTimeZone))} - ${endDateTime.toString(dateTimeFormatter.withZone(dateTimeZone))}"
 
         return when {
             service.realTimeStatus == null || service.realTimeStatus == RealTimeStatus.INCAPABLE ->

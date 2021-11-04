@@ -102,7 +102,7 @@ class TimetableViewModel @Inject constructor(
         regionService.getRegionByLocationAsync(it)
     }
 
-    val minStartTime = onDateChanged.mergeWith(downloadTimetable).map { it / 1000 }
+    val minStartTime = onDateChanged.mergeWith(downloadTimetable).map { it }
 
     private val servicesAndParentStop = Observables
             .combineLatest(minStartTime, regionObservable, stop)
