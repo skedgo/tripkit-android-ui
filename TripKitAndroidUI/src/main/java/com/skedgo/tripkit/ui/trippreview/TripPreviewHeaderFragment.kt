@@ -47,14 +47,16 @@ class TripPreviewHeaderFragment : Fragment() {
                 }?.addTo(disposeBag)
 
         viewModel.apply {
-            observe(selectedSegmentId){
+            observe(selectedSegmentId) {
                 it?.let { pageIndexStream?.onNext(it) }
             }
         }
     }
 
-    fun setHeaderItems(items: List<TripPreviewHeader>){
-        viewModel.setup(items)
+    fun setHeaderItems(items: List<TripPreviewHeader>) {
+        if (!this@TripPreviewHeaderFragment.isDetached) {
+            viewModel.setup(items)
+        }
     }
 
     companion object {

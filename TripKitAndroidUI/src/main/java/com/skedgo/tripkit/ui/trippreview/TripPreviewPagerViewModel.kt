@@ -52,9 +52,12 @@ class TripPreviewPagerViewModel : RxViewModel() {
                 .debounce(500, TimeUnit.MILLISECONDS)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe { headers ->
+                .subscribe({ headers ->
                     _headers.value = headers.sortedBy { it.id }
-                }
+                }, {
+                    //This will prevent app from crashing due to OnErrorNotImplementedException
+                    it.printStackTrace()
+                })
                 .autoClear()
 
         val previewHeaders = mutableListOf<TripPreviewHeader>()
