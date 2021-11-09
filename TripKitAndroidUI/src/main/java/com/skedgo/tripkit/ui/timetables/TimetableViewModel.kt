@@ -60,6 +60,7 @@ class TimetableViewModel @Inject constructor(
         private val resources: Resources
 ) : RxViewModel() {
     var stop: BehaviorRelay<ScheduledStop> = BehaviorRelay.create()
+    var segment: BehaviorRelay<TripSegment> = BehaviorRelay.create()
 
     val stationName = ObservableField<String>()
     val stationType = ObservableField<String>()
@@ -101,6 +102,11 @@ class TimetableViewModel @Inject constructor(
     private val regionObservable = stop.flatMap {
         regionService.getRegionByLocationAsync(it)
     }
+
+    private val currentServiceTripId = segment.flatMap {
+        Observable.just(it.serviceTripId)
+    }
+    private var _currentServiceTripId: String? = null
 
     val minStartTime = onDateChanged.mergeWith(downloadTimetable).map { it }
 
@@ -148,11 +154,12 @@ class TimetableViewModel @Inject constructor(
 
     private val realtimeRelay = PublishRelay.create<Unit>()
 
-    private val servicesVMs = Observables.combineLatest(servicesAndParentStop.map { it.first }, regionObservable)
-    { services: List<TimetableEntry>, region: Region -> services to region }
+    private val servicesVMs = Observables.combineLatest(servicesAndParentStop.map { it.first }, regionObservable, currentServiceTripId)
+    { services: List<TimetableEntry>, region: Region, currentTripId: String -> Triple(services, region, currentTripId) }
             .flatMap {
                 val services = it.first
                 val region = it.second
+                _currentServiceTripId = it.third
                 realTimeChoreographer.getRealTimeResultsFromCleanElements(region, elements = services)
                         .takeUntil(realtimeRelay)
                         .map { vehicles ->
@@ -174,7 +181,7 @@ class TimetableViewModel @Inject constructor(
 
                 services.map {
                     serviceViewModelProvider.get().apply {
-                        this.setService(it, timeZone)
+                        this.setService(_currentServiceTripId ?: "", it, timeZone)
                         this.onItemClick.observable.observeOn(AndroidSchedulers.mainThread()).subscribe { entry ->
 //                            if (action.isNotEmpty()) {
 //

@@ -111,6 +111,16 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
             field = value
         }
 
+    var tripSegment: TripSegment? = null
+        set(value) {
+            if (value != null) {
+                this.viewModel.segment.accept(value);
+            }
+            field = value
+        }
+
+    var _tripSegment: TripSegment? = null
+
     var cachedStop: ScheduledStop? = null
     var cachedShowSearchBar: Boolean = true
     var fromPreview: Boolean = false
@@ -125,7 +135,6 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
     private val filterThrottle = PublishSubject.create<String>()
     private lateinit var binding: TimetableFragmentBinding
     protected var buttons: List<TripKitButton> = emptyList()
-    private var tripSegment: TripSegment? = null
     val clickDisposable = CompositeDisposable()
 
     override fun onAttach(context: Context) {
@@ -233,6 +242,8 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
         if (stop == null) {
             stop = cachedStop
         }
+
+        tripSegment = _tripSegment
     }
 
     fun setBookingActions(bookingActions: List<String>?) {
@@ -397,6 +408,7 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
         if (stop == null) {
             stop = cachedStop
         }
+        tripSegment = _tripSegment
 
         binding.goToNowButton.setOnClickListener {
             val layoutManager = binding.recyclerView.layoutManager as LinearLayoutManager
@@ -488,9 +500,9 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
         viewModel.setText(requireContext())
     }
 
-    fun setTripSegment(tripSegment: TripSegment?) {
-        this.tripSegment = tripSegment
-    }
+//    fun setTripSegment(tripSegment: TripSegment?) {
+//        this.tripSegment = tripSegment
+//    }
 
     class Builder {
         private var showCloseButton = false
@@ -559,7 +571,7 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
             fragment.segmentActionStream = actionStream
             fragment.cachedStop = stop
             fragment.cachedShowSearchBar = showSearchBar
-            fragment.setTripSegment(tripSegment)
+            fragment._tripSegment = tripSegment
             fragment.fromPreview = fromPreview
 
             return fragment

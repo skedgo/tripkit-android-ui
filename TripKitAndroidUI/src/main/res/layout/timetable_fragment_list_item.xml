@@ -12,128 +12,145 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:alpha="@{viewModel.alpha}"
-        android:background="?android:attr/selectableItemBackground"
-        android:descendantFocusability="blocksDescendants"
-        android:paddingStart="16dp"
-        android:paddingTop="12dp"
-        android:paddingEnd="16dp"
-        android:paddingBottom="12dp">
+        android:layout_height="wrap_content">
 
-
-        <!-- android:onClick="@{() -> viewModel.onItemClick.perform()}" -->
-
-        <LinearLayout
-            android:id="@+id/iconLayout"
-            android:layout_width="wrap_content"
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
+            android:alpha="@{viewModel.alpha}"
+            android:background="?android:attr/selectableItemBackground"
+            android:descendantFocusability="blocksDescendants"
+            android:paddingStart="16dp"
+            android:paddingTop="12dp"
+            android:paddingEnd="16dp"
+            android:paddingBottom="12dp"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
 
-            <ImageView
-                android:id="@+id/serviceType"
-                android:layout_width="16dp"
-                android:layout_height="16dp"
-                android:tint="@color/black2"
-                app:srcCompat="@{viewModel.modeInfo}" />
 
-            <androidx.cardview.widget.CardView xmlns:card_view="http://schemas.android.com/apk/res-auto"
+            <!-- android:onClick="@{() -> viewModel.onItemClick.perform()}" -->
+
+            <LinearLayout
+                android:id="@+id/iconLayout"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="4dp"
-                android:paddingLeft="4dp"
-                android:paddingRight="4dp"
-                card_view:cardBackgroundColor="@{viewModel.serviceColor}"
-                card_view:cardCornerRadius="4dp"
-                card_view:cardElevation="0dp">
+                android:orientation="horizontal"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
 
-                <TextView
-                    android:id="@+id/serviceLine"
-                    style="@style/TextAppearance.MaterialComponents.Caption"
+                <ImageView
+                    android:id="@+id/serviceType"
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:tint="@color/black2"
+                    app:srcCompat="@{viewModel.modeInfo}" />
+
+                <androidx.cardview.widget.CardView xmlns:card_view="http://schemas.android.com/apk/res-auto"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
                     android:paddingLeft="4dp"
                     android:paddingRight="4dp"
-                    android:text="@{viewModel.serviceNumber}"
-                    android:textColor="@android:color/white"
-                    tools:text="U1" />
-            </androidx.cardview.widget.CardView>
+                    card_view:cardBackgroundColor="@{viewModel.serviceColor}"
+                    card_view:cardCornerRadius="4dp"
+                    card_view:cardElevation="0dp">
+
+                    <TextView
+                        android:id="@+id/serviceLine"
+                        style="@style/TextAppearance.MaterialComponents.Caption"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingLeft="4dp"
+                        android:paddingRight="4dp"
+                        android:text="@{viewModel.serviceNumber}"
+                        android:textColor="@android:color/white"
+                        tools:text="U1" />
+                </androidx.cardview.widget.CardView>
+
+                <ImageView
+                    android:id="@+id/warning"
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:layout_marginStart="4dp"
+                    android:tint="@color/tripKitWarning"
+                    android:visibility="@{viewModel.serviceAlertViewModel.hasAlerts}"
+                    app:srcCompat="@drawable/ic_action_warning" />
+
+                <ImageView
+                    android:id="@+id/wheelchair"
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:layout_marginStart="4dp"
+                    android:layout_marginEnd="2dp"
+                    android:src="@{viewModel.wheelchairIcon}"
+                    android:tint="@{viewModel.wheelchairTint}" />
+
+                <ImageView
+                    android:id="@+id/occupancyView"
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:src="@{viewModel.occupancyViewModel.drawableLeft}"
+                    android:visibility="@{viewModel.showOccupancyInfo}"
+                    app:layout_constraintStart_toEndOf="@id/wheelchair"
+                    app:layout_constraintTop_toTopOf="@id/wheelchair" />
+
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/timeToDeparture"
+                style="@style/TextAppearance.MaterialComponents.Body1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@{viewModel.countDownTimeText}"
+                android:textColor="@color/tripKitPrimary"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="Now" />
+
+            <TextView
+                android:id="@+id/status"
+                style="@style/TextAppearance.MaterialComponents.Body2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="@{viewModel.secondaryText}"
+                android:textColor="@{viewModel.secondaryTextColor}"
+                app:layout_constraintStart_toStartOf="@+id/iconLayout"
+                app:layout_constraintTop_toBottomOf="@+id/iconLayout"
+                tools:text="Scheduled" />
+
+            <TextView
+                android:id="@+id/details"
+                style="@style/TextAppearance.MaterialComponents.Caption"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="@{viewModel.tertiaryText}"
+                android:textColor="@color/black1"
+                app:layout_constraintStart_toStartOf="@+id/status"
+                app:layout_constraintTop_toBottomOf="@+id/status"
+                tools:text="Fürth" />
 
             <ImageView
-                android:id="@+id/warning"
-                android:layout_width="16dp"
-                android:layout_height="16dp"
-                android:layout_marginStart="4dp"
-                android:tint="@color/tripKitWarning"
-                android:visibility="@{viewModel.serviceAlertViewModel.hasAlerts}"
-                app:srcCompat="@drawable/ic_action_warning" />
+                android:layout_width="@dimen/time_label_height"
+                android:layout_height="@dimen/time_label_height"
+                android:onClick="@{() -> viewModel.onItemClick.perform()}"
+                android:padding="@dimen/shadow_height"
+                android:src="@drawable/right_arrow"
+                android:tint="@color/colorPrimary"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
-            <ImageView
-                android:id="@+id/wheelchair"
-                android:layout_width="16dp"
-                android:layout_height="16dp"
-                android:layout_marginStart="4dp"
-                android:layout_marginEnd="2dp"
-                android:src="@{viewModel.wheelchairIcon}"
-                android:tint="@{viewModel.wheelchairTint}" />
-
-            <ImageView
-                android:id="@+id/occupancyView"
-                android:layout_width="16dp"
-                android:layout_height="16dp"
-                android:src="@{viewModel.occupancyViewModel.drawableLeft}"
-                android:visibility="@{viewModel.showOccupancyInfo}"
-                app:layout_constraintStart_toEndOf="@id/wheelchair"
-                app:layout_constraintTop_toTopOf="@id/wheelchair" />
-
-        </LinearLayout>
-
-        <TextView
-            android:id="@+id/timeToDeparture"
-            style="@style/TextAppearance.MaterialComponents.Body1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@{viewModel.countDownTimeText}"
-            android:textColor="@color/tripKitPrimary"
-            app:layout_constraintEnd_toEndOf="parent"
+        <View
+            android:layout_width="3dp"
+            android:layout_height="0dp"
+            android:background="@color/colorAccent"
+            android:visibility="@{viewModel.isCurrentTrip}"
             app:layout_constraintTop_toTopOf="parent"
-            tools:text="Now" />
-
-        <TextView
-            android:id="@+id/status"
-            style="@style/TextAppearance.MaterialComponents.Body2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:text="@{viewModel.secondaryText}"
-            android:textColor="@{viewModel.secondaryTextColor}"
-            app:layout_constraintStart_toStartOf="@+id/iconLayout"
-            app:layout_constraintTop_toBottomOf="@+id/iconLayout"
-            tools:text="Scheduled" />
-
-        <TextView
-            android:id="@+id/details"
-            style="@style/TextAppearance.MaterialComponents.Caption"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:text="@{viewModel.tertiaryText}"
-            android:textColor="@color/black1"
-            app:layout_constraintStart_toStartOf="@+id/status"
-            app:layout_constraintTop_toBottomOf="@+id/status"
-            tools:text="Fürth" />
-
-        <ImageView
-            android:layout_width="@dimen/time_label_height"
-            android:layout_height="@dimen/time_label_height"
-            android:onClick="@{() -> viewModel.onItemClick.perform()}"
-            android:padding="@dimen/shadow_height"
-            android:src="@drawable/right_arrow"
-            android:tint="@color/colorPrimary"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
-
+            app:layout_constraintStart_toStartOf="parent"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
