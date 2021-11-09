@@ -52,4 +52,6 @@
     <string name="desc_tap_to_close_or_go_back">Tap to close or go back</string>
     <string name="desc_change_button">Change Button</string>
     <string name="desc_done_button">Done Button</string>
+    <string name="action_call_taxis">Call Taxis Combined</string>
+    <string name="action_get_ingogo">Get ingogo</string>
 </resources>
