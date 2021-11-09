@@ -3,10 +3,12 @@ package com.skedgo.tripkit.ui.utils
 import androidx.fragment.app.Fragment
 
 //For generic fragment replace use
-fun Fragment.replaceFragment(fragment: Fragment, tag: String, containerViewId: Int) {
+fun Fragment.replaceFragment(fragment: Fragment, tag: String, containerViewId: Int, checkBackStack: Boolean = true) {
 
-    if (childFragmentManager.findFragmentByTag(tag)?.isVisible == true) {
-        return
+    if (checkBackStack) {
+        if (childFragmentManager.findFragmentByTag(tag)?.isVisible == true) {
+            return
+        }
     }
 
     childFragmentManager
