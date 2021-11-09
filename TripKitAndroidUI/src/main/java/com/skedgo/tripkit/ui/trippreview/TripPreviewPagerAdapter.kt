@@ -90,7 +90,7 @@ class TripPreviewPagerAdapter(fragmentManager: FragmentManager)
                         .showCloseButton()
                         .isFromPreview(true)
                         .build()
-                timetableFragment.setTripSegment(page.tripSegment)
+                timetableFragment._tripSegment = (page.tripSegment)
                 timetableFragment.onNextPage = {
                     onSwipePage.invoke(true)
                 }

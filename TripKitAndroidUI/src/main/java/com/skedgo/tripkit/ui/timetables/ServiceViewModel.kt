@@ -26,6 +26,7 @@ abstract class ServiceViewModel() : RxViewModel() {
     abstract val countDownTimeTextBack: ObservableField<Drawable>
     abstract val serviceColor: ObservableInt
     abstract val showOccupancyInfo: ObservableBoolean
+    abstract val isCurrentTrip: ObservableBoolean
 
 //    abstract val wheelchairAccessible: ObservableBoolean
 //    abstract val wheelchairInaccessible: ObservableBoolean
@@ -41,6 +42,6 @@ abstract class ServiceViewModel() : RxViewModel() {
     abstract var dateTimeZone: DateTimeZone
 
     abstract fun getRealTimeDeparture(): Long
-    abstract fun setService(_service: TimetableEntry, _dateTimeZone: DateTimeZone)
+    abstract fun setService(_currentTripId: String, _service: TimetableEntry, _dateTimeZone: DateTimeZone)
 
 }

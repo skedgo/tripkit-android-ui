@@ -29,10 +29,11 @@ import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
 
-class TripResultTripViewModel: ViewModel() {
+class TripResultTripViewModel : ViewModel() {
     var trip: Trip? = null
     val title = ObservableField<String>()
     val subtitle = ObservableField<String>()
+    val isMissedPreBooking = ObservableField<Boolean>()
     var clickFlow: MutableSharedFlow<Trip>? = null
     val segments = ArrayList<TripSegmentViewModel>()
     fun onItemClicked() {
@@ -45,10 +46,10 @@ class TripResultTripViewModel: ViewModel() {
 
 }
 
-class TripResultViewModel  @Inject constructor(private val context: Context,
-        private val tripSegmentHelper: TripSegmentHelper,
-                                               private val printTime: PrintTime,
-                                               private val resources: Resources)
+class TripResultViewModel @Inject constructor(private val context: Context,
+                                              private val tripSegmentHelper: TripSegmentHelper,
+                                              private val printTime: PrintTime,
+                                              private val resources: Resources)
     : RxViewModel() {
     val onItemClicked: TapAction<TripResultViewModel> = TapAction.create { this }
     val onMoreButtonClicked: TapAction<TripResultViewModel> = TapAction.create { this }
@@ -74,10 +75,10 @@ class TripResultViewModel  @Inject constructor(private val context: Context,
     val cost = ObservableField<String>()
     val moreButtonVisible = ObservableBoolean(false)
     var moreButtonText = ObservableField<String>()
-    var otherTripGroups : List<Trip>? = null
+    var otherTripGroups: List<Trip>? = null
     var classification = TripGroupClassifier.Classification.NONE
 
-    fun toggleShowMore(){
+    fun toggleShowMore() {
         showMoreTrips.set(!showMoreTrips.get())
 
         if (showMoreTrips.get()) {
@@ -95,11 +96,11 @@ class TripResultViewModel  @Inject constructor(private val context: Context,
         }
     }
 
-    override fun equals(other: Any?) : Boolean {
+    override fun equals(other: Any?): Boolean {
         if (other == null
-          || other !is TripResultViewModel
-          || other.group.uuid() != group.uuid()
-          || other.trip.segments.size != trip.segments.size)
+                || other !is TripResultViewModel
+                || other.group.uuid() != group.uuid()
+                || other.trip.segments.size != trip.segments.size)
             return false
         trip.segments.forEachIndexed { index, value ->
             if (value.bookingHashCode != other.trip.segments[index].bookingHashCode) return false
@@ -113,7 +114,7 @@ class TripResultViewModel  @Inject constructor(private val context: Context,
 
     fun setTripGroup(context: Context,
                      tripgroup: TripGroup,
-                     classification: TripGroupClassifier.Classification?)  {
+                     classification: TripGroupClassifier.Classification?) {
         group = tripgroup
         trip = tripgroup.displayTrip!!
         otherTripGroups = tripgroup.trips?.filterNot { it.uuid() == trip.uuid() }
@@ -128,13 +129,13 @@ class TripResultViewModel  @Inject constructor(private val context: Context,
         alternateTrip?.let {
             addTripToList(it)
             val otherTrips = otherTripGroups?.toMutableList()
-            otherTrips?.removeAll { otherTrip -> otherTrip.id == it.id  }
+            otherTrips?.removeAll { otherTrip -> otherTrip.id == it.id }
             otherTripGroups = otherTrips
         }
 
         setCost()
 
-        if(otherTripGroups.isNullOrEmpty()) {
+        if (otherTripGroups.isNullOrEmpty()) {
             val actionButtonText = actionButtonHandler?.getPrimaryAction(context, trip)
 
             actionButtonText?.let {
@@ -142,7 +143,7 @@ class TripResultViewModel  @Inject constructor(private val context: Context,
                 moreButtonVisible.set(true)
             }
 
-        }else{
+        } else {
             moreButtonText.set(context.resources.getString(R.string.more))
             moreButtonVisible.set(true)
         }
@@ -152,16 +153,17 @@ class TripResultViewModel  @Inject constructor(private val context: Context,
         tripResults.add(tripToTripResultTripViewModel(trip))
     }
 
-    private fun removeFromTripList(trips: List<TripResultTripViewModel>){
+    private fun removeFromTripList(trips: List<TripResultTripViewModel>) {
         tripResults.removeAll { trips.any { toRemove -> it.trip == toRemove.trip } }
     }
 
-    private fun tripToTripResultTripViewModel(trip: Trip): TripResultTripViewModel{
+    private fun tripToTripResultTripViewModel(trip: Trip): TripResultTripViewModel {
         val newVm = TripResultTripViewModel()
         newVm.trip = trip
         newVm.clickFlow = clickFlow
         newVm.title.set(buildTitle(trip))
         newVm.subtitle.set(buildSubtitle(trip))
+        newVm.isMissedPreBooking.set(trip.segments?.first()?.availability.equals(Availability.MissedPrebookingWindow.value))
         setSegments(newVm.segments, trip)
 
         return newVm
@@ -170,13 +172,27 @@ class TripResultViewModel  @Inject constructor(private val context: Context,
     private fun setBadge(classification: TripGroupClassifier.Classification) {
         this.classification = classification
         val (drawableRes, textRes, textColor) = when (classification) {
-            TripGroupClassifier.Classification.EASIEST -> {  Triple(R.drawable.ic_like_circle, R.string.easiest, R.color.classification_easiest) }
-            TripGroupClassifier.Classification.CHEAPEST -> {  Triple(R.drawable.ic_money_sign_circle, R.string.cheapest, R.color.classification_cheapest) }
-            TripGroupClassifier.Classification.FASTEST -> {  Triple(R.drawable.ic_lightning_circle,R.string.fastest, R.color.classification_fastest) }
-            TripGroupClassifier.Classification.GREENEST -> {  Triple(R.drawable.ic_leaf_circle, R.string.greenest, R.color.classification_greenest) }
-            TripGroupClassifier.Classification.HEALTHIEST -> {  Triple(R.drawable.ic_heart_circle, R.string.healthiest, R.color.classification_healthiest) }
-            TripGroupClassifier.Classification.RECOMMENDED -> {  Triple(R.drawable.ic_recommeneded_circle, R.string.recommended, R.color.classification_recommended) }
-            else -> { Triple(-1, -1, -1)}
+            TripGroupClassifier.Classification.EASIEST -> {
+                Triple(R.drawable.ic_like_circle, R.string.easiest, R.color.classification_easiest)
+            }
+            TripGroupClassifier.Classification.CHEAPEST -> {
+                Triple(R.drawable.ic_money_sign_circle, R.string.cheapest, R.color.classification_cheapest)
+            }
+            TripGroupClassifier.Classification.FASTEST -> {
+                Triple(R.drawable.ic_lightning_circle, R.string.fastest, R.color.classification_fastest)
+            }
+            TripGroupClassifier.Classification.GREENEST -> {
+                Triple(R.drawable.ic_leaf_circle, R.string.greenest, R.color.classification_greenest)
+            }
+            TripGroupClassifier.Classification.HEALTHIEST -> {
+                Triple(R.drawable.ic_heart_circle, R.string.healthiest, R.color.classification_healthiest)
+            }
+            TripGroupClassifier.Classification.RECOMMENDED -> {
+                Triple(R.drawable.ic_recommeneded_circle, R.string.recommended, R.color.classification_recommended)
+            }
+            else -> {
+                Triple(-1, -1, -1)
+            }
         }
         if (drawableRes != -1) {
             badgeDrawable.set(ContextCompat.getDrawable(context, drawableRes))
@@ -187,29 +203,30 @@ class TripResultViewModel  @Inject constructor(private val context: Context,
     }
 
 
-    private fun buildTitle(_trip: Trip) : String {
+    private fun buildTitle(_trip: Trip): String {
         return if (_trip.isDepartureTimeFixed) {
             showTimeRange(_trip.startDateTime, _trip.endDateTime)
         } else {
             formatDuration(_trip.startTimeInSecs, _trip.endTimeInSecs)
         }
     }
+
     /**
      * For example, '09:40am - 10:40am (59mins)'
      */
-    private fun showTimeRange(startDateTime: DateTime, endDateTime: DateTime) : String {
+    private fun showTimeRange(startDateTime: DateTime, endDateTime: DateTime): String {
         return "${printTime.printLocalTime(startDateTime.toLocalTime())} - ${printTime.printLocalTime(endDateTime.toLocalTime())}"
     }
 
     /**
      * For example, 1hr 50mins
      */
-    private fun formatDuration(startTimeInSecs: Long, endTimeInSecs: Long): String  = TimeUtils.getDurationInDaysHoursMins((endTimeInSecs - startTimeInSecs).toInt())
+    private fun formatDuration(startTimeInSecs: Long, endTimeInSecs: Long): String = TimeUtils.getDurationInDaysHoursMins((endTimeInSecs - startTimeInSecs).toInt())
 
     private fun buildSubtitle(_trip: Trip): String {
         return if (_trip.isDepartureTimeFixed) {
             formatDuration(_trip.startTimeInSecs, _trip.endTimeInSecs)
-        } else if (!_trip.queryIsLeaveAfter()){
+        } else if (!_trip.queryIsLeaveAfter()) {
             resources.getString(R.string.departs__pattern, printTime.printLocalTime(_trip.startDateTime.toLocalTime()))
         } else {
             resources.getString(R.string.arrives__pattern, printTime.printLocalTime(_trip.endDateTime.toLocalTime()))
