@@ -27,7 +27,11 @@ open class GetRealtimeText @Inject constructor(
         val endTime = realTimeArrival(service, service.realtimeVehicle)
         val startDateTime = DateTime(TimeUnit.SECONDS.toMillis(startTime))
         val endDateTime = DateTime(TimeUnit.SECONDS.toMillis(endTime))
-        val schedule = "${startDateTime.toString(dateTimeFormatter.withZone(dateTimeZone))} - ${endDateTime.toString(dateTimeFormatter.withZone(dateTimeZone))}"
+        val schedule = if (endTime > 0) {
+            "${startDateTime.toString(dateTimeFormatter.withZone(dateTimeZone))} - ${endDateTime.toString(dateTimeFormatter.withZone(dateTimeZone))}"
+        } else {
+            startDateTime.toString(dateTimeFormatter.withZone(dateTimeZone))
+        }
 
         return when {
             service.realTimeStatus == null || service.realTimeStatus == RealTimeStatus.INCAPABLE ->
@@ -39,7 +43,7 @@ open class GetRealtimeText @Inject constructor(
 
                 var timeDiff = service.serviceTime - realtimeDeparture
                 if (timeDiff > 36000) {
-                  timeDiff = endTime - realtimeDeparture
+                    timeDiff = endTime - realtimeDeparture
                 }
 
                 val (status, delayed) = when {
