@@ -39,6 +39,7 @@ import com.skedgo.tripkit.ui.favorites.trips.getModeForWayPoint
 import com.skedgo.tripkit.ui.views.MultiStateView
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.functions.Function3
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -60,7 +61,7 @@ class TimetableViewModel @Inject constructor(
         private val resources: Resources
 ) : RxViewModel() {
     var stop: BehaviorRelay<ScheduledStop> = BehaviorRelay.create()
-    var segment: BehaviorRelay<TripSegment> = BehaviorRelay.create()
+    var serviceTripId: BehaviorRelay<String> = BehaviorRelay.create()
 
     val stationName = ObservableField<String>()
     val stationType = ObservableField<String>()
@@ -103,16 +104,23 @@ class TimetableViewModel @Inject constructor(
         regionService.getRegionByLocationAsync(it)
     }
 
-    private val currentServiceTripId = segment.flatMap {
-        Observable.just(it.serviceTripId)
+    private val currentServiceTripId = serviceTripId.flatMap {
+        Observable.just(it)
     }
     private var _currentServiceTripId: String? = null
 
     val minStartTime = onDateChanged.mergeWith(downloadTimetable).map { it }
 
     private val servicesAndParentStop = Observables
-            .combineLatest(minStartTime, regionObservable, stop)
-            { sinceTimeInSecs, region, stop -> Triple(sinceTimeInSecs, region, stop) }
+            .combineLatest(minStartTime, currentServiceTripId, regionObservable, stop)
+            { sinceTimeInSecs, currentServiceTripId, region, stop ->
+                val time = if (currentServiceTripId.isNullOrEmpty()) {
+                    sinceTimeInSecs / 1000
+                } else {
+                    sinceTimeInSecs
+                }
+                Triple(time, region, stop)
+            }
             .switchMap { (sinceTimeInSecs, region, stop) ->
                 Flowable.create<Pair<List<TimetableEntry>, Optional<ScheduledStop>>>({ emitter ->
                     val timeInSecs = AtomicLong(sinceTimeInSecs)
