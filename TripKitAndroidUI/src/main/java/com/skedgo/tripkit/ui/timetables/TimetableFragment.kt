@@ -114,7 +114,9 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
     var tripSegment: TripSegment? = null
         set(value) {
             if (value != null) {
-                this.viewModel.segment.accept(value);
+                this.viewModel.serviceTripId.accept(value.serviceTripId)
+            } else {
+                this.viewModel.serviceTripId.accept("")
             }
             field = value
         }
@@ -210,8 +212,13 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
                     binding.recyclerView.layoutManager?.startSmoothScroll(smoothScroller)
                 }.addTo(autoDisposable)
 //        viewModel.downloadTimetable.accept(System.currentTimeMillis() - TimeUtils.InMillis.MINUTE * 10)
+        val buffer = if (tripSegment == null) {
+            TimeUtils.InMillis.MINUTE * 10
+        } else {
+            (60 * 20)
+        }
         viewModel.downloadTimetable.accept((tripSegment?.startTimeInSecs
-                ?: System.currentTimeMillis()) - (60 * 20))
+                ?: System.currentTimeMillis()) - buffer)
 
         viewModel.actionChosen.observeOn(AndroidSchedulers.mainThread())
                 .subscribe {
@@ -562,7 +569,7 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
         fun build(): TimetableFragment {
             val args = Bundle()
             val fragment = TimetableFragment()
-//            args.putParcelable(ARG_STOP, stop)
+            args.putParcelable(ARG_STOP, stop)
             args.putStringArrayList(ARG_BOOKING_ACTION, bookingActions)
             args.putBoolean(ARG_SHOW_CLOSE_BUTTON, showCloseButton)
             args.putBoolean(ARG_SHOW_SEARCH_FIELD, showSearchBar)
