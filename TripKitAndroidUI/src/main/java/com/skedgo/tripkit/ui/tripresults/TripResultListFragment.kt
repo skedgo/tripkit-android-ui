@@ -6,12 +6,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
-import androidx.recyclerview.widget.RecyclerView
 import com.google.android.flexbox.FlexDirection
 import com.google.android.flexbox.FlexboxLayoutManager
-import com.jakewharton.rxrelay2.BehaviorRelay
+import com.skedgo.TripKit
 import com.skedgo.tripkit.TransportModeFilter
 import com.skedgo.tripkit.common.model.Query
 import com.skedgo.tripkit.common.model.TimeTag
@@ -24,8 +22,6 @@ import com.skedgo.tripkit.ui.core.OnResultStateListener
 import com.skedgo.tripkit.ui.core.addTo
 import com.skedgo.tripkit.ui.databinding.TripResultListFragmentBinding
 import com.skedgo.tripkit.ui.dialog.TripKitDateTimePickerDialogFragment
-import com.skedgo.tripkit.ui.tripresult.UpdateTripForRealtime
-import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButtonHandler
 import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButtonHandlerFactory
 import com.skedgo.tripkit.ui.views.MultiStateView
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -209,10 +205,17 @@ class TripResultListFragment : BaseTripKitFragment() {
         }
 
         try {
+
+            val globalConfigs = TripKit.getInstance().configs()
+
             var fragment = TripKitDateTimePickerDialogFragment.Builder()
+                    .withTitle(getString(R.string.set_time))
                     .withTimeZones(departureTimezone, arrivalTimezone)
                     .withTimeType(timeTag.type)
                     .timeMillis(timeMillis)
+                    .withPositiveAction(R.string.done, true)
+                    .setLeaveAtLabel(globalConfigs.dateTimePickerConfig()?.dateTimePickerLeaveAtLabel)
+                    .setArriveByLabel(globalConfigs.dateTimePickerConfig()?.dateTimePickerArriveByLabel)
                     .build()
             fragment.setOnTimeSelectedListener(object: TripKitDateTimePickerDialogFragment.OnTimeSelectedListener {
                 override fun onTimeSelected(timeTag: TimeTag) {
