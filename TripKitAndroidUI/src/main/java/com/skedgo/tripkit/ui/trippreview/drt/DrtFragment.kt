@@ -111,6 +111,8 @@ class DrtFragment : BaseFragment<FragmentDrtBinding>(), DrtHandler {
                                     viewModel.updateInputValue(drtItem)
                                 }
                             }.show(childFragmentManager, drtItem.label.value ?: "")
+                        } else if (drtItem.label.value == DrtItem.RETURN_TRIP) {
+                            // TODO call the date time picker
                         } else {
                             GenericListDialogFragment.newInstance(
                                     GenericListItem.parseOptions(

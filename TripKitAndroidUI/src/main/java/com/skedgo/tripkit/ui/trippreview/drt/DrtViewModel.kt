@@ -174,7 +174,7 @@ class DrtViewModel @Inject constructor(
         val result = mutableListOf<DrtItemViewModel>()
 
         inputs.forEach {
-            if (it.type != QuickBookingType.LONG_TEXT && it.options.isNullOrEmpty()) {
+            if (it.type != QuickBookingType.LONG_TEXT && it.type != QuickBookingType.RETURN_TRIP && it.options.isNullOrEmpty()) {
                 return@forEach
             }
             result.add(
@@ -217,6 +217,7 @@ class DrtViewModel @Inject constructor(
             "mobilityOptions" -> R.drawable.ic_person
             "purpose" -> R.drawable.ic_flag
             "notes" -> R.drawable.ic_edit
+            "returnTrip" -> R.drawable.ic_tickets
             else -> R.drawable.ic_note
         }
     }
