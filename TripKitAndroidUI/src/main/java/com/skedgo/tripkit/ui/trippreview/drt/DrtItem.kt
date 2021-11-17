@@ -6,12 +6,14 @@ import androidx.annotation.StringDef
 @StringDef(
         DrtItem.MOBILITY_OPTIONS,
         DrtItem.PURPOSE,
-        DrtItem.ADD_NOTE
+        DrtItem.ADD_NOTE,
+        DrtItem.RETURN_TRIP
 )
 annotation class DrtItem {
     companion object {
         const val MOBILITY_OPTIONS = "Mobility Options"
         const val PURPOSE = "Purpose"
         const val ADD_NOTE = "Add note"
+        const val RETURN_TRIP = "Return trip"
     }
 }
