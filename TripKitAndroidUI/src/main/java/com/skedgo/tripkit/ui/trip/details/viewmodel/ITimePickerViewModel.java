@@ -2,12 +2,15 @@ package com.skedgo.tripkit.ui.trip.details.viewmodel;
 
 import android.os.Bundle;
 
+import androidx.annotation.Nullable;
 import androidx.databinding.ObservableBoolean;
 import androidx.databinding.ObservableField;
 import androidx.databinding.ObservableInt;
 
 import com.skedgo.tripkit.common.model.TimeTag;
 
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 
 public interface ITimePickerViewModel {
@@ -18,9 +21,9 @@ public interface ITimePickerViewModel {
 
     ObservableField<String> arriveByLabel();
 
-    ObservableField<String> singleLabel();
+    ObservableField<String> singleSelectionLabel();
 
-    ObservableBoolean isSingleLabel();
+    ObservableBoolean isSingleSelection();
 
     ObservableInt positiveActionLabel();
 
@@ -40,6 +43,9 @@ public interface ITimePickerViewModel {
 
     int getMinute();
 
+    @Nullable
+    Date dateTimeMinLimit();
+
     void handleArguments(Bundle args);
 
     void updateTime(int hour, int minute);
@@ -47,4 +53,7 @@ public interface ITimePickerViewModel {
     TimeTag leaveNow();
 
     TimeTag done();
+
+    @Nullable
+    GregorianCalendar getSelectedDate();
 }

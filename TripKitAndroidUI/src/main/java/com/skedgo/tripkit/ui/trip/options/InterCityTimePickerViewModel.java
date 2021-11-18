@@ -4,8 +4,10 @@ import android.content.Context;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.text.format.DateFormat;
+import android.text.format.DateUtils;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import androidx.databinding.Observable;
 import androidx.databinding.ObservableBoolean;
@@ -18,6 +20,7 @@ import com.skedgo.tripkit.ui.R;
 import com.skedgo.tripkit.ui.trip.details.viewmodel.ITimePickerViewModel;
 import com.squareup.otto.Bus;
 
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -25,8 +28,7 @@ public class InterCityTimePickerViewModel implements ITimePickerViewModel {
     public static final String ARG_TITLE = "title";
     public static final String ARG_LEAVE_AT_LABEL = "leave_at_label";
     public static final String ARG_ARRIVE_BY_LABEL = "arrive_by_label";
-    public static final String ARG_SINGLE_LABEL = "single_label";
-    public static final String ARG_IS_SINGLE_LABEL = "is_single_label";
+    public static final String ARG_SINGLE_SELECTION_LABEL = "single_label";
     public static final String ARG_POSITIVE_ACTION = "positive_action";
     public static final String ARG_SHOW_POSITIVE_ACTION = "show_positive_action";
     public static final String ARG_NEGATIVE_ACTION = "negative_action";
@@ -35,6 +37,7 @@ public class InterCityTimePickerViewModel implements ITimePickerViewModel {
     public static final String ARG_ARRIVAL_TIMEZONE = "arrivalTimezone";
     public static final String ARG_TIME_IN_MILLIS = "time_in_millis";
     public static final String ARG_TIME_TYPE = "time_type";
+    public static final String ARG_DATE_TIME_PICKER_MIN_LIMIT = "dateTimePickerMinLimit";
     private static final String DATE_FORMAT = "EEE, MMM dd";
     private static final int MAX_DATE_COUNT = 28; // 4 weeks ahead.
 
@@ -50,18 +53,20 @@ public class InterCityTimePickerViewModel implements ITimePickerViewModel {
     private GregorianCalendar timeCalendar;
     private List<GregorianCalendar> departureCalendars;
     private List<GregorianCalendar> arrivalCalendars;
+    private List<GregorianCalendar> singleSelectionCalendars;
     private ObservableInt selectedPosition;
     private ObservableBoolean isLeaveAfter;
+    private ObservableBoolean isSingleSelection;
     private String defaultTimezone;
     private ObservableField<String> dialogTitle;
     private ObservableField<String> leaveAtLabel;
     private ObservableField<String> arriveByLabel;
     private ObservableField<String> singleLabel;
-    private ObservableBoolean isSingleLabel;
     private ObservableInt positiveActionLabel;
     private ObservableBoolean showPositiveAction;
     private ObservableInt negativeActionLabel;
     private ObservableBoolean showNegativeAction;
+    private ObservableField<Date> dateTimePickerMinLimit;
 
     public InterCityTimePickerViewModel(
             @NonNull Context context,
@@ -74,6 +79,7 @@ public class InterCityTimePickerViewModel implements ITimePickerViewModel {
         this.dates = new ObservableField<>();
         this.selectedPosition = new ObservableInt(1);
         this.isLeaveAfter = new ObservableBoolean(true);
+        this.isSingleSelection = new ObservableBoolean(false);
         this.defaultTimezone = defaultTimezone;
         this.dialogTitle = new ObservableField<>();
         this.leaveAtLabel = new ObservableField(context.getString(R.string.leave_at));
@@ -83,7 +89,7 @@ public class InterCityTimePickerViewModel implements ITimePickerViewModel {
         this.negativeActionLabel = new ObservableInt(R.string.leave_now);
         this.showNegativeAction = new ObservableBoolean(false);
         this.singleLabel = new ObservableField<>();
-        this.isSingleLabel = new ObservableBoolean(false);
+        this.dateTimePickerMinLimit = new ObservableField<>();
     }
 
 
@@ -112,7 +118,13 @@ public class InterCityTimePickerViewModel implements ITimePickerViewModel {
             }
             if (args.containsKey(ARG_TIME_TYPE)) {
                 int timeType = args.getInt(ARG_TIME_TYPE);
-                this.isLeaveAfter.set(timeType == defaultTimeType);
+                if (timeType == TimeTag.TIME_TYPE_SINGLE_SELECTION) {
+                    this.isLeaveAfter.set(false);
+                    this.isSingleSelection.set(true);
+                } else {
+                    this.isLeaveAfter.set(timeType == defaultTimeType);
+                    this.isSingleSelection.set(false);
+                }
             }
             if (args.containsKey(ARG_TITLE)) {
                 this.dialogTitle.set(args.getString(ARG_TITLE, ""));
@@ -139,13 +151,16 @@ public class InterCityTimePickerViewModel implements ITimePickerViewModel {
             if (args.containsKey(ARG_ARRIVE_BY_LABEL)) {
                 this.arriveByLabel.set(args.getString(ARG_ARRIVE_BY_LABEL, ""));
             }
-            if (args.containsKey(ARG_IS_SINGLE_LABEL)) {
-                boolean isSingleLabel = args.getBoolean(ARG_IS_SINGLE_LABEL);
-                if (isSingleLabel && args.containsKey(ARG_SINGLE_LABEL)) {
-                    this.isSingleLabel.set(isSingleLabel);
-                    this.singleLabel.set(args.getString(ARG_SINGLE_LABEL, ""));
+            if (args.containsKey(ARG_SINGLE_SELECTION_LABEL)) {
+                this.singleLabel.set(args.getString(ARG_SINGLE_SELECTION_LABEL, ""));
+            }
+            if (args.containsKey(ARG_DATE_TIME_PICKER_MIN_LIMIT)) {
+                long dateTimeLong = args.getLong(ARG_DATE_TIME_PICKER_MIN_LIMIT, -1L);
+                if (dateTimeLong != -1L) {
+                    dateTimePickerMinLimit.set(new Date(dateTimeLong));
                 }
             }
+
             initValues();
         }
     }
@@ -166,13 +181,13 @@ public class InterCityTimePickerViewModel implements ITimePickerViewModel {
     }
 
     @Override
-    public ObservableField<String> singleLabel() {
+    public ObservableField<String> singleSelectionLabel() {
         return singleLabel;
     }
 
     @Override
-    public ObservableBoolean isSingleLabel() {
-        return isSingleLabel;
+    public ObservableBoolean isSingleSelection() {
+        return isSingleSelection;
     }
 
     @Override
@@ -221,6 +236,11 @@ public class InterCityTimePickerViewModel implements ITimePickerViewModel {
     }
 
     @Override
+    public Date dateTimeMinLimit() {
+        return dateTimePickerMinLimit.get();
+    }
+
+    @Override
     public void updateTime(int hour, int minute) {
         timeCalendar.set(Calendar.HOUR_OF_DAY, hour);
         timeCalendar.set(Calendar.MINUTE, minute);
@@ -233,8 +253,10 @@ public class InterCityTimePickerViewModel implements ITimePickerViewModel {
 
     @Override
     public TimeTag done() {
-        GregorianCalendar dateCalendar = this.isLeaveAfter.get() ?
-                departureCalendars.get(selectedPosition.get()) : arrivalCalendars.get(selectedPosition.get());
+        GregorianCalendar dateCalendar = this.isSingleSelection.get() ?
+                singleSelectionCalendars.get(selectedPosition.get()) :
+                this.isLeaveAfter.get() ? departureCalendars.get(selectedPosition.get()) :
+                        arrivalCalendars.get(selectedPosition.get());
         return getTimeTagFromDateTime(dateCalendar, timeCalendar);
     }
 
@@ -261,9 +283,12 @@ public class InterCityTimePickerViewModel implements ITimePickerViewModel {
     private void initValues() {
         GregorianCalendar departureTime = createTime(departureTimezone);
         GregorianCalendar arrivalTime = createTime(arrivalTimezone);
+        GregorianCalendar singleSelectionTime = createTime(arrivalTimezone);
         this.departureCalendars = createDateRange((GregorianCalendar) departureTime.clone());
         this.arrivalCalendars = createDateRange((GregorianCalendar) arrivalTime.clone());
+        this.singleSelectionCalendars = createDateRange((GregorianCalendar) singleSelectionTime.clone());
         this.isLeaveAfter.addOnPropertyChangedCallback(onTimeTypePropertyChanged());
+        this.isSingleSelection.addOnPropertyChangedCallback(onTimeTypePropertyChanged());
         moveToLastSelectedTime();
     }
 
@@ -285,7 +310,7 @@ public class InterCityTimePickerViewModel implements ITimePickerViewModel {
 
     private List<GregorianCalendar> createDateRange(@NonNull GregorianCalendar date) {
         List<GregorianCalendar> dateRange = new ArrayList<>(MAX_DATE_COUNT);
-        date.add(Calendar.DAY_OF_MONTH, -1);
+        //date.add(Calendar.DAY_OF_MONTH, -1);
         GregorianCalendar newDate;
         for (int i = 0; i < MAX_DATE_COUNT; ++i) {
             newDate = (GregorianCalendar) date.clone();
@@ -297,8 +322,10 @@ public class InterCityTimePickerViewModel implements ITimePickerViewModel {
 
     private TimeTag getTimeTagFromDateTime(@NonNull GregorianCalendar date,
                                            @NonNull GregorianCalendar time) {
-        TimeZone timeZone = this.isLeaveAfter.get() ? departureTimezone : arrivalTimezone;
-        int timeType = this.isLeaveAfter.get() ? defaultTimeType : TimeTag.TIME_TYPE_ARRIVE_BY;
+        TimeZone timeZone = this.isSingleSelection.get() ? arrivalTimezone :
+                this.isLeaveAfter.get() ? departureTimezone : arrivalTimezone;
+        int timeType = this.isSingleSelection.get() ? TimeTag.TIME_TYPE_SINGLE_SELECTION :
+                this.isLeaveAfter.get() ? defaultTimeType : TimeTag.TIME_TYPE_ARRIVE_BY;
         GregorianCalendar newTime = combineDateTime(time, date, timeZone);
         return TimeTag.createForTimeType(
                 timeType,
@@ -336,14 +363,20 @@ public class InterCityTimePickerViewModel implements ITimePickerViewModel {
         TimeZone fromTimeZone;
         TimeZone toTimeZone;
         GregorianCalendar dateCalendar;
-        if (this.isLeaveAfter.get()) {
+        if (this.isSingleSelection.get()) {
             fromTimeZone = arrivalTimezone;
             toTimeZone = departureTimezone;
-            dateCalendar = arrivalCalendars.get(selectedPosition.get());
+            dateCalendar = singleSelectionCalendars.get(selectedPosition.get());
         } else {
-            fromTimeZone = departureTimezone;
-            toTimeZone = arrivalTimezone;
-            dateCalendar = departureCalendars.get(selectedPosition.get());
+            if (this.isLeaveAfter.get()) {
+                fromTimeZone = arrivalTimezone;
+                toTimeZone = departureTimezone;
+                dateCalendar = arrivalCalendars.get(selectedPosition.get());
+            } else {
+                fromTimeZone = departureTimezone;
+                toTimeZone = arrivalTimezone;
+                dateCalendar = departureCalendars.get(selectedPosition.get());
+            }
         }
         GregorianCalendar dateTimeCalendar = combineDateTime(
                 timeCalendar,
@@ -399,14 +432,74 @@ public class InterCityTimePickerViewModel implements ITimePickerViewModel {
 
     private List<String> formatDateTime(@NonNull List<GregorianCalendar> dateRange) {
         List<String> formatDates = new ArrayList<>(MAX_DATE_COUNT);
+        int count = 0;
+        boolean skip = false;
+        while (!skip) {
+            String label = checkDateForStringLabel(dateRange.get(count).getTime());
+            if (label != null) {
+                formatDates.add(label);
+            } else {
+                skip = true;
+            }
+
+            count++;
+        }
+        /*
         formatDates.add(context.getString(R.string.yesterday));
         formatDates.add(context.getString(R.string.today));
         formatDates.add(context.getString(R.string.tomorrow));
+        */
         String dateString;
-        for (int i = 3; i < MAX_DATE_COUNT; ++i) {
+        for (int i = count; i < MAX_DATE_COUNT; ++i) {
             dateString = DateFormat.format(DATE_FORMAT, dateRange.get(i)).toString();
             formatDates.add(dateString);
         }
         return formatDates;
     }
+
+    @Override
+    @Nullable
+    public GregorianCalendar getSelectedDate() {
+        @Nullable GregorianCalendar result;
+        if (isSingleSelection.get()) {
+            result = singleSelectionCalendars.get(selectedPosition.get());
+        } else if (isLeaveAfter.get()) {
+            result = departureCalendars.get(selectedPosition.get());
+        } else {
+            result = arrivalCalendars.get(selectedPosition.get());
+        }
+        return result;
+    }
+
+    @Nullable
+    private String checkDateForStringLabel(Date oldTime) {
+        Date newTime = new Date();
+        try {
+            Calendar cal = Calendar.getInstance();
+            cal.setTime(newTime);
+            Calendar oldCal = Calendar.getInstance();
+            oldCal.setTime(oldTime);
+
+            int oldYear = oldCal.get(Calendar.YEAR);
+            int year = cal.get(Calendar.YEAR);
+            int oldDay = oldCal.get(Calendar.DAY_OF_YEAR);
+            int day = cal.get(Calendar.DAY_OF_YEAR);
+
+            if (oldYear == year) {
+                int value = oldDay - day;
+                if (value == -1) {
+                    return context.getString(R.string.yesterday);
+                } else if (value == 0) {
+                    return context.getString(R.string.today);
+                } else if (value == 1) {
+                    return context.getString(R.string.tomorrow);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
 }
+

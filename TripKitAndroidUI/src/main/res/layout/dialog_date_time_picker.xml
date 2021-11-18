@@ -1,4 +1,3 @@
-
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -24,7 +23,7 @@
             android:id="@+id/time_options"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:visibility="@{!viewModel.isSingleLabel()}"
+            android:visibility="@{!viewModel.isSingleSelection()}"
             android:orientation="horizontal">
 
             <RadioButton
@@ -50,8 +49,8 @@
             android:layout_height="wrap_content"
             android:padding="@dimen/spacing_small"
             android:gravity="start"
-            android:text="@{viewModel.singleLabel()}"
-            android:visibility="@{viewModel.isSingleLabel()}"
+            android:text="@{viewModel.singleSelectionLabel()}"
+            android:visibility="@{viewModel.isSingleSelection()}"
             tools:text="Single Label" />
 
 

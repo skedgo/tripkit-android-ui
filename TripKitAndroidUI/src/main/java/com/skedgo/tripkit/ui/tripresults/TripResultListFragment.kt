@@ -27,6 +27,7 @@ import com.skedgo.tripkit.ui.views.MultiStateView
 import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.android.synthetic.main.trip_result_list_fragment.view.*
 import timber.log.Timber
+import java.util.*
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
@@ -45,8 +46,8 @@ class TripResultListFragment : BaseTripKitFragment() {
         this.tripSelectedListener = callback
     }
 
-    fun setOnTripSelectedListener(callback:(ViewTrip, List<TripGroup>) -> Unit) {
-        this.tripSelectedListener = object: OnTripSelectedListener {
+    fun setOnTripSelectedListener(callback: (ViewTrip, List<TripGroup>) -> Unit) {
+        this.tripSelectedListener = object : OnTripSelectedListener {
             override fun onTripSelected(viewTrip: ViewTrip, tripGroupList: List<TripGroup>) {
                 callback(viewTrip, tripGroupList)
             }
@@ -63,8 +64,8 @@ class TripResultListFragment : BaseTripKitFragment() {
         this.locationClickListener = listener
     }
 
-    fun setOnLocationClickListener(startLocationClicked:() -> Unit, destinationLocationClicked:() -> Unit) {
-        this.locationClickListener = object: OnLocationClickListener {
+    fun setOnLocationClickListener(startLocationClicked: () -> Unit, destinationLocationClicked: () -> Unit) {
+        this.locationClickListener = object : OnLocationClickListener {
             override fun onStartLocationClicked() {
                 startLocationClicked()
             }
@@ -81,7 +82,7 @@ class TripResultListFragment : BaseTripKitFragment() {
     lateinit var binding: TripResultListFragmentBinding
     private var query: Query? = null
     private var transportModeFilter: TransportModeFilter? = null
-    var actionButtonHandlerFactory: ActionButtonHandlerFactory?= null
+    var actionButtonHandlerFactory: ActionButtonHandlerFactory? = null
     private var showTransportSelectionView = true
 
     fun query(): Query {
@@ -157,7 +158,8 @@ class TripResultListFragment : BaseTripKitFragment() {
 
         viewModel.onItemClicked
                 .observeOn(AndroidSchedulers.mainThread())
-                .doOnNext { viewTrip -> tripSelectedListener?.onTripSelected(viewTrip, viewModel.tripGroupList)
+                .doOnNext { viewTrip ->
+                    tripSelectedListener?.onTripSelected(viewTrip, viewModel.tripGroupList)
                 }.subscribe().addTo(autoDisposable)
 
 //        viewModel.onMoreButtonClicked
@@ -212,14 +214,14 @@ class TripResultListFragment : BaseTripKitFragment() {
                     .withTitle(getString(R.string.set_time))
                     .withTimeZones(departureTimezone, arrivalTimezone)
                     .withTimeType(timeTag.type)
-                    .timeMillis(timeMillis)
-                    .withPositiveAction(R.string.done, true)
+                    .withPositiveAction(R.string.done)
+                    .withNegativeAction(R.string.leave_now)
                     .setLeaveAtLabel(globalConfigs.dateTimePickerConfig()?.dateTimePickerLeaveAtLabel)
                     .setArriveByLabel(globalConfigs.dateTimePickerConfig()?.dateTimePickerArriveByLabel)
                     .build()
-            fragment.setOnTimeSelectedListener(object: TripKitDateTimePickerDialogFragment.OnTimeSelectedListener {
+            fragment.setOnTimeSelectedListener(object : TripKitDateTimePickerDialogFragment.OnTimeSelectedListener {
                 override fun onTimeSelected(timeTag: TimeTag) {
-                     viewModel.updateQueryTime(timeTag)
+                    viewModel.updateQueryTime(timeTag)
                 }
             })
             fragment.show(fragmentManager!!, "timePicker")
