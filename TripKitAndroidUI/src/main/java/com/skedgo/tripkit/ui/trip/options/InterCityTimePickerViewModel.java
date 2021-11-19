@@ -253,10 +253,11 @@ public class InterCityTimePickerViewModel implements ITimePickerViewModel {
 
     @Override
     public TimeTag done() {
+        int position = selectedPosition.get() + 1;
         GregorianCalendar dateCalendar = this.isSingleSelection.get() ?
-                singleSelectionCalendars.get(selectedPosition.get()) :
-                this.isLeaveAfter.get() ? departureCalendars.get(selectedPosition.get()) :
-                        arrivalCalendars.get(selectedPosition.get());
+                singleSelectionCalendars.get(position) :
+                this.isLeaveAfter.get() ? departureCalendars.get(position) :
+                        arrivalCalendars.get(position);
         return getTimeTagFromDateTime(dateCalendar, timeCalendar);
     }
 

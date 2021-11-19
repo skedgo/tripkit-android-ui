@@ -19,6 +19,9 @@ import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.booking.apiv2.BookingV2TrackingService
 import com.skedgo.tripkit.ui.core.RxViewModel
 import com.skedgo.tripkit.ui.core.logError
+import com.skedgo.tripkit.ui.utils.getDisplayDateFormatter
+import com.skedgo.tripkit.ui.utils.getDisplayTimeFormatter
+import com.skedgo.tripkit.ui.utils.getISODateFormatter
 import com.skedgo.tripkit.ui.utils.updateFields
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -31,6 +34,8 @@ import kotlinx.coroutines.launch
 import me.tatarka.bindingcollectionadapter2.BR
 import me.tatarka.bindingcollectionadapter2.ItemBinding
 import me.tatarka.bindingcollectionadapter2.collections.DiffObservableList
+import org.joda.time.DateTime
+import org.joda.time.format.DateTimeFormat
 import org.json.JSONObject
 import retrofit2.HttpException
 import retrofit2.Response
@@ -39,6 +44,7 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
+import kotlin.collections.ArrayList
 
 
 class DrtViewModel @Inject constructor(
@@ -85,7 +91,8 @@ class DrtViewModel @Inject constructor(
             it.required &&
                     ((it.type == QuickBookingType.MULTIPLE_CHOICE && !it.options.isNullOrEmpty() && it.values.isNullOrEmpty()) ||
                             (it.type == QuickBookingType.SINGLE_CHOICE && !it.options.isNullOrEmpty() && it.value.isNullOrEmpty()) ||
-                            (it.type == QuickBookingType.LONG_TEXT && it.value.isNullOrEmpty()))
+                            (it.type == QuickBookingType.LONG_TEXT && it.value.isNullOrEmpty()) ||
+                            (it.type == QuickBookingType.RETURN_TRIP && !it.values.isNullOrEmpty()))
         }
     }
 
@@ -100,10 +107,17 @@ class DrtViewModel @Inject constructor(
                                 setLabel(input.title())
                                 setType(input.type())
                                 setValue(
-                                        if (!input.value().isNullOrEmpty()) {
-                                            listOf(input.value() ?: "")
+                                        if (input.type().equals(QuickBookingType.RETURN_TRIP, true)) {
+                                            val dateTime = DateTime.parse(input.value(), getISODateFormatter())
+                                            val dateString = dateTime.toString(getDisplayDateFormatter())
+                                            val timeString = dateTime.toString(getDisplayTimeFormatter())
+                                            listOf("$dateString at $timeString")
                                         } else {
-                                            input.values() ?: emptyList()
+                                            if (!input.value().isNullOrEmpty()) {
+                                                listOf(input.value() ?: "")
+                                            } else {
+                                                input.values() ?: emptyList()
+                                            }
                                         }
                                 )
                                 setRequired(input.required())
@@ -116,6 +130,7 @@ class DrtViewModel @Inject constructor(
                                     )
                                 }
                                 setViewMode(true)
+                                setShowChangeButton(!input.type().equals(QuickBookingType.RETURN_TRIP, true))
                                 onChangeStream = onItemChangeActionStream
                             }
                     )
@@ -204,6 +219,8 @@ class DrtViewModel @Inject constructor(
                 list.filter { input -> input.id == item.itemId.value }.map { input ->
                     if (input.type == QuickBookingType.MULTIPLE_CHOICE) {
                         input.values = item.values.value
+                    } else if (input.type == QuickBookingType.RETURN_TRIP) {
+                        input.value = item.rawDate.value
                     } else {
                         input.value = item.values.value?.firstOrNull()
                     }

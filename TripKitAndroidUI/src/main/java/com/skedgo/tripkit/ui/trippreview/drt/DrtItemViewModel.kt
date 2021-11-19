@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.DiffUtil
 import com.skedgo.tripkit.booking.quickbooking.Option
+import com.skedgo.tripkit.booking.quickbooking.QuickBookingType
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 
@@ -36,6 +37,15 @@ class DrtItemViewModel : ViewModel() {
 
     private val _type = MutableLiveData<String>()
     val type: LiveData<String> = _type
+
+    private val _showChangeButton = MutableLiveData(true)
+    val showChangeButton: LiveData<Boolean> = _showChangeButton
+
+    private val _isReturnTrip = MutableLiveData(false)
+    val isReturnTrip: LiveData<Boolean> = _isReturnTrip
+
+    private val _rawDate = MutableLiveData<String>()
+    val rawDate: LiveData<String> = _rawDate
 
     fun setIcon(value: Int) {
         _icon.value = value
@@ -73,6 +83,21 @@ class DrtItemViewModel : ViewModel() {
 
     fun setType(value: String) {
         _type.value = value
+        if (value.equals(QuickBookingType.RETURN_TRIP, true)) {
+            setIsReturnTrip(true)
+        }
+    }
+
+    fun setShowChangeButton(value: Boolean) {
+        _showChangeButton.value = value
+    }
+
+    fun setIsReturnTrip(value: Boolean) {
+        _isReturnTrip.value = value
+    }
+
+    fun setRawDate(value: String) {
+        _rawDate.value = value
     }
 
     companion object {
