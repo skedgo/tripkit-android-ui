@@ -92,7 +92,7 @@ class DrtViewModel @Inject constructor(
                     ((it.type == QuickBookingType.MULTIPLE_CHOICE && !it.options.isNullOrEmpty() && it.values.isNullOrEmpty()) ||
                             (it.type == QuickBookingType.SINGLE_CHOICE && !it.options.isNullOrEmpty() && it.value.isNullOrEmpty()) ||
                             (it.type == QuickBookingType.LONG_TEXT && it.value.isNullOrEmpty()) ||
-                            (it.type == QuickBookingType.RETURN_TRIP && !it.values.isNullOrEmpty()))
+                            (it.type == QuickBookingType.RETURN_TRIP && it.value.isNullOrEmpty()))
         }
     }
 
