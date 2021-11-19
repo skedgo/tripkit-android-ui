@@ -17,6 +17,7 @@ import com.skedgo.tripkit.ui.TripKitUI
 import com.skedgo.tripkit.ui.databinding.DialogDateTimePickerBinding
 import com.skedgo.tripkit.ui.trip.details.viewmodel.ITimePickerViewModel
 import com.skedgo.tripkit.ui.trip.options.InterCityTimePickerViewModel
+import java.util.*
 import javax.inject.Inject
 
 /**
@@ -79,7 +80,7 @@ class TripKitDateTimePickerDialogFragment : DialogFragment(), TimePicker.OnTimeC
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         TripKitUI.getInstance().timePickerComponent().inject(this)
-        timePickerViewModel!!.handleArguments(arguments)
+        timePickerViewModel.handleArguments(arguments)
     }
 
     /**
@@ -87,10 +88,17 @@ class TripKitDateTimePickerDialogFragment : DialogFragment(), TimePicker.OnTimeC
      */
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val dialogBuilder = FlatAlertDialogBuilder(activity)
-        val dialog = dialogBuilder.setTitle(R.string.set_time)
-                .setContentView(R.layout.dialog_date_time_picker)
-                .setPositiveButton(R.string.done, onPositiveClickListener())
-                .setNegativeButton(R.string.leave_now, onNegativeClickListener())
+
+        if (timePickerViewModel.showPositiveAction().get()) {
+            dialogBuilder.setPositiveButton(timePickerViewModel.positiveActionLabel().get(), onPositiveClickListener())
+        }
+
+        if (timePickerViewModel.showNegativeAction().get()) {
+            dialogBuilder.setNegativeButton(timePickerViewModel.negativeActionLabel().get(), onNegativeClickListener())
+        }
+
+        val dialog = dialogBuilder.setContentView(R.layout.dialog_date_time_picker)
+                .setTitle(timePickerViewModel.dialogTitle().get())
                 .create()
 
         val contentView = dialogBuilder.contentView
@@ -123,7 +131,29 @@ class TripKitDateTimePickerDialogFragment : DialogFragment(), TimePicker.OnTimeC
      * @suppress
      */
     override fun onTimeChanged(timePicker: TimePicker, hour: Int, minute: Int) {
-        timePickerViewModel!!.updateTime(hour, minute)
+        if (isTimeValid(hour, minute)) {
+            timePickerViewModel.updateTime(hour, minute)
+        } else {
+            updateTimePicker(
+                    timePickerViewModel.dateTimeMinLimit()?.hours,
+                    timePickerViewModel.dateTimeMinLimit()?.minutes
+            )
+        }
+    }
+
+    private fun isTimeValid(hour: Int, minute: Int): Boolean {
+        val selectedDateCalendar = timePickerViewModel.selectedDate
+        selectedDateCalendar?.let { sDateCal ->
+            return timePickerViewModel.dateTimeMinLimit()?.let { minDateTime ->
+                val selectedDate = Date(sDateCal.timeInMillis)
+                selectedDate.hours = hour
+                selectedDate.minutes = minute
+
+                minDateTime.time < selectedDate.time
+            } ?: true
+        }
+
+        return true
     }
 
     private fun onNegativeClickListener(): DialogInterface.OnClickListener {
@@ -145,11 +175,11 @@ class TripKitDateTimePickerDialogFragment : DialogFragment(), TimePicker.OnTimeC
         }
     }
 
-    private fun updateTimePicker() {
+    private fun updateTimePicker(hour: Int? = null, minute: Int? = null) {
         val timePicker = binding!!.timePicker
         timePicker.setOnTimeChangedListener(null)
-        timePicker.currentHour = timePickerViewModel!!.hour
-        timePicker.currentMinute = timePickerViewModel!!.minute
+        timePicker.currentHour = hour ?: timePickerViewModel!!.hour
+        timePicker.currentMinute = minute ?: timePickerViewModel!!.minute
         timePicker.setOnTimeChangedListener(this)
     }
 
@@ -180,10 +210,25 @@ class TripKitDateTimePickerDialogFragment : DialogFragment(), TimePicker.OnTimeC
      * Used to create a new instance of the fragment.
      */
     class Builder {
+        private var title: String? = null
         private var departureTimezone: String? = null
         private var arrivalTimezone: String? = null
         private var timeType = TimeTag.TIME_TYPE_LEAVE_AFTER
         private var timeMillis = System.currentTimeMillis()
+        private var leaveAtLabel: String? = null
+        private var arriveByLabel: String? = null
+        private var positiveActionLabel: Int = 0
+        private var negativeActionLabel: Int = 0
+        private var showPositiveAction: Boolean = false
+        private var showNegativeAction: Boolean = false
+        private var isSingleSelection: Boolean = false
+        private var singleLabel: String? = null
+        private var dateTimeMinLimit: Date? = null
+
+        fun withTitle(title: String?): Builder {
+            this.title = title
+            return this
+        }
 
         /**
          * Sets the departure and arrival location so that the timezones can be supported.
@@ -256,6 +301,40 @@ class TripKitDateTimePickerDialogFragment : DialogFragment(), TimePicker.OnTimeC
             return this
         }
 
+        fun withPositiveAction(label: Int?): Builder {
+            this.positiveActionLabel = label ?: 0
+            this.showPositiveAction = true
+            return this
+        }
+
+        fun withNegativeAction(label: Int?): Builder {
+            this.negativeActionLabel = label ?: 0
+            this.showNegativeAction = true
+            return this
+        }
+
+        fun setLeaveAtLabel(leaveAtLabel: String?): Builder {
+            this.leaveAtLabel = leaveAtLabel
+            return this
+        }
+
+        fun setArriveByLabel(arriveByLabel: String?): Builder {
+            this.arriveByLabel = arriveByLabel
+            return this
+        }
+
+        fun isSingleSelection(label: String?): Builder {
+            this.singleLabel = label
+            this.isSingleSelection = true
+            this.timeType = TimeTag.TIME_TYPE_SINGLE_SELECTION
+            return this
+        }
+
+        fun withDateTimeMinLimit(dateTimeMinLimit: Date): Builder {
+            this.dateTimeMinLimit = dateTimeMinLimit
+            return this
+        }
+
         /**
          * Builds a new instance of the fragment.
          *
@@ -264,10 +343,22 @@ class TripKitDateTimePickerDialogFragment : DialogFragment(), TimePicker.OnTimeC
         fun build(): TripKitDateTimePickerDialogFragment {
             val fragment = TripKitDateTimePickerDialogFragment()
             val args = Bundle()
+            args.putString(InterCityTimePickerViewModel.ARG_TITLE, title)
+            args.putBoolean(InterCityTimePickerViewModel.ARG_SHOW_POSITIVE_ACTION, showPositiveAction)
+            args.putInt(InterCityTimePickerViewModel.ARG_POSITIVE_ACTION, positiveActionLabel)
+            args.putBoolean(InterCityTimePickerViewModel.ARG_SHOW_NEGATIVE_ACTION, showNegativeAction)
+            args.putInt(InterCityTimePickerViewModel.ARG_NEGATIVE_ACTION, negativeActionLabel)
+            args.putString(InterCityTimePickerViewModel.ARG_LEAVE_AT_LABEL, leaveAtLabel)
+            args.putString(InterCityTimePickerViewModel.ARG_ARRIVE_BY_LABEL, arriveByLabel)
+            args.putString(InterCityTimePickerViewModel.ARG_SINGLE_SELECTION_LABEL, singleLabel)
+            args.putString(InterCityTimePickerViewModel.ARG_TITLE, title)
             args.putString(InterCityTimePickerViewModel.ARG_DEPARTURE_TIMEZONE, departureTimezone)
             args.putString(InterCityTimePickerViewModel.ARG_ARRIVAL_TIMEZONE, arrivalTimezone)
             args.putInt(InterCityTimePickerViewModel.ARG_TIME_TYPE, timeType)
             args.putLong(InterCityTimePickerViewModel.ARG_TIME_IN_MILLIS, timeMillis)
+            dateTimeMinLimit?.let {
+                args.putLong(InterCityTimePickerViewModel.ARG_DATE_TIME_PICKER_MIN_LIMIT, it.time)
+            }
             fragment.arguments = args
             return fragment
         }
