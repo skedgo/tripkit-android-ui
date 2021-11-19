@@ -214,6 +214,7 @@ class TripResultListFragment : BaseTripKitFragment() {
                     .withTitle(getString(R.string.set_time))
                     .withTimeZones(departureTimezone, arrivalTimezone)
                     .withTimeType(timeTag.type)
+                    .timeMillis(timeMillis)
                     .withPositiveAction(R.string.done)
                     .withNegativeAction(R.string.leave_now)
                     .setLeaveAtLabel(globalConfigs.dateTimePickerConfig()?.dateTimePickerLeaveAtLabel)
