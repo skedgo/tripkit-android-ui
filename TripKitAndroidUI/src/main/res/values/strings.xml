@@ -54,4 +54,5 @@
     <string name="desc_done_button">Done Button</string>
     <string name="action_call_taxis">Call Taxis Combined</string>
     <string name="action_get_ingogo">Get ingogo</string>
+    <string name="one_way_only">One-way only</string>
 </resources>

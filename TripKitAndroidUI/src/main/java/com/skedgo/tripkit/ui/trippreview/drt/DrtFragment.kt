@@ -9,8 +9,10 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.skedgo.TripKit
 import com.skedgo.tripkit.booking.quickbooking.QuickBookingType
 import com.skedgo.tripkit.common.model.BookingConfirmationAction
+import com.skedgo.tripkit.common.model.TimeTag
 import com.skedgo.tripkit.routing.TripSegment
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.TripKitUI
@@ -18,18 +20,18 @@ import com.skedgo.tripkit.ui.core.BaseFragment
 import com.skedgo.tripkit.ui.core.addTo
 import com.skedgo.tripkit.ui.core.rxproperty.asObservable
 import com.skedgo.tripkit.ui.databinding.FragmentDrtBinding
-import com.skedgo.tripkit.ui.dialog.GenericListDialogFragment
-import com.skedgo.tripkit.ui.dialog.GenericListDisplayDialogFragment
-import com.skedgo.tripkit.ui.dialog.GenericListItem
-import com.skedgo.tripkit.ui.dialog.GenericNoteDialogFragment
-import com.skedgo.tripkit.ui.generic.action_list.Action
+import com.skedgo.tripkit.ui.dialog.*
 import com.skedgo.tripkit.ui.generic.action_list.ActionListAdapter
 import com.skedgo.tripkit.ui.trippreview.TripPreviewPagerItemViewModel
-import com.skedgo.tripkit.ui.utils.observe
-import com.skedgo.tripkit.ui.utils.showConfirmationPopUpDialog
+import com.skedgo.tripkit.ui.utils.*
 import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import org.joda.time.DateTime
+import org.joda.time.DateTimeZone
+import org.joda.time.format.DateTimeFormat
+import timber.log.Timber
+import java.util.*
 import javax.inject.Inject
 
 class DrtFragment : BaseFragment<FragmentDrtBinding>(), DrtHandler {
@@ -112,7 +114,26 @@ class DrtFragment : BaseFragment<FragmentDrtBinding>(), DrtHandler {
                                 }
                             }.show(childFragmentManager, drtItem.label.value ?: "")
                         } else if (drtItem.label.value == DrtItem.RETURN_TRIP) {
-                            // TODO call the date time picker
+                            showDateTimePicker(
+                                    object : TripKitDateTimePickerDialogFragment.OnTimeSelectedListener {
+                                        override fun onTimeSelected(timeTag: TimeTag) {
+                                            if (timeTag.isLeaveNow) {
+                                                drtItem.setValue(listOf(getString(R.string.one_way_only)))
+                                            } else {
+                                                val tz = DateTimeZone.forID(TimeZone.getDefault().id)
+                                                val dateTime = DateTime(timeTag.timeInMillis)
+
+                                                val rawDateString = dateTime.toString(getISODateFormatter())
+                                                val dateString = dateTime.toString(getDisplayDateFormatter())
+                                                val timeString = dateTime.toString(getDisplayTimeFormatter())
+
+                                                drtItem.setRawDate(rawDateString)
+                                                drtItem.setValue(listOf("$dateString at $timeString"))
+                                            }
+                                            viewModel.updateInputValue(drtItem)
+                                        }
+                                    }
+                            )
                         } else {
                             GenericListDialogFragment.newInstance(
                                     GenericListItem.parseOptions(
@@ -157,6 +178,24 @@ class DrtFragment : BaseFragment<FragmentDrtBinding>(), DrtHandler {
         observe(viewModel.segment) {
             it?.let { tripSegmentUpdateCallback?.invoke(it) }
         }
+    }
+
+    private fun showDateTimePicker(listener: TripKitDateTimePickerDialogFragment.OnTimeSelectedListener) {
+        try {
+            val fragment = TripKitDateTimePickerDialogFragment.Builder()
+                    .withTitle(getString(R.string.set_time))
+                    .timeMillis(System.currentTimeMillis())
+                    .withPositiveAction(R.string.done)
+                    .isSingleSelection("Return Trip")
+                    .withNegativeAction(R.string.one_way_only)
+                    .build()
+            fragment.setOnTimeSelectedListener(listener)
+            fragment.show(requireFragmentManager(), "timePicker")
+        } catch (error: IllegalStateException) {
+            // To prevent https://fabric.io/skedgo/android/apps/com.buzzhives.android.tripplanner/issues/5967e7f0be077a4dcc839dc5.
+            Timber.e("An error occurred", error)
+        }
+
     }
 
     override fun onResume() {
