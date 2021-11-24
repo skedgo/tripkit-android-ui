@@ -25,6 +25,7 @@ import javax.inject.Inject
 open class LocationEnhancedMapFragment : BaseMapFragment() {
     @Inject
     lateinit var locationStream: Observable<Location>
+
     @Inject
     lateinit var errorLogger: ErrorLogger
 
@@ -40,8 +41,8 @@ open class LocationEnhancedMapFragment : BaseMapFragment() {
         settingsButton?.visibility = View.VISIBLE
     }
 
-    fun setSettingsButtonVisibility(show: Boolean){
-        settingsButton?.visibility = if(show){
+    fun setSettingsButtonVisibility(show: Boolean) {
+        settingsButton?.visibility = if (show) {
             View.VISIBLE
         } else {
             View.GONE
@@ -75,7 +76,7 @@ open class LocationEnhancedMapFragment : BaseMapFragment() {
             return
         }
         ExcuseMe.couldYouGive(this).permissionFor(android.Manifest.permission.ACCESS_FINE_LOCATION) {
-            if(it.granted.contains(android.Manifest.permission.ACCESS_FINE_LOCATION)) {
+            if (it.granted.contains(android.Manifest.permission.ACCESS_FINE_LOCATION)) {
                 locationStream
                         .take(1)
                         .singleOrError()
@@ -87,6 +88,10 @@ open class LocationEnhancedMapFragment : BaseMapFragment() {
             }
         }
 
+    }
+
+    fun changeActionsAccessibilityFocus(canBeAccessed: Boolean) {
+        settingsButton?.importantForAccessibility = if (canBeAccessed) 1 else 2
     }
 
     private fun applyDefaultSettings(googleMap: GoogleMap) {
