@@ -66,7 +66,9 @@ class TripResultListViewModel @Inject constructor(
         private val routingTimeViewModelMapper: RoutingTimeViewModelMapper) : RxViewModel(), ActionButtonContainer {
     val loadingItem = LoaderPlaceholder()
     val fromName = ObservableField<String>()
+    val fromContentDescription = ObservableField<String>()
     val toName = ObservableField<String>()
+    val toContentDescription = ObservableField<String>()
     val timeLabel = ObservableField<String>()
 
     val onItemClicked = PublishRelay.create<ViewTrip>()
@@ -135,10 +137,14 @@ class TripResultListViewModel @Inject constructor(
         }
         this.query = _query
         _query.fromLocation?.let {
-            fromName.set(it.displayName)
+            val displayName = it.displayName
+            fromName.set(displayName)
+            fromContentDescription.set("From $displayName")
         }
         _query.toLocation?.let {
-            toName.set(it.displayName)
+            val displayName = it.displayName
+            toName.set(displayName)
+            toContentDescription.set("Going to $displayName")
         }
 
         showTransportModeSelection.set(showTransportSelectionView)

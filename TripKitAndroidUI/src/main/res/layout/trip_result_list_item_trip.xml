@@ -11,6 +11,7 @@
                       android:layout_height="wrap_content"
                       android:orientation="vertical"
                         android:padding="16dp"
+            android:contentDescription="@{viewModel.contentDescription}"
                 android:paddingBottom="12dp"
                       android:background="?selectableItemBackground"
                       android:onClick="@{() -> viewModel.onItemClicked()}">

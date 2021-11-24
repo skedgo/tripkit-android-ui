@@ -55,4 +55,6 @@
     <string name="action_call_taxis">Call Taxis Combined</string>
     <string name="action_get_ingogo">Get ingogo</string>
     <string name="one_way_only">One-way only</string>
+    <string name="str_minutes">minutes</string>
+    <string name="str_mins">mins</string>
 </resources>

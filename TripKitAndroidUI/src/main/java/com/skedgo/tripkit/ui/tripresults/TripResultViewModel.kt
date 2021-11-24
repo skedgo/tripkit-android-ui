@@ -34,6 +34,7 @@ class TripResultTripViewModel : ViewModel() {
     val title = ObservableField<String>()
     val subtitle = ObservableField<String>()
     val isMissedPreBooking = ObservableField<Boolean>()
+    val contentDescription = ObservableField<String>()
     var clickFlow: MutableSharedFlow<Trip>? = null
     val segments = ArrayList<TripSegmentViewModel>()
     fun onItemClicked() {
@@ -163,10 +164,26 @@ class TripResultViewModel @Inject constructor(private val context: Context,
         newVm.clickFlow = clickFlow
         newVm.title.set(buildTitle(trip))
         newVm.subtitle.set(buildSubtitle(trip))
+        newVm.contentDescription.set(buildContentDescription(trip))
         newVm.isMissedPreBooking.set(trip.segments?.first()?.availability.equals(Availability.MissedPrebookingWindow.value))
         setSegments(newVm.segments, trip)
 
         return newVm
+    }
+
+    private fun buildContentDescription(trip: Trip): String? {
+        val contentDescBuilder = StringBuilder()
+        trip.segments.forEach {
+            if (it.modeInfo != null) {
+                contentDescBuilder.append(it.modeInfo?.alternativeText).append(" ")
+                contentDescBuilder.append(it.modeInfo?.description).append(" ")
+                contentDescBuilder.append("for ").append(buildTitle(trip).replace(context.getString(R.string.str_mins), context.getString(R.string.str_minutes))).append(". ")
+            }
+            if (it == trip.segments.last()) {
+                contentDescBuilder.append(buildSubtitle(trip))
+            }
+        }
+        return contentDescBuilder.toString()
     }
 
     private fun setBadge(classification: TripGroupClassifier.Classification) {
