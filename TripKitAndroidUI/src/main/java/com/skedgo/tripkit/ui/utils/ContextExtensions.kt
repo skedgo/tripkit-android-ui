@@ -5,6 +5,7 @@ import android.content.Intent
 import android.net.ConnectivityManager
 import android.net.Uri
 import android.provider.Settings
+import android.view.accessibility.AccessibilityManager
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.list.listItems
 import java.lang.Exception
@@ -59,4 +60,9 @@ fun Context.getVersionCode(): Long?{
     } catch (e: Exception) {
         null
     }
+}
+
+
+fun Context.getAccessibilityManager(): AccessibilityManager {
+    return this.getSystemService(Context.ACCESSIBILITY_SERVICE) as AccessibilityManager
 }
