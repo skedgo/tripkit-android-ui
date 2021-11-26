@@ -29,9 +29,9 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
-import org.joda.time.format.DateTimeFormat
 import timber.log.Timber
 import java.util.*
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 class DrtFragment : BaseFragment<FragmentDrtBinding>(), DrtHandler {
@@ -46,6 +46,8 @@ class DrtFragment : BaseFragment<FragmentDrtBinding>(), DrtHandler {
     private var segment: TripSegment? = null
 
     private var tripSegmentUpdateCallback: ((TripSegment) -> Unit)? = null
+
+    private var cachedReturnMills: Long = System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(60)
 
     @Inject
     lateinit var actionsAdapter: ActionListAdapter
@@ -120,10 +122,11 @@ class DrtFragment : BaseFragment<FragmentDrtBinding>(), DrtHandler {
                                             if (timeTag.isLeaveNow) {
                                                 drtItem.setValue(listOf(getString(R.string.one_way_only)))
                                             } else {
-                                                val tz = DateTimeZone.forID(TimeZone.getDefault().id)
+                                                val tz = DateTimeZone.forID("UTC")
                                                 val dateTime = DateTime(timeTag.timeInMillis)
+                                                cachedReturnMills = timeTag.timeInMillis
 
-                                                val rawDateString = dateTime.toString(getISODateFormatter())
+                                                val rawDateString = dateTime.toString(getISODateFormatter(tz))
                                                 val dateString = dateTime.toString(getDisplayDateFormatter())
                                                 val timeString = dateTime.toString(getDisplayTimeFormatter())
 
@@ -169,6 +172,7 @@ class DrtFragment : BaseFragment<FragmentDrtBinding>(), DrtHandler {
         segment?.let {
             pagerItemViewModel.setSegment(requireContext(), it)
             viewModel.setTripSegment(it)
+            cachedReturnMills = it.startTimeInSecs + TimeUnit.MINUTES.toMillis(60)
         }
 
         observe(viewModel.confirmationActions) {
@@ -184,7 +188,7 @@ class DrtFragment : BaseFragment<FragmentDrtBinding>(), DrtHandler {
         try {
             val fragment = TripKitDateTimePickerDialogFragment.Builder()
                     .withTitle(getString(R.string.set_time))
-                    .timeMillis(System.currentTimeMillis())
+                    .timeMillis(cachedReturnMills)
                     .withPositiveAction(R.string.done)
                     .isSingleSelection("Return Trip")
                     .withNegativeAction(R.string.one_way_only)

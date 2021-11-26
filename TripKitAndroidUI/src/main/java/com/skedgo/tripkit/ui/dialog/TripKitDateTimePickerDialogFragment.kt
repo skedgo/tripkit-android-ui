@@ -204,6 +204,8 @@ class TripKitDateTimePickerDialogFragment : DialogFragment(), TimePicker.OnTimeC
                 adapter.setDates(timePickerViewModel!!.dates().get())
             }
         })
+
+        // TODO
     }
 
     /**

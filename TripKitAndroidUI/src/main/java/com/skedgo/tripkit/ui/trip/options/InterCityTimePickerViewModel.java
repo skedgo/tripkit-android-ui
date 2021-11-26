@@ -347,7 +347,7 @@ public class InterCityTimePickerViewModel implements ITimePickerViewModel {
         for (int i = 0; i < MAX_DATE_COUNT; ++i) {
             temp = selectedCalendars.get(i);
             if (temp.get(Calendar.DATE) == date) {
-                this.selectedPosition.set(i);
+                this.selectedPosition.set(i - 1);
                 break;
             }
 
