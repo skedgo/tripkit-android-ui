@@ -190,15 +190,18 @@
                 android:layout_marginStart="@dimen/spacing_small"
                 android:layout_marginTop="@dimen/spacing_small"
                 android:layout_marginEnd="@dimen/spacing_small"
-                android:nestedScrollingEnabled="true"
+                android:nestedScrollingEnabled="false"
                 app:itemBinding="@{viewModel.itemBinding}"
                 app:items="@{viewModel.items}"
-                app:layoutManager="com.skedgo.tripkit.ui.utils.UnScrollableLinearLayoutManager"
+                android:importantForAccessibility="no"
+                android:nextFocusDown="@id/drt_bBook"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                 app:layout_constraintTop_toBottomOf="@+id/drt_br_dataList"
                 tools:itemCount="3"
                 tools:listitem="@layout/item_drt" />
 
             <Button
+                android:id="@+id/drt_bBook"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/spacing_small"
@@ -207,6 +210,7 @@
                 android:background="@drawable/bg_button_primary"
                 android:enabled="@{viewModel.areInputsValid}"
                 android:text="@string/book"
+                android:importantForAccessibility="yes"
                 android:textColor="@android:color/white"
                 android:visibility="@{viewModel.bookingConfirmation == null}"
                 app:clickWithDebounce="@{() -> handler.onBook()}"
@@ -224,6 +228,7 @@
                 app:layout_constraintTop_toBottomOf="@+id/drt_rvData"
                 app:spanCount="2"
                 tools:itemCount="4"
+                android:importantForAccessibility="yes"
                 tools:listitem="@layout/item_action"
                 tools:visibility="visible" />
 
