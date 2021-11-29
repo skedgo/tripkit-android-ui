@@ -5,7 +5,7 @@ import org.joda.time.format.DateTimeFormat
 import org.joda.time.format.DateTimeFormatter
 
 fun getISODateFormatter(tz: DateTimeZone? = null): DateTimeFormatter {
-    return DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ssZ").withZone(tz)
+    return DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ssZZ").withZone(tz)
 }
 
 fun getDisplayDateFormatter(tz: DateTimeZone? = null): DateTimeFormatter {
