@@ -193,7 +193,7 @@ class TripResultListFragment : BaseTripKitFragment() {
         var departureTimezone: String? = null
         var arrivalTimezone: String? = null
 
-        var timeMillis = System.currentTimeMillis()
+        var timeMillis = System.currentTimeMillis() / 1000
         val timeTag = viewModel.query.timeTag
         if (!timeTag!!.isDynamic) {
             timeMillis = TimeUnit.SECONDS.toMillis(timeTag.timeInSecs)

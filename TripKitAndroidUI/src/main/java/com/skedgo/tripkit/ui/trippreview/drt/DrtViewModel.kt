@@ -221,6 +221,9 @@ class DrtViewModel @Inject constructor(
                         input.values = item.values.value
                     } else if (input.type == QuickBookingType.RETURN_TRIP) {
                         input.value = item.rawDate.value
+                        if (input.value.isNullOrEmpty()) {
+                            input.value = item.values.value?.first()
+                        }
                     } else {
                         input.value = item.values.value?.firstOrNull()
                     }
