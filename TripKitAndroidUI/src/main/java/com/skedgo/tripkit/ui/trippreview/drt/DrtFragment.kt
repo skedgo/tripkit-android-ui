@@ -127,11 +127,13 @@ class DrtFragment : BaseFragment<FragmentDrtBinding>(), DrtHandler {
                                                 val dateTime = DateTime(timeTag.timeInMillis)
                                                 cachedReturnMills = timeTag.timeInMillis / 1000
 
-                                                val rawDateString = dateTime.toString(getISODateFormatter(rawTz))
+                                                val isoDate = dateTime.toString(getISODateFormatter(rawTz))
+                                                val rawDateBuilder = StringBuilder()
+                                                rawDateBuilder.append(isoDate).append("Z")
                                                 val dateString = dateTime.toString(getDisplayDateFormatter(segmentTz))
                                                 val timeString = dateTime.toString(getDisplayTimeFormatter(segmentTz))
 
-                                                drtItem.setRawDate(rawDateString)
+                                                drtItem.setRawDate(rawDateBuilder.toString())
                                                 drtItem.setValue(listOf("$dateString at $timeString"))
                                             }
                                             viewModel.updateInputValue(drtItem)
