@@ -38,6 +38,7 @@ public class InterCityTimePickerViewModel implements ITimePickerViewModel {
     public static final String ARG_TIME_IN_MILLIS = "time_in_millis";
     public static final String ARG_TIME_TYPE = "time_type";
     public static final String ARG_DATE_TIME_PICKER_MIN_LIMIT = "dateTimePickerMinLimit";
+    public static final String ARG_TIME_PICKER_MINUTES_INTERVAL = "timePickerMinutesInterval";
     private static final String DATE_FORMAT = "EEE, MMM dd";
     private static final int MAX_DATE_COUNT = 28; // 4 weeks ahead.
 
@@ -67,6 +68,7 @@ public class InterCityTimePickerViewModel implements ITimePickerViewModel {
     private ObservableInt negativeActionLabel;
     private ObservableBoolean showNegativeAction;
     private ObservableField<Date> dateTimePickerMinLimit;
+    private ObservableInt timePickerMinuteInterval;
 
     public InterCityTimePickerViewModel(
             @NonNull Context context,
@@ -90,6 +92,7 @@ public class InterCityTimePickerViewModel implements ITimePickerViewModel {
         this.showNegativeAction = new ObservableBoolean(false);
         this.singleLabel = new ObservableField<>();
         this.dateTimePickerMinLimit = new ObservableField<>();
+        this.timePickerMinuteInterval = new ObservableInt(1);
     }
 
 
@@ -159,6 +162,9 @@ public class InterCityTimePickerViewModel implements ITimePickerViewModel {
                 if (dateTimeLong != -1L) {
                     dateTimePickerMinLimit.set(new Date(dateTimeLong));
                 }
+            }
+            if (args.containsKey(ARG_TIME_PICKER_MINUTES_INTERVAL)) {
+                timePickerMinuteInterval.set(args.getInt(ARG_TIME_PICKER_MINUTES_INTERVAL, 1));
             }
 
             initValues();
@@ -259,6 +265,11 @@ public class InterCityTimePickerViewModel implements ITimePickerViewModel {
                 this.isLeaveAfter.get() ? departureCalendars.get(position) :
                         arrivalCalendars.get(position);
         return getTimeTagFromDateTime(dateCalendar, timeCalendar);
+    }
+
+    @Override
+    public int getTimePickerMinuteInterval() {
+        return timePickerMinuteInterval.get();
     }
 
     /**

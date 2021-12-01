@@ -217,6 +217,7 @@ class TripResultListFragment : BaseTripKitFragment() {
                     .timeMillis(timeMillis)
                     .withPositiveAction(R.string.done)
                     .withNegativeAction(R.string.leave_now)
+                    .setTimePickerMinutesInterval(15)
                     .setLeaveAtLabel(globalConfigs.dateTimePickerConfig()?.dateTimePickerLeaveAtLabel)
                     .setArriveByLabel(globalConfigs.dateTimePickerConfig()?.dateTimePickerArriveByLabel)
                     .build()
