@@ -50,7 +50,11 @@ open class ActionButtonHandler {
             return result
         } else if (type == ITEM_QUICK_BOOKING
                 || type == ITEM_EXTERNAL_BOOKING){
-            result.set(foundSegment?.booking?.title)
+                    if(!foundSegment.booking?.accessibilityLabel.isNullOrEmpty()) {
+                        result.set(foundSegment.booking?.accessibilityLabel)
+                    } else {
+                        result.set(foundSegment.booking?.title)
+                    }
             return result
         } else {
             val mainSegment = trip.getMainTripSegment()

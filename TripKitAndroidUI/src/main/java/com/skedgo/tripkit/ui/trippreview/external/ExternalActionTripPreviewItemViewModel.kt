@@ -55,7 +55,11 @@ class ExternalActionTripPreviewItemViewModel : TripPreviewPagerItemViewModel() {
                 }
             }
         } else {
-            booking.title
+            var label = booking.title
+            if (!booking.accessibilityLabel.isNullOrEmpty()) {
+                label = booking.accessibilityLabel
+            }
+            label
         }
 
     }

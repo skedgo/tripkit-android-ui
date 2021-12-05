@@ -80,6 +80,9 @@ class DrtViewModel @Inject constructor(
     private val _confirmationActions = MutableLiveData<List<com.skedgo.tripkit.ui.generic.action_list.Action>>()
     val confirmationActions: LiveData<List<com.skedgo.tripkit.ui.generic.action_list.Action>> = _confirmationActions
 
+    private val _accessibilityLabel = MutableLiveData<String>()
+    val accessibilityLabel: LiveData<String> = _accessibilityLabel
+
     private val stopPollingUpdate = AtomicBoolean()
 
     private val quickBookingObserver = Observer<QuickBooking> {
@@ -271,6 +274,8 @@ class DrtViewModel @Inject constructor(
                 stopPollingUpdate.set(true)
             }
         }
+
+        _accessibilityLabel.value = segment.booking?.accessibilityLabel ?: "Book"
     }
 
     private fun fetchQuickBooking(url: String) {
