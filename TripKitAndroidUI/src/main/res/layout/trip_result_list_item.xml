@@ -186,6 +186,7 @@
                 android:text="@{viewModel.moreButtonText}"
                 android:textColor="@color/colorPrimary"
                 android:visibility="@{viewModel.moreButtonVisible}"
+                android:contentDescription="@{viewModel.accessibilityLabel}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_weight="1"
                 app:layout_constraintStart_toEndOf="@+id/cost"

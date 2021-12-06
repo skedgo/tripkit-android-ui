@@ -20,9 +20,14 @@ import com.skedgo.tripkit.ui.R;
 import com.skedgo.tripkit.ui.trip.details.viewmodel.ITimePickerViewModel;
 import com.squareup.otto.Bus;
 
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+
+import static java.util.concurrent.TimeUnit.SECONDS;
 
 public class InterCityTimePickerViewModel implements ITimePickerViewModel {
     public static final String ARG_TITLE = "title";
@@ -119,6 +124,7 @@ public class InterCityTimePickerViewModel implements ITimePickerViewModel {
             if (args.containsKey(ARG_TIME_IN_MILLIS)) {
                 this.timeMillis = args.getLong(ARG_TIME_IN_MILLIS);
             }
+
             if (args.containsKey(ARG_TIME_TYPE)) {
                 int timeType = args.getInt(ARG_TIME_TYPE);
                 if (timeType == TimeTag.TIME_TYPE_SINGLE_SELECTION) {
@@ -349,8 +355,13 @@ public class InterCityTimePickerViewModel implements ITimePickerViewModel {
         List<GregorianCalendar> selectedCalendars = this.isLeaveAfter.get()
                 ? departureCalendars : arrivalCalendars;
         //Set last selected time
+        TimeZone tz = selectedCalendars.get(0).getTimeZone();
         this.timeCalendar = new GregorianCalendar(selectedCalendars.get(0).getTimeZone());
-        this.timeCalendar.setTimeInMillis(this.timeMillis);
+        DateTime dateTime = new DateTime(SECONDS.toMillis(timeMillis), DateTimeZone.forID(tz.getID()));
+
+
+        this.timeCalendar.clear();
+        this.timeCalendar.setTime(dateTime.toDate());
 
         //Set last selected position
         int date = this.timeCalendar.get(Calendar.DATE);

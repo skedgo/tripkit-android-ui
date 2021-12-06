@@ -122,15 +122,18 @@ class DrtFragment : BaseFragment<FragmentDrtBinding>(), DrtHandler {
                                             if (timeTag.isLeaveNow) {
                                                 drtItem.setValue(listOf(getString(R.string.one_way_only)))
                                             } else {
-                                                val tz = DateTimeZone.forID("UTC")
+                                                val rawTz = DateTimeZone.forID("UTC")
+                                                val segmentTz = DateTimeZone.forID(segment?.timeZone ?: "UTC")
                                                 val dateTime = DateTime(timeTag.timeInMillis)
-                                                cachedReturnMills = timeTag.timeInMillis
+                                                cachedReturnMills = timeTag.timeInMillis / 1000
 
-                                                val rawDateString = dateTime.toString(getISODateFormatter(tz))
-                                                val dateString = dateTime.toString(getDisplayDateFormatter())
-                                                val timeString = dateTime.toString(getDisplayTimeFormatter())
+                                                val isoDate = dateTime.toString(getISODateFormatter(rawTz))
+                                                val rawDateBuilder = StringBuilder()
+                                                rawDateBuilder.append(isoDate).append("Z")
+                                                val dateString = dateTime.toString(getDisplayDateFormatter(segmentTz))
+                                                val timeString = dateTime.toString(getDisplayTimeFormatter(segmentTz))
 
-                                                drtItem.setRawDate(rawDateString)
+                                                drtItem.setRawDate(rawDateBuilder.toString())
                                                 drtItem.setValue(listOf("$dateString at $timeString"))
                                             }
                                             viewModel.updateInputValue(drtItem)
@@ -172,7 +175,7 @@ class DrtFragment : BaseFragment<FragmentDrtBinding>(), DrtHandler {
         segment?.let {
             pagerItemViewModel.setSegment(requireContext(), it)
             viewModel.setTripSegment(it)
-            cachedReturnMills = it.startTimeInSecs + TimeUnit.MINUTES.toMillis(60)
+            cachedReturnMills = it.startTimeInSecs + 3600
         }
 
         observe(viewModel.confirmationActions) {
@@ -192,6 +195,7 @@ class DrtFragment : BaseFragment<FragmentDrtBinding>(), DrtHandler {
                     .withPositiveAction(R.string.done)
                     .isSingleSelection("Return Trip")
                     .withNegativeAction(R.string.one_way_only)
+                    .withTimeZones(segment?.timeZone ?: TimeZone.getDefault().id, segment?.timeZone ?: TimeZone.getDefault().id)
                     .build()
             fragment.setOnTimeSelectedListener(listener)
             fragment.show(requireFragmentManager(), "timePicker")
@@ -199,7 +203,6 @@ class DrtFragment : BaseFragment<FragmentDrtBinding>(), DrtHandler {
             // To prevent https://fabric.io/skedgo/android/apps/com.buzzhives.android.tripplanner/issues/5967e7f0be077a4dcc839dc5.
             Timber.e("An error occurred", error)
         }
-
     }
 
     override fun onResume() {
