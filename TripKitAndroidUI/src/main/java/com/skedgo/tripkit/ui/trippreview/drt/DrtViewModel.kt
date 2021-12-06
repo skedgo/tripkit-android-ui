@@ -35,6 +35,7 @@ import me.tatarka.bindingcollectionadapter2.BR
 import me.tatarka.bindingcollectionadapter2.ItemBinding
 import me.tatarka.bindingcollectionadapter2.collections.DiffObservableList
 import org.joda.time.DateTime
+import org.joda.time.DateTimeZone
 import org.joda.time.format.DateTimeFormat
 import org.json.JSONObject
 import retrofit2.HttpException
@@ -79,6 +80,9 @@ class DrtViewModel @Inject constructor(
     private val _confirmationActions = MutableLiveData<List<com.skedgo.tripkit.ui.generic.action_list.Action>>()
     val confirmationActions: LiveData<List<com.skedgo.tripkit.ui.generic.action_list.Action>> = _confirmationActions
 
+    private val _accessibilityLabel = MutableLiveData<String>()
+    val accessibilityLabel: LiveData<String> = _accessibilityLabel
+
     private val stopPollingUpdate = AtomicBoolean()
 
     private val quickBookingObserver = Observer<QuickBooking> {
@@ -108,9 +112,12 @@ class DrtViewModel @Inject constructor(
                                 setType(input.type())
                                 setValue(
                                         if (input.type().equals(QuickBookingType.RETURN_TRIP, true)) {
-                                            val dateTime = DateTime.parse(input.value(), getISODateFormatter())
-                                            val dateString = dateTime.toString(getDisplayDateFormatter())
-                                            val timeString = dateTime.toString(getDisplayTimeFormatter())
+                                            val segmentTz = DateTimeZone.forID(segment.value?.timeZone ?: "UTC")
+                                            val rawTz = DateTimeZone.forID("UTC")
+
+                                            val dateTime = DateTime.parse(input.value()?.replace("Z", ""), getISODateFormatter(rawTz))
+                                            val dateString = dateTime.toString(getDisplayDateFormatter(segmentTz))
+                                            val timeString = dateTime.toString(getDisplayTimeFormatter(segmentTz))
                                             listOf("$dateString at $timeString")
                                         } else {
                                             if (!input.value().isNullOrEmpty()) {
@@ -221,6 +228,9 @@ class DrtViewModel @Inject constructor(
                         input.values = item.values.value
                     } else if (input.type == QuickBookingType.RETURN_TRIP) {
                         input.value = item.rawDate.value
+                        if (input.value.isNullOrEmpty()) {
+                            input.value = item.values.value?.first()
+                        }
                     } else {
                         input.value = item.values.value?.firstOrNull()
                     }
@@ -264,6 +274,8 @@ class DrtViewModel @Inject constructor(
                 stopPollingUpdate.set(true)
             }
         }
+
+        _accessibilityLabel.value = segment.booking?.accessibilityLabel ?: "Book"
     }
 
     private fun fetchQuickBooking(url: String) {

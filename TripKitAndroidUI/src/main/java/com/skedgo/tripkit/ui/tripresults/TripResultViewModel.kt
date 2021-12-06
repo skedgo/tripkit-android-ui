@@ -76,6 +76,7 @@ class TripResultViewModel @Inject constructor(private val context: Context,
     val cost = ObservableField<String>()
     val moreButtonVisible = ObservableBoolean(false)
     var moreButtonText = ObservableField<String>()
+    var accessibilityLabel = ObservableField<String>()
     var otherTripGroups: List<Trip>? = null
     var classification = TripGroupClassifier.Classification.NONE
 
@@ -143,7 +144,6 @@ class TripResultViewModel @Inject constructor(private val context: Context,
                 moreButtonText = actionButtonText
                 moreButtonVisible.set(true)
             }
-
         } else {
             moreButtonText.set(context.resources.getString(R.string.more))
             moreButtonVisible.set(true)
@@ -166,9 +166,20 @@ class TripResultViewModel @Inject constructor(private val context: Context,
         newVm.subtitle.set(buildSubtitle(trip))
         newVm.contentDescription.set(buildContentDescription(trip))
         newVm.isMissedPreBooking.set(trip.segments?.first()?.availability.equals(Availability.MissedPrebookingWindow.value))
+        accessibilityLabel.set(getAccessibilityLabel() ?: context.getString(R.string.book))
         setSegments(newVm.segments, trip)
 
         return newVm
+    }
+
+    private fun getAccessibilityLabel() : String? {
+        var mAccessibilityLabel: String? = null
+        trip.segments?.forEach {
+            if (!it.booking?.accessibilityLabel.isNullOrEmpty()) {
+                mAccessibilityLabel = it.booking?.accessibilityLabel
+            }
+        }
+        return mAccessibilityLabel
     }
 
     private fun buildContentDescription(trip: Trip): String? {
