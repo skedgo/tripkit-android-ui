@@ -95,6 +95,7 @@ class TripResultListFragment : BaseTripKitFragment() {
 
     var shouldShowMoreButton = false
 
+
     override fun onAttach(context: Context) {
         TripKitUI.getInstance().routesComponent().inject(this);
         super.onAttach(context)
@@ -189,11 +190,11 @@ class TripResultListFragment : BaseTripKitFragment() {
         }.addTo(autoDisposable)
     }
 
-    private fun showDateTimePicker() {
+    private fun showDateTimePicker(isCancelable: Boolean = true) {
         var departureTimezone: String? = null
         var arrivalTimezone: String? = null
 
-        var timeMillis = System.currentTimeMillis() / 1000
+        var timeMillis = System.currentTimeMillis()
         val timeTag = viewModel.query.timeTag
         if (!timeTag!!.isDynamic) {
             timeMillis = TimeUnit.SECONDS.toMillis(timeTag.timeInSecs)
@@ -216,7 +217,7 @@ class TripResultListFragment : BaseTripKitFragment() {
                     .withTimeType(timeTag.type)
                     .timeMillis(timeMillis)
                     .withPositiveAction(R.string.done)
-                    .withNegativeAction(R.string.leave_now)
+                    /*.withNegativeAction(R.string.leave_now)*/
                     .setTimePickerMinutesInterval(15)
                     .setLeaveAtLabel(globalConfigs.dateTimePickerConfig()?.dateTimePickerLeaveAtLabel)
                     .setArriveByLabel(globalConfigs.dateTimePickerConfig()?.dateTimePickerArriveByLabel)
@@ -226,6 +227,7 @@ class TripResultListFragment : BaseTripKitFragment() {
                     viewModel.updateQueryTime(timeTag)
                 }
             })
+            fragment.isCancelable = isCancelable
             fragment.show(fragmentManager!!, "timePicker")
         } catch (error: IllegalStateException) {
             // To prevent https://fabric.io/skedgo/android/apps/com.buzzhives.android.tripplanner/issues/5967e7f0be077a4dcc839dc5.
@@ -242,7 +244,14 @@ class TripResultListFragment : BaseTripKitFragment() {
         }
 
         showTransportSelectionView = arguments?.getBoolean(ARG_SHOW_TRANSPORT_MODE_SELECTION, true)!!
-        query?.let { viewModel.setup(it, showTransportSelectionView, transportModeFilter, actionButtonHandlerFactory) }
+        query?.let {
+            viewModel.setup(
+                    it, showTransportSelectionView, transportModeFilter, actionButtonHandlerFactory,
+                    execute = false
+            )
+        }
+
+        showDateTimePicker(false)
     }
 
     class Builder {

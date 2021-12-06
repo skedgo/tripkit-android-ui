@@ -4,7 +4,9 @@ import android.annotation.SuppressLint
 import android.app.Dialog
 import android.content.DialogInterface
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.NumberPicker
 import android.widget.TimePicker
@@ -111,6 +113,7 @@ class TripKitDateTimePickerDialogFragment : DialogFragment(), TimePicker.OnTimeC
 
         initDateSpinner()
         updateTimePicker()
+
         return dialog
     }
 
@@ -186,7 +189,7 @@ class TripKitDateTimePickerDialogFragment : DialogFragment(), TimePicker.OnTimeC
         initTimeSelectionDisplay(timePicker)
 
         timePicker.currentHour = hour ?: timePickerViewModel.hour
-        timePicker.currentMinute = (minute ?: timePickerViewModel.minute) *
+        timePicker.currentMinute = (minute ?: timePickerViewModel.minute) /
                 timePickerViewModel.timePickerMinuteInterval
 
         timePicker.setOnTimeChangedListener(this)
