@@ -125,7 +125,7 @@ class DrtFragment : BaseFragment<FragmentDrtBinding>(), DrtHandler {
                                                 val rawTz = DateTimeZone.forID("UTC")
                                                 val segmentTz = DateTimeZone.forID(segment?.timeZone ?: "UTC")
                                                 val dateTime = DateTime(timeTag.timeInMillis)
-                                                cachedReturnMills = timeTag.timeInMillis / 1000
+                                                cachedReturnMills = timeTag.timeInMillis /*/ 1000*/
 
                                                 val isoDate = dateTime.toString(getISODateFormatter(rawTz))
                                                 val rawDateBuilder = StringBuilder()
@@ -175,7 +175,7 @@ class DrtFragment : BaseFragment<FragmentDrtBinding>(), DrtHandler {
         segment?.let {
             pagerItemViewModel.setSegment(requireContext(), it)
             viewModel.setTripSegment(it)
-            cachedReturnMills = it.startTimeInSecs + 3600
+            cachedReturnMills = TimeUnit.SECONDS.toMillis(it.startTimeInSecs + 3600)
         }
 
         observe(viewModel.confirmationActions) {

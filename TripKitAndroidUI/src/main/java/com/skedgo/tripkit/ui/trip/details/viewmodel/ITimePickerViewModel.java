@@ -43,6 +43,8 @@ public interface ITimePickerViewModel {
 
     int getMinute();
 
+    int getTimePickerMinuteInterval();
+
     @Nullable
     Date dateTimeMinLimit();
 

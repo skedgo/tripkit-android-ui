@@ -127,11 +127,14 @@ class TripResultListViewModel @Inject constructor(
     }
 
 
-    fun setup(_query: Query,
-              showTransportSelectionView: Boolean,
-              transportModeFilter: TransportModeFilter?,
-              actionButtonHandlerFactory: ActionButtonHandlerFactory?,
-              force: Boolean = false) {
+    fun setup(
+            _query: Query,
+            showTransportSelectionView: Boolean,
+            transportModeFilter: TransportModeFilter?,
+            actionButtonHandlerFactory: ActionButtonHandlerFactory?,
+            force: Boolean = false,
+            execute: Boolean = true
+    ) {
         if (!force && mergedList.size > 0) {
             return
         }
@@ -161,7 +164,10 @@ class TripResultListViewModel @Inject constructor(
         }
 
         setTimeLabel()
-        getTransport()
+
+        if(execute) {
+            getTransport()
+        }
     }
 
 

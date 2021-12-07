@@ -1,10 +1,14 @@
 package com.skedgo.tripkit.ui.dialog
 
+import android.annotation.SuppressLint
 import android.app.Dialog
 import android.content.DialogInterface
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.AdapterView
+import android.widget.NumberPicker
 import android.widget.TimePicker
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.Observable
@@ -17,6 +21,7 @@ import com.skedgo.tripkit.ui.TripKitUI
 import com.skedgo.tripkit.ui.databinding.DialogDateTimePickerBinding
 import com.skedgo.tripkit.ui.trip.details.viewmodel.ITimePickerViewModel
 import com.skedgo.tripkit.ui.trip.options.InterCityTimePickerViewModel
+import java.lang.reflect.Field
 import java.util.*
 import javax.inject.Inject
 
@@ -108,6 +113,7 @@ class TripKitDateTimePickerDialogFragment : DialogFragment(), TimePicker.OnTimeC
 
         initDateSpinner()
         updateTimePicker()
+
         return dialog
     }
 
@@ -131,8 +137,9 @@ class TripKitDateTimePickerDialogFragment : DialogFragment(), TimePicker.OnTimeC
      * @suppress
      */
     override fun onTimeChanged(timePicker: TimePicker, hour: Int, minute: Int) {
-        if (isTimeValid(hour, minute)) {
-            timePickerViewModel.updateTime(hour, minute)
+        val convertedMinute = minute * timePickerViewModel.timePickerMinuteInterval
+        if (isTimeValid(hour, convertedMinute)) {
+            timePickerViewModel.updateTime(hour, convertedMinute)
         } else {
             updateTimePicker(
                     timePickerViewModel.dateTimeMinLimit()?.hours,
@@ -178,9 +185,29 @@ class TripKitDateTimePickerDialogFragment : DialogFragment(), TimePicker.OnTimeC
     private fun updateTimePicker(hour: Int? = null, minute: Int? = null) {
         val timePicker = binding!!.timePicker
         timePicker.setOnTimeChangedListener(null)
-        timePicker.currentHour = hour ?: timePickerViewModel!!.hour
-        timePicker.currentMinute = minute ?: timePickerViewModel!!.minute
+
+        initTimeSelectionDisplay(timePicker)
+
+        timePicker.currentHour = hour ?: timePickerViewModel.hour
+        timePicker.currentMinute = (minute ?: timePickerViewModel.minute) /
+                timePickerViewModel.timePickerMinuteInterval
+
         timePicker.setOnTimeChangedListener(this)
+    }
+
+    @SuppressLint("PrivateApi")
+    private fun initTimeSelectionDisplay(timePicker: TimePicker) {
+        val classForId = Class.forName("com.android.internal.R\$id")
+        val field: Field = classForId.getField("minute")
+
+        val minuteSpinner: NumberPicker = timePicker.findViewById(field.getInt(null)) as NumberPicker
+        minuteSpinner.minValue = 0
+        minuteSpinner.maxValue = (60 / timePickerViewModel.timePickerMinuteInterval) - 1
+        val displayedValues = mutableListOf<String>()
+        for (i in 0..60 step timePickerViewModel.timePickerMinuteInterval) {
+            displayedValues.add(String.format("%02d", i))
+        }
+        minuteSpinner.displayedValues = displayedValues.toTypedArray()
     }
 
     private fun initDateSpinner() {
@@ -226,6 +253,7 @@ class TripKitDateTimePickerDialogFragment : DialogFragment(), TimePicker.OnTimeC
         private var isSingleSelection: Boolean = false
         private var singleLabel: String? = null
         private var dateTimeMinLimit: Date? = null
+        private var timePickerMinutesInterval: Int = 1
 
         fun withTitle(title: String?): Builder {
             this.title = title
@@ -337,6 +365,11 @@ class TripKitDateTimePickerDialogFragment : DialogFragment(), TimePicker.OnTimeC
             return this
         }
 
+        fun setTimePickerMinutesInterval(interval: Int): Builder {
+            this.timePickerMinutesInterval = interval
+            return this
+        }
+
         /**
          * Builds a new instance of the fragment.
          *
@@ -358,6 +391,7 @@ class TripKitDateTimePickerDialogFragment : DialogFragment(), TimePicker.OnTimeC
             args.putString(InterCityTimePickerViewModel.ARG_ARRIVAL_TIMEZONE, arrivalTimezone)
             args.putInt(InterCityTimePickerViewModel.ARG_TIME_TYPE, timeType)
             args.putLong(InterCityTimePickerViewModel.ARG_TIME_IN_MILLIS, timeMillis)
+            args.putInt(InterCityTimePickerViewModel.ARG_TIME_PICKER_MINUTES_INTERVAL, timePickerMinutesInterval)
             dateTimeMinLimit?.let {
                 args.putLong(InterCityTimePickerViewModel.ARG_DATE_TIME_PICKER_MIN_LIMIT, it.time)
             }
