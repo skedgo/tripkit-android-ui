@@ -4,12 +4,14 @@ import android.annotation.SuppressLint
 import android.app.Dialog
 import android.content.DialogInterface
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.NumberPicker
 import android.widget.TimePicker
+import androidx.core.view.allViews
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.Observable
 import androidx.fragment.app.DialogFragment
@@ -21,6 +23,8 @@ import com.skedgo.tripkit.ui.TripKitUI
 import com.skedgo.tripkit.ui.databinding.DialogDateTimePickerBinding
 import com.skedgo.tripkit.ui.trip.details.viewmodel.ITimePickerViewModel
 import com.skedgo.tripkit.ui.trip.options.InterCityTimePickerViewModel
+import kotlinx.android.synthetic.main.trip_segment.*
+import java.lang.Exception
 import java.lang.reflect.Field
 import java.util.*
 import javax.inject.Inject
@@ -137,7 +141,7 @@ class TripKitDateTimePickerDialogFragment : DialogFragment(), TimePicker.OnTimeC
      * @suppress
      */
     override fun onTimeChanged(timePicker: TimePicker, hour: Int, minute: Int) {
-        val convertedMinute = minute * timePickerViewModel.timePickerMinuteInterval
+        val convertedMinute = minute * timePickerViewModel.timePickerMinuteInterval.get()
         if (isTimeValid(hour, convertedMinute)) {
             timePickerViewModel.updateTime(hour, convertedMinute)
         } else {
@@ -190,24 +194,41 @@ class TripKitDateTimePickerDialogFragment : DialogFragment(), TimePicker.OnTimeC
 
         timePicker.currentHour = hour ?: timePickerViewModel.hour
         timePicker.currentMinute = (minute ?: timePickerViewModel.minute) /
-                timePickerViewModel.timePickerMinuteInterval
+                timePickerViewModel.timePickerMinuteInterval.get()
 
         timePicker.setOnTimeChangedListener(this)
     }
 
     @SuppressLint("PrivateApi")
     private fun initTimeSelectionDisplay(timePicker: TimePicker) {
-        val classForId = Class.forName("com.android.internal.R\$id")
-        val field: Field = classForId.getField("minute")
 
-        val minuteSpinner: NumberPicker = timePicker.findViewById(field.getInt(null)) as NumberPicker
-        minuteSpinner.minValue = 0
-        minuteSpinner.maxValue = (60 / timePickerViewModel.timePickerMinuteInterval) - 1
-        val displayedValues = mutableListOf<String>()
-        for (i in 0..60 step timePickerViewModel.timePickerMinuteInterval) {
-            displayedValues.add(String.format("%02d", i))
+        var minuteSpinner: NumberPicker? = null
+
+        try {
+            val classForId = Class.forName("com.android.internal.R\$id")
+            val field: Field = classForId.getField("minute")
+
+            minuteSpinner = timePicker.findViewById(field.getInt(null)) as NumberPicker
+
+        } catch (e: NoSuchFieldException) {
+            try {
+                minuteSpinner = timePicker.allViews.filter {
+                    it::class.java.simpleName == "NumberPicker"
+                }.toList()[1] as NumberPicker
+            } catch (e: Exception) {
+                timePickerViewModel.timePickerMinuteInterval.set(1)
+            }
         }
-        minuteSpinner.displayedValues = displayedValues.toTypedArray()
+
+        minuteSpinner?.let {
+            minuteSpinner.minValue = 0
+            minuteSpinner.maxValue = (60 / timePickerViewModel.timePickerMinuteInterval.get()) - 1
+            val displayedValues = mutableListOf<String>()
+            for (i in 0..60 step timePickerViewModel.timePickerMinuteInterval.get()) {
+                displayedValues.add(String.format("%02d", i))
+            }
+            minuteSpinner.displayedValues = displayedValues.toTypedArray()
+        }
     }
 
     private fun initDateSpinner() {
