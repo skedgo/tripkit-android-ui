@@ -265,10 +265,11 @@ public class InterCityTimePickerViewModel implements ITimePickerViewModel {
 
     @Override
     public TimeTag done() {
+        int position = selectedPosition.get() + 1;
         GregorianCalendar dateCalendar = this.isSingleSelection.get() ?
-                singleSelectionCalendars.get(selectedPosition.get()) :
-                this.isLeaveAfter.get() ? departureCalendars.get(selectedPosition.get()) :
-                        arrivalCalendars.get(selectedPosition.get());
+                singleSelectionCalendars.get(position) :
+                this.isLeaveAfter.get() ? departureCalendars.get(position) :
+                        arrivalCalendars.get(position);
         return getTimeTagFromDateTime(dateCalendar, timeCalendar);
     }
 
@@ -351,7 +352,8 @@ public class InterCityTimePickerViewModel implements ITimePickerViewModel {
     }
 
     private void moveToLastSelectedTime() {
-        List<GregorianCalendar> selectedCalendars = this.isLeaveAfter.get()
+        List<GregorianCalendar> selectedCalendars = this.isSingleSelection.get() ?
+                singleSelectionCalendars : this.isLeaveAfter.get()
                 ? departureCalendars : arrivalCalendars;
         //Set last selected time
         TimeZone tz = selectedCalendars.get(0).getTimeZone();
@@ -368,7 +370,7 @@ public class InterCityTimePickerViewModel implements ITimePickerViewModel {
         for (int i = 0; i < MAX_DATE_COUNT; ++i) {
             temp = selectedCalendars.get(i);
             if (temp.get(Calendar.DATE) == date) {
-                this.selectedPosition.set(i);
+                this.selectedPosition.set(i - 1);
                 break;
             }
 
@@ -430,7 +432,8 @@ public class InterCityTimePickerViewModel implements ITimePickerViewModel {
     }
 
     private void refreshDateTime() {
-        List<GregorianCalendar> selectedCalendars = this.isLeaveAfter.get()
+        List<GregorianCalendar> selectedCalendars = this.isSingleSelection.get() ?
+                singleSelectionCalendars : this.isLeaveAfter.get()
                 ? departureCalendars : arrivalCalendars;
         int startIndex;
         int position = selectedPosition.get();
@@ -444,7 +447,7 @@ public class InterCityTimePickerViewModel implements ITimePickerViewModel {
         for (int i = startIndex; i <= startIndex + 2 && i < MAX_DATE_COUNT; ++i) {
             tempCalendar = selectedCalendars.get(i);
             if (tempCalendar.get(Calendar.DATE) == date) {
-                selectedPosition.set(i);
+                selectedPosition.set(i - 1);
                 break;
             }
 
