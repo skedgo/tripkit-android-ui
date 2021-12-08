@@ -49,12 +49,16 @@ open class ActionButtonHandler {
 //            result.set(context.getString(R.string.view_times))
             return result
         } else if (type == ITEM_QUICK_BOOKING
-                || type == ITEM_EXTERNAL_BOOKING){
-                    if(!foundSegment.booking?.accessibilityLabel.isNullOrEmpty()) {
-                        result.set(foundSegment.booking?.accessibilityLabel)
-                    } else {
-                        result.set(foundSegment.booking?.title)
-                    }
+                || type == ITEM_EXTERNAL_BOOKING) {
+
+             /*
+            if (!foundSegment.booking?.accessibilityLabel.isNullOrEmpty()) {
+                result.set(foundSegment.booking?.accessibilityLabel)
+            } else {
+                result.set(foundSegment.booking?.title)
+            }
+            */
+            result.set(foundSegment.booking?.title)
             return result
         } else {
             val mainSegment = trip.getMainTripSegment()

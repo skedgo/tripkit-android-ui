@@ -164,14 +164,11 @@ class TripResultListViewModel @Inject constructor(
         }
 
         setTimeLabel()
-
-        if(execute) {
-            getTransport()
-        }
+        getTransport(execute)
     }
 
 
-    private fun getTransport() {
+    private fun getTransport(execute: Boolean = true) {
         setLoading(true)
         regionService.getTransportModesByLocationsAsync(query.fromLocation!!, query.toLocation!!)
                 .observeOn(AndroidSchedulers.mainThread())
@@ -208,7 +205,9 @@ class TripResultListViewModel @Inject constructor(
                 .toList()
                 .subscribe({ list ->
                     transportModes.set(list)
-                    load()
+                    if (execute) {
+                        load()
+                    }
                 }, {
                     Timber.e(it)
                     if (it.message != null) {
