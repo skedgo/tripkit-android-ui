@@ -112,13 +112,18 @@ class DrtViewModel @Inject constructor(
                                 setType(input.type())
                                 setValue(
                                         if (input.type().equals(QuickBookingType.RETURN_TRIP, true)) {
-                                            val segmentTz = DateTimeZone.forID(segment.value?.timeZone ?: "UTC")
+                                            val segmentTz = DateTimeZone.forID(segment.value?.timeZone
+                                                    ?: "UTC")
                                             val rawTz = DateTimeZone.forID("UTC")
 
-                                            val dateTime = DateTime.parse(input.value()?.replace("Z", ""), getISODateFormatter(rawTz))
-                                            val dateString = dateTime.toString(getDisplayDateFormatter(segmentTz))
-                                            val timeString = dateTime.toString(getDisplayTimeFormatter(segmentTz))
-                                            listOf("$dateString at $timeString")
+                                            try {
+                                                val dateTime = DateTime.parse(input.value()?.replace("Z", ""), getISODateFormatter(rawTz))
+                                                val dateString = dateTime.toString(getDisplayDateFormatter(segmentTz))
+                                                val timeString = dateTime.toString(getDisplayTimeFormatter(segmentTz))
+                                                listOf("$dateString at $timeString")
+                                            } catch (e: Exception) {
+                                                listOf("One-way only")
+                                            }
                                         } else {
                                             if (!input.value().isNullOrEmpty()) {
                                                 listOf(input.value() ?: "")
