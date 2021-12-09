@@ -274,8 +274,8 @@ public class InterCityTimePickerViewModel implements ITimePickerViewModel {
     }
 
     @Override
-    public int getTimePickerMinuteInterval() {
-        return timePickerMinuteInterval.get();
+    public ObservableInt getTimePickerMinuteInterval() {
+        return timePickerMinuteInterval;
     }
 
     /**
