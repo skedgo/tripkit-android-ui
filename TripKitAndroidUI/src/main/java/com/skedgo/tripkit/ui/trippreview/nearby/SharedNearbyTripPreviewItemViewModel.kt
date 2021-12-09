@@ -152,9 +152,11 @@ class SharedNearbyTripPreviewItemViewModel @Inject constructor(private val regio
         if (isAppInstalled && !deepLink.isNullOrEmpty()) {
             action = deepLink!!
             var label = loadedSegment!!.booking?.title
+            /*
             if (!loadedSegment?.booking?.accessibilityLabel.isNullOrEmpty()) {
                 label = loadedSegment?.booking?.accessibilityLabel
             }
+            */
             if (label.isNullOrEmpty()) {
                 label = "Open App"
             }
@@ -207,9 +209,11 @@ class SharedNearbyTripPreviewItemViewModel @Inject constructor(private val regio
                 when {
                     index == 0 -> {
                         var label = loadedSegment?.booking?.title
+                        /*
                         if (!loadedSegment?.booking?.accessibilityLabel.isNullOrEmpty()) {
                             label = loadedSegment?.booking?.accessibilityLabel
                         }
+                        */
                         label
                     }
                     URLUtil.isNetworkUrl(externalAction?.data) -> {
