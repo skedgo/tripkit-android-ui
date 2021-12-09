@@ -24,8 +24,8 @@
         android:clickable="true"
         android:fillViewport="true"
         android:focusable="true"
-        android:overScrollMode="never"
         android:focusableInTouchMode="true"
+        android:overScrollMode="never"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
         tools:context=".trippreview.drt.DRTFragment">
 
@@ -94,7 +94,7 @@
                 android:layout_marginTop="@dimen/spacing_normal"
                 android:importantForAccessibility="yes"
                 app:layout_constraintBottom_toTopOf="@id/drt_br_dataList"
-                app:layout_constraintTop_toBottomOf="@+id/drt_iv_progress">
+                app:layout_constraintTop_toBottomOf="@+id/drt_cl_progressHeader">
 
                 <TextView
                     android:id="@+id/drt_tvSchedule"
@@ -199,10 +199,6 @@
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
-            <!---->
-
-            <!---->
-
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/drt_rvData"
                 android:layout_width="match_parent"
@@ -257,45 +253,58 @@
                 android:id="@+id/drt_cl_progressHeader"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/spacing_small"
-                android:background="@color/colorPrimary"
-                android:padding="@dimen/spacing_normal"
-                android:visibility="@{viewModel.bookingConfirmation != null}"
+                android:importantForAccessibility="yes"
                 app:layout_constraintTop_toBottomOf="@+id/drt_tvSubTitle">
 
-                <TextView
-                    android:id="@+id/drt_tv_progressHeader"
-                    style="@style/TextAppearance.MaterialComponents.Body1"
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/drt_cl_progressHeaderDescription"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@{viewModel.bookingConfirmation.status().title()}"
-                    android:textColor="@android:color/white"
-                    android:textStyle="bold"
-                    app:layout_constraintTop_toTopOf="parent"
-                    tools:text="Processing" />
+                    android:layout_marginTop="@dimen/spacing_small"
+                    android:background="@color/colorPrimary"
+                    android:padding="@dimen/spacing_normal"
+                    android:visibility="@{viewModel.bookingConfirmation != null}"
+                    app:layout_constraintTop_toTopOf="parent">
 
-                <TextView
-                    style="@style/TextAppearance.MaterialComponents.Body2"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/shadow_height"
-                    android:text="@{viewModel.bookingConfirmation.status().subtitle()}"
-                    android:textColor="@android:color/white"
-                    app:layout_constraintTop_toBottomOf="@+id/drt_tv_progressHeader"
-                    tools:text="Subtitle" />
+                    <TextView
+                        android:id="@+id/drt_tv_progressHeader"
+                        style="@style/TextAppearance.MaterialComponents.Body1"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:focusable="false"
+                        android:text="@{viewModel.bookingConfirmation.status().title()}"
+                        android:textColor="@android:color/white"
+                        android:textStyle="bold"
+                        app:layout_constraintTop_toTopOf="parent"
+                        tools:text="Processing" />
+
+                    <TextView
+                        style="@style/TextAppearance.MaterialComponents.Body2"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/shadow_height"
+                        android:focusable="false"
+                        android:text="@{viewModel.bookingConfirmation.status().subtitle()}"
+                        android:textColor="@android:color/white"
+                        app:layout_constraintTop_toBottomOf="@+id/drt_tv_progressHeader"
+                        tools:text="Subtitle" />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+                <ImageView
+                    android:id="@+id/drt_iv_progress"
+                    android:layout_width="96dp"
+                    android:layout_height="96dp"
+                    android:layout_marginTop="@dimen/spacing_normal"
+                    android:focusable="false"
+                    android:visibility="@{viewModel.bookingConfirmation != null}"
+                    app:imageUrl="@{viewModel.bookingConfirmation.status().imageURL()}"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/drt_cl_progressHeaderDescription" />
+
 
             </androidx.constraintlayout.widget.ConstraintLayout>
-
-            <ImageView
-                android:id="@+id/drt_iv_progress"
-                android:layout_width="96dp"
-                android:layout_height="96dp"
-                android:layout_marginTop="@dimen/spacing_normal"
-                android:visibility="@{viewModel.bookingConfirmation != null}"
-                app:imageUrl="@{viewModel.bookingConfirmation.status().imageURL()}"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/drt_cl_progressHeader" />
 
             <androidx.constraintlayout.widget.Barrier
                 android:id="@+id/drt_br_dataList"
@@ -304,7 +313,7 @@
                 android:background="@android:color/transparent"
                 android:elevation="0dp"
                 app:barrierDirection="bottom"
-                app:constraint_referenced_ids="drt_clSchedule, drt_iv_progress" />
+                app:constraint_referenced_ids="drt_clSchedule, drt_cl_progressHeader" />
 
             <ProgressBar
                 android:layout_width="wrap_content"
