@@ -2,6 +2,7 @@ package com.skedgo.tripkit.ui.tripresults
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -94,6 +95,7 @@ class TripResultListFragment : BaseTripKitFragment() {
     }
 
     var shouldShowMoreButton = false
+    var previouslyInitialized = false
 
 
     override fun onAttach(context: Context) {
@@ -109,6 +111,9 @@ class TripResultListFragment : BaseTripKitFragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
+
+        previouslyInitialized = ::binding.isInitialized
+
         binding = TripResultListFragmentBinding.inflate(layoutInflater)
         binding.viewModel = viewModel
         val showCloseButton = arguments?.getBoolean(ARG_SHOW_CLOSE_BUTTON, false) ?: false
@@ -251,7 +256,9 @@ class TripResultListFragment : BaseTripKitFragment() {
             )
         }
 
-        showDateTimePicker(false)
+        if(!previouslyInitialized){
+            showDateTimePicker(false)
+        }
     }
 
     class Builder {
