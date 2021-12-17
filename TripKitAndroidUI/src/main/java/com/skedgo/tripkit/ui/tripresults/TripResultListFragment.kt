@@ -216,17 +216,24 @@ class TripResultListFragment : BaseTripKitFragment() {
 
             val globalConfigs = TripKit.getInstance().configs()
 
-            var fragment = TripKitDateTimePickerDialogFragment.Builder()
+            val builder = TripKitDateTimePickerDialogFragment.Builder()
                     .withTitle(getString(R.string.set_time))
                     .withTimeZones(departureTimezone, arrivalTimezone)
                     .withTimeType(timeTag.type)
                     .timeMillis(timeMillis)
                     .withPositiveAction(R.string.done)
                     /*.withNegativeAction(R.string.leave_now)*/
-                    .setTimePickerMinutesInterval(15)
+                    .setTimePickerMinutesInterval(
+                            globalConfigs.dateTimePickerConfig()?.dateTimePickerMinuteInterval ?: 1)
                     .setLeaveAtLabel(globalConfigs.dateTimePickerConfig()?.dateTimePickerLeaveAtLabel)
                     .setArriveByLabel(globalConfigs.dateTimePickerConfig()?.dateTimePickerArriveByLabel)
-                    .build()
+
+            if (globalConfigs.dateTimePickerConfig()?.isWithLeaveNow == true) {
+                builder.withNegativeAction(R.string.leave_now)
+            }
+
+            val fragment = builder.build()
+
             fragment.setOnTimeSelectedListener(object : TripKitDateTimePickerDialogFragment.OnTimeSelectedListener {
                 override fun onTimeSelected(timeTag: TimeTag) {
                     viewModel.updateQueryTime(timeTag)
