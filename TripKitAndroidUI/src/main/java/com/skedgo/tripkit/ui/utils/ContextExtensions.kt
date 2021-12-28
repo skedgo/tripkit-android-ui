@@ -1,5 +1,6 @@
 package com.skedgo.tripkit.ui.utils
 
+import android.accessibilityservice.AccessibilityServiceInfo
 import android.content.Context
 import android.content.Intent
 import android.net.ConnectivityManager
@@ -49,7 +50,7 @@ fun Context.showConfirmationPopUpDialog(
 }
 
 
-fun Context.getVersionCode(): Long?{
+fun Context.getVersionCode(): Long? {
     return try {
         val pInfo = packageManager.getPackageInfo(packageName, 0)
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
@@ -65,4 +66,18 @@ fun Context.getVersionCode(): Long?{
 
 fun Context.getAccessibilityManager(): AccessibilityManager {
     return this.getSystemService(Context.ACCESSIBILITY_SERVICE) as AccessibilityManager
+}
+
+fun Context.isTalkBackOn(): Boolean {
+    val manager = getAccessibilityManager()
+
+    if (manager.isEnabled) {
+        val serviceInfoList =
+                manager.getEnabledAccessibilityServiceList(AccessibilityServiceInfo.FEEDBACK_SPOKEN)
+        if (serviceInfoList.isNotEmpty()) {
+            return true
+        }
+    }
+
+    return false
 }
