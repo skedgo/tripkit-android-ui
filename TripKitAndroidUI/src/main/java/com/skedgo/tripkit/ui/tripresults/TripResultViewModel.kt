@@ -34,6 +34,7 @@ class TripResultTripViewModel : ViewModel() {
     val title = ObservableField<String>()
     val subtitle = ObservableField<String>()
     val isMissedPreBooking = ObservableField<Boolean>()
+    val isHideExactTimes = ObservableField<Boolean>()
     val contentDescription = ObservableField<String>()
     var clickFlow: MutableSharedFlow<Trip>? = null
     val segments = ArrayList<TripSegmentViewModel>()
@@ -166,6 +167,7 @@ class TripResultViewModel @Inject constructor(private val context: Context,
         newVm.subtitle.set(buildSubtitle(trip))
         newVm.contentDescription.set(buildContentDescription(trip))
         newVm.isMissedPreBooking.set(trip.segments?.first()?.availability.equals(Availability.MissedPrebookingWindow.value))
+        newVm.isHideExactTimes.set(trip.isHideExactTimes)
         accessibilityLabel.set(getAccessibilityLabel() ?: context.getString(R.string.book))
         setSegments(newVm.segments, trip)
 

@@ -66,6 +66,7 @@ class TripSegmentsViewModel @Inject internal constructor(
                     .map(TripSegmentItemViewModel::class.java, BR.viewModel, R.layout.trip_segment)
     )
     val showCloseButton = ObservableBoolean(false)
+    val isHideExactTimes = ObservableBoolean(false)
 
     internal val onStreetViewTapped = PublishSubject.create<Location>()
     private val creditSourcesOfDataViewModel = BehaviorRelay.create<CreditSourcesOfDataViewModel>()
@@ -177,7 +178,7 @@ class TripSegmentsViewModel @Inject internal constructor(
             }
         }
 
-
+        isHideExactTimes.set(trip.isHideExactTimes)
     }
 
     // TODO This function is duplicated in TripResultViewModel

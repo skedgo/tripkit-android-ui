@@ -9,5 +9,6 @@ data class TripPreviewHeader(
         var pages: List<Int>? = null,
         val id: Long? = null,
         val description: String? = null,
-        val modeId: String? = null
+        val modeId: String? = null,
+        val isHideExactTimes: Boolean = false
 )
