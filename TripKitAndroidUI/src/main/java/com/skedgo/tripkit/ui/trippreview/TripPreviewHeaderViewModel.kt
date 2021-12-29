@@ -45,6 +45,9 @@ class TripPreviewHeaderViewModel @Inject constructor() : RxViewModel() {
     private val _selectedSegmentId = MutableLiveData<Pair<Long, String>>()
     val selectedSegmentId: LiveData<Pair<Long, String>> = _selectedSegmentId
 
+    private val _isHideExactTimes = MutableLiveData(false)
+    val isHideExactTimes: LiveData<Boolean> = _isHideExactTimes
+
     fun setup(headerItems: List<TripPreviewHeader>) {
         items.clear()
         items.addAll(
@@ -56,6 +59,7 @@ class TripPreviewHeaderViewModel @Inject constructor() : RxViewModel() {
                         id.set(previewHeader.id)
                         description.set(previewHeader.description)
                         modeId.set(previewHeader.modeId)
+                        _isHideExactTimes.value = previewHeader.isHideExactTimes
 
                         if (index == 0) {
                             selected.set(true)

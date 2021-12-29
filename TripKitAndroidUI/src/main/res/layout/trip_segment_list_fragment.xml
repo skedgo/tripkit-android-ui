@@ -45,6 +45,7 @@
             android:layout_marginStart="16dp"
             android:layout_marginEnd="16dp"
             android:text="@{viewModel.arriveAtTitle}"
+        android:visibility="@{!viewModel.isHideExactTimes}"
             style="@style/TextAppearance.MaterialComponents.Body2"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/duration"/>
