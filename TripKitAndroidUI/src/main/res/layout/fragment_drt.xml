@@ -106,6 +106,7 @@
                     android:focusable="false"
                     android:text="@{pagerItemViewModel.duration}"
                     android:textStyle="bold"
+                    android:visibility="@{!viewModel.isHideExactTimes}"
                     app:layout_constraintTop_toTopOf="parent"
                     tools:text="Today 15:07" />
 
@@ -148,17 +149,31 @@
                     app:layout_constraintTop_toBottomOf="@+id/drt_tvPickUpLabel"
                     tools:text="Near Scott Street" />
 
+                <TextView
+                    android:id="@+id/drt_RequestedPickUp"
+                    style="@style/TextAppearance.MaterialComponents.Body2"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/spacing_normal"
+                    android:layout_marginTop="@dimen/spacing_small"
+                    android:focusable="false"
+                    android:visibility="@{pagerItemViewModel.requestedPickUp.length() > 0}"
+                    android:text="@{pagerItemViewModel.requestedPickUp}"
+                    app:layout_constraintStart_toEndOf="@+id/drt_ivPickUpIcon"
+                    app:layout_constraintTop_toBottomOf="@+id/drt_tvPickUp"
+                    tools:text="Requested time {queryTime}" />
+
                 <ImageView
                     android:id="@+id/drt_ivDropOffIcon"
                     android:layout_width="@dimen/icon_small"
                     android:layout_height="@dimen/icon_small"
                     android:layout_marginStart="@dimen/spacing_small"
-                    android:layout_marginTop="@dimen/spacing_medium"
+                    android:layout_marginTop="@dimen/spacing_normal"
                     android:adjustViewBounds="true"
                     android:focusable="false"
                     android:src="@drawable/small_circle"
                     app:layout_constraintStart_toStartOf="@+id/drt_tvSchedule"
-                    app:layout_constraintTop_toBottomOf="@+id/drt_tvPickUp"
+                    app:layout_constraintTop_toBottomOf="@+id/drt_RequestedPickUp"
                     app:tint="@color/colorPrimary" />
 
                 <TextView
@@ -181,12 +196,27 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="@dimen/spacing_normal"
                     android:layout_marginTop="@dimen/spacing_small"
-                    android:layout_marginBottom="@dimen/spacing_normal"
                     android:focusable="false"
                     android:text="@{pagerItemViewModel.toLocation}"
                     app:layout_constraintStart_toEndOf="@+id/drt_ivDropOffIcon"
                     app:layout_constraintTop_toBottomOf="@+id/drt_tvDropOffLabel"
                     tools:text="Near Scott Street" />
+
+                <TextView
+                    android:id="@+id/drt_RequestedDropOff"
+                    style="@style/TextAppearance.MaterialComponents.Body2"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/spacing_normal"
+                    android:layout_marginTop="@dimen/spacing_small"
+                    android:focusable="false"
+                    android:layout_marginBottom="@dimen/spacing_normal"
+                    android:visibility="@{pagerItemViewModel.requestedDropOff.length() > 0}"
+                    android:text="@{pagerItemViewModel.requestedDropOff}"
+                    app:layout_constraintStart_toEndOf="@+id/drt_ivPickUpIcon"
+                    app:layout_constraintTop_toBottomOf="@+id/drt_tvDropOff"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    tools:text="Requested time {queryTime}" />
 
                 <View
                     android:layout_width="1dp"

@@ -85,6 +85,9 @@ TripSegmentItemViewModel @Inject internal constructor(
     private val _wikiWayFinderRoutes = MutableLiveData(listOf<Point>())
     val wikiWayFinderRoutes: LiveData<List<Point>> = _wikiWayFinderRoutes
 
+    private val _isHideExactTimes = MutableLiveData(false)
+    val isHideExactTimes: LiveData<Boolean> = _isHideExactTimes
+
     var tripSegment: TripSegment? = null
 
     val externalAction = ObservableField<String>()
@@ -259,6 +262,8 @@ TripSegmentItemViewModel @Inject internal constructor(
                 showAlerts.set(true)
                 alerts.set(it.alerts)
             }
+
+            _isHideExactTimes.value = it.trip.isHideExactTimes
         }
     }
 

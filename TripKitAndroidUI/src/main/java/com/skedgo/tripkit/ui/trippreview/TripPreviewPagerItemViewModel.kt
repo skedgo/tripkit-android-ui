@@ -15,10 +15,7 @@ import com.jakewharton.rxrelay2.PublishRelay
 import com.skedgo.tripkit.common.model.TransportMode
 import com.skedgo.tripkit.common.util.TransportModeUtils
 import com.skedgo.tripkit.common.util.TripSegmentUtils
-import com.skedgo.tripkit.routing.SegmentType
-import com.skedgo.tripkit.routing.TripSegment
-import com.skedgo.tripkit.routing.endDateTime
-import com.skedgo.tripkit.routing.startDateTime
+import com.skedgo.tripkit.routing.*
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.TripKitUI
 import com.skedgo.tripkit.ui.core.RxViewModel
@@ -51,6 +48,8 @@ open class TripPreviewPagerItemViewModel : RxViewModel() {
     val toLocation = ObservableField<String>()
     val duration = ObservableField<String>()
     val startDateTime = ObservableField<String>()
+    val requestedPickUp = ObservableField<String>()
+    val requestedDropOff = ObservableField<String>()
 
     var segment: TripSegment? = null
 
@@ -116,11 +115,23 @@ open class TripPreviewPagerItemViewModel : RxViewModel() {
 
         fromLocation.set(segment.from?.address ?: "")
         toLocation.set(segment.to?.address ?: "")
-        
+
         if (!DateUtils.isToday(segment.startTimeInSecs)) {
             duration.set(segment.startDateTime.toString(DateTimeFormat.forPattern("MMMM dd HH:mm")))
         } else {
             duration.set("Today ${segment.startDateTime.toString(DateTimeFormat.forPattern("HH:mm"))}")
+        }
+
+        if (segment.trip.queryTime > 0) {
+            val queryDateTime = segment.trip.queryDateTime
+            val date = queryDateTime.toString(DateTimeFormat.forPattern("MMM d, yyyy"))
+            val time = queryDateTime.toString(DateTimeFormat.forPattern("h:mm aa"))
+            val label = String.format("Requested time %s at %s", date, time)
+            if (segment.trip.queryIsLeaveAfter()) {
+                requestedPickUp.set(label)
+            } else {
+                requestedDropOff.set(label)
+            }
         }
     }
 }
