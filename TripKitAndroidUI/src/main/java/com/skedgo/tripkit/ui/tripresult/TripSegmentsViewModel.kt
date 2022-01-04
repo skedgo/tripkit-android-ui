@@ -133,7 +133,7 @@ class TripSegmentsViewModel @Inject internal constructor(
                 .onErrorResumeNext(Observable.empty())
                 .subscribe(
                         { tripGroup ->
-                            if(tripId != -1L) {
+                            if (tripId != -1L) {
                                 tripGroup.displayTripId = tripId
                             }
                             setTitleAndSubtitle(tripGroup, tripId)
@@ -380,6 +380,7 @@ class TripSegmentsViewModel @Inject internal constructor(
 
     private fun addMovingItem(viewModel: TripSegmentItemViewModel,
                               tripSegment: TripSegment) {
+
         viewModel.setupSegment(viewType = TripSegmentItemViewModel.SegmentViewType.MOVING,
                 title = processedText(tripSegment, tripSegment.action),
                 description = tripSegment.getDisplayNotes(context.resources, false),
