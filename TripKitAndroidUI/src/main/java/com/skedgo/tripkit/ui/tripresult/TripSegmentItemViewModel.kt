@@ -138,10 +138,9 @@ TripSegmentItemViewModel @Inject internal constructor(
         var tintWhite = false
         tripSegment?.let {
             this.title.set(title)
-            if (description != null) {
-                this.description.set(description)
-                this.showDescription.set(true)
-            }
+
+            this.description.set(description ?: "")
+            this.showDescription.set(description != null)
 
             if ((it.correctItemType() == ITEM_EXTERNAL_BOOKING && viewType == SegmentViewType.MOVING)
                     || (it.correctItemType() == ITEM_NEARBY && it.booking?.externalActions?.isNotEmpty() == true)) {
