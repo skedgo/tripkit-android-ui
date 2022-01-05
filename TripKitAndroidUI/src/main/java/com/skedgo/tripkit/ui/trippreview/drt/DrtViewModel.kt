@@ -83,6 +83,9 @@ class DrtViewModel @Inject constructor(
     private val _accessibilityLabel = MutableLiveData<String>()
     val accessibilityLabel: LiveData<String> = _accessibilityLabel
 
+    private val _isHideExactTimes = MutableLiveData<Boolean>()
+    val isHideExactTimes: LiveData<Boolean> = _isHideExactTimes
+
     private val stopPollingUpdate = AtomicBoolean()
 
     private val quickBookingObserver = Observer<QuickBooking> {
@@ -281,6 +284,7 @@ class DrtViewModel @Inject constructor(
         }
 
         _accessibilityLabel.value = segment.booking?.accessibilityLabel ?: "Book"
+        _isHideExactTimes.value = segment.trip.isHideExactTimes
     }
 
     private fun fetchQuickBooking(url: String) {
