@@ -259,7 +259,17 @@ TripSegmentItemViewModel @Inject internal constructor(
 
             if (!it.alerts.isNullOrEmpty()) {
                 showAlerts.set(true)
-                alerts.set(it.alerts)
+                it.alerts?.groupConsecutiveBy { firstItem, secondItem ->
+                    firstItem.title() == secondItem.title()
+                }?.let { sameTitleGroups ->
+                    val alertsArray = ArrayList<RealtimeAlert>()
+                    sameTitleGroups.forEach { group ->
+                        if (group.isNotEmpty()) {
+                            alertsArray.add(group.first())
+                        }
+                    }
+                    alerts.set(alertsArray)
+                }
             }
 
             _isHideExactTimes.value = it.trip.isHideExactTimes
