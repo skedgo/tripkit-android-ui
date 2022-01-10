@@ -57,4 +57,5 @@
     <string name="one_way_only">One-way only</string>
     <string name="str_minutes">minutes</string>
     <string name="str_mins">mins</string>
+    <string name="pick_up_window">Pick up window</string>
 </resources>

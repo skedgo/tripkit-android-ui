@@ -86,6 +86,9 @@ class DrtViewModel @Inject constructor(
     private val _isHideExactTimes = MutableLiveData<Boolean>()
     val isHideExactTimes: LiveData<Boolean> = _isHideExactTimes
 
+    private val _pickUpWindow = MutableLiveData<String>()
+    val pickUpWindow: LiveData<String> = _pickUpWindow
+
     private val stopPollingUpdate = AtomicBoolean()
 
     private val quickBookingObserver = Observer<QuickBooking> {
