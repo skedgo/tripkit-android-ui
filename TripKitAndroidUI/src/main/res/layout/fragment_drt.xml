@@ -103,7 +103,7 @@
                     android:layout_marginTop="@dimen/spacing_small"
                     android:background="@color/colorPrimary"
                     android:padding="@dimen/spacing_normal"
-                    android:visibility="@{viewModel.bookingConfirmation != null}"
+                    android:visibility="@{pagerItemViewModel.hasPickUpWindow}"
                     app:layout_constraintTop_toTopOf="parent">
 
                     <TextView
@@ -123,7 +123,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="@dimen/shadow_height"
                         android:focusable="false"
-                        android:text="@{viewModel.pickUpWindow}"
+                        android:text="@{pagerItemViewModel.pickUpWindowMessage}"
                         android:textColor="@android:color/white"
                         app:layout_constraintTop_toBottomOf="@+id/drt_pickUpWindowLabel"
                         tools:text="Subtitle" />

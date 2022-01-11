@@ -50,6 +50,8 @@ open class TripPreviewPagerItemViewModel : RxViewModel() {
     val startDateTime = ObservableField<String>()
     val requestedPickUp = ObservableField<String>()
     val requestedDropOff = ObservableField<String>()
+    val hasPickUpWindow = ObservableField<Boolean>()
+    val pickUpWindowMessage = ObservableField<String>()
 
     var segment: TripSegment? = null
 
@@ -132,6 +134,11 @@ open class TripPreviewPagerItemViewModel : RxViewModel() {
             } else {
                 requestedDropOff.set(label)
             }
+            pickUpWindowMessage.set(label)
+        }
+
+        segment.booking?.confirmation?.purchase()?.pickupWindowDuration()?.let {
+            hasPickUpWindow.set(true)
         }
     }
 }

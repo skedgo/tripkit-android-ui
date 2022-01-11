@@ -57,7 +57,9 @@ data class BookingV2ListResponse(
                     @SerializedName("productType")
                     val productType: String? = null,
                     @SerializedName("validFromTimestamp")
-                    val validFrom: String? = null
+                    val validFrom: String? = null,
+                    @SerializedName("pickupWindowDuration")
+                    val pickupWindowDuration: Long? = null
             )
 
             data class Provider(
