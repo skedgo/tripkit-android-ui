@@ -6,8 +6,6 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.viewModelScope
-import androidx.recyclerview.widget.DiffUtil
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.gson.Gson
 import com.haroldadmin.cnradapter.NetworkResponse
 import com.skedgo.tripkit.booking.quickbooking.*
@@ -27,7 +25,6 @@ import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.rxkotlin.subscribeBy
 import io.reactivex.schedulers.Schedulers
-import io.reactivex.subjects.PublishSubject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
@@ -36,16 +33,12 @@ import me.tatarka.bindingcollectionadapter2.ItemBinding
 import me.tatarka.bindingcollectionadapter2.collections.DiffObservableList
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
-import org.joda.time.format.DateTimeFormat
-import org.json.JSONObject
 import retrofit2.HttpException
-import retrofit2.Response
 import java.lang.Exception
 import java.util.*
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
-import kotlin.collections.ArrayList
 
 
 class DrtViewModel @Inject constructor(
@@ -166,7 +159,7 @@ class DrtViewModel @Inject constructor(
                             it.notes()?.let { opt ->
                                 setOptions(
                                         opt.map { note ->
-                                            Option.parseBookingConfirmationInputOptions(note)
+                                            Option.parseBookingConfirmationNotes(note)
                                         }
                                 )
                             }
@@ -281,6 +274,7 @@ class DrtViewModel @Inject constructor(
             if (it.status().value() != BookingConfirmationStatusValue.PROCESSING) {
                 stopPollingUpdate.set(true)
             }
+
         }
 
         _accessibilityLabel.value = segment.booking?.accessibilityLabel ?: "Book"

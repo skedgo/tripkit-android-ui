@@ -96,18 +96,53 @@
                 app:layout_constraintBottom_toTopOf="@id/drt_br_dataList"
                 app:layout_constraintTop_toBottomOf="@+id/drt_cl_progressHeader">
 
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/drt_pickUpWindow"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/spacing_small"
+                    android:background="@color/colorPrimary"
+                    android:padding="@dimen/spacing_normal"
+                    android:visibility="@{pagerItemViewModel.hasPickUpWindow}"
+                    app:layout_constraintTop_toTopOf="parent">
+
+                    <TextView
+                        android:id="@+id/drt_pickUpWindowLabel"
+                        style="@style/TextAppearance.MaterialComponents.Body1"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:focusable="false"
+                        android:text="@string/pick_up_window"
+                        android:textColor="@android:color/white"
+                        android:textStyle="bold"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <TextView
+                        style="@style/TextAppearance.MaterialComponents.Body2"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/shadow_height"
+                        android:focusable="false"
+                        android:text="@{pagerItemViewModel.pickUpWindowMessage}"
+                        android:textColor="@android:color/white"
+                        app:layout_constraintTop_toBottomOf="@+id/drt_pickUpWindowLabel"
+                        tools:text="Subtitle" />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
                 <TextView
                     android:id="@+id/drt_tvSchedule"
                     style="@style/TextAppearance.MaterialComponents.Body2"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/spacing_normal"
                     android:layout_marginStart="@dimen/spacing_small"
                     android:layout_marginEnd="@dimen/spacing_small"
                     android:focusable="false"
                     android:text="@{pagerItemViewModel.duration}"
                     android:textStyle="bold"
                     android:visibility="@{!viewModel.isHideExactTimes}"
-                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/drt_pickUpWindow"
                     tools:text="Today 15:07" />
 
                 <ImageView
