@@ -24,11 +24,10 @@
             style="@style/TextAppearance.MaterialComponents.Headline6"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
             android:layout_marginTop="16dp"
             android:layout_marginEnd="16dp"
             android:text="@{viewModel.locationTitle}"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             tools:text="Some POI" />
 
@@ -36,13 +35,13 @@
             android:id="@+id/closeButton"
             android:layout_width="@dimen/close_button_size"
             android:layout_height="@dimen/close_button_size"
-            android:layout_marginEnd="16dp"
+            android:layout_marginStart="16dp"
             android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@drawable/close"
             android:contentDescription="@string/desc_close"
+            android:src="@drawable/close"
             android:visibility="@{viewModel.showCloseButton}"
             app:layout_constraintBottom_toBottomOf="@+id/title"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@+id/title" />
 
         <View
@@ -123,9 +122,9 @@
             android:layout_height="24dp"
             android:layout_marginStart="16dp"
             android:visibility="@{viewModel.showAddress}"
+            app:layout_constraintBottom_toBottomOf="@+id/address"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@+id/address"
-            app:layout_constraintBottom_toBottomOf="@+id/address"
             app:srcCompat="@drawable/ic_pin" />
 
         <TextView
@@ -134,8 +133,8 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="48dp"
-            android:layout_marginEnd="16dp"
             android:layout_marginTop="24dp"
+            android:layout_marginEnd="16dp"
             android:text="@{viewModel.address}"
             android:textAlignment="viewStart"
             android:visibility="@{viewModel.showAddress}"

@@ -26,9 +26,11 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_margin="16dp"
+            android:gravity="start"
             android:text="@{viewModel.stationName}"
-            app:layout_constraintEnd_toStartOf="@+id/closeButton"
-            app:layout_constraintStart_toStartOf="parent"
+            android:textAlignment="textStart"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/closeButton"
             app:layout_constraintTop_toTopOf="parent"
             tools:text="Town Hall Station" />
 
@@ -38,11 +40,11 @@
             android:layout_height="@dimen/close_button_size"
             android:layout_marginEnd="16dp"
             android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@drawable/close"
             android:contentDescription="@string/desc_close"
+            android:src="@drawable/close"
             android:visibility="@{viewModel.showCloseButton}"
             app:layout_constraintBottom_toBottomOf="@+id/nameOfStation"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@+id/nameOfStation" />
 
 
@@ -70,7 +72,7 @@
             app:items="@{viewModel.serviceNumbers}"
             app:layoutManager="com.google.android.flexbox.FlexboxLayoutManager"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="@+id/nameOfStation"
+            app:layout_constraintStart_toStartOf="@+id/closeButton"
             app:layout_constraintTop_toBottomOf="@+id/nameOfStation"
             tools:listitem="@layout/timetable_header_line_item"></androidx.recyclerview.widget.RecyclerView>
 
@@ -84,7 +86,7 @@
             android:paddingEnd="8dp"
             android:showDividers="middle"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="@+id/nameOfStation"
+            app:layout_constraintStart_toStartOf="@+id/closeButton"
             app:layout_constraintTop_toBottomOf="@+id/serviceLineRecyclerView" />
 
         <RelativeLayout

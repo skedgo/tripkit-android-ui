@@ -16,12 +16,12 @@
             android:id="@+id/icon"
             android:layout_width="24dp"
             android:layout_height="24dp"
-            android:layout_marginTop="@dimen/spacing_normal"
             android:layout_marginStart="16dp"
+            android:layout_marginTop="@dimen/spacing_normal"
             android:src="@{viewModel.icon}"
             app:layout_constraintBottom_toBottomOf="@+id/textBarrier"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toBottomOf="@+id/closeButton" />
 
         <TextView
             android:id="@+id/actionText"
@@ -30,8 +30,8 @@
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/spacing_normal"
             android:text="@{viewModel.title}"
-            app:layout_constraintEnd_toStartOf="@+id/closeButton"
-            app:layout_constraintStart_toEndOf="@+id/icon"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/closeButton"
             app:layout_constraintTop_toTopOf="parent"
             tools:text="Walk Somewhere" />
 
@@ -40,9 +40,10 @@
             style="@style/TextAppearance.MaterialComponents.Subtitle1"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_small"
             android:text="@{viewModel.description}"
             android:visibility="@{viewModel.showDescription}"
-            app:layout_constraintEnd_toStartOf="@+id/closeButton"
+            app:layout_constraintEnd_toEndOf="@+id/actionText"
             app:layout_constraintStart_toStartOf="@+id/actionText"
             app:layout_constraintTop_toBottomOf="@+id/actionText"
             tools:text="Soem city" />
@@ -53,25 +54,24 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/spacing_small"
-            android:layout_marginStart="@dimen/spacing_normal"
             android:onClick="@{() -> viewModel.showLaunchInMapsClicked.perform()}"
             android:text="@string/open_in"
             android:visibility="@{viewModel.showLaunchInMaps}"
             app:icon="@drawable/ic_go"
-            app:layout_constraintStart_toEndOf="@+id/icon"
+            app:layout_constraintStart_toStartOf="@+id/descriptionText"
             app:layout_constraintTop_toBottomOf="@+id/descriptionText" />
 
         <ImageButton
             android:id="@+id/closeButton"
             android:layout_width="@dimen/close_button_size"
             android:layout_height="@dimen/close_button_size"
-            android:layout_marginEnd="@dimen/spacing_normal"
+            android:layout_marginStart="@dimen/spacing_normal"
             android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/desc_close"
             android:onClick="@{() -> viewModel.closeClicked.perform()}"
             android:src="@drawable/close"
-            android:contentDescription="@string/desc_close"
             app:layout_constraintBottom_toBottomOf="@+id/actionText"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@+id/actionText" />
 
         <androidx.constraintlayout.widget.Barrier
