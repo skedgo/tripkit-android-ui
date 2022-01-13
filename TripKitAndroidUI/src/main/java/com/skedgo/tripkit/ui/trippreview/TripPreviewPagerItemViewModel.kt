@@ -25,6 +25,7 @@ import com.skedgo.tripkit.ui.utils.TapAction
 import com.skedgo.tripkit.ui.utils.TapStateFlow
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
+import org.joda.time.DateTimeZone
 import org.joda.time.format.DateTimeFormat
 import timber.log.Timber
 import java.time.ZonedDateTime
@@ -134,11 +135,24 @@ open class TripPreviewPagerItemViewModel : RxViewModel() {
             } else {
                 requestedDropOff.set(label)
             }
-            pickUpWindowMessage.set(label)
+            getPickUpWindowMessage(segment.trip, segment.trip.queryIsLeaveAfter())
         }
 
         segment.booking?.confirmation?.purchase()?.pickupWindowDuration()?.let {
             hasPickUpWindow.set(true)
         }
+    }
+
+    private fun getPickUpWindowMessage(trip: Trip, isLeaveAfter: Boolean) {
+        var dateTime = trip.startDateTime
+        if (!isLeaveAfter) {
+            dateTime = trip.endDateTime
+        }
+        val date = dateTime.toString(DateTimeFormat.forPattern("MMM d, yyyy")
+                .withZone(DateTimeZone.forID(trip.segments.first().timeZone)))
+        val time = dateTime.toString(DateTimeFormat.forPattern("h:mm aa")
+                .withZone(DateTimeZone.forID(trip.segments.first().timeZone)))
+
+        pickUpWindowMessage.set(String.format("Starts at %s at %s", date, time))
     }
 }
