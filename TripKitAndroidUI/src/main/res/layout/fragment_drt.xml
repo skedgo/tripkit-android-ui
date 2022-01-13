@@ -192,7 +192,6 @@
                     android:layout_marginStart="@dimen/spacing_normal"
                     android:layout_marginTop="@dimen/spacing_small"
                     android:focusable="false"
-                    android:visibility="@{pagerItemViewModel.requestedPickUp.length() > 0}"
                     android:text="@{pagerItemViewModel.requestedPickUp}"
                     app:layout_constraintStart_toEndOf="@+id/drt_ivPickUpIcon"
                     app:layout_constraintTop_toBottomOf="@+id/drt_tvPickUp"
