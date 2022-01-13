@@ -125,6 +125,8 @@ open class TripPreviewPagerItemViewModel : RxViewModel() {
             duration.set("Today ${segment.startDateTime.toString(DateTimeFormat.forPattern("HH:mm"))}")
         }
 
+        requestedPickUp.set("")
+        requestedDropOff.set("")
         if (segment.trip.queryTime > 0) {
             val queryDateTime = segment.trip.queryDateTime
             val date = queryDateTime.toString(DateTimeFormat.forPattern("MMM d, yyyy"))
