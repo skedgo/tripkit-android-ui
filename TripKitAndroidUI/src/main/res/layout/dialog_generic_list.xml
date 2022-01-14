@@ -38,11 +38,12 @@
                 android:text="@{viewModel.title}"
                 android:textColor="@android:color/white"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/genericList_b_close"
-                app:layout_constraintHorizontal_bias="0.6"
-                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.35"
+                app:layout_constraintStart_toEndOf="@+id/genericList_b_close"
                 app:layout_constraintTop_toTopOf="parent"
-                tools:text="Title" />
+                tools:text="Title"
+                tools:targetApi="lollipop_mr1" />
 
             <TextView
                 android:id="@+id/genericList_b_close"
@@ -56,7 +57,7 @@
                 android:textColor="@android:color/white"
                 app:clickWithDebounce="@{() -> handler.onClose()}"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
