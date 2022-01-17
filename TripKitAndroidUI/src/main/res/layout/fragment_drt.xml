@@ -39,6 +39,7 @@
                 android:layout_width="@dimen/close_button_size"
                 android:layout_height="@dimen/close_button_size"
                 android:layout_marginEnd="@dimen/spacing_normal"
+                android:accessibilityTraversalBefore="@id/drt_tvTitle"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:contentDescription="@string/close"
                 android:onClick="@{() -> pagerItemViewModel.closeClicked.perform()}"

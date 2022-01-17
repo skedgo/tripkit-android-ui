@@ -29,6 +29,7 @@
             app:layout_constraintEnd_toStartOf="@+id/closeButton"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
+            tools:textColor="@color/black"
             tools:text="To Location" />
 
         <ImageButton
@@ -36,6 +37,7 @@
             android:layout_width="@dimen/close_button_size"
             android:layout_height="@dimen/close_button_size"
             android:layout_marginEnd="16dp"
+            android:accessibilityTraversalBefore="@id/toLocation"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:src="@drawable/close"
             android:contentDescription="@string/desc_close"
