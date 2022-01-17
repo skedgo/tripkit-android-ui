@@ -84,7 +84,6 @@ class DrtFragment : BaseFragment<FragmentDrtBinding>(), DrtHandler {
     private fun initObserver() {
         viewModel.onItemChangeActionStream
                 .onEach { drtItem ->
-
                     if (drtItem.type.value.equals("notes", true)) {
                         GenericListDisplayDialogFragment.newInstance(
                                 GenericListItem.parseOptions(
