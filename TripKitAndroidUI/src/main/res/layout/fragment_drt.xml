@@ -21,10 +21,11 @@
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:clickable="true"
+        android:clickable="false"
         android:fillViewport="true"
-        android:focusable="true"
-        android:focusableInTouchMode="true"
+        android:focusable="false"
+        android:focusableInTouchMode="false"
+        android:importantForAccessibility="no"
         android:overScrollMode="never"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
         tools:context=".trippreview.drt.DRTFragment">
@@ -32,6 +33,9 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:focusable="false"
+            android:focusableInTouchMode="false"
+            android:importantForAccessibility="no"
             android:paddingBottom="200dp">
 
             <ImageButton
@@ -39,14 +43,14 @@
                 android:layout_width="@dimen/close_button_size"
                 android:layout_height="@dimen/close_button_size"
                 android:layout_marginEnd="@dimen/spacing_normal"
-                android:accessibilityTraversalBefore="@id/drt_tvTitle"
+                android:accessibilityTraversalBefore="@id/drt_clTitle"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:contentDescription="@string/close"
                 android:onClick="@{() -> pagerItemViewModel.closeClicked.perform()}"
                 android:src="@drawable/close"
-                app:layout_constraintBottom_toBottomOf="@id/drt_tvTitle"
+                app:layout_constraintBottom_toBottomOf="@id/drt_clTitle"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="@id/drt_tvTitle" />
+                app:layout_constraintTop_toTopOf="@id/drt_clTitle" />
 
             <ImageView
                 android:id="@+id/drt_ivIcon"
@@ -55,44 +59,55 @@
                 android:layout_marginStart="@dimen/spacing_small"
                 android:layout_marginTop="@dimen/spacing_small"
                 app:drawableSource="@{pagerItemViewModel.icon}"
-                app:layout_constraintBottom_toBottomOf="@+id/drt_tvSubTitle"
+                app:layout_constraintBottom_toBottomOf="@+id/drt_clTitle"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="@+id/drt_tvTitle" />
+                app:layout_constraintTop_toTopOf="@+id/drt_clTitle" />
 
-            <TextView
-                android:id="@+id/drt_tvTitle"
-                style="@style/TextAppearance.MaterialComponents.Headline6"
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/drt_clTitle"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/spacing_normal"
-                android:layout_marginTop="@dimen/spacing_normal"
-                android:text="@{pagerItemViewModel.instructionTitle}"
-                android:textStyle="bold"
+                android:focusable="true"
+                android:importantForAccessibility="yes"
                 app:layout_constraintEnd_toStartOf="@id/btnClose"
-                app:layout_constraintStart_toEndOf="@+id/drt_ivIcon"
-                app:layout_constraintTop_toTopOf="parent"
-                tools:text="Ride" />
+                app:layout_constraintStart_toEndOf="@id/drt_ivIcon"
+                app:layout_constraintTop_toTopOf="parent">
 
-            <TextView
-                android:id="@+id/drt_tvSubTitle"
-                style="@style/TextAppearance.MaterialComponents.Body2"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:ellipsize="end"
-                android:maxLines="2"
-                android:text="@{pagerItemViewModel.description}"
-                android:textColor="@color/black1"
-                android:visibility="@{pagerItemViewModel.showDescription}"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="@+id/drt_tvTitle"
-                app:layout_constraintTop_toBottomOf="@+id/drt_tvTitle"
-                tools:text="Newark St, Detroit MI 48216, United States" />
+                <TextView
+                    android:id="@+id/drt_tvTitle"
+                    style="@style/TextAppearance.MaterialComponents.Headline6"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/spacing_normal"
+                    android:layout_marginTop="@dimen/spacing_normal"
+                    android:text="@{pagerItemViewModel.instructionTitle}"
+                    android:textStyle="bold"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:text="Ride" />
+
+                <TextView
+                    android:id="@+id/drt_tvSubTitle"
+                    style="@style/TextAppearance.MaterialComponents.Body2"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:maxLines="2"
+                    android:text="@{pagerItemViewModel.description}"
+                    android:textColor="@color/black1"
+                    android:visibility="@{pagerItemViewModel.showDescription}"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="@id/drt_tvTitle"
+                    app:layout_constraintTop_toBottomOf="@+id/drt_tvTitle"
+                    tools:text="Newark St, Detroit MI 48216, United States" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/drt_clSchedule"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/spacing_normal"
+                android:focusable="true"
                 android:importantForAccessibility="yes"
                 app:layout_constraintBottom_toTopOf="@id/drt_br_dataList"
                 app:layout_constraintTop_toBottomOf="@+id/drt_cl_progressHeader">
@@ -136,8 +151,8 @@
                     style="@style/TextAppearance.MaterialComponents.Body2"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/spacing_normal"
                     android:layout_marginStart="@dimen/spacing_small"
+                    android:layout_marginTop="@dimen/spacing_normal"
                     android:layout_marginEnd="@dimen/spacing_small"
                     android:focusable="false"
                     android:text="@{pagerItemViewModel.duration}"
@@ -244,13 +259,13 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="@dimen/spacing_normal"
                     android:layout_marginTop="@dimen/spacing_small"
-                    android:focusable="false"
                     android:layout_marginBottom="@dimen/spacing_normal"
-                    android:visibility="@{pagerItemViewModel.requestedDropOff.length() > 0}"
+                    android:focusable="false"
                     android:text="@{pagerItemViewModel.requestedDropOff}"
+                    android:visibility="@{pagerItemViewModel.requestedDropOff.length() > 0}"
+                    app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toEndOf="@+id/drt_ivPickUpIcon"
                     app:layout_constraintTop_toBottomOf="@+id/drt_tvDropOff"
-                    app:layout_constraintBottom_toBottomOf="parent"
                     tools:text="Requested time {queryTime}" />
 
                 <View
@@ -319,7 +334,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:importantForAccessibility="yes"
-                app:layout_constraintTop_toBottomOf="@+id/drt_tvSubTitle">
+                app:layout_constraintTop_toBottomOf="@+id/drt_clTitle">
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:id="@+id/drt_cl_progressHeaderDescription"
@@ -389,7 +404,7 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/drt_tvSubTitle" />
+                app:layout_constraintTop_toBottomOf="@+id/drt_clTitle" />
 
             <View
                 android:layout_width="match_parent"

@@ -34,6 +34,7 @@ import javax.inject.Inject
 
 
 class TripResultListFragment : BaseTripKitFragment() {
+
     /**
      * This callback will be invoked when a search result is clicked.
      */
@@ -131,6 +132,8 @@ class TripResultListFragment : BaseTripKitFragment() {
         val layoutManager = FlexboxLayoutManager(context)
         layoutManager.flexDirection = FlexDirection.ROW
         binding.transportItemsView.layoutManager = layoutManager
+
+        accessibilityDefaultViewManager.setDefaultViewForAccessibility(binding.toLocation)
 
         return binding.root
     }
@@ -263,7 +266,7 @@ class TripResultListFragment : BaseTripKitFragment() {
             )
         }
 
-        if(!previouslyInitialized){
+        if (!previouslyInitialized) {
             showDateTimePicker(false)
         }
     }
