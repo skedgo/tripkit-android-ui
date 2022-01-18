@@ -9,8 +9,15 @@ import android.view.ViewGroup
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.viewModels
 import com.skedgo.tripkit.ui.databinding.FragmentGenericNoteBinding
+import com.skedgo.tripkit.ui.utils.AccessibilityDefaultViewManager
 
 class GenericNoteDialogFragment : DialogFragment(), GenericNoteDialogFragmentHandler {
+
+    private val accessibilityDefaultViewManager: AccessibilityDefaultViewManager by lazy {
+        AccessibilityDefaultViewManager(context)
+    }
+
+    lateinit var binding: FragmentGenericNoteBinding
 
     private val viewModel: GenericNoteViewModel by viewModels()
 
@@ -28,7 +35,7 @@ class GenericNoteDialogFragment : DialogFragment(), GenericNoteDialogFragmentHan
     override fun onCreateView(inflater: LayoutInflater,
                               container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
-        val binding = FragmentGenericNoteBinding.inflate(inflater)
+        binding = FragmentGenericNoteBinding.inflate(inflater)
         binding.viewModel = viewModel
         binding.handler = this
         return binding.root
@@ -37,6 +44,14 @@ class GenericNoteDialogFragment : DialogFragment(), GenericNoteDialogFragmentHan
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         checkArguments()
+        accessibilityDefaultViewManager.setDefaultViewForAccessibility(binding.genericListTvTitle)
+        accessibilityDefaultViewManager.setAccessibilityObserver()
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        accessibilityDefaultViewManager.focusAccessibilityDefaultView(false)
     }
 
     override fun onStart() {

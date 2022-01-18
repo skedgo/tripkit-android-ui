@@ -14,7 +14,6 @@ import com.skedgo.tripkit.routing.TripGroup
 import com.skedgo.tripkit.routing.TripSegment
 import com.skedgo.tripkit.routing.getBookingSegment
 import com.skedgo.tripkit.ui.*
-import com.skedgo.tripkit.ui.ARG_TRIP_GROUP_ID
 import com.skedgo.tripkit.bookingproviders.BookingResolver
 import com.skedgo.tripkit.ui.core.BaseTripKitFragment
 import com.skedgo.tripkit.ExternalActionParams
@@ -24,11 +23,9 @@ import com.skedgo.tripkit.ui.databinding.TripSegmentListFragmentBinding
 import com.skedgo.tripkit.ui.model.TripKitButton
 import com.skedgo.tripkit.ui.model.TripKitButtonConfigurator
 import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButtonHandlerFactory
-import com.skedgo.tripkit.ui.utils.AccessibilityDefaultViewManager
 import com.skedgo.tripkit.ui.utils.observe
 import com.technologies.wikiwayfinder.core.singleton.WayWikiFinder
 import io.reactivex.android.schedulers.AndroidSchedulers
-import kotlinx.android.synthetic.main.trip_segment_list_fragment.view.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -36,8 +33,6 @@ import javax.inject.Inject
 class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
     private val RQ_VIEW_TIMETABLE = 0
     private val RQ_VIEW_ALERTS = 1
-
-    lateinit var accessibilityDefaultViewManager: AccessibilityDefaultViewManager
 
     override fun onClick(p0: View?) {
 //        if (mClickListener != null && p0 != null) {
@@ -137,16 +132,9 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
         }
 
 
-        accessibilityDefaultViewManager = AccessibilityDefaultViewManager(context)
         accessibilityDefaultViewManager.setDefaultViewForAccessibility(binding.duration)
 
         return binding.root
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-        accessibilityDefaultViewManager.setAccessibilityObserver()
     }
 
     override fun onStart() {
@@ -196,8 +184,6 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
                 }
             }
         }
-
-        accessibilityDefaultViewManager.focusAccessibilityDefaultView(false)
     }
 
     private fun startAndLogActivity(tripSegment: TripSegment, intent: Intent) {
