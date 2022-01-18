@@ -200,12 +200,13 @@ class DrtViewModel @Inject constructor(
             if (it.type != QuickBookingType.LONG_TEXT && it.type != QuickBookingType.RETURN_TRIP && it.options.isNullOrEmpty()) {
                 return@forEach
             }
+
             result.add(
                     DrtItemViewModel().apply {
                         setIcon(getIconById(it.id))
                         setLabel(it.title)
                         setType(it.type)
-                        setValue(listOf(getDefaultValueByType(it.type, it.title)))
+                        setValue(getDefaultValue(it))
                         setRequired(it.required)
                         setItemId(it.id)
                         it.options?.let { opt -> setOptions(opt) }
@@ -248,6 +249,26 @@ class DrtViewModel @Inject constructor(
             "returnTrip" -> R.drawable.ic_tickets
             else -> R.drawable.ic_note
         }
+    }
+
+    private fun getDefaultValue(input: Input): List<String> {
+        val defaultValues = ArrayList<String>()
+        val rawValues = ArrayList<String>()
+        input.values?.let { rawValues.addAll(it) }
+        input.value?.let { rawValues.add(it) }
+
+        rawValues.forEach { value ->
+            if (value.isNotEmpty()) {
+                defaultValues.add(String.format("%s%s", value.substring(0, 1).capitalize(Locale.getDefault()),
+                        value.substring(1, value.length)))
+            }
+        }
+
+        if (defaultValues.isEmpty()) {
+            defaultValues.addAll(listOf(getDefaultValueByType(input.type, input.title)))
+        }
+
+        return defaultValues
     }
 
     fun getDefaultValueByType(@QuickBookingType type: String, title: String): String {
