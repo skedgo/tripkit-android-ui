@@ -1,14 +1,19 @@
 package com.skedgo.tripkit.ui.core
 
 import android.os.Bundle
+import android.os.Handler
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.accessibility.AccessibilityEvent
+import android.view.accessibility.AccessibilityNodeInfo
 import androidx.annotation.LayoutRes
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
 import androidx.fragment.app.Fragment
 import com.google.gson.Gson
+import com.skedgo.tripkit.ui.utils.getAccessibilityManager
+import com.skedgo.tripkit.ui.utils.isTalkBackOn
 
 /**
  * To act as a super class for all other fragments.
@@ -29,6 +34,10 @@ abstract class BaseFragment<V : ViewDataBinding> : BaseTripKitFragment() {
 
     protected abstract fun onCreated(savedInstance: Bundle?)
 
+    protected abstract val observeAccessibility: Boolean
+
+    protected abstract fun getDefaultViewForAccessibility(): View?
+
     private var previouslyInitialized = false
 
     override fun onCreateView(
@@ -36,7 +45,7 @@ abstract class BaseFragment<V : ViewDataBinding> : BaseTripKitFragment() {
             container: ViewGroup?,
             savedInstanceState: Bundle?
     ): View {
-        if(!::binding.isInitialized) {
+        if (!::binding.isInitialized) {
             binding = DataBindingUtil.inflate(inflater, layoutRes, container, false)
         } else {
             previouslyInitialized = true
@@ -52,8 +61,34 @@ abstract class BaseFragment<V : ViewDataBinding> : BaseTripKitFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        if(!previouslyInitialized) {
+        if (!previouslyInitialized) {
             onCreated(savedInstanceState)
         }
+
+        if (observeAccessibility) {
+            context?.getAccessibilityManager()?.let {
+                it.addAccessibilityStateChangeListener {
+                    focusAccessibilityDefaultView(true)
+                }
+            }
+        }
     }
+
+    override fun onResume() {
+        super.onResume()
+        focusAccessibilityDefaultView(false)
+    }
+
+    private fun focusAccessibilityDefaultView(withDelay: Boolean) {
+        Handler().postDelayed({
+            if (context?.isTalkBackOn() == true) {
+                getDefaultViewForAccessibility()?.apply {
+                    performAccessibilityAction(AccessibilityNodeInfo.ACTION_ACCESSIBILITY_FOCUS, null)
+                    sendAccessibilityEvent(AccessibilityEvent.TYPE_VIEW_FOCUSED)
+                }
+            }
+        }, if (withDelay) 500 else 0)
+
+    }
+
 }

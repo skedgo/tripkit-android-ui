@@ -24,6 +24,7 @@ import com.skedgo.tripkit.ui.core.addTo
 import com.skedgo.tripkit.ui.databinding.TripResultListFragmentBinding
 import com.skedgo.tripkit.ui.dialog.TripKitDateTimePickerDialogFragment
 import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButtonHandlerFactory
+import com.skedgo.tripkit.ui.utils.AccessibilityDefaultViewManager
 import com.skedgo.tripkit.ui.views.MultiStateView
 import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.android.synthetic.main.trip_result_list_fragment.view.*
@@ -34,6 +35,9 @@ import javax.inject.Inject
 
 
 class TripResultListFragment : BaseTripKitFragment() {
+
+    lateinit var accessibilityDefaultViewManager: AccessibilityDefaultViewManager
+
     /**
      * This callback will be invoked when a search result is clicked.
      */
@@ -132,6 +136,10 @@ class TripResultListFragment : BaseTripKitFragment() {
         layoutManager.flexDirection = FlexDirection.ROW
         binding.transportItemsView.layoutManager = layoutManager
 
+
+        accessibilityDefaultViewManager = AccessibilityDefaultViewManager(context)
+        accessibilityDefaultViewManager.setDefaultViewForAccessibility(binding.toLocation)
+
         return binding.root
     }
 
@@ -193,6 +201,8 @@ class TripResultListFragment : BaseTripKitFragment() {
                 }
             }
         }.addTo(autoDisposable)
+
+        accessibilityDefaultViewManager.focusAccessibilityDefaultView(false)
     }
 
     private fun showDateTimePicker(isCancelable: Boolean = true) {
@@ -263,9 +273,11 @@ class TripResultListFragment : BaseTripKitFragment() {
             )
         }
 
-        if(!previouslyInitialized){
+        if (!previouslyInitialized) {
             showDateTimePicker(false)
         }
+
+        accessibilityDefaultViewManager.setAccessibilityObserver()
     }
 
     class Builder {
