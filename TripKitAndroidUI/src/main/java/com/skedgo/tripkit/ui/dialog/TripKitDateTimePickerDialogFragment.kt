@@ -8,7 +8,9 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.accessibility.AccessibilityEvent
 import android.widget.AdapterView
+import android.widget.EditText
 import android.widget.NumberPicker
 import android.widget.TimePicker
 import androidx.core.view.allViews
@@ -23,7 +25,9 @@ import com.skedgo.tripkit.ui.TripKitUI
 import com.skedgo.tripkit.ui.databinding.DialogDateTimePickerBinding
 import com.skedgo.tripkit.ui.trip.details.viewmodel.ITimePickerViewModel
 import com.skedgo.tripkit.ui.trip.options.InterCityTimePickerViewModel
+import kotlinx.android.synthetic.main.dialog_time_date_picker.view.*
 import kotlinx.android.synthetic.main.trip_segment.*
+import kotlinx.android.synthetic.main.v4_view_wheel_time.view.*
 import java.lang.Exception
 import java.lang.reflect.Field
 import java.util.*
@@ -197,6 +201,42 @@ class TripKitDateTimePickerDialogFragment : DialogFragment(), TimePicker.OnTimeC
                 timePickerViewModel.timePickerMinuteInterval.get()
 
         timePicker.setOnTimeChangedListener(this)
+
+        timePicker.accessibilityDelegate = object : View.AccessibilityDelegate() {
+            //To override and bypass accessibility reading since timepicker class
+            //is inaccessible and cannot set content description programmatically
+            override fun sendAccessibilityEvent(host: View?, eventType: Int) {
+                if (host is TimePicker) {
+                    binding?.timePicker?.let {
+                        val currentMinute = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+                            it.minute
+                        } else {
+                            it.currentMinute
+                        }
+
+                        var currentHour = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+                            it.hour
+                        } else {
+                            it.currentHour
+                        }
+
+                        var amPm = "AM"
+
+                        if (!it.is24HourView) {
+                            if(currentHour > 11){
+                                amPm = "PM"
+                                currentHour -= 12
+                            }
+                        }
+
+                        val convertedMinute = currentMinute * timePickerViewModel.timePickerMinuteInterval.get()
+                        host.contentDescription = "$currentHour $convertedMinute ${if (!it.is24HourView) amPm else ""}"
+                    }
+                }
+
+                super.sendAccessibilityEvent(host, eventType)
+            }
+        }
     }
 
     @SuppressLint("PrivateApi")
@@ -229,6 +269,7 @@ class TripKitDateTimePickerDialogFragment : DialogFragment(), TimePicker.OnTimeC
             }
             minuteSpinner.displayedValues = displayedValues.toTypedArray()
         }
+
     }
 
     private fun initDateSpinner() {
