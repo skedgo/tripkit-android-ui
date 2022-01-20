@@ -240,6 +240,7 @@ class TripResultListFragment : BaseTripKitFragment() {
             fragment.setOnTimeSelectedListener(object : TripKitDateTimePickerDialogFragment.OnTimeSelectedListener {
                 override fun onTimeSelected(timeTag: TimeTag) {
                     viewModel.updateQueryTime(timeTag)
+                    accessibilityDefaultViewManager.focusAccessibilityDefaultView(false)
                 }
             })
             fragment.isCancelable = isCancelable
