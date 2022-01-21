@@ -20,32 +20,40 @@
             android:layout_height="wrap_content"
             android:importantForAccessibility="no">
 
-            <ImageView
-                android:id="@+id/badgeIcon"
-                android:layout_width="16dp"
-                android:layout_height="16dp"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="16dp"
-                android:layout_marginEnd="16dp"
-                android:layout_marginBottom="10dp"
-                android:src="@{viewModel.badgeDrawable}"
-                android:visibility="@{viewModel.badgeVisible}"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <TextView
-                android:id="@+id/badgeText"
-                style="@style/TextAppearance.MaterialComponents.Overline"
+            <LinearLayout
+                android:id="@+id/badgeHeaderContainer"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="4dp"
-                android:text="@{viewModel.badgeText}"
-                android:textColor="@{viewModel.badgeTextColor}"
-                android:visibility="@{viewModel.badgeVisible}"
-                app:layout_constraintBottom_toBottomOf="@+id/badgeIcon"
-                app:layout_constraintStart_toEndOf="@+id/badgeIcon"
-                app:layout_constraintTop_toTopOf="@+id/badgeIcon"
-                tools:text="FASTEST" />
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <ImageView
+                    android:id="@+id/badgeIcon"
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginEnd="16dp"
+                    android:layout_marginBottom="10dp"
+                    android:layoutDirection="ltr"
+                    android:src="@{viewModel.badgeDrawable}"
+                    android:visibility="@{viewModel.badgeVisible}"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/badgeText"
+                    style="@style/TextAppearance.MaterialComponents.Overline"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginBottom="10dp"
+                    android:text="@{viewModel.badgeText}"
+                    app:layout_constraintHorizontal_chainStyle="packed"
+                    android:textColor="@{viewModel.badgeTextColor}"
+                    android:visibility="@{viewModel.badgeVisible}"
+                    tools:text="FASTEST" />
+            </LinearLayout>
 
             <LinearLayout
                 android:id="@+id/tripsLayout"
@@ -58,7 +66,7 @@
                 app:entries="@{viewModel.tripResults}"
                 app:layout="@{@layout/trip_result_list_item_trip}"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/badgeIcon" />
+                app:layout_constraintTop_toBottomOf="@+id/badgeHeaderContainer" />
             <!--            <TextView android:id="@+id/title"-->
             <!--                      style="@style/TextAppearance.MaterialComponents.Body1"-->
             <!--                      android:layout_width="wrap_content"-->
@@ -154,7 +162,7 @@
             <TextView
                 android:id="@+id/cost"
                 style="@style/TextAppearance.MaterialComponents.Caption"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="12dp"
@@ -164,7 +172,6 @@
                 android:text="@{viewModel.cost}"
                 android:visibility="@{viewModel.costVisible}"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/moreButton"
                 app:layout_constraintHorizontal_weight="1.5"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/footerLine"
@@ -173,7 +180,7 @@
             <Button
                 android:id="@+id/moreButton"
                 style="@style/Widget.AppCompat.Button.Borderless"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
                 android:layout_marginEnd="2dp"
@@ -189,7 +196,6 @@
                 android:contentDescription="@{viewModel.accessibilityLabel}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_weight="1"
-                app:layout_constraintStart_toEndOf="@+id/cost"
                 app:layout_constraintTop_toBottomOf="@+id/footerLine"
                 tools:text="ButtonTextButtonTextButtonTextButtonText" />
 
