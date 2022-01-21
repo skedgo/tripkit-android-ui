@@ -90,3 +90,10 @@ fun setImageFromUrl(imageView: ImageView, source: String?) {
         }
     }
 }
+
+@BindingAdapter("mirrorImage")
+fun setMirrorImage(imageView: ImageView, isMirrored: Boolean) {
+    if (isMirrored) {
+        imageView.scaleX = -1.0f
+    }
+}
