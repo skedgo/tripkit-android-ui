@@ -23,7 +23,7 @@
 
     <ImageView android:layout_width="20dp"
                android:layout_height="26dp"
-
+        android:layoutDirection="locale"
                android:id="@+id/chevron"
                android:tint="@color/black"
                app:srcCompat="@drawable/chevron_right"/>

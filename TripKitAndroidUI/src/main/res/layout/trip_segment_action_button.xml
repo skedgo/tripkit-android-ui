@@ -20,6 +20,7 @@
                 android:insetLeft="0dp"
                 android:insetRight="0dp"
                 android:visibility="@{!viewModel.showSpinner}"
+            android:layoutDirection="ltr"
                 android:onClick="@{() -> listener.onItemClick(viewModel.tag, viewModel)}"
                 app:iconTint="@{viewModel.iconTint}"
                 app:strokeColor="@{viewModel.outlineTint}"

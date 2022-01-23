@@ -240,7 +240,7 @@ class TripResultListFragment : BaseTripKitFragment() {
                 }
             })
             fragment.isCancelable = isCancelable
-            fragment.show(fragmentManager!!, "timePicker")
+            fragment.show(requireFragmentManager(), "timePicker")
         } catch (error: IllegalStateException) {
             // To prevent https://fabric.io/skedgo/android/apps/com.buzzhives.android.tripplanner/issues/5967e7f0be077a4dcc839dc5.
             Timber.e("An error occurred", error)
