@@ -55,6 +55,8 @@ class DrtFragment : BaseFragment<FragmentDrtBinding>(), DrtHandler {
 
     private var cachedReturnMills: Long = System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(60)
 
+    private var focusedAfterBookingConfirmed = false
+
     @Inject
     lateinit var actionsAdapter: ActionListAdapter
 
@@ -197,6 +199,15 @@ class DrtFragment : BaseFragment<FragmentDrtBinding>(), DrtHandler {
 
         observe(viewModel.segment) {
             it?.let { tripSegmentUpdateCallback?.invoke(it) }
+        }
+
+        observe(viewModel.bookingConfirmation) {
+            it?.let {
+                if (!focusedAfterBookingConfirmed) {
+                    focusAccessibilityDefaultView(false)
+                    focusedAfterBookingConfirmed = true
+                }
+            }
         }
     }
 

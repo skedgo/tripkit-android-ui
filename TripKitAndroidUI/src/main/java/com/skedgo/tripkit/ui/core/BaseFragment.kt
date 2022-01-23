@@ -79,7 +79,7 @@ abstract class BaseFragment<V : ViewDataBinding> : BaseTripKitFragment() {
         focusAccessibilityDefaultView(false)
     }
 
-    private fun focusAccessibilityDefaultView(withDelay: Boolean) {
+    protected fun focusAccessibilityDefaultView(withDelay: Boolean) {
         Handler().postDelayed({
             if (context?.isTalkBackOn() == true) {
                 getDefaultViewForAccessibility()?.apply {
