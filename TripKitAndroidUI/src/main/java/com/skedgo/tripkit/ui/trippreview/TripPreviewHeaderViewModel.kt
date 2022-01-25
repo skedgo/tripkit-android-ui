@@ -1,5 +1,6 @@
 package com.skedgo.tripkit.ui.trippreview
 
+import android.content.Context
 import android.graphics.drawable.Drawable
 import androidx.databinding.ObservableArrayList
 import androidx.databinding.ObservableBoolean
@@ -27,8 +28,11 @@ class TripPreviewHeaderItemViewModel : ViewModel() {
     val selected = ObservableBoolean(false)
     val description = ObservableField<String>()
     val modeId = ObservableField<String>()
+    val isMirrored = ObservableBoolean(false)
 
     val itemClick = TapStateFlow.create { this }
+
+
 }
 
 class TripPreviewHeaderViewModel @Inject constructor() : RxViewModel() {
@@ -48,7 +52,10 @@ class TripPreviewHeaderViewModel @Inject constructor() : RxViewModel() {
     private val _isHideExactTimes = MutableLiveData(false)
     val isHideExactTimes: LiveData<Boolean> = _isHideExactTimes
 
-    fun setup(headerItems: List<TripPreviewHeader>) {
+    fun setup(context: Context, headerItems: List<TripPreviewHeader>) {
+
+        val isRightToLeft = context.resources.getBoolean(R.bool.is_right_to_left)
+
         items.clear()
         items.addAll(
                 headerItems.mapIndexed { index, previewHeader ->
@@ -60,6 +67,12 @@ class TripPreviewHeaderViewModel @Inject constructor() : RxViewModel() {
                         description.set(previewHeader.description)
                         modeId.set(previewHeader.modeId)
                         _isHideExactTimes.value = previewHeader.isHideExactTimes
+
+                        if (previewHeader.modeId != TransportMode.ID_TAXI &&
+                                TransportMode.getLocalIconResId(previewHeader.modeId) != 0 ||
+                                previewHeader.modeId == "me_car-r") {
+                            isMirrored.set(isRightToLeft)
+                        }
 
                         if (index == 0) {
                             selected.set(true)
@@ -129,8 +142,8 @@ class TripPreviewHeaderViewModel @Inject constructor() : RxViewModel() {
         }
     }
 
-    private fun setSelected(item: TripPreviewHeaderItemViewModel){
-        with(item){
+    private fun setSelected(item: TripPreviewHeaderItemViewModel) {
+        with(item) {
             selected.set(true)
 
             items.filter { item -> item.id.get() != this.id.get() }.map { otherItem ->
