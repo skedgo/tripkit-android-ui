@@ -47,6 +47,9 @@ class DrtItemViewModel : ViewModel() {
     private val _rawDate = MutableLiveData<String>()
     val rawDate: LiveData<String> = _rawDate
 
+    private val _contentDescription = MutableLiveData<String>()
+    val contentDescription: LiveData<String> = _contentDescription
+
     fun setIcon(value: Int) {
         _icon.value = value
     }
@@ -98,6 +101,10 @@ class DrtItemViewModel : ViewModel() {
 
     fun setRawDate(value: String) {
         _rawDate.value = value
+    }
+
+    fun setContentDescription(value: String) {
+        _contentDescription.value = value
     }
 
     companion object {

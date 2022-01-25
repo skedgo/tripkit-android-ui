@@ -15,7 +15,8 @@
         android:layout_height="wrap_content"
         android:importantForAccessibility="yes"
         app:clickWithDebounce="@{() -> viewModel.onChange()}"
-        android:padding="@dimen/spacing_small">
+        android:padding="@dimen/spacing_small"
+        android:contentDescription="@{viewModel.contentDescription}">
 
         <ImageView
             android:id="@+id/itemDrt_ivIcon"

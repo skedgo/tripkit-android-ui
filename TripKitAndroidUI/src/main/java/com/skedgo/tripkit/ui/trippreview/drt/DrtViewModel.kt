@@ -139,6 +139,13 @@ class DrtViewModel @Inject constructor(
                                 }
                                 setViewMode(true)
                                 setShowChangeButton(!input.type().equals(QuickBookingType.RETURN_TRIP, true))
+                                setContentDescription(
+                                        if (input.type().equals(QuickBookingType.RETURN_TRIP, true)) {
+                                            resources.getString(R.string.str_return_trip_voice_over)
+                                        } else {
+                                            "Tap Change to make selections"
+                                        }
+                                )
                                 onChangeStream = onItemChangeActionStream
                             }
                     )
@@ -164,6 +171,7 @@ class DrtViewModel @Inject constructor(
                                 )
                             }
                             setViewMode(true)
+                            setContentDescription("Tap to add note")
                             onChangeStream = onItemChangeActionStream
                         }
                 )
@@ -210,6 +218,19 @@ class DrtViewModel @Inject constructor(
                         setRequired(it.required)
                         setItemId(it.id)
                         it.options?.let { opt -> setOptions(opt) }
+                        setContentDescription(
+                                when {
+                                    it.type.equals(QuickBookingType.RETURN_TRIP, true) -> {
+                                        resources.getString(R.string.str_return_trip_voice_over)
+                                    }
+                                    it.type.equals(QuickBookingType.LONG_TEXT, true) -> {
+                                        "Tap to Add Note"
+                                    }
+                                    else -> {
+                                        "Tap Change to make selections"
+                                    }
+                                }
+                        )
                         onChangeStream = onItemChangeActionStream
                     }
             )
