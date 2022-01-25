@@ -13,10 +13,16 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import com.google.gson.Gson
 import com.skedgo.tripkit.ui.databinding.DialogGenericListBinding
 import com.skedgo.tripkit.ui.dialog.GenericListDialogFragment.*
+import com.skedgo.tripkit.ui.utils.AccessibilityDefaultViewManager
 import com.skedgo.tripkit.ui.utils.fromJson
 import com.skedgo.tripkit.ui.utils.observe
+import kotlinx.android.synthetic.main.item_trip_preview_header.view.*
 
 class GenericListDialogFragment : DialogFragment(), GenericListDialogFragmentHandler {
+
+    private val accessibilityDefaultViewManager: AccessibilityDefaultViewManager by lazy {
+        AccessibilityDefaultViewManager(context)
+    }
 
     private val viewModel: GenericListViewModel by viewModels()
 
@@ -49,6 +55,7 @@ class GenericListDialogFragment : DialogFragment(), GenericListDialogFragmentHan
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
         binding = DialogGenericListBinding.inflate(inflater, container, false)
+
         return binding.root
     }
 
@@ -59,6 +66,15 @@ class GenericListDialogFragment : DialogFragment(), GenericListDialogFragmentHan
         initViews()
         initObserver()
         checkArgs()
+
+        accessibilityDefaultViewManager.setDefaultViewForAccessibility(binding.genericListTvTitle)
+        accessibilityDefaultViewManager.setAccessibilityObserver()
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        accessibilityDefaultViewManager.focusAccessibilityDefaultView(false)
     }
 
     private fun initBinding() {

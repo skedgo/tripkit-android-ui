@@ -4,6 +4,12 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.util.Log
+import android.view.View
+import android.view.accessibility.AccessibilityEvent
+import android.view.accessibility.AccessibilityNodeInfo
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -49,11 +55,20 @@ class DrtFragment : BaseFragment<FragmentDrtBinding>(), DrtHandler {
 
     private var cachedReturnMills: Long = System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(60)
 
+    private var focusedAfterBookingConfirmed = false
+
     @Inject
     lateinit var actionsAdapter: ActionListAdapter
 
     override val layoutRes: Int
         get() = R.layout.fragment_drt
+
+    override val observeAccessibility: Boolean
+        get() = true
+
+    override fun getDefaultViewForAccessibility(): View {
+        return binding.drtClTitle
+    }
 
     override fun onBook() {
         viewModel.book()
@@ -122,7 +137,8 @@ class DrtFragment : BaseFragment<FragmentDrtBinding>(), DrtHandler {
                                                 drtItem.setValue(listOf(getString(R.string.one_way_only)))
                                             } else {
                                                 val rawTz = DateTimeZone.forID("UTC")
-                                                val segmentTz = DateTimeZone.forID(segment?.timeZone ?: "UTC")
+                                                val segmentTz = DateTimeZone.forID(segment?.timeZone
+                                                        ?: "UTC")
                                                 val dateTime = DateTime(timeTag.timeInMillis)
                                                 cachedReturnMills = timeTag.timeInMillis /*/ 1000*/
 
@@ -184,6 +200,15 @@ class DrtFragment : BaseFragment<FragmentDrtBinding>(), DrtHandler {
         observe(viewModel.segment) {
             it?.let { tripSegmentUpdateCallback?.invoke(it) }
         }
+
+        observe(viewModel.bookingConfirmation) {
+            it?.let {
+                if (!focusedAfterBookingConfirmed) {
+                    focusAccessibilityDefaultView(false)
+                    focusedAfterBookingConfirmed = true
+                }
+            }
+        }
     }
 
     private fun showDateTimePicker(listener: TripKitDateTimePickerDialogFragment.OnTimeSelectedListener) {
@@ -194,7 +219,8 @@ class DrtFragment : BaseFragment<FragmentDrtBinding>(), DrtHandler {
                     .withPositiveAction(R.string.done)
                     .isSingleSelection("Return Trip")
                     .withNegativeAction(R.string.one_way_only)
-                    .withTimeZones(segment?.timeZone ?: TimeZone.getDefault().id, segment?.timeZone ?: TimeZone.getDefault().id)
+                    .withTimeZones(segment?.timeZone ?: TimeZone.getDefault().id, segment?.timeZone
+                            ?: TimeZone.getDefault().id)
                     .build()
             fragment.setOnTimeSelectedListener(listener)
             fragment.show(requireFragmentManager(), "timePicker")
