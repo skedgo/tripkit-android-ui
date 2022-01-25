@@ -102,10 +102,15 @@ fun setMirrorImage(imageView: ImageView, isMirrored: Boolean) {
 @BindingAdapter("addRtlSupport")
 fun setAddRtlSupport(view: View, addRtlSupport: Boolean) {
     if (addRtlSupport) {
-        view.textDirection = if (view.context.resources.getBoolean(R.bool.is_right_to_left)) {
+        val isRightToLeft = view.context.resources.getBoolean(R.bool.is_right_to_left)
+        view.textDirection = if (isRightToLeft) {
             View.TEXT_DIRECTION_RTL
         } else {
             View.TEXT_DIRECTION_LOCALE
+        }
+
+        if (view is ImageView) {
+            setMirrorImage(view, isRightToLeft)
         }
     }
 }

@@ -27,6 +27,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="16dp"
             android:text="@{viewModel.stationName}"
+            app:addRtlSupport="@{true}"
             app:layout_constraintEnd_toStartOf="@+id/closeButton"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
@@ -38,8 +39,8 @@
             android:layout_height="@dimen/close_button_size"
             android:layout_marginEnd="16dp"
             android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@drawable/close"
             android:contentDescription="@string/desc_close"
+            android:src="@drawable/close"
             android:visibility="@{viewModel.showCloseButton}"
             app:layout_constraintBottom_toBottomOf="@+id/nameOfStation"
             app:layout_constraintEnd_toEndOf="parent"
@@ -159,7 +160,7 @@
                 app:items="@{viewModel.services}"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                 app:layout_behavior="@string/appbar_scrolling_view_behavior"
-                tools:listitem="@layout/timetable_fragment_list_item"></androidx.recyclerview.widget.RecyclerView>
+                tools:listitem="@layout/timetable_fragment_list_item" />
 
 
         </com.skedgo.tripkit.ui.views.MultiStateView>
