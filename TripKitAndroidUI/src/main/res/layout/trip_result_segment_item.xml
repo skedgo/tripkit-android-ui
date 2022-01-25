@@ -9,14 +9,23 @@
     <androidx.constraintlayout.widget.ConstraintLayout android:layout_width="wrap_content"
                                                        android:layout_height="wrap_content"
                                                         android:layout_marginEnd="4dp">
-        <ImageView
-                android:id="@+id/icon"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@{viewModel.icon}"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"/>
+
+        <LinearLayout
+            android:id="@+id/iconContent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent">
+
+            <ImageView
+                    android:id="@+id/icon"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@{viewModel.icon}"
+                    android:layoutDirection="locale"/>
+        </LinearLayout>
+
         <TextView
             android:id="@+id/primary"
             android:layout_width="wrap_content"
@@ -28,7 +37,7 @@
             android:text="@{viewModel.primaryText}"
             android:visibility="@{viewModel.showPrimary}"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/icon"
+            app:layout_constraintStart_toEndOf="@+id/iconContent"
             app:layout_constraintBottom_toTopOf="@+id/secondary"/>
         <TextView android:id="@+id/secondary"
                   android:layout_width="wrap_content"
@@ -39,7 +48,7 @@
                   android:text="@{viewModel.secondaryText}"
                   android:visibility="@{viewModel.secondaryText.length() > 0}"
                   app:layout_constraintTop_toBottomOf="@+id/primary"
-                  app:layout_constraintStart_toEndOf="@+id/icon"
+                  app:layout_constraintStart_toEndOf="@+id/iconContent"
                   app:layout_constraintBottom_toBottomOf="parent"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
