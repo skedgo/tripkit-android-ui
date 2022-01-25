@@ -28,7 +28,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            app:layout_constraintGuide_percent="0.5" />
+            app:layout_constraintGuide_begin="30dp" />
 
         <View
             android:id="@+id/topLine"
@@ -64,44 +64,61 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <ImageView
-            android:id="@+id/icon"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:src="@{viewModel.icon}"
+        <LinearLayout
+            android:id="@+id/iconContent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/leftGuide"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent">
 
-        <TextView
-            android:id="@+id/title"
-            style="@style/TextAppearance.MaterialComponents.Headline6"
+            <ImageView
+                android:id="@+id/icon"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@{viewModel.icon}"
+                android:layoutDirection="ltr"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/content"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:orientation="vertical"
             android:layout_marginStart="8dp"
             android:layout_marginTop="16dp"
-            android:text="@{viewModel.title}"
-            app:layout_constraintEnd_toStartOf="@+id/time"
             app:layout_constraintStart_toEndOf="@+id/leftGuide"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_goneMarginEnd="16dp"
-            tools:text="Some Direction" />
+            app:layout_constraintEnd_toStartOf="@id/time"
+            app:layout_goneMarginEnd="16dp">
 
-        <TextView
-            android:id="@+id/description"
-            style="@style/TextAppearance.MaterialComponents.Caption"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="16dp"
-            android:gravity="start"
-            android:text="@{viewModel.description}"
-            android:textColor="@color/black1"
-            android:visibility="@{viewModel.showDescription}"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="@+id/title"
-            app:layout_constraintTop_toBottomOf="@+id/title"
-            tools:text="Do something" />
+            <TextView
+                android:id="@+id/title"
+                style="@style/TextAppearance.MaterialComponents.Headline6"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="start"
+                android:textDirection="locale"
+                android:text="@{viewModel.title}"
+                tools:text="Some Direction" />
+
+            <TextView
+                android:id="@+id/description"
+                style="@style/TextAppearance.MaterialComponents.Caption"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"
+                android:gravity="start"
+                android:text="@{viewModel.description}"
+                android:textColor="@color/black1"
+                android:textDirection="locale"
+                android:visibility="@{viewModel.showDescription}"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="@+id/title"
+                app:layout_constraintTop_toBottomOf="@+id/title"
+                tools:text="Do something" />
+        </LinearLayout>
 
         <com.skedgo.tripkit.ui.views.TripSegmentAlertView
             android:id="@+id/alertsView"
@@ -119,8 +136,8 @@
             android:visibility="@{viewModel.showAlerts}"
             app:alerts="@{viewModel.alerts}"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="@+id/title"
-            app:layout_constraintTop_toBottomOf="@+id/description" />
+            app:layout_constraintStart_toStartOf="@+id/content"
+            app:layout_constraintTop_toBottomOf="@+id/content" />
 
 
         <Button
@@ -131,7 +148,7 @@
             android:onClick="@{viewModel::onExternalActionClicked}"
             android:text="@{viewModel.externalAction}"
             android:visibility="gone"
-            app:layout_constraintStart_toStartOf="@+id/title"
+            app:layout_constraintStart_toStartOf="@+id/content"
             app:layout_constraintTop_toBottomOf="@+id/alertsView"
             tools:text="External Action" />
 
@@ -140,7 +157,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:barrierDirection="bottom"
-            app:constraint_referenced_ids="title,description,alertsView, externalActionButton" />
+            app:constraint_referenced_ids="content,alertsView, externalActionButton" />
 
         <View
             android:id="@+id/line"
@@ -161,9 +178,9 @@
             android:text="@{viewModel.startTime}"
             android:textColor="@{viewModel.startTimeColor}"
             android:visibility="@{viewModel.showStartTime &amp; !viewModel.isHideExactTimes()}"
-            app:layout_constraintBottom_toBottomOf="@+id/title"
+            app:layout_constraintBottom_toBottomOf="@+id/content"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/title"
+            app:layout_constraintTop_toTopOf="@+id/content"
             tools:text="11:30" />
 
         <TextView
