@@ -32,19 +32,21 @@ fun Context.showSingleSelectionPopUpDialog(items: List<String>, onItemSelected: 
 
 fun Context.showConfirmationPopUpDialog(
         title: String? = null, message: String? = null, positiveLabel: String,
-        positiveCallback: () -> Unit, negativeLabel: String,
+        positiveCallback: (() -> Unit)? = null, negativeLabel: String? = null,
         negativeCallback: (() -> Unit)? = null
 ) {
     MaterialDialog(this).show {
         title?.let { title(text = it) }
         message?.let { message(text = it) }
         positiveButton(text = positiveLabel) {
-            positiveCallback()
+            positiveCallback?.invoke()
             it.dismiss()
         }
-        negativeButton(text = negativeLabel) {
-            negativeCallback?.invoke()
-            it.dismiss()
+        negativeLabel?.let {
+            negativeButton(text = negativeLabel) {
+                negativeCallback?.invoke()
+                it.dismiss()
+            }
         }
     }
 }

@@ -60,7 +60,8 @@ class DrtViewModel @Inject constructor(
     private val _areInputsValid = MutableLiveData<Boolean>()
     val areInputsValid: LiveData<Boolean> = _areInputsValid
 
-    val error = ObservableField<String>()
+    private val _error = MutableLiveData<Pair<String?, String?>>()
+    val error: LiveData<Pair<String?, String?>> = _error
 
     val onItemChangeActionStream = MutableSharedFlow<DrtItemViewModel>()
 
@@ -317,7 +318,7 @@ class DrtViewModel @Inject constructor(
                                 val errorString = (it as HttpException).response()?.errorBody()?.string()
                                 errorString?.let {
                                     val json = Gson().fromJson(errorString, DRTError::class.java)
-                                    error.set(json.error)
+                                    _error.value = Pair(null, json.error)
                                 }
                             } catch (e: Exception) {
                             }
@@ -368,7 +369,10 @@ class DrtViewModel @Inject constructor(
                         }
                         .subscribeBy(
                                 onError = {
-                                    it.printStackTrace()
+                                    if (it is HttpException) {
+                                        val error: DRTError = Gson().fromJson(it.response()?.errorBody()?.string(), DRTError::class.java)
+                                        this@DrtViewModel._error.value = Pair(error.title, error.error)
+                                    }
                                     _loading.value = false
                                 },
                                 onSuccess = {

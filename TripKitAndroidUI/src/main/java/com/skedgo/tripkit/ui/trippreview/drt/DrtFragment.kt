@@ -209,6 +209,18 @@ class DrtFragment : BaseFragment<FragmentDrtBinding>(), DrtHandler {
                 }
             }
         }
+
+        observe(viewModel.error) {
+            it?.let { errorPair ->
+                if (errorPair.first != null || errorPair.second != null) {
+                    context?.showConfirmationPopUpDialog(
+                            errorPair.first,
+                            errorPair.second,
+                            resources.getString(R.string.ok)
+                    )
+                }
+            }
+        }
     }
 
     private fun showDateTimePicker(listener: TripKitDateTimePickerDialogFragment.OnTimeSelectedListener) {
@@ -235,18 +247,6 @@ class DrtFragment : BaseFragment<FragmentDrtBinding>(), DrtHandler {
         pagerItemViewModel.closeClicked.observable
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe { onCloseButtonListener?.onClick(null) }.addTo(autoDisposable)
-
-        viewModel.error.asObservable().observeOn(AndroidSchedulers.mainThread())
-                .subscribe {
-                    if (!it.isNullOrEmpty()) {
-                        MaterialAlertDialogBuilder(requireContext())
-                                .setMessage(it)
-                                .setPositiveButton(resources.getString(R.string.ok)) { dialog, _ ->
-                                    dialog.cancel()
-                                }
-                                .show()
-                    }
-                }.addTo(autoDisposable)
     }
 
     private fun initViews() {
