@@ -97,77 +97,81 @@ class DrtFragment : BaseFragment<FragmentDrtBinding>(), DrtHandler {
                                 drtItem.label.value ?: ""
                         )
 
-                        if (drtItem.label.value == DrtItem.ADD_NOTE) {
-                            GenericNoteDialogFragment.newInstance(
-                                    drtItem.label.value ?: "",
-                                    if (drtItem.values.value?.firstOrNull() != defaultValue) {
-                                        drtItem.values.value?.firstOrNull() ?: ""
+                        when (drtItem.label.value) {
+                            DrtItem.ADD_NOTE -> {
+                                GenericNoteDialogFragment.newInstance(
+                                        drtItem.label.value ?: "",
+                                        if (drtItem.values.value?.firstOrNull() != defaultValue) {
+                                            drtItem.values.value?.firstOrNull() ?: ""
+                                        } else {
+                                            ""
+                                        },
+                                        viewModel.bookingConfirmation.value != null
+                                ) {
+                                    if (it.isEmpty()) {
+                                        listOf(defaultValue)
                                     } else {
-                                        ""
-                                    },
-                                    viewModel.bookingConfirmation.value != null
-                            ) {
-                                if (it.isEmpty()) {
-                                    listOf(defaultValue)
-                                } else {
-                                    drtItem.setValue(listOf(it))
-                                    viewModel.updateInputValue(drtItem)
-                                }
-                            }.show(childFragmentManager, drtItem.label.value ?: "")
-                        } else if (drtItem.label.value == DrtItem.RETURN_TRIP) {
-                            showDateTimePicker(
-                                    object : TripKitDateTimePickerDialogFragment.OnTimeSelectedListener {
-                                        override fun onTimeSelected(timeTag: TimeTag) {
-                                            if (timeTag.isLeaveNow) {
-                                                drtItem.setValue(listOf(getString(R.string.one_way_only)))
-                                            } else {
-                                                val rawTz = DateTimeZone.forID("UTC")
-                                                val segmentTz = DateTimeZone.forID(segment?.timeZone ?: "UTC")
-                                                val dateTime = DateTime(timeTag.timeInMillis)
-                                                cachedReturnMills = timeTag.timeInMillis /*/ 1000*/
-
-                                                val isoDate = dateTime.toString(getISODateFormatter(rawTz))
-                                                val rawDateBuilder = StringBuilder()
-                                                rawDateBuilder.append(isoDate).append("Z")
-                                                val dateString = dateTime.toString(getDisplayDateFormatter(segmentTz))
-                                                val timeString = dateTime.toString(getDisplayTimeFormatter(segmentTz))
-
-                                                drtItem.setRawDate(rawDateBuilder.toString())
-                                                drtItem.setValue(listOf("$dateString at $timeString"))
-                                            }
-                                            viewModel.updateInputValue(drtItem)
-                                        }
-                                    }
-                            )
-                        } else {
-                            GenericListDialogFragment.newInstance(
-                                    GenericListItem.parseOptions(
-                                            drtItem.options.value ?: emptyList()
-                                    ),
-                                    isSingleSelection = drtItem.type.value == QuickBookingType.SINGLE_CHOICE,
-                                    title = drtItem.label.value ?: "",
-                                    onConfirmCallback = { selectedItems ->
-                                        drtItem.setValue(
-                                                if (selectedItems.isEmpty()) {
-                                                    listOf(
-                                                            viewModel.getDefaultValueByType(
-                                                                    drtItem.type.value ?: "",
-                                                                    drtItem.label.value ?: ""
-                                                            )
-                                                    )
-                                                } else {
-                                                    selectedItems.map { it.label }
-                                                }
-                                        )
+                                        drtItem.setValue(listOf(it))
                                         viewModel.updateInputValue(drtItem)
-                                    },
-                                    previousSelectedValues = if (drtItem.values.value != listOf(defaultValue)) {
-                                        drtItem.values.value
-                                    } else {
-                                        null
-                                    },
-                                    viewOnlyMode = viewModel.bookingConfirmation.value != null
-                            ).show(childFragmentManager, drtItem.label.value ?: "")
+                                    }
+                                }.show(childFragmentManager, drtItem.label.value ?: "")
+                            }
+                            DrtItem.RETURN_TRIP -> {
+                                showDateTimePicker(
+                                        object : TripKitDateTimePickerDialogFragment.OnTimeSelectedListener {
+                                            override fun onTimeSelected(timeTag: TimeTag) {
+                                                if (timeTag.isLeaveNow) {
+                                                    drtItem.setValue(listOf(getString(R.string.one_way_only)))
+                                                } else {
+                                                    val rawTz = DateTimeZone.forID("UTC")
+                                                    val segmentTz = DateTimeZone.forID(segment?.timeZone ?: "UTC")
+                                                    val dateTime = DateTime(timeTag.timeInMillis)
+                                                    cachedReturnMills = timeTag.timeInMillis /*/ 1000*/
+
+                                                    val isoDate = dateTime.toString(getISODateFormatter(rawTz))
+                                                    val rawDateBuilder = StringBuilder()
+                                                    rawDateBuilder.append(isoDate).append("Z")
+                                                    val dateString = dateTime.toString(getDisplayDateFormatter(segmentTz))
+                                                    val timeString = dateTime.toString(getDisplayTimeFormatter(segmentTz))
+
+                                                    drtItem.setRawDate(rawDateBuilder.toString())
+                                                    drtItem.setValue(listOf("$dateString at $timeString"))
+                                                }
+                                                viewModel.updateInputValue(drtItem)
+                                            }
+                                        }
+                                )
+                            }
+                            else -> {
+                                GenericListDialogFragment.newInstance(
+                                        GenericListItem.parseOptions(
+                                                drtItem.options.value ?: emptyList()
+                                        ),
+                                        isSingleSelection = drtItem.type.value == QuickBookingType.SINGLE_CHOICE,
+                                        title = drtItem.label.value ?: "",
+                                        onConfirmCallback = { selectedItems ->
+                                            drtItem.setValue(
+                                                    if (selectedItems.isEmpty()) {
+                                                        listOf(
+                                                                viewModel.getDefaultValueByType(
+                                                                        drtItem.type.value ?: "",
+                                                                        drtItem.label.value ?: ""
+                                                                )
+                                                        )
+                                                    } else {
+                                                        selectedItems.map { it.label }
+                                                    }
+                                            )
+                                            viewModel.updateInputValue(drtItem)
+                                        },
+                                        previousSelectedValues = if (drtItem.values.value != listOf(defaultValue)) {
+                                            drtItem.values.value
+                                        } else {
+                                            null
+                                        },
+                                        viewOnlyMode = viewModel.bookingConfirmation.value != null
+                                ).show(childFragmentManager, drtItem.label.value ?: "")
+                            }
                         }
                     }
                 }.launchIn(lifecycleScope)

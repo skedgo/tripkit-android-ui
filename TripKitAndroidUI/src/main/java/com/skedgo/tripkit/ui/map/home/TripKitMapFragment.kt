@@ -18,6 +18,7 @@ import com.skedgo.tripkit.AndroidGeocoder
 import com.skedgo.tripkit.common.model.Location
 import com.skedgo.tripkit.common.model.Region
 import com.skedgo.tripkit.common.model.Region.City
+import com.skedgo.tripkit.common.model.TransportMode
 import com.skedgo.tripkit.data.regions.RegionService
 import com.skedgo.tripkit.routing.ModeInfo
 import com.skedgo.tripkit.routing.VehicleDrawables
@@ -70,20 +71,28 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
     @Deprecated("")
     @Inject
     lateinit var bus: Bus
+
     @Inject
     lateinit var viewModel: MapViewModel
+
     @Inject
     lateinit var regionService: RegionService
+
     @Inject
     lateinit var cameraController: MapCameraController
+
     @Inject
     lateinit var tripLocationMarkerCreator: TripLocationMarkerCreator
+
     @Inject
     lateinit var cityInfoWindowAdapter: CityInfoWindowAdapter
+
     @Inject
     lateinit var myLocationWindowAdapter: NoActionWindowAdapter
+
     @Inject
     lateinit var stopMarkerIconFetcherLazy: Lazy<StopMarkerIconFetcher>
+
     @Inject
     lateinit var preferences: SharedPreferences
 
@@ -113,9 +122,13 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
     private lateinit var geocoder: AndroidGeocoder
 
     private var contributor: TripKitMapContributor? = null
+
     // There doesn't seem to be a way to show an info window when a POI is clicked, so work-around that
     // by using an invisible marker on the map that is moved to the POI's location when clicked.
     private var poiMarker: Marker? = null
+
+    private var transportModes: List<TransportMode>? = null
+
     /**
      * When an icon in the map is clicked, an information window is displayed. When that information window
      * is clicked, this interface is used as a callback to notify the app of the click.
@@ -134,27 +147,30 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
     fun setOnInfoWindowClickListener(listener: OnInfoWindowClickListener?) {
         onInfoWindowClickListener = listener
     }
+
     fun setOnInfoWindowClickListener(listener: (Location?) -> Unit) {
-        onInfoWindowClickListener = object: TripKitMapFragment.OnInfoWindowClickListener {
+        onInfoWindowClickListener = object : TripKitMapFragment.OnInfoWindowClickListener {
             override fun onInfoWindowClick(location: Location?) {
                 listener(location)
             }
         }
     }
 
-    fun refreshMap(map: GoogleMap){
+    fun refreshMap(map: GoogleMap) {
         initMap(map, false)
     }
 
     interface OnZoomLevelChangedListener {
         fun onZoomLevelChanged(zoomLevel: Float)
     }
+
     private var onZoomLevelChangedListener: OnZoomLevelChangedListener? = null
     fun setOnZoomLevelChangedListener(listener: OnZoomLevelChangedListener?) {
         onZoomLevelChangedListener = listener
     }
+
     fun setOnZoomLevelChangedListener(listener: (Float) -> Unit) {
-        onZoomLevelChangedListener = object: OnZoomLevelChangedListener {
+        onZoomLevelChangedListener = object : OnZoomLevelChangedListener {
             override fun onZoomLevelChanged(zoomLevel: Float) {
                 listener(zoomLevel)
             }
@@ -240,7 +256,14 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
                     for (marker in poiMarkers!!.markers) {
                         marker.tag?.let { tag ->
                             val identifier = (tag as IMapPoiLocation?)!!.identifier
-                            if (second.contains(identifier)) {
+                            var _toRemove = false
+                            transportModes?.forEach {
+                                if (identifier.contains(it.id) && !_toRemove) {
+                                    _toRemove = true
+                                }
+                            }
+
+                            if (_toRemove) {
                                 toRemove.add(marker)
                             }
                         }
@@ -287,14 +310,14 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
             marker.isVisible = true
             marker.tag = LongPressIMapPoiLocation(point, ViewableInfoWindowAdapter(layoutInflater))
             geocoder.getAddress(point.latitude, point.longitude)
-                .observeOn(AndroidSchedulers.mainThread())
-                .take(1)
-                .subscribe({
-                    marker.title = it
-                    (marker.tag as LongPressIMapPoiLocation).setName(it)
-                    marker.showInfoWindow()
-                }, { })
-                .addTo(autoDisposable)
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .take(1)
+                    .subscribe({
+                        marker.title = it
+                        (marker.tag as LongPressIMapPoiLocation).setName(it)
+                        marker.showInfoWindow()
+                    }, { })
+                    .addTo(autoDisposable)
 
             if (markerManager != null) {
                 marker.showInfoWindow()
@@ -312,6 +335,7 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
             }
         }
     }
+
     /**
      * If we do not specify our own implementation,
      * GoogleMap will fall back to its default implementation for InfoWindowAdapter.
@@ -558,7 +582,7 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
 
     private fun goToMyLocation() {
         ExcuseMe.couldYouGive(this).permissionFor(android.Manifest.permission.ACCESS_FINE_LOCATION) {
-            if(it.granted.contains(android.Manifest.permission.ACCESS_FINE_LOCATION)) {
+            if (it.granted.contains(android.Manifest.permission.ACCESS_FINE_LOCATION)) {
                 map?.isMyLocationEnabled = true
                 viewModel!!.goToMyLocation()
             }
@@ -583,7 +607,7 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
     private fun initMap(map: GoogleMap, moveCamera: Boolean = true) {
         cityIcon = BitmapDescriptorFactory.fromResource(R.drawable.ic_map_city)
         setupMap(map)
-        if(moveCamera) {
+        if (moveCamera) {
             viewModel.getInitialCameraUpdate()
                     .subscribe({ cameraUpdate: CameraUpdate? -> map.moveCamera(cameraUpdate) }) { error: Throwable? -> errorLogger!!.trackError(error!!) }
                     .addTo(autoDisposable)
@@ -636,7 +660,7 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
     }
 
     private fun initFromAndToMarkers(map: GoogleMap) {
-        var fromBitmap =  BearingMarkerIconBuilder(resources, null)
+        var fromBitmap = BearingMarkerIconBuilder(resources, null)
                 .hasBearing(false)
                 .vehicleIconScale(ModeInfo.MAP_LIST_SIZE_RATIO)
                 .baseIcon(R.drawable.ic_map_pin_base)
@@ -646,7 +670,7 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
                 .hasTime(false)
                 .build().first
 
-        var toBitmap =  BearingMarkerIconBuilder(resources, null)
+        var toBitmap = BearingMarkerIconBuilder(resources, null)
                 .hasBearing(false)
                 .vehicleIconScale(ModeInfo.MAP_LIST_SIZE_RATIO)
                 .baseIcon(R.drawable.ic_map_pin_base)
@@ -731,12 +755,12 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
             alpha = 0F
         }
 
-        longPressMarker =  poiMarkers!!.addMarker(MarkerOptions()
+        longPressMarker = poiMarkers!!.addMarker(MarkerOptions()
                 .position(LatLng(0.0, 0.0))
                 .infoWindowAnchor(0.5f, 1f)
                 .visible(false)).apply {
-                alpha = 0F
-            }
+            alpha = 0F
+        }
         val poiLocationInfoWindowAdapter = POILocationInfoWindowAdapter(context!!)
         poiMarkers!!.setOnInfoWindowAdapter(poiLocationInfoWindowAdapter)
         map.setOnInfoWindowCloseListener { marker: Marker ->
@@ -762,7 +786,7 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
                 val scrollY = ((resources.getDimensionPixelSize(R.dimen.routing_card_height)
                         + resources.getDimensionPixelSize(R.dimen.spacing_huge)
                         + poiLocationInfoWindowAdapter.windowInfoHeightInPixel(marker))
-                        - view.height )
+                        - view.height)
                 map.moveCamera(CameraUpdateFactory.newLatLng(marker.position))
                 if (scrollY > 0) { // center the map to 64dp above the bottom of the fragment
                     map.moveCamera(CameraUpdateFactory.scrollBy(0f, scrollY * -1.toFloat()))
@@ -785,10 +809,14 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
         }
     }
 
-    fun setShowPoiMarkers(show: Boolean){
+    fun setShowPoiMarkers(show: Boolean, modes: List<TransportMode>?) {
+        modes?.let {
+            transportModes = it
+        }
+
         poiMarkers?.clear()
         viewModel.showMarkers.set(show)
-        if(show){
+        if (show) {
             loadMarkers()
         }
     }
