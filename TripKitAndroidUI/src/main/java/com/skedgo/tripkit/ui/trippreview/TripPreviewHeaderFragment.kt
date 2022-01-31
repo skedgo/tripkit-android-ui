@@ -55,7 +55,7 @@ class TripPreviewHeaderFragment : Fragment() {
 
     fun setHeaderItems(items: List<TripPreviewHeader>) {
         if (!this@TripPreviewHeaderFragment.isDetached) {
-            viewModel.setup(items)
+            viewModel.setup(requireContext(), items)
         }
     }
 

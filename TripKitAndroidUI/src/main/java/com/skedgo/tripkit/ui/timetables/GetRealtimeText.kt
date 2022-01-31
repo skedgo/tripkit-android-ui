@@ -22,13 +22,21 @@ open class GetRealtimeText @Inject constructor(
 
     open fun execute(dateTimeZone: DateTimeZone, service: TimetableEntry, vehicle: RealTimeVehicle? = null): Pair<String, Int> {
 
+        val isRightToLeft = context.resources.getBoolean(R.bool.is_right_to_left)
+
         val dateTimeFormatter = DateTimeFormat.forPattern("HH:mm a")
         val startTime = realTimeDeparture(service, service.realtimeVehicle)
         val endTime = realTimeArrival(service, service.realtimeVehicle)
         val startDateTime = DateTime(TimeUnit.SECONDS.toMillis(startTime))
         val endDateTime = DateTime(TimeUnit.SECONDS.toMillis(endTime))
         val schedule = if (endTime > 0) {
-            "${startDateTime.toString(dateTimeFormatter.withZone(dateTimeZone))} - ${endDateTime.toString(dateTimeFormatter.withZone(dateTimeZone))}"
+            //Just reversing the start time - end time if it's right to left since changing
+                // text direction of textview to rtl still showing error
+            if (isRightToLeft) {
+                "${endDateTime.toString(dateTimeFormatter.withZone(dateTimeZone))} - ${startDateTime.toString(dateTimeFormatter.withZone(dateTimeZone))}"
+            } else {
+                "${startDateTime.toString(dateTimeFormatter.withZone(dateTimeZone))} - ${endDateTime.toString(dateTimeFormatter.withZone(dateTimeZone))}"
+            }
         } else {
             startDateTime.toString(dateTimeFormatter.withZone(dateTimeZone))
         }

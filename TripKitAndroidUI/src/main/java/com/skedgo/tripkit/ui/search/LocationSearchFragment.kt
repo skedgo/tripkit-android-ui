@@ -26,6 +26,7 @@ import com.skedgo.tripkit.ui.core.rxproperty.asObservable
 import com.skedgo.tripkit.ui.database.location_history.LocationHistoryRepository
 import com.skedgo.tripkit.ui.databinding.LocationSearchBinding
 import com.skedgo.tripkit.ui.utils.defocusAndHideKeyboard
+import com.skedgo.tripkit.ui.utils.isTalkBackOn
 import com.skedgo.tripkit.ui.utils.showKeyboard
 import io.reactivex.Completable
 import io.reactivex.Observable
@@ -300,8 +301,10 @@ class LocationSearchFragment : BaseTripKitFragment() {
                     }
                 }, errorLogger::trackError).addTo(autoDisposable)
 
-        searchView?.requestFocus()
-        showKeyboard(requireActivity())
+        if(!requireContext().isTalkBackOn()) {
+            searchView?.requestFocus()
+            showKeyboard(requireActivity())
+        }
     }
 
     /**

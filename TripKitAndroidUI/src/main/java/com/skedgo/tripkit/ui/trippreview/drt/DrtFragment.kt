@@ -4,6 +4,12 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.util.Log
+import android.view.View
+import android.view.accessibility.AccessibilityEvent
+import android.view.accessibility.AccessibilityNodeInfo
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -49,11 +55,20 @@ class DrtFragment : BaseFragment<FragmentDrtBinding>(), DrtHandler {
 
     private var cachedReturnMills: Long = System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(60)
 
+    private var focusedAfterBookingConfirmed = false
+
     @Inject
     lateinit var actionsAdapter: ActionListAdapter
 
     override val layoutRes: Int
         get() = R.layout.fragment_drt
+
+    override val observeAccessibility: Boolean
+        get() = true
+
+    override fun getDefaultViewForAccessibility(): View {
+        return binding.drtClTitle
+    }
 
     override fun onBook() {
         viewModel.book()
@@ -111,22 +126,29 @@ class DrtFragment : BaseFragment<FragmentDrtBinding>(), DrtHandler {
                                     if (it.isEmpty()) {
                                         listOf(defaultValue)
                                     } else {
-                                        drtItem.setValue(listOf(it))
-                                        viewModel.updateInputValue(drtItem)
-                                    }
-                                }.show(childFragmentManager, drtItem.label.value ?: "")
-                            }
-                            DrtItem.RETURN_TRIP -> {
-                                showDateTimePicker(
-                                        object : TripKitDateTimePickerDialogFragment.OnTimeSelectedListener {
-                                            override fun onTimeSelected(timeTag: TimeTag) {
-                                                if (timeTag.isLeaveNow) {
-                                                    drtItem.setValue(listOf(getString(R.string.one_way_only)))
-                                                } else {
-                                                    val rawTz = DateTimeZone.forID("UTC")
-                                                    val segmentTz = DateTimeZone.forID(segment?.timeZone ?: "UTC")
-                                                    val dateTime = DateTime(timeTag.timeInMillis)
-                                                    cachedReturnMills = timeTag.timeInMillis /*/ 1000*/
+                                        ""
+                                    },
+                                    viewModel.bookingConfirmation.value != null
+                            ) {
+                                if (it.isEmpty()) {
+                                    listOf(defaultValue)
+                                } else {
+                                    drtItem.setValue(listOf(it))
+                                    viewModel.updateInputValue(drtItem)
+                                }
+                            }.show(childFragmentManager, drtItem.label.value ?: "")
+                        } else if (drtItem.label.value == DrtItem.RETURN_TRIP) {
+                            showDateTimePicker(
+                                    object : TripKitDateTimePickerDialogFragment.OnTimeSelectedListener {
+                                        override fun onTimeSelected(timeTag: TimeTag) {
+                                            if (timeTag.isLeaveNow) {
+                                                drtItem.setValue(listOf(getString(R.string.one_way_only)))
+                                            } else {
+                                                val rawTz = DateTimeZone.forID("UTC")
+                                                val segmentTz = DateTimeZone.forID(segment?.timeZone
+                                                        ?: "UTC")
+                                                val dateTime = DateTime(timeTag.timeInMillis)
+                                                cachedReturnMills = timeTag.timeInMillis /*/ 1000*/
 
                                                     val isoDate = dateTime.toString(getISODateFormatter(rawTz))
                                                     val rawDateBuilder = StringBuilder()
@@ -188,6 +210,27 @@ class DrtFragment : BaseFragment<FragmentDrtBinding>(), DrtHandler {
         observe(viewModel.segment) {
             it?.let { tripSegmentUpdateCallback?.invoke(it) }
         }
+
+        observe(viewModel.bookingConfirmation) {
+            it?.let {
+                if (!focusedAfterBookingConfirmed) {
+                    focusAccessibilityDefaultView(false)
+                    focusedAfterBookingConfirmed = true
+                }
+            }
+        }
+
+        observe(viewModel.error) {
+            it?.let { errorPair ->
+                if (errorPair.first != null || errorPair.second != null) {
+                    context?.showConfirmationPopUpDialog(
+                            errorPair.first,
+                            errorPair.second,
+                            resources.getString(R.string.ok)
+                    )
+                }
+            }
+        }
     }
 
     private fun showDateTimePicker(listener: TripKitDateTimePickerDialogFragment.OnTimeSelectedListener) {
@@ -198,7 +241,8 @@ class DrtFragment : BaseFragment<FragmentDrtBinding>(), DrtHandler {
                     .withPositiveAction(R.string.done)
                     .isSingleSelection("Return Trip")
                     .withNegativeAction(R.string.one_way_only)
-                    .withTimeZones(segment?.timeZone ?: TimeZone.getDefault().id, segment?.timeZone ?: TimeZone.getDefault().id)
+                    .withTimeZones(segment?.timeZone ?: TimeZone.getDefault().id, segment?.timeZone
+                            ?: TimeZone.getDefault().id)
                     .build()
             fragment.setOnTimeSelectedListener(listener)
             fragment.show(requireFragmentManager(), "timePicker")
@@ -213,18 +257,6 @@ class DrtFragment : BaseFragment<FragmentDrtBinding>(), DrtHandler {
         pagerItemViewModel.closeClicked.observable
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe { onCloseButtonListener?.onClick(null) }.addTo(autoDisposable)
-
-        viewModel.error.asObservable().observeOn(AndroidSchedulers.mainThread())
-                .subscribe {
-                    if (!it.isNullOrEmpty()) {
-                        MaterialAlertDialogBuilder(requireContext())
-                                .setMessage(it)
-                                .setPositiveButton(resources.getString(R.string.ok)) { dialog, _ ->
-                                    dialog.cancel()
-                                }
-                                .show()
-                    }
-                }.addTo(autoDisposable)
     }
 
     private fun initViews() {

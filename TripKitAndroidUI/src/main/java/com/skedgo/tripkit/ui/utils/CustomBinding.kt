@@ -10,6 +10,7 @@ import androidx.annotation.ColorInt
 import androidx.core.content.ContextCompat
 import androidx.databinding.BindingAdapter
 import com.bumptech.glide.Glide
+import com.skedgo.tripkit.ui.R
 
 //To databind resource id(int) on image views
 @BindingAdapter("android:src")
@@ -87,6 +88,29 @@ fun setImageFromUrl(imageView: ImageView, source: String?) {
             Glide.with(imageView.context)
                     .load(it)
                     .into(imageView)
+        }
+    }
+}
+
+@BindingAdapter("mirrorImage")
+fun setMirrorImage(imageView: ImageView, isMirrored: Boolean) {
+    if (isMirrored) {
+        imageView.scaleX = -1.0f
+    }
+}
+
+@BindingAdapter("addRtlSupport")
+fun setAddRtlSupport(view: View, addRtlSupport: Boolean) {
+    if (addRtlSupport) {
+        val isRightToLeft = view.context.resources.getBoolean(R.bool.is_right_to_left)
+        view.textDirection = if (isRightToLeft) {
+            View.TEXT_DIRECTION_RTL
+        } else {
+            View.TEXT_DIRECTION_LOCALE
+        }
+
+        if (view is ImageView) {
+            setMirrorImage(view, isRightToLeft)
         }
     }
 }

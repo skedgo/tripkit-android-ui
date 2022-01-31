@@ -14,7 +14,6 @@ import com.skedgo.tripkit.routing.TripGroup
 import com.skedgo.tripkit.routing.TripSegment
 import com.skedgo.tripkit.routing.getBookingSegment
 import com.skedgo.tripkit.ui.*
-import com.skedgo.tripkit.ui.ARG_TRIP_GROUP_ID
 import com.skedgo.tripkit.bookingproviders.BookingResolver
 import com.skedgo.tripkit.ui.core.BaseTripKitFragment
 import com.skedgo.tripkit.ExternalActionParams
@@ -131,6 +130,10 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
         tripGroupId?.let {
             viewModel.loadTripGroup(it, tripId ?: -1L, savedInstanceState)
         }
+
+
+        accessibilityDefaultViewManager.setDefaultViewForAccessibility(binding.duration)
+
         return binding.root
     }
 

@@ -60,7 +60,8 @@ class DrtViewModel @Inject constructor(
     private val _areInputsValid = MutableLiveData<Boolean>()
     val areInputsValid: LiveData<Boolean> = _areInputsValid
 
-    val error = ObservableField<String>()
+    private val _error = MutableLiveData<Pair<String?, String?>>()
+    val error: LiveData<Pair<String?, String?>> = _error
 
     val onItemChangeActionStream = MutableSharedFlow<DrtItemViewModel>()
 
@@ -139,6 +140,13 @@ class DrtViewModel @Inject constructor(
                                 }
                                 setViewMode(true)
                                 setShowChangeButton(!input.type().equals(QuickBookingType.RETURN_TRIP, true))
+                                setContentDescription(
+                                        if (input.type().equals(QuickBookingType.RETURN_TRIP, true)) {
+                                            resources.getString(R.string.str_return_trip_voice_over)
+                                        } else {
+                                            "Tap Change to make selections"
+                                        }
+                                )
                                 onChangeStream = onItemChangeActionStream
                             }
                     )
@@ -164,6 +172,7 @@ class DrtViewModel @Inject constructor(
                                 )
                             }
                             setViewMode(true)
+                            setContentDescription("Tap to add note")
                             onChangeStream = onItemChangeActionStream
                         }
                 )
@@ -210,6 +219,19 @@ class DrtViewModel @Inject constructor(
                         setRequired(it.required)
                         setItemId(it.id)
                         it.options?.let { opt -> setOptions(opt) }
+                        setContentDescription(
+                                when {
+                                    it.type.equals(QuickBookingType.RETURN_TRIP, true) -> {
+                                        resources.getString(R.string.str_return_trip_voice_over)
+                                    }
+                                    it.type.equals(QuickBookingType.LONG_TEXT, true) -> {
+                                        "Tap to Add Note"
+                                    }
+                                    else -> {
+                                        "Tap Change to make selections"
+                                    }
+                                }
+                        )
                         onChangeStream = onItemChangeActionStream
                     }
             )
@@ -317,7 +339,7 @@ class DrtViewModel @Inject constructor(
                                 val errorString = (it as HttpException).response()?.errorBody()?.string()
                                 errorString?.let {
                                     val json = Gson().fromJson(errorString, DRTError::class.java)
-                                    error.set(json.error)
+                                    _error.value = Pair(null, json.error)
                                 }
                             } catch (e: Exception) {
                             }
@@ -368,7 +390,10 @@ class DrtViewModel @Inject constructor(
                         }
                         .subscribeBy(
                                 onError = {
-                                    it.printStackTrace()
+                                    if (it is HttpException) {
+                                        val error: DRTError = Gson().fromJson(it.response()?.errorBody()?.string(), DRTError::class.java)
+                                        this@DrtViewModel._error.value = Pair(error.title, error.error)
+                                    }
                                     _loading.value = false
                                 },
                                 onSuccess = {
