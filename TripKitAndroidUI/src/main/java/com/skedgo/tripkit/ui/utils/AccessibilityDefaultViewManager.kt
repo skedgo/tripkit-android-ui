@@ -28,7 +28,7 @@ class AccessibilityDefaultViewManager constructor(
         }
     }
 
-    fun focusAccessibilityDefaultView(withDelay: Boolean) {
+    fun focusAccessibilityDefaultView(withDelay: Boolean, customDelay: Long? = null) {
         Handler().postDelayed({
             if (context?.isTalkBackOn() == true) {
                 viewForAccessibility?.apply {
@@ -36,7 +36,7 @@ class AccessibilityDefaultViewManager constructor(
                     sendAccessibilityEvent(AccessibilityEvent.TYPE_VIEW_FOCUSED)
                 }
             }
-        }, if (withDelay) 500 else 0)
+        }, if (withDelay) customDelay?: 500 else 0)
 
     }
 }
