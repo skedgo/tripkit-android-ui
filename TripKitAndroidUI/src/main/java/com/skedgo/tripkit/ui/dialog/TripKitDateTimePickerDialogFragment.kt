@@ -223,14 +223,17 @@ class TripKitDateTimePickerDialogFragment : DialogFragment(), TimePicker.OnTimeC
                         var amPm = "AM"
 
                         if (!it.is24HourView) {
-                            if(currentHour > 11){
+                            if (currentHour > 11) {
                                 amPm = "PM"
                                 currentHour -= 12
                             }
                         }
 
                         val convertedMinute = currentMinute * timePickerViewModel.timePickerMinuteInterval.get()
-                        host.contentDescription = "$currentHour $convertedMinute ${if (!it.is24HourView) amPm else ""}"
+                        val hourForDescription = "${if (currentHour == 0) 12 else currentHour}"
+                        val minutesForDescription = "${if (convertedMinute > 0) convertedMinute else ""}"
+                        val newDescription = "$hourForDescription $minutesForDescription ${if (!it.is24HourView) amPm else ""}"
+                        host.contentDescription = newDescription
                     }
                 }
 
