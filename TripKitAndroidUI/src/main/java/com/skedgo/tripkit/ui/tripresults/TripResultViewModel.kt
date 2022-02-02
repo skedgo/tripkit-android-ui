@@ -10,6 +10,7 @@ import androidx.databinding.ObservableField
 import androidx.databinding.ObservableInt
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.skedgo.TripKit
 import com.skedgo.tripkit.common.util.TimeUtils
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.core.RxViewModel
@@ -174,7 +175,7 @@ class TripResultViewModel @Inject constructor(private val context: Context,
         return newVm
     }
 
-    private fun getAccessibilityLabel() : String? {
+    private fun getAccessibilityLabel(): String? {
         var mAccessibilityLabel: String? = null
         trip.segments?.forEach {
             if (!it.booking?.accessibilityLabel.isNullOrEmpty()) {
@@ -272,6 +273,7 @@ class TripResultViewModel @Inject constructor(private val context: Context,
         }
     }
 
+
     private fun setCost() {
         var displayCost = trip.getDisplayCost(resources.getString(R.string.free))
         var displayCarbon = trip.displayCarbonCost
@@ -294,5 +296,8 @@ class TripResultViewModel @Inject constructor(private val context: Context,
         }
 
         cost.set(builder.toString())
+
+        val globalConfigs = TripKit.getInstance().configs()
+        costVisible.set(!globalConfigs.hideTripMetrics())
     }
 }
