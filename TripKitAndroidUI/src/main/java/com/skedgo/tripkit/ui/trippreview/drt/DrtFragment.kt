@@ -126,29 +126,23 @@ class DrtFragment : BaseFragment<FragmentDrtBinding>(), DrtHandler {
                                     if (it.isEmpty()) {
                                         listOf(defaultValue)
                                     } else {
-                                        ""
-                                    },
-                                    viewModel.bookingConfirmation.value != null
-                            ) {
-                                if (it.isEmpty()) {
-                                    listOf(defaultValue)
-                                } else {
-                                    drtItem.setValue(listOf(it))
-                                    viewModel.updateInputValue(drtItem)
-                                }
-                            }.show(childFragmentManager, drtItem.label.value ?: "")
-                        } else if (drtItem.label.value == DrtItem.RETURN_TRIP) {
-                            showDateTimePicker(
-                                    object : TripKitDateTimePickerDialogFragment.OnTimeSelectedListener {
-                                        override fun onTimeSelected(timeTag: TimeTag) {
-                                            if (timeTag.isLeaveNow) {
-                                                drtItem.setValue(listOf(getString(R.string.one_way_only)))
-                                            } else {
-                                                val rawTz = DateTimeZone.forID("UTC")
-                                                val segmentTz = DateTimeZone.forID(segment?.timeZone
-                                                        ?: "UTC")
-                                                val dateTime = DateTime(timeTag.timeInMillis)
-                                                cachedReturnMills = timeTag.timeInMillis /*/ 1000*/
+                                        drtItem.setValue(listOf(it))
+                                        viewModel.updateInputValue(drtItem)
+                                    }
+                                }.show(childFragmentManager, drtItem.label.value ?: "")
+                            }
+                            DrtItem.RETURN_TRIP -> {
+                                showDateTimePicker(
+                                        object : TripKitDateTimePickerDialogFragment.OnTimeSelectedListener {
+                                            override fun onTimeSelected(timeTag: TimeTag) {
+                                                if (timeTag.isLeaveNow) {
+                                                    drtItem.setValue(listOf(getString(R.string.one_way_only)))
+                                                } else {
+                                                    val rawTz = DateTimeZone.forID("UTC")
+                                                    val segmentTz = DateTimeZone.forID(segment?.timeZone
+                                                            ?: "UTC")
+                                                    val dateTime = DateTime(timeTag.timeInMillis)
+                                                    cachedReturnMills = timeTag.timeInMillis /*/ 1000*/
 
                                                     val isoDate = dateTime.toString(getISODateFormatter(rawTz))
                                                     val rawDateBuilder = StringBuilder()
