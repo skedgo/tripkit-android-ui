@@ -290,6 +290,9 @@ class DrtFragment : BaseFragment<FragmentDrtBinding>(), DrtHandler {
                             negativeLabel = "No"
                     )
                 }
+                it.bookingConfirmationAction?.type() == BookingConfirmationAction.TYPE_REQUEST_ANOTHER -> {
+                    tripPreviewPagerListener?.onRestartHomePage()
+                }
                 /*
                 it.label == "Cancel Ride" || it.bookingConfirmationAction?.type() == BookingConfirmationAction.TYPE_CANCEL -> {
                     requireContext().showConfirmationPopUpDialog(

@@ -312,6 +312,7 @@ class TripPreviewPagerFragment : BaseTripKitFragment() {
         fun onTimetableEntryClicked(segment: TripSegment?, scope: CoroutineScope, entry: TimetableEntry)
         fun reportPlannedTrip(trip: Trip?, tripGroups: List<TripGroup>)
         fun onBottomSheetResize(): MutableLiveData<Int>
+        fun onRestartHomePage()
         @Deprecated("UnusedClass") fun onExternalActionButtonClicked(action: String?)
     }
 
