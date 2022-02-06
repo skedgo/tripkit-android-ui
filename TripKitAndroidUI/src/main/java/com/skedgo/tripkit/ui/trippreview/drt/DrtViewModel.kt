@@ -126,7 +126,15 @@ class DrtViewModel @Inject constructor(
                                             if (!input.value().isNullOrEmpty()) {
                                                 listOf(input.value() ?: "")
                                             } else {
-                                                input.values() ?: emptyList()
+                                                val list = ArrayList<String>()
+                                                val map = HashMap<String, String>()
+                                                input.options()?.forEach { option ->
+                                                    map[option.id()] = option.title()
+                                                }
+                                                input.values()?.forEach { value ->
+                                                    map[value]?.let { title -> list.add(title) }
+                                                }
+                                                list
                                             }
                                         }
                                 )
