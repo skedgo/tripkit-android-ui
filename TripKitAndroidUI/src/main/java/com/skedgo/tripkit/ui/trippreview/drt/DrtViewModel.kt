@@ -39,6 +39,7 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
+import kotlin.collections.HashMap
 
 
 class DrtViewModel @Inject constructor(
@@ -125,7 +126,15 @@ class DrtViewModel @Inject constructor(
                                             if (!input.value().isNullOrEmpty()) {
                                                 listOf(input.value() ?: "")
                                             } else {
-                                                input.values() ?: emptyList()
+                                                val list = ArrayList<String>()
+                                                val map = HashMap<String, String>()
+                                                input.options()?.forEach { option ->
+                                                    map[option.id()] = option.title()
+                                                }
+                                                input.values()?.forEach { value ->
+                                                    map[value]?.let { title -> list.add(title) }
+                                                }
+                                                list
                                             }
                                         }
                                 )
@@ -276,18 +285,29 @@ class DrtViewModel @Inject constructor(
     private fun getDefaultValue(input: Input): List<String> {
         val defaultValues = ArrayList<String>()
         val rawValues = ArrayList<String>()
+
+        val hashValues = HashMap<String, String>()
+        input.options?.forEach {
+            hashValues[it.id] = it.title
+        }
+
         input.values?.let { rawValues.addAll(it) }
         input.value?.let { rawValues.add(it) }
 
         rawValues.forEach { value ->
-            if (value.isNotEmpty()) {
-                defaultValues.add(String.format("%s%s", value.substring(0, 1).capitalize(Locale.getDefault()),
-                        value.substring(1, value.length)))
+            hashValues[value]?.let {
+                defaultValues.add(it)
             }
         }
 
         if (defaultValues.isEmpty()) {
             defaultValues.addAll(listOf(getDefaultValueByType(input.type, input.title)))
+        } else {
+            if (input.type == QuickBookingType.MULTIPLE_CHOICE) {
+                input.values = defaultValues
+            } else {
+                input.value = defaultValues.firstOrNull()
+            }
         }
 
         return defaultValues
