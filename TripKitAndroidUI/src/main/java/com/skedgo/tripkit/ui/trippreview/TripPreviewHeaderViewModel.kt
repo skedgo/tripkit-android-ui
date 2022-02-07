@@ -52,6 +52,10 @@ class TripPreviewHeaderViewModel @Inject constructor() : RxViewModel() {
     private val _isHideExactTimes = MutableLiveData(false)
     val isHideExactTimes: LiveData<Boolean> = _isHideExactTimes
 
+    fun setHideExactTimes(value: Boolean){
+        _isHideExactTimes.value = value
+    }
+
     fun setup(context: Context, headerItems: List<TripPreviewHeader>) {
 
         val isRightToLeft = context.resources.getBoolean(R.bool.is_right_to_left)
@@ -66,7 +70,7 @@ class TripPreviewHeaderViewModel @Inject constructor() : RxViewModel() {
                         id.set(previewHeader.id)
                         description.set(previewHeader.description)
                         modeId.set(previewHeader.modeId)
-                        _isHideExactTimes.value = previewHeader.isHideExactTimes
+                        //_isHideExactTimes.value = previewHeader.isHideExactTimes //checking should not be per item
 
                         if (previewHeader.modeId != TransportMode.ID_TAXI &&
                                 TransportMode.getLocalIconResId(previewHeader.modeId) != 0 ||

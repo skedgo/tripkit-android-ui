@@ -1,55 +1,64 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto"
-        xmlns:tools="http://schemas.android.com/tools">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
     <data>
+
         <variable
-                name="viewModel"
-                type="com.skedgo.tripkit.ui.tripresults.TripResultTripViewModel" />
+            name="viewModel"
+            type="com.skedgo.tripkit.ui.tripresults.TripResultTripViewModel" />
     </data>
-        <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="match_parent"
-                      android:layout_height="wrap_content"
-                      android:orientation="vertical"
-                        android:padding="16dp"
-            android:contentDescription="@{viewModel.contentDescription}"
-                android:paddingBottom="12dp"
-                      android:background="?selectableItemBackground"
-                      android:onClick="@{() -> viewModel.onItemClicked()}">
 
-            <TextView android:id="@+id/title"
-                      style="@style/TextAppearance.MaterialComponents.Body1"
-                      android:layout_width="wrap_content"
-                      android:layout_height="wrap_content"
-                      android:text="@{viewModel.title}"
-                      android:singleLine="true"
-                android:alpha="@{viewModel.isMissedPreBooking() ? 0.3f : 1f}"
-                      tools:text="10:11"
-                      app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"/>
-            <TextView android:id="@+id/subtitle"
-                      style="@style/TextAppearance.MaterialComponents.Body2"
-                      android:textColor="@color/black1"
-                      tools:text="30 minutes"
-                      android:layout_width="wrap_content"
-                      android:layout_height="wrap_content"
-                      android:text="@{viewModel.subtitle}"
-                android:visibility="@{!viewModel.isHideExactTimes}"
-                      app:layout_constraintEnd_toEndOf="parent"
-                      app:layout_constraintTop_toTopOf="@+id/title"
-                      app:layout_constraintBottom_toBottomOf="@+id/title"/>
-            <com.google.android.flexbox.FlexboxLayout android:layout_width="match_parent"
-                                                      android:layout_height="wrap_content"
-                                                      android:id="@+id/segmentsLayout"
-                                                      android:layout_marginTop="12dp"
-                                                    android:alpha="@{viewModel.isMissedPreBooking() ? 0.3f : 1f}"
-                                                      app:layout_constraintTop_toBottomOf="@+id/title"
-                                                      app:layout_constraintStart_toStartOf="parent"
-                                                      app:layout_constraintEnd_toEndOf="parent"
-                                                      app:flexWrap="wrap"
-                                                      app:flexDirection="row"
-                                                      app:entries="@{viewModel.segments}"
-                                                      app:layout="@{@layout/trip_result_segment_item}">
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?selectableItemBackground"
+        android:contentDescription="@{viewModel.contentDescription}"
+        android:onClick="@{() -> viewModel.onItemClicked()}"
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:paddingBottom="12dp">
 
-            </com.google.android.flexbox.FlexboxLayout>
-        </androidx.constraintlayout.widget.ConstraintLayout>
+        <TextView
+            android:id="@+id/title"
+            style="@style/TextAppearance.MaterialComponents.Body1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:alpha="@{viewModel.isMissedPreBooking() ? 0.3f : 1f}"
+            android:singleLine="true"
+            android:text="@{viewModel.title}"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="10:11" />
+
+        <TextView
+            android:id="@+id/subtitle"
+            style="@style/TextAppearance.MaterialComponents.Body2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@{viewModel.subtitle}"
+            android:textColor="@color/black1"
+            android:visibility="@{!viewModel.isHideExactTimes}"
+            app:layout_constraintBottom_toBottomOf="@+id/title"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/title"
+            tools:text="30 minutes" />
+
+        <com.google.android.flexbox.FlexboxLayout
+            android:id="@+id/segmentsLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:alpha="@{viewModel.isMissedPreBooking() ? 0.3f : 1f}"
+            app:entries="@{viewModel.segments}"
+            app:flexDirection="row"
+            app:flexWrap="wrap"
+            app:layout="@{@layout/trip_result_segment_item}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/title">
+
+        </com.google.android.flexbox.FlexboxLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

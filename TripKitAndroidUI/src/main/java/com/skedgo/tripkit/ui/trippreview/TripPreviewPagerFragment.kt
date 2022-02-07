@@ -18,6 +18,7 @@ import com.haroldadmin.cnradapter.NetworkResponse
 import com.skedgo.TripKit
 import com.skedgo.tripkit.ExternalActionParams
 import com.skedgo.tripkit.bookingproviders.BookingResolver
+import com.skedgo.tripkit.common.model.TransportMode
 import com.skedgo.tripkit.routing.*
 import com.skedgo.tripkit.ui.ARG_FROM_TRIP_ACTION
 import com.skedgo.tripkit.ui.ARG_TRIP_ID
@@ -130,6 +131,19 @@ class TripPreviewPagerFragment : BaseTripKitFragment() {
         tripGroupRepository.getTripGroup(tripGroupId)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({ tripGroup ->
+
+                    /*
+                    //=== For testing isHideExactTimes purpose only while API is not yet updated ===
+                    tripGroup.trips?.forEach { trip ->
+                        trip.getSummarySegments().forEach { segment ->
+                            if (segment.transportModeId == TransportMode.ID_WALK) {
+                                segment.isHideExactTimes = true
+                            }
+                        }
+                    }
+                    // ===
+                    */
+
                     val trip = tripGroup.trips?.find { it.uuid() == tripId }
                     trip?.let {
 
@@ -266,6 +280,17 @@ class TripPreviewPagerFragment : BaseTripKitFragment() {
     }
 
     fun setTripSegment(segment: TripSegment, tripSegments: List<TripSegment>) {
+
+        /*
+        //=== For testing isHideExactTimes purpose only while API is not yet updated ===
+        tripSegments.forEach { segment ->
+            if (segment.transportModeId == TransportMode.ID_WALK) {
+                segment.isHideExactTimes = true
+            }
+        }
+        // ===
+        */
+
         tripPreviewPagerListener?.reportPlannedTrip(segment.trip, listOf(segment.trip.group))
 
         adapter.setTripSegments(
@@ -313,7 +338,8 @@ class TripPreviewPagerFragment : BaseTripKitFragment() {
         fun reportPlannedTrip(trip: Trip?, tripGroups: List<TripGroup>)
         fun onBottomSheetResize(): MutableLiveData<Int>
         fun onRestartHomePage()
-        @Deprecated("UnusedClass") fun onExternalActionButtonClicked(action: String?)
+        @Deprecated("UnusedClass")
+        fun onExternalActionButtonClicked(action: String?)
     }
 
     companion object {
