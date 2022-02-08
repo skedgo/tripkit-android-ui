@@ -45,7 +45,7 @@
             android:text="@{viewModel.description}"
             android:textAlignment="center"
             android:textColor="@color/black1"
-            android:visibility="@{viewModel.showDescription &amp; !viewModel.isHideExactTimes()}"
+            android:visibility="@{viewModel.showDescription &amp;&amp; !viewModel.isHideExactTimes()}"
             app:layout_constraintTop_toBottomOf="@+id/rvHeaders"
             tools:text="8:00pm - 9:30pm"
             tools:visibility="visible" />

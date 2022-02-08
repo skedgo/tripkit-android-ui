@@ -1,55 +1,62 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto"
-        xmlns:tools="http://schemas.android.com/tools">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
     <data>
+
         <variable
-                name="viewModel"
-                type="com.skedgo.tripkit.ui.tripresults.TripSegmentViewModel" />
+            name="viewModel"
+            type="com.skedgo.tripkit.ui.tripresults.TripSegmentViewModel" />
     </data>
-    <androidx.constraintlayout.widget.ConstraintLayout android:layout_width="wrap_content"
-                                                       android:layout_height="wrap_content"
-                                                        android:layout_marginEnd="4dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="4dp">
 
         <LinearLayout
             android:id="@+id/iconContent"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent">
+            app:layout_constraintTop_toTopOf="parent">
 
             <ImageView
-                    android:id="@+id/icon"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@{viewModel.icon}"
-                    android:layoutDirection="locale"/>
+                android:id="@+id/icon"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layoutDirection="locale"
+                android:src="@{viewModel.icon}" />
         </LinearLayout>
 
         <TextView
             android:id="@+id/primary"
+            style="@style/TextAppearance.MaterialComponents.Caption"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            tools:text="14"
-            style="@style/TextAppearance.MaterialComponents.Caption"
-            android:textColor="@color/black"
             android:layout_marginStart="4dp"
             android:text="@{viewModel.primaryText}"
+            android:textColor="@color/black"
             android:visibility="@{viewModel.showPrimary}"
-            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toTopOf="@+id/secondary"
             app:layout_constraintStart_toEndOf="@+id/iconContent"
-            app:layout_constraintBottom_toTopOf="@+id/secondary"/>
-        <TextView android:id="@+id/secondary"
-                  android:layout_width="wrap_content"
-                  android:layout_height="wrap_content"
-                  android:layout_marginStart="4dp"
-                  style="@style/TextAppearance.MaterialComponents.Caption"
-                  android:textColor="@color/black1"
-                  android:text="@{viewModel.secondaryText}"
-                  android:visibility="@{viewModel.secondaryText.length() > 0}"
-                  app:layout_constraintTop_toBottomOf="@+id/primary"
-                  app:layout_constraintStart_toEndOf="@+id/iconContent"
-                  app:layout_constraintBottom_toBottomOf="parent"/>
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="14" />
+
+        <TextView
+            android:id="@+id/secondary"
+            style="@style/TextAppearance.MaterialComponents.Caption"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:text="@{viewModel.secondaryText}"
+            android:textColor="@color/black1"
+            android:visibility="@{!viewModel.isHideExactTimes() &amp;&amp; viewModel.secondaryText.length() > 0}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/iconContent"
+            app:layout_constraintTop_toBottomOf="@+id/primary" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

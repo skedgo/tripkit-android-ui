@@ -24,6 +24,7 @@ class TripPreviewHeaderFragment : Fragment() {
 
     private val disposeBag = CompositeDisposable()
     private var pageIndexStream: PublishSubject<Pair<Long, String>>? = null
+    private var hideExactTimes: Boolean = false
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
@@ -50,6 +51,7 @@ class TripPreviewHeaderFragment : Fragment() {
             observe(selectedSegmentId) {
                 it?.let { pageIndexStream?.onNext(it) }
             }
+            setHideExactTimes(this@TripPreviewHeaderFragment.hideExactTimes)
         }
     }
 
@@ -63,9 +65,13 @@ class TripPreviewHeaderFragment : Fragment() {
 
         const val TAG = "TripPreviewHeader"
 
-        fun newInstance(pageIndexStream: PublishSubject<Pair<Long, String>>?): TripPreviewHeaderFragment {
+        fun newInstance(
+                pageIndexStream: PublishSubject<Pair<Long, String>>?,
+                hideExactTimes: Boolean
+        ): TripPreviewHeaderFragment {
             return TripPreviewHeaderFragment().apply {
                 this.pageIndexStream = pageIndexStream
+                this.hideExactTimes = hideExactTimes
             }
         }
     }

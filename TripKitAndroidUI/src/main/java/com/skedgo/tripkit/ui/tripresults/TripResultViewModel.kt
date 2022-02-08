@@ -11,6 +11,7 @@ import androidx.databinding.ObservableInt
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.skedgo.TripKit
+import com.skedgo.tripkit.common.model.TransportMode
 import com.skedgo.tripkit.common.util.TimeUtils
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.core.RxViewModel
@@ -168,7 +169,7 @@ class TripResultViewModel @Inject constructor(private val context: Context,
         newVm.subtitle.set(buildSubtitle(trip))
         newVm.contentDescription.set(buildContentDescription(trip))
         newVm.isMissedPreBooking.set(trip.segments?.first()?.availability.equals(Availability.MissedPrebookingWindow.value))
-        newVm.isHideExactTimes.set(trip.isHideExactTimes)
+        newVm.isHideExactTimes.set(trip.isHideExactTimes || trip.segments.any { it.isHideExactTimes })
         accessibilityLabel.set(getAccessibilityLabel() ?: context.getString(R.string.book))
         setSegments(newVm.segments, trip)
 
