@@ -272,7 +272,7 @@ TripSegmentItemViewModel @Inject internal constructor(
                 }
             }
 
-            _isHideExactTimes.value = it.trip.isHideExactTimes
+            _isHideExactTimes.value = it.isHideExactTimes //it.trip.isHideExactTimes
         }
     }
 

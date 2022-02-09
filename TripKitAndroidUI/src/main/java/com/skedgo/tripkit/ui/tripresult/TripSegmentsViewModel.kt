@@ -133,6 +133,18 @@ class TripSegmentsViewModel @Inject internal constructor(
                 .onErrorResumeNext(Observable.empty())
                 .subscribe(
                         { tripGroup ->
+                            /*
+                            //=== For testing isHideExactTimes purpose only while API is not yet updated ===
+                            tripGroup.trips?.forEach { trip ->
+                                trip.getSummarySegments().forEach { segment ->
+                                    if (segment.transportModeId == TransportMode.ID_WALK) {
+                                        segment.isHideExactTimes = true
+                                    }
+                                }
+                            }
+                            // ==
+                            */
+
                             if (tripId != -1L) {
                                 tripGroup.displayTripId = tripId
                             }
@@ -178,7 +190,7 @@ class TripSegmentsViewModel @Inject internal constructor(
             }
         }
 
-        isHideExactTimes.set(trip.isHideExactTimes)
+        isHideExactTimes.set(trip.isHideExactTimes || trip.segments.any { it.isHideExactTimes })
     }
 
     // TODO This function is duplicated in TripResultViewModel

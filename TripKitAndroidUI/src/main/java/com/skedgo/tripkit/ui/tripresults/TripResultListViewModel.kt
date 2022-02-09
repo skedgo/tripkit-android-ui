@@ -33,6 +33,7 @@ import com.skedgo.tripkit.logging.ErrorLogger
 import com.skedgo.tripkit.routing.Trip
 import com.skedgo.tripkit.routing.TripGroup
 import com.skedgo.tripkit.routing.dateTimeZone
+import com.skedgo.tripkit.routing.getSummarySegments
 import com.skedgo.tripkit.routingstatus.RoutingStatus
 import com.skedgo.tripkit.routingstatus.RoutingStatusRepository
 import com.skedgo.tripkit.routingstatus.Status
@@ -309,7 +310,23 @@ class TripResultListViewModel @Inject constructor(
         getSortedTripGroupsWithRoutingStatusProvider.get().execute(query, 1, transportVisibilityFilter!!)
                 .observeOn(AndroidSchedulers.mainThread())
                 .map {
-                    val list = it.first
+                    var list = it.first
+
+                    /*
+                    //=== For testing isHideExactTimes purpose only while API is not yet updated ===
+                    list = it.first.map { group ->
+                        group.trips?.forEach { trip ->
+                            trip.getSummarySegments()?.forEach { segment ->
+                                if (segment.transportModeId == TransportMode.ID_WALK) {
+                                    segment.isHideExactTimes = true
+                                }
+                            }
+                        }
+                        group
+                    }
+                    //===
+                    */
+
                     tripGroupList.clear()
                     tripGroupList.addAll(list)
                     val classifier = TripGroupClassifier(list)

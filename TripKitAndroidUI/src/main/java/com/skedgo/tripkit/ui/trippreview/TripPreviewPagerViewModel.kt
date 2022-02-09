@@ -74,7 +74,7 @@ class TripPreviewPagerViewModel : RxViewModel() {
                                     //description = "${segment.startDateTime.toString(dateTimeFormatter)} - ${segment.endDateTime.toString(dateTimeFormatter)}"
                                     description = "${segment.trip.startDateTime.toString(dateTimeFormatter)} - ${segment.trip.endDateTime.toString(dateTimeFormatter)}",
                                     modeId = segment.transportModeId,
-                                    isHideExactTimes = segment.trip.isHideExactTimes
+                                    isHideExactTimes = segment.isHideExactTimes
                             )
                     )
 

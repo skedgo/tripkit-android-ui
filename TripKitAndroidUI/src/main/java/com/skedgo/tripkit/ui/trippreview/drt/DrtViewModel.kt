@@ -341,7 +341,7 @@ class DrtViewModel @Inject constructor(
         }
 
         _accessibilityLabel.value = segment.booking?.accessibilityLabel ?: "Book"
-        _isHideExactTimes.value = segment.trip.isHideExactTimes
+        _isHideExactTimes.value = segment.isHideExactTimes
     }
 
     private fun fetchQuickBooking(url: String) {
