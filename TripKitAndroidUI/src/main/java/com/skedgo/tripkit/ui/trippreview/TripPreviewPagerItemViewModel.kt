@@ -140,6 +140,7 @@ open class TripPreviewPagerItemViewModel : RxViewModel() {
             getPickUpWindowMessage(segment.trip, segment.trip.queryIsLeaveAfter())
         }
 
+        hasPickUpWindow.set(false)
         segment.booking?.confirmation?.purchase()?.pickupWindowDuration()?.let {
             hasPickUpWindow.set(true)
         }
@@ -148,7 +149,7 @@ open class TripPreviewPagerItemViewModel : RxViewModel() {
     private fun getPickUpWindowMessage(trip: Trip, isLeaveAfter: Boolean) {
         var dateTime = trip.startDateTime
         if (!isLeaveAfter) {
-            dateTime = trip.endDateTime
+            dateTime = trip.queryDateTime
         }
         val date = dateTime.toString(DateTimeFormat.forPattern("MMM d, yyyy")
                 .withZone(DateTimeZone.forID(trip.segments.first().timeZone)))
