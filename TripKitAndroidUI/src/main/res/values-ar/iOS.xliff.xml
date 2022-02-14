@@ -1,0 +1,1336 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ Loco xml export: Android string resources
+ Project: iOS.xliff conversion
+ Release: Working copy
+ Locale: ar, Arabic
+ Exported at: Mon, 14 Feb 2022 22:18:51 +0800
+-->
+<resources tools:ignore="MissingTranslation,ExtraTranslation" xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2" xmlns:tools="http://schemas.android.com/tools">
+    <!-- Privacy - Calendars Usage Description -->
+    <string name="NSCalendarsUsageDescription">احصل على رحلات مؤتمتة من وإلى الأحداث في التقويم الخاص بك، وابحث في التقويم عن الأحداث.</string>
+    <!-- Privacy - Camera Usage Description -->
+    <string name="NSCameraUsageDescription">الوصول إلى الكاميرا الخاصة بك لالتقاط إيصال رحلتك</string>
+    <!-- Privacy - Contacts Usage Description -->
+    <string name="NSContactsUsageDescription">البحث في جهات الاتصال الخاصة بك عن المواقع.</string>
+    <!-- Privacy - Location Always and When In Use Usage Description -->
+    <string name="NSLocationAlwaysAndWhenInUseUsageDescription">الحصول على ETAs المحدثة. يمكنك تتبع استخدام وسائل النقل والاطلاع على سجل التنقلات الخاص بك.</string>
+    <!-- Privacy - Location Always Usage Description -->
+    <string name="NSLocationAlwaysUsageDescription">البحث من أو إلى موقعك الحالي. حدد موقعك على الخريطة. احصل على تحديث ETA.</string>
+    <!-- Privacy - Location Usage Description -->
+    <string name="NSLocationUsageDescription">Search from or to your current location. Locate yourself on the map.</string>
+    <!-- Privacy - Location When In Use Usage Description -->
+    <string name="NSLocationWhenInUseUsageDescription">Search from or to your current location. Locate yourself on the map.</string>
+    <!-- Privacy - Motion Usage Description -->
+    <string name="NSMotionUsageDescription">تتبع استخدام وسائل النقل والاطلاع على سجل التنقلات الخاص بك.</string>
+    <!-- Privacy - Photo Library Usage Description -->
+    <string name="NSPhotoLibraryUsageDescription">الوصول إلى مكتبة الصور الخاصة بك لتحديد صورة الملف الشخصي</string>
+    <!-- Class = "UILabel"; text = "Choose transport modes"; ObjectID = "4Da-23-dIr"; -->
+    <string name="_4Da_23_dIr_text">اختيار وسائل النقل</string>
+    <!-- Class = "UILabel"; text = "Enter your home and work address for more efficient trip planning"; ObjectID = "41N-Fp-lIr"; -->
+    <string name="_41N_Fp_lIr_text">أدخل عنوان منزلك وعنوان عملك لتخطيط رحلات أكثر كفاءة</string>
+    <!-- Class = "UILabel"; text = "Quick & easy setup"; ObjectID = "Daa-gL-EXc"; -->
+    <string name="Daa_gL_EXc_text">الإعداد السريع &amp; السهل</string>
+    <!-- Class = "UISearchBar"; placeholder = "Search"; ObjectID = "GjR-iv-Ew6"; -->
+    <string name="GjR_iv_Ew6_placeholder">البحث</string>
+    <!-- Class = "UILabel"; text = "TripGo helps you optimise daily trips"; ObjectID = "Tdu-LJ-B02"; -->
+    <string name="Tdu_LJ_B02_text">يساعدك TripGo على تحسين الرحلات اليومية</string>
+    <!-- Class = "UILabel"; text = "Pick a supported city to continue"; ObjectID = "a2d-Mj-Am0"; -->
+    <string name="a2d_Mj_Am0_text">اختر مدينة مدعومة للاستمرار</string>
+    <!-- Class = "UILabel"; text = "Personalise TripGo so you'll get the most relevant results for your trips"; ObjectID = "awR-6l-D62"; -->
+    <string name="awR_6l_D62_text">يمكنك تخصيص TripGo حتى تحصل على النتائج الأكثر صلة برحلاتك</string>
+    <!-- Class = "UILabel"; text = "Congratulations on being a smart traveller!"; ObjectID = "uyh-ZB-4id"; -->
+    <string name="uyh_ZB_4id_text">تهانينا لكونك مسافرًا ذكيًا!</string>
+    <!-- Class = "UILabel"; text = "Sorry, TripGo is yet to work in your home city."; ObjectID = "zS6-hR-gj9"; -->
+    <string name="zS6_hR_gj9_text">عذرًا، لا يعمل TripGo في مدينتك.</string>
+    <!-- Accessibility description when paging through weeks. Supplied %@ is string for the start date. -->
+    <string name="week_of">الأسبوع %s</string>
+    <!-- Minutes format (used for transfer times). (old key: Minutes) -->
+    <string name="_0f_minutes">%.0f دقائق</string>
+    <!-- Minutes format (used alert firing X minuts before departure). (old key: MinutesBefore) -->
+    <string name="_0f_minutes_before">قبل %.0f دقائق</string>
+    <!-- Title for linked third-party account, eg, Uber Account -->
+    <string name="account">حساب %s</string>
+    <!-- Filler for a specific service running at a time, e.g., '396 at 11:56am' -->
+    <string name="at">%1$s في %2$s</string>
+    <!-- Number (not 1) of available of shared bicycles -->
+    <string name="bikes">%s دراجات</string>
+    <!-- Number (not 1) of available of shared cars -->
+    <string name="cars">%s سيارات</string>
+    <!-- Number (not 1) of available spots to charge an electric vehicle -->
+    <string name="charging">%s شحن</string>
+    <!-- Empty docks (not 1) that are available to return a shared bicycle -->
+    <string name="docks">%s الرصيف</string>
+    <!-- Filler for a specific frequency-based service indicating its frequency, e.g., 'M10 every 10 minutes' -->
+    <string name="every">%1$s كل %2$s</string>
+    <!-- Filler for a specific time-table-based service departing in several minutes, e.g., '396 in 10 minutes' -->
+    <string name="in">%1$s في %2$s</string>
+    <!-- Number (not 1) of available car parking spaces -->
+    <string name="parking">%s موقف السيارات</string>
+    <!-- Number (always 1) of available of shared bicycles -->
+    <string name="_1_bike">دراجة واحدة</string>
+    <!-- Number (always 1) of available of shared cars -->
+    <string name="_1_car">سيارة واحدة</string>
+    <!-- Number (always 1) of available spots to charge an electric vehicle -->
+    <string name="_1_charging">شحن واحد</string>
+    <!-- Empty docks (always 1) that are available to return a shared bicycle -->
+    <string name="_1_dock">رصيف واحد</string>
+    <!-- Number (always 1) of available car parking spaces -->
+    <string name="_1_parking">موقف سيارات واحد</string>
+    <!-- About for a provider, usually takes users to view a web page, eg, About PayiQ -->
+    <string name="about">عن %s</string>
+    <!-- Title for a row that loads the accessibility statement. -->
+    <string name="accessibility_statement">بيان إمكانية الوصول</string>
+    <!-- Error text to show when trying to use a feature which requires an account, but the user hasn't set one up (yet). -->
+    <string name="account_required">الحساب مطلوب</string>
+    <!-- Add favourite activity title -->
+    <string name="add_favourite">إضافة المفضلة</string>
+    <!-- Add reminder activity title -->
+    <string name="add_reminder">Add Reminder</string>
+    <!-- No comment provided by engineer. -->
+    <string name="add_address">Add address…</string>
+    <!-- No comment provided by engineer. -->
+    <string name="add_another_recurrence">إضافة تكرار آخر</string>
+    <!-- Add to calendar activity title -->
+    <string name="add_to_calendar">إضافة إلى التقويم</string>
+    <!-- No comment provided by engineer. -->
+    <string name="add_to_favourites">إضافة إلى المفضلة</string>
+    <!-- Action title for adding a vehicle -->
+    <string name="add_vehicle">إضافة سيارة</string>
+    <!-- Action title for adding another habitual visit to a favourite (old key: NewItemHereActionTitle) -->
+    <string name="add_when_im_here">أضف عندما أكون هنا</string>
+    <!-- Confirmation that something got added HUD notice -->
+    <string name="Added">تمت الإضافة</string>
+    <!-- Alert title that indicates an address is missing when creating a new event -->
+    <string name="address_required">Address required</string>
+    <!-- Title for agenda screen while its still in setup mode -->
+    <string name="agenda_setup">إعداد جدول الأعمال</string>
+    <!-- Settings title to configure cross-device sync of the Agenda -->
+    <string name="agenda_sync">مزامنة الأجندة</string>
+    <!-- Explanation when user can't edit the Agenda on the current device, indicating name of the device where he can edit. -->
+    <string name="agenda_is_in_read_only_mode_editable_on">جدول الأعمال في وضع القراءة فقط، قابل للتعديل على \'%s\'.</string>
+    <!-- Explanation when user can't edit the Agenda on the current device. -->
+    <string name="agenda_is_in_read_only_mode">جدول الأعمال في وضع القراءة فقط.</string>
+    <!-- Error title that appears when the Agenda is locked (by a different device) -->
+    <string name="agenda_locked">جدول الأعمال مقفل</string>
+    <!-- No comment provided by engineer. -->
+    <string name="agenda_not_available">جدول الأعمال غير متوفر</string>
+    <!-- Action title to modify all recurrences. -->
+    <string name="All">الكل</string>
+    <!-- Action button title to see alternative options for the case where you cant make the next connection -->
+    <string name="alternative_routes">المسارات البديلة</string>
+    <!-- No comment provided by engineer. -->
+    <string name="ambiguous_event_address">Ambiguous event address.</string>
+    <!-- Arrival date+time for overnight stay -->
+    <string name="Arrival">الوصول</string>
+    <!-- Arrive before button -->
+    <string name="arrive_by">الوصول عن طريق</string>
+    <!-- Title for section to assign a trip to a vehicle -->
+    <string name="assign_to_vehicle">تعيين لسيارة</string>
+    <!-- Filler for a service running at time, e.g., 'At 11:56am' -->
+    <string name="at_a6e369d789135bd08dfca9ccd872dba1">في %s</string>
+    <!-- Distance automatic -->
+    <string name="Auto">تلقائي</string>
+    <!-- Header for settings of reminders automatically added by TripGo through the agenda -->
+    <string name="automatic_reminders">Automatic Reminders</string>
+    <!-- Available number of shared bicycles. -->
+    <string name="available_bikes">الدراجات المتوفرة</string>
+    <!-- Number of available car parking spaces. -->
+    <string name="available_spots">الأماكن المتوفرة</string>
+    <!-- Indicator text preceding a list of available things, e.g., 'Available: 3 bikes, 2 docks' -->
+    <string name="available">متوفر: %s</string>
+    <!-- Title for showing the battery charge level of a vehicle -->
+    <string name="Battery">البطاريةَ</string>
+    <!-- Book a taxi -->
+    <string name="book_a_taxi">Book a taxi</string>
+    <!-- Description on empty bookings screen -->
+    <string name="bookings_made_with_tripgo_will_appear_here">ستظهر الحجوزات التي تم إجراؤها باستخدام TripGo هنا.</string>
+    <!-- Informing users that they may be viewing cached bookings -->
+    <string name="bookings_may_be_outdated">قد تكون الحجوزات قديمة</string>
+    <!-- Calendar -->
+    <string name="Calendar">التقويم</string>
+    <!-- No comment provided by engineer. -->
+    <string name="Calendars">التقويمات</string>
+    <!-- No comment provided by engineer. -->
+    <string name="change_time">تغيير الوقت</string>
+    <!-- Title for action to clear list of recently used locations -->
+    <string name="clear_all">مسح الكل</string>
+    <!-- clear cache preference -->
+    <string name="clear_cache">مسح ذاكرة التخزين المؤقت</string>
+    <!-- clear search history preference -->
+    <string name="clear_search_history">مسح سجل البحث</string>
+    <!-- School pricing preference -->
+    <string name="concession_pricing">سعر الامتياز</string>
+    <!-- Hassle preference -->
+    <string name="Convenience">الراحة</string>
+    <!-- Error title when TripGo couldnt identify the users current city -->
+    <string name="could_not_find_your_city">تعذر العثور على مدينتك.</string>
+    <!-- Title for button that allows users to create a user account -->
+    <string name="create_account">إنشاء حساب</string>
+    <!-- Title for critical error -->
+    <string name="critical_error">خطأ فادح</string>
+    <!-- No comment provided by engineer. -->
+    <string name="custom_trip_does_not_fit">الرحلة المخصصة غير ملائمة</string>
+    <!-- No comment provided by engineer. -->
+    <string name="custom_trip_has_been_cancelled">Custom trip has been cancelled</string>
+    <!-- Cycling speed preference -->
+    <string name="cycle_speed">سرعة الدورة</string>
+    <!-- Title for screen showing data providers -->
+    <string name="data_providers">مقدمو البيانات</string>
+    <!-- Text for attributing data sources. The list of providers will be used instead of '%@' -->
+    <string name="data_provided_by">البيانات مقدمة من %s</string>
+    <!-- Departure date+time for overnight stay -->
+    <string name="Departure">المغادرة</string>
+    <!-- Title for a generic screen showing details of something -->
+    <string name="Details">التفاصيل</string>
+    <!-- Distances preference -->
+    <string name="Distances">المسافات</string>
+    <!-- Title for transport modes that the user doesnt want included -->
+    <string name="do_not_include">عدم تضمين</string>
+    <!-- No comment provided by engineer. -->
+    <string name="do_you_want_to_always_use_this_trip_and_add_it_to_your_favourites">Do you want to always use this trip and add it to your favourites?</string>
+    <!-- Walkthrough (skip in here should match translation for Skip -->
+    <string name="dont_have_a_fixed_place_of_work_or_study_skip_this_step">Don\'t have a fixed place of work or study? Skip this step.</string>
+    <!-- Label for Duration button to sort trips by their total duration (old key: ViewDurationButton) -->
+    <string name="Duration">المدة</string>
+    <!-- Used in countdown context, indicating when a ticket becomes valid -->
+    <string name="effective_in">فعال في</string>
+    <!-- Empty docks that are available to return a shared bicycle. -->
+    <string name="empty_docks">أرصفة فارغة</string>
+    <!-- Agenda Sync - Title for section showing encryption key -->
+    <string name="encryption_key">مفتاح التشفير</string>
+    <!-- Title for the time an event ends (without date information) -->
+    <string name="End">النهاية</string>
+    <!-- Title for the time an event ends (including date information) -->
+    <string name="end_date">تاريخ الانتهاء</string>
+    <!-- Carbon preference -->
+    <string name="Environment">البيئة</string>
+    <!-- No comment provided by engineer. -->
+    <string name="error_encountered">حدث خطأ</string>
+    <!-- No comment provided by engineer. -->
+    <string name="Event">الحدث</string>
+    <!-- No comment provided by engineer. -->
+    <string name="event_does_not_fit">Event does not fit</string>
+    <!-- No comment provided by engineer. -->
+    <string name="event_is_missing_an_address">Event is missing an address.</string>
+    <!-- No comment provided by engineer. -->
+    <string name="event_is_outside_tripgos_range">Event is outside TripGo\'s range.</string>
+    <!-- No comment provided by engineer. -->
+    <string name="event_was_cancelled">Event was cancelled</string>
+    <!-- Filler for a frequency-based service indicating its frequency, e.g., 'Every 10 minutes' -->
+    <string name="every_22d6ec83f8d31a62b6b5f18f30a6fdab">كل %s</string>
+    <!-- Text do mark an example -->
+    <string name="Example">مثال</string>
+    <!-- Exclude event action -->
+    <string name="Exclude">استبعاد</string>
+    <!-- Title for list of expired tickets -->
+    <string name="Expired">منتهية الصلاحية</string>
+    <!-- Used in countdown context, indicating when a ticket expires -->
+    <string name="expires_in">ينتهي في</string>
+    <!-- Speed preference 'fast' -->
+    <string name="Fast">سريع</string>
+    <!-- No comment provided by engineer. -->
+    <string name="Favourite">المفضلة</string>
+    <!-- No comment provided by engineer. -->
+    <string name="favourite_trip">الرحلة المفضلة</string>
+    <!-- Help title -->
+    <string name="feedback_and_support">الملاحظات والتعليقات &amp; والدعم</string>
+    <!-- Placeholder text for search bar that is used for filtering -->
+    <string name="Filter">الفلتر</string>
+    <!-- Favorite trip from title -->
+    <string name="From">من</string>
+    <!-- Route here from Current location -->
+    <string name="from_current_location">من الموقع الحالي</string>
+    <!-- Header for list of vehicles garaged at this location -->
+    <string name="garaged_vehicles">السيارات في المرآب</string>
+    <!-- Title of settings for generic transport stuff -->
+    <string name="General">عام</string>
+    <!-- Header for settings for feedback, recommending and rating TripGo -->
+    <string name="get_involved">Get Involved</string>
+    <!-- Action button title for getting turn-by-turn directions -->
+    <string name="get_directions">احصل على الاتجاهات</string>
+    <!-- Get off here -->
+    <string name="get_off_here">Get off here</string>
+    <!-- Get on here -->
+    <string name="get_on_here">Get on here</string>
+    <!-- Description for button to get on or off at the selected public transport stop rather than where TripGo suggested -->
+    <string name="get_on_or_off_here">Get on or off here</string>
+    <!-- Action to not overwrite something and switch to read-only mode -->
+    <string name="go_read_only">وضع القراءة فقط</string>
+    <!-- No comment provided by engineer. -->
+    <string name="has_been_useful_to_you">Has %s been useful to you?</string>
+    <!-- Typical name that you'd give your home location -->
+    <string name="Home">الصفحة الرئيسية</string>
+    <!-- Map mode streets + satellite -->
+    <string name="Hybrid">هجين</string>
+    <!-- Agenda Sync - Description when device is in read-only mode -->
+    <string name="if_a_device_other_than_this_one_should_be_in_charge_of_your_agenda_turn_this_device_into_read_only_m">إذا كان جهاز آخر غير هذا الجهاز يجب أن يكون مسؤولاً عن جدول أعمالك، قم بتحويل هذا الجهاز إلى وضع \"للقراءة فقط\". قم بذلك إذا لم يكن لديك جميع التقويمات الخاصة بك على هذا الجهاز، ولكن لا تزال تريد إشعارات جدول الأعمال.</string>
+    <!-- Speed preference 'impaired' -->
+    <string name="Impaired">ضعيف</string>
+    <!-- Instruction text to show when user is trying to make a booking, but he/she needs to create an account first. -->
+    <string name="in_order_to_make_bookings_you_either_need_to_log_into_your_device_with_an_apple_id_or_you_need_to_cr">من أجل إجراء الحجز، تحتاج إما إلى تسجيل الدخول إلى جهازك باستخدام معرِّف Apple أو تحتاج إلى إنشاء حساب على TripGo.</string>
+    <!-- Include event action -->
+    <string name="Include">تضمين</string>
+    <!-- Action title on Agenda to include your calendar events. -->
+    <string name="include_events">تضمين الأحداث</string>
+    <!-- Title for a switch indicating two things: 1) if transport mode should be included in trips and 2) if this event should be included in all-day routes -->
+    <string name="include_in_routes">تضمين في المسارات</string>
+    <!-- Title for a switch indicating if a recurrence of an event should be included in all-day routes on a particular day. '%@' will be replaced with a localised date, e.g., 20.02.18 -->
+    <string name="include_in_routes_on">تضمين في المسارات على %s</string>
+    <!-- Accessibility hint for tapping title in agenda - jumps to today -->
+    <string name="jump_to_today">الانتقال إلى اليوم</string>
+    <!-- Action title to modify just a single recurrence. -->
+    <string name="just_this">هذا فقط</string>
+    <!-- Distance kilometers -->
+    <string name="Km">كم</string>
+    <!-- Leave after button -->
+    <string name="leave_at">مغادرة في</string>
+    <!-- Button title to switch view to list mode -->
+    <string name="List">القائمة</string>
+    <!-- No comment provided by engineer. -->
+    <string name="location_missing">Location missing.</string>
+    <!-- No comment provided by engineer. -->
+    <string name="long_press_on_the_map_to_choose_a_location">Long press on the map to choose a location</string>
+    <!-- Header for settings of reminders that the user manually added -->
+    <string name="manual_reminders">Manual Reminders</string>
+    <!-- No comment provided by engineer. -->
+    <string name="marking_a_location_as_a_favourite_will_allow_quick_access_to_routing_results_for_going_there_from_yo">وضع علامة على موقع كموقع مفضل سيسمح بالوصول السريع إلى نتائج المسار للذهاب إلى هناك من موقعك الحالي.</string>
+    <!-- No comment provided by engineer. -->
+    <string name="marking_a_transit_stop_as_a_favourite_will_allow_quick_access_to_its_timetable">سيسمح وضع علامة على محطة ترانزيت كمفضلة بالوصول السريع إلى جدولها الزمني.</string>
+    <!-- Speed preference 'medium' -->
+    <string name="Medium">متوسط</string>
+    <!-- Distance miles -->
+    <string name="Mi">الحد الأدنى</string>
+    <!-- Minimum transfer time preference -->
+    <string name="min_transfer_time">الحد الأدنى لوقت الانتقال</string>
+    <!-- No comment provided by engineer. -->
+    <string name="minimise_results_for_this_mode_on_the_routes_screen_great_for_transport_options_you_only_use_occasio">Minimise results for this mode on the routes screen. Great for transport options you only use occasionally.</string>
+    <!-- Header for list of how to get more information (eg, by opening a website) -->
+    <string name="more_information">المزيد من المعلومات</string>
+    <!-- Sample event name ('Movie') -->
+    <string name="Movie">Movie</string>
+    <!-- Title for profile item that loads a list of user's bookings -->
+    <string name="my_bookings">حجوزاتي</string>
+    <!-- User preferences title -->
+    <string name="my_priorities">أولوياتي</string>
+    <!-- No comment provided by engineer. -->
+    <string name="my_transport">My Transport</string>
+    <!-- Header for list of my vehicles -->
+    <string name="my_vehicles">سيارتي</string>
+    <!-- Error recovery suggestion for when TripGo couldnt identify the users current city -->
+    <string name="navigate_to_a_supported_city_on_a_map">انتقل إلى مدينة مدعومة على الخريطة.</string>
+    <!-- No comment provided by engineer. -->
+    <string name="new_favourite">مفضلة جديدة</string>
+    <!-- Title for section on home card that shows the next trip on your Agenda -->
+    <string name="next_up">التالي</string>
+    <!-- Indicator text preceding a list of next departures, e.g., 'Next: 3min, 5min' -->
+    <string name="next">التالي: %s</string>
+    <!-- No comment provided by engineer. -->
+    <string name="no_from_location_selected">No \'From\' location selected</string>
+    <!-- No comment provided by engineer. -->
+    <string name="no_to_location_selected">No \'To\' location selected</string>
+    <!-- Text to show on screen that lists bookings if user hasn't made a booking yet. -->
+    <string name="no_bookings_yet">لا يوجد حجز حتى الآن!</string>
+    <!-- Error title for when no calendar found -->
+    <string name="no_calendar_found">No calendar found.</string>
+    <!-- Placeholder will be replaced with date -->
+    <string name="no_data_available_for_please_check_your_primary_device_or_make_this_device_your_primary_one_85f376e4">لا توجد بيانات متوفرة لـ %s.\n\nيرجى التحقق من جهازك الأساسي، أو جعل هذا الجهاز هو الجهاز الأساسي.</string>
+    <!-- No comment provided by engineer. -->
+    <string name="no_locations_set">No locations set</string>
+    <!-- Error title when routing produced no results (but no specific error was returned from routing). -->
+    <string name="no_routes_found">لم يتم العثور على مسار.</string>
+    <!-- Negative answer to follow-up question for rating or feedback -->
+    <string name="no_thanks">No, thanks</string>
+    <!-- Negative answer to question whether TripGo is useful -->
+    <string name="not_really">Not really</string>
+    <!-- Message to users that there's no next up in his/her agenda -->
+    <string name="nothing_planned">لا يوجد شيء مخطط</string>
+    <!-- Countdown cell now indicator -->
+    <string name="Now">الآن</string>
+    <!-- No comment provided by engineer. -->
+    <string name="OK">موافق</string>
+    <!-- Title for homescreen action to open the agenda -->
+    <string name="open_agenda">فتح جدول الأعمال</string>
+    <!-- No comment provided by engineer. -->
+    <string name="open_website">فتح الموقع</string>
+    <!-- Title for list of operators, e.g., list of bike/scooter-sharing network operators -->
+    <string name="Operators">المشغلون</string>
+    <!-- Action to overwrite something -->
+    <string name="Overwrite">استبدال</string>
+    <!-- Text displayed when the user has given the app access to private data such as their calendar or contacts, but the user needs to perform the original action again to now see the results -->
+    <string name="permission_was_granted_please_go_back_and_try_again">تم منح الإذن. يرجى العودة والمحاولة مجددًا.</string>
+    <!-- No comment provided by engineer. -->
+    <string name="Permissions">الأذونات</string>
+    <!-- Timetable screen title -->
+    <string name="pick_a_time">Pick a Time</string>
+    <!-- Title for homescreen action to plan a new trip -->
+    <string name="plan_trip">تخطيط الرحلة</string>
+    <!-- Title for button that allows users to plan a new trip -->
+    <string name="plan_a_new_trip">تخطيط رحلة جديدة</string>
+    <!-- Error recovery suggestion for when routing produced no results (but no specific error was returned from routing). -->
+    <string name="please_adjust_your_query_and_try_again">Please adjust your query and try again.</string>
+    <!-- No comment provided by engineer. -->
+    <string name="please_be_advised_that_you_are_viewing_cached_copies_of_your_bookings">يرجى العلم أنك تقوم بعرض نسخ مخبأة من حجوزاتك</string>
+    <!-- Error recovery suggestion for when no calendar found -->
+    <string name="please_check_your_calendar_app_and_make_sure_you_have_a_calendar_configured">Please check your Calendar app and make sure you have a calendar configured.</string>
+    <!-- No comment provided by engineer. -->
+    <string name="please_log_in">يرجى تسجيل الدخول</string>
+    <!-- Alert message that asks users to provide the missing address for a new event -->
+    <string name="please_specify_an_address">Please specify an address.</string>
+    <!-- No comment provided by engineer. -->
+    <string name="powered_by">بدعم من</string>
+    <!-- No comment provided by engineer. -->
+    <string name="powered_by_3b0970b0f95f7a2c23c5ba564f2d2522">بدعم من %s</string>
+    <!-- Label for Overall button to sort trips by their overall total score considering all factors (old key: ViewOverallButton) -->
+    <string name="Preferred">Preferred</string>
+    <!-- Title for preferred public transport modes -->
+    <string name="preferred_transport">النقل المفضل</string>
+    <!-- Label for Price button to sort trips by their total cost (old key: ViewPriceButton) -->
+    <string name="Price">السعر</string>
+    <!-- Title for a generic screen showing pricing of something -->
+    <string name="Pricing">الأسعار</string>
+    <!-- No comment provided by engineer. -->
+    <string name="Priorities">الأولويات</string>
+    <!-- This usually refers to the fee charged for a facility, e.g., hourly rate for an on-street parking -->
+    <string name="Rate">التقييم</string>
+    <!-- Rate us preference -->
+    <string name="rate_tripgo">تقييم TripGo</string>
+    <!-- Agenda Sync - Title of toggle for whether device is in read-only mode -->
+    <string name="read_only_on_this_device">للقراءة فقط على هذا الجهاز</string>
+    <!-- Title for section on home card showing locations you recently used -->
+    <string name="Recent">الأخير</string>
+    <!-- Explanation for what calendar events are compared to habituals and stays Can be long-ish -->
+    <string name="regular_events_which_will_be_saved_in_your_devices_calendar">Regular events which will be saved in your device\'s calendar.</string>
+    <!-- Reminders title -->
+    <string name="Reminders">التذكيرات</string>
+    <!-- No comment provided by engineer. -->
+    <string name="Remove">إزالة</string>
+    <!-- Remove favourite activity title -->
+    <string name="remove_favourite">إزالة المفضلة</string>
+    <!-- Remove reminder activity title -->
+    <string name="remove_reminder">Remove Reminder</string>
+    <!-- No comment provided by engineer. -->
+    <string name="remove_and_exclude_event">إزالة واستبعاد الحدث</string>
+    <!-- Unsave trip action -->
+    <string name="remove_from_agenda">إزالة من جدول الأعمال</string>
+    <!-- No comment provided by engineer. -->
+    <string name="remove_from_favourites">إزالة من المفضلة</string>
+    <!-- Confirmation that something got removed HUD notice -->
+    <string name="Removed">تمت الإزالة</string>
+    <!-- No comment provided by engineer. -->
+    <string name="removing_this_trip_will_exclude_the_following_event_from_your_agenda">ستؤدي إزالة هذه الرحلة إلى استبعاد الحدث التالي من جدول أعمالك.</string>
+    <!-- Title for switch indicating if an event repeats or not -->
+    <string name="repeat_does_end">التكرار ينتهي</string>
+    <!-- Title for when an event repeats -->
+    <string name="Repeats">التكرار</string>
+    <!-- Report problem -->
+    <string name="report_problem">الإبلاغ عن مشكلة</string>
+    <!-- Title for action to perform by the user if an event is outside TripGos range The action will display a feedback form to request the region of that event -->
+    <string name="Request">طلب</string>
+    <!-- Title for button that allows users to request support -->
+    <string name="request_support">طلب الدعم</string>
+    <!-- Action title to reset agenda content -->
+    <string name="reset_agenda">إعادة تعيين جدول الأعمال</string>
+    <!-- Agenda Sync - Button title to reset the encryption key and generate a new one -->
+    <string name="reset_key">إعادة تعيين مفتاح</string>
+    <!-- Action title to reset tutorial progress -->
+    <string name="reset_tutorial">إعادة تعيين البرنامج التعليمي</string>
+    <!-- Title for showing the restrictions placed on a facility, e.g., hours that be parked for an on-street parking -->
+    <string name="Restrictions">القيود</string>
+    <!-- Title for selector of return time for a trip -->
+    <string name="return_time">Return time</string>
+    <!-- Header for section to configure return trip -->
+    <string name="return_trip">رحلة العودة</string>
+    <!-- Rolling speed preference, i.e., how fast you roll on your wheelchair -->
+    <string name="roll_speed">سرعة الدوران</string>
+    <!-- No comment provided by engineer. -->
+    <string name="Route">المسار</string>
+    <!-- No comment provided by engineer. -->
+    <string name="route_from">المسار من</string>
+    <!-- Title for options for routing to this location, options are: current location, <some previously selected location> -->
+    <string name="route_here">المسار هنا</string>
+    <!-- Title of routes screen, that shows all the results for getting from A to B -->
+    <string name="Routes">المسارات</string>
+    <!-- Explanation for what routines are compared to calendar events and stays Can be long-ish (old key: HabitualEventDescription) -->
+    <string name="routines_are_part_of_your_daily_movement_but_they_arent_events_that_you_want_in_your_calendar_e_g_wo">Routines are part of your daily movement, but they aren\'t events that you want in your calendar (e.g., work). They are important for the Agenda to get you to the right location at the right time.</string>
+    <!-- Error message if interregional routing isn't yet supported -->
+    <string name="routing_from_to_is_not_yet_supported">الانتقال من %1$s إلى %2$s غير مدعوم حتى الآن</string>
+    <!-- Used in the form that requests support for a specific routing -->
+    <string name="routing_request">طلب التوصيل أو الانتقال</string>
+    <!-- Map mode satellite -->
+    <string name="Satellite">الأقمار الصناعية</string>
+    <!-- Agenda Sync - Button title to scan the encryption key from another device -->
+    <string name="scan_key">مسح المفتاح</string>
+    <!-- Placeholder text for searching 'home'. -->
+    <string name="search_for_your_home_address">البحث عن عنوان منزلك</string>
+    <!-- Placeholder text for searching 'work'. -->
+    <string name="search_for_your_work_address">البحث عن عنوان عملك</string>
+    <!-- Title for an action that shows users all options/results -->
+    <string name="see_all">إظهار الكل</string>
+    <!-- Title for an action that shows users more options/results -->
+    <string name="see_more">عرض المزيد</string>
+    <!-- Action title to select the location for an event. -->
+    <string name="select_location">تحديد الموقع</string>
+    <!-- No comment provided by engineer. -->
+    <string name="select_vehicle">اختر السيارة</string>
+    <!-- Walkthrough -->
+    <string name="select_the_place_where_you_stay_at_the_end_of_each_day">Select the place where you stay at the end of each day</string>
+    <!-- Action button title for composing an SMS to a real-time service -->
+    <string name="send_real_time_sms">إرسال رسالة نصية قصيرة في الوقت الفعلي</string>
+    <!-- No comment provided by engineer. -->
+    <string name="set_your_home_work_connect_your_calenders_and_let_tripgo_do_the_trip_planning_for_you">قم بتعيين منزلك وعملك وربط التقويمات الخاصة بك، واسمح لـ TripGo بالتخطيط رحلتك.</string>
+    <!-- Action title on Agenda to start setting it up -->
+    <string name="Setup">الإعداد</string>
+    <!-- Message to users that they need to set up their agenda before using the next up feature -->
+    <string name="setup_required">الإعداد مطلوب</string>
+    <!-- Action button title for sharing when you arrive -->
+    <string name="share_arrival">مشاركة الوصول</string>
+    <!-- Share trip -->
+    <string name="share_trip">مشاركة الرحلة</string>
+    <!-- Action to show a QR code (of a ticket) -->
+    <string name="show_qr_code">عرض رمز الاستجابة السريعة</string>
+    <!-- Description of keyboard shortcut to show settings (in-app settings, not the iOS Settings app) -->
+    <string name="show_settings">إظهار الإعدادات</string>
+    <!-- Button title on trips to show alternatives for it -->
+    <string name="show_alternatives">إظهار البدائل</string>
+    <!-- No comment provided by engineer. -->
+    <string name="show_details">عرض التفاصيل</string>
+    <!-- No comment provided by engineer. -->
+    <string name="show_info">عرض المعلومات</string>
+    <!-- No comment provided by engineer. -->
+    <string name="show_parking_options">Show parking options</string>
+    <!-- Button Title to get to website with ticket details -->
+    <string name="show_ticket_info">عرض معلومات التذكرة</string>
+    <!-- No comment provided by engineer. -->
+    <string name="show_timetable">عرض الجدول الزمني</string>
+    <!-- Indicator for how many transport modes are being displayed out of the total available ones for the region of the trip. First placeholder will be replaced with selected number, second with total number. -->
+    <string name="showing_of_transport_modes">عرض %1$s من %2$s من أوضاع النقل</string>
+    <!-- Button title to skip a certain step -->
+    <string name="Skip">تخطي</string>
+    <!-- Speed preference 'slow' -->
+    <string name="Slow">بطيء</string>
+    <!-- No comment provided by engineer. -->
+    <string name="some_of_the_trips_failed_to_download_please_try_again">فشل تنزيل بعض الرحلات. يرجى المحاولة مرة أخرى</string>
+    <!-- No comment provided by engineer. -->
+    <string name="sorry_tripgo_doesnt_work_here_yet">عذراً. تطبيق TripGo لا يعمل هنا حتى الآن!</string>
+    <!-- Spread the word preference -->
+    <string name="spread_the_word">اُنشر التطبيق</string>
+    <!-- Title for the time an event starts (including date information) -->
+    <string name="Start">بدء</string>
+    <!-- Action title for adding a habitual item away from some location (old key: NewItemAwayActionTitle) -->
+    <string name="stay_at_a_different_location">البقاء في موقع مختلف</string>
+    <!-- Map mode streets -->
+    <string name="Streets">الشوارع</string>
+    <!-- No comment provided by engineer. -->
+    <string name="tap_to_confirm_hours_or_swipe_to_delete">انقر لتأكيد الساعات أو مرر سريعًا للحذف</string>
+    <!-- No comment provided by engineer. -->
+    <string name="tap_to_set_address">انقر لتعيين العنوان</string>
+    <!-- No comment provided by engineer. -->
+    <string name="tap_to_set_address_or_swipe_to_delete">انقر لتعيين العنوان أو مرر سريعًا للحذف</string>
+    <!-- No comment provided by engineer. -->
+    <string name="tap_to_set_garage">انقر لتحديد المرآب</string>
+    <!-- Thank you HUD notice -->
+    <string name="thank_you">شكرًا لك!</string>
+    <!-- Description for critical error where error will be shown below -->
+    <string name="the_application_encountered_a_critical_error_and_cant_recover">حدث خطأ في التطبيق ولا يمكنه العمل:</string>
+    <!-- Title for view that presents a purchased ticket -->
+    <string name="Ticket">تذكرة</string>
+    <!-- Indicating that a ticket has expired. -->
+    <string name="ticket_expired">انتهت صلاحية التذكرة</string>
+    <!-- Title for screen to pick your working hours -->
+    <string name="time_at_work">الوقت في العمل</string>
+    <!-- Time zone (typically for an event) -->
+    <string name="time_zone">المنطقة الزمنية</string>
+    <!-- Header for times a user is typically at this location, eg, working hours -->
+    <string name="Times">الأوقات</string>
+    <!-- Title, eg, for event or favourite (old key: TitleFavouriteName) -->
+    <string name="Title">العنوان</string>
+    <!-- Favorite trip to title -->
+    <string name="To">إلى</string>
+    <!-- Total car parking spaces, i.e., not just those that are available. -->
+    <string name="total_spaces">المساحات الإجمالية</string>
+    <!-- Type of something, e.g., an event (calendar event, stay, routine) or a vehicle (car, motorbike, bicycle). (old key: TypeEvent) -->
+    <string name="Type">النوع</string>
+    <!-- This is followed by some date, e.g., Last updated: 11 Nov, 9:28am -->
+    <string name="updated_600b7d5f377e4414e7eed497350cf5f0">محدث:</string>
+    <!-- This is followed by some date, e.g., Last updated: 11 Nov, 9:28am -->
+    <string name="updated">محدث: %s</string>
+    <!-- Indicating when app or backend is busy getting or calculating latest content -->
+    <string name="updating">جارٍ التحديث…</string>
+    <!-- Explanation for what stays are compared to calendar events and routines Can be long-ish (old key: StayEventDescription) -->
+    <string name="use_for_hotels_while_travelling_so_that_the_agenda_starts_and_ends_at_the_correct_location">Use for hotels while travelling, so that the Agenda starts and ends at the correct location.</string>
+    <!-- Title for list of valid tickets -->
+    <string name="Valid">صالح</string>
+    <!-- Which of my vehicles to assign this to -->
+    <string name="Vehicle">السيارة</string>
+    <!-- No comment provided by engineer. -->
+    <string name="verify_location">التحقق من الموقع…</string>
+    <!-- View alternative times for this trip -->
+    <string name="view_times">عرض الأوقات</string>
+    <!-- Walking speed preference -->
+    <string name="walk_speed">سرعة المشي</string>
+    <!-- No comment provided by engineer. -->
+    <string name="Website">الموقع</string>
+    <!-- No comment provided by engineer. -->
+    <string name="week_starts">بداية الأسبوع</string>
+    <!-- Button to show welcome screens again -->
+    <string name="welcome_screens">Welcome Screens</string>
+    <!-- Preference to highlight wheelchair information -->
+    <string name="wheelchair_information">معلومات الكرسي المتحرك</string>
+    <!-- Question for which events in a recurrence to delete (options are typically this/all/any from here) -->
+    <string name="which_would_you_like_to_delete">ما تريد حذفه</string>
+    <!-- Typical name that you'd give your work location -->
+    <string name="Work">العمل</string>
+    <!-- Alert if service running late/early, meaning that the user might not make the next service -->
+    <string name="you_might_not_make_this_transfer">قد لا تقوم بهذا النقل.</string>
+    <!-- No comment provided by engineer. -->
+    <string name="you_need_to_have_an_apple_id_set_up_on_your_device_to_use_agenda">يجب عليك إعداد معرِّف Apple على جهازك لاستخدام جدول الأعمال.</string>
+    <!-- Placeholder will be replaced with date -->
+    <string name="your_agenda_was_last_been_modified_on_device_named_please_confirm_to_overwrite_with_data_from_this_d">تم تعديل جدول الأعمال الخاص بك آخر مرة على الجهاز المسمى \'%s\'. يرجى تأكيد استبدال البيانات من هذا الجهاز.</string>
+    <!-- Agenda Sync - Description for section showing encryption key -->
+    <string name="your_calendar_content_is_encrypted_you_can_access_it_on_different_devices_using_this_encryption_key_">محتوى التقويم الخاص بك مشفر. يمكنك الوصول إليه على أجهزة مختلفة باستخدام مفتاح التشفير هذا. تتم مزامنة المفتاح تلقائيًا باستخدام تقنية iCloud Keychain، إذا قمت بتفعيلها، وإلا يمكنك مسح رمز الاستجابة السريعة ضوئيًا.</string>
+    <!-- No comment provided by engineer. -->
+    <string name="zoom_in">تكبير</string>
+    <!-- Walkthrough -->
+    <string name="zoom_into_map_to_view_public_transport_stops">Zoom into map to view public transport stops</string>
+    <!-- goCatch action -->
+    <string name="gocatch_a_taxi">سيارة أجرة من goCatch</string>
+    <!-- inGogo taxi booking action -->
+    <string name="ingogo_a_taxi">سيارة أجرة من ingogo</string>
+    <!-- Description of a what3words address, which is an addressing-sytem alternative to GPS or regular addresses based on 3 word pairs, e.g., 'gazed-across-like`. -->
+    <string name="what3words_address">عنوان مكون من 3 كلمات</string>
+    <!-- An example of this would be 6 seconds ago or 2 days ago. -->
+    <string name="ago">منذ %s</string>
+    <!-- Format string for going from one location to another. For example: Used to name favourite trips. -->
+    <string name="to">%1$s إلى %2$s</string>
+    <!-- Add a new stopover -->
+    <string name="add_stopover">إضافة محطة توقف…</string>
+    <!-- Button to save a trip to the agenda -->
+    <string name="add_to_agenda">إضافة إلى جدول الأعمال</string>
+    <!-- Title for button to access agenda -->
+    <string name="Agenda">جدول أعمال</string>
+    <!-- Error title when agenda isn't yet set up. -->
+    <string name="agenda_is_not_set_up">لم يتم إعداد جدول الأعمال.</string>
+    <!-- Button to agree to EULA or a similar agreement -->
+    <string name="Agree">موافق</string>
+    <!-- Option to delete this event and all after in a recurrence -->
+    <string name="all_from_here">الكل من هنا</string>
+    <!-- No comment provided by engineer. -->
+    <string name="app_usage_and_analytics">استخدام التطبيق والتحليلات</string>
+    <!-- Button to apply some settings, e.g., apply filter settings -->
+    <string name="Apply">تطبيق</string>
+    <!-- No comment provided by engineer. -->
+    <string name="are_you_sure_you_want_to_delete_your_account">هل أنت متأكد من أنك تريد حذف حسابك؟</string>
+    <!-- Agenda - Text before arrival time of currently active trip -->
+    <string name="arriving_at">الوصول عند</string>
+    <!-- Action that requests some kind of permission, e.g., notifications, from users. -->
+    <string name="Authorise">الإذن</string>
+    <!-- Title for alerts relating to errors occurred during bookings -->
+    <string name="booking_error">خطأ في الحجز</string>
+    <!-- Format string for agreeing to two different items, for instance, terms of use and privacy policy -->
+    <string name="by_continuing_you_are_agreeing_to_our_and">من خلال المتابعة، أنت توافق على %1$s و %2$s</string>
+    <!-- Type for regular events that go in the phone's calendar. -->
+    <string name="calendar_event">الحدث</string>
+    <!-- No comment provided by engineer. -->
+    <string name="calendars_on_your_agenda">الجدول الزمني لجدول أعمالك</string>
+    <!-- Button to clear filter settings -->
+    <string name="clear_filter">مسح الفلتر</string>
+    <!-- Indicator that something, e.g., a car park, is closed -->
+    <string name="Closed">مغلق</string>
+    <!-- Indicator that something, e.g., a car park, is closed currently -->
+    <string name="closed_now">مغلق الآن</string>
+    <!-- Typically used when the app is waiting for users to confirm their actions. -->
+    <string name="Confirming">تأكيد</string>
+    <!-- Indicating the next trip is a current trip -->
+    <string name="current_trip">الرحلة الحالية</string>
+    <!-- No comment provided by engineer. -->
+    <string name="database_corrupted_and_lost">قاعدة البيانات تالفة و مفقودة.</string>
+    <!-- No comment provided by engineer. -->
+    <string name="Decline">رفض</string>
+    <!-- No comment provided by engineer. -->
+    <string name="delete_my_account">حذف حسابي</string>
+    <!-- No comment provided by engineer. -->
+    <string name="device_data">بيانات الجهاز</string>
+    <!-- Button to dismiss something, e.g., an error or action action sheet -->
+    <string name="Dismiss">تجاهل</string>
+    <!-- Action that allows users to dismiss any prompts for user action. For instance, don't show the request for push notification again. -->
+    <string name="dont_ask_again">لا تسأل مرة أخرى</string>
+    <!-- No comment provided by engineer. -->
+    <string name="download_my_data">تنزيل بياناتي</string>
+    <!-- Message to show when downloading something -->
+    <string name="downloading">جارٍ التنزيل…</string>
+    <!-- Label that indicates a driver dropping a passenger at somewhere, typically appears in DRT trips -->
+    <string name="Drop_off">إنزال</string>
+    <!-- Button to edit something, e.g., putting list into editing mode -->
+    <string name="Edit">تعديل</string>
+    <!-- No comment provided by engineer. -->
+    <string name="edit_calendars">تعديل التقويمات</string>
+    <!-- No comment provided by engineer. -->
+    <string name="edit_transport_modes">تعديل أوضاع النقل</string>
+    <!-- Details of home card section for setting up Agenda -->
+    <string name="enter_your_home_and_optionally_work_addresses_and_connect_your_calendar_for_automatic_trip_planning">أدخل منزلك، وعناوين العمل (اختياريًا)، وقم بتوصيل التقويم الخاص بك بالتخطيط التلقائي للرحلة.</string>
+    <!-- Everyday in context of repetitions (especially recurring events) -->
+    <string name="Everyday">كل يوم</string>
+    <!-- Title for button to access favourites -->
+    <string name="Favourites">المفضلة</string>
+    <!-- Title for a flight -->
+    <string name="Flight">الرحلة</string>
+    <!-- Title for button on first welcome screen -->
+    <string name="get_started">ابدأ!</string>
+    <!-- Title of notification for an upcoming trip -->
+    <string name="get_ready_to_leave">استعد للمغادرة</string>
+    <!-- No comment provided by engineer. -->
+    <string name="get_updated_etas_while_youre_on_a_trip_by_reporting_you_current_location_back_to_our_servers_this_al">احصل على ETAs المحدثة أثناء قيامك برحلة عن طريق الإبلاغ عن موقعك الحالي إلى خوادمنا. يساعد هذا أيضًا في تحسين توقع بوقت السفر.\nقد نشارك هذه البيانات مع شركائنا الذين يساعدوننا في إجراء تلك التوقعات.</string>
+    <!-- Indicating localisation is in progress -->
+    <string name="getting_current_location">الحصول على الموقع الحالي…</string>
+    <!-- Type for events that are regular visit's to one of the user's favorites -->
+    <string name="habitual_visit">النمط المتكرر</string>
+    <!-- No comment provided by engineer. -->
+    <string name="help_improve_transport_services_in_your_area_by_allowing_us_to_collect_information_about_which_trips">ساعد في تحسين خدمات النقل في منطقتك من خلال السماح لنا بجمع معلومات حول الرحلات التي تحددها في التطبيق.\nنقوم بتجميع البيانات السرية وتقديمها للباحثين والمنظمين ومقدمي خدمات النقل.</string>
+    <!-- No comment provided by engineer. -->
+    <string name="help_us_improve_tripgo_by_allowing_us_to_collect_data_about_which_features_you_use_in_the_app_and_ho">ساعدنا في تحسين TripGo من خلال السماح لنا بجمع البيانات حول المميزات التي تستخدمها في التطبيق، وعدد المرات.</string>
+    <!-- No comment provided by engineer. -->
+    <string name="howd_you_like_to_select_your_profile_picture">كيف ترغب في تحديد صورة ملفك الشخصي؟</string>
+    <!-- Refer to users not care about a particular aspect of their travel, e.g., cost, time, convenience -->
+    <string name="i_dont_care">لا أهتم</string>
+    <!-- No comment provided by engineer. -->
+    <string name="if_you_have_granted_tripgo_access_to_your_current_location_contacts_calendar_and_more_you_can_withdr">إذا كنت قد منحت TripGo حق الوصول إلى موقعك الحالي وجهات الاتصال والتقويم والمزيد، فيمكنك إلغاء الوصول إلى تلك البيانات بالانتقال إلى إعدادات التطبيق.</string>
+    <!-- This is mostly an action button sitting in a section header in the home card, allowing users to manage some features, e.g., subscription or rewards. -->
+    <string name="Manage">إدارة</string>
+    <!-- Title -->
+    <string name="managing_your_personal_data">إدارة بياناتك الشخصية</string>
+    <!-- Button to show a map or to modify the map's settings -->
+    <string name="Map">الخريطة</string>
+    <!-- Indicator that a transport mode will appear minimised on the routes screen. -->
+    <string name="Minimised">مصغر</string>
+    <!-- Trip history - Title for chart displaying transport modes according to their usage -->
+    <string name="most_used">الأكثر استخدامًا</string>
+    <!-- Title -->
+    <string name="my_personal_data">بياناتي الشخصية</string>
+    <!-- Title for unnamed new event -->
+    <string name="new_event">حدث جديد</string>
+    <!-- Trip history - Replacement text if there's no data to create a chart -->
+    <string name="no_data">لا توجد بيانات</string>
+    <!-- Indicating no response has been provided. -->
+    <string name="none_provided">لم يتم تقديم أي شيء</string>
+    <!-- Indicating no choices have been made. -->
+    <string name="none_selected">لم يتم تحديد أي شيء</string>
+    <!-- Action that allows users to defer making decision on some request. For instance, when being prompted to grant permission to notification, this allows users to make a decision at some later time. -->
+    <string name="not_now">ليس الآن</string>
+    <!-- Title for a screen that displays a collection of notes. -->
+    <string name="Notes">ملاحظات</string>
+    <!-- Telling users what follows is a series of notes from an operator regarding their bookings. -->
+    <string name="notes_from_operator">ملاحظات من المشغل</string>
+    <!-- Option to delete only this event in a recurence -->
+    <string name="only_this">هذا فقط</string>
+    <!-- Indicator that something, e.g., a car park, is open currently -->
+    <string name="open_now">فتح الآن</string>
+    <!-- No comment provided by engineer. -->
+    <string name="open_settings_app">فتح إعدادات التطبيق</string>
+    <!-- Label that indicates a driver collecting a passenger from somewhere, typically appears in DRT trips -->
+    <string name="Pick_up">الركوب</string>
+    <!-- Label that indicates the window of time over which the user will be picked up, typically used in a DRT trip. -->
+    <string name="pick_up_window">نافذة الركوب</string>
+    <!-- Recovery suggestion when TripGo cannot access its local files -->
+    <string name="please_delete_the_app_and_re_install_from_the_app_store_sorry_for_the_inconvenience">يرجى حذف التطبيق وإعادة التثبيت من متجر التطبيقات. نأسف على الإزعاج!</string>
+    <!-- Recovery suggestion when an app restart is required, e.g., when the database got corrupted and/or the app can't access its local files. -->
+    <string name="please_restart_the_app_sorry_for_the_inconvenience">يرجى إعادة تشغيل التطبيق. نأسف على الإزعاج!</string>
+    <!-- TripGo's privacy policy -->
+    <string name="privacy_policy">سياسة الخصوصية</string>
+    <!-- This is usually the title for a button that kicks start some process. -->
+    <string name="Proceed">متابعة</string>
+    <!-- Profile tab bar name -->
+    <string name="Profile">الملف الشخصي</string>
+    <!-- Title -->
+    <string name="read_to_learn_more_about_how_and_why_tripgo_uses_your_personal_data_and_control_what_you_want_to_sha">اقرأ لمعرفة المزيد حول كيفية استخدام TripGo لبياناتك الشخصية ولماذا يستخدمها، والتحكم في ما تريد مشاركته.</string>
+    <!-- No comment provided by engineer. -->
+    <string name="real_time_information_for_transport_options">معلومات في الوقت الفعلي لخيارات النقل</string>
+    <!-- Repeats daily -->
+    <string name="repeats_daily">التكرار اليومي</string>
+    <!-- Repeats monthly -->
+    <string name="repeats_monthly">التكرار الشهري</string>
+    <!-- Repeats weekly -->
+    <string name="repeats_weekly">التكرار الأسبوعي</string>
+    <!-- Repeats yearly -->
+    <string name="repeats_yearly">التكرار السنوي</string>
+    <!-- This is usually followed by a date/time, e.g., Requested time: Dec. 19, 2021, 10:00:00 -->
+    <string name="requested_time">الوقت المطلوب %s</string>
+    <!-- Action title to reset something, e.g., settings -->
+    <string name="Reset">إعادة تعيين</string>
+    <!-- No comment provided by engineer. -->
+    <string name="routing_etas_and_traffic">المسارات و ETAs وحركة المرور</string>
+    <!-- Prompt during onboarding to select transport modes for your city -->
+    <string name="select_the_modes_that_you_want_to_use_around">حدد الأوضاع التي تريد استخدامها حول %s</string>
+    <!-- This is usually used to mark if some UI element is selected by a user. -->
+    <string name="Selected">محدد</string>
+    <!-- Error recovery suggestion when agenda isn't yet set up but needed for Watch app. -->
+    <string name="set_up_your_agenda_in_the_tripgo_app">قم بإعداد جدول أعمالك في تطبيق TripGo.</string>
+    <!-- Button to share a timetable, trip...etc. Tap on this typically brings up the share sheet -->
+    <string name="Share">مشاركة</string>
+    <!-- Action title to show map for a segment -->
+    <string name="show_map">عرض الخريطة</string>
+    <!-- No comment provided by engineer. -->
+    <string name="show_our_privacy_policy">عرض سياسة الخصوصية الخاصة بنا</string>
+    <!-- Action button on trip reminders to snooze it for a fixed amount. -->
+    <string name="snooze_5_mins">غفوة لمدة 5 دقائق</string>
+    <!-- Action button on public transport trip reminders to skip this service and get reminded for the next service -->
+    <string name="snooze_until_next">غفوة حتى التالي</string>
+    <!-- This is usually followed by a date/time, e.g., Starts at Dec. 19, 2021, 10:00:00 -->
+    <string name="starts_at">يبدأ من %s</string>
+    <!-- No comment provided by engineer. -->
+    <string name="Status">الحالة</string>
+    <!-- Stay, i.e., type for dates you're staying at a hotel, or when moving house. -->
+    <string name="Stay">البقاء</string>
+    <!-- Title for stopover event -->
+    <string name="Stopover">توقف</string>
+    <!-- Instruction for users to add notes to their e.g., bookings. -->
+    <string name="tap_to_add_notes">انقر لإضافة ملاحظات.</string>
+    <!-- Instruction for users to make a choice about something, e.g., whether to book a return trip or not. -->
+    <string name="tap_to_make_a_choice">انقر لتحديد الخيار.</string>
+    <!-- Instruction for users to make a single selection -->
+    <string name="tap_to_make_a_selection">اضغط للاختيار.</string>
+    <!-- Instruction for users to make one or more selections -->
+    <string name="tap_to_make_selections">انقر لإجراء عمليات الاختيار.</string>
+    <!-- Instruction for users to book a trip as one-way or as a return. -->
+    <string name="tap_to_select_one_way_or_enter_a_return_trip_date">انقر لتحديد اتجاه واحد أو إدخال تاريخ رحلة العودة.</string>
+    <!-- Indicating an action that leads users to pick their home locations -->
+    <string name="tap_to_set_home">انقر لتعيين الصفحة الرئيسية</string>
+    <!-- Indicating an action that leads users to pick their work locations -->
+    <string name="tap_to_set_work">انقر لتعيين العمل</string>
+    <!-- TripGo's Terms of Use link -->
+    <string name="terms_of_use">شروط الإستخدام</string>
+    <!-- Message shown when user tries to make another booking while an existing one is still in progress -->
+    <string name="there_is_already_a_booking_in_progress">هناك حجز قيد التقدم بالفعل</string>
+    <!-- No comment provided by engineer. -->
+    <string name="this_will_delete_your_account_from_tripgos_servers_continued_use_of_tripgo_will_create_a_new_empty_a">سيؤدي هذا إلى حذف حسابك من خوادم TripGo. وسيؤدي استمرار استخدام TripGo إلى إنشاء حساب جديد فارغ.\n\nملاحظة: لن يتم حذف بيانات iCloud الخاصة بك من خلال هذا الإجراء، ولكن يمكنك حذف ذلك في إعدادات التطبيق.</string>
+    <!-- Notification message for trip with unknown destination. Notification message for a non-public transport trip. Provided is %time you need to leave. -->
+    <string name="time_to_leave_your_trip_commences_at">وقت المغادرة! رحلتك تبدأ في %s</string>
+    <!-- Notification message for a trip. Provided is %destination and %time you need to leave. -->
+    <string name="time_to_leave_your_trip_to_commences_at">وقت المغادرة! رحلتك إلى %1$s تبدأ في %2$s</string>
+    <!-- Title of button to access timetable -->
+    <string name="Timetable">الجدول الزمني</string>
+    <!-- No comment provided by engineer. -->
+    <string name="to_calculate_trips_between_calendar_events_tripgo_will_send_your_calendar_information_to_our_server_">لحساب الرحلات بين أحداث التقويم، سيرسل TripGo معلومات التقويم الخاصة بك إلى خادمنا ويستخدم هذه البيانات للقيام بالتخطيط من أجلك. يمكنك تعطيل كل تقويم على حدة، إذا كنت لا تريد مشاركة هذه البيانات.</string>
+    <!-- No comment provided by engineer. -->
+    <string name="to_show_transport_options_we_may_share_per_query_information_of_start_location_end_location_and_quer">لإظهار خيارات النقل، قد نشارك معلومات لكل استعلام عن موقع البدء وموقع الانتهاء ووقت الاستعلام مع مقدمي خدمات النقل. يمكنك تعطيل كل وضع على حدة، إذا كنت لا تريد مشاركة هذه البيانات.</string>
+    <!-- Recovery suggestion -->
+    <string name="to_use_this_feature_please_enable_location_services_for_tripgo">لاستخدام هذه الميزة، يرجى تفعيل خدمات الموقع لـ TripGo</string>
+    <!-- Title for button to access transport modes -->
+    <string name="Transport">المواصلات</string>
+    <!-- Trip history - Axis label for chart that displays trips by distance -->
+    <string name="trip_distance_km">مسافة الرحلة (كم)</string>
+    <!-- No comment provided by engineer. -->
+    <string name="trip_selections">تحديدات الرحلة</string>
+    <!-- No comment provided by engineer. -->
+    <string name="tripgo_cannot_access_its_local_files">لا يمكن لـ TripGo الوصول إلى ملفاته المحلية.</string>
+    <!-- No comment provided by engineer. -->
+    <string name="tripgo_helps_you_optimise_daily_trips">يساعدك TripGo على تحسين الرحلات اليومية</string>
+    <!-- No comment provided by engineer. -->
+    <string name="tripgo_will_display_results_according_to_these_preferences">سيعرض TripGo النتائج وفقًا لهذه التفضيلات</string>
+    <!-- Trips tab bar name -->
+    <string name="Trips">الرحلات</string>
+    <!-- Trip history - Title for chart displaying trips according to their total distance -->
+    <string name="trips_by_distance">الرحلات حسب المسافة</string>
+    <!-- Agenda - Text before departure time of upcoming trip -->
+    <string name="up_next">التالي</string>
+    <!-- Indicating the next trip is an upcoming trip -->
+    <string name="upcoming_trip">الرحلة القادمة</string>
+    <!-- Heading of home card section for setting up Agenda -->
+    <string name="upcoming_trips_from_your_agenda_will_show_up_here">الرحلات القادمة من جدول الأعمال الخاص بك ستظهر هنا</string>
+    <!-- Description of priority sliders -->
+    <string name="use_the_sliders_to_choose_your_highest_and_lowest_priorities_when_travelling_only_one_priority_can_b">استخدم أشرطة التمرير لاختيار أعلى وأدنى أولوياتك عند السفر. يمكن تفضيل أولوية واحدة فقط.</string>
+    <!-- No comment provided by engineer. -->
+    <string name="use_this_option_to_review_and_manage_devices_you_have_registered_to_receive_push_notifications">استخدم هذا الخيار لمراجعة وإدارة الأجهزة التي قمت بتسجيلها لتلقي التنبيهات الفورية</string>
+    <!-- Button to view something, e.g., a notification content or the EULA -->
+    <string name="View">عرض</string>
+    <!-- 'This data' refers to data about how a user users the app, which transport options they choose, etc. -->
+    <string name="we_keep_this_data_on_servers_in_australia_europe_or_the_us_we_retain_this_data_forever_to_be_able_to">نحتفظ بهذه البيانات على خوادم في أستراليا أو أوروبا أو الولايات المتحدة. كما نحتفظ بهذه البيانات إلى الأبد حتى نتمكن من إنشاء اتجاهات طويلة الأجل. لمزيد من التفاصيل، يرجى مراجعة سياسة الخصوصية الخاصة بنا.</string>
+    <!-- Every weekday in context of repetitions (especially recurring events) -->
+    <string name="Weekdays">أيام الأسبوع</string>
+    <!-- Every weekend day in context of repetitions (especially recurring events) -->
+    <string name="Weekends">عطلات نهاية الأسبوع</string>
+    <!-- Inform customer that they have more than one note waiting for them. -->
+    <string name="you_have_x_notes">لديك %d ملاحظات</string>
+    <!-- Informs customer that they have a single note waiting for them. -->
+    <string name="you_have_one_note">لديك ملاحظة واحدة</string>
+    <!-- Name for a {%@}'s place if it's unclear if it's home, work or something else. -->
+    <string name="s">%s\'s</string>
+    <!-- '%@' will be replaced with the person's name -->
+    <string name="s_home">%sالصفحة الرئيسية</string>
+    <!-- '%@' will be replaced with the person's name -->
+    <string name="s_work">%s العمل</string>
+    <!-- Number of repeats. (old key: NumberRecurrences) -->
+    <string name="lu_recurrences">%d التكرار</string>
+    <!-- Error when location search for %input was not successful. (old key: RequestErrorFormat) -->
+    <string name="not_found">\"%s\" غير موجود.</string>
+    <!-- Authorization restricted alert message -->
+    <string name="access_to_this_feature_has_been_restricted_for_your_device_please_check_the_settings_app_general_res">تم تقييد الوصول إلى هذه المميزة لجهازك. يرجى التحقق من إعدادات التطبيق &gt; القيود العامة &gt; أو اسأل مزود جهازك.</string>
+    <!-- Accessibility label for action button -->
+    <string name="Action">الإجراء</string>
+    <!-- Default title for alert view -->
+    <string name="Alert">تنبيه</string>
+    <!-- Option for users if they already owned a SkedGo account -->
+    <string name="already_have_an_account">هل لديك حساب بالفعل؟</string>
+    <!-- Option for users if they already owned a SkedGo account -->
+    <string name="already_have_an_account_sign_in">هل لديك حساب بالفعل؟ تسجيل الدخول</string>
+    <!-- Source where the account was derived, e.g., Facebook -->
+    <string name="Authentication">المصادقة</string>
+    <!-- Authorisation needed title -->
+    <string name="authorisation_needed">مطلوب إذن</string>
+    <!-- Accessibility label for 'back' or 'previous' button -->
+    <string name="Back">رجوع</string>
+    <!-- Type of vehicle : bicycle -->
+    <string name="Bicycle">دراجة</string>
+    <!-- Cancel action -->
+    <string name="Cancel">إلغاء</string>
+    <!-- Label for when a service is cancelled. -->
+    <string name="Cancelled">تم الإلغاء</string>
+    <!-- Type of vehicle : car -->
+    <string name="Car">سيارة</string>
+    <!-- Instruction for changing password -->
+    <string name="Change">تغيير</string>
+    <!-- Accessibility - user location button - hint -->
+    <string name="change_tracking_options">تغيير خيارات التعقب</string>
+    <!-- Accessibility title for a checkmark/tick button -->
+    <string name="Checkmark">علامة الاختيار</string>
+    <!-- Close action -->
+    <string name="Close">إغلاق</string>
+    <!-- Title on the button that asks users to confirm if they want to proceed with booking -->
+    <string name="Confirm">تأكيد</string>
+    <!-- This often appears below a password field, asking users to confirm the password entered. -->
+    <string name="confirm_password">تأكيد كلمة المرور</string>
+    <!-- Title for button that allows users to contact our support team to help resolve some error in the app. -->
+    <string name="contact_support">الاتصال بالدعم</string>
+    <!-- Error title when GPS failed. -->
+    <string name="could_not_determine_your_current_location">تعذر تحديد موقعك الحالي.</string>
+    <!-- Could not download supported regions warning. (old key: CouldNotDownloadSupportedRegions) -->
+    <string name="could_not_download_supported_regions_from_tripgos_server_please_try_again_later">تعذر تنزيل المناطق المدعومة من خادم TripGo. يرجة معاودة المحاولة في وقت لاحق.</string>
+    <!-- Current city -->
+    <string name="current_city">المدينة الحالية</string>
+    <!-- Title for user's current location -->
+    <string name="current_location">الموقع الحالي</string>
+    <!-- Class of errors usually originated from databases -->
+    <string name="data_error">خطأ في البيانات</string>
+    <!-- Delete action -->
+    <string name="Delete">حذف</string>
+    <!-- Sort by distance -->
+    <string name="Distance">المسافة</string>
+    <!-- Option for users if they don't yet have a SkedGo account -->
+    <string name="dont_have_an_account">ليس لديك حساب؟</string>
+    <!-- Option for users if they don't yet have a SkedGo account -->
+    <string name="dont_have_an_account_sign_up">ليس لديك حساب؟ قم بالتسجيل</string>
+    <!-- Done action -->
+    <string name="Done">تم</string>
+    <!-- Drop new pin -->
+    <string name="drop_new_pin">تحديد رمز جديد</string>
+    <!-- Title for the screen which allows users to edit their accounts -->
+    <string name="edit_account">تعديل الحساب</string>
+    <!-- For email address -->
+    <string name="Email">البريد الإلكتروني</string>
+    <!-- Prompt for users to enter a new password -->
+    <string name="enter_a_new_password">أدخل كلمة مرور جديدة</string>
+    <!-- Describing any generic/unclassified errors -->
+    <string name="Error">خطأ</string>
+    <!-- Text often displayed in a HUD, informing users some request has not been successfully sent, e.g., a request to resend a verification email -->
+    <string name="failed_to_send">فشل فى الإرسال</string>
+    <!-- Placeholder text for textField that asks user's first name/given name -->
+    <string name="first_name">الاسم الاول</string>
+    <!-- Reminder to leave preference -->
+    <string name="for_when_to_leave">وقت المغادرة</string>
+    <!-- A footnote that tells users we are asking for their current passwords, and why. -->
+    <string name="for_your_security_please_enter_your_current_password">من أجل أمانك، يرجى إدخال كلمة المرور الحالية الخاصة بك.</string>
+    <!-- Title for a button which allows users to reset their password -->
+    <string name="forgot_password">هل نسيت كلمة المرور؟</string>
+    <!-- Free as in beer -->
+    <string name="Free">مجاني</string>
+    <!-- Name for a segment or vehicle where you get a lift from someone. -->
+    <string name="getting_a_lift">الحصول على دعم</string>
+    <!-- Accessibility annotation for trips which have a reminder set. -->
+    <string name="has_reminder">لديه تذكير</string>
+    <!-- Warning message shown to a user when he/she tries to change password without the primary email verified -->
+    <string name="in_order_to_change_your_password_you_must_first_verify_your_email_please_follow_the_link_that_was_se">لتغيير كلمة المرور الخاصة بك، يجب عليك أولاً التحقق من بريدك الإلكتروني. يرجى اتباع الرابط الذي تم إرساله إليك أو طلب رابط آخر أدناه.</string>
+    <!-- Include contacts. -->
+    <string name="include_contacts">تضمين جهات الاتصال</string>
+    <!-- Instant results proposal -->
+    <string name="instant_results">النتائج الفورية</string>
+    <!-- A footnote that instructs users to check their emails for reset instructions -->
+    <string name="instructions_on_how_to_reset_password_has_been_sent_to_the_above_email_address">تم إرسال تعليمات حول كيفية إعادة تعيين كلمة المرور إلى عنوان البريد الإلكتروني أعلاه.</string>
+    <!-- Name placeholder text -->
+    <string name="john_appleseed">جون أبلسد</string>
+    <!-- Placeholder text for textField that asks user's last name/surname -->
+    <string name="last_name">اسم العائلة</string>
+    <!-- Last updated at %date -->
+    <string name="last_updated">آخر تحديث: %s</string>
+    <!-- Title of button to perform some action at a later time -->
+    <string name="Later">لاحقًا</string>
+    <!-- Indicator for real-time information -->
+    <string name="live_traffic">حركة المرور المباشرة</string>
+    <!-- Title on the button that indicates to the user that booking is in progressing -->
+    <string name="Loading">Loading</string>
+    <!-- Title for unnamed location -->
+    <string name="Location">الموقع</string>
+    <!-- Location iOS authorisation needed text -->
+    <string name="location_services_are_required_to_use_this_feature_please_go_to_the_settings_app_privacy_location_se">خدمات الموقع مطلوبة لاستخدام هذه الميزة. يرجى الانتقال إلى إعدادات التطبيق &gt; الخصوصية &gt; خدمات الموقع، وتأكد من تشغيلها والسماح لهذا التطبيق.</string>
+    <!-- Reminder to leave preference -->
+    <string name="minutes_before_trip">دقائق قبل الرحلة</string>
+    <!-- More results proposal -->
+    <string name="more_results">المزيد من النتائج</string>
+    <!-- Type of vehicle : motorbike -->
+    <string name="Motorbike">دراجة نارية</string>
+    <!-- Title for name of something (or someone) -->
+    <string name="Name">الاسم</string>
+    <!-- Response to question whether user wants to report a problem when taking a screenshot. Also used in context of repetitions (especially recurring events). -->
+    <string name="Never">أبدًا</string>
+    <!-- Next action -->
+    <string name="Next">التالي</string>
+    <!-- Indicator for no carbon emissions. Note the space is non-breaking white space! -->
+    <string name="no_co">لا يوجد ثاني أكسيد الكربون</string>
+    <!-- Indicator for wheelchair not accessible services -->
+    <string name="not_wheelchair_accessible">لا يمكن الوصول إلى الكرسي المتحرك</string>
+    <!-- Button that goes to the Setting's app -->
+    <string name="open_settings">فتح الإعدادات</string>
+    <!-- Open in Safari action -->
+    <string name="open_in_safari">فتح في متصفح سفاري</string>
+    <!-- No comment provided by engineer. -->
+    <string name="Password">كلمة المرور</string>
+    <!-- A footnote that asks users for their email addresses in order to reset password -->
+    <string name="please_enter_your_registered_email_address_we_will_then_send_you_instructions_on_how_to_reset_passwo">يرجى إدخال عنوان بريدك الإلكتروني المسجل. سنرسل إليك بعد ذلك تعليمات حول كيفية إعادة تعيين كلمة المرور</string>
+    <!-- Please select a location prompt -->
+    <string name="please_select_a_location">يرجى تحديد موقع</string>
+    <!-- Error recovery suggestion when GPS fails. -->
+    <string name="please_try_again_or_set_your_location_manually">يرجى المحاولة مرة أخرى أو تعيين موقعك يدويًا.</string>
+    <!-- Please verify the location prompt -->
+    <string name="please_verify_the_location">يرجى التحقق من الموقع</string>
+    <!-- Location picker 'no autocompletion results' text. Needs to match text on keyboard. -->
+    <string name="press_search_for_more">اضغط على \"بحث\" للمزيد…</string>
+    <!-- Message to user if no primary email is set on his/her account -->
+    <string name="primary_email_is_not_set_on_your_account_please_contact_us_for_support">لم يتم تعيين البريد الإلكتروني الأساسي في حسابك. يرجى التواصل معنا للمزيد من الدعم</string>
+    <!-- No comment provided by engineer. -->
+    <string name="read_more">اقرأ المزيد…</string>
+    <!-- Indicator for real-time information -->
+    <string name="Real_time">الوقت الفعلي</string>
+    <!-- This is the placeholder text in a text field to inform users an optioanl referral code can be entered. -->
+    <string name="referral_code_optional">رمز الإحالة (اختياري)</string>
+    <!-- Action title to add/remove reminder -->
+    <string name="Reminder">تذكير</string>
+    <!-- Give users an option to rece -->
+    <string name="resend_verification_email">إعادة ارسال رسالة التحقق</string>
+    <!-- Title for a button which, when tapped, confirms the reset of password. -->
+    <string name="reset_password">إعادة تعيين كلمة المرور</string>
+    <!-- Retry action, e.g., in case something didn't load -->
+    <string name="Retry">إعادة المحاولة</string>
+    <!-- Sports utility vehicle abbreviation -->
+    <string name="SUV">سيارات الدفع الرباعي</string>
+    <!-- Sort by overall score, like a ranking. -->
+    <string name="Score">النتيجة</string>
+    <!-- Empty search bar placeholder -->
+    <string name="Search">بحث</string>
+    <!-- No comment provided by engineer. -->
+    <string name="search_results">نتائج البحث</string>
+    <!-- No comment provided by engineer. -->
+    <string name="search_for_a_city">ابحث عن مدينة</string>
+    <!-- Placeholder text while waiting for server response when searching for a location. -->
+    <string name="searching_for">البحث عن \'%s\'…</string>
+    <!-- A footnote that tells recommends the format of a secure password. -->
+    <string name="secure_passwords_are_at_least_five_characters_long_and_include_numbers_and_symbols">تتكون كلمات المرور الآمنة من خمسة أحرف على الأقل وتتضمن أرقامًا ورموزًا</string>
+    <!-- Text often displayed in a HUD, informing users some request has successfully been sent, e.g., a request to resend a verification email -->
+    <string name="Sent">تم الإرسال</string>
+    <!-- Class of errors generated by our servers -->
+    <string name="server_error">خطأ في الخادم</string>
+    <!-- Error message when our server returns empty data in response to a network request -->
+    <string name="server_response_contains_no_data">استجابة الخادم لا تحتوي على بيانات</string>
+    <!-- Title of page or button to sign in -->
+    <string name="sign_in">تسجيل الدخول</string>
+    <!-- Instruction for signing out user account -->
+    <string name="sign_out">تسجيل الخروج</string>
+    <!-- Title of page or button to sign up -->
+    <string name="sign_up">تسجيل الدخول</string>
+    <!-- Starting %date. (old key: DateFromFormat) -->
+    <string name="starting">بدء %s</string>
+    <!-- Accessibility hint for routing results screen. -->
+    <string name="tap_to_change_start_and_end_locations">انقر لتغيير مواقع البدء والانتهاء</string>
+    <!-- Tap to set location. (old key: SetLocation) -->
+    <string name="tap_to_set_location">انقر لتعيين الموقع</string>
+    <!-- Error message shown to a user when zero-length password field is detected -->
+    <string name="the_password_field_cannot_be_empty">لا يمكن أن يكون حقل كلمة المرور فارغًا.</string>
+    <!-- Error message shown to a user when he/she enters incorrect username or password -->
+    <string name="the_username_or_password_youve_entered_is_incorrect">اسم المستخدم أو كلمة المرور التي أدخلتها غير صحيحة.</string>
+    <!-- Accessibility - user location button - off -->
+    <string name="tracking_off">التعقب - إيقاف</string>
+    <!-- user location button - follow -->
+    <string name="tracking_on">التعقب - تشغيل</string>
+    <!-- user location button - follow with heading -->
+    <string name="tracking_on_with_heading">التعقب - تشغيل مع العنوان</string>
+    <!-- Up to %date. (old key: DateToFormat) -->
+    <string name="up_to">ما يصل إلى %s</string>
+    <!-- Title for a button which, when tapped, proceeds to updating password -->
+    <string name="Update">تحديث</string>
+    <!-- Message that shows app is updating trip after user finalised bookings -->
+    <string name="updating_trip">تحديث الرحلة</string>
+    <!-- Message that informs users that some values are missing from the required fields in a booking form. -->
+    <string name="values_missing_from_required_fields">القيم المفقودة من الحقول المطلوبة.</string>
+    <!-- Title for a button which, when tapped, proceeds to verifying password -->
+    <string name="Verify">تأكيد</string>
+    <!-- Prompt for users to enter their passwords for verification purpose. -->
+    <string name="verify_password">تأكيد كلمة المرور</string>
+    <!-- Indicator for unknow if service or station is wheelchair accessible or not -->
+    <string name="wheelchair_accessibility_unknown">إمكانية الوصول إلى الكرسي المتحرك غير معروفة</string>
+    <!-- Indicator for wheelchair accessible services -->
+    <string name="wheelchair_accessible">إمكانية الوصول إلى الكرسي المتحرك</string>
+    <!-- Question asked when user is taking a screenshot -->
+    <string name="would_you_like_to_report_a_problem">هل ترغب في الإبلاغ عن مشكلة؟</string>
+    <!-- Message that informs users that T&C must be agreed before booking can be made. -->
+    <string name="you_need_to_agree_to_the_booking_terms_and_conditions">يجب عليك الموافقة على شروط وأحكام الحجز.</string>
+    <!-- Message that informs users that T&C for insurance must be agreed before booking can be made. -->
+    <string name="you_need_to_agree_to_the_insurance_terms_and_conditions">يجب عليك الموافقة على شروط وأحكام التأمين.</string>
+    <!-- Calendar authorisation needed text -->
+    <string name="you_previously_denied_this_app_access_to_your_calendar_please_go_to_the_settings_app_privacy_calenda">لقد رفضت سابقًا وصول هذا التطبيق إلى التقويم الخاص بك. يرجى الانتقال إلى إعدادت التطبيق &gt; الخصوصية &gt; التقويم والسماح بهذا التطبيق لاستخدام هذه الميزة.</string>
+    <!-- Contacts authorisation needed text -->
+    <string name="you_previously_denied_this_app_access_to_your_contacts_please_go_to_the_settings_app_privacy_contact">لقد رفضت سابقًا وصول هذا التطبيق إلى جهات الاتصال الخاص بك. يرجى الانتقال إلى إعدادت التطبيق &gt; الخصوصية &gt; جهات الاتصال والسماح بهذا التطبيق لاستخدام هذه الميزة.</string>
+    <!-- Indicator that an event is all-day -->
+    <string name="all_day">طوال اليوم</string>
+    <!-- Estimated time of arrival; parameter is time, e.g., 'arrives 15:30' -->
+    <string name="arrives">يصل %s</string>
+    <!-- Estimated time of departure; parameter is time, e.g., 'departs 15:30' -->
+    <string name="departs">يغادر %s</string>
+    <!-- Short indicator of end-time -->
+    <string name="ends_at">ينتهي عند %s</string>
+    <!-- Email placeholder text -->
+    <string name="example_example_com">example@example.com</string>
+    <!-- Short indicator of start-time -->
+    <string name="starts_at_271e17f72d2fb4242aab350cef3c834f">يبدأ من %s</string>
+    <!-- to %date. (old key: DateToFormat) -->
+    <string name="to_a75c27d48d6669823af10a44fb5d0318">إلى %s</string>
+    <!-- Error message when our server fails to return userToken in response to a sign in or sign up request -->
+    <string name="usertoken_is_missing_in_the_server_response">رمز المستخدم مفقود في استجابة الخادم</string>
+    <!-- Format for a service's real-time indicator for a service which is early, e.g., '1 min early. This means #1 is replaced with something like '1 min'. -->
+    <string name="_1_early">%s مبكرًا</string>
+    <!-- Format for a service's real-time indicator for a service which is early, e.g., '1 min early (1:10 pm service). This means #1 is replaced with something like '1 min' and #2 is replaced with the original time, e.g., '1:10 pm'). -->
+    <string name="_1_early_2_service">%1$s مبكرًا (خدمة %2$s</string>
+    <!-- Format for a service's real-time indicator for a service which is late, e.g., '1 min late. This means #1 is replaced with something like '1 min' -->
+    <string name="_1_late">%s متأخر</string>
+    <!-- Format for a service's real-time indicator for a service which is late, e.g., '1 min late (1:10 pm service). This means #1 is replaced with something like '1 min' and #2 is replaced with the original time, e.g., '1:10 pm'). -->
+    <string name="_1_late_2_service">%1$s متأخر (خدمة %2$s</string>
+    <!-- Number of alerts, in this case, there are multiple (plural -->
+    <string name="alerts">%s تنبيهات</string>
+    <!-- Indicator for how cycle-friendly a cycling route is. Placeholder will get replaced with '75%'. -->
+    <string name="cycle_friendly">%s دورة مناسبة</string>
+    <!-- Text for an 'x more' indication if there's more content. '%@' will be replaced with a number -->
+    <string name="more">%s المزيد</string>
+    <!-- Number of stops before you get off a vehicle, if there are 2 stops or more, e.g., '10 stops'. (old key: Stops) -->
+    <string name="stops">%s محطات التوقف</string>
+    <!-- Duration without traffic -->
+    <string name="w_o_traffic">%s حركة المرور</string>
+    <!-- Indicator for how wheelchair-friendly a wheeelchair route is. Placeholder will get replaced with '75%'. -->
+    <string name="wheelchair_friendly">%s كرسي متحرك مناسب</string>
+    <!-- Number of alerts, in this case, there is just one -->
+    <string name="_1_alert">تنبيه واحد</string>
+    <!-- Number of stops before you get off a stop, if there's just 1 stop. -->
+    <string name="_1_stop">محطة توقف واحدة</string>
+    <!-- No comment provided by engineer. -->
+    <string name="Alerts">التنبيهات</string>
+    <!-- Instruction to follow street of the provided name -->
+    <string name="along">على طول %s</string>
+    <!-- Instruction to follow unnamed street -->
+    <string name="along_unnamed_street">على طول شارع غير معروف</string>
+    <!-- apple maps directions action -->
+    <string name="apple_maps">خرائط آبل</string>
+    <!-- Prefix for selected 'arrive by' time
+         Single line instruction to arrive -->
+    <string name="Arrive">الوصول</string>
+    <!-- The place of arrival. -->
+    <string name="arrive">وصول %s</string>
+    <!-- The first '%@' will be replaced with the place of arrival, the second with the arrival time. (old key: ArrivalLocationTime) -->
+    <string name="arrive_at">وصول %1$s في %2$s</string>
+    <!-- '%@' will be replaced with the arrival time. (old key: ArrivalTime) -->
+    <string name="arrive_at_652e5ee0318abf976ede9f148f69cdf9">الوصول إلى %s</string>
+    <!-- The first '%@' will be replaced with the place of arrival, the second with the time. (old key: ArrivalLocationTime) -->
+    <string name="arrive_at_at">الوصول إلى %1$s في %2$s</string>
+    <!-- Title for when you'll arrive when on a trip. Countdown to arrival will be displayed below. -->
+    <string name="arrive_in">الوصول في</string>
+    <!-- Used when the trip does not end at the requested location, but nearby. The '%@' will be replaced with requested destination location. -->
+    <string name="arrive_near">الوصول بالقرب من %s</string>
+    <!-- Action title to make a booking -->
+    <string name="Book">حجز</string>
+    <!-- Action title to make a booking using service/app named '@%' -->
+    <string name="book_with">احجز مع %s</string>
+    <!-- No comment provided by engineer. -->
+    <string name="Call">الاتصال</string>
+    <!-- Action title to make a call to service/company named '@%' -->
+    <string name="call">اتصل بـ %s</string>
+    <!-- Title of page to change the from/to of the routing results -->
+    <string name="change_route">تغيير المسار</string>
+    <!-- Trip badge: Cheapest -->
+    <string name="Cheapest">أرخص</string>
+    <!-- Accessibility title for button that points up to collapse a section -->
+    <string name="Collapse">تقليص</string>
+    <!-- Error title when server could not find a given transit stop. -->
+    <string name="could_not_find_transit_stop">لا يمكن العثور على محطة النقل.</string>
+    <!-- Title for button to customise the home card -->
+    <string name="customise_home">تخصيص الصفحة الرئيسية</string>
+    <!-- Used when the trip does not start at the requested location, but nearby. The '%@' will be replaced with requested departure location. -->
+    <string name="depart_near">مغادرة بالقرب من %s</string>
+    <!-- Destination of the bus -->
+    <string name="Direction">الاتجاه</string>
+    <!-- Status indicator that a mode is not enabled -->
+    <string name="Disabled">معطَّل</string>
+    <!-- To disconnect/unlink from a service provider, e.g., Uber -->
+    <string name="Disconnect">قطع الاتصال</string>
+    <!-- Indicating a path requires you to dismount and push your bicycle -->
+    <string name="Dismount">نزول</string>
+    <!-- Text for vehicle of type: E-Bike -->
+    <string name="E_Bike">دراجة إلكترونية</string>
+    <!-- Trip badge: Easiest -->
+    <string name="Easiest">أسهل</string>
+    <!-- As in 'this bus/train is empty' -->
+    <string name="Empty">فارغ</string>
+    <!-- Status indicator that a mode is enabled -->
+    <string name="Enabled">مفعل</string>
+    <!-- Placeholder name for destination (then replaced with address or name) -->
+    <string name="end_location">موقع النهاية</string>
+    <!-- Accessibility title for button that points down to expand a section -->
+    <string name="Expand">توسيع</string>
+    <!-- Action title to extend an existing booking -->
+    <string name="Extend">تمديد</string>
+    <!-- Trip badge: Fastest -->
+    <string name="Fastest">أسرع</string>
+    <!-- As in 'this bus/train has few seats available' -->
+    <string name="few_seats_available">مقاعد قليلة متوفرة</string>
+    <!-- Indicating a path is wheelchair/cycyling friendly -->
+    <string name="Friendly">مناسب</string>
+    <!-- Departure location. (old key: PrimaryLocationStart) -->
+    <string name="from">من %s</string>
+    <!-- As in 'this bus/train is full and likely can't accept further passengers' -->
+    <string name="Full">كامل</string>
+    <!-- Action title get/download app of name '@%' -->
+    <string name="get">احصل على %s</string>
+    <!-- Title for button to get/download an external app. -->
+    <string name="get_app">احصل على التطبيق</string>
+    <!-- Instruction to get a service towards provided destination -->
+    <string name="get_on_service_to">احصل على خدمة %s</string>
+    <!-- Title of button to start a trip -->
+    <string name="Go">الذهاب</string>
+    <!-- google maps directions action -->
+    <string name="google_maps">خرائط جوجل</string>
+    <!-- Trip badge: Greenest -->
+    <string name="Greenest">صديقة البيئة</string>
+    <!-- Trip badge: Healthiest -->
+    <string name="Healthiest">الأكثر صحية</string>
+    <!-- First '%@' will be replaced with destination location, second with arrival at that location. (old key: MessageArrivalTime) -->
+    <string name="ill_arrive_at_at">سأصل إلى %1$s عند %2$s</string>
+    <!-- Indication of an activity. (old key: ActivityIndication) -->
+    <string name="ill_take_a_at_from">سآخذ %1$s في %2$s من %3$s.</string>
+    <!-- Indication of an activity. -->
+    <string name="ill_take_a_from">سآخذ %1$s من %2$s.</string>
+    <!-- Title for something to happen in a certain timeframe, e.g., 'In 5 mins' -->
+    <string name="in_fab57ccb62d46d2d1a3ad2d9cc507e6f">في %s</string>
+    <!-- %@ is replaced with app name -->
+    <string name="in_the_meantime_lets_keep_exploring_and_enjoy_your_trips">في غضون ذلك، دعنا نستمر في استكشاف %s والاستمتاع برحلاتك</string>
+    <!-- Text for vehicle of type: Kick Scooter -->
+    <string name="kick_scooter">دراجة تزلج</string>
+    <!-- Prefix for selected 'leave after' time
+         Single line instruction to leave -->
+    <string name="Leave">مغادرة</string>
+    <!-- The place of departure. (old key: LeaveLocation) -->
+    <string name="leave">مغادرة %s</string>
+    <!-- The place of departure with time. (old key: LeaveLocationTime) -->
+    <string name="leave_at_d2cacce293ef70b2cec8d3b34687a318">مغادرة %1$s في %2$s</string>
+    <!-- Time departure. (old key: LeaveTime) -->
+    <string name="leave_at_1bf586b58cc25b278f76f124a250d533">مغادرة في %s</string>
+    <!-- Title for when to depart. Countdown to departure will be displayed below. -->
+    <string name="leave_in">مغادرة في</string>
+    <!-- Leave ASAP/now option -->
+    <string name="leave_now">مغادرة الآن</string>
+    <!-- Title of button to show fewer results -->
+    <string name="Less">أقل</string>
+    <!-- As in 'this bus/train is so full, there's only limited standing room' -->
+    <string name="limited_standing_room_only">مساحة وقوف محدودة فقط</string>
+    <!-- Indicating when something is loading -->
+    <string name="loading">جارٍ التحميل…</string>
+    <!-- As in 'this bus/train has many seats available' -->
+    <string name="many_seats_available">العديد من المقاعد المتاحة</string>
+    <!-- No comment provided by engineer. -->
+    <string name="map_by">خريطة بواسطة %s</string>
+    <!-- Title of button to show additional results -->
+    <string name="More">المزيد</string>
+    <!-- Title of button to get more details about an alert -->
+    <string name="more_info">المزيد من المعلومات</string>
+    <!-- Text for vehicle of type: Moto Scooter -->
+    <string name="moto_scooter">دراجة تزلج موتو</string>
+    <!-- Indicating no trips have been planned within the next 24 hrs -->
+    <string name="no_planned_trips">لا توجد رحلات مخططة</string>
+    <!-- Indicator to show when a service does not have real-time data (even though we usually get it for services like this.) -->
+    <string name="no_real_time_available">لا يتوفر في الوقت الفعلي</string>
+    <!-- As in 'this bus/train is full and definitely not accepting further passengers' -->
+    <string name="not_accepting_passengers">عدم قبول المسافرين</string>
+    <!-- Indicator to show when a service is on time according to real-time data. -->
+    <string name="on_time">في الوقت المناسب</string>
+    <!-- Indicating no return trip is required. -->
+    <string name="one_way_only">ذهاب فقط</string>
+    <!-- Action title open app of name '@%' -->
+    <string name="open">فتح %s</string>
+    <!-- Title for button that opens an external app. -->
+    <string name="open_app">فتح التطبيق</string>
+    <!-- Action button title for opening something in another app. Tapping this button will show a list of app names. -->
+    <string name="open_in">فتح في…</string>
+    <!-- Title for opening hours -->
+    <string name="opening_hours">ساعات العمل</string>
+    <!-- No comment provided by engineer. -->
+    <string name="plan_a_trip_and_it_will_show_up_here">خطط لرحلة وسوف تظهر هنا.</string>
+    <!-- Confirmation text to open app of name '@%' -->
+    <string name="please_confirm_switching_to_to_get_directions">يرجى تأكيد التحويل إلى %s للحصول على الاتجاهات.</string>
+    <!-- No comment provided by engineer. -->
+    <string name="public_holiday">عطلة رسمية</string>
+    <!-- Trip badge: Recommended -->
+    <string name="Recommended">موصى به</string>
+    <!-- No comment provided by engineer. -->
+    <string name="routing_between_these_locations_is_not_yet_supported">المسار بين هذه المواقع غير مدعوم حتى الآن.</string>
+    <!-- Label to indicate that the time for a service is the scheduled time, i.e., displayed as on the timetable with no real-time data available. -->
+    <string name="Scheduled">مجدولة</string>
+    <!-- No comment provided by engineer. -->
+    <string name="search_for_destination">البحث عن الوجهة</string>
+    <!-- Error recovery suggestion for when when server could not find a given transit stop. -->
+    <string name="search_for_this_stop_again_or_try_again_later">البحث عن محطة التوقف مرة أخرى أو حاول مرة أخرى لاحقًا...</string>
+    <!-- Send SMS action button -->
+    <string name="send_sms">إرسال رسالة نصية قصيرة</string>
+    <!-- Title for displaying the details of a public transport service (i.e., a specific departure of a specific route) -->
+    <string name="Service">الخدمة</string>
+    <!-- Alert if service has been cancelled, meaning that the user can't take it and find an alternative -->
+    <string name="service_has_been_cancelled">تم إلغاء الخدمة.</string>
+    <!-- Button label to set departure time -->
+    <string name="set_time">ضبط الوقت</string>
+    <!-- Title for button that, when tapped, shows something, e.g., a list of alert -->
+    <string name="Show">عرض</string>
+    <!-- Show website action button -->
+    <string name="show_website">عرض الموقع</string>
+    <!-- As in 'this bus/train is fairly full and has standing room only' -->
+    <string name="standing_room_only">مساحة وقوف فقط</string>
+    <!-- Placeholder name for origin (then replaced with address or name) -->
+    <string name="start_location">موقع البدء</string>
+    <!-- Destination location. For trip titles, e.g., 'To work'. (old key: PrimaryLocationEnd) -->
+    <string name="to_914fa9976084bcf919fe0386d23b725f">إلى %s</string>
+    <!-- Title for a trip -->
+    <string name="Trip">الرحلة</string>
+    <!-- Title for trip of provided index -->
+    <string name="trip">رحلة %s</string>
+    <!-- Indicating a path is wheelchair/cycyling unfriendly -->
+    <string name="Unfriendly">غير مناسب</string>
+    <!-- Indicating the wheelchair/cycling friendliness of a path is unknown -->
+    <string name="Unknown">غير معروف</string>
+    <!-- Title for button that unlocks a shared vehicle. -->
+    <string name="Unlock">فتح</string>
+    <!-- Vehicle updated. (old key: VehicleUpdated) -->
+    <string name="updated_ago">تم التحديث قبل %s</string>
+    <!-- Vehicle 'x' updated. (old key: VehicleCalledUpdated) -->
+    <string name="vehicle_updated_ago">تم تحديث السيارة %1$s منذ %2$s</string>
+    <!-- Title for showing the number of available vehicles (e.g., scooters, cars or bikes) -->
+    <string name="Vehicles">السيارات</string>
+    <!-- No comment provided by engineer. -->
+    <string name="we_are_busy_getting_your_upcoming_trip_please_wait">نحن مشغولون بمعالجة رحلتك القادمة. يرجى الإنتظار...</string>
+    <!-- No comment provided by engineer. -->
+    <string name="well_keep_you_updated_with_the_latest_transit_alerts_here">سنبقيك على اطلاع بأحدث تنبيهات النقل هنا</string>
+    <!-- Time of the bus departure. (old key: DepartureTime) -->
+    <string name="at_b130db07f4aca55570816cd8a48bf4ae">في %s</string>
+    <!-- Text indiction for how long a segment might take, where '%@' will be replaced with a duration. E.g., the instruction 'Take bus' might have this next to it as 'for 10 minutes'. -->
+    <string name="_for">لـ %s</string>
+</resources>
