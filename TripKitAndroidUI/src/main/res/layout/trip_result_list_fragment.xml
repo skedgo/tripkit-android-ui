@@ -41,13 +41,12 @@
             android:accessibilityTraversalBefore="@id/toLocation"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="@string/desc_close"
-            android:focusable="true"
-            android:focusableInTouchMode="true"
             android:src="@drawable/close"
             android:visibility="@{viewModel.showCloseButton}"
             app:layout_constraintBottom_toBottomOf="@+id/toLocation"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/toLocation" />
+            app:layout_constraintTop_toTopOf="@+id/toLocation"
+            tools:ignore="UnusedAttribute" />
 
         <TextView
             android:id="@+id/fromLabel"
