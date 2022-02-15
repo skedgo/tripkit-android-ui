@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ Loco xml export: Android string resources
+ Project: android_localizable_strings.xliff conversion
+ Release: Working copy
+ Locale: ar, Arabic
+ Exported at: Mon, 14 Feb 2022 22:25:22 +0800
+-->
+<resources tools:ignore="MissingTranslation,ExtraTranslation" xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2" xmlns:tools="http://schemas.android.com/tools">
+    <string name="access_to_your_calendar">مطلوب الوصول إلى التقويم</string>
+    <string name="access_to_your_contacts">مطلوب الوصول إلى جهات الاتصال</string>
+    <string name="add">إضافة</string>
+    <string name="add_location">إضافة موقع</string>
+    <string name="add_to_contacts">إضافة إلى جهات الاتصال</string>
+    <string name="add_to_home_screen">أضف إلى الشاشة الرئيسية</string>
+    <string name="agenda_tip">عرض جدول الأعمال اليومي الخاص بك ومفضلاتك في علامات التبويب أدناه</string>
+    <string name="all_alerts">جميع التنبيهات</string>
+    <string name="all_cals_invisible">جميع الجداول الزمنية الخاصة بك غير مرئية، يرجى تشغيلها في تطبيق التقويم الأصلي أو إعدادات الحساب</string>
+    <string name="an_unexpected_network_error">حدث خطأ غير متوقع في الشبكة. يرجى إعادة المحاولة.</string>
+    <string name="approximately_s_away">بعد %s تقريبًا</string>
+    <string name="arrivaltimeindication">\" (يصل \"</string>
+    <string name="booking">الحجز</string>
+    <string name="cannot_add_reminder_for_past_trip">لا يمكن إضافة تذكير للرحلة الماضية</string>
+    <string name="cant_call_error">خطأ في إجراء المكالمة</string>
+    <string name="coordinates_s">الإحداثيات: %s</string>
+    <string name="couldnt_find_curr_loc">تعذر العثور على موقعك الحالي</string>
+    <string name="destination">الوجهة</string>
+    <string name="delete_vehicle">حذف هذه السيارة</string>
+    <string name="edit">تعديل</string>
+    <string name="edit_favourite">تعديل المفضلة</string>
+    <string name="failed_2_resolve_location">فشل تحديد الموقع</string>
+    <string name="failed_2_resolve_link">فشل تحديد الرابط</string>
+    <string name="get_off">النزول</string>
+    <string name="first">أولًا:</string>
+    <string name="filter_timetable_hint">تصفية حسب اسم الخدمة أو الرقم أو محطة التوقف</string>
+    <string name="go_here">الذهاب إلى هذا المكان</string>
+    <string name="get_on">الركوب</string>
+    <string name="information_on_concession_pricing_is_subject_to_availability_dot">المعلومات المتعلقة بسعر التصريح مرهونة بالتوافر.</string>
+    <string name="its_time_to_leave">لقد حان وقت المغادرة!</string>
+    <string name="leave_now_to_make_on_time">غادر الآن لتصل إلى الوقت المحدد</string>
+    <string name="go_to_now">الذهاب الآن</string>
+    <string name="include_cal_explanation">سيتم استخدام الأحداث من تلك التقويمات في التخطيط ليومك</string>
+    <string name="minute">دقيقة واحدة</string>
+    <string name="new_vehicle">سيارة جديدة</string>
+    <string name="location_not_found">لم يتم العثور على الموقع</string>
+    <string name="location_selected">تم تحديد الموقع</string>
+    <string name="no_ratings_received">لم يتم الحصول على أي تقييم</string>
+    <string name="no_services_available">لا توجد خدمات متوفرة</string>
+    <string name="no_favourites_saved">لا توجد مواقع مفضلة محفوظة</string>
+    <string name="nicely_informed_error">حدث خطأ وتم إبلاغنا به. يرجى المحاولة مرة أخرى</string>
+    <string name="origin">الأصل</string>
+    <string name="outside_region_error">عذرًا، هذا الموقع خارج نطاق TripGo!</string>
+    <string name="remove_from_favourites">إزالة من قائمة المفضلة</string>
+    <string name="refresh">تحديث</string>
+    <string name="set_end_time">تحديد وقت الانتهاء</string>
+    <string name="select_calendars">تحديد التقويمات</string>
+    <string name="save">حفـظ</string>
+    <string name="routine_explanation">Routines are post of your daily movement, but they aren\'t events that you want in your calendar (e.g. work). They are important for the Agenda to get you to the right location at the right time</string>
+    <string name="settings_category_reminders">الإشعارات</string>
+    <string name="settings_category_about">عن</string>
+    <string name="set_time">ضبط الوقت</string>
+    <string name="set_start_time">تحديد وقت البدء</string>
+    <string name="set_location">تحديد موقع</string>
+    <string name="settings_summary_reminder_start_off_trip">عرض تنبيه المغادرة في بداية الرحلة</string>
+    <string name="settings_summary_reminder_start_pub_trans">عرض تنبيه قبل أي وسيلة نقل عام في رحلتك</string>
+    <string name="settings_summary_reminder_service_alerts">عرض تنبيهات الخدمة التي تؤثر على رحلاتك القادمة</string>
+    <string name="settings_summary_reminder_end_pub_trans">عرض تنبيه قرب نهاية أي وسيلة نقل عام في رحلتك</string>
+    <string name="settings_title_reminder_start_off_trip">بداية الرحلة</string>
+    <string name="settings_title_reminder_start_pub_trans">بداية المواصلات العامة</string>
+    <string name="settings_title_server">الخادم</string>
+    <string name="settings_title_version">الإصدار</string>
+    <string name="settings_title_cycling_speed">سرعة الدورة</string>
+    <string name="settings_title_reminder_end_pub_trans">نهاية المواصلات العامة</string>
+    <string name="sorted_by_price">ترتيب حسب السعر</string>
+    <string name="sorted_by_preferred">ترتيب حسب المفضلة</string>
+    <string name="timetable_download_error">خطأ في تنزيل الخدمات</string>
+    <string name="share_this_result">مشاركة هذه النتيجة</string>
+    <string name="share_timetable">مشاركة معلومات الجدول الزمني</string>
+    <string name="sort_by">الترتيب حسب</string>
+    <string name="sorted_by_arrival">الترتيب حسب الوصول</string>
+    <string name="sorted_by_departure">الترتيب حسب المغادرة</string>
+    <string name="sorted_by_duration">الترتيب حسب المدة</string>
+    <string name="view_on_yelp">عرض على Yelp</string>
+    <string name="upcoming_services">الخدمات القادمة</string>
+    <string name="unknown_location">موقع غير معروف</string>
+    <string name="waiting_for_gps_fix">في انتظار إشارة الموقع، وإذا فشلت، يمكنك محاولة إيقاف تشغيل نظام تحديد المواقع الخاص بك..</string>
+    <string name="view_timetable_for_stop">عرض الجدول الزمني للخدمات القادمة</string>
+    <string name="tomorrow">غدًا</string>
+    <string name="today">اليوم</string>
+    <string name="timetable_no_data">لم يتم العثور على خدمات لمحطة التوقف المحددة</string>
+    <string name="trip_to">رحلة إلى %s</string>
+    <string name="yesterday">أمس</string>
+    <string name="your_trip_is_about_to_start">رحلتك على وشك البدء</string>
+    <string name="you_are_here">أنت هنا</string>
+    <!-- Settings option to enable/disable news (notifications). -->
+    <string name="news">الأخبار</string>
+    <!-- In transport mode detail, setting to enable that transport mode to be included in
+                  trips. -->
+    <string name="include_in_trips">تضمين في الرحلات</string>
+    <!-- Used for parking slots. Format string for multiple slots. Example: 10 slots
+                  available -->
+    <string name="multiple_slots_available">%s أماكن متوفرة</string>
+    <!-- Used for parking slots. Format string for one slots. Example: 1 slot available -->
+    <string name="one_slot_available">%s مكان متوفر</string>
+    <!-- Used for parking slots, when there's no slot available. -->
+    <string name="no_slots_available">لا يوجد مكان متوفر</string>
+    <!-- Parking slots, updated time. Example: Updated at 10am -->
+    <string name="updated_at">تم التحديث في: %s</string>
+    <!-- Occupancy almost full -->
+    <string name="almost_full">أوشك على الاكتمال</string>
+    <!-- "Understood" button label -->
+    <string name="got_it">حسنًا</string>
+    <!-- Add favourite direct access message -->
+    <string name="see_your_favourites_on_your_home_screen">شاهد مفضلاتك على الشاشة الرئيسية!</string>
+    <!-- Add favourite direct access description -->
+    <string name="you_can_quickly_access_your_favourite_locations_from_your_launcher">يمكنك الوصول بسرعة إلى المواقع المفضلة لديك من المشغل الخاص بك.</string>
+    <!-- %2$s direct access action label. For example, "Add favourite direct access action label" -->
+    <string name="just_tap_pattern_then_pattern">انقر على %1$s ثم \'%2$s\'</string>
+    <!-- Error title when access to location hasn't been granted, but location is required. -->
+    <string name="access_to_location_services_required">الوصول إلى خدمات الموقع مطلوب.</string>
+    <!-- Walkthrough -->
+    <string name="tap_public_transport_stops_for_access_to_timetable">اضغط على محطات المواصلات العامة للوصول إلى الجدول الزمني</string>
+</resources>
