@@ -943,6 +943,7 @@ Note, your iCloud data will not be deleted by this, but you can delete this in t
 	<string name="search_from_or_to_your_current_location_dot_locate_yourself_on_the_map_dot_get_updated_etas_dot">Search from or to your current location. Locate yourself on the map. Get updated ETAs.</string>
 	<!--(No Comment)-->
 	<string name="search_from_or_to_your_current_location_dot_locate_yourself_on_the_map_dot">Search from or to your current location. Locate yourself on the map.</string>
+	<string name="set_time">Set time</string>
 	<!--Privacy - Microphone Usage Description-->
 	<string name="access_to_the_microphone_so_you_can_attach_voice_notes_dot">Access to the microphone so you can attach voice notes.</string>
 	<!--Privacy - Photo Library Usage Description-->

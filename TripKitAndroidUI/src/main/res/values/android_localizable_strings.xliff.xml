@@ -19,7 +19,6 @@
 	<string name="couldn_apostt_find_your_current_location">Couldn\'t find your current location</string>
 	<string name="destination">destination</string>
 	<string name="delete_this_vehicle">Delete this vehicle</string>
-	<string name="edit">Edit</string>
 	<string name="edit_favorite">Edit favorite</string>
 	<string name="failed_to_resolve_location">Failed to resolve location</string>
 	<string name="failed_to_resolve_link">Failed to resolve link</string>
@@ -51,7 +50,6 @@
 	<string name="routines_are_post_of_your_daily_movement_coma_but_they_aren_apostt_events_that_you_want_in_your_calendar__start_parente_dotg_dot_work_end_parent_dot_they_are_important_for_the_agenda_to_get_you_to_the_right_location_at_the_right_time">Routines are post of your daily movement, but they aren\'t events that you want in your calendar (e.g. work). They are important for the Agenda to get you to the right location at the right time</string>
 	<string name="notifications">Notifications</string>
 	<string name="about">About</string>
-	<string name="set_time">Set time</string>
 	<string name="set_start_time">Set start time</string>
 	<string name="set_location">Set Location</string>
 	<string name="show_an_alert_to_leave_at_the_start_of_a_trip">Show an alert to leave at the start of a trip</string>
@@ -116,4 +114,4 @@
 	<!--Walkthrough-->
 	<string name="tap_public_transport_stops_for_access_to_timetable">Tap public transport stops for access to timetable</string>
 </resources>
-<!-- This is an auto generated file (Tue Jan 21 08:21:03 CET 2020) -->
+	<!-- This is an auto generated file (Tue Jan 21 08:21:03 CET 2020) -->
