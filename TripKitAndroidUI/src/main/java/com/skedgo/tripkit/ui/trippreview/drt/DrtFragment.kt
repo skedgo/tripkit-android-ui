@@ -293,19 +293,6 @@ class DrtFragment : BaseFragment<FragmentDrtBinding>(), DrtHandler {
                 it.bookingConfirmationAction?.type() == BookingConfirmationAction.TYPE_REQUEST_ANOTHER -> {
                     tripPreviewPagerListener?.onRestartHomePage()
                 }
-                /*
-                it.label == "Cancel Ride" || it.bookingConfirmationAction?.type() == BookingConfirmationAction.TYPE_CANCEL -> {
-                    requireContext().showConfirmationPopUpDialog(
-                            title = "Cancel Ride",
-                            message = "Are you sure you want to cancel this ride?",
-                            positiveLabel = "Yes",
-                            positiveCallback = {
-                                viewModel.processAction(it.bookingConfirmationAction)
-                            },
-                            negativeLabel = "No"
-                    )
-                }
-                */
                 else -> {
                     viewModel.processAction(it.bookingConfirmationAction)
                 }
