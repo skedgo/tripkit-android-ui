@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources tools:ignore="MissingTranslation" xmlns:tools="http://schemas.android.com/tools">
+<resources tools:ignore="MissingTranslation,ExtraTranslation" xmlns:tools="http://schemas.android.com/tools">
 	<!--Bundle display name-->
 	<string name="flavor_agenda">%1$s Agenda</string>
 	<!--Bundle display name-->
@@ -615,7 +615,7 @@
 	<!--Format string for going from one location to another. For example: Used to name favourite trips.-->
 	<string name="_pattern_to__pattern">%1$s to %2$s</string>
 	<!--Format string for displaying the fee users must pay per month to access the discounted rates available in a mobility plan. Example: Subscription (feeType): $50 (value) per month-->
-	<string name="_pattern_2points__pattern_per_month">%1$s: %2$s per month</string>
+	<string name="per_month">%1$s: %2$s per month</string>
 	<!--This is to indicate a mobility plan is active and available for users to subscribe to-->
 	<string name="active">Active</string>
 	<!--This is a term that describes everything that happens while user is on a mobility plan. There are two types of activities defined: trips and transactions.-->
@@ -1380,5 +1380,86 @@ Note, your iCloud data will not be deleted by this, but you can delete this in t
 	<string name="we_apostll_keep_you_updated_with_the_latest_transit_alerts_here">We\'ll keep you updated with the latest transit alerts here</string>
 	<!--Text indiction for how long a segment might take, where '%@' will be replaced with a duration. E.g., the instruction 'Take bus' might have this next to it as 'for 10 minutes'.-->
 	<string name="for__pattern">for %1$s</string>
+
+	<!-- Additional Strings -->
+	<string name="current_billing_cycle">Current Billing Cycle</string>
+	<string name="str_effective_from">Effective From</string>
+	<string name="effective_from_pattern">Effective from %1$s</string>
+	<string name="a_subscription_provides_access">A subscription provides access to a world of privileges.</string>
+	<string name="str_expires_on">Expires on</string>
+	<string name="expiry_date_pattern">Expires on %1$s</string>
+	<string name="str_last_payment">Last Payment</string>
+	<string name="next_billing_cycle">Next Billing Cycle</string>
+	<string name="pick_a_subscription">Pick a subscription</string>
+	<string name="str_plan_status">Pass Status</string>
+	<string name="renew_plan">Renew pass for next month</string>
+	<string name="format_discount">Take %s</string>
+	<string name="this_is_your_current_plan">This is your current pass</string>
+	<string name="unlimited">Unlimited</string>
+	<string name="you_are_continuing_with_this_pass">You are continuing with this pass</string>
+	<string name="lbl_empty_pass">You haven\'t selected any pass yet!</string>
+	<string name="lbl_empty_pass_message">You can get started by using the Available Passes option below. Your passes and payment history will be visible here</string>
+	<string name="retrieving_subscription">Retrieving subscription</string>
+	<string name="retrieving_subscription_message">Please wait while your subscription is accessed. This may take a few
+        moments.
+    </string>
+
+	<!-- MaaS.xliff -->
+	<string name="approved">Approved</string>
+	<string name="available">Available</string>
+	<string name="available_rewards">Available rewards</string>
+	<string name="str_my_bookings">My Bookings</string>
+	<string name="active_trip">Active Trip</string>
+	<string name="my_rewards">My rewards</string>
+	<string name="str_by_transaction_dates">By transaction dates</string>
+	<string name="str_by_transaction_status">By transaction status</string>
+	<string name="str_cashback">Cashback</string>
+	<string name="date_requested">Date requested</string>
+	<string name="reward_label_message_format">Earn %s points per dollar spent</string>
+	<string name="str_earnings">Earnings</string>
+	<string name="estimated_time_to_approval">Estimated time to approval</string>
+	<string name="str_featured_rewards">Featured rewards</string>
+	<string name="full_price">Full Price</string>
+	<string name="str_getting_active_trip">Getting your active trip...</string>
+	<string name="lbl_insufficient_points">Insufficient points</string>
+	<string name="lifetime_rewards">Lifetime rewards</string>
+	<string name="str_no_featured_rewards">No featured rewards</string>
+	<string name="str_no_recent_earnings">No recent earnings</string>
+	<string name="str_no_recent_redemptions">No recent redemptions</string>
+	<string name="str_payment_history">Payment history</string>
+	<string name="str_payment_status">Payment Status</string>
+	<string name="pending">Pending</string>
+	<string name="str_getting_active_trip_msg">Please wait while we look for your active trip.</string>
+	<string name="points_deducted">Points deducted</string>
+	<string name="points_required">Points required</string>
+	<string name="redeem">Redeem</string>
+	<string name="str_redemptions">Redemptions</string>
+	<string name="reference_number">Reference number</string>
+	<string name="str_refunded">Refunded</string>
+	<string name="rejected">Rejected</string>
+	<string name="str_reverted">Reverted</string>
+	<string name="rewards">Rewards</string>
+	<string name="select_an_option">Select an option</string>
+	<string name="redemption_warning">Selecting proceed means you have read and accepted the terms and conditions for redeeming this reward.</string>
+	<string name="str_featured_rewards_message">Tap "View all" to see a full list of available rewards.</string>
+	<string name="tap_here_to_start_rewarding_yourself">Tap here to start rewarding yourself</string>
+	<string name="my_trip_logs">Trip Logs</string>
+	<string name="str_filter_date_msg">Up to 180 days of history is available. Please contact us for longer periods.</string>
+	<string name="str_view_all">View all</string>
+	<string name="str_no_active_trip_msg">You currently have no active trip.</string>
+	<string name="you_have_no_redemptions">You haven\'t made any redemption yet</string>
+	<string name="str_no_active_trip">Your active trip will be shown here.</string>
+	<string name="str_recent_earnings_message">Your most recent earnings will appear here.</string>
+	<string name="str_recent_redemption_message">Your most recent redemptions will appear here.</string>
+
+	<string name="proceed">Proceed</string>
+	<string name="rewards_balance">Rewards balance</string>
+	<string name="rewards_summary">Rewards summary</string>
+
+	<string name="pts">pts</string>
+	<plurals name="estimated_time_to_approval_days">
+		<item quantity="one">%d day</item>
+		<item quantity="other">%d days</item>
+	</plurals>
 </resources>
 <!-- This is an auto generated file (Mon Jan 20 14:50:01 CET 2020) -->
