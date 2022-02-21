@@ -14,7 +14,7 @@
     <!-- Privacy - Contacts Usage Description -->
     <string name="search_your_contacts_for_locations_dot">البحث في جهات الاتصال الخاصة بك عن المواقع.</string>
     <!-- Privacy - Location Always and When In Use Usage Description -->
-    <string name="NSLocationAlwaysAndWhenInUseUsageDescription" >الحصول على ETAs المحدثة. يمكنك تتبع استخدام وسائل النقل والاطلاع على سجل التنقلات الخاص بك.</string>
+    <string name="NSLocationAlwaysAndWhenInUseUsageDescription">الحصول على ETAs المحدثة. يمكنك تتبع استخدام وسائل النقل والاطلاع على سجل التنقلات الخاص بك.</string>
     <!-- Privacy - Location Always Usage Description -->
     <string name="search_from_or_to_your_current_location_dot_locate_yourself_on_the_map_dot_get_updated_etas_dot">البحث من أو إلى موقعك الحالي. حدد موقعك على الخريطة. احصل على تحديث ETA.</string>
     <!-- Privacy - Location Usage Description -->
@@ -503,8 +503,6 @@
     <string name="skip">تخطي</string>
     <!-- Speed preference 'slow' -->
     <string name="slow">بطيء</string>
-    <!-- No comment provided by engineer. -->
-    <string name="some_of_the_trips_failed_to_download_dot_please_try_again">فشل تنزيل بعض الرحلات. يرجى المحاولة مرة أخرى</string>
     <!-- No comment provided by engineer. -->
     <string name="sorry_dot_flavor_doesn_apostt_work_here_yet_exclam">عذراً. تطبيق TripGo لا يعمل هنا حتى الآن!</string>
     <!-- Spread the word preference -->
@@ -1323,4 +1321,349 @@
     <string name="at_b130db07f4aca55570816cd8a48bf4ae">في %s</string>
     <!-- Text indiction for how long a segment might take, where '%@' will be replaced with a duration. E.g., the instruction 'Take bus' might have this next to it as 'for 10 minutes'. -->
     <string name="for__pattern">لـ %s</string>
+
+
+    <!-- MaaS.xliff & Subscription.xliff -->
+    <!-- Format string for displaying the fee users must pay per month to access the discounted rates available in a mobility plan. Example: Subscription (feeType): $50 (value) per month -->
+    <string name="per_month">%1$s: %2$s شهريًا</string>
+    <!-- Message to entice users to sign up to a subscription plan. -->
+    <string name="a_subscription_provides_access">يتيح الاشتراك الوصول إلى مجموعة من الامتيازات.</string>
+    <!-- This is to indicate a mobility plan is active and available for users to subscribe to -->
+    <string name="active">نشط</string>
+    <!-- Title for the button that allows users to change his/her mobility plan for the next month -->
+    <string name="change_to_this_plan">تغيير إلى هذه الخطة</string>
+    <!-- This is to indicate a mobility plan is the user's current plan -->
+    <string name="current">الحالي</string>
+    <!-- No comment provided by engineer. -->
+    <string name="current_billing_cycle">دورة الفوترة الحالية</string>
+    <!-- Heading that informs users when a mobility plan takes effect. -->
+    <string name="str_effective_from">ساري المفعول من</string>
+    <!-- This is followed by some date, e.g., Effective from 11 Nov, 9:28am. This is commonly used to indicate when the next mobility subscription plan comes into effect. -->
+    <string name="effective_from_pattern">ساري المفعول من %s</string>
+    <!-- Title for an error alert. This error typically occurs the app cannot fetch the list of available plans. -->
+    <string name="error_retrieving_plans">خطأ في استرداد الخطط</string>
+    <!-- Title for an error alert. This error typically occurs when the app cannot update/retrieve details of a mobility plan -->
+    <string name="error_updating_bundle_details">خطأ في تحديث تفاصيل الحزمة</string>
+    <!-- This is often used as a title for a label that shows when a plan will expire -->
+    <string name="str_expires_on">تنتهي الصلاحية في</string>
+    <!-- This is followed by some date, e.g., Expire on 11 Nov, 9:28am. This is commonly used to indicate when the a  mobility subscription plan ends. -->
+    <string name="expiry_date_pattern">تنتهي الصلاحية في %s</string>
+    <!-- This usually means that there's no discount for some service. For instance, a user may need to pay full fare for a transport mode not included in his/her mobility bundle. -->
+    <string name="full_fare">أجرة كاملة</string>
+    <!-- This is a status text that tells users the app is working to get their mobility subscriptions -->
+    <string name="retrieving_subscription">الحصول على الاشتراك</string>
+    <!-- This is to indicate a mobility plan is inactive and unavailable for users to subscribe to -->
+    <string name="inactive">غير نشط</string>
+    <!-- Title for a cell that shows the last payment date for a plan. -->
+    <string name="str_last_payment">الدفعة الأخيرة</string>
+    <!-- This is a type of mobility bundle. It usually means users have to pay the amount specified to access the benefits included in the bundle. The difference between this and the Subscription type is the fees paid can be used on travel. -->
+    <string name="minimum_purchase">الحد الأدنى للشراء</string>
+    <!-- Title for an error alert. This error happens when a subscription is missing when we expect them not to. -->
+    <string name="missing_subscription_plan">خطة الاشتراك مفقودة</string>
+    <!-- Title for screen that shows a list of mobility plans currently offered. -->
+    <string name="mobility_plans">خطط التنقل</string>
+    <!-- Title for screen that shows the user's current and upcoming (if applicable) plans -->
+    <string name="my_mobility_plan">خطتي للتنقل</string>
+    <!-- This is typically used as the title for a table view section or view controller that shows infomration about a user's mobility subscriptions -->
+    <string name="my_subscription">اشتراكاتي</string>
+    <!-- No comment provided by engineer. -->
+    <string name="next_billing_cycle">دورة الفوترة التالية</string>
+    <!-- This is a message displayed in an error alert. This error happens when the user tries to remove a non-upcoming plan. -->
+    <string name="only_upcoming_plan_can_be_removed">يمكن إزالة الخطة القادمة فقط.</string>
+    <!-- Title for a cell that leads users to view a list of plans that are neither current nor upcoming. -->
+    <string name="other_plans">خطط أخرى</string>
+    <!-- Instruction for users who aren't currently subscribed to any plans. -->
+    <string name="pick_a_subscription">اختيار الاشتراك</string>
+    <!-- Title for an error alert. This error happens during a bundle/plan look up by an identifier. -->
+    <string name="plan_not_found">لم يتم العثور على الخطة</string>
+    <!-- Title for a cell that shows the status of a plan, possible value: active and inactive. -->
+    <string name="str_plan_status">حالة الخطة</string>
+    <!-- This is a message displayed in an error alert. The error happens during a bundle/plan look up by an identifier. -->
+    <string name="plan_with_the_specified_id_cannot_be_found">لا يمكن العثور على خطة بالمعرِّف المحدد</string>
+    <!-- Alert message when users attempt to change their plans in the next month. -->
+    <string name="please_confirm_the_request_to_change_plan_dot_the_new_plan_will_become_effective_on_the_first_day_of_next_month_dot">يرجى تأكيد طلب تغيير الخطة. ستدخل الخطة الجديدة حيز التنفيذ في اليوم الأول من الشهر المقبل.</string>
+    <!-- Alert message when users attempt to renew their current plans for the next month. -->
+    <string name="please_confirm_the_request_to_renew_plan_the_renewal_will_become_effective_on_the_first_day_of_next_">يرجى تأكيد طلب تجديد الخطة. سيصبح التجديد ساري المفعول في اليوم الأول من الشهر المقبل.</string>
+    <!-- Alert message when users attempt to unscribe from their upcoming plans -->
+    <string name="please_confirm_unsubscribing_from_this_plan_dot_you_will_remain_on_the_current_plan_in_the_next_month">يرجى تأكيد إلغاء الاشتراك من هذه الخطة. ستبقى على الخطة الحالية في الشهر المقبل</string>
+    <!-- This provides a little bit more context when getting users' subscription. It is often used as in conjection with GettingSubscription. -->
+    <string name="retrieving_subscription_message">يرجى الانتظار أثناء البحث عن اشتراكك. قد يستغرق هذا بعض الوقت</string>
+    <!-- No comment provided by engineer. -->
+    <string name="purchasing_an_inactive_bundle_is_not_allowed">Purchasing an inactive bundle is not allowed.</string>
+    <!-- No comment provided by engineer. -->
+    <string name="purchasing_another_bundle_more_than_prior_to_the_expiry_of_the_current_one_is_not_allowed">Purchasing another bundle more than %s prior to the expiry of the current one is not allowed.</string>
+    <!-- Title for a button that when tapped, takes users to renew a mobility subscription plan -->
+    <string name="renew_plan">تجديد</string>
+    <!-- This is followed by some date, e.g., Started on 11 Nov, 9:28am. This is commonly used to indicate when the a mobility subscription plan started. -->
+    <string name="started_on">بدأ في %s</string>
+    <!-- Label to indicate a mobility bundle has been subscribed -->
+    <string name="subscribed">مشترك</string>
+    <!-- This is a type of mobility bundle. It usually means users have to pay some fees per month to access the benefits included in the bundle. The difference between this and the minimum purchase type is the fees paid cannot be used on any travel. -->
+    <string name="subscription">الاشتراك</string>
+    <!-- Example: Take $10 off -->
+    <string name="format_discount">إنزال %s</string>
+    <!-- Format string for displaying the discount user received for a trip. The discount is specified in the dollar term or a percentage. Examples: 'Take $5 off every trip' or 'Take 5% off every trip' -->
+    <string name="take_off_every_trip">أخذ %s من كل رحلة</string>
+    <!-- Default explanation for fees charged on a mobility plan, usually as a footer -->
+    <string name="these_are_the_fees_payable_to_access_discounted_rates_on_included_transport_modes">هذه هي الرسوم واجبة السداد للوصول إلى أسعار مخفضة على وسائل النقل المدرجة</string>
+    <!-- This is a message displayed in an error alert -->
+    <string name="this_feature_requires_a_tripgo_account_if_you_already_have_one_please_sign_in_otherwise_please_conta">تتطلب هذه الميزة حساب TripGo. إذا كان لديك حساب بالفعل، يرجى تسجيل الدخول، أو يرجى الاتصال بالمسؤول.</string>
+    <!-- Format string for describing whether a plan is user's current or upcoming plan. Example: This is your \"upcoming\" plan -->
+    <string name="this_is_your_current_plan">هذه هي خطتك %s</string>
+    <!-- Placeholder text for the view that shows what TSP is included in a mobility bundle. This should be replaced by something like \"Uber\" at run time. -->
+    <string name="transport_mode">وضع النقل</string>
+    <!-- This is the error that happens when the app encounters problems getting users' subscriptions. -->
+    <string name="unable_to_get_subscriptions">تعذر الحصول على الاشتراكات.</string>
+    <!-- This usually means there's no cap on using some service, for instance, a mobility bundle may include unlimited usage on public transport -->
+    <string name="unlimited">غير محدود</string>
+    <!-- This is to indicate a mobility plan is the user's future, usually next month, plan -->
+    <string name="upcoming">القادم</string>
+    <!-- Title for a button that when tapped, takes users to view details for a mobility plan -->
+    <string name="view_plan">عرض الخطة</string>
+    <!-- Text informing users they are continuing with their current plans for the next month. -->
+    <string name="you_are_continuing_with_this_pass">أنت مستمر مع هذه الخطة</string>
+    <!-- No comment provided by engineer. -->
+    <string name="lbl_empty_pass_message">يمكنك البدء باستخدام خيار الخطط المتوفرة أدناه. ستكون خططك وسجل الدفع الخاص بك ظاهرًا هنا.</string>
+    <!-- This is a message displayed in an error alert. This error happens when the user tries to subscribe to a plan he/she is already subscribed to. -->
+    <string name="you_have_already_subscribed_to_this_plan">لقد اشتركت بالفعل في هذه الخطة.</string>
+    <!-- Text for a label that tells users they haven't purchased any plans yet. -->
+    <string name="lbl_empty_pass">لم تقم باختيار أي خطط حتى الآن.</string>
+    <!-- Explanation for transport modes included in a mobility plan, usually displayed as a footer -->
+    <string name="you_will_receive_discounted_rates_if_the_above_transport_modes_are_used_dot_for_transport_modes_not_shown_coma_full_fares_apply">سوف تحصل على أسعار مخفضة إذا تم استخدام وسائل النقل المذكورة أعلاه. بالنسبة لوسائل النقل غير المعروضة، يتم تطبيق الأسعار الكاملة</string>
+    <!-- Placeholder text for the view that indicates what discount is offered for a TSP included in a mobility bndle. This should be replaced by something like \"Take 5% off each trip\" at run time. -->
+    <string name="applicable_discount">الخصم المطبق</string>
+
+
+    <!-- MaaS.xliff -->
+    <!-- Number of points, but only estimate. Example: 10 pts (est) -->
+    <string name="x_est">%1$d %2$s (تقديريًا)</string>
+    <!-- Title for a section in the home card that indicates the trip a user is currently or will soon be undertaking -->
+    <string name="active_trip">رحلة نشطة</string>
+    <!-- This is a term that describes everything that happens while user is on a mobility plan. There are two types of activities defined: trips and transactions. -->
+    <string name="activities">الأنشطة</string>
+    <!-- Action button to log a trip -->
+    <string name="add_to_my_log">إضافة إلى السجل الخاص بي</string>
+    <!-- This is one of the statuses of a transaction. -->
+    <string name="approved">معتمد</string>
+    <!-- Title for notification when arriving at destination. The placeholder will be replaced with the name of the location. -->
+    <string name="arriving_at__pattern">الوصول عند %s</string>
+    <!-- Title for notification when arriving at destination. -->
+    <string name="arriving_at_destination">الوصول إلى الوجهة</string>
+    <!-- This usually means some resources is available. For instance, this could be displayed alongside a reward to indicate the user has enough points to make a redemption. -->
+    <string name="available">متوفرة</string>
+    <!-- This refers to the points that can be used to make redemptions. -->
+    <string name="available_rewards">النقاط المتوفرة</string>
+    <!-- Text for a label that would otherwise display the current wallet balance for a user. This usually happens when we cannot fetch a user from our server -->
+    <string name="balance_is_unknown">الرصيد غير معروف</string>
+    <!-- This is the title for a table view section that displays a user's reward points balances -->
+    <string name="rewards_balance">قسم الأرصدة</string>
+    <!-- This can be used as a title for a screen that lists all booking activities. -->
+    <string name="str_my_bookings">الحجوزات</string>
+    <!-- Title for section that allows users to filter transactions by date ranges, e.g., Last 14 days -->
+    <string name="str_by_transaction_dates">حسب تواريخ المعاملة</string>
+    <!-- Title for section that allows users to filter transactions by their statuses, e.g., Pending, approved...etc -->
+    <string name="str_by_transaction_status">حسب حالة المعاملة</string>
+    <!-- This is a type of reward whereby users can reduce the cost of a product by rewards points. -->
+    <string name="str_cashback">استرداد الأموال</string>
+    <!-- Button to remove a photo (e.g., a receipt) -->
+    <string name="clear_photo">مسح الصورة</string>
+    <!-- This is usually used to tell users a feature is comingshortly. For instance, an app may launch without any rewards. The app can use this in the empty reward list view. -->
+    <string name="coming_soon">قريبًا</string>
+    <!-- Action button title to confirm that you arrived at the destination (for logging purposes) -->
+    <string name="confirm_arrival">تأكيد الوصول</string>
+    <!-- Title for an alert that asks users for confirmation. -->
+    <string name="confirmation_is_required">التأكيد مطلوب</string>
+    <!-- This indicate the date on which some request is made. -->
+    <string name="date_requested">تاريخ الطلب</string>
+    <!-- Title for a cell that shows the description for a mobility plan -->
+    <string name="description">الوصف</string>
+    <!-- Format string for displaying the reward points user received for a trip. Examples: 'Earn 1.5 reward points per dollar spent' -->
+    <string name="reward_label_message_format">احصل على %1$s %2$s مقابل كل دولار تنفقه</string>
+    <!-- String for displaying a single reward point a user received for a trip. -->
+    <string name="earn_1_point_per_dollar_spent">احصل على نقطة واحدة مقابل كل دولار تنفقه</string>
+    <!-- This is the title for a table view section that displays a list of earnings made by the user -->
+    <string name="str_earnings">الأرباح</string>
+    <!-- Title of screen to edit a log entry -->
+    <string name="edit_log">تعديل السجل</string>
+    <!-- Title for an error alert. This error happens when our server returns successfully but the response contains no data. -->
+    <string name="empty_server_response">استجابة الخادم فارغة</string>
+    <!-- Title for an error alert. This error typically occurs the app cannot fetch the activity history for a user. -->
+    <string name="error_retrieving_history">خطأ في استرداد المحفوظات</string>
+    <!-- Informing users that the app has encountered an error while retrieving their active trips. -->
+    <string name="error_while_getting_your_active_trip">خطأ أثناء الحصول على رحلتك النشطة.</string>
+    <!-- This indicate the time taken for operator to approve a redemption. -->
+    <string name="estimated_time_to_approval">الوقت التقديري للموافقة</string>
+    <!-- This is the title for a table view section that displays a list of rewards available to the user -->
+    <string name="str_featured_rewards">المكافآت المميزة</string>
+    <!-- This is one type of payment option referring to no cashback applied -->
+    <string name="full_price">السعر الكامل</string>
+    <!-- No comment provided by engineer. -->
+    <string name="str_getting_active_trip">الحصول على رحلتك النشطة…</string>
+    <!-- This is a status report indicating a network request is ongoing to get the user's recent redemptions -->
+    <string name="getting_your_recent_redemptions">الحصول على عمليات الاسترداد الأخيرة الخاصة بك ...</string>
+    <!-- This is a status report indicating a network request is ongoing to get the user's rewards balances -->
+    <string name="getting_your_rewards_balances">الحصول على أرصدة المكافآت الخاصة بك...</string>
+    <!-- This can be used as a header for a section that provides help information to users -->
+    <string name="help">مساعدة</string>
+    <!-- Action button title to hide the trips of a logged entry -->
+    <string name="hide_trips">إخفاء الرحلات</string>
+    <!-- Instruction text to show when user is trying to make a booking, but he/she needs to create an account first. -->
+    <string name="in_order_to_make_bookings_you_either_need_to_log_into_your_device_with_an_apple_id_or_you_need_to_cr">من أجل إجراء الحجز، تحتاج إما إلى تسجيل الدخول إلى جهازك باستخدام معرِّف Apple أو تحتاج إلى إنشاء حساب على TripGo.</string>
+    <!-- This usually appears alongside a reward indicating the user does not have enough points to make a redemption -->
+    <string name="lbl_insufficient_points">نقاط غير كافية</string>
+    <!-- Title for an error alert. This error is typicall the result of a user performed something that is not expected. For instance, when the user tries to subscribe to a plan that he/she is already subscribed to. -->
+    <string name="invalid_action">إجراء غير صالح</string>
+    <!-- This is an error title, meaning the app was trying to open an invalid URL. -->
+    <string name="invalid_link">رابط غير صالح</string>
+    <!-- This refers to the points that the user accummulates since the beginning. -->
+    <string name="lifetime_rewards">النقاط الدائمة</string>
+    <!-- This is usually used as the title for a table view section or view controller that shows information about a user's rewards. -->
+    <string name="my_rewards">مكافآتي</string>
+    <!-- This is to inform users that no descriptive text has been provided for something. Example, we may miss a description for a money transaction occurred. -->
+    <string name="no_description_provided">لم يتم تقديم وصف</string>
+    <!-- This is typicall a short title to indicate there are currently no featured rewards -->
+    <string name="str_no_featured_rewards">لا توجد مكافآت مميزة.</string>
+    <!-- This is typically used as a short title to indicate the user has not accrued any rewards points recently. -->
+    <string name="str_no_recent_earnings">لا توجد مكاسب حديثة</string>
+    <!-- This is typically used as a short title to indicate the user has not made any redemptions recently. -->
+    <string name="str_no_recent_redemptions">لا يوجد عمليات استرداد حديثة</string>
+    <!-- No comment provided by engineer. -->
+    <string name="no_redemption_has_been_made">لم يتم الاسترداد.</string>
+    <!-- Title for an error alert. This error happens when payment to a subscription plan has failed. -->
+    <string name="payment_failure">فشل الدفع</string>
+    <!-- Title for screen that shows a user's payment history for a period. -->
+    <string name="str_payment_history">سجل الدفع</string>
+    <!-- Title for a cell that shows the status of a payment to a plan, possible values include succeeded, pending, canceled. -->
+    <string name="str_payment_status">حالة الدفع</string>
+    <!-- This can be used as a title for a screen that lists all payment activities. -->
+    <string name="payments">المدفوعات</string>
+    <!-- Indicating the results of some operation was still being computed. -->
+    <string name="pending">قيد الانتظار</string>
+    <!-- Button to access photo library -->
+    <string name="photo_library">مكتبة الصور</string>
+    <!-- No comment provided by engineer. -->
+    <string name="str_getting_active_trip_msg">يرجى الانتظار أثناء تحديث رحلتك النشطة.</string>
+    <!-- No comment provided by engineer. -->
+    <string name="please_wait_while_we_look_up_your_recent_redemptions">يرجى الانتظار أثناء البحث عن عمليات الاسترداد الأخيرة ...</string>
+    <!-- No comment provided by engineer. -->
+    <string name="please_wait_while_we_look_up_your_rewards_balances">يرجى الانتظار أثناء البحث عن أرصدة المكافآت الخاصة بك ...</string>
+    <!-- This indicate the points taken off a user's balance if a redemption is approved. -->
+    <string name="points_deducted">النقاط المخصومة</string>
+    <!-- This indicate the points required to redeem a reward. -->
+    <string name="points_required">النقاط المطلوبة</string>
+    <!-- This indicate the points added back to a user's balance, typically following a refund of a cashback transaction. -->
+    <string name="points_reverted">النقاط التي تم إرجاعها</string>
+    <!-- Receipt(s) of a trip -->
+    <string name="receipt">الإيصال</string>
+    <!-- Indicator that receipt for a trip hasn't yet been added by user -->
+    <string name="receipt_missing">الإيصال مفقود</string>
+    <!-- Indicator that the user has attached a receipt for a trip -->
+    <string name="receipt_provided">الإيصال المقدم</string>
+    <!-- Format string for displaying the date on which a trip or a transaction was recorded. -->
+    <string name="recorded_on__pattern">تم التسجيل في %s</string>
+    <!-- This is the title for a button that allows users to redeem rewards -->
+    <string name="redeem">استرداد</string>
+    <!-- This is an error description, meaing the app cannot complete a redemption request. -->
+    <string name="redemption_cannot_be_completed">لا يمكن استكمال عملية الاسترداد.</string>
+    <!-- This is the title for a table view section that displays a list of redemptions made by the user -->
+    <string name="str_redemptions">عمليات الاسترداد</string>
+    <!-- This is the reference given to a user when a transaction, e.g., redemption, is received by SkedGo. -->
+    <string name="reference_number">الرقم المرجعي</string>
+    <!-- This is to indicate the subscription fee for a plan has been refunded. -->
+    <string name="str_refunded">المبلغ المسترد</string>
+    <!-- This is one of the statuses of a transaction. -->
+    <string name="rejected">مرفوض</string>
+    <!-- Action button to remove log of a trip -->
+    <string name="remove_from_my_log">إزالة من سجلي</string>
+    <!-- This is one of the statuses of a transaction, typically used when a refund requires a top up in rewards points -->
+    <string name="str_reverted">تم الإرجاع</string>
+    <!-- Title of toggle to get a 'review log' reminder when arriving at destination of a logged trip. -->
+    <string name="review_on_arrival">استعراض عند الوصول</string>
+    <!-- This is the title for a table view section that displays a list of rewards available to the user -->
+    <string name="rewards_summary">قسم قائمة المكافآت</string>
+    <!-- This is usually used as the title for a table view section or view controller that shows all available rewards. -->
+    <string name="rewards">المكافآت</string>
+    <!-- Button to access saved photos -->
+    <string name="saved_photos">الصور المحفوظة</string>
+    <!-- This is a prompt that asks users to select an option from available ones. For instance, this is used in the context of payment, it means users are asked to select a payment option. -->
+    <string name="select_an_option">حدد خيار</string>
+    <!-- No comment provided by engineer. -->
+    <string name="redemption_warning">اختيار المتابعة يعني أنك قرأت وقبلت الأحكام والشروط لاسترداد هذه المكافأة.</string>
+    <!-- Message for an error alert. This error happens when SkedGo backend fails to pass through any payment options for a checkout session. -->
+    <string name="server_returns_empty_payment_options">يقوم الخادم بإرجاع خيارات الدفع الفارغة</string>
+    <!-- Action button title to show the trip of a logged entry -->
+    <string name="show_trip">عرض الرحلة</string>
+    <!-- Action button title to show the trips of a logged entry -->
+    <string name="show_trips">عرض الرحلات</string>
+    <!-- No comment provided by engineer. -->
+    <string name="some_of_the_trips_failed_to_download_dot_please_try_again">فشل تنزيل بعض الرحلات. يرجى المحاولة مرة أخرى</string>
+    <!-- Indicating some operation was completed successfully. -->
+    <string name="succeeded">تم بنجاح</string>
+    <!-- Button to take a photo -->
+    <string name="take_photo">التقاط صورة</string>
+    <!-- No comment provided by engineer. -->
+    <string name="str_featured_rewards_message">انقر على \"عرض الكل\" لرؤية قائمة كاملة بالمكافآت المتوفرة.</string>
+    <!-- No comment provided by engineer. -->
+    <string name="tap_here_to_start_rewarding_yourself">انقر هنا لبدء مكافأة نفسك.</string>
+    <!-- self explanatory -->
+    <string name="tap_here_to_view_your_booking_history">Tap here to view your booking history.</string>
+    <!-- Format string for informing users that records of certain activity types aren't found. Example: There are no (trips) recorded for the current month. -->
+    <string name="there_are_no_recorded_for_the_current_month">لا يوجد %s مسجلة للشهر الحالي</string>
+    <!-- Text informing users we cannot locate any records of activity on his/her plan for a month. -->
+    <string name="there_are_no_activity_records_for_this_month">لا توجد سجلات نشاط لهذا الشهر</string>
+    <!-- This is a message displayed in an error alert -->
+    <string name="this_feature_requires_a_flavor_account_dot_if_you_already_have_one_coma_please_sign_in_coma_otherwise_coma_please_contact_your_administrator_dot">تتطلب هذه الميزة حساب TripGo. إذا كان لديك حساب بالفعل، يرجى تسجيل الدخول، أو يرجى الاتصال بالمسؤول.</string>
+    <!-- No comment provided by engineer. -->
+    <string name="this_month">هذا الشهر</string>
+    <!-- This is a term that describes all money transactions that have occurred while user is on a mobility plan. \"Transactions\" is a type of \"activity\", which is localized separately -->
+    <string name="transactions">المعاملات</string>
+    <!-- Title for the tab bar item whose root view is the list of trip logs grouped by month. -->
+    <string name="my_trip_logs">سجلات الرحلة</string>
+    <!-- This is an error description, meaning the app cannot obtain a valid response when querying user's rewards balances -->
+    <string name="unable_to_obtain_your_balances">تعذر الحصول على الأرصدة الخاصة بك.</string>
+    <!-- This is an error description, letting users know which URL the app wasn't able to open. -->
+    <string name="unable_to_open_link">تعذر فتح الرابط: %s</string>
+    <!-- This is to inform users that we are unable to obtain a descriptive text for the destination for his/her trip -->
+    <string name="unknown_destination">وجهة غير معروفة</string>
+    <!-- This is to inform users that we are unable to obtain a descriptive text for the origin for his/her trip -->
+    <string name="unknown_origin">نقطة أصل غير معروفة</string>
+    <!-- No comment provided by engineer. -->
+    <string name="str_filter_date_msg">ما يصل إلى %s من المحفوظات متوفر. يرجى الاتصال بنا لفترات أطول.</string>
+    <!-- This is an action where users take to see some information in full, e.g., full list of reward redemptions. -->
+    <string name="str_view_all">إظهار الكل</string>
+    <!-- This is the voucher code issued to a user if a redemption is approved. -->
+    <string name="voucher_code">رمز القسيمة</string>
+    <!-- This is to let users know the rewards are being worked on. -->
+    <string name="we_are_working_on_exciting_offers_check_back_soon">نحن نعمل على عروض مثيرة. يرجى الرجوع إلينا مرة أخرى قريبًا</string>
+    <!-- Error description when we are unable to locate a booking's confirmation details -->
+    <string name="we_found_a_trip_but_were_unable_to_locate_its_booking_confirmation_please_contact_us_for_support">لقد عثرنا على رحلة ولكن لم نتمكن من تحديد موقع تأكيد الحجز الخاص بها. يرجى التواصل معنا للمزيد من الدعم.</string>
+    <!-- Body for notification when arriving at destination. -->
+    <string name="would_you_like_to_confirm_the_trip_coma_the_cost_or_add_a_receipt_question">هل ترغب في تأكيد الرحلة أم التكلفة أم إضافة إيصال؟</string>
+    <!-- Example: You are viewing records for the past 30 days -->
+    <string name="you_are_viewing_records_for_the_past_x_days">أنت تعرض السجلات في الأيام %d الماضية.</string>
+    <!-- Example: You are viewing records for the past 30 days. Use the search icon to select other duration. -->
+    <string name="you_are_viewing_records_for_the_past_x_days_use_the_search_icon_to_select_other_duration">أنت تعرض سجلات %d أيام الماضية. استخدم أيقونة البحث لتحديد مدة أخرى.</string>
+    <!-- The placeholder will be replaced with a localised version of '1 Oct 2018 at 7:45am' -->
+    <string name="you_arrived_here_on__pattern_dot">لقد وصلت هنا في %s.</string>
+    <!-- No comment provided by engineer. -->
+    <string name="str_no_active_trip_msg">ليس لديك حاليًا رحلة نشطة.</string>
+    <!-- No comment provided by engineer. -->
+    <string name="you_have_no_redemptions">لم تقم بأي عمليات استرداد.</string>
+    <!-- No comment provided by engineer. -->
+    <string name="str_no_active_trip">سيتم عرض رحلتك النشطة هنا.</string>
+    <!-- Example: Your most recent 3 earnings in the past 30 days will appear here -->
+    <string name="str_recent_earnings_message">ستظهر هنا آخر %1$d أرباح حققتها في %2$d</string>
+    <!-- Example: Your most recent 3 redemptions in the past 30 days will appear here -->
+    <string name="str_recent_redemption_message">ستظهر هنا أحدث %1$d عمليات الاسترداد في الأيام %2$d الماضية.</string>
+    <!-- Unit for singular day -->
+    <!-- Unit for plural days -->
+    <!-- Unit for plural point -->
+    <string name="points">النقاط</string>
+    <!-- This is an abbreviation for the word points, e.g., 10 pts means 10 rewards points. -->
+    <string name="pts">نقاط</string>
+
+    <plurals name="estimated_time_to_approval_days" tools:ignore="MissingQuantity">
+        <item quantity="one">%d يوم</item>
+        <item quantity="other">%d أيام</item>
+    </plurals>
 </resources>
