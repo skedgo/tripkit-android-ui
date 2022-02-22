@@ -25,6 +25,7 @@ import com.skedgo.tripkit.ui.TripKitUI
 import com.skedgo.tripkit.ui.databinding.DialogDateTimePickerBinding
 import com.skedgo.tripkit.ui.trip.details.viewmodel.ITimePickerViewModel
 import com.skedgo.tripkit.ui.trip.options.InterCityTimePickerViewModel
+import kotlinx.android.synthetic.main.dialog_date_time_picker.view.*
 import kotlinx.android.synthetic.main.dialog_time_date_picker.view.*
 import kotlinx.android.synthetic.main.trip_segment.*
 import kotlinx.android.synthetic.main.v4_view_wheel_time.view.*
@@ -129,7 +130,7 @@ class TripKitDateTimePickerDialogFragment : DialogFragment(), TimePicker.OnTimeC
      * @suppress
      */
     fun onClickLeaveAfter(view: View) {
-        timePickerViewModel!!.isLeaveAfter.set(true)
+        timePickerViewModel.isLeaveAfter.set(true)
         updateTimePicker()
     }
 
@@ -137,7 +138,7 @@ class TripKitDateTimePickerDialogFragment : DialogFragment(), TimePicker.OnTimeC
      * @suppress
      */
     fun onClickArriveBy(view: View) {
-        timePickerViewModel!!.isLeaveAfter.set(false)
+        timePickerViewModel.isLeaveAfter.set(false)
         updateTimePicker()
     }
 
@@ -279,25 +280,23 @@ class TripKitDateTimePickerDialogFragment : DialogFragment(), TimePicker.OnTimeC
         val adapter = DateSpinnerAdapter(
                 activity,
                 android.R.layout.simple_spinner_item,
-                timePickerViewModel!!.dates().get()
+                timePickerViewModel.dates().get()
         )
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         val dateSpinner = binding!!.dateSpinner
         dateSpinner.adapter = adapter
         dateSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>, view: View, position: Int, id: Long) {
-                timePickerViewModel!!.selectedPosition().set(position)
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                timePickerViewModel.selectedPosition().set(position)
             }
 
             override fun onNothingSelected(parent: AdapterView<*>) {}
         }
-        timePickerViewModel!!.dates().addOnPropertyChangedCallback(object : Observable.OnPropertyChangedCallback() {
+        timePickerViewModel.dates().addOnPropertyChangedCallback(object : Observable.OnPropertyChangedCallback() {
             override fun onPropertyChanged(sender: Observable, propertyId: Int) {
-                adapter.setDates(timePickerViewModel!!.dates().get())
+                adapter.setDates(timePickerViewModel.dates().get())
             }
         })
-
-        // TODO
     }
 
     /**
