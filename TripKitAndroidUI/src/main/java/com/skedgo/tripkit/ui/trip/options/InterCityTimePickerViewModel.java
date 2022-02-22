@@ -74,6 +74,7 @@ public class InterCityTimePickerViewModel implements ITimePickerViewModel {
     private ObservableBoolean showNegativeAction;
     private ObservableField<Date> dateTimePickerMinLimit;
     private ObservableInt timePickerMinuteInterval;
+    private Integer extraSelectionCount = 0;
 
     public InterCityTimePickerViewModel(
             @NonNull Context context,
@@ -265,7 +266,7 @@ public class InterCityTimePickerViewModel implements ITimePickerViewModel {
 
     @Override
     public TimeTag done() {
-        int position = selectedPosition.get() + 1;
+        int position = selectedPosition.get();
         GregorianCalendar dateCalendar = this.isSingleSelection.get() ?
                 singleSelectionCalendars.get(position) :
                 this.isLeaveAfter.get() ? departureCalendars.get(position) :
@@ -370,7 +371,8 @@ public class InterCityTimePickerViewModel implements ITimePickerViewModel {
         for (int i = 0; i < MAX_DATE_COUNT; ++i) {
             temp = selectedCalendars.get(i);
             if (temp.get(Calendar.DATE) == date) {
-                this.selectedPosition.set(i - 1);
+                //this.selectedPosition.set(i - 1);
+                this.selectedPosition.set(i);
                 break;
             }
 
@@ -444,10 +446,10 @@ public class InterCityTimePickerViewModel implements ITimePickerViewModel {
         }
         int date = timeCalendar.get(Calendar.DATE);
         GregorianCalendar tempCalendar;
-        for (int i = startIndex; i <= startIndex + 2 && i < MAX_DATE_COUNT; ++i) {
+        for (int i = startIndex; i <= startIndex + extraSelectionCount && i < MAX_DATE_COUNT; ++i) {
             tempCalendar = selectedCalendars.get(i);
             if (tempCalendar.get(Calendar.DATE) == date) {
-                selectedPosition.set(i - 1);
+                selectedPosition.set(i);
                 break;
             }
 
@@ -457,17 +459,17 @@ public class InterCityTimePickerViewModel implements ITimePickerViewModel {
 
     private List<String> formatDateTime(@NonNull List<GregorianCalendar> dateRange) {
         List<String> formatDates = new ArrayList<>(MAX_DATE_COUNT);
-        int count = 0;
+        extraSelectionCount = 0;
         boolean skip = false;
         while (!skip) {
-            String label = checkDateForStringLabel(dateRange.get(count).getTime());
+            String label = checkDateForStringLabel(dateRange.get(extraSelectionCount).getTime());
             if (label != null) {
                 formatDates.add(label);
             } else {
                 skip = true;
             }
 
-            count++;
+            extraSelectionCount++;
         }
         /*
         formatDates.add(context.getString(R.string.yesterday));
@@ -475,7 +477,7 @@ public class InterCityTimePickerViewModel implements ITimePickerViewModel {
         formatDates.add(context.getString(R.string.tomorrow));
         */
         String dateString;
-        for (int i = count; i < MAX_DATE_COUNT; ++i) {
+        for (int i = extraSelectionCount - 1; i < MAX_DATE_COUNT; ++i) {
             dateString = DateFormat.format(DATE_FORMAT, dateRange.get(i)).toString();
             formatDates.add(dateString);
         }
