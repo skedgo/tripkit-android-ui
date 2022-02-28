@@ -491,7 +491,7 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
 
 
     fun showShareDialog() {
-        viewModel.getShareUrl(stop!!)
+        viewModel.getShareUrl(getString(R.string.share_url), stop!!)
                 .take(1)
                 .subscribe({ url: String? ->
                     val intentPartager = Intent(Intent.ACTION_SEND)

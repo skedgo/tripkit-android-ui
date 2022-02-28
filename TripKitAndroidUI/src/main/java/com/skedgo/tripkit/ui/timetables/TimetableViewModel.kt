@@ -327,7 +327,7 @@ class TimetableViewModel @Inject constructor(
         }
     }
 
-    fun getShareUrl(stop: ScheduledStop) =
-            createShareContent.execute(stop, services.map { it.service })
+    fun getShareUrl(shareUrl: String, stop: ScheduledStop) =
+            createShareContent.execute(shareUrl, stop, services.map { it.service })
 
 }

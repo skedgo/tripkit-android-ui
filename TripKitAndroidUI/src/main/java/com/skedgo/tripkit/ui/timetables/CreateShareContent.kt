@@ -9,7 +9,7 @@ import io.reactivex.Observable
 import javax.inject.Inject
 
 open class CreateShareContent @Inject constructor(private val regionService: RegionService) {
-    open fun execute(stop: ScheduledStop, services: List<TimetableEntry>): Observable<String> =
+    open fun execute(shareUrl: String, stop: ScheduledStop, services: List<TimetableEntry>): Observable<String> =
             regionService.getRegionByLocationAsync(stop)
                     .map { region ->
                         val rows = StringBuilder()
@@ -35,7 +35,7 @@ open class CreateShareContent @Inject constructor(private val regionService: Reg
                             rows.append("* real-time")
                         }
 
-                        rows.append("\nhttp://tripgo.me/stop/${region.name}/${stop.code}")
+                        rows.append("\n$shareUrl${region.name}/${stop.code}")
 
                         rows.toString()
                     }
