@@ -459,32 +459,34 @@ class DrtViewModel @Inject constructor(
                 ).autoClear()
     }
 
-    private fun getBookingUpdate(url: String) {
-        quickBookingService.getBookingUpdate(url)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeBy(
-                        onSuccess = { response ->
-                            response.processRawData(resources, Gson())
-                            val segment = response.tripGroupList.firstOrNull()?.trips
-                                    ?.firstOrNull()?.segments?.firstOrNull { it.booking != null }
+    private fun getBookingUpdate(url: String?) {
+        url?.let {
+            quickBookingService.getBookingUpdate(it)
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribeBy(
+                            onSuccess = { response ->
+                                response.processRawData(resources, Gson())
+                                val segment = response.tripGroupList.firstOrNull()?.trips
+                                        ?.firstOrNull()?.segments?.firstOrNull { it.booking != null }
 
-                            updateSegment(segment)
+                                updateSegment(segment)
 
-                            val confirmation = segment?.booking?.confirmation
-                            confirmation?.let {
-                                _bookingConfirmation.postValue(it)
+                                val confirmation = segment?.booking?.confirmation
+                                confirmation?.let {
+                                    _bookingConfirmation.postValue(it)
 
-                                if (it.status().value() == BookingConfirmationStatusValue.PROCESSING) {
-                                    setBookingUpdatePolling(url)
-                                } else {
-                                    stopPollingUpdate.set(true)
+                                    if (it.status().value() == BookingConfirmationStatusValue.PROCESSING) {
+                                        setBookingUpdatePolling(url)
+                                    } else {
+                                        stopPollingUpdate.set(true)
+                                    }
                                 }
+                            },
+                            onError = {
+                                it.printStackTrace()
                             }
-                        },
-                        onError = {
-                            it.printStackTrace()
-                        }
-                ).autoClear()
+                    ).autoClear()
+        }
     }
 
 
