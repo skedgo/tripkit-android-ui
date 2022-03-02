@@ -2,4 +2,5 @@
 <resources>
     <bool name="trip_kit_use_service_color">false</bool>
     <string name="terms_of_use_file_name">MockToU.pdf</string>
+    <string name="share_url">http://tripgo.me/stop/</string>
 </resources>
