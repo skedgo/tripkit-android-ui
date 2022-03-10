@@ -1,6 +1,9 @@
 package com.skedgo.tripkit.ui.trippreview.drt
 
+import android.annotation.SuppressLint
+import android.content.Context
 import android.content.res.Resources
+import android.util.Log
 import androidx.databinding.ObservableField
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -28,6 +31,7 @@ import io.reactivex.schedulers.Schedulers
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import me.tatarka.bindingcollectionadapter2.BR
 import me.tatarka.bindingcollectionadapter2.ItemBinding
 import me.tatarka.bindingcollectionadapter2.collections.DiffObservableList
@@ -41,8 +45,9 @@ import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 import kotlin.collections.HashMap
 
-
+@SuppressLint("StaticFieldLeak")
 class DrtViewModel @Inject constructor(
+        private val context: Context,
         private val quickBookingService: QuickBookingService,
         private val resources: Resources,
         private val bookingService: BookingV2TrackingService
@@ -382,12 +387,16 @@ class DrtViewModel @Inject constructor(
 
     private fun logAction(url: String) {
         viewModelScope.launch(Dispatchers.IO) {
+            withContext(Dispatchers.Main) {
+                _loading.postValue(true)
+            }
             val result = bookingService.logTrip(url)
             if (result !is NetworkResponse.Success) {
                 result.logError()
             }
             viewModelScope.launch(Dispatchers.Main) {
                 proceedBooking()
+                _loading.postValue(false)
             }
         }
     }
@@ -415,18 +424,20 @@ class DrtViewModel @Inject constructor(
                                         this@DrtViewModel._error.value = Pair(error.title, error.error)
                                     }
                                     _loading.value = false
+
+                                    //getBookingUpdate(quickBooking.tripUpdateURL)
                                 },
-                                onSuccess = {
+                                onSuccess = { response ->
                                     _loading.value = false
-                                    processBookingResponse(it)
+                                    processBookingResponse(response.refreshURLForSourceObject)
                                 }
                         ).autoClear()
             }
         }
     }
 
-    private fun processBookingResponse(response: QuickBookResponse) {
-        getBookingUpdate(response.refreshURLForSourceObject)
+    private fun processBookingResponse(url: String) {
+        getBookingUpdate(url)
     }
 
     private fun setBookingUpdatePolling(url: String) {
@@ -460,7 +471,7 @@ class DrtViewModel @Inject constructor(
     }
 
     private fun getBookingUpdate(url: String?) {
-        url?.let {
+        url?.let { it ->
             quickBookingService.getBookingUpdate(it)
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribeBy(
@@ -472,10 +483,10 @@ class DrtViewModel @Inject constructor(
                                 updateSegment(segment)
 
                                 val confirmation = segment?.booking?.confirmation
-                                confirmation?.let {
-                                    _bookingConfirmation.postValue(it)
+                                confirmation?.let { bookingConfirmation ->
+                                    _bookingConfirmation.postValue(bookingConfirmation)
 
-                                    if (it.status().value() == BookingConfirmationStatusValue.PROCESSING) {
+                                    if (bookingConfirmation.status().value() == BookingConfirmationStatusValue.PROCESSING) {
                                         setBookingUpdatePolling(url)
                                     } else {
                                         stopPollingUpdate.set(true)
@@ -498,6 +509,7 @@ class DrtViewModel @Inject constructor(
         }
     }
 
+
     fun processAction(action: BookingConfirmationAction?) {
         action?.let {
             it.internalURL()?.let {
@@ -507,6 +519,13 @@ class DrtViewModel @Inject constructor(
                         .subscribeBy(
                                 onError = { e ->
                                     e.printStackTrace()
+                                    if (e is HttpException) {
+                                        val error: DRTError = Gson().fromJson(
+                                                e.response()?.errorBody()?.string(),
+                                                DRTError::class.java
+                                        )
+                                        this@DrtViewModel._error.value = Pair(error.title, error.error)
+                                    }
                                     _loading.value = false
                                 },
                                 onSuccess = { response ->
