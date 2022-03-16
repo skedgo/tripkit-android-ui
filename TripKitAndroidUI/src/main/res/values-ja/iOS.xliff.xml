@@ -33,7 +33,7 @@
     <!-- Class = "UILabel"; text = "Quick & easy setup"; ObjectID = "Daa-gL-EXc"; -->
     <string name="quick__ampersand_easy_setup">クイック &amp; 簡単セットアップ</string>
     <!-- Class = "UISearchBar"; placeholder = "Search"; ObjectID = "GjR-iv-Ew6"; -->
-    <string name="search">検索</string>
+<!--    <string name="search">検索</string>-->
     <!-- Class = "UILabel"; text = "TripGo helps you optimise daily trips"; ObjectID = "Tdu-LJ-B02"; -->
     <string name="flavor_helps_you_optimise_daily_trips">TripGo は、日々の移動を最適化するのに役立ちます</string>
     <!-- Class = "UILabel"; text = "Pick a supported city to continue"; ObjectID = "a2d-Mj-Am0"; -->
@@ -115,7 +115,7 @@
     <!-- Number of available car parking spaces. -->
     <string name="available_spots">利用可能なスポット</string>
     <!-- Indicator text preceding a list of available things, e.g., 'Available: 3 bikes, 2 docks' -->
-    <string name="available">利用可能: %s</string>
+    <string name="available_2points__pattern">利用可能: %s</string>
     <!-- Title for showing the battery charge level of a vehicle -->
     <string name="battery">バッテリー残量</string>
     <!-- No comment provided by engineer. -->
@@ -225,7 +225,7 @@
     <!-- Title for section on home card that shows the next trip on your Agenda -->
     <string name="next_up">次の旅行</string>
     <!-- Indicator text preceding a list of next departures, e.g., 'Next: 3min, 5min' -->
-    <string name="next">次： %s</string>
+    <string name="next_2points__pattern">次： %s</string>
     <!-- Placeholder will be replaced with date -->
     <string name="no_data_available_for_please_check_your_primary_device_or_make_this_device_your_primary_one_85f376e4">%sのデータがありません。\n\nプライマリデバイスを確認するか、このデバイスをプライマリデバイスにしてください。</string>
     <!-- Error title when routing produced no results (but no specific error was returned from routing). -->
@@ -383,7 +383,7 @@
     <!-- Title, eg, for event or favourite (old key: TitleFavouriteName) -->
     <string name="title">タイトル</string>
     <!-- Favorite trip to title -->
-    <string name="to">目的地</string>
+<!--    <string name="to">目的地</string>-->
     <!-- Total car parking spaces, i.e., not just those that are available. -->
     <string name="total_spaces">空きスペースの合計</string>
     <!-- Type of something, e.g., an event (calendar event, stay, routine) or a vehicle (car, motorbike, bicycle). (old key: TypeEvent) -->
@@ -915,7 +915,7 @@
     <!-- Filler for a specific frequency-based service indicating its frequency, e.g., 'M10 every 10 minutes' -->
     <string name="_pattern_every__pattern">%2$s ごとに %1$s</string>
     <!-- Text for an 'x more' indication if there's more content. '%@' will be replaced with a number -->
-    <string name="more">さらに%s</string>
+    <string name="_pattern_more">さらに%s</string>
     <!-- Number of stops before you get off a vehicle, if there are 2 stops or more, e.g., '10 stops'. (old key: Stops) -->
     <string name="_pattern_stops">%s 停止</string>
     <!-- Duration without traffic -->
@@ -1195,7 +1195,7 @@
     <!-- This is followed by some date, e.g., Expire on 11 Nov, 9:28am. This is commonly used to indicate when the a  mobility subscription plan ends. -->
     <string name="expiry_date_pattern">有効期限\u0020\u0020%s</string>
     <!-- This usually means some service is free of charge, for instance, public transport may be free inside a mobility bundle -->
-    <string name="free">無料</string>
+<!--    <string name="free">無料</string>-->
     <!-- This usually means that there's no discount for some service. For instance, a user may need to pay full fare for a transport mode not included in his/her mobility bundle. -->
     <string name="full_fare">運賃（全額）</string>
     <!-- This is a status text that tells users the app is working to get their mobility subscriptions -->
@@ -1215,7 +1215,7 @@
     <!-- This is typically used as the title for a table view section or view controller that shows infomration about a user's mobility subscriptions -->
     <string name="my_subscription">サブスクリプション</string>
     <!-- Heading that shows the name of a mobility plan -->
-    <string name="name">名前</string>
+<!--    <string name="name">名前</string>-->
     <!-- No comment provided by engineer. -->
     <string name="next_billing_cycle">次の支払サイクル</string>
     <!-- This is a message displayed in an error alert. This error happens when the user tries to remove a non-upcoming plan. -->
@@ -1443,7 +1443,7 @@
     <!-- Title of toggle to get a 'review log' reminder when arriving at destination of a logged trip. -->
     <string name="review_on_arrival">到着時にレビュー</string>
     <!-- This is the title for a table view section that displays a list of rewards available to the user -->
-    <string name="str_featured_rewards">報酬リストセクション</string>
+    <string name="rewards_summary">報酬リストセクション</string>
     <!-- This is usually used as the title for a table view section or view controller that shows all available rewards. -->
     <string name="rewards">報酬</string>
     <!-- Button to access saved photos -->
@@ -1453,7 +1453,7 @@
     <!-- No comment provided by engineer. -->
     <string name="redemption_warning">[続行]を選択すると、この報酬を利用するための利用規約を読み、同意したことになります。</string>
     <!-- This is a message displayed in an error alert. This error happens when our server returns successfully but the response contains no data. -->
-    <string name="server_response_contains_no_data">サーバーの応答にデータが含まれていません</string>
+<!--    <string name="server_response_contains_no_data">サーバーの応答にデータが含まれていません</string>-->
     <!-- Message for an error alert. This error happens when SkedGo backend fails to pass through any payment options for a checkout session. -->
     <string name="server_returns_empty_payment_options">サーバーからお支払いオプションはないとの回答がきました</string>
     <!-- Action button title to show the trip of a logged entry -->
@@ -1477,7 +1477,7 @@
     <!-- This is a message displayed in an error alert -->
     <string name="this_feature_requires_a_flavor_account_dot_if_you_already_have_one_coma_please_sign_in_coma_otherwise_coma_please_contact_your_administrator_dot">この機能にはTripGo アカウントが必要です。既にお持ちの場合はサインインしてください。それ以外の場合は管理者にお問い合わせください。</string>
     <!-- Title for view that presents a purchased ticket -->
-    <string name="ticket">チケット</string>
+<!--    <string name="ticket">チケット</string>-->
     <!-- Indicating that a ticket has expired. -->
     <string name="ticket_expired">チケットの有効期限切れ</string>
     <!-- This is a term that describes all money transactions that have occurred while user is on a mobility plan. \"Transactions\" is a type of \"activity\", which is localized separately -->
