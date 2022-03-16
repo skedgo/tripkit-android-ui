@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ Loco xml export: Android string resources
+ Project: android_localizable_strings.xliff conversion
+ Release: Working copy
+ Locale: ja, Japanese
+ Exported by: Unregistered user
+ Exported at: Thu, 17 Mar 2022 00:27:27 +0800
+-->
+<resources xmlns:tools="http://schemas.android.com/tools" xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="access_to_your_calendar_is_required">カレンダーへのアクセスが必要です</string>
+    <string name="access_to_your_contacts_is_required">連絡先へのアクセスが必要です</string>
+    <string name="add">追加します</string>
+    <string name="add_location">場所を追加</string>
+    <string name="add_to_contacts">連絡先に追加します</string>
+    <string name="add_to_home_screen">ホーム画面に追加します</string>
+    <string name="view_your_daily_agenda_and_favourites_in_the_tabs_below">下のタブで日程表とお気に入りを表示します。</string>
+    <string name="all_alerts">すべての通知</string>
+    <string name="all_your_calendars_are_invisible_coma_please_switch_them_on_in_native_calendar_app_or_account_settings">すべてのカレンダーは非表示です。ネイティブカレンダーアプリまたはアカウント設定でオンにしてください</string>
+    <string name="an_unexpected_network_error_has_occurred_dot_please_retry_dot">予期しないネットワーク エラーが発生しました。再試行してください。</string>
+    <string name="approximately_nps_away">約%s 先</string>
+    <string name="__start_parentarrive_">\" (到着 \"</string>
+    <string name="booking">予約</string>
+    <string name="cannot_add_reminder_for_past_trip">過去の旅行のリマインダーを追加できません。</string>
+    <string name="error_placing_call">呼び出しエラー</string>
+    <string name="coordinates_2points_nps">座標: %s</string>
+    <string name="couldn_apostt_find_your_current_location">現在地を特定できませんでした</string>
+    <string name="destination">目的地</string>
+    <string name="delete_this_vehicle">この車両を削除します</string>
+    <string name="edit" tools:ignore="ExtraTranslation">編集する</string>
+    <string name="edit_favorite">お気に入りを編集します</string>
+    <string name="failed_to_resolve_location">位置情報を取得できません</string>
+    <string name="failed_to_resolve_link">リンクを解決できませんでした</string>
+    <string name="get_off">降りてください</string>
+    <string name="first_2points">最初に:</string>
+    <string name="filter_by_service_name_coma_number_or_stop">サービス名、番号でフィルタリング、または停止</string>
+    <string name="go_here">ここに行く</string>
+    <string name="get_on">乗車</string>
+    <string name="information_on_concession_pricing_is_subject_to_availability_dot">割引価格は、状況によります。</string>
+    <string name="it_aposts_time_to_leave_exclam">出発の時間です！</string>
+    <string name="leave_now_to_make_it_on_time">時間通りに到着するにはすぐに出発してください</string>
+    <string name="go_to_now">今から行く</string>
+    <string name="events_from_those_calendars_will_be_used_in_planning_your_day">カレンダーのイベント機能で1日の計画を立ててください</string>
+    <string name="_1_minute">1 分</string>
+    <string name="new_vehicle">新しい車両</string>
+    <string name="location_not_found">場所が見つかりません</string>
+    <string name="location_selected">選択した場所</string>
+    <string name="no_ratings_received">評価がありません</string>
+    <string name="no_services_available">利用可能なサービスがありません</string>
+    <string name="no_favorite_locations_saved">お気に入りの場所が保存されていません</string>
+    <string name="there_was_an_error_and_it_was_reported_to_us_dot_please_try_again">エラーが発生しました。もう一度やり直してください。</string>
+    <string name="origin">始まり</string>
+    <string name="sorry_coma_that_location_is_outside_of_flavor_aposts_range_exclam">申し訳ありませんが、その場所は、TripGo の範囲外です!</string>
+    <string name="remove_from_favourites">お気に入りから削除します</string>
+    <string name="refresh">更新</string>
+    <string name="set_end_time">終了時刻を設定</string>
+    <string name="select_calendars">カレンダーを選択します</string>
+    <string name="save">保存</string>
+    <string name="routines_are_post_of_your_daily_movement_coma_but_they_aren_apostt_events_that_you_want_in_your_calendar__start_parente_dotg_dot_work_end_parent_dot_they_are_important_for_the_agenda_to_get_you_to_the_right_location_at_the_right_time">Routines are post of your daily movement, but they aren\'t events that you want in your calendar (e.g. work). They are important for the Agenda to get you to the right location at the right time</string>
+    <string name="notifications">通知</string>
+    <string name="about">詳細</string>
+    <string name="set_time">時間の設定</string>
+    <string name="set_start_time">開始時刻の設定</string>
+    <string name="set_location">場所の設定</string>
+    <string name="show_an_alert_to_leave_at_the_start_of_a_trip">旅行開始時にアラートを表示します</string>
+    <string name="show_an_alert_before_any_public_transport_on_your_trip">旅行中、公共交通機関があればアラートを表示する</string>
+    <string name="show_service_alerts_which_affect_your_upcoming_trips">今後の旅行に関するサービス通知を表示する</string>
+    <string name="show_an_alert_towards_the_end_of_any_public_transport_on_your_trip">旅行中、公共交通機関の終了が近づいてきたら通知を表示する</string>
+    <string name="start_of_trip">旅行の開始</string>
+    <string name="start_of_public_transport">公共交通機関の開始</string>
+    <string name="server">サーバー</string>
+    <string name="version">バージョン</string>
+    <string name="cycling_speed">サイクリング速度</string>
+    <string name="end_of_public_transport">公共交通機関の終わり</string>
+    <string name="sorted_by_price">価格順に並べ替え</string>
+    <string name="sorted_by_preferred">優先順位で並べ替え</string>
+    <string name="error_downloading_services">ダウンロード中にエラーが発生しました</string>
+    <string name="share_this_result">この結果を共有する</string>
+    <string name="share_timetable_info">時刻表情報を共有する</string>
+    <string name="sort_by">並べ替え</string>
+    <string name="sorted_by_arrival">到着順に並べ替え</string>
+    <string name="sorted_by_departure">出発順に並べ替え</string>
+    <string name="sorted_by_duration">時間内で並べ替え</string>
+    <string name="view_on_yelp">Yelpで表示</string>
+    <string name="upcoming_services">今後のサービス</string>
+    <string name="unknown_location">位置情報がありません</string>
+    <string name="waiting_for_location_signal_coma_if_fails_coma_you_can_try_turning_your_gps_off_and_on_dot_dot">位置情報を取得中。失敗した場合はGPSをオフにして再度オンにしてみてください</string>
+    <string name="view_timetable_of_upcoming_services">今後のサービスについて時刻表を表示</string>
+    <string name="tomorrow">明日</string>
+    <string name="today">今日</string>
+    <string name="no_services_found_for_this_stop">この停車地のサービスは見つかりませんでした</string>
+    <string name="trip_to_nps">旅</string>
+    <string name="yesterday">昨日</string>
+    <string name="your_trip_is_about_to_start">あなたの旅行はもうすぐ始まります</string>
+    <string name="you_are_here">現在地</string>
+    <!-- Settings option to enable/disable news (notifications). -->
+    <string name="news">お知らせ</string>
+    <!-- In transport mode detail, setting to enable that transport mode to be included in
+                  trips. -->
+    <string name="include_in_trips">旅行に含める</string>
+    <!-- Used for parking slots. Format string for multiple slots. Example: 10 slots
+                  available -->
+    <string name="nps_slots_available">%s 個のスロットが利用可能です</string>
+    <!-- Used for parking slots. Format string for one slots. Example: 1 slot available -->
+    <string name="nps_slot_available">%s 個のスロットが利用可能です</string>
+    <!-- Used for parking slots, when there's no slot available. -->
+    <string name="no_slot_available">利用可能なスロットがありません</string>
+    <!-- Parking slots, updated time. Example: Updated at 10am -->
+    <string name="updated_at_2points_nps">更新日時： %s</string>
+    <!-- Occupancy almost full -->
+    <string name="almost_full">ほぼ満席</string>
+    <!-- "Understood" button label -->
+    <string name="got_it">了解しました</string>
+    <!-- Add favourite direct access message -->
+    <string name="see_your_favourites_on_your_home_screen_exclam">ホーム画面でお気に入りを見る！</string>
+    <!-- Add favourite direct access description -->
+    <string name="you_can_quickly_access_your_favourite_locations_from_your_launcher_dot">ランチャーからお気に入りの場所にすばやくアクセスできます。</string>
+    <!-- %2$s direct access action label. For example, "Add favourite direct access action label" -->
+    <string name="just_tap__perc_then__apost_perc_apost">%1$s をタップしてから「%2$s」をタップしてください</string>
+    <!-- Error title when access to location hasn't been granted, but location is required. -->
+    <string name="access_to_location_services_required_dot">位置情報サービスへのアクセスが必要です</string>
+    <!-- Walkthrough -->
+    <string name="tap_public_transport_stops_for_access_to_timetable">時刻表にアクセスするには、公共交通機関の停留所をタップします</string>
+</resources>

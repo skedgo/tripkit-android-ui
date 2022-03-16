@@ -614,7 +614,7 @@
     <!-- Agenda - Text before arrival time of currently active trip -->
     <string name="arriving_at">الوصول عند</string>
     <!-- Action that requests some kind of permission, e.g., notifications, from users. -->
-    <string name="Authorise">الإذن</string>
+    <string name="authorise">الإذن</string>
     <!-- Title for alerts relating to errors occurred during bookings -->
     <string name="booking_error">خطأ في الحجز</string>
     <!-- Format string for agreeing to two different items, for instance, terms of use and privacy policy -->

@@ -1,0 +1,1533 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ Loco xml export: Android string resources
+ Project: iOS.xliff conversion
+ Release: Working copy
+ Locale: ja, Japanese
+ Exported by: Unregistered user
+ Exported at: Tue, 15 Mar 2022 15:54:16 +0800
+-->
+<resources tools:ignore="ExtraTranslation,DuplicateDefinition" xmlns:tools="http://schemas.android.com/tools">
+    <!-- Privacy - Calendars Usage Description -->
+    <string name="get_automated_trips_from_and_to_events_in_your_calendar_coma_and_search_your_calendar_for_events_dot">カレンダー内のイベントへ自動的にアクセスすることにより、カレンダーのイベントを検索します。</string>
+    <!-- Privacy - Camera Usage Description -->
+    <string name="access_to_your_camera_to_capture_your_trip_receipt">移動中のレシートを撮影するには、カメラにアクセスしてください</string>
+    <!-- Privacy - Contacts Usage Description -->
+    <string name="search_your_contacts_for_locations_dot">連絡先で場所を検索します。</string>
+    <!-- Privacy - Location Always and When In Use Usage Description -->
+    <string name="NSLocationAlwaysAndWhenInUseUsageDescription">最新の到着予定時刻を取得します。交通機関の使用状況を履歴から確認できます。</string>
+    <!-- Privacy - Location Always Usage Description -->
+    <string name="search_from_or_to_your_current_location_dot_locate_yourself_on_the_map_dot_get_updated_etas_dot">現在地を検索します。地図上で自分の位置を探してください。最新のETAを入手してください。</string>
+    <!-- Privacy - Location Usage Description -->
+    <string name="search_from_or_to_your_current_location_dot_locate_yourself_on_the_map_dot">このアプリで現在地を共有すると、現在地で開始または終了するルートを検索したり、現在地を中心に地図を表示したりできます。</string>
+<!--    &lt;!&ndash; Privacy - Location When In Use Usage Description &ndash;&gt;-->
+<!--    <string name="NSLocationWhenInUseUsageDescription">このアプリで現在地を共有すると、現在地で開始または終了するルートを検索したり、現在地を中心に地図を表示したりできます。</string>-->
+    <!-- Privacy - Motion Usage Description -->
+    <string name="NSMotionUsageDescription">交通機関の使用状況を履歴から確認できます。</string>
+    <!-- Privacy - Photo Library Usage Description -->
+    <string name="access_to_your_photo_library_to_select_a_previously_captured_receipt">フォトライブラリにアクセスして、プロファイルの写真を選択します</string>
+    <!-- Class = "UILabel"; text = "Choose transport modes"; ObjectID = "4Da-23-dIr"; -->
+    <string name="choose_transport_modes">移動モードを選択する</string>
+    <!-- Class = "UILabel"; text = "Enter your home and work address for more efficient trip planning"; ObjectID = "41N-Fp-lIr"; -->
+    <string name="enter_your_home_and_work_address_for_more_efficient_trip_planning">より効率的な旅行計画のために自宅と職場の住所を入力してください</string>
+    <!-- Class = "UILabel"; text = "Quick & easy setup"; ObjectID = "Daa-gL-EXc"; -->
+    <string name="quick__ampersand_easy_setup">クイック &amp; 簡単セットアップ</string>
+    <!-- Class = "UISearchBar"; placeholder = "Search"; ObjectID = "GjR-iv-Ew6"; -->
+    <string name="search">検索</string>
+    <!-- Class = "UILabel"; text = "TripGo helps you optimise daily trips"; ObjectID = "Tdu-LJ-B02"; -->
+    <string name="flavor_helps_you_optimise_daily_trips">TripGo は、日々の移動を最適化するのに役立ちます</string>
+    <!-- Class = "UILabel"; text = "Pick a supported city to continue"; ObjectID = "a2d-Mj-Am0"; -->
+    <string name="pick_a_supported_city_to_continue">続行するにはサポートされている都市を選択してください</string>
+    <!-- Class = "UILabel"; text = "Personalise TripGo so you'll get the most relevant results for your trips"; ObjectID = "awR-6l-D62"; -->
+    <string name="personalise_flavor_so_you_apostll_get_the_most_relevant_results_for_your_trips">TripGoをパーソナライズすることにより、あなたの旅行に最も関連性の高い情報を得ることができます</string>
+    <!-- Class = "UILabel"; text = "Congratulations on being a smart traveller!"; ObjectID = "uyh-ZB-4id"; -->
+    <string name="congratulations_on_being_a_smart_traveller_exclam">おめでとうございます！これであなたもスマートな旅行者です！</string>
+    <!-- Class = "UILabel"; text = "Sorry, TripGo is yet to work in your home city."; ObjectID = "zS6-hR-gj9"; -->
+    <string name="sorry_coma_flavor_is_yet_to_work_in_your_home_city_dot">申し訳ありませんが、TripGo はまだあなたの都市で利用できません。</string>
+    <!-- Accessibility description when paging through weeks. Supplied %@ is string for the start date. -->
+    <string name="week_of">%s の週</string>
+    <!-- Minutes format (used for transfer times). (old key: Minutes) -->
+    <string name="_perc_dot0f_minutes">%.の時間</string>
+    <!-- Minutes format (used alert firing X minuts before departure). (old key: MinutesBefore) -->
+    <string name="_perc_dot0f_minutes_before">の%. 分前に、</string>
+    <!-- Title for linked third-party account, eg, Uber Account -->
+    <string name="_pattern_account">%s アカウント</string>
+    <!-- Number (not 1) of available of shared bicycles -->
+    <string name="_pattern_bikes">%s 台の自転車</string>
+    <!-- Number (not 1) of available of shared cars -->
+    <string name="_pattern_cars">%s 台の車</string>
+    <!-- Number (not 1) of available spots to charge an electric vehicle -->
+    <string name="_pattern_charging">%s 充電</string>
+    <!-- Empty docks (not 1) that are available to return a shared bicycle -->
+    <string name="_pattern_docks">%s ドック</string>
+    <!-- Filler for a specific time-table-based service departing in several minutes, e.g., '396 in 10 minutes' -->
+    <string name="_pattern_in__pattern">%2$s で %1$s</string>
+    <!-- Number (not 1) of available car parking spaces -->
+    <string name="parking">駐車場に%s 台空き有り</string>
+    <!-- Number (always 1) of available of shared bicycles -->
+    <string name="_1_bike">自転車1台</string>
+    <!-- Number (always 1) of available of shared cars -->
+    <string name="_1_car">1台</string>
+    <!-- Number (always 1) of available spots to charge an electric vehicle -->
+    <string name="_1_charging">充電1箇所</string>
+    <!-- Empty docks (always 1) that are available to return a shared bicycle -->
+    <string name="_1_dock">1ドック</string>
+    <!-- Number (always 1) of available car parking spaces -->
+    <string name="_1_parking">駐車場1台</string>
+    <!-- About for a provider, usually takes users to view a web page, eg, About PayiQ -->
+    <string name="about__pattern">%s について</string>
+    <!-- Title for a row that loads the accessibility statement. -->
+    <string name="accessibility_statement">アクセシビリティステートメント</string>
+    <!-- Error text to show when trying to use a feature which requires an account, but the user hasn't set one up (yet). -->
+    <string name="account_required">必要なアカウント</string>
+    <!-- Add favourite activity title -->
+    <string name="add_favourite">お気に入りに追加</string>
+    <!-- No comment provided by engineer. -->
+    <string name="add_another_recurrence">別の繰り返しを追加</string>
+    <!-- Add to calendar activity title -->
+    <string name="add_to_calendar">カレンダーに追加します。</string>
+    <!-- No comment provided by engineer. -->
+    <string name="add_to_favourites">お気に入りに追加</string>
+    <!-- Action title for adding a vehicle -->
+    <string name="add_vehicle">ビークルを追加</string>
+    <!-- Action title for adding another habitual visit to a favourite (old key: NewItemHereActionTitle) -->
+    <string name="add_when_i_apostm_here">ここを追加します。</string>
+    <!-- Confirmation that something got added HUD notice -->
+    <string name="added">追加</string>
+    <!-- Settings title to configure cross-device sync of the Agenda -->
+    <string name="agenda_sync">アジェンダの同期</string>
+    <!-- Explanation when user can't edit the Agenda on the current device, indicating name of the device where he can edit. -->
+    <string name="agenda_is_in_read_only_mode_editable_on">アジェンダは読み取り専用モードのため、\'%s \' で編集してください</string>
+    <!-- Explanation when user can't edit the Agenda on the current device. -->
+    <string name="agenda_is_in_read_only_mode">アジェンダは読み取り専用モードです</string>
+    <!-- Error title that appears when the Agenda is locked (by a different device) -->
+    <string name="agenda_locked">アジェンダは他のデバイスでロックされています</string>
+    <!-- No comment provided by engineer. -->
+    <string name="agenda_not_available">アジェンダはありません</string>
+    <!-- Action title to modify all recurrences. -->
+    <string name="all">全て</string>
+    <!-- Arrival date+time for overnight stay -->
+    <string name="arrival">到着</string>
+    <!-- Distance automatic -->
+    <string name="auto">自動</string>
+    <!-- Available number of shared bicycles. -->
+    <string name="available_bikes">利用できる自転車</string>
+    <!-- Number of available car parking spaces. -->
+    <string name="available_spots">利用可能なスポット</string>
+    <!-- Indicator text preceding a list of available things, e.g., 'Available: 3 bikes, 2 docks' -->
+    <string name="available">利用可能: %s</string>
+    <!-- Title for showing the battery charge level of a vehicle -->
+    <string name="battery">バッテリー残量</string>
+    <!-- No comment provided by engineer. -->
+    <string name="calendars">カレンダー</string>
+    <!-- Title for action to clear list of recently used locations -->
+    <string name="clear_all">全て消去</string>
+    <!-- clear cache preference -->
+    <string name="clear_cache">キャッシュのクリア</string>
+    <!-- clear search history preference -->
+    <string name="clear_search_history">検索履歴のクリア</string>
+    <!-- School pricing preference -->
+    <string name="concession_pricing">値引き価格</string>
+    <!-- Hassle preference -->
+    <string name="convenience">利便性</string>
+    <!-- Error title when TripGo couldnt identify the users current city -->
+    <string name="could_not_find_your_city_dot">あなたの都市が見つかりませんでした。</string>
+    <!-- Title for button that allows users to create a user account -->
+    <string name="create_account">アカウントを作成</string>
+    <!-- Title for critical error -->
+    <string name="critical_error">重大なエラー</string>
+    <!-- Cycling speed preference -->
+    <string name="cycle_speed">サイクリング速度</string>
+    <!-- Departure date+time for overnight stay -->
+    <string name="departure">出発</string>
+    <!-- Title for a generic screen showing details of something -->
+    <string name="details">詳細</string>
+    <!-- Distances preference -->
+    <string name="distances">距離</string>
+    <!-- Title for transport modes that the user doesnt want included -->
+    <string name="do_not_include">含まれていません</string>
+    <!-- Label for Duration button to sort trips by their total duration (old key: ViewDurationButton) -->
+    <string name="duration">期間</string>
+    <!-- Empty docks that are available to return a shared bicycle. -->
+    <string name="empty_docks">ドックの空き</string>
+    <!-- Agenda Sync - Title for section showing encryption key -->
+    <string name="encryption_key">暗号化キー</string>
+    <!-- Title for the time an event ends (without date information) -->
+    <string name="end">終了</string>
+    <!-- Title for the time an event ends (including date information) -->
+    <string name="end_date">最終日</string>
+    <!-- Carbon preference -->
+    <string name="environment">環境</string>
+    <!-- No comment provided by engineer. -->
+    <string name="error_encountered">エラーが発生しました</string>
+    <!-- No comment provided by engineer. -->
+    <string name="event">イベント</string>
+    <!-- Exclude event action -->
+    <string name="exclude">除外します。</string>
+    <!-- Speed preference 'fast' -->
+    <string name="fast">速い</string>
+    <!-- No comment provided by engineer. -->
+    <string name="favourite">お気に入り</string>
+    <!-- No comment provided by engineer. -->
+    <string name="favourite_trip">お気に入り</string>
+    <!-- Help title -->
+    <string name="feedback__ampersand_support">フィードバック &amp; サポート</string>
+    <!-- Favorite trip from title -->
+    <string name="from">出発地</string>
+    <!-- Header for list of vehicles garaged at this location -->
+    <string name="garaged_vehicles">入庫車両</string>
+    <!-- Title of settings for generic transport stuff -->
+    <string name="general">一般的な</string>
+    <!-- Action to not overwrite something and switch to read-only mode -->
+    <string name="go_read_only">読み取り専用にする</string>
+    <!-- Typical name that you'd give your home location -->
+    <string name="home">ホーム</string>
+    <!-- Map mode streets + satellite -->
+    <string name="hybrid">ハイブリッド</string>
+    <!-- Agenda Sync - Description when device is in read-only mode -->
+    <string name="if_a_device_other_than_this_one_should_be_in_charge_of_your_agenda_turn_this_device_into_read_only_m">これ以外のデバイスがアジェンダを担当する必要がある場合は、このデバイスを読み取り専用モードにします。このデバイスにすべてのカレンダーがないが、それでもアジェンダ通知が必要な場合も、同じ操作をしてください。</string>
+    <!-- Speed preference 'impaired' -->
+    <string name="impaired">障害</string>
+    <!-- Include event action -->
+    <string name="include">含まれます</string>
+    <!-- Action title on Agenda to include your calendar events. -->
+    <string name="include_events">イベントを含める</string>
+    <!-- Title for a switch indicating two things: 1) if transport mode should be included in trips and 2) if this event should be included in all-day routes -->
+    <string name="include_in_routes">ルートに含めてください</string>
+    <!-- Title for a switch indicating if a recurrence of an event should be included in all-day routes on a particular day. '%@' will be replaced with a localised date, e.g., 20.02.18 -->
+    <string name="include_in_routes_on">%sをルートに含める</string>
+    <!-- Action title to modify just a single recurrence. -->
+    <string name="just_this">これだけ</string>
+    <!-- Distance kilometers -->
+    <string name="Km">Km</string>
+    <!-- Button title to switch view to list mode -->
+    <string name="list">リスト</string>
+    <!-- No comment provided by engineer. -->
+    <string name="marking_a_location_as_a_favourite_will_allow_quick_access_to_routing_results_for_going_there_from_your_current_location_dot">ロケーションをお気に入りとしてマークすると、現在のロケーションからルート結果にすばやくアクセスできます。</string>
+    <!-- No comment provided by engineer. -->
+    <string name="marking_a_transit_stop_as_a_favourite_will_allow_quick_access_to_its_timetable_dot">停留所をお気に入りとしてマークすると、その時刻表にすばやくアクセスできます。</string>
+    <!-- Speed preference 'medium' -->
+    <string name="medium">通常</string>
+    <!-- Distance miles -->
+    <string name="mi">マイル</string>
+    <!-- Minimum transfer time preference -->
+    <string name="min_transfer_time">転送時間</string>
+    <!-- Header for list of how to get more information (eg, by opening a website) -->
+    <string name="more_information">詳細情報</string>
+    <!-- User preferences title -->
+    <string name="my_priorities">私の優先順位</string>
+    <!-- Header for list of my vehicles -->
+    <string name="my_vehicles">私の車</string>
+    <!-- Error recovery suggestion for when TripGo couldnt identify the users current city -->
+    <string name="navigate_to_a_supported_city_on_a_map_dot">サポートされている市内地図に移動します。</string>
+    <!-- No comment provided by engineer. -->
+    <string name="new_favourite">新しいお気に入り</string>
+    <!-- Title for section on home card that shows the next trip on your Agenda -->
+    <string name="next_up">次の旅行</string>
+    <!-- Indicator text preceding a list of next departures, e.g., 'Next: 3min, 5min' -->
+    <string name="next">次： %s</string>
+    <!-- Placeholder will be replaced with date -->
+    <string name="no_data_available_for_please_check_your_primary_device_or_make_this_device_your_primary_one_85f376e4">%sのデータがありません。\n\nプライマリデバイスを確認するか、このデバイスをプライマリデバイスにしてください。</string>
+    <!-- Error title when routing produced no results (but no specific error was returned from routing). -->
+    <string name="no_routes_found_dot">ルートが見つかりません。</string>
+    <!-- Message to users that there's no next up in his/her agenda -->
+    <string name="nothing_planned">予定なし</string>
+    <!-- Title for homescreen action to open the agenda -->
+    <string name="open_agenda">開いている旅程</string>
+    <!-- No comment provided by engineer. -->
+    <string name="open_website">Web サイトを開く</string>
+    <!-- Title for list of operators, e.g., list of bike/scooter-sharing network operators -->
+    <string name="pperators">事業者</string>
+    <!-- Action to overwrite something -->
+    <string name="overwrite">上書きする</string>
+    <!-- Text displayed when the user has given the app access to private data such as their calendar or contacts, but the user needs to perform the original action again to now see the results -->
+    <string name="permission_was_granted_dot_please_go_back_and_try_again_dot">アクセス許可が与えられました。もう一度やり直してください。</string>
+    <!-- No comment provided by engineer. -->
+    <string name="permissions">許可</string>
+    <!-- Title for button that allows users to plan a new trip -->
+    <string name="plan_a_new_trip">新しい旅行計画</string>
+    <!-- No comment provided by engineer. -->
+    <string name="please_log_in">ログインしてください</string>
+    <!-- Title for preferred public transport modes -->
+    <string name="preferred_transport">優先輸送</string>
+    <!-- Label for Price button to sort trips by their total cost (old key: ViewPriceButton) -->
+    <string name="price">料金</string>
+    <!-- Title for a generic screen showing pricing of something -->
+    <string name="pricing">料金</string>
+    <!-- No comment provided by engineer. -->
+    <string name="priorities">優先度</string>
+    <!-- This usually refers to the fee charged for a facility, e.g., hourly rate for an on-street parking -->
+    <string name="rate">レート</string>
+    <!-- Rate us preference -->
+    <string name="rate_tripgo">TripGoを評価する</string>
+    <!-- Agenda Sync - Title of toggle for whether device is in read-only mode -->
+    <string name="read_only_on_this_device">このデバイスでは読み取り専用</string>
+    <!-- Title for section on home card showing locations you recently used -->
+    <string name="recent">最近</string>
+    <!-- Reminders title -->
+    <string name="reminders">リマインダー</string>
+    <!-- No comment provided by engineer. -->
+    <string name="remove">削除</string>
+    <!-- Remove favourite activity title -->
+    <string name="remove_favourite">お気に入りを削除</string>
+    <!-- No comment provided by engineer. -->
+    <string name="remove_and_exclude_event">イベントを削除して除外する</string>
+    <!-- No comment provided by engineer. -->
+    <string name="remove_from_favourites">お気に入りから削除</string>
+    <!-- Confirmation that something got removed HUD notice -->
+    <string name="removed">削除されました</string>
+    <!-- No comment provided by engineer. -->
+    <string name="removing_this_trip_will_exclude_the_following_event_from_your_agenda_dot">このトリップを削除すると、次のイベントがアジェンダから除外されます。</string>
+    <!-- Title for switch indicating if an event repeats or not -->
+    <string name="repeat_does_end">繰り返しの終了</string>
+    <!-- Title for when an event repeats -->
+    <string name="repeats">繰り返し</string>
+    <!-- Report problem -->
+    <string name="report_problem">問題を報告</string>
+    <!-- Title for action to perform by the user if an event is outside TripGos range The action will display a feedback form to request the region of that event -->
+    <string name="request">要求</string>
+    <!-- Title for button that allows users to request support -->
+    <string name="request_support">サポートをリクエストする</string>
+    <!-- Action title to reset agenda content -->
+    <string name="reset_agenda">アジェンダをリセット</string>
+    <!-- Agenda Sync - Button title to reset the encryption key and generate a new one -->
+    <string name="reset_key">キーをリセット</string>
+    <!-- Title for showing the restrictions placed on a facility, e.g., hours that be parked for an on-street parking -->
+    <string name="restrictions">制限</string>
+    <!-- Rolling speed preference, i.e., how fast you roll on your wheelchair -->
+    <string name="roll_speed">回転速度</string>
+    <!-- No comment provided by engineer. -->
+    <string name="route">ルート</string>
+    <!-- No comment provided by engineer. -->
+    <string name="route_from">からのルート</string>
+    <!-- Title for options for routing to this location, options are: current location, <some previously selected location> -->
+    <string name="route_here">ここへのルート</string>
+    <!-- Title of routes screen, that shows all the results for getting from A to B -->
+    <string name="routes">ルート</string>
+    <!-- Error message if interregional routing isn't yet supported -->
+    <string name="routing_from__pattern_to__pattern_is_not_yet_supported">%1$s から %2$s へのルートはまだサポートされていません</string>
+    <!-- Used in the form that requests support for a specific routing -->
+    <string name="routing_request">ルートリクエスト</string>
+    <!-- Map mode satellite -->
+    <string name="satellite">航空写真</string>
+    <!-- Agenda Sync - Button title to scan the encryption key from another device -->
+    <string name="scan_key">キーのスキャン</string>
+    <!-- Placeholder text for searching 'home'. -->
+    <string name="search_for_your_home_address">自宅の住所を検索する</string>
+    <!-- Placeholder text for searching 'work'. -->
+    <string name="search_for_your_work_address">有効なアドレスを検索</string>
+    <!-- Title for an action that shows users all options/results -->
+    <string name="see_all">すべて表示</string>
+    <!-- Title for an action that shows users more options/results -->
+    <string name="see_more">さらに表示</string>
+    <!-- Action title to select the location for an event. -->
+    <string name="select_location">場所を選択</string>
+    <!-- No comment provided by engineer. -->
+    <string name="select_vehicle">車両を選択します。</string>
+    <!-- Action button title for composing an SMS to a real-time service -->
+    <string name="send_real_time_sms">リアルタイムの SMS を送信します。</string>
+    <!-- No comment provided by engineer. -->
+    <string name="set_your_home_work_connect_your_calenders_and_let_tripgo_do_the_trip_planning_for_you">自宅と職場を設定してカレンダーと連携したら、移動計画をお任せください。</string>
+    <!-- Action title on Agenda to start setting it up -->
+    <string name="setup">セットアップ</string>
+    <!-- Action button title for sharing when you arrive -->
+    <string name="share_arrival">到着情報を共有する</string>
+    <!-- Share trip -->
+    <string name="share_trip">トリップ情報を共有する</string>
+    <!-- Action to show a QR code (of a ticket) -->
+    <string name="show_qr_code">QRコードを表示</string>
+    <!-- Description of keyboard shortcut to show settings (in-app settings, not the iOS Settings app) -->
+    <string name="show_settings">設定を表示</string>
+    <!-- Button title on trips to show alternatives for it -->
+    <string name="show_alternatives">選択肢を表示します。</string>
+    <!-- No comment provided by engineer. -->
+    <string name="show_details">詳細を表示</string>
+    <!-- No comment provided by engineer. -->
+    <string name="show_info">情報を表示</string>
+    <!-- Button Title to get to website with ticket details -->
+    <string name="show_ticket_info">チケット情報の表示</string>
+    <!-- No comment provided by engineer. -->
+    <string name="show_timetable">時刻表を表示します。</string>
+    <!-- Indicator for how many transport modes are being displayed out of the total available ones for the region of the trip. First placeholder will be replaced with selected number, second with total number. -->
+    <string name="showing__pattern_of__pattern_transport_modes">%2$s 個中 %1$s 個の輸送モードを表示</string>
+    <!-- Button title to skip a certain step -->
+    <string name="skip">Skip</string>
+    <!-- Speed preference 'slow' -->
+    <string name="slow">遅い</string>
+    <!-- No comment provided by engineer. -->
+    <string name="sorry_dot_flavor_doesn_apostt_work_here_yet_exclam">すみません。TripGo はここでは、まだ作動していません!</string>
+    <!-- Spread the word preference -->
+    <string name="spread_the_word">口コミ</string>
+    <!-- Title for the time an event starts (including date information) -->
+    <string name="start">スタート</string>
+    <!-- Action title for adding a habitual item away from some location (old key: NewItemAwayActionTitle) -->
+    <string name="stay_at_a_different_location">別の場所で滞在します。</string>
+    <!-- Map mode streets -->
+    <string name="streets">道路地図</string>
+    <!-- No comment provided by engineer. -->
+    <string name="tap_to_set_address">タップしてアドレスを設定</string>
+    <!-- No comment provided by engineer. -->
+    <string name="tap_to_set_garage">タップしてガレージを設定</string>
+    <!-- Thank you HUD notice -->
+    <string name="thank_you_exclam">ありがとうございました！</string>
+    <!-- Description for critical error where error will be shown below -->
+    <string name="the_application_encountered_a_critical_error_and_can_apostt_recover_2points">アプリケーションに重大なエラーが発生し、回復できません。</string>
+    <!-- Title for view that presents a purchased ticket -->
+    <string name="ticket">チケット</string>
+    <!-- Title for screen to pick your working hours -->
+    <string name="time_at_work">勤務時間</string>
+    <!-- Time zone (typically for an event) -->
+    <string name="time_zone">タイムゾーン</string>
+    <!-- Header for times a user is typically at this location, eg, working hours -->
+    <string name="times">時間</string>
+    <!-- Title, eg, for event or favourite (old key: TitleFavouriteName) -->
+    <string name="title">タイトル</string>
+    <!-- Favorite trip to title -->
+    <string name="to">目的地</string>
+    <!-- Total car parking spaces, i.e., not just those that are available. -->
+    <string name="total_spaces">空きスペースの合計</string>
+    <!-- Type of something, e.g., an event (calendar event, stay, routine) or a vehicle (car, motorbike, bicycle). (old key: TypeEvent) -->
+    <string name="type">タイプ</string>
+    <!-- This is followed by some date, e.g., Last updated: 11 Nov, 9:28am -->
+    <string name="updated_2points_">更新完了</string>
+    <!-- This is followed by some date, e.g., Last updated: 11 Nov, 9:28am -->
+    <string name="updated">更新日時 : %s</string>
+    <!-- Indicating when app or backend is busy getting or calculating latest content -->
+    <string name="updating">更新中…</string>
+    <!-- Which of my vehicles to assign this to -->
+    <string name="vehicle">車両</string>
+    <!-- Walking speed preference -->
+    <string name="walk_speed">徒歩速度</string>
+    <!-- No comment provided by engineer. -->
+    <string name="website">ウェブサイト</string>
+    <!-- No comment provided by engineer. -->
+    <string name="week_starts">週の始め</string>
+    <!-- Preference to highlight wheelchair information -->
+    <string name="wheelchair_information">車椅子情報</string>
+    <!-- Question for which events in a recurrence to delete (options are typically this/all/any from here) -->
+    <string name="which_would_you_like_to_delete">どれを削除しますか</string>
+    <!-- Typical name that you'd give your work location -->
+    <string name="work">職場</string>
+    <!-- No comment provided by engineer. -->
+    <string name="you_need_to_have_an_apple_id_set_up_on_your_device_to_use_agenda">アジェンダを使用するには、デバイスに Apple ID を設定する必要があります。</string>
+    <!-- Placeholder will be replaced with date -->
+    <string name="your_agenda_was_last_been_modified_on_device_named_please_confirm_to_overwrite_with_data_from_this_d">アジェンダは、\'%s\'という名前のデバイスで最後に変更されました。このデバイスのデータで上書きすることを確認してください。</string>
+    <!-- Agenda Sync - Description for section showing encryption key -->
+    <string name="your_calendar_content_is_encrypted_you_can_access_it_on_different_devices_using_this_encryption_key_">カレンダーの内容は暗号化されています。この暗号化キーを使用して、さまざまなデバイスでアクセスできます。 キーは、iCloud Keychainを有効にしている場合は自動的に同期されます。有効になっていない場合はQRコードをスキャンできます。</string>
+    <!-- No comment provided by engineer. -->
+    <string name="zoom_in">拡大</string>
+    <!-- goCatch action -->
+    <string name="gocatch_a_taxi">タクシーに乗る</string>
+    <!-- inGogo taxi booking action -->
+    <string name="ingogo_a_taxi">ingogo a Taxi</string>
+    <!-- Description of a what3words address, which is an addressing-sytem alternative to GPS or regular addresses based on 3 word pairs, e.g., 'gazed-across-like`. -->
+    <string name="what3words_address">what3wordsアドレス</string>
+    <!-- Format string for going from one location to another. For example: Used to name favourite trips. -->
+    <string name="to">%1$s から %2$s</string>
+    <!-- Button to save a trip to the agenda -->
+    <string name="add_to_agenda">日程表に追加します。</string>
+    <!-- Title for button to access agenda -->
+    <string name="agenda">日程表</string>
+    <!-- Error title when agenda isn't yet set up. -->
+    <string name="agenda_is_not_set_up_dot">議題が設定されていません。</string>
+    <!-- Button to agree to EULA or a similar agreement -->
+    <string name="agree">同意します。</string>
+    <!-- Option to delete this event and all after in a recurrence -->
+    <string name="all_from_here">すべてここから</string>
+    <!-- No comment provided by engineer. -->
+    <string name="app_usage_and_analytics">アプリの使用状況と分析</string>
+    <!-- Button to apply some settings, e.g., apply filter settings -->
+    <string name="apply">適用する</string>
+    <!-- No comment provided by engineer. -->
+    <string name="are_you_sure_you_want_to_delete_your_account_question">このアカウントを削除しますか？</string>
+    <!-- Agenda - Text before arrival time of currently active trip -->
+    <string name="arriving_at">到着</string>
+    <!-- Action that requests some kind of permission, e.g., notifications, from users. -->
+    <string name="authorise">承認</string>
+    <!-- Title for alerts relating to errors occurred during bookings -->
+    <string name="booking_error">予約エラー</string>
+    <!-- Format string for agreeing to two different items, for instance, terms of use and privacy policy -->
+    <string name="by_continuing_coma_you_are_agreeing_to_our__pattern_and__pattern">続行すると、%1$s と %2$sに同意したとみなされます。</string>
+    <!-- Type for regular events that go in the phone's calendar. -->
+    <string name="calendar_event">イベント</string>
+    <!-- No comment provided by engineer. -->
+    <string name="calendars_on_your_agenda">アジェンダのカレンダー</string>
+    <!-- Button to clear filter settings -->
+    <string name="clear_filter">フィルターをクリア</string>
+    <!-- Indicator that something, e.g., a car park, is closed -->
+    <string name="closed">閉鎖</string>
+    <!-- Indicator that something, e.g., a car park, is closed currently -->
+    <string name="closed_now">閉店中</string>
+    <!-- Typically used when the app is waiting for users to confirm their actions. -->
+    <string name="confirming">確認中</string>
+    <!-- Indicating the next trip is a current trip -->
+    <string name="current_trip">現在の旅行</string>
+    <!-- No comment provided by engineer. -->
+    <string name="database_corrupted_and_lost_dot">データベースは破損し、失われました。</string>
+    <!-- No comment provided by engineer. -->
+    <string name="decline">拒否</string>
+    <!-- No comment provided by engineer. -->
+    <string name="delete_my_account">アカウントの削除</string>
+    <!-- No comment provided by engineer. -->
+    <string name="device_data">端末データ</string>
+    <!-- Action that allows users to dismiss any prompts for user action. For instance, don't show the request for push notification again. -->
+    <string name="dont_ask_again">次回から表示しない</string>
+    <!-- No comment provided by engineer. -->
+    <string name="download_my_data">マイデータをダウンロード</string>
+    <!-- Message to show when downloading something -->
+    <string name="downloading_dot_dot_dot">ダウンロード中…</string>
+    <!-- Label that indicates a driver dropping a passenger at somewhere, typically appears in DRT trips -->
+    <string name="drop_off">降車</string>
+    <!-- Button to edit something, e.g., putting list into editing mode -->
+    <string name="edit">編集する</string>
+    <!-- No comment provided by engineer. -->
+    <string name="edit_calendars">カレンダーの編集</string>
+    <!-- No comment provided by engineer. -->
+    <string name="edit_transport_modes">移動モードを編集する</string>
+    <!-- Details of home card section for setting up Agenda -->
+    <string name="enter_your_home_and_optionally_work_addresses_and_connect_your_calendar_for_automatic_trip_planning">自宅とオプションで職場の住所を入力し、カレンダーと連携して自動で旅行計画を立てます。</string>
+    <!-- 'Every %day' in context of repetitions (especially recurring events), e.g., 'Every Monday'. (old key: EveryDayFormat) -->
+    <string name="every">すべての %s</string>
+    <!-- Everyday in context of repetitions (especially recurring events) -->
+    <string name="everyday">毎日</string>
+    <!-- Title for button to access favourites -->
+    <string name="favourites">お気に入り</string>
+    <!-- Title for a flight -->
+    <string name="flight">フライト</string>
+    <!-- Title for button on first welcome screen -->
+    <string name="get_started_exclam">始めよう！</string>
+    <!-- Title of notification for an upcoming trip -->
+    <string name="get_ready_to_leave">出発の準備をしてください</string>
+    <!-- No comment provided by engineer. -->
+    <string name="get_updated_etas_while_you_apostre_on_a_trip_by_reporting_you_current_location_back_to_our_servers_dot_this_also_helps_improve_our_travel_time_prediction_dot_we_may_share_this_data_with_our_partners_who_help_us_make_those_predictions_dot">移動中に最新の到着予定時刻を取得するには、現在地を当社のサーバーに報告してください。 これにより、移動時間予測の改善にも役立ちます。\nこれらの予測を行うパートナーとデータを共有する場合があります。</string>
+    <!-- Type for events that are regular visit's to one of the user's favorites -->
+    <string name="routine">ルーチン</string>
+    <!-- No comment provided by engineer. -->
+    <string name="help_improve_transport_services_in_your_area_by_allowing_us_to_collect_information_about_which_trips_you_select_in_the_app_dot_we_aggregate_the_anonymised_data_and_provide_it_to_researchers_coma_regulators_coma_and_transport_providers_dot">アプリで選択した移動に関する情報を収集できるようにすることで、お住まいの地域の交通サービスの改善にご協力ください。\n匿名化されたデータを集約し、研究者、規制当局、および輸送事業者に提供します。</string>
+    <!-- No comment provided by engineer. -->
+    <string name="help_us_improve_flavor_by_allowing_us_to_collect_data_about_which_features_you_use_in_the_app_coma_and_how_often_dot">アプリで使用する機能とその頻度に関するデータを収集できるようにすることで、TripGoの改善にご協力ください。</string>
+    <!-- No comment provided by engineer. -->
+    <string name="howd_you_like_to_select_your_profile_picture">プロフィール写真を選択してください</string>
+    <!-- No comment provided by engineer. -->
+    <string name="if_you_have_granted_tripgo_access_to_your_current_location_contacts_calendar_and_more_you_can_withdr">TripGoに現在地、連絡先、カレンダーなどへのアクセスを許可している場合は、アプリの設定にてそのデータへのアクセスを取り消すことができます。</string>
+    <!-- This is mostly an action button sitting in a section header in the home card, allowing users to manage some features, e.g., subscription or rewards. -->
+    <string name="manage">管理</string>
+    <!-- Title -->
+    <string name="managing_your_personal_data">個人データの管理</string>
+    <!-- Button to show a map or to modify the map's settings -->
+    <string name="map">地図</string>
+    <!-- Trip history - Title for chart displaying transport modes according to their usage -->
+    <string name="most_used">最もよく使われている</string>
+    <!-- Title -->
+    <string name="my_personal_data">個人データ</string>
+    <!-- Title for unnamed new event -->
+    <string name="new_event">新しい予定</string>
+    <!-- Trip history - Replacement text if there's no data to create a chart -->
+    <string name="no_data">データがありません</string>
+    <!-- Indicating no response has been provided. -->
+    <string name="none_provided">サービス提供なし</string>
+    <!-- Indicating no choices have been made. -->
+    <string name="none_selected">選択されていません</string>
+    <!-- Action that allows users to defer making decision on some request. For instance, when being prompted to grant permission to notification, this allows users to make a decision at some later time. -->
+    <string name="not_now">後で行う</string>
+    <!-- Title for a screen that displays a collection of notes. -->
+    <string name="notes">ノート</string>
+    <!-- Telling users what follows is a series of notes from an operator regarding their bookings. -->
+    <string name="notes_from_operator">オペレータからの連絡</string>
+    <!-- Option to delete only this event in a recurence -->
+    <string name="only_this">これだけ</string>
+    <!-- Indicator that something, e.g., a car park, is open currently -->
+    <string name="open_now">営業中</string>
+    <!-- No comment provided by engineer. -->
+    <string name="open_settings_app">アプリの設定を開く</string>
+    <!-- Label that indicates a driver collecting a passenger from somewhere, typically appears in DRT trips -->
+    <string name="pick_up">乗車</string>
+    <!-- Label that indicates the window of time over which the user will be picked up, typically used in a DRT trip. -->
+    <string name="pick_up_window">乗車予定時刻</string>
+    <!-- Recovery suggestion when TripGo cannot access its local files -->
+    <string name="please_delete_the_app_and_re_minusinstall_from_the_app_store_dot_sorry_for_the_inconvenience_exclam">アプリを削除し、App Store から再インストールしてください。ご不便をお詫びします。</string>
+    <!-- Recovery suggestion when an app restart is required, e.g., when the database got corrupted and/or the app can't access its local files. -->
+    <string name="please_restart_the_app_dot_sorry_for_the_inconvenience_exclam">不便をおかけ申し訳ありませんがアプリを再起動してください!</string>
+    <!-- TripGo's privacy policy -->
+    <string name="privacy_policy">プライバシー ポリシー</string>
+    <!-- This is usually the title for a button that kicks start some process. -->
+    <string name="proceed">続行する</string>
+    <!-- Profile tab bar name -->
+    <string name="profile">プロファイル</string>
+    <!-- Title -->
+    <string name="read_to_learn_more_about_how_and_why_flavor_uses_your_personal_data_coma_and_control_what_you_want_to_share_dot">TripGoの個人データ取扱いについての詳細を確認し、共有する内容を管理してください。</string>
+    <!-- No comment provided by engineer. -->
+    <string name="real_minustime_information_for_transport_options">移動オプションのリアルタイム情報</string>
+    <!-- Repeats daily -->
+    <string name="repeats_daily">毎日繰り返す</string>
+    <!-- Repeats monthly -->
+    <string name="repeats_monthly">毎月繰り返す</string>
+    <!-- Repeats weekly -->
+    <string name="repeats_weekly">毎週繰り返します。</string>
+    <!-- Repeats yearly -->
+    <string name="repeats_yearly">毎年繰り返す</string>
+    <!-- This is usually followed by a date/time, e.g., Requested time: Dec. 19, 2021, 10:00:00 -->
+    <string name="requested_time">リクエスト時刻</string>
+    <!-- Action title to reset something, e.g., settings -->
+    <string name="reset">リセット</string>
+    <!-- No comment provided by engineer. -->
+    <string name="routing_coma_etas_and_traffic">ルート、到着予定時刻、交通状況</string>
+    <!-- Prompt during onboarding to select transport modes for your city -->
+    <string name="select_the_modes_that_you_want_to_use_around__pattern">%s付近で使用するモードを選択してください</string>
+    <!-- This is usually used to mark if some UI element is selected by a user. -->
+    <string name="selected">選択済み</string>
+    <!-- Error recovery suggestion when agenda isn't yet set up but needed for Watch app. -->
+    <string name="set_up_your_agenda_in_the_flavor_app_dot">TripGo アプリであなたの議題を設定します。</string>
+    <!-- Button to share a timetable, trip...etc. Tap on this typically brings up the share sheet -->
+    <string name="share">共有</string>
+    <!-- Action title to show map for a segment -->
+    <string name="show_map">地図を表示</string>
+    <!-- No comment provided by engineer. -->
+    <string name="show_our_privacy_policy">プライバシーポリシーを表示</string>
+    <!-- Action button on trip reminders to snooze it for a fixed amount. -->
+    <string name="snooze_5_mins">5 分後に再度通知</string>
+    <!-- Action button on public transport trip reminders to skip this service and get reminded for the next service -->
+    <string name="snooze_until_next">次までスヌーズする</string>
+    <!-- This is usually followed by a date/time, e.g., Starts at Dec. 19, 2021, 10:00:00 -->
+    <string name="starts_at">移動開始時刻</string>
+    <!-- No comment provided by engineer. -->
+    <string name="status">ステータス</string>
+    <!-- Stay, i.e., type for dates you're staying at a hotel, or when moving house. -->
+    <string name="stay">宿泊</string>
+    <!-- Title for stopover event -->
+    <string name="stopover">途中下車</string>
+    <!-- Instruction for users to add notes to their e.g., bookings. -->
+    <string name="tap_to_add_notes">タップしてノートに追加します。</string>
+    <!-- Instruction for users to make a single selection -->
+    <string name="tap_to_make_a_selection">タップして選択します。</string>
+    <!-- Instruction for users to make one or more selections -->
+    <string name="tap_to_make_selections">タップして選択します。</string>
+    <!-- Instruction for users to book a trip as one-way or as a return. -->
+    <string name="tap_to_select_one_way_or_enter_a_return_trip_date">タップして片道を選択するか、復路の日程を入力します。</string>
+    <!-- Indicating an action that leads users to pick their home locations -->
+    <string name="tap_to_set_home">タップしてホームを設定</string>
+    <!-- Indicating an action that leads users to pick their work locations -->
+    <string name="tap_to_set_work">タップして勤務先を設定</string>
+    <!-- TripGo's Terms of Use link -->
+    <string name="terms_of_use">利用規約</string>
+    <!-- Message shown when user tries to make another booking while an existing one is still in progress -->
+    <string name="there_is_already_a_booking_in_progress">すでに予約が実行中です</string>
+    <!-- No comment provided by engineer. -->
+    <string name="this_will_delete_your_account_from_flavor_aposts_servers_dot_continued_use_of_flavor_will_create_a_new_empty_account_dot__note_coma_your_icloud_data_will_not_be_deleted_by_this_coma_but_you_can_delete_this_in_the_settings_app_dot">これにより、TripGoのサーバーからアカウントが削除されます。 TripGoを継続して使用すると、新しい空のアカウントが作成されます。\n\niCloudデータから削除するには、アプリの設定で行ってください。</string>
+    <!-- Notification message for trip with unknown destination. Notification message for a non-public transport trip. Provided is %time you need to leave. -->
+    <string name="time_to_leave_exclam_your_trip_commences_at__pattern">出発の時です!%s であなたの旅が始まります</string>
+    <!-- Notification message for a trip. Provided is %destination and %time you need to leave. -->
+    <string name="time_to_leave_exclam_your_trip_to__pattern_commences_at__pattern">出発しましょう！ %1$s に %2$s への旅行が始まります</string>
+    <!-- Title of button to access timetable -->
+    <string name="timetable">時刻表</string>
+    <!-- No comment provided by engineer. -->
+    <string name="to_calculate_trips_between_calendar_events_coma_flavor_will_send_your_calendar_information_to_our_server_and_use_that_data_to_do_the_planning_for_you_dot_you_can_disable_each_calendar_individually_coma_where_you_don_apostt_want_to_share_this_data_dot">カレンダーイベント間のトリップを計算するために、TripGoはカレンダー情報をサーバーに送信し、そのデータを使用して計画を立てます。このデータを共有したくない場合は、各カレンダーを個別に無効にすることができます。</string>
+    <!-- No comment provided by engineer. -->
+    <string name="to_show_transport_options_coma_we_may_share_per_minusquery_information_of_start_location_coma_end_location_coma_and_query_time_with_transport_providers_dot_you_can_disable_each_mode_individually_coma_where_you_don_apostt_want_to_share_this_data_dot">移動オプションを表示するために、出発地、到着地、問い合わせ時間の情報を交通事業者と共有する場合があります。このデータを共有したくない場合は、各モードを個別に無効にしてください。</string>
+    <!-- Recovery suggestion -->
+    <string name="to_use_this_feature_coma_please_enable_location_services_for_flavor">この機能を使用するには、TripGoの位置情報サービスを有効にしてください</string>
+    <!-- Title for button to access transport modes -->
+    <string name="transport">交通機関</string>
+    <!-- Trip history - Axis label for chart that displays trips by distance -->
+    <string name="trip_distance_km">移動距離 (km)</string>
+    <!-- No comment provided by engineer. -->
+    <string name="trip_selections">トリップ選択</string>
+    <!-- No comment provided by engineer. -->
+    <string name="flavor_cannot_access_its_local_files_dot">TripGo は、ローカルのファイルにアクセスできません。</string>
+    <!-- No comment provided by engineer. -->
+    <string name="tripgo_helps_you_optimise_daily_trips">TripGo は、日々の移動を快適にいたします</string>
+    <!-- No comment provided by engineer. -->
+    <string name="flavor_will_display_results_according_to_your_preferences">本サービスはこれらの設定に応じて結果を表示します。</string>
+    <!-- Trip history - Title for chart displaying trips according to their total distance -->
+    <string name="trips_by_distance">距離順</string>
+    <!-- Agenda - Text before departure time of upcoming trip -->
+    <string name="up_next">次</string>
+    <!-- Indicating the next trip is an upcoming trip -->
+    <string name="upcoming_trip">今後の旅行</string>
+    <!-- Heading of home card section for setting up Agenda -->
+    <string name="upcoming_trips_from_your_agenda_will_show_up_here">今後の移動予定がここに表示されます。</string>
+    <!-- Description of priority sliders -->
+    <string name="use_the_sliders_to_choose_your_highest_and_lowest_priorities_when_travelling_only_one_priority_can_b">移動の際に考慮する優先度をスライダーを使って設定します。最大化できる優先度は 1 つだけです。</string>
+    <!-- No comment provided by engineer. -->
+    <string name="use_this_option_to_review_and_manage_devices_you_have_registered_to_receive_push_notifications">登録した端末のプッシュ通知受信の確認および管理をするには、このオプションを使用してください</string>
+    <!-- Button to view something, e.g., a notification content or the EULA -->
+    <string name="view">表示:</string>
+    <!-- 'This data' refers to data about how a user users the app, which transport options they choose, etc. -->
+    <string name="we_keep_this_data_on_servers_in_australia_coma_europe_coma_or_the_us_dot_we_retain_this_data_forever_to_be_able_to_create_long_minusterm_trends_dot_for_more_details_coma_see_our_privacy_policy_dot">このデータは、オーストラリア、ヨーロッパ、または米国のサーバーに保存されます。長期的な傾向の把握のため、このデータを永久に保持します。詳細については、プライバシーポリシーをご覧ください。</string>
+    <!-- Every weekday in context of repetitions (especially recurring events) -->
+    <string name="weekdays">平日</string>
+    <!-- Every weekend day in context of repetitions (especially recurring events) -->
+    <string name="weekends">週末</string>
+    <!-- Inform customer that they have more than one note waiting for them. -->
+    <string name="you_have_x_notes">%d 個のメモがあります</string>
+    <!-- Informs customer that they have a single note waiting for them. -->
+    <string name="you_have_one_note">1個のメモがあります</string>
+    <!-- Name for a {%@}'s place if it's unclear if it's home, work or something else. -->
+    <string name="_pattern_aposts">%sの</string>
+    <!-- '%@' will be replaced with the person's name -->
+    <string name="_pattern_aposts_home">%s の家</string>
+    <!-- '%@' will be replaced with the person's name -->
+    <string name="_pattern_aposts_work">%s の仕事</string>
+    <!-- Number of repeats. (old key: NumberRecurrences) -->
+    <string name="_perclu_recurrences">%d 繰り返し</string>
+    <!-- Error when location search for %input was not successful. (old key: RequestErrorFormat) -->
+    <string name="_apost_pattern_apost_not_found_dot">\'%s\' が見つかりませんでした。</string>
+    <!-- Authorization restricted alert message -->
+    <string name="access_to_this_feature_has_been_restricted_for_your_device_dot_please_check_the_settings_app__moret_general__moret_restrictions_or_ask_your_device_provider_dot">この機能へのアクセスは、お使いのデバイスに制限されています。設定アプリを確認してください &gt; 一般 &gt; 制限またはデバイス プロバイダーに問い合わせてください。</string>
+    <!-- Accessibility label for action button -->
+    <string name="action">行動</string>
+    <!-- Default title for alert view -->
+    <string name="alert">警告</string>
+    <!-- Option for users if they already owned a SkedGo account -->
+    <string name="already_have_an_account_question">すでにアカウントをお持ちですか？</string>
+    <!-- Option for users if they already owned a SkedGo account -->
+    <string name="already_have_an_account_question_sign_in">アカウントを既にお持ちですか。サインイン</string>
+    <!-- Source where the account was derived, e.g., Facebook -->
+    <string name="authentication">認証</string>
+    <!-- Authorisation needed title -->
+    <string name="authorisation_needed">必要な承認</string>
+    <!-- Accessibility label for 'back' or 'previous' button -->
+    <string name="back">戻る</string>
+    <!-- Cancel action -->
+    <string name="cancel">取り消し</string>
+    <!-- Label for when a service is cancelled. -->
+    <string name="cancelled">キャンセルされました。</string>
+    <!-- Instruction for changing password -->
+    <string name="change">変更</string>
+    <!-- Accessibility title for a checkmark/tick button -->
+    <string name="checkmark">チェック マーク</string>
+    <!-- Close action -->
+    <string name="close">閉じる</string>
+    <!-- Title on the button that asks users to confirm if they want to proceed with booking -->
+    <string name="confirm">確認します。</string>
+    <!-- This often appears below a password field, asking users to confirm the password entered. -->
+    <string name="confirm_password">パスワード確認</string>
+    <!-- Title for button that allows users to contact our support team to help resolve some error in the app. -->
+    <string name="contact_support">サポートに連絡</string>
+    <!-- Error title when GPS failed. -->
+    <string name="could_not_determine_your_current_location_dot">あなたの現在位置を特定できませんでした。</string>
+    <!-- Could not download supported regions warning. (old key: CouldNotDownloadSupportedRegions) -->
+    <string name="could_not_download_supported_regions_from_flavor_aposts_server_dot_please_try_again_later_dot">TripGo のサーバーからダウンロードが サポートされていない可能性があります。後でもう一度試してください。</string>
+    <!-- Current city -->
+    <string name="current_city">現在の市</string>
+    <!-- Title for user's current location -->
+    <string name="current_location">現在の場所</string>
+    <!-- Class of errors usually originated from databases -->
+    <string name="data_error">データエラー</string>
+    <!-- Delete action -->
+    <string name="delete">削除</string>
+    <!-- Sort by distance -->
+    <string name="distance">距離</string>
+    <!-- Option for users if they don't yet have a SkedGo account -->
+    <string name="don_apostt_have_an_account_question">アカウントがありますか？</string>
+    <!-- Option for users if they don't yet have a SkedGo account -->
+    <string name="don_apostt_have_an_account_question_sign_up">アカウントを持っていますか・サインアップ</string>
+    <!-- Done action -->
+    <string name="done">行われます</string>
+    <!-- Drop new pin -->
+    <string name="drop_new_pin">新しいピンをドロップしてください</string>
+    <!-- Title for the screen which allows users to edit their accounts -->
+    <string name="edit_account">アカウントの編集</string>
+    <!-- For email address -->
+    <string name="email">電子メール</string>
+    <!-- Prompt for users to enter a new password -->
+    <string name="enter_a_new_password">新しいパスワードを入力してください</string>
+    <!-- Describing any generic/unclassified errors -->
+    <string name="error">エラー</string>
+    <!-- Text often displayed in a HUD, informing users some request has not been successfully sent, e.g., a request to resend a verification email -->
+    <string name="failed_to_send">送信されませんでした</string>
+    <!-- Placeholder text for textField that asks user's first name/given name -->
+    <string name="first_name">姓</string>
+    <!-- Reminder to leave preference -->
+    <string name="for_when_to_leave">いつ出発しますか</string>
+    <!-- A footnote that tells users we are asking for their current passwords, and why. -->
+    <string name="for_your_security_coma_please_enter_your_current_password_dot">セキュリティのため、パスワードを再入力してください。</string>
+    <!-- Title for a button which allows users to reset their password -->
+    <string name="forgot_password">パスワードをお忘れの場合</string>
+    <!-- Free as in beer -->
+    <string name="free">無料</string>
+    <!-- Name for a segment or vehicle where you get a lift from someone. -->
+    <string name="getting_a_lift">エレベータに乗る</string>
+    <!-- Accessibility annotation for trips which have a reminder set. -->
+    <string name="has_reminder">リマインダーあり</string>
+    <!-- Warning message shown to a user when he/she tries to change password without the primary email verified -->
+    <string name="in_order_to_change_your_password_coma_you_must_first_verify_your_email_dot_please_follow_the_link_that_was_sent_to_you_or_request_another_one_below_dot">パスワードを変更するには、最初にメールアドレスを確認する必要があります。送信されたリンクを確認するか、以下の別のリンクをリクエストしてください。</string>
+    <!-- Include contacts. -->
+    <string name="include_contacts">連絡先を含める</string>
+    <!-- A footnote that instructs users to check their emails for reset instructions -->
+    <string name="instructions_on_how_to_reset_password_has_been_sent_to_the_above_email_address_dot">パスワードのリセット方法については、上記のメールアドレスに送信されています。</string>
+    <!-- Name placeholder text -->
+    <string name="john_appleseed">ジョン・アップルシード</string>
+    <!-- Placeholder text for textField that asks user's last name/surname -->
+    <string name="last_name">姓</string>
+    <!-- Last updated at %date -->
+    <string name="last_updated_2points__pattern">最終更新日：%s</string>
+    <!-- Title of button to perform some action at a later time -->
+    <string name="later">後で</string>
+    <!-- Indicator for real-time information -->
+    <string name="live_traffic">交通状況</string>
+    <!-- Title for unnamed location -->
+    <string name="location">場所</string>
+    <!-- Location iOS authorisation needed text -->
+    <string name="location_services_are_required_to_use_this_feature_dot_please_go_to_the_settings_app__moret_privacy__moret_location_services_coma_make_sure_they_are_turned_on_and_authorise_this_app_dot">位置情報サービスは、この機能を使用する必要があります。設定アプリにアクセスしてください &gt; プライバシー &gt; ロケーション サービスをオンにし、このアプリを承認確認します。</string>
+    <!-- Reminder to leave preference -->
+    <string name="minutes_before_trip">トリップの数分前</string>
+    <!-- Title for name of something (or someone) -->
+    <string name="name">名前</string>
+    <!-- Response to question whether user wants to report a problem when taking a screenshot. Also used in context of repetitions (especially recurring events). -->
+    <string name="never">指定なし</string>
+    <!-- Next action -->
+    <string name="next">進む</string>
+    <!-- Indicator for no carbon emissions. Note the space is non-breaking white space! -->
+    <string name="no_co_2">CO₂無し</string>
+    <!-- Indicator for wheelchair not accessible services -->
+    <string name="not_wheelchair_accessible">車椅子対応不可</string>
+    <!-- Countdown cell 'now' indicator -->
+    <string name="now">今</string>
+    <!-- Ok action -->
+    <string name="ok">わかりました</string>
+    <!-- Button that goes to the Setting's app -->
+    <string name="open_settings">設定を開く</string>
+    <!-- Open in Safari action -->
+    <string name="open_in_safari">Safariで開く</string>
+    <!-- No comment provided by engineer. -->
+    <string name="password">パスワード</string>
+    <!-- A footnote that asks users for their email addresses in order to reset password -->
+    <string name="please_enter_your_registered_email_address_dot_we_will_then_send_you_instructions_on_how_to_reset_password">登録したメールアドレスを入力してください。パスワードをリセットする手順を送信します</string>
+    <!-- Please select a location prompt -->
+    <string name="please_select_a_location">場所を選択してください。</string>
+    <!-- Error recovery suggestion when GPS fails. -->
+    <string name="please_try_again_or_set_your_location_manually_dot">もう一度やり直してください。もしくは、手動で場所を設定してください。</string>
+    <!-- Please verify the location prompt -->
+    <string name="please_verify_the_location">場所を確認してください。</string>
+    <!-- Location picker 'no autocompletion results' text. Needs to match text on keyboard. -->
+    <string name="press__apostsearch_apost_for_more_dot_dot_dot">詳細については \'検索\' を押してください…</string>
+    <!-- Message to user if no primary email is set on his/her account -->
+    <string name="primary_email_is_not_set_on_your_account_dot_please_contact_us_for_support">プライマリメールがアカウントに設定されていません。サポートについてはお問い合わせください</string>
+    <!-- No comment provided by engineer. -->
+    <string name="read_more_dot_dot_dot">詳細…</string>
+    <!-- Indicator for real-time information -->
+    <string name="real_minustime">リアルタイム</string>
+    <!-- This is the placeholder text in a text field to inform users an optioanl referral code can be entered. -->
+    <string name="referral_code__start_parentoptional_end_parent">紹介コード（オプション）</string>
+    <!-- Action title to add/remove reminder -->
+    <string name="reminder">アラーム</string>
+    <!-- Give users an option to rece -->
+    <string name="resend_verification_email">確認メールを再送信する</string>
+    <!-- Title for a button which, when tapped, confirms the reset of password. -->
+    <string name="reset_password">パスワードをリセットする</string>
+    <!-- Retry action, e.g., in case something didn't load -->
+    <string name="retry">再試行</string>
+    <!-- Sports utility vehicle abbreviation -->
+    <string name="suv">SUV</string>
+    <!-- Sort by overall score, like a ranking. -->
+    <string name="score">スコア</string>
+    <!-- Empty search bar placeholder -->
+    <string name="search">検索</string>
+    <!-- No comment provided by engineer. -->
+    <string name="search_results">検索結果</string>
+    <!-- No comment provided by engineer. -->
+    <string name="search_for_a_city">都市を検索</string>
+    <!-- Placeholder text while waiting for server response when searching for a location. -->
+    <string name="searching_for__apost_pattern_apost_dot_dot_dot">%s を検索しています…</string>
+    <!-- A footnote that tells recommends the format of a secure password. -->
+    <string name="secure_passwords_are_at_least_five_characters_long_and_include_numbers_and_symbols">安全なパスワードは少なくとも5文字以上で、数字と記号を含みます</string>
+    <!-- Text often displayed in a HUD, informing users some request has successfully been sent, e.g., a request to resend a verification email -->
+    <string name="sent">送信済み</string>
+    <!-- Class of errors generated by our servers -->
+    <string name="server_error">サーバーにエラーが発生しました</string>
+    <!-- Error message when our server returns empty data in response to a network request -->
+    <string name="server_response_contains_no_data">サーバーの応答にデータが含まれていません</string>
+    <!-- Title of page or button to sign in -->
+    <string name="sign_in">サインイン</string>
+    <!-- Instruction for signing out user account -->
+    <string name="sign_out">サインアウト</string>
+    <!-- Title of page or button to sign up -->
+    <string name="sign_up">新規登録</string>
+    <!-- Starting %date. (old key: DateFromFormat) -->
+    <string name="starting__pattern">%s日から開始</string>
+    <!-- Accessibility hint for routing results screen. -->
+    <string name="tap_to_change_start_and_end_locations">タップして出発地と到着地を変更します</string>
+    <!-- Tap to set location. (old key: SetLocation) -->
+    <string name="tap_to_set_location">タップして場所を設定</string>
+    <!-- Error message shown to a user when zero-length password field is detected -->
+    <string name="the_password_field_cannot_be_empty_dot">パスワードを入力してください。</string>
+    <!-- Error message shown to a user when he/she enters incorrect username or password -->
+    <string name="the_username_or_password_you_apostve_entered_is_incorrect_dot">ユーザー名またはパスワードが正しくありません。</string>
+    <!-- Up to %date. (old key: DateToFormat) -->
+    <string name="up_to__pattern">%s まで</string>
+    <!-- Title for a button which, when tapped, proceeds to updating password -->
+    <string name="update">更新</string>
+    <!-- Message that shows app is updating trip after user finalised bookings -->
+    <string name="updating_trip">旅行の更新</string>
+    <!-- Message that informs users that some values are missing from the required fields in a booking form. -->
+    <string name="values_missing_from_required_fields_dot">必須項目に入力してください。</string>
+    <!-- Title for a button which, when tapped, proceeds to verifying password -->
+    <string name="verify">確認する</string>
+    <!-- Prompt for users to enter their passwords for verification purpose. -->
+    <string name="verify_password">パスワードの確認</string>
+    <!-- Indicator for unknow if service or station is wheelchair accessible or not -->
+    <string name="wheelchair_accessibility_unknown">車椅子のアクセシビリティは不明です</string>
+    <!-- Indicator for wheelchair accessible services -->
+    <string name="wheelchair_accessible">車椅子可</string>
+    <!-- Question asked when user is taking a screenshot -->
+    <string name="would_you_like_to_report_a_problem_question">問題を報告しますか?</string>
+    <!-- Message that informs users that T&C must be agreed before booking can be made. -->
+    <string name="you_need_to_agree_to_the_booking_terms_and_conditions_dot">ご予約の契約条件に同意する必要があります。</string>
+    <!-- Message that informs users that T&C for insurance must be agreed before booking can be made. -->
+    <string name="you_need_to_agree_to_the_insurance_terms_and_conditions_dot">保険約款に同意する必要があります。</string>
+    <!-- Calendar authorisation needed text -->
+    <string name="you_previously_denied_this_app_access_to_your_calendar_dot_please_go_to_the_settings_app__moret_privacy__moret_calendar_and_authorise_this_app_to_use_this_feature_dot">あなたは以前、あなたのカレンダーにこのアプリのアクセスを拒否されました。設定アプリにアクセスしてい &gt; プライバシー &gt; カレンダーに、この機能を使用するこのアプリを承認してください。</string>
+    <!-- Contacts authorisation needed text -->
+    <string name="you_previously_denied_this_app_access_to_your_contacts_dot_please_go_to_the_settings_app__moret_privacy__moret_contacts_and_authorise_this_app_to_use_this_feature_dot">あなたは以前、あなたの連絡先にこのアプリのアクセスを拒否されました。設定アプリにアクセスして &gt; プライバシー &gt; 連絡先に、この機能を使用するこのアプリを承認してください。</string>
+    <!-- Indicator that an event is all-day -->
+    <string name="all_minusday">終日</string>
+    <!-- Estimated time of arrival; parameter is time, e.g., 'arrives 15:30' -->
+    <string name="arrives__pattern">%s に到着</string>
+    <!-- Estimated time of departure; parameter is time, e.g., 'departs 15:30' -->
+    <string name="departs__pattern">%s を出発します。</string>
+    <!-- Short indicator of end-time -->
+    <string name="ends_at__pattern">%s で終了</string>
+    <!-- Email placeholder text -->
+    <string name="example_atexample_dotcom">example@example.com</string>
+    <!-- Short indicator of start-time -->
+    <string name="starts_at__pattern">%s が始まります</string>
+    <!-- to %date. (old key: DateToFormat) -->
+    <string name="to__pattern">%s に</string>
+    <!-- Error message when our server fails to return userToken in response to a sign in or sign up request -->
+    <string name="usertoken_is_missing_in_the_server_response">サーバーの応答にuserTokenがありません</string>
+    <!-- Format for a service's real-time indicator for a service which is early, e.g., '1 min early. This means #1 is replaced with something like '1 min'. -->
+    <string name="_pattern_early">早く %s</string>
+    <!-- Format for a service's real-time indicator for a service which is early, e.g., '1 min early (1:10 pm service). This means #1 is replaced with something like '1 min' and #2 is replaced with the original time, e.g., '1:10 pm'). -->
+    <string name="_pattern_early__start_parent_pattern_service_end_parent">%1$s 早く (%2$s サービス)</string>
+    <!-- Format for a service's real-time indicator for a service which is late, e.g., '1 min late. This means #1 is replaced with something like '1 min' -->
+    <string name="_pattern_late">%s 遅延</string>
+    <!-- Format for a service's real-time indicator for a service which is late, e.g., '1 min late (1:10 pm service). This means #1 is replaced with something like '1 min' and #2 is replaced with the original time, e.g., '1:10 pm'). -->
+    <string name="_pattern_late__start_parent_pattern_service_end_parent">%1$s 遅延 (%2$s サービス)</string>
+    <!-- Title for something that happened a certain timeframe ago, e.g., '5 mins ago' -->
+    <string name="ago">%s 前</string>
+    <!-- Number of alerts, in this case, there are multiple (plural -->
+    <string name="_pattern_alerts">%s 通知</string>
+    <!-- Filler for a specific service running at a time, e.g., '396 at 11:56am' -->
+    <string name="_pattern_at__pattern">%2$s 時 %1$s</string>
+    <!-- Indicator for how cycle-friendly a cycling route is. Placeholder will get replaced with '75%'. -->
+    <string name="_pattern_cycle_friendly">%s 自転車に適している</string>
+    <!-- Filler for a specific frequency-based service indicating its frequency, e.g., 'M10 every 10 minutes' -->
+    <string name="_pattern_every__pattern">%2$s ごとに %1$s</string>
+    <!-- Text for an 'x more' indication if there's more content. '%@' will be replaced with a number -->
+    <string name="more">さらに%s</string>
+    <!-- Number of stops before you get off a vehicle, if there are 2 stops or more, e.g., '10 stops'. (old key: Stops) -->
+    <string name="_pattern_stops">%s 停止</string>
+    <!-- Duration without traffic -->
+    <string name="_pattern_w_slasho_traffic">交通 %s</string>
+    <!-- Indicator for how wheelchair-friendly a wheeelchair route is. Placeholder will get replaced with '75%'. -->
+    <string name="_pattern_wheelchair_friendly">%s 車いす</string>
+    <!-- Number of alerts, in this case, there is just one -->
+    <string name="_1_alert">1件の通知</string>
+    <!-- Number of stops before you get off a stop, if there's just 1 stop. -->
+    <string name="_1_stop">1 ストップ</string>
+    <!-- No comment provided by engineer. -->
+    <string name="alerts">アラート</string>
+    <!-- Instruction to follow street of the provided name -->
+    <string name="along__pattern">%s に沿って</string>
+    <!-- Instruction to follow unnamed street -->
+    <string name="along_unnamed_street">名前のない通りに沿って</string>
+    <!-- Action button title to see alternative options for the case where you cant make the next connection -->
+    <string name="alternative_routes">代替ルート</string>
+    <!-- apple maps directions action -->
+    <string name="apple_maps">Appleマップ</string>
+    <!-- Prefix for selected 'arrive by' time
+         Single line instruction to arrive -->
+    <string name="arrive">到着</string>
+    <!-- The place of arrival. -->
+    <string name="arrive__pattern">%s に到着</string>
+    <!-- The first '%@' will be replaced with the place of arrival, the second with the arrival time. (old key: ArrivalLocationTime) -->
+    <string name="arrive__pattern_at__pattern">%2$sに %1$sに到着</string>
+    <!-- '%@' will be replaced with the arrival time. (old key: ArrivalTime) -->
+    <string name="arrive_at__pattern">%s に到着します。</string>
+    <!-- The first '%@' will be replaced with the place of arrival, the second with the time. (old key: ArrivalLocationTime) -->
+    <string name="arrive_at__pattern_at__pattern">%2$sに %1$sに到着</string>
+    <!-- Arrive before button -->
+    <string name="arrive_by">到着します。</string>
+    <!-- Title for when you'll arrive when on a trip. Countdown to arrival will be displayed below. -->
+    <string name="arrive_in">到着します。</string>
+    <!-- Used when the trip does not end at the requested location, but nearby. The '%@' will be replaced with requested destination location. -->
+    <string name="arrive_near__pattern">%s の近くに到着</string>
+    <!-- 'At %location' indicator for parts of a trip that happen at a single location, e.g., waiting at a platform, parking at a car park. (old key: PrimaryLocationStationary) -->
+    <string name="at_a6e369d789135bd08dfca9ccd872dba1">%s で</string>
+    <!-- Text for vehicle of type: Bicycle -->
+    <string name="bicycle">自転車</string>
+    <!-- Action title to make a booking -->
+    <string name="book">予約</string>
+    <!-- Action title to make a booking using service/app named '@%' -->
+    <string name="book_with__pattern">%sで予約</string>
+    <!-- No comment provided by engineer. -->
+    <string name="call">呼び出し</string>
+    <!-- Action title to make a call to service/company named '@%' -->
+    <string name="call__pattern">%s を呼び出す</string>
+    <!-- Text for vehicle of type: Car -->
+    <string name="car">車</string>
+    <!-- Title of page to change the from/to of the routing results -->
+    <string name="change_route">ルート変更</string>
+    <!-- Trip badge: Cheapest -->
+    <string name="ceapest">最安</string>
+    <!-- Accessibility title for button that points up to collapse a section -->
+    <string name="collapse">閉じる</string>
+    <!-- Error title when server could not find a given transit stop. -->
+    <string name="could_not_find_transit_stop_dot">公共交通の停止を見つけることができませんでした。</string>
+    <!-- Title for button to customise the home card -->
+    <string name="customise_home">ホームをカスタマイズ</string>
+    <!-- Title for screen showing data providers -->
+    <string name="data_providers">データプロバイダー</string>
+    <!-- Text for attributing data sources. The list of providers will be used instead of '%@' -->
+    <string name="data_provided_by__pattern">データ提供者 %s</string>
+    <!-- Used when the trip does not start at the requested location, but nearby. The '%@' will be replaced with requested departure location. -->
+    <string name="depart_near__pattern">%s 付近で出発する</string>
+    <!-- Destination of the bus -->
+    <string name="direction">方向</string>
+    <!-- Status indicator that a mode is not enabled -->
+    <string name="disabled">無効</string>
+    <!-- To disconnect/unlink from a service provider, e.g., Uber -->
+    <string name="disconnect">切断</string>
+    <!-- Button to dismiss something, e.g., an error or action action sheet -->
+    <string name="dismiss">消去する</string>
+    <!-- Indicating a path requires you to dismount and push your bicycle -->
+    <string name="dismount">降車</string>
+    <!-- Text for vehicle of type: E-Bike -->
+    <string name="e_minusbike">電動アシスト自転車</string>
+    <!-- Trip badge: Easiest -->
+    <string name="easiest">非常に易しい</string>
+    <!-- As in 'this bus/train is empty' -->
+    <string name="empty">空です</string>
+    <!-- Status indicator that a mode is enabled -->
+    <string name="enabled">有効</string>
+    <!-- Placeholder name for destination (then replaced with address or name) -->
+    <string name="end_location">終了場所</string>
+    <!-- Accessibility title for button that points down to expand a section -->
+    <string name="expand">開く</string>
+    <!-- Action title to extend an existing booking -->
+    <string name="extend">延長</string>
+    <!-- Trip badge: Fastest -->
+    <string name="fastest">最速</string>
+    <!-- As in 'this bus/train has few seats available' -->
+    <string name="few_seats_available">いくつかの空席</string>
+    <!-- Indicating a path is wheelchair/cycyling friendly -->
+    <string name="friendly">対応</string>
+    <!-- Departure location. (old key: PrimaryLocationStart) -->
+    <string name="from__pattern">%s から</string>
+    <!-- As in 'this bus/train is full and likely can't accept further passengers' -->
+    <string name="full">満席</string>
+    <!-- Action title get/download app of name '@%' -->
+    <string name="get__pattern">%sを取得</string>
+    <!-- Title for button to get/download an external app. -->
+    <string name="get_app">アプリを取得</string>
+    <!-- Action button title for getting turn-by-turn directions -->
+    <string name="get_directions">道順します。</string>
+    <!-- Instruction to get a service towards provided destination -->
+    <string name="get_on_service_to__pattern">%sまでサービスを開始します</string>
+    <!-- Title of button to start a trip -->
+    <string name="go">開始</string>
+    <!-- google maps directions action -->
+    <string name="google_maps">Google マップ</string>
+    <!-- Trip badge: Greenest -->
+    <string name="greenest">最も環境に優しい</string>
+    <!-- Trip badge: Healthiest -->
+    <string name="healthiest">最も健康的な</string>
+    <!-- First '%@' will be replaced with destination location, second with arrival at that location. (old key: MessageArrivalTime) -->
+    <string name="i_apostll_arrive_at__pattern_at__pattern">%2$sに %1$sに到着</string>
+    <!-- Indication of an activity. (old key: ActivityIndication) -->
+    <string name="i_apostll_take_a__pattern_at__pattern_from__pattern_dot">%3$sから %2$sで %1$s を使用します。</string>
+    <!-- Indication of an activity. -->
+    <string name="i_apostll_take_a__pattern_from__pattern_dot">%2$sから%1$s を使用します。</string>
+    <!-- Title for something to happen in a certain timeframe, e.g., 'In 5 mins' -->
+    <string name="in__pattern">%s内に</string>
+    <!-- %@ is replaced with app name -->
+    <string name="in_the_meantime_coma_let_aposts_keep_exploring__pattern_and_enjoy_your_trips">とりあえず %s を探索しながら、移動を楽しみましょう。</string>
+    <!-- Title for section with instant results in autocompletion -->
+    <string name="instant_results">簡易結果</string>
+    <!-- Text for vehicle of type: Kick Scooter -->
+    <string name="kick_scooter">キックスクーター</string>
+    <!-- Prefix for selected 'leave after' time
+         Single line instruction to leave -->
+    <string name="leave">出発</string>
+    <!-- The place of departure. (old key: LeaveLocation) -->
+    <string name="leave__pattern">%s を出発</string>
+    <!-- The place of departure with time. (old key: LeaveLocationTime) -->
+    <string name="leave__pattern_at__pattern">%2$sに %1$sを出発</string>
+    <!-- Leave after button -->
+    <string name="leave_at">出発</string>
+    <!-- Time departure. (old key: LeaveTime) -->
+    <string name="leave_at__pattern">%sに出発</string>
+    <!-- Title for when to depart. Countdown to departure will be displayed below. -->
+    <string name="leave_in">で出発</string>
+    <!-- Leave ASAP/now option -->
+    <string name="leave_now">すぐに出発</string>
+    <!-- Title of button to show fewer results -->
+    <string name="less">折り畳む</string>
+    <!-- As in 'this bus/train is so full, there's only limited standing room' -->
+    <string name="limited_standing_room_only">残り少ない立ち席のみ</string>
+    <!-- Indicating when something is loading -->
+    <string name="loading">読み込み中…</string>
+    <!-- As in 'this bus/train has many seats available' -->
+    <string name="many_seats_available">沢山の座席が利用可能</string>
+    <!-- No comment provided by engineer. -->
+    <string name="map_by">%s によるマップ</string>
+    <!-- Title of button to show additional results -->
+    <string name="more">さらに表示</string>
+    <!-- Title of button to get more details about an alert -->
+    <string name="more_info">さらに詳しい情報</string>
+    <!-- 'More results' section in autocompletion -->
+    <string name="more_results">その他の結果</string>
+    <!-- Text for vehicle of type: Moto Scooter -->
+    <string name="moto_scooter">モトスクーター</string>
+    <!-- Text for vehicle of type: Motorbike -->
+    <string name="motorbike">バイク</string>
+    <!-- Indicating no trips have been planned within the next 24 hrs -->
+    <string name="no_planned_trips">予定の外出はありません</string>
+    <!-- Indicator to show when a service does not have real-time data (even though we usually get it for services like this.) -->
+    <string name="no_real_minustime_available">リアルタイムデータは利用できません</string>
+    <!-- As in 'this bus/train is full and definitely not accepting further passengers' -->
+    <string name="not_accepting_passengers">利用不可</string>
+    <!-- Indicator to show when a service is on time according to real-time data. -->
+    <string name="on_time">定刻</string>
+    <!-- Indicating no return trip is required. -->
+    <string name="one_way_only">片道のみ</string>
+    <!-- Action title open app of name '@%' -->
+    <string name="open__pattern">%s を開く</string>
+    <!-- Title for button that opens an external app. -->
+    <string name="open_app">アプリを開く</string>
+    <!-- Action button title for opening something in another app. Tapping this button will show a list of app names. -->
+    <string name="open_in">…で開く</string>
+    <!-- Title for opening hours -->
+    <string name="opening_hours">営業時間</string>
+    <!-- Title of page to plan a trip -->
+    <string name="plan_trip">旅行計画</string>
+    <!-- No comment provided by engineer. -->
+    <string name="plan_a_trip_and_it_will_show_up_here_dot">トリップを計画するとここに表示されます。</string>
+    <!-- Confirmation text to open app of name '@%' -->
+    <string name="please_confirm_switching_to_to_get_directions">道順を取得するには、 %s への切り替えを確認してください。</string>
+    <!-- No comment provided by engineer. -->
+    <string name="powered_by">使用</string>
+    <!-- No comment provided by engineer. -->
+    <string name="powered_by__pattern">協力 %s</string>
+    <!-- No comment provided by engineer. -->
+    <string name="public_holiday">国民の休日</string>
+    <!-- Trip badge: Recommended -->
+    <string name="recommended">おすすめ</string>
+    <!-- No comment provided by engineer. -->
+    <string name="routing_between_these_locations_is_not_yet_supported_dot">これらの場所間のルーティングはまだサポートされていません。</string>
+    <!-- Label to indicate that the time for a service is the scheduled time, i.e., displayed as on the timetable with no real-time data available. -->
+    <string name="scheduled">予定済み</string>
+    <!-- No comment provided by engineer. -->
+    <string name="search_for_destination">宛先を検索</string>
+    <!-- Error recovery suggestion for when when server could not find a given transit stop. -->
+    <string name="search_for_this_stop_again_or_try_again_later_dot_dot">この停止を再度検索または、後でもう一度試してください.</string>
+    <!-- Send SMS action button -->
+    <string name="send_sms">SMS を送信します。</string>
+    <!-- Title for displaying the details of a public transport service (i.e., a specific departure of a specific route) -->
+    <string name="service">サービス</string>
+    <!-- Alert if service has been cancelled, meaning that the user can't take it and find an alternative -->
+    <string name="service_has_been_cancelled_dot">サービスはキャンセルされました。</string>
+    <!-- Button label to set departure time -->
+    <string name="set_time">時間の設定</string>
+    <!-- Title for button that, when tapped, shows something, e.g., a list of alert -->
+    <string name="show">表示する</string>
+    <!-- Show website action button -->
+    <string name="show_website">ウェブサイトを見る</string>
+    <!-- As in 'this bus/train is fairly full and has standing room only' -->
+    <string name="standing_room_only">混雑のため座れません</string>
+    <!-- Placeholder name for origin (then replaced with address or name) -->
+    <string name="start_location">開始位置</string>
+    <!-- Destination location. For trip titles, e.g., 'To work'. (old key: PrimaryLocationEnd) -->
+    <string name="to_914fa9976084bcf919fe0386d23b725f">%s へ</string>
+    <!-- Title for a trip -->
+    <string name="trip">旅行</string>
+    <!-- Title for trip of provided index -->
+    <string name="trip__pattern">旅行 %s</string>
+    <!-- Title of page that shows routing results -->
+    <string name="trips">旅行</string>
+    <!-- Indicating a path is wheelchair/cycyling unfriendly -->
+    <string name="unfriendly">対応なし</string>
+    <!-- Indicating the wheelchair/cycling friendliness of a path is unknown -->
+    <string name="unknown">不明</string>
+    <!-- Title for button that unlocks a shared vehicle. -->
+    <string name="unlock">ロックを解除</string>
+    <!-- Vehicle updated. (old key: VehicleUpdated) -->
+    <string name="updated__pattern_ago">%s 前に更新</string>
+    <!-- Vehicle 'x' updated. (old key: VehicleCalledUpdated) -->
+    <string name="vehicle__pattern_updated__pattern_ago">車両 %1$s が %2$s 前に更新されました</string>
+    <!-- Title for showing the number of available vehicles (e.g., scooters, cars or bikes) -->
+    <string name="vehicles">乗り物</string>
+    <!-- No comment provided by engineer. -->
+    <string name="we_are_busy_getting_your_upcoming_trip_dot_please_wait_dot_dot_dot">次のトリップを取得中。お待ちください...</string>
+    <!-- No comment provided by engineer. -->
+    <string name="we_apostll_keep_you_updated_with_the_latest_transit_alerts_here">ここで最新の乗り継ぎ情報をお知らせします</string>
+    <!-- Alert if service running late/early, meaning that the user might not make the next service -->
+    <string name="you_might_not_make_this_transfer">このトランスファーには間に合わないかもしれません。</string>
+    <!-- Time of the bus departure. (old key: DepartureTime) -->
+    <string name="at_b130db07f4aca55570816cd8a48bf4ae">%s に</string>
+    <!-- Text indiction for how long a segment might take, where '%@' will be replaced with a duration. E.g., the instruction 'Take bus' might have this next to it as 'for 10 minutes'. -->
+    <string name="for__pattern">%s で</string>
+
+    <!-- MaaS.xliff & Subscription.xliff -->
+
+    <!-- Subscription.xliff -->
+    <!-- Format string for displaying the fee users must pay per month to access the discounted rates available in a mobility plan. Example: Subscription (feeType): $50 (value) per month -->
+    <string name="per_month">%1$s: 1 ヶ月あたり %2$s</string>
+    <!-- Message to entice users to sign up to a subscription plan. -->
+    <string name="a_subscription_provides_access">サブスクリプションによって、特権世界へのアクセスを手にしましょう。</string>
+    <!-- This is to indicate a mobility plan is active and available for users to subscribe to -->
+    <string name="active">有効</string>
+    <!-- Title for the button that allows users to change his/her mobility plan for the next month -->
+    <string name="change_to_this_plan">このプランに変更する</string>
+    <!-- This is to indicate a mobility plan is the user's current plan -->
+    <string name="current">使用中</string>
+    <!-- No comment provided by engineer. -->
+    <string name="current_billing_cycle">現在の支払サイクル</string>
+    <!-- Heading that informs users when a mobility plan takes effect. -->
+    <string name="str_effective_from">から有効</string>
+    <!-- This is followed by some date, e.g., Effective from 11 Nov, 9:28am. This is commonly used to indicate when the next mobility subscription plan comes into effect. -->
+    <string name="effective_from_pattern">%sから有効</string>
+    <!-- Title for an error alert. This error typically occurs the app cannot fetch the list of available plans. -->
+    <string name="error_retrieving_plans">プランの取得中にエラーが発生しました</string>
+    <!-- This is often used as a title for a label that shows when a plan will expire -->
+    <string name="str_expires_on">有効期限</string>
+    <!-- This is followed by some date, e.g., Expire on 11 Nov, 9:28am. This is commonly used to indicate when the a  mobility subscription plan ends. -->
+    <string name="expiry_date_pattern">有効期限\u0020\u0020%s</string>
+    <!-- This usually means some service is free of charge, for instance, public transport may be free inside a mobility bundle -->
+    <string name="free">無料</string>
+    <!-- This usually means that there's no discount for some service. For instance, a user may need to pay full fare for a transport mode not included in his/her mobility bundle. -->
+    <string name="full_fare">運賃（全額）</string>
+    <!-- This is a status text that tells users the app is working to get their mobility subscriptions -->
+    <string name="retrieving_subscription">サブスクリプションを取得する</string>
+    <!-- This is to indicate a mobility plan is inactive and unavailable for users to subscribe to -->
+    <string name="inactive">使用されていません</string>
+    <!-- Title for a cell that shows the last payment date for a plan. -->
+    <string name="str_last_payment">前回の支払い</string>
+    <!-- This is a type of mobility bundle. It usually means users have to pay the amount specified to access the benefits included in the bundle. The difference between this and the Subscription type is the fees paid can be used on travel. -->
+    <string name="minimum_purchase">最低購入数</string>
+    <!-- Title for an error alert. This error happens when a subscription is missing when we expect them not to. -->
+    <string name="missing_subscription_plan">サブスクリプションプランがありません</string>
+    <!-- Title for screen that shows a list of mobility plans currently offered. -->
+    <string name="mobility_plans">モビリティプラン</string>
+    <!-- Title for screen that shows the user's current and upcoming (if applicable) plans -->
+    <string name="my_mobility_plan">モビリティプラン</string>
+    <!-- This is typically used as the title for a table view section or view controller that shows infomration about a user's mobility subscriptions -->
+    <string name="my_subscription">サブスクリプション</string>
+    <!-- Heading that shows the name of a mobility plan -->
+    <string name="name">名前</string>
+    <!-- No comment provided by engineer. -->
+    <string name="next_billing_cycle">次の支払サイクル</string>
+    <!-- This is a message displayed in an error alert. This error happens when the user tries to remove a non-upcoming plan. -->
+    <string name="only_upcoming_plan_can_be_removed">今後のプランのみ削除できます。</string>
+    <!-- Title for a cell that leads users to view a list of plans that are neither current nor upcoming. -->
+    <string name="other_plans">その他のプラン</string>
+    <!-- Instruction for users who aren't currently subscribed to any plans. -->
+    <string name="pick_a_subscription">サブスクリプションを選択してください</string>
+    <!-- Title for an error alert. This error happens during a bundle/plan look up by an identifier. -->
+    <string name="plan_not_found">プランが見つかりません</string>
+    <!-- Title for a cell that shows the status of a plan, possible value: active and inactive. -->
+    <string name="str_plan_status">プランの状態</string>
+    <!-- This is a message displayed in an error alert. The error happens during a bundle/plan look up by an identifier. -->
+    <string name="plan_with_the_specified_id_cannot_be_found">指定されたIDのプランが見つかりません</string>
+    <!-- Alert message when users attempt to change their plans in the next month. -->
+    <string name="please_confirm_the_request_to_change_plan_dot_the_new_plan_will_become_effective_on_the_first_day_of_next_month_dot">プラン変更依頼をご確認ください。新プランは来月1日から有効になります。</string>
+    <!-- Alert message when users attempt to renew their current plans for the next month. -->
+    <string name="please_confirm_the_request_to_renew_plan_the_renewal_will_become_effective_on_the_first_day_of_next_">プラン更新リクエストをご確認ください。更新は来月の１日に有効になります。</string>
+    <!-- Alert message when users attempt to unscribe from their upcoming plans -->
+    <string name="please_confirm_unsubscribing_from_this_plan_dot_you_will_remain_on_the_current_plan_in_the_next_month">このプランからの購読解除を確認してください。来月も現在のプランを継続します</string>
+    <!-- This provides a little bit more context when getting users' subscription. It is often used as in conjection with GettingSubscription. -->
+    <string name="retrieving_subscription_message">サブスクリプションを確認するまでお待ちください。完了まで少し時間がかかる場合があります。</string>
+    <!-- No comment provided by engineer. -->
+    <string name="purchasing_an_inactive_bundle_is_not_allowed">非アクティブな乗り放題チケットを購入することはできません。</string>
+    <!-- No comment provided by engineer. -->
+    <string name="purchasing_another_bundle_more_than_prior_to_the_expiry_of_the_current_one_is_not_allowed">現在の乗り放題チケットの有効期限が切れる %s 以上前に別の乗り放題チケットを購入することはできません。</string>
+    <!-- Title for a button that when tapped, takes users to renew a mobility subscription plan -->
+    <string name="renew">更新</string>
+    <!-- This is followed by some date, e.g., Started on 11 Nov, 9:28am. This is commonly used to indicate when the a mobility subscription plan started. -->
+    <string name="started_on">%s に開始</string>
+    <!-- Label to indicate a mobility bundle has been subscribed -->
+    <string name="subscribed">購入済み</string>
+    <!-- This is a type of mobility bundle. It usually means users have to pay some fees per month to access the benefits included in the bundle. The difference between this and the minimum purchase type is the fees paid cannot be used on any travel. -->
+    <string name="subscription">サブスクリプション</string>
+    <!-- Example: Take $10 off -->
+    <string name="format_discount">%s 割引</string>
+    <!-- Format string for displaying the discount user received for a trip. The discount is specified in the dollar term or a percentage. Examples: 'Take $5 off every trip' or 'Take 5% off every trip' -->
+    <string name="take_off_every_trip">毎回のトリップが%s 割引</string>
+    <!-- Default explanation for fees charged on a mobility plan, usually as a footer -->
+    <string name="these_are_the_fees_payable_to_access_discounted_rates_on_included_transport_modes">これらは、輸送モードの割引料金にアクセスするために支払う料金です</string>
+    <!-- This is a message displayed in an error alert -->
+    <string name="this_feature_requires_a_tripgo_account_if_you_already_have_one_please_sign_in_otherwise_please_conta">この機能にはTripGo アカウントが必要です。既にお持ちの場合はサインインしてください。それ以外の場合は管理者にお問い合わせください。</string>
+    <!-- Format string for describing whether a plan is user's current or upcoming plan. Example: This is your \"upcoming\" plan -->
+    <string name="this_is_your_current_plan">こちらがあなたの %s プランです</string>
+    <!-- Placeholder text for the view that shows what TSP is included in a mobility bundle. This should be replaced by something like \"Uber\" at run time. -->
+    <string name="transport_mode">輸送モード</string>
+    <!-- This is the error that happens when the app encounters problems getting users' subscriptions. -->
+    <string name="unable_to_get_subscriptions">サブスクリプションを取得できません。</string>
+    <!-- This usually means there's no cap on using some service, for instance, a mobility bundle may include unlimited usage on public transport -->
+    <string name="unlimited">無制限</string>
+    <!-- This is to indicate a mobility plan is the user's future, usually next month, plan -->
+    <string name="upcoming">今度の</string>
+    <!-- Title for a button that when tapped, takes users to view details for a mobility plan -->
+    <string name="view_plan">プランを表示</string>
+    <!-- Text informing users they are continuing with their current plans for the next month. -->
+    <string name="you_are_continuing_with_this_pass">このプランで継続します</string>
+    <!-- No comment provided by engineer. -->
+    <string name="lbl_empty_pass_message">以下の「利用可能なプラン」オプションを使用して開始できます。プランと支払い履歴はこちらに表示されます。</string>
+    <!-- This is a message displayed in an error alert. This error happens when the user tries to subscribe to a plan he/she is already subscribed to. -->
+    <string name="you_have_already_subscribed_to_this_plan">すでにこのプランを購読しています。</string>
+    <!-- Text for a label that tells users they haven't purchased any plans yet. -->
+    <string name="lbl_empty_pass">プランを選択していません。</string>
+    <!-- Explanation for transport modes included in a mobility plan, usually displayed as a footer -->
+    <string name="you_will_receive_discounted_rates_if_the_above_transport_modes_are_used_dot_for_transport_modes_not_shown_coma_full_fares_apply">上記の輸送モードを使用すると割引料金が適用されます。表示されていない輸送モードの場合は、全額が適用されます。</string>
+    <!-- Placeholder text for the view that indicates what discount is offered for a TSP included in a mobility bndle. This should be replaced by something like \"Take 5% off each trip\" at run time. -->
+    <string name="applicable_discount">利用可能な割引</string>
+
+    <!-- MaaS.xliff -->
+    <!-- Number of points, but only estimate. Example: 10 pts (est) -->
+    <string name="x_est">%1$d %2$s （推定）</string>
+    <!-- Title for a section in the home card that indicates the trip a user is currently or will soon be undertaking -->
+    <string name="active_trip">予約情報</string>
+    <!-- This is a term that describes everything that happens while user is on a mobility plan. There are two types of activities defined: trips and transactions. -->
+    <string name="activities">アクティビティ</string>
+    <!-- Action button to log a trip -->
+    <string name="add_to_my_log">マイログに追加</string>
+    <!-- This is one of the statuses of a transaction. -->
+    <string name="approved">承認済み</string>
+    <!-- Title for notification when arriving at destination. The placeholder will be replaced with the name of the location. -->
+    <string name="arriving_at__pattern">%s に到着</string>
+    <!-- Title for notification when arriving at destination. -->
+    <string name="arriving_at_destination">目的地に到着中</string>
+    <!-- This usually means some resources is available. For instance, this could be displayed alongside a reward to indicate the user has enough points to make a redemption. -->
+    <string name="available">利用可能</string>
+    <!-- This refers to the points that can be used to make redemptions. -->
+    <string name="available_rewards">ご利用可能なポイント</string>
+    <!-- This is the title for a table view section that displays a user's reward points balances -->
+    <string name="rewards_balance">残高セクション</string>
+    <!-- This can be used as a title for a screen that lists all booking activities. -->
+    <string name="str_my_bookings">予約</string>
+    <!-- Description on empty bookings screen -->
+    <string name="bookings_made_with_flavor_will_appear_here_dot">TripGo での予約は、ここに表示されます。</string>
+    <!-- Informing users that they may be viewing cached bookings -->
+    <string name="bookings_may_be_outdated">予約情報が古くなっている可能性があります</string>
+    <!-- Title for section that allows users to filter transactions by date ranges, e.g., Last 14 days -->
+    <string name="str_by_transaction_dates">決済日</string>
+    <!-- Title for section that allows users to filter transactions by their statuses, e.g., Pending, approved...etc -->
+    <string name="str_by_transaction_status">決済状況</string>
+    <!-- This is a type of reward whereby users can reduce the cost of a product by rewards points. -->
+    <string name="str_cashback">キャッシュバック</string>
+    <!-- Button to remove a photo (e.g., a receipt) -->
+    <string name="clear_photo">写真を削除</string>
+    <!-- This is usually used to tell users a feature is comingshortly. For instance, an app may launch without any rewards. The app can use this in the empty reward list view. -->
+    <string name="coming_soon">準備中</string>
+    <!-- Action button title to confirm that you arrived at the destination (for logging purposes) -->
+    <string name="confirm_arrival">到着を確認する</string>
+    <!-- Title for an alert that asks users for confirmation. -->
+    <string name="confirmation_is_required">ご確認ください</string>
+    <!-- This indicate the date on which some request is made. -->
+    <string name="date_requested">リクエスト日</string>
+    <!-- Title for a cell that shows the description for a mobility plan -->
+    <string name="description">説明</string>
+    <!-- Format string for displaying the reward points user received for a trip. Examples: 'Earn 1.5 reward points per dollar spent' -->
+    <string name="reward_label_message_format">Earn %1$s %2$s per dollar spent</string>
+    <!-- String for displaying a single reward point a user received for a trip. -->
+    <string name="earn_1_point_per_dollar_spent">Earn 1 point per dollar spent</string>
+    <!-- This is the title for a table view section that displays a list of earnings made by the user -->
+    <string name="str_earnings">獲得報酬</string>
+    <!-- Title of screen to edit a log entry -->
+    <string name="edit_log">ログの編集</string>
+    <!-- Used in countdown context, indicating when a ticket becomes valid -->
+    <string name="effective_in">有効であります。</string>
+    <!-- Title for an error alert. This error happens when our server returns successfully but the response contains no data. -->
+    <string name="empty_server_response">サーバーの応答の中身がありません</string>
+    <!-- Informing users that the app has encountered an error while retrieving their active trips. -->
+    <string name="error_while_getting_your_active_trip">有効な予約情報の取得に失敗しました。</string>
+    <!-- This indicate the time taken for operator to approve a redemption. -->
+    <string name="estimated_time_to_approval">推定承認時間</string>
+    <!-- Title for list of expired tickets -->
+    <string name="expired">失効</string>
+    <!-- Used in countdown context, indicating when a ticket expires -->
+    <string name="expires_in">有効期限まで</string>
+    <!-- This is the title for a table view section that displays a list of rewards available to the user -->
+    <string name="str_featured_rewards">注目の報酬</string>
+    <!-- Title for the screen that allows users to filter their transactions -->
+    <string name="filter">絞り込み</string>
+    <!-- This is one type of payment option referring to no cashback applied -->
+    <string name="full_price">総額</string>
+    <!-- No comment provided by engineer. -->
+    <string name="str_getting_active_trip">有効な予約情報の取得中...</string>
+    <!-- This is a status report indicating a network request is ongoing to get the user's recent redemptions -->
+    <string name="getting_your_recent_redemptions">最近の払い戻し情報を取得しています...</string>
+    <!-- This is a status report indicating a network request is ongoing to get the user's rewards balances -->
+    <string name="getting_your_rewards_balances">報酬残高を取得しています...</string>
+    <!-- This can be used as a header for a section that provides help information to users -->
+    <string name="help">ヘルプ</string>
+    <!-- Action button title to hide the trips of a logged entry -->
+    <string name="hide_trips">Hide trips</string>
+    <!-- Instruction text to show when user is trying to make a booking, but he/she needs to create an account first. -->
+    <string name="in_order_to_make_bookings_you_either_need_to_log_into_your_device_with_an_apple_id_or_you_need_to_cr">予約するには、Apple IDを使用してデバイスにログインするか、TripGoアカウントを作成する必要があります。</string>
+    <!-- This usually appears alongside a reward indicating the user does not have enough points to make a redemption -->
+    <string name="lbl_insufficient_points">ポイント不足</string>
+    <!-- Title for an error alert. This error is typicall the result of a user performed something that is not expected. For instance, when the user tries to subscribe to a plan that he/she is already subscribed to. -->
+    <string name="invalid_action">無効な操作</string>
+    <!-- This is an error title, meaning the app was trying to open an invalid URL. -->
+    <string name="invalid_link">リンクが無効です</string>
+    <!-- This refers to the points that the user accummulates since the beginning. -->
+    <string name="lifetime_rewards">ライフタイムポイント</string>
+    <!-- Title for profile item that loads a list of user's bookings -->
+    <string name="my_bookings">予約</string>
+    <!-- This is usually used as the title for a table view section or view controller that shows information about a user's rewards. -->
+    <string name="my_rewards">報酬</string>
+    <!-- Text to show on screen that lists bookings if user hasn't made a booking yet. -->
+    <string name="no_bookings_yet_exclam">予約はまだありません！</string>
+    <!-- This is to inform users that no descriptive text has been provided for something. Example, we may miss a description for a money transaction occurred. -->
+    <string name="no_description_provided">説明はありません</string>
+    <!-- This is typicall a short title to indicate there are currently no featured rewards -->
+    <string name="str_no_featured_rewards">No featured rewards.</string>
+    <!-- This is typically used as a short title to indicate the user has not accrued any rewards points recently. -->
+    <string name="str_no_recent_earnings">No recent earnings</string>
+    <!-- This is typically used as a short title to indicate the user has not made any redemptions recently. -->
+    <string name="str_no_recent_redemptions">No recent redemptions</string>
+    <!-- No comment provided by engineer. -->
+    <string name="no_redemption_has_been_made">払い戻しは行われていません。</string>
+    <!-- Title for an error alert. This error happens when payment to a subscription plan has failed. -->
+    <string name="payment_failure">決済できませんでした</string>
+    <!-- Title for screen that shows a user's payment history for a period. -->
+    <string name="str_payment_history">支払履歴</string>
+    <!-- Title for a cell that shows the status of a payment to a plan, possible values include succeeded, pending, canceled. -->
+    <string name="str_payment_status">お支払い状況</string>
+    <!-- This can be used as a title for a screen that lists all payment activities. -->
+    <string name="payments">Payments</string>
+    <!-- Indicating the results of some operation was still being computed. -->
+    <string name="pending">保留中</string>
+    <!-- Button to access photo library -->
+    <string name="photo_library">フォトライブラリ</string>
+    <!-- No comment provided by engineer. -->
+    <string name="please_be_advised_that_you_are_viewing_cached_copies_of_your_bookings">この予約はキャッシュされたコピーであることにご注意ください</string>
+    <!-- No comment provided by engineer. -->
+    <string name="str_getting_active_trip_msg">有効な予約を検索中です。しばらくお待ちください。</string>
+    <!-- No comment provided by engineer. -->
+    <string name="please_wait_while_we_look_up_your_recent_redemptions">最近の払い戻しを確認するまでしばらくお待ちください...</string>
+    <!-- No comment provided by engineer. -->
+    <string name="please_wait_while_we_look_up_your_rewards_balances">報酬の残高を確認するまでお待ちください...</string>
+    <!-- This indicate the points taken off a user's balance if a redemption is approved. -->
+    <string name="points_deducted">ポイントを使いました</string>
+    <!-- This indicate the points required to redeem a reward. -->
+    <string name="points_required">ポイントが必要です</string>
+    <!-- This indicate the points added back to a user's balance, typically following a refund of a cashback transaction. -->
+    <string name="points_reverted">Points reverted</string>
+    <!-- Receipt(s) of a trip -->
+    <string name="receipt">レシート</string>
+    <!-- Indicator that receipt for a trip hasn't yet been added by user -->
+    <string name="receipt_missing">領収書がありません</string>
+    <!-- Indicator that the user has attached a receipt for a trip -->
+    <string name="receipt_provided">領収書が発行されました</string>
+    <!-- Format string for displaying the date on which a trip or a transaction was recorded. -->
+    <string name="recorded_on__pattern">%sに記録されました</string>
+    <!-- This is the title for a button that allows users to redeem rewards -->
+    <string name="redeem">適用</string>
+    <!-- This is an error description, meaing the app cannot complete a redemption request. -->
+    <string name="redemption_cannot_be_completed">払い戻しが完了できません。</string>
+    <!-- This is the title for a table view section that displays a list of redemptions made by the user -->
+    <string name="str_redemptions">還元</string>
+    <!-- This is the reference given to a user when a transaction, e.g., redemption, is received by SkedGo. -->
+    <string name="reference_number">参照番号</string>
+    <!-- This is to indicate the subscription fee for a plan has been refunded. -->
+    <string name="str_refunded">払い戻し済み</string>
+    <!-- This is one of the statuses of a transaction. -->
+    <string name="rejected">却下されました</string>
+    <!-- Action button to remove log of a trip -->
+    <string name="remove_from_my_log">マイログから削除</string>
+    <!-- This is one of the statuses of a transaction, typically used when a refund requires a top up in rewards points -->
+    <string name="str_reverted">Reverted</string>
+    <!-- Title of toggle to get a 'review log' reminder when arriving at destination of a logged trip. -->
+    <string name="review_on_arrival">到着時にレビュー</string>
+    <!-- This is the title for a table view section that displays a list of rewards available to the user -->
+    <string name="str_featured_rewards">報酬リストセクション</string>
+    <!-- This is usually used as the title for a table view section or view controller that shows all available rewards. -->
+    <string name="rewards">報酬</string>
+    <!-- Button to access saved photos -->
+    <string name="saved_photos">保存した写真</string>
+    <!-- This is a prompt that asks users to select an option from available ones. For instance, this is used in the context of payment, it means users are asked to select a payment option. -->
+    <string name="select_an_option">オプションを選択</string>
+    <!-- No comment provided by engineer. -->
+    <string name="redemption_warning">[続行]を選択すると、この報酬を利用するための利用規約を読み、同意したことになります。</string>
+    <!-- This is a message displayed in an error alert. This error happens when our server returns successfully but the response contains no data. -->
+    <string name="server_response_contains_no_data">サーバーの応答にデータが含まれていません</string>
+    <!-- Message for an error alert. This error happens when SkedGo backend fails to pass through any payment options for a checkout session. -->
+    <string name="server_returns_empty_payment_options">サーバーからお支払いオプションはないとの回答がきました</string>
+    <!-- Action button title to show the trip of a logged entry -->
+    <string name="show_trip">旅行を表示</string>
+    <!-- Action button title to show the trips of a logged entry -->
+    <string name="show_trips">Show trips</string>
+    <!-- No comment provided by engineer. -->
+    <string name="some_of_the_trips_failed_to_download_dot_please_try_again">一部のトリップのダウンロードに失敗しました。もう一度やり直してください</string>
+    <!-- Indicating some operation was completed successfully. -->
+    <string name="succeeded">成功しました</string>
+    <!-- Button to take a photo -->
+    <string name="take_photo">写真を撮る</string>
+    <!-- No comment provided by engineer. -->
+    <string name="str_featured_rewards_message">Tap \"View all\" to see a full list of available rewards.</string>
+    <!-- No comment provided by engineer. -->
+    <string name="tap_here_to_start_rewarding_yourself">ここをタップすると報酬を獲得できます。</string>
+    <!-- self explanatory -->
+    <string name="tap_here_to_view_your_booking_history">Tap here to view your booking history.</string>
+    <!-- Text informing users we cannot locate any records of activity on his/her plan for a month. -->
+    <string name="there_are_no_activity_records_for_this_month">今月の活動記録はありません</string>
+    <!-- This is a message displayed in an error alert -->
+    <string name="this_feature_requires_a_flavor_account_dot_if_you_already_have_one_coma_please_sign_in_coma_otherwise_coma_please_contact_your_administrator_dot">この機能にはTripGo アカウントが必要です。既にお持ちの場合はサインインしてください。それ以外の場合は管理者にお問い合わせください。</string>
+    <!-- Title for view that presents a purchased ticket -->
+    <string name="ticket">チケット</string>
+    <!-- Indicating that a ticket has expired. -->
+    <string name="ticket_expired">チケットの有効期限切れ</string>
+    <!-- This is a term that describes all money transactions that have occurred while user is on a mobility plan. \"Transactions\" is a type of \"activity\", which is localized separately -->
+    <string name="transactions">お取引</string>
+    <!-- Title for the tab bar item whose root view is the list of trip logs grouped by month. -->
+    <string name="my_trip_logs">トリップ ログ</string>
+    <!-- This is an error description, meaning the app cannot obtain a valid response when querying user's rewards balances -->
+    <string name="unable_to_obtain_your_balances">残高情報を取得できません。</string>
+    <!-- This is an error description, letting users know which URL the app wasn't able to open. -->
+    <string name="unable_to_open_link">ファイルを開くことができません: %s</string>
+    <!-- This is to inform users that we are unable to obtain a descriptive text for the destination for his/her trip -->
+    <string name="unknown_destination">目的地が不明</string>
+    <!-- This is to inform users that we are unable to obtain a descriptive text for the origin for his/her trip -->
+    <string name="unknown_origin">出発地が不明です</string>
+    <!-- No comment provided by engineer. -->
+    <string name="str_filter_date_msg">Up to 180 days of history is available. Please contact us for longer periods.</string>
+    <!-- Title for list of valid tickets -->
+    <string name="valid">有効</string>
+    <!-- This is an action where users take to see some information in full, e.g., full list of reward redemptions. -->
+    <string name="str_view_all">全てを表示</string>
+    <!-- This is the voucher code issued to a user if a redemption is approved. -->
+    <string name="voucher_code">クーポンコード</string>
+    <!-- This is to let users know the rewards are being worked on. -->
+    <string name="we_are_working_on_exciting_offers_check_back_soon">We are working on exciting offers. Check back soon</string>
+    <!-- Error description when we are unable to locate a booking's confirmation details -->
+    <string name="we_found_a_trip_but_were_unable_to_locate_its_booking_confirmation_please_contact_us_for_support">We found a trip but were unable to locate its booking confirmation. Please contact us for support.</string>
+    <!-- Body for notification when arriving at destination. -->
+    <string name="would_you_like_to_confirm_the_trip_coma_the_cost_or_add_a_receipt_question">このトリップとその費用を確認し、レシートを追加しますか？</string>
+    <!-- Example: You are viewing records for the past 30 days -->
+    <string name="you_are_viewing_records_for_the_past_x_days">You are viewing records for the past %d days.</string>
+    <!-- Example: You are viewing records for the past 30 days. Use the search icon to select other duration. -->
+    <string name="you_are_viewing_records_for_the_past_x_days_use_the_search_icon_to_select_other_duration">You are viewing records for the past %d days. Use the search icon to select other duration.</string>
+    <!-- The placeholder will be replaced with a localised version of '1 Oct 2018 at 7:45am' -->
+    <string name="you_arrived_here_on__pattern_dot">ここに%sに到着しました。</string>
+    <!-- No comment provided by engineer. -->
+    <string name="str_no_active_trip_msg">現在有効な予約はありません。</string>
+    <!-- No comment provided by engineer. -->
+    <string name="you_have_no_redemptions">まだ払い戻しを行っていません。</string>
+    <!-- No comment provided by engineer. -->
+    <string name="str_no_active_trip">有効な予約情報がここに表示されます。</string>
+    <!-- Example: Your most recent 3 earnings in the past 30 days will appear here -->
+    <string name="str_recent_earnings_message">Your most recent %1$d earnings in the past %2$d days will appear here.</string>
+    <!-- Example: Your most recent 3 redemptions in the past 30 days will appear here -->
+    <string name="str_recent_redemption_message">Your most recent %1$d redemptions in the past %2$d days will appear here.</string>
+    <!-- Unit for plural point -->
+    <string name="points">points</string>
+    <!-- This is an abbreviation for the word points, e.g., 10 pts means 10 rewards points. -->
+    <string name="pts">ポイント</string>
+    <plurals name="estimated_time_to_approval_days" tools:ignore="MissingQuantity">
+        <item quantity="one">日</item>
+        <item quantity="other">日</item>
+    </plurals>
+</resources>
