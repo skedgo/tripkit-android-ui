@@ -98,6 +98,7 @@ class TripResultPagerViewModel @Inject internal constructor(
                         }
                         .map { Unit }
             }
+
         } else if (args is SingleTrip) {
             selectedTripGroupRepository.setSelectedTripGroupId(args.tripGroupId)
             return selectedTripGroupRepository.getSelectedTripGroup().map { listOf(it) }
@@ -119,6 +120,11 @@ class TripResultPagerViewModel @Inject internal constructor(
                         listOf(it)
                     }
                     .doOnNext {
+                        currentTrip.postValue(
+                                it.firstOrNull {
+                                    it.trips?.isNotEmpty() == true
+                                }?.trips?.firstOrNull()
+                        )
                         tripGroups.accept(it)
                         isLoading.set(false)
                     }
@@ -134,9 +140,12 @@ class TripResultPagerViewModel @Inject internal constructor(
                 selectedTripGroup.hide().firstOrError().toObservable()
         )
         { tripGroups: List<TripGroup>, id: TripGroup ->
+            /*
             viewModelScope.launch {
-                currentTrip.value = tripGroups.firstOrNull()?.trips?.first()
+
             }
+            */
+            currentTrip.postValue(tripGroups.firstOrNull()?.trips?.first())
             tripGroups.indexOfFirst { id.uuid() == it.uuid() }
         }.doOnNext {
             currentPage.set(it)
