@@ -138,7 +138,7 @@ public class TripResultPagerFragment extends BaseTripKitFragment implements View
                     }
                 }, errorLogger::trackError));
 
-        viewModel.getCurrentTrip().observe(requireActivity(), trip -> {
+        viewModel.getCurrentTrip().observe(getViewLifecycleOwner(), trip -> {
             if (tripUpdatedListener != null) {
                 tripUpdatedListener.onTripUpdated(trip);
             }
