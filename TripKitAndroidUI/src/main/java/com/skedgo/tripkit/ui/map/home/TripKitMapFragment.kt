@@ -129,6 +129,9 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
 
     private var transportModes: List<TransportMode>? = null
 
+    var enablePinLocationOnClick: Boolean = false
+    var pinnedLocationOnClickMarker: Marker? = null
+
     /**
      * When an icon in the map is clicked, an information window is displayed. When that information window
      * is clicked, this interface is used as a callback to notify the app of the click.
@@ -303,7 +306,14 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
         return markerManager!!.onMarkerClick(marker)
     }
 
-    override fun onMapLongClick(point: LatLng) {
+    var pinLocationSelectedListener: ((Location) -> Unit)? = null
+
+    fun removePinnedLocationMarker() {
+        pinnedLocationOnClickMarker?.remove()
+    }
+
+    override fun onMapLongClick(latLng: LatLng) {
+        /*
         longPressMarker?.let { marker ->
             marker.title = "${point.latitude}, ${point.longitude}"
             marker.position = point
@@ -322,6 +332,29 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
             if (markerManager != null) {
                 marker.showInfoWindow()
             }
+        }
+        */
+
+        if (enablePinLocationOnClick && latLng != null) {
+
+            removePinnedLocationMarker()
+
+            geocoder.getAddress(latLng.latitude, latLng.longitude)
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .take(1)
+                    .subscribe({
+                        pinLocationSelectedListener
+                                ?.invoke(
+                                        Location(latLng.latitude, latLng.longitude).apply {
+                                            address = it
+                                        }
+                                )
+                    }, { it.printStackTrace() })
+                    .addTo(autoDisposable)
+
+            pinnedLocationOnClickMarker = map?.addMarker(
+                    MarkerOptions().position(latLng)
+            )
         }
     }
 
@@ -475,39 +508,43 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
                 .subscribe({ regions: List<Region> ->
                     this.regions = regions
                     whenSafeToUseMap(Consumer { m: GoogleMap -> showCities(m, regions) })
-                }) { error: Throwable? -> errorLogger.logError(error!!) }
+                }) { error: Throwable? -> errorLogger.logError(error!!) }.addTo(autoDisposable)
     }
 
     private fun updateArrivalMarker(pinUpdate: PinUpdate) {
-        whenSafeToUseMap(Consumer { map: GoogleMap? ->
+        whenSafeToUseMap { map: GoogleMap? ->
             pinUpdate.match(
-                    Action { arrivalMarkers!!.clear() },
-                    Consumer { (type) ->
+                    { arrivalMarkers!!.clear() },
+                    { (type) ->
                         val marker = arrivalMarkers!!.addMarker(
-                                tripLocationMarkerCreator!!.call(type.toLocation())
+                                tripLocationMarkerCreator.call(type.toLocation())
                                         .icon(asMarkerIcon(SelectionType.ARRIVAL))
                         )
                         marker.tag = type
                         marker.showInfoWindow()
+
+                        Log.e("MIKE", "updateArrivalMarker")
                     }
             )
-        })
+        }
     }
 
     private fun updateDepartureMarker(pinUpdate: PinUpdate) {
-        whenSafeToUseMap(Consumer { map: GoogleMap? ->
+        whenSafeToUseMap { map: GoogleMap? ->
             pinUpdate.match(
-                    Action { departureMarkers!!.clear() },
-                    Consumer { (type) ->
+                    { departureMarkers!!.clear() },
+                    { (type) ->
                         val marker = departureMarkers!!.addMarker(
                                 tripLocationMarkerCreator.call(type.toLocation())
                                         .icon(asMarkerIcon(SelectionType.DEPARTURE))
                         )
                         marker.tag = type
                         marker.showInfoWindow()
+
+                        Log.e("MIKE", "updateDepartureMarker")
                     }
             )
-        })
+        }
     }
 
     private fun removeAllCities() {
@@ -551,6 +588,7 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
 
     @SuppressLint("MissingPermission")
     private fun setupMap(map: GoogleMap) {
+        map.setOnMapClickListener(this)
         map.setOnMapLongClickListener(this)
         map.setOnInfoWindowClickListener(this)
         map.setInfoWindowAdapter(object : InfoWindowAdapter {
@@ -692,7 +730,8 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
                 .visible(false)
                 .icon(BitmapDescriptorFactory.fromBitmap(toBitmap)))
 
-
+        removePinnedLocationMarker()
+        Log.e("MIKE", "initFromAndToMarkers")
     }
 
     private fun setUpCurrentLocationMarkers(markerManager: MarkerManager) {
