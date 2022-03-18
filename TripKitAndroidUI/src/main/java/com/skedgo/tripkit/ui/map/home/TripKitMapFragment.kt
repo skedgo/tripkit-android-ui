@@ -3,6 +3,7 @@ package com.skedgo.tripkit.ui.map.home
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
+import android.graphics.Bitmap
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -44,7 +45,6 @@ import com.skedgo.tripkit.ui.utils.getVersionCode
 import com.squareup.otto.Bus
 import dagger.Lazy
 import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.functions.Action
 import io.reactivex.functions.Consumer
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.qr_scan_activity.*
@@ -130,7 +130,9 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
     private var transportModes: List<TransportMode>? = null
 
     var enablePinLocationOnClick: Boolean = false
-    var pinnedLocationOnClickMarker: Marker? = null
+    var pinnedDepartureLocationOnClickMarker: Marker? = null
+    var pinnedOriginLocationOnClickMarker: Marker? = null
+    var pinLocationSelectedListener: ((Location) -> Unit)? = null
 
     /**
      * When an icon in the map is clicked, an information window is displayed. When that information window
@@ -306,10 +308,9 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
         return markerManager!!.onMarkerClick(marker)
     }
 
-    var pinLocationSelectedListener: ((Location) -> Unit)? = null
-
     fun removePinnedLocationMarker() {
-        pinnedLocationOnClickMarker?.remove()
+        pinnedDepartureLocationOnClickMarker?.remove()
+        pinnedOriginLocationOnClickMarker?.remove()
     }
 
     override fun onMapLongClick(latLng: LatLng) {
@@ -335,7 +336,7 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
         }
         */
 
-        if (enablePinLocationOnClick && latLng != null) {
+        if (enablePinLocationOnClick) {
 
             removePinnedLocationMarker()
 
@@ -352,10 +353,46 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
                     }, { it.printStackTrace() })
                     .addTo(autoDisposable)
 
-            pinnedLocationOnClickMarker = map?.addMarker(
-                    MarkerOptions().position(latLng)
+            pinnedDepartureLocationOnClickMarker = map?.addMarker(
+                    MarkerOptions()
+                            .position(latLng)
+                            .icon(BitmapDescriptorFactory.fromBitmap(getMarkerBitmap(1)))
             )
         }
+    }
+
+    //0 = from, 1 = to
+    fun addOriginDestinationMarker(type: Int, location: Location) {
+        if (type == 0) {
+            pinnedOriginLocationOnClickMarker = map?.addMarker(
+                    MarkerOptions()
+                            .position(LatLng(location.lat, location.lon))
+                            .icon(BitmapDescriptorFactory.fromBitmap(getMarkerBitmap(type)))
+            )
+        } else {
+            pinnedDepartureLocationOnClickMarker = map?.addMarker(
+                    MarkerOptions()
+                            .position(LatLng(location.lat, location.lon))
+                            .icon(BitmapDescriptorFactory.fromBitmap(getMarkerBitmap(type)))
+            )
+        }
+
+        if ((pinnedOriginLocationOnClickMarker != null && pinnedOriginLocationOnClickMarker!!.isVisible)
+                && pinnedDepartureLocationOnClickMarker != null && pinnedDepartureLocationOnClickMarker!!.isVisible) {
+            zoomOuToShowMarkers(pinnedOriginLocationOnClickMarker!!, pinnedDepartureLocationOnClickMarker!!)
+        }
+    }
+
+    private fun zoomOuToShowMarkers(vararg markers: Marker) {
+        val boundsBuilder = LatLngBounds.Builder()
+        markers.forEach {
+            boundsBuilder.include(it.position)
+        }
+        val width = resources.displayMetrics.widthPixels
+        val height = resources.displayMetrics.heightPixels
+        val padding = (height * 0.2).toInt()
+        val cameraUpdate = CameraUpdateFactory.newLatLngBounds(boundsBuilder.build(), width, height, padding)
+        map?.animateCamera(cameraUpdate)
     }
 
     override fun onPoiClick(pointOfInterest: PointOfInterest) {
@@ -431,11 +468,11 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
             }
         }
         if (zoomLevel != null) {
-            viewModel!!.onViewPortChanged(CloseEnough(
+            viewModel.onViewPortChanged(CloseEnough(
                     position.zoom,
                     visibleBounds.convertToDomainLatLngBounds()))
         } else {
-            viewModel!!.onViewPortChanged(NotCloseEnough(
+            viewModel.onViewPortChanged(NotCloseEnough(
                     position.zoom,
                     visibleBounds.convertToDomainLatLngBounds()))
         }
@@ -588,7 +625,6 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
 
     @SuppressLint("MissingPermission")
     private fun setupMap(map: GoogleMap) {
-        map.setOnMapClickListener(this)
         map.setOnMapLongClickListener(this)
         map.setOnInfoWindowClickListener(this)
         map.setInfoWindowAdapter(object : InfoWindowAdapter {
@@ -622,7 +658,7 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
         ExcuseMe.couldYouGive(this).permissionFor(android.Manifest.permission.ACCESS_FINE_LOCATION) {
             if (it.granted.contains(android.Manifest.permission.ACCESS_FINE_LOCATION)) {
                 map?.isMyLocationEnabled = true
-                viewModel!!.goToMyLocation()
+                viewModel.goToMyLocation()
             }
         }
     }
@@ -698,27 +734,9 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
     }
 
     private fun initFromAndToMarkers(map: GoogleMap) {
-        var fromBitmap = BearingMarkerIconBuilder(resources, null)
-                .hasBearing(false)
-                .vehicleIconScale(ModeInfo.MAP_LIST_SIZE_RATIO)
-                .baseIcon(R.drawable.ic_map_pin_base)
-                .vehicleIcon(VehicleDrawables.createLightDrawable(resources, com.skedgo.tripkit.common.R.drawable.v4_ic_map_location))
-                .pointerIcon(R.drawable.ic_map_pin_departure)
-                .hasBearingVehicleIcon(false)
-                .hasTime(false)
-                .build().first
+        val fromBitmap = getMarkerBitmap(0)
 
-        var toBitmap = BearingMarkerIconBuilder(resources, null)
-                .hasBearing(false)
-                .vehicleIconScale(ModeInfo.MAP_LIST_SIZE_RATIO)
-                .baseIcon(R.drawable.ic_map_pin_base)
-                .vehicleIcon(VehicleDrawables.createLightDrawable(resources, com.skedgo.tripkit.common.R.drawable.v4_ic_map_location))
-                // TODO I don't know why ic_map_pin_arrival is slightly larger than ic_map_pin_departure (48x48 vs 40x40 MDPI)
-                // but it is. If that's not necessary, it would be nice to not have two nearly identical ones.
-                .pointerIcon(R.drawable.ic_map_pin_arrival_small)
-                .hasBearingVehicleIcon(false)
-                .hasTime(false)
-                .build().first
+        var toBitmap = getMarkerBitmap(1)
 
         fromMarker = map.addMarker(MarkerOptions()
                 .position(LatLng(0.0, 0.0))
@@ -730,8 +748,31 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
                 .visible(false)
                 .icon(BitmapDescriptorFactory.fromBitmap(toBitmap)))
 
-        removePinnedLocationMarker()
-        Log.e("MIKE", "initFromAndToMarkers")
+    }
+
+    //0 = from, 1 = to
+    fun getMarkerBitmap(type: Int): Bitmap {
+        return if (type == 0) {
+            BearingMarkerIconBuilder(resources, null)
+                    .hasBearing(false)
+                    .vehicleIconScale(ModeInfo.MAP_LIST_SIZE_RATIO)
+                    .baseIcon(R.drawable.ic_map_pin_base)
+                    .vehicleIcon(VehicleDrawables.createLightDrawable(resources, com.skedgo.tripkit.common.R.drawable.v4_ic_map_location))
+                    .pointerIcon(R.drawable.ic_map_pin_departure)
+                    .hasBearingVehicleIcon(false)
+                    .hasTime(false)
+                    .build().first
+        } else {
+            BearingMarkerIconBuilder(resources, null)
+                    .hasBearing(false)
+                    .vehicleIconScale(ModeInfo.MAP_LIST_SIZE_RATIO)
+                    .baseIcon(R.drawable.ic_map_pin_base)
+                    .vehicleIcon(VehicleDrawables.createLightDrawable(resources, com.skedgo.tripkit.common.R.drawable.v4_ic_map_location))
+                    .pointerIcon(R.drawable.ic_map_pin_arrival_small)
+                    .hasBearingVehicleIcon(false)
+                    .hasTime(false)
+                    .build().first
+        }
     }
 
     private fun setUpCurrentLocationMarkers(markerManager: MarkerManager) {
@@ -794,14 +835,14 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
             alpha = 0F
         }
 
-        longPressMarker = poiMarkers!!.addMarker(MarkerOptions()
+        longPressMarker = poiMarkers.addMarker(MarkerOptions()
                 .position(LatLng(0.0, 0.0))
                 .infoWindowAnchor(0.5f, 1f)
                 .visible(false)).apply {
             alpha = 0F
         }
         val poiLocationInfoWindowAdapter = POILocationInfoWindowAdapter(context!!)
-        poiMarkers!!.setOnInfoWindowAdapter(poiLocationInfoWindowAdapter)
+        poiMarkers.setOnInfoWindowAdapter(poiLocationInfoWindowAdapter)
         map.setOnInfoWindowCloseListener { marker: Marker ->
             if (marker.tag is IMapPoiLocation) {
                 poiLocationInfoWindowAdapter.onInfoWindowClosed(marker)
