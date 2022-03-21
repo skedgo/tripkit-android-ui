@@ -131,8 +131,10 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
 
     var enablePinLocationOnClick: Boolean = false
     var pinnedDepartureLocationOnClickMarker: Marker? = null
+    var pinnedDepartureLocation: Location? = null
     var pinnedOriginLocationOnClickMarker: Marker? = null
-    var pinLocationSelectedListener: ((Location) -> Unit)? = null
+    var pinnedOriginLocation: Location? = null
+    var pinLocationSelectedListener: ((Location, Int) -> Unit)? = null //for type, 0 = from and 1 = to
 
     /**
      * When an icon in the map is clicked, an information window is displayed. When that information window
@@ -308,10 +310,21 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
         return markerManager!!.onMarkerClick(marker)
     }
 
-    fun removePinnedLocationMarker() {
-        pinnedDepartureLocationOnClickMarker?.remove()
-        pinnedOriginLocationOnClickMarker?.remove()
+
+    //null means remove all
+    fun removePinnedLocationMarker(markers: List<Marker>? = null) {
+        markers?.forEach {
+            it.remove()
+        } ?: kotlin.run {
+            pinnedDepartureLocationOnClickMarker?.remove()
+            pinnedOriginLocationOnClickMarker?.remove()
+
+            pinnedDepartureLocationOnClickMarker = null
+            pinnedOriginLocationOnClickMarker = null
+        }
     }
+
+    var pinForType = 1
 
     override fun onMapLongClick(latLng: LatLng) {
         /*
@@ -338,38 +351,76 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
 
         if (enablePinLocationOnClick) {
 
-            removePinnedLocationMarker()
-
             geocoder.getAddress(latLng.latitude, latLng.longitude)
+                    .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .take(1)
                     .subscribe({
+                        val location = Location(latLng.latitude, latLng.longitude).apply {
+                            address = it
+                        }
+                        if (pinForType == 0) {
+                            pinnedOriginLocation = location
+                        } else {
+                            pinnedDepartureLocation = location
+                        }
                         pinLocationSelectedListener
                                 ?.invoke(
-                                        Location(latLng.latitude, latLng.longitude).apply {
-                                            address = it
-                                        }
+                                        location,
+                                        pinForType
                                 )
                     }, { it.printStackTrace() })
                     .addTo(autoDisposable)
 
-            pinnedDepartureLocationOnClickMarker = map?.addMarker(
-                    MarkerOptions()
-                            .position(latLng)
-                            .icon(BitmapDescriptorFactory.fromBitmap(getMarkerBitmap(1)))
-            )
+            /*
+            if (hasOriginMarker) {
+                pinnedDepartureLocationOnClickMarker = map?.addMarker(
+                        MarkerOptions()
+                                .position(latLng)
+                                .icon(BitmapDescriptorFactory.fromBitmap(getMarkerBitmap(1)))
+                )
+            } else {
+                pinnedOriginLocationOnClickMarker = map?.addMarker(
+                        MarkerOptions()
+                                .position(latLng)
+                                .icon(BitmapDescriptorFactory.fromBitmap(getMarkerBitmap(0)))
+                )
+            }
+            */
+
+
+        }
+    }
+
+    fun updatePinForType() {
+        if (pinForType == 0) {
+            pinForType = 1
+        } else {
+            pinForType = 0
         }
     }
 
     //0 = from, 1 = to
     fun addOriginDestinationMarker(type: Int, location: Location) {
         if (type == 0) {
+
+            if(pinnedOriginLocationOnClickMarker != null &&
+                    pinnedOriginLocationOnClickMarker?.isVisible == true){
+                removePinnedLocationMarker(listOf(pinnedOriginLocationOnClickMarker!!))
+            }
+
             pinnedOriginLocationOnClickMarker = map?.addMarker(
                     MarkerOptions()
                             .position(LatLng(location.lat, location.lon))
                             .icon(BitmapDescriptorFactory.fromBitmap(getMarkerBitmap(type)))
             )
         } else {
+
+            if(pinnedDepartureLocationOnClickMarker != null &&
+                    pinnedDepartureLocationOnClickMarker?.isVisible == true){
+                removePinnedLocationMarker(listOf(pinnedDepartureLocationOnClickMarker!!))
+            }
+
             pinnedDepartureLocationOnClickMarker = map?.addMarker(
                     MarkerOptions()
                             .position(LatLng(location.lat, location.lon))
@@ -559,8 +610,6 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
                         )
                         marker.tag = type
                         marker.showInfoWindow()
-
-                        Log.e("MIKE", "updateArrivalMarker")
                     }
             )
         }
@@ -577,8 +626,6 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
                         )
                         marker.tag = type
                         marker.showInfoWindow()
-
-                        Log.e("MIKE", "updateDepartureMarker")
                     }
             )
         }
@@ -750,7 +797,7 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
 
     }
 
-    //0 = from, 1 = to
+    //0 = from/origin, 1 = to/destination
     fun getMarkerBitmap(type: Int): Bitmap {
         return if (type == 0) {
             BearingMarkerIconBuilder(resources, null)
