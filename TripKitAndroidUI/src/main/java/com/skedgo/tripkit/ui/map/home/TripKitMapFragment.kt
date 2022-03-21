@@ -320,7 +320,10 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
             pinnedOriginLocationOnClickMarker?.remove()
 
             pinnedDepartureLocationOnClickMarker = null
+            pinnedDepartureLocation = null
             pinnedOriginLocationOnClickMarker = null
+            pinnedOriginLocation = null
+            pinForType = 1
         }
     }
 
@@ -404,8 +407,8 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
     fun addOriginDestinationMarker(type: Int, location: Location) {
         if (type == 0) {
 
-            if(pinnedOriginLocationOnClickMarker != null &&
-                    pinnedOriginLocationOnClickMarker?.isVisible == true){
+            if (pinnedOriginLocationOnClickMarker != null &&
+                    pinnedOriginLocationOnClickMarker?.isVisible == true) {
                 removePinnedLocationMarker(listOf(pinnedOriginLocationOnClickMarker!!))
             }
 
@@ -416,8 +419,8 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
             )
         } else {
 
-            if(pinnedDepartureLocationOnClickMarker != null &&
-                    pinnedDepartureLocationOnClickMarker?.isVisible == true){
+            if (pinnedDepartureLocationOnClickMarker != null &&
+                    pinnedDepartureLocationOnClickMarker?.isVisible == true) {
                 removePinnedLocationMarker(listOf(pinnedDepartureLocationOnClickMarker!!))
             }
 
