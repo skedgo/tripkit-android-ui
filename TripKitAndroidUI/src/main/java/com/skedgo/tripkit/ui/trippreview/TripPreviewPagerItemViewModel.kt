@@ -101,17 +101,17 @@ open class TripPreviewPagerItemViewModel : RxViewModel() {
             } else {
                 if (url != null) {
                     remoteIcon = TripKitUI.getInstance().picasso().fetchAsync(url).toObservable()
-                            .map { bitmap -> BitmapDrawable(context.resources, bitmap) }
+                        .map { bitmap -> BitmapDrawable(context.resources, bitmap) }
                 }
                 Observable
-                        .just(ContextCompat.getDrawable(context, segment.darkVehicleIcon))
-                        .concatWith(remoteIcon)
-                        .map { it }
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe({ drawable:
-                                     Drawable ->
-                            icon.set(drawable)
-                        }, { e -> Timber.e(e) }).autoClear()
+                    .just(ContextCompat.getDrawable(context, segment.darkVehicleIcon))
+                    .concatWith(remoteIcon)
+                    .map { it }
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe({ drawable:
+                                 Drawable ->
+                        icon.set(drawable)
+                    }, { e -> Timber.e(e) }).autoClear()
 
             }
         }
@@ -151,10 +151,14 @@ open class TripPreviewPagerItemViewModel : RxViewModel() {
         if (!isLeaveAfter) {
             dateTime = trip.queryDateTime
         }
-        val date = dateTime.toString(DateTimeFormat.forPattern("MMM d, yyyy")
-                .withZone(DateTimeZone.forID(trip.segments.first().timeZone)))
-        val time = dateTime.toString(DateTimeFormat.forPattern("h:mm aa")
-                .withZone(DateTimeZone.forID(trip.segments.first().timeZone)))
+        val date = dateTime.toString(
+            DateTimeFormat.forPattern("MMM d, yyyy")
+                .withZone(DateTimeZone.forID(trip.segments.first().timeZone))
+        )
+        val time = dateTime.toString(
+            DateTimeFormat.forPattern("h:mm aa")
+                .withZone(DateTimeZone.forID(trip.segments.first().timeZone))
+        )
 
         pickUpWindowMessage.set(String.format("Starts at %s at %s", date, time))
     }
