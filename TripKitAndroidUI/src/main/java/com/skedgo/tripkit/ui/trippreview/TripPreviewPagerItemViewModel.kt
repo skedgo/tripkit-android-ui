@@ -1,16 +1,12 @@
 package com.skedgo.tripkit.ui.trippreview
 
 import android.content.Context
-import android.content.Intent
-import android.graphics.Color
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
-import android.net.Uri
 import android.text.format.DateUtils
 import androidx.core.content.ContextCompat
 import androidx.databinding.ObservableBoolean
 import androidx.databinding.ObservableField
-import androidx.databinding.ObservableInt
 import com.jakewharton.rxrelay2.PublishRelay
 import com.skedgo.tripkit.common.model.TransportMode
 import com.skedgo.tripkit.common.util.TransportModeUtils
@@ -23,13 +19,12 @@ import com.skedgo.tripkit.ui.core.fetchAsync
 import com.skedgo.tripkit.ui.utils.DistanceFormatter
 import com.skedgo.tripkit.ui.utils.TapAction
 import com.skedgo.tripkit.ui.utils.TapStateFlow
+import com.skedgo.tripkit.ui.utils.checkDateForStringLabel
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import org.joda.time.DateTimeZone
 import org.joda.time.format.DateTimeFormat
 import timber.log.Timber
-import java.time.ZonedDateTime
-import java.util.*
 import java.util.concurrent.TimeUnit
 
 open class TripPreviewPagerItemViewModel : RxViewModel() {
@@ -127,16 +122,34 @@ open class TripPreviewPagerItemViewModel : RxViewModel() {
 
         requestedPickUp.set("")
         requestedDropOff.set("")
-        if (segment.trip.queryTime > 0) {
-            val queryDateTime = segment.trip.queryDateTime
-            val date = queryDateTime.toString(DateTimeFormat.forPattern("MMM d, yyyy"))
-            val time = queryDateTime.toString(DateTimeFormat.forPattern("h:mm aa"))
-            val label = String.format("Requested time %s at %s", date, time)
-            if (segment.trip.queryIsLeaveAfter()) {
-                requestedPickUp.set(label)
-            } else {
-                requestedDropOff.set(label)
+        if (segment.isHideExactTimes) {
+            if (segment.trip.queryTime > 0) {
+                val queryDateTime = segment.trip.queryDateTime
+                val date = queryDateTime.toString(DateTimeFormat.forPattern("MMM d, yyyy"))
+                val time = queryDateTime.toString(DateTimeFormat.forPattern("h:mm aa"))
+                val label = String.format("Requested time %s at %s", date, time)
+                if (segment.trip.queryIsLeaveAfter()) {
+                    requestedPickUp.set(label)
+                } else {
+                    requestedDropOff.set(label)
+                }
             }
+        } else {
+            val startDateTime = segment.startDateTime
+            val labelForStartDate = startDateTime.toDate().checkDateForStringLabel(context)
+            val startDate = labelForStartDate ?: startDateTime.toString(DateTimeFormat.forPattern("MMM d, yyyy"))
+            val startTime = startDateTime.toString(DateTimeFormat.forPattern("h:mm aa"))
+
+            val endDateTime = segment.endDateTime
+            val labelForEndDate = endDateTime.toDate().checkDateForStringLabel(context)
+            val endDate = labelForEndDate ?: endDateTime.toString(DateTimeFormat.forPattern("MMM d, yyyy"))
+            val endTime = endDateTime.toString(DateTimeFormat.forPattern("h:mm aa"))
+
+            requestedPickUp.set("$startDate $startTime")
+            requestedDropOff.set("$endDate $endTime")
+        }
+
+        if (segment.trip.queryTime > 0) {
             getPickUpWindowMessage(segment.trip, segment.trip.queryIsLeaveAfter())
         }
 
