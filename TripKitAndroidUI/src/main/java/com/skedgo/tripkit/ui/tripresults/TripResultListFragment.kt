@@ -260,15 +260,21 @@ class TripResultListFragment : BaseTripKitFragment() {
         }
 
         showTransportSelectionView = arguments?.getBoolean(ARG_SHOW_TRANSPORT_MODE_SELECTION, true)!!
+
+        val globalConfigs = TripKit.getInstance().configs()
+        val showDateTimePopUpOnOpen = globalConfigs.routeScreenConfig() != null &&
+                globalConfigs.routeScreenConfig()?.popUpDateTimePickerOnOpen == true
+
         query?.let {
+
             viewModel.setup(
                     it, showTransportSelectionView, transportModeFilter, actionButtonHandlerFactory,
-                    execute = false
+                    execute = !showDateTimePopUpOnOpen
             )
         }
 
-        if (!previouslyInitialized) {
-            showDateTimePicker(false)
+        if (!previouslyInitialized && showDateTimePopUpOnOpen) {
+            showDateTimePicker(showDateTimePopUpOnOpen)
         }
     }
 
