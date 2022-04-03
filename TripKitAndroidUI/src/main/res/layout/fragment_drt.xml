@@ -206,7 +206,7 @@
                     tools:text="Near Scott Street" />
 
                 <TextView
-                    android:id="@+id/drt_RequestedPickUp"
+                    android:id="@+id/drt_tvRequestedPickUp"
                     style="@style/TextAppearance.MaterialComponents.Body2"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -231,7 +231,7 @@
                     android:focusable="false"
                     android:src="@drawable/small_circle"
                     app:layout_constraintStart_toStartOf="@+id/drt_tvSchedule"
-                    app:layout_constraintTop_toBottomOf="@+id/drt_RequestedPickUp"
+                    app:layout_constraintTop_toBottomOf="@+id/drt_tvRequestedPickUp"
                     app:tint="@color/colorPrimary" />
 
                 <TextView
@@ -263,7 +263,7 @@
                     tools:text="Near Scott Street" />
 
                 <TextView
-                    android:id="@+id/drt_RequestedDropOff"
+                    android:id="@+id/drt_tvRequestedDropOff"
                     style="@style/TextAppearance.MaterialComponents.Body2"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"

@@ -111,7 +111,7 @@ class TripPreviewPagerFragment : BaseTripKitFragment() {
             observe(headers) {
                 it?.let {
                     previewHeadersCallback?.invoke(it)
-                    if (currentPagerIndex > 0) {
+                    if (currentPagerIndex > 0 && currentPagerIndex < adapter.pages.size) {
                         adapter.getSegmentByPosition(currentPagerIndex).let {
                             fromPageListener = true
                             pageIndexStream?.onNext(Pair(it.id, it.transportModeId.toString()))
@@ -338,6 +338,7 @@ class TripPreviewPagerFragment : BaseTripKitFragment() {
         fun reportPlannedTrip(trip: Trip?, tripGroups: List<TripGroup>)
         fun onBottomSheetResize(): MutableLiveData<Int>
         fun onRestartHomePage()
+
         @Deprecated("UnusedClass")
         fun onExternalActionButtonClicked(action: String?)
     }

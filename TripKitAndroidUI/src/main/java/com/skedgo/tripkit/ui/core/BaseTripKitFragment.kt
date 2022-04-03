@@ -3,10 +3,15 @@ package com.skedgo.tripkit.ui.core
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
+import com.skedgo.tripkit.ui.dialog.GenericLoadingDialog
 import com.skedgo.tripkit.ui.trippreview.TripPreviewPagerFragment
 import com.skedgo.tripkit.ui.utils.AccessibilityDefaultViewManager
 
 open class BaseTripKitFragment : Fragment() {
+
+    private val loadingDialog: GenericLoadingDialog by lazy(mode = LazyThreadSafetyMode.NONE) {
+        GenericLoadingDialog(requireContext())
+    }
 
     val accessibilityDefaultViewManager: AccessibilityDefaultViewManager by lazy {
         AccessibilityDefaultViewManager(context)
@@ -39,4 +44,19 @@ open class BaseTripKitFragment : Fragment() {
     }
 
     open fun refresh(position: Int) {}
+
+    fun showLoading(isLoading: Boolean) {
+        loadingDialog.let {
+            if (isLoading && !loadingDialog.isShowing)
+                loadingDialog.show()
+            else if (!isLoading && loadingDialog.isShowing) {
+                loadingDialog.dismiss()
+            }
+        }
+    }
+
+    override fun onDestroyView() {
+        loadingDialog.dismiss()
+        super.onDestroyView()
+    }
 }

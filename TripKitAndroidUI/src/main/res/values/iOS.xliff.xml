@@ -441,7 +441,7 @@
 	<!--Title for when an event repeats-->
 	<string name="repeats">Repeats</string>
 	<!--Report problem-->
-	<string name="report_problem">Report Problem</string>
+	<string name="report_problem">Report \n Problem</string>
 	<!--Title for action to perform by the user if an event is outside TripGos range The action will display a feedback form to request the region of that event-->
 	<string name="request">Request</string>
 	<!--Title for button that allows users to request support-->
@@ -1462,4 +1462,4 @@ Note, your iCloud data will not be deleted by this, but you can delete this in t
 		<item quantity="other">%d days</item>
 	</plurals>
 </resources>
-<!-- This is an auto generated file (Mon Jan 20 14:50:01 CET 2020) -->
+	<!-- This is an auto generated file (Mon Jan 20 14:50:01 CET 2020) -->
