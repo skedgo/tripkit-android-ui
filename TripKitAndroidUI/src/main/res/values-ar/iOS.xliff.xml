@@ -459,8 +459,6 @@
     <string name="search_for_your_home_address">البحث عن عنوان منزلك</string>
     <!-- Placeholder text for searching 'work'. -->
     <string name="search_for_your_work_address">البحث عن عنوان عملك</string>
-    <!-- Title for an action that shows users all options/results -->
-    <string name="see_all">إظهار الكل</string>
     <!-- Title for an action that shows users more options/results -->
     <string name="see_more">عرض المزيد</string>
     <!-- Action title to select the location for an event. -->
@@ -1666,4 +1664,14 @@
         <item quantity="one">%d يوم</item>
         <item quantity="other">%d أيام</item>
     </plurals>
+
+    <string name="choose_on_map">اختر على الخريطة</string>
+    <string name="sign_in_to_continue">تسجيل الدخول</string>
+    <string name="subscriber_only">حسابك %s يفتح الباب للمزيد من الميزات المثيرة للاهتمام.</string>
+    <string name="choose_location">اختيار الموقع</string>
+    <string name="favorites">المفضلة</string>
+    <string name="add_home">أضف منزلاً</string>
+    <string name="add_work">إضافة عمل</string>
+    <string name="see_all">إظهار الكل</string>
+    <string name="from_with_colon">من:</string>
 </resources>

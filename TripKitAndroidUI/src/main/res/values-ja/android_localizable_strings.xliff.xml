@@ -118,4 +118,6 @@
     <string name="access_to_location_services_required_dot">位置情報サービスへのアクセスが必要です</string>
     <!-- Walkthrough -->
     <string name="tap_public_transport_stops_for_access_to_timetable">時刻表にアクセスするには、公共交通機関の停留所をタップします</string>
+    <string name="str_mins">分</string>
+    <string name="lbl_search_for_destination">目的地を検索</string>
 </resources>

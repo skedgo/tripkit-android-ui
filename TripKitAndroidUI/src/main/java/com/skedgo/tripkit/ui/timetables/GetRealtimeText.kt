@@ -58,9 +58,9 @@ open class GetRealtimeText @Inject constructor(
                     abs(timeDiff.toInt()) < 60 -> context.getString(R.string.on_time) to R.color.tripKitSuccess
                     realtimeDeparture < service.serviceTime ->
                         context.getString(R.string.realtime_early,
-                                TimeUtils.getDurationInHoursMins(abs(timeDiff.toInt()))) to R.color.tripKitSuccess
+                                TimeUtils.getDurationInHoursMins(context, abs(timeDiff.toInt()))) to R.color.tripKitSuccess
                     else -> context.getString(R.string.realtime_late,
-                            TimeUtils.getDurationInHoursMins(abs(timeDiff.toInt()))) to R.color.tripKitError
+                            TimeUtils.getDurationInHoursMins(context, abs(timeDiff.toInt()))) to R.color.tripKitError
                 }
                 /*"$status • $serviceTime" to delayed*/
                 "$status • $schedule" to delayed

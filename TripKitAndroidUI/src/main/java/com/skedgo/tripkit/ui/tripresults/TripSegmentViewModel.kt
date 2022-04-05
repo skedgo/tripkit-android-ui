@@ -170,7 +170,7 @@ class TripSegmentViewModel @Inject constructor(private val context: Context, pri
                 context.resources.getString(R.string.live_traffic)
             }
         } else if (trip.isMixedModal(false) && !segment.hasTimeTable()) {
-            return TimeUtils.getDurationInHoursMins((segment.endTimeInSecs - segment.startTimeInSecs).toInt())
+            return TimeUtils.getDurationInHoursMins(context, (segment.endTimeInSecs - segment.startTimeInSecs).toInt())
         } else if (segment.metresSafe > 0) {
             if (segment.isCycling) {
                 return context.resources.getString(R.string._pattern_cycle_friendly, "${segment.cycleFriendliness}%")
