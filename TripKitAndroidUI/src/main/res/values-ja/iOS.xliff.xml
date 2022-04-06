@@ -1538,4 +1538,6 @@
     <string name="add_work">作業を追加</string>
     <string name="see_all">すべて表示</string>
     <string name="from_with_colon">出発:</string>
+    <string name="settings">設定</string>
+    <string name="sign_in_to_your_account">%s アカウントにサインインする</string>
 </resources>

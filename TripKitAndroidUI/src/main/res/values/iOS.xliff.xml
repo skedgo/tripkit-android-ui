@@ -1471,5 +1471,6 @@ Note, your iCloud data will not be deleted by this, but you can delete this in t
 	<string name="add_work">Add Work</string>
 	<string name="see_all">See All</string>
 	<string name="from_with_colon">From:</string>
+	<string name="sign_in_to_your_account">Sign in to your %s account</string>
 </resources>
 	<!-- This is an auto generated file (Mon Jan 20 14:50:01 CET 2020) -->

@@ -1674,4 +1674,6 @@
     <string name="add_work">إضافة عمل</string>
     <string name="see_all">إظهار الكل</string>
     <string name="from_with_colon">من:</string>
+    <string name="settings">إعدادات</string>
+    <string name="sign_in_to_your_account">تسجيل الدخول إلى حسابك %s</string>
 </resources>
