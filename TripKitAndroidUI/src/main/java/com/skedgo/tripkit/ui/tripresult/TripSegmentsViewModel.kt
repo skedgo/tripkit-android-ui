@@ -180,9 +180,9 @@ class TripSegmentsViewModel @Inject internal constructor(
         if (trip == null || trip.from == null || trip.to == null) return
         if (trip.isDepartureTimeFixed) {
             durationTitle.set("${printTime.print(trip.startDateTime)} - ${printTime.print(trip.endDateTime)}")
-            arriveAtTitle.set(formatDuration(trip.startTimeInSecs, trip.endTimeInSecs))
+            arriveAtTitle.set(formatDuration(context, trip.startTimeInSecs, trip.endTimeInSecs))
         } else {
-            durationTitle.set(formatDuration(trip.startTimeInSecs, trip.endTimeInSecs))
+            durationTitle.set(formatDuration(context, trip.startTimeInSecs, trip.endTimeInSecs))
             if (!trip.queryIsLeaveAfter()) {
                 arriveAtTitle.set(context.resources.getString(R.string.departs__pattern, printTime.print(trip.startDateTime)).capitalize())
             } else {
@@ -197,7 +197,7 @@ class TripSegmentsViewModel @Inject internal constructor(
     /**
      * For example, 1hr 50mins
      */
-    private fun formatDuration(startTimeInSecs: Long, endTimeInSecs: Long): String = TimeUtils.getDurationInDaysHoursMins((endTimeInSecs - startTimeInSecs).toInt())
+    private fun formatDuration(context: Context, startTimeInSecs: Long, endTimeInSecs: Long): String = TimeUtils.getDurationInDaysHoursMins(context,(endTimeInSecs - startTimeInSecs).toInt())
 
     fun findSegmentPosition(tripSegment: TripSegment): Int {
         for (i in segmentViewModels.indices) {
@@ -395,7 +395,7 @@ class TripSegmentsViewModel @Inject internal constructor(
 
         viewModel.setupSegment(viewType = TripSegmentItemViewModel.SegmentViewType.MOVING,
                 title = processedText(tripSegment, tripSegment.action),
-                description = tripSegment.getDisplayNotes(context.resources, false),
+                description = tripSegment.getDisplayNotes(context, false),
                 lineColor = tripSegment.lineColor())
     }
 
