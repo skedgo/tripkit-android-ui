@@ -98,6 +98,7 @@ class TripPreviewPagerAdapter(fragmentManager: FragmentManager)
                 timetableFragment.onPreviousPage = {
                     onSwipePage.invoke(false)
                 }
+                bookingActions = page.tripSegment.booking?.externalActions
                 timetableFragment
             }
             ITEM_QUICK_BOOKING -> {

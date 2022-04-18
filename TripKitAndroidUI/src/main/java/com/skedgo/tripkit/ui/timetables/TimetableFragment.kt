@@ -57,10 +57,17 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
      * This callback will be invoked when a specific timetable entry is clicked.
      */
     interface OnTimetableEntrySelectedListener {
-        fun onTimetableEntrySelected(segment: TripSegment?, service: TimetableEntry, stop: ScheduledStop, minStartTime: Long)
+        fun onTimetableEntrySelected(
+            segment: TripSegment?,
+            service: TimetableEntry,
+            stop: ScheduledStop,
+            minStartTime: Long
+        )
     }
 
-    private var timetableEntrySelectedListener: MutableList<OnTimetableEntrySelectedListener> = mutableListOf()
+    private var timetableEntrySelectedListener: MutableList<OnTimetableEntrySelectedListener> =
+        mutableListOf()
+
     fun addOnTimetableEntrySelectedListener(callback: OnTimetableEntrySelectedListener) {
         if (!timetableEntrySelectedListener.contains(callback)) {
             timetableEntrySelectedListener.add(callback)
@@ -69,7 +76,12 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
 
     fun addOnTimetableEntrySelectedListener(listener: (TimetableEntry, ScheduledStop, Long) -> Unit) {
         this.timetableEntrySelectedListener.add(object : OnTimetableEntrySelectedListener {
-            override fun onTimetableEntrySelected(segment: TripSegment?, service: TimetableEntry, stop: ScheduledStop, minStartTime: Long) {
+            override fun onTimetableEntrySelected(
+                segment: TripSegment?,
+                service: TimetableEntry,
+                stop: ScheduledStop,
+                minStartTime: Long
+            ) {
                 listener(service, stop, minStartTime)
             }
         })
@@ -126,6 +138,7 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
     var cachedStop: ScheduledStop? = null
     var cachedShowSearchBar: Boolean = true
     var fromPreview: Boolean = false
+    var cachedBookingActions: ArrayList<String>? = null
 
     var bookingActions: ArrayList<String>? = null
         set(value) {
@@ -151,7 +164,6 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
         outState.putStringArrayList(ARG_BOOKING_ACTION, bookingActions)
         outState.putBoolean(ARG_SHOW_SEARCH_FIELD, viewModel.showSearch.get())
         outState.putBoolean(ARG_SHOW_CLOSE_BUTTON, viewModel.showCloseButton.get())
-
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -160,25 +172,28 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
 
         savedInstanceState?.let { arguments = it }
 
-        bookingActions = arguments?.getStringArrayList(ARG_BOOKING_ACTION)
+        bookingActions = cachedBookingActions ?: arguments?.getStringArrayList(ARG_BOOKING_ACTION)
     }
 
     override fun onResume() {
         super.onResume()
         filterThrottle
-                .debounce(500, TimeUnit.MILLISECONDS)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe {
-                    viewModel.filter.accept(it)
-                }.addTo(autoDisposable)
+            .debounce(500, TimeUnit.MILLISECONDS)
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe {
+                viewModel.filter.accept(it)
+            }.addTo(autoDisposable)
 
         viewModel.onError.observeOn(AndroidSchedulers.mainThread()).subscribe { error ->
             binding.multiStateView?.let { msv ->
                 if (activity is OnResultStateListener) {
-                    msv.setViewForState((activity as OnResultStateListener).provideErrorView(error),
-                            MultiStateView.ViewState.ERROR, true)
+                    msv.setViewForState(
+                        (activity as OnResultStateListener).provideErrorView(error),
+                        MultiStateView.ViewState.ERROR, true
+                    )
                 } else {
-                    val errorView = LayoutInflater.from(activity).inflate(R.layout.generic_error_view, null)
+                    val errorView =
+                        LayoutInflater.from(activity).inflate(R.layout.generic_error_view, null)
                     errorView?.findViewById<TextView>(R.id.errorMessageView)?.text = error
                     msv.setViewForState(errorView, MultiStateView.ViewState.ERROR, true)
                 }
@@ -189,9 +204,14 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
             binding.multiStateView?.let { msv ->
                 if (it == MultiStateView.ViewState.EMPTY) {
                     if (activity is OnResultStateListener) {
-                        msv.setViewForState((activity as OnResultStateListener).provideEmptyView(), MultiStateView.ViewState.EMPTY, true)
+                        msv.setViewForState(
+                            (activity as OnResultStateListener).provideEmptyView(),
+                            MultiStateView.ViewState.EMPTY,
+                            true
+                        )
                     } else {
-                        val emptyView = LayoutInflater.from(activity).inflate(R.layout.generic_empty_view, null)
+                        val emptyView =
+                            LayoutInflater.from(activity).inflate(R.layout.generic_empty_view, null)
                         msv.setViewForState(emptyView, MultiStateView.ViewState.EMPTY, true)
                     }
                 }
@@ -199,48 +219,65 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
         }.addTo(autoDisposable)
 
         viewModel.scrollToNow
-                .delay(500, TimeUnit.MILLISECONDS) // 500 ms is a guess, wait for the data to be set to the adapter.
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe { integer ->
-                    val smoothScroller = object : LinearSmoothScroller(context) {
-                        override fun getVerticalSnapPreference(): Int {
-                            return SNAP_TO_START
-                        }
+            .delay(
+                500,
+                TimeUnit.MILLISECONDS
+            ) // 500 ms is a guess, wait for the data to be set to the adapter.
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe { integer ->
+                val smoothScroller = object : LinearSmoothScroller(context) {
+                    override fun getVerticalSnapPreference(): Int {
+                        return SNAP_TO_START
                     }
+                }
 
-                    smoothScroller.targetPosition = integer.toInt()
-                    binding.recyclerView.layoutManager?.startSmoothScroll(smoothScroller)
-                }.addTo(autoDisposable)
+                smoothScroller.targetPosition = integer.toInt()
+                binding.recyclerView.layoutManager?.startSmoothScroll(smoothScroller)
+            }.addTo(autoDisposable)
 //        viewModel.downloadTimetable.accept(System.currentTimeMillis() - TimeUtils.InMillis.MINUTE * 10)
         val buffer = if (tripSegment == null) {
             TimeUtils.InMillis.MINUTE * 10
         } else {
             (60 * 20)
         }
-        viewModel.downloadTimetable.accept((tripSegment?.startTimeInSecs
-                ?: System.currentTimeMillis()) - buffer)
+        viewModel.downloadTimetable.accept(
+            (tripSegment?.startTimeInSecs
+                ?: System.currentTimeMillis()) - buffer
+        )
 
         viewModel.actionChosen.observeOn(AndroidSchedulers.mainThread())
-                .subscribe {
-                    if (viewModel.action == "book") {
-                        viewModel.buttonText.set("Booking...")
-                        viewModel.enableButton.set(false)
-                    }
-                    tripPreviewPagerListener?.onServiceActionButtonClicked(tripSegment, viewModel.action)
-                }.addTo(autoDisposable)
+            .subscribe {
+                if (viewModel.action == "book") {
+                    viewModel.buttonText.set("Booking...")
+                    viewModel.enableButton.set(false)
+                }
+                tripPreviewPagerListener?.onServiceActionButtonClicked(
+                    tripSegment,
+                    viewModel.action
+                )
+            }.addTo(autoDisposable)
 
         viewModel.timetableEntryChosen.observeOn(AndroidSchedulers.mainThread()).subscribe {
             if (viewModel.action.isNotEmpty() || fromPreview) {
                 tripSegment?.let { segmentActionStream?.onNext(it) }
-                tripPreviewPagerListener?.onTimetableEntryClicked(tripSegment, viewModel.viewModelScope, it)
+                tripPreviewPagerListener?.onTimetableEntryClicked(
+                    tripSegment,
+                    viewModel.viewModelScope,
+                    it
+                )
             } else {
                 Observable.combineLatest(viewModel.stopRelay, viewModel.startTimeRelay,
-                        BiFunction { one: ScheduledStop, two: Long -> one to two })
-                        .take(1).subscribe { pair ->
-                            timetableEntrySelectedListener.forEach { listener ->
-                                listener.onTimetableEntrySelected(tripSegment, it, pair.first, pair.second)
-                            }
+                    BiFunction { one: ScheduledStop, two: Long -> one to two })
+                    .take(1).subscribe { pair ->
+                        timetableEntrySelectedListener.forEach { listener ->
+                            listener.onTimetableEntrySelected(
+                                tripSegment,
+                                it,
+                                pair.first,
+                                pair.second
+                            )
                         }
+                    }
             }
         }.addTo(autoDisposable)
 
@@ -254,6 +291,7 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
     }
 
     fun setBookingActions(bookingActions: List<String>?) {
+//        if (cachedBookingActions != null) return
         viewModel.enableButton.set(true)
         if (!bookingActions.isNullOrEmpty()) {
             val list = ArrayList<String>()
@@ -267,8 +305,10 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
     }
 
     @SuppressLint("ClickableViewAccessibility")
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         binding = TimetableFragmentBinding.inflate(layoutInflater)
 
         val layoutManager = FlexboxLayoutManager(context)
@@ -288,15 +328,15 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
         */
 
         val swipeListener = OnSwipeTouchListener(requireContext(),
-                object : OnSwipeTouchListener.SwipeGestureListener {
-                    override fun onSwipeRight() {
-                        onNextPage?.invoke()
-                    }
+            object : OnSwipeTouchListener.SwipeGestureListener {
+                override fun onSwipeRight() {
+                    onNextPage?.invoke()
+                }
 
-                    override fun onSwipeLeft() {
-                        onPreviousPage?.invoke()
-                    }
-                })
+                override fun onSwipeLeft() {
+                    onPreviousPage?.invoke()
+                }
+            })
 
         swipeListener.touchCallback = { v, event ->
             v?.parent?.requestDisallowInterceptTouchEvent(true)
@@ -338,7 +378,12 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
             }
         })
 
-        binding.recyclerView.addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
+        binding.recyclerView.addItemDecoration(
+            DividerItemDecoration(
+                context,
+                DividerItemDecoration.VERTICAL
+            )
+        )
 
         binding.departuresSearchSetTime.timeSet.setOnClickListener {
             selectTime()
@@ -421,16 +466,18 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
             val layoutManager = binding.recyclerView.layoutManager as LinearLayoutManager
             val firstNowPosition = viewModel.getFirstNowPosition()
             if (layoutManager.findFirstVisibleItemPosition() < firstNowPosition &&
-                    firstNowPosition != 0 &&
-                    (firstNowPosition + 1) < binding.recyclerView.adapter?.itemCount ?: 0) {
+                firstNowPosition != 0 &&
+                (firstNowPosition + 1) < binding.recyclerView.adapter?.itemCount ?: 0
+            ) {
                 binding.recyclerView.scrollToPosition(firstNowPosition + 1)
             } else {
                 binding.recyclerView.scrollToPosition(firstNowPosition)
             }
         }
 
-        bookingActions = savedInstanceState?.getStringArrayList(ARG_BOOKING_ACTION)
-                ?: arguments?.getStringArrayList(ARG_BOOKING_ACTION)
+        bookingActions =
+            cachedBookingActions ?: savedInstanceState?.getStringArrayList(ARG_BOOKING_ACTION)
+                    ?: arguments?.getStringArrayList(ARG_BOOKING_ACTION)
 
         val showCloseButton = arguments?.getBoolean(ARG_SHOW_CLOSE_BUTTON, false) ?: false
         viewModel.showCloseButton.set(showCloseButton)
@@ -441,19 +488,19 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
         binding.closeButton.setOnClickListener(onCloseButtonListener)
 
         segmentActionStream
-                ?.subscribeOn(Schedulers.io())
-                ?.observeOn(AndroidSchedulers.mainThread())
-                ?.subscribe({
-                    /*
-                    if (it.first == stop?.code) {
-                        setBookingActions(it.second)
-                    }
-                    */
-                    //setBookingActions(tripSegment?.booking?.externalActions ?: it.second)
-                    setBookingActions(it.booking?.externalActions)
-                }, {
-                    it.printStackTrace()
-                })?.addTo(autoDisposable)
+            ?.subscribeOn(Schedulers.io())
+            ?.observeOn(AndroidSchedulers.mainThread())
+            ?.subscribe({
+                /*
+                if (it.first == stop?.code) {
+                    setBookingActions(it.second)
+                }
+                */
+                //setBookingActions(tripSegment?.booking?.externalActions ?: it.second)
+//                    setBookingActions(it.booking?.externalActions)
+            }, {
+                it.printStackTrace()
+            })?.addTo(autoDisposable)
 
     }
 
@@ -474,12 +521,12 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
     fun selectTime() {
         val fragment = TimeDatePickerFragment.newInstance(getString(R.string.set_time))
         fragment.timeRelay
-                .skip(1)
-                .subscribe {
-                    viewModel.stopRealtime()
-                    viewModel.services.update(listOf())
-                    viewModel.onDateChanged.accept(it)
-                }.addTo(autoDisposable)
+            .skip(1)
+            .subscribe {
+                viewModel.stopRealtime()
+                viewModel.services.update(listOf())
+                viewModel.onDateChanged.accept(it)
+            }.addTo(autoDisposable)
         fragment.show(childFragmentManager, null)
     }
 
@@ -492,14 +539,14 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
 
     fun showShareDialog() {
         viewModel.getShareUrl(getString(R.string.share_url), stop!!)
-                .take(1)
-                .subscribe({ url: String? ->
-                    val intentPartager = Intent(Intent.ACTION_SEND)
-                    intentPartager.type = "text/plain"
-                    intentPartager.putExtra(Intent.EXTRA_TEXT, url)
-                    val startingIntent = Intent.createChooser(intentPartager, "Share this using...")
-                    startActivity(startingIntent)
-                }, { Timber.e(it) })
+            .take(1)
+            .subscribe({ url: String? ->
+                val intentPartager = Intent(Intent.ACTION_SEND)
+                intentPartager.type = "text/plain"
+                intentPartager.putExtra(Intent.EXTRA_TEXT, url)
+                val startingIntent = Intent.createChooser(intentPartager, "Share this using...")
+                startActivity(startingIntent)
+            }, { Timber.e(it) })
     }
 
     fun updateStop(stop: ScheduledStop) {
@@ -580,6 +627,7 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
             fragment.cachedShowSearchBar = showSearchBar
             fragment._tripSegment = tripSegment
             fragment.fromPreview = fromPreview
+            fragment.cachedBookingActions = bookingActions
 
             return fragment
         }
