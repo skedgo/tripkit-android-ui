@@ -13,10 +13,10 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:contentDescription="@{viewModel.contentDescription}"
         android:importantForAccessibility="yes"
-        app:clickWithDebounce="@{() -> viewModel.onChange()}"
         android:padding="@dimen/spacing_small"
-        android:contentDescription="@{viewModel.contentDescription}">
+        app:clickWithDebounce="@{() -> viewModel.onChange()}">
 
         <ImageView
             android:id="@+id/itemDrt_ivIcon"
@@ -83,16 +83,55 @@
             style="@style/TextAppearance.MaterialComponents.Body1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:contentDescription="@string/desc_change_button"
             android:text="@{viewModel.viewMode? @string/view: @string/change}"
             android:textColor="@color/colorPrimary"
+            android:visibility="gone"
             app:clickWithDebounce="@{() -> viewModel.onChange()}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            android:visibility="gone"
-            android:contentDescription="@string/desc_change_button"
-            tools:text="Change"/>
+            tools:text="Change" />
         <!-- android:visibility="@{viewModel.showChangeButton}" -->
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_round_rect_primary_dark"
+            android:paddingTop="@dimen/shadow_height"
+            android:paddingBottom="@dimen/shadow_height"
+            android:paddingStart="@dimen/spacing_small"
+            android:paddingEnd="@dimen/spacing_small"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <ImageButton
+                android:id="@+id/itemDrt_ibDecrement"
+                android:layout_width="@dimen/icon_medium"
+                android:layout_height="@dimen/icon_medium"
+                android:layout_marginEnd="@dimen/vehicleMarkerBorderWidth"
+                android:background="@drawable/bg_round_rect_primary"
+                android:src="@drawable/ic_minus"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/itemDrt_ibIncrement"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+
+            <ImageButton
+                android:id="@+id/itemDrt_ibIncrement"
+                android:layout_width="@dimen/icon_medium"
+                android:layout_height="@dimen/icon_medium"
+                android:layout_marginStart="@dimen/vehicleMarkerBorderWidth"
+                android:background="@drawable/bg_round_rect_primary"
+                android:src="@drawable/ic_add"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/itemDrt_ibDecrement"
+                app:layout_constraintTop_toTopOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
