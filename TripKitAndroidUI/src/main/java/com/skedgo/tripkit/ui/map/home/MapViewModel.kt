@@ -7,6 +7,7 @@ import androidx.databinding.ObservableBoolean
 import com.google.android.gms.maps.CameraUpdate
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
+import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.jakewharton.rxrelay2.PublishRelay
 import com.skedgo.tripkit.common.model.Location
@@ -15,6 +16,7 @@ import com.skedgo.rxtry.Success
 import com.skedgo.rxtry.Try
 import com.skedgo.tripkit.camera.GetInitialMapCameraPosition
 import com.skedgo.tripkit.camera.PutMapCameraPosition
+import com.skedgo.tripkit.common.model.TransportMode
 import com.skedgo.tripkit.location.GoToMyLocationRepository
 import com.skedgo.tripkit.tripplanner.DiffTransformer
 import com.skedgo.tripkit.tripplanner.PinUpdate
@@ -34,6 +36,7 @@ import io.reactivex.schedulers.Schedulers
 import com.skedgo.tripkit.location.GeoPoint
 import com.skedgo.tripkit.logging.ErrorLogger
 import com.skedgo.tripkit.ui.core.addTo
+import java.util.ArrayList
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
@@ -60,6 +63,8 @@ class MapViewModel @Inject internal constructor(
 
     var showMarkers = ObservableBoolean(true)
 
+    var transportModes: List<TransportMode>? = null
+
     private val viewportChanged = PublishRelay.create<ViewPort>()
     val markers = viewportChanged.hide()
             .debounce(500, TimeUnit.MILLISECONDS)
@@ -77,10 +82,41 @@ class MapViewModel @Inject internal constructor(
                     Observable.empty()
                 }
             }
+            .switchMap {
+                hidePoi(it.toMutableList())
+            }
             .compose(DiffTransformer<IMapPoiLocation, MarkerOptions>({ it.identifier },
                     { it.createMarkerOptions(resources, picasso) }))
             .autoClear()
 
+    private fun hidePoi(list: MutableList<IMapPoiLocation>): Observable<MutableList<IMapPoiLocation>> {
+        val toRemove: MutableList<IMapPoiLocation> = ArrayList()
+        list.forEach {
+            if (hidePoi(it.identifier)) {
+                toRemove.add(it)
+            }
+        }
+
+        for (poi in toRemove) {
+            list.remove(poi)
+        }
+
+        return if (list.isNullOrEmpty()) {
+            Observable.empty()
+        } else {
+            Observable.just(list)
+        }
+    }
+
+    private fun hidePoi(identifier: String): Boolean {
+        var _toRemove = false
+        transportModes?.forEach {
+            if (identifier.contains(it.id) && !_toRemove) {
+                _toRemove = true
+            }
+        }
+        return _toRemove
+    }
 
     init {
         goToMyLocationRepository.myLocation

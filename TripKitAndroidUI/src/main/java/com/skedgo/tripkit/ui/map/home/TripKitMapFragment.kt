@@ -259,25 +259,6 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({ (first, second) ->
-                    val toRemove: MutableList<Marker> = ArrayList()
-                    for (marker in poiMarkers!!.markers) {
-                        marker.tag?.let { tag ->
-                            val identifier = (tag as IMapPoiLocation?)!!.identifier
-                            var _toRemove = false
-                            transportModes?.forEach {
-                                if (identifier.contains(it.id) && !_toRemove) {
-                                    _toRemove = true
-                                }
-                            }
-
-                            if (_toRemove) {
-                                toRemove.add(marker)
-                            }
-                        }
-                    }
-                    for (marker in toRemove) {
-                        poiMarkers!!.remove(marker)
-                    }
                     for ((first1, second1) in first) {
                         val marker = poiMarkers!!.addMarker(first1)
                         marker.tag = second1
@@ -940,6 +921,7 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
     }
 
     fun setShowPoiMarkers(show: Boolean, modes: List<TransportMode>?) {
+        viewModel.transportModes = modes
         modes?.let {
             transportModes = it
         }

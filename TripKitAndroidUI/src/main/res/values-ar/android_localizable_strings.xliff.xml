@@ -118,4 +118,6 @@
     <string name="access_to_location_services_required_dot">الوصول إلى خدمات الموقع مطلوب.</string>
     <!-- Walkthrough -->
     <string name="tap_public_transport_stops_for_access_to_timetable">اضغط على محطات المواصلات العامة للوصول إلى الجدول الزمني</string>
+    <string name="str_mins">الدقائق</string>
+    <string name="lbl_search_for_destination">البحث عن الوجهة</string>
 </resources>

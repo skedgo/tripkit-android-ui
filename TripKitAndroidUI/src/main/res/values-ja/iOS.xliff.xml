@@ -316,8 +316,6 @@
     <string name="search_for_your_home_address">自宅の住所を検索する</string>
     <!-- Placeholder text for searching 'work'. -->
     <string name="search_for_your_work_address">有効なアドレスを検索</string>
-    <!-- Title for an action that shows users all options/results -->
-    <string name="see_all">すべて表示</string>
     <!-- Title for an action that shows users more options/results -->
     <string name="see_more">さらに表示</string>
     <!-- Action title to select the location for an event. -->
@@ -1530,4 +1528,16 @@
         <item quantity="one">日</item>
         <item quantity="other">日</item>
     </plurals>
+
+    <string name="choose_on_map">地図上で選択</string>
+    <string name="sign_in_to_continue">サインイン</string>
+    <string name="subscriber_only">あなたの %s アカウントは、よりエキサイティングな機能への扉を開きます。</string>
+    <string name="choose_location">場所を選択</string>
+    <string name="favorites">お気に入り</string>
+    <string name="add_home">ホームを追加</string>
+    <string name="add_work">作業を追加</string>
+    <string name="see_all">すべて表示</string>
+    <string name="from_with_colon">出発:</string>
+    <string name="settings">設定</string>
+    <string name="sign_in_to_your_account">%s アカウントにサインインする</string>
 </resources>
