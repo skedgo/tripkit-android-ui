@@ -99,6 +99,7 @@ class DrtViewModel @Inject constructor(
                     ((it.type == QuickBookingType.MULTIPLE_CHOICE && !it.options.isNullOrEmpty() && it.values.isNullOrEmpty()) ||
                             (it.type == QuickBookingType.SINGLE_CHOICE && !it.options.isNullOrEmpty() && it.value.isNullOrEmpty()) ||
                             (it.type == QuickBookingType.LONG_TEXT && it.value.isNullOrEmpty()) ||
+                            (it.type == QuickBookingType.NUMBER && it.value.isNullOrEmpty()) ||
                             (it.type == QuickBookingType.RETURN_TRIP && it.value.isNullOrEmpty()))
         }
     }
@@ -220,9 +221,11 @@ class DrtViewModel @Inject constructor(
         val result = mutableListOf<DrtItemViewModel>()
 
         inputs.forEach {
+            /*
             if (it.type != QuickBookingType.LONG_TEXT && it.type != QuickBookingType.RETURN_TRIP && it.options.isNullOrEmpty()) {
                 return@forEach
             }
+            */
 
             result.add(
                     DrtItemViewModel().apply {
@@ -232,6 +235,10 @@ class DrtViewModel @Inject constructor(
                         setValue(getDefaultValue(it))
                         setRequired(it.required)
                         setItemId(it.id)
+                        if(it.type == QuickBookingType.NUMBER) {
+                            setMinValue(it.minValue)
+                            setMaxValue(it.maxValue)
+                        }
                         it.options?.let { opt -> setOptions(opt) }
                         setContentDescription(
                                 when {
@@ -279,10 +286,11 @@ class DrtViewModel @Inject constructor(
 
     private fun getIconById(id: String?): Int {
         return when (id) {
-            "mobilityOptions" -> R.drawable.ic_person
+            "mobilityOptions", "totalPassengers" -> R.drawable.ic_person
             "purpose" -> R.drawable.ic_flag
             "notes" -> R.drawable.ic_edit
             "returnTrip" -> R.drawable.ic_tickets
+            "wheelchairPassengers" -> R.drawable.ic_wheelchair
             else -> R.drawable.ic_note
         }
     }
@@ -306,7 +314,11 @@ class DrtViewModel @Inject constructor(
         }
 
         if (defaultValues.isEmpty()) {
-            defaultValues.addAll(listOf(getDefaultValueByType(input.type, input.title)))
+            if (input.type == QuickBookingType.NUMBER) {
+                defaultValues.add(input.minValue.toString())
+            } else {
+                defaultValues.addAll(listOf(getDefaultValueByType(input.type, input.title)))
+            }
         } else {
             if (input.type == QuickBookingType.MULTIPLE_CHOICE) {
                 input.values = defaultValues
@@ -318,11 +330,17 @@ class DrtViewModel @Inject constructor(
         return defaultValues
     }
 
-    fun getDefaultValueByType(@QuickBookingType type: String, title: String): String {
-        return if (type == QuickBookingType.LONG_TEXT) {
-            "Tap to $title"
-        } else {
-            "Tap Change to make selections"
+    fun getDefaultValueByType(@QuickBookingType type: String, title: String, values: List<String>? = null): String {
+        return when (type) {
+            QuickBookingType.LONG_TEXT -> {
+                "Tap to $title"
+            }
+            QuickBookingType.NUMBER -> {
+                values?.firstOrNull() ?: "0"
+            }
+            else -> {
+                "Tap Change to make selections"
+            }
         }
     }
 
@@ -380,6 +398,7 @@ class DrtViewModel @Inject constructor(
 
 
     fun book() {
+        items.forEach { updateInputValue(it) }
         _quickBooking.value?.let { quickBooking ->
             logAction(quickBooking.bookingURL)
         }
