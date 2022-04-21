@@ -1,12 +1,10 @@
 package com.skedgo.tripkit.ui.trippreview.drt
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
 import androidx.recyclerview.widget.DiffUtil
 import com.skedgo.tripkit.booking.quickbooking.Option
 import com.skedgo.tripkit.booking.quickbooking.QuickBookingType
+import com.skedgo.tripkit.ui.utils.toIntSafe
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 
@@ -49,6 +47,28 @@ class DrtItemViewModel : ViewModel() {
 
     private val _contentDescription = MutableLiveData<String>()
     val contentDescription: LiveData<String> = _contentDescription
+
+    private var minValue = 0
+    private var maxValue = 0
+
+    private val _enableIncrement = MutableLiveData<Boolean>(true)
+    val enableIncrement: LiveData<Boolean> = _enableIncrement
+
+    private val _enableDecrement = MutableLiveData<Boolean>(false)
+    val enableDecrement: LiveData<Boolean> = _enableDecrement
+
+    private val valuesObserver = Observer<List<String>> { values ->
+        if (type.value == QuickBookingType.NUMBER) {
+            val currentValue = (values.firstOrNull() ?: "").toInt()
+            _enableDecrement.value = currentValue > minValue
+            _enableIncrement.value = currentValue < maxValue
+        }
+    }
+
+    init {
+        values.observeForever(valuesObserver)
+    }
+
 
     fun setIcon(value: Int) {
         _icon.value = value
@@ -105,6 +125,28 @@ class DrtItemViewModel : ViewModel() {
 
     fun setContentDescription(value: String) {
         _contentDescription.value = value
+    }
+
+    fun onIncrementValue() {
+        val currentValue = (values.value?.firstOrNull() ?: "").toIntSafe()
+        _values.value = listOf((currentValue + 1).toString())
+    }
+
+    fun onDecrementValue() {
+        val currentValue = (values.value?.firstOrNull() ?: "").toIntSafe()
+        _values.value = listOf((currentValue - 1).toString())
+    }
+
+    fun setMinValue(value: Int) {
+        minValue = value
+        val currentValue = (values.value?.firstOrNull() ?: "").toIntSafe()
+        _enableDecrement.value = currentValue > minValue
+    }
+
+    fun setMaxValue(value: Int) {
+        maxValue = value
+        val currentValue = (values.value?.firstOrNull() ?: "").toIntSafe()
+        _enableIncrement.value = currentValue < maxValue
     }
 
     companion object {
