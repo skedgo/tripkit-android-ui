@@ -115,5 +115,10 @@
 	<string name="tap_public_transport_stops_for_access_to_timetable">Tap public transport stops for access to timetable</string>
 	<string name="str_mins">mins</string>
 	<string name="lbl_search_for_destination">Search for destination</string>
+	<string name="lbl_pickup">Pickup</string>
+	<string name="lbl_drop_off">Drop off</string>
+	<string name="managing_your_shared_data">Managing your shared data</string>
+	<string name="read_to_learn_more_about_each_data_you_shared_comma_such_as_how_to_turn_sharing_on_or_off_later_dot_data_will_be_used_according_to_tripgo_quote_s_privacy_policy_dot">Read to learn more about each data you shared, such as how to turn sharing on or off later. Data will be used according to %1$s\'s &lt;a href="%2$s">privacy policy&lt;/a></string>
+	<string name="i_want_to_delete_my_account">I want to delete my account</string>
 </resources>
 	<!-- This is an auto generated file (Tue Jan 21 08:21:03 CET 2020) -->

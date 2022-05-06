@@ -308,7 +308,7 @@
     <!-- User preferences title -->
     <string name="my_priorities">أولوياتي</string>
     <!-- No comment provided by engineer. -->
-    <string name="my_transport">My Transport</string>
+    <string name="my_transport">النقل الخاص بي</string>
     <!-- Header for list of my vehicles -->
     <string name="my_vehicles">سيارتي</string>
     <!-- Error recovery suggestion for when TripGo couldnt identify the users current city -->
@@ -659,6 +659,8 @@
     <string name="enter_your_home_and_optionally_work_addresses_and_connect_your_calendar_for_automatic_trip_planning">أدخل منزلك، وعناوين العمل (اختياريًا)، وقم بتوصيل التقويم الخاص بك بالتخطيط التلقائي للرحلة.</string>
     <!-- Everyday in context of repetitions (especially recurring events) -->
     <string name="everyday">كل يوم</string>
+    <!--Header for accessing my account-->
+    <string name="my_account">حسابي</string>
     <!-- Title for button to access favourites -->
     <string name="favourites">المفضلة</string>
     <!-- Title for a flight -->
@@ -682,7 +684,7 @@
     <!-- Refer to users not care about a particular aspect of their travel, e.g., cost, time, convenience -->
     <string name="i_don_apostt_care">لا أهتم</string>
     <!-- No comment provided by engineer. -->
-    <string name="if_you_have_granted_flavor_access_to_your_current_location_coma_contacts_coma_calendar_coma_and_more_coma_you_can_withdraw_access_to_that_data_by_going_to_the_settings_app_dot">إذا كنت قد منحت TripGo حق الوصول إلى موقعك الحالي وجهات الاتصال والتقويم والمزيد، فيمكنك إلغاء الوصول إلى تلك البيانات بالانتقال إلى إعدادات التطبيق.</string>
+    <string name="if_you_have_granted_flavor_access_to_your_current_location_coma_contacts_coma_calendar_coma_and_more_coma_you_can_withdraw_access_to_that_data_by_going_to_the_settings_app_dot">إذا كنت قد منحت %s حق الوصول إلى موقعك الحالي وجهات الاتصال والتقويم والمزيد، فيمكنك إلغاء الوصول إلى تلك البيانات بالانتقال إلى إعدادات التطبيق.</string>
     <!-- This is mostly an action button sitting in a section header in the home card, allowing users to manage some features, e.g., subscription or rewards. -->
     <string name="manage">إدارة</string>
     <!-- Title -->
@@ -1676,4 +1678,9 @@
     <string name="from_with_colon">من:</string>
     <string name="settings">إعدادات</string>
     <string name="sign_in_to_your_account">تسجيل الدخول إلى حسابك %s</string>
+
+    <string name="edit_your_flavor_account">تعديل حسابك في %s</string>
+    <string name="click_to_change_profile_picture">انقر لتغيير الصورة الشخصية</string>
+    <string name="tap_to">اضغط على %s</string>
+    <string name="tap_change_to_make_selection">انقر على التغيير لإجراء الإختيارات</string>
 </resources>

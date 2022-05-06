@@ -216,6 +216,8 @@
     <string name="more_information">詳細情報</string>
     <!-- User preferences title -->
     <string name="my_priorities">私の優先順位</string>
+    <!-- No comment provided by engineer. -->
+    <string name="my_transport">私の交通機関</string>
     <!-- Header for list of my vehicles -->
     <string name="my_vehicles">私の車</string>
     <!-- Error recovery suggestion for when TripGo couldnt identify the users current city -->
@@ -488,6 +490,8 @@
     <string name="every">すべての %s</string>
     <!-- Everyday in context of repetitions (especially recurring events) -->
     <string name="everyday">毎日</string>
+    <!--Header for accessing my account-->
+    <string name="my_account">マイアカウント</string>
     <!-- Title for button to access favourites -->
     <string name="favourites">お気に入り</string>
     <!-- Title for a flight -->
@@ -507,7 +511,7 @@
     <!-- No comment provided by engineer. -->
     <string name="howd_you_like_to_select_your_profile_picture">プロフィール写真を選択してください</string>
     <!-- No comment provided by engineer. -->
-    <string name="if_you_have_granted_tripgo_access_to_your_current_location_contacts_calendar_and_more_you_can_withdr">TripGoに現在地、連絡先、カレンダーなどへのアクセスを許可している場合は、アプリの設定にてそのデータへのアクセスを取り消すことができます。</string>
+    <string name="if_you_have_granted_flavor_access_to_your_current_location_coma_contacts_coma_calendar_coma_and_more_coma_you_can_withdraw_access_to_that_data_by_going_to_the_settings_app_dot">%sに現在地、連絡先、カレンダーなどへのアクセスを許可している場合は、アプリの設定にてそのデータへのアクセスを取り消すことができます。</string>
     <!-- This is mostly an action button sitting in a section header in the home card, allowing users to manage some features, e.g., subscription or rewards. -->
     <string name="manage">管理</string>
     <!-- Title -->
@@ -1540,4 +1544,9 @@
     <string name="from_with_colon">出発:</string>
     <string name="settings">設定</string>
     <string name="sign_in_to_your_account">%s アカウントにサインインする</string>
+
+    <string name="edit_your_flavor_account">%sアカウントを編集</string>
+    <string name="click_to_change_profile_picture">クリックしてプロフィール画像を変更</string>
+    <string name="tap_to">タップして %s</string>
+    <string name="tap_change_to_make_selection">変更をタップして選択します</string>
 </resources>

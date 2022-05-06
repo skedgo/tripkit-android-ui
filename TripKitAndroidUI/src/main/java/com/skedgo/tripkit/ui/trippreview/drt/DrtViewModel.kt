@@ -187,7 +187,7 @@ class DrtViewModel @Inject constructor(
                                 )
                             }
                             setViewMode(true)
-                            setContentDescription("Tap to add note")
+                            setContentDescription(context.getString(R.string.tap_to_add_notes))
                             onChangeStream = onItemChangeActionStream
                         }
                 )
@@ -246,7 +246,7 @@ class DrtViewModel @Inject constructor(
                                         resources.getString(R.string.str_return_trip_voice_over)
                                     }
                                     it.type.equals(QuickBookingType.LONG_TEXT, true) -> {
-                                        "Tap to Add Note"
+                                        context.getString(R.string.tap_to_add_notes)
                                     }
                                     else -> {
                                         "Tap Change to make selections"
@@ -333,7 +333,7 @@ class DrtViewModel @Inject constructor(
     fun getDefaultValueByType(@QuickBookingType type: String, title: String, values: List<String>? = null): String {
         return when (type) {
             QuickBookingType.LONG_TEXT -> {
-                "Tap to $title"
+                String.format(context.getString(R.string.tap_to), title)
             }
             QuickBookingType.NUMBER -> {
                 values?.firstOrNull() ?: "0"
