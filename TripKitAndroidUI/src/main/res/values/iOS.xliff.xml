@@ -1472,5 +1472,11 @@ Note, your iCloud data will not be deleted by this, but you can delete this in t
 	<string name="see_all">See All</string>
 	<string name="from_with_colon">From:</string>
 	<string name="sign_in_to_your_account">Sign in to your %s account</string>
+
+	<string name="edit_your_flavor_account">Edit your %s account</string>
+	<string name="click_to_change_profile_picture">Click to change your profile picture</string>
+	<string name="tap_to">Tap to %s</string>
+	<string name="tap_to_add_notes">Tap to add notes</string>
+	<string name="tap_change_to_make_selection">Tap Change to make selections</string>
 </resources>
 	<!-- This is an auto generated file (Mon Jan 20 14:50:01 CET 2020) -->

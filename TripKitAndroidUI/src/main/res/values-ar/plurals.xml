@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <plurals name="number_of_stops">
+        <item quantity="one">%d محطة توقف واحدة</item>
+        <item quantity="other">%d محطات التوقف</item>
+    </plurals>
+    <plurals name="number_of_alerts">
+        <item quantity="one">%d تنبيه واحد</item>
+        <item quantity="other">%d تنبيهات</item>
+    </plurals>
+</resources>
