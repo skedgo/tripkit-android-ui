@@ -21,7 +21,7 @@ import com.skedgo.tripkit.ui.utils.isTalkBackOn
  * that's using databinding
  * Sample usage SampleFragment<FragmentSampleBinding>
  */
-abstract class BaseFragment<V : ViewDataBinding> : BaseTripKitFragment() {
+abstract class BaseFragment<V : ViewDataBinding> : BaseTripKitPagerFragment() {
 
     protected val gson = Gson()
 

@@ -45,6 +45,8 @@ class TripPreviewPagerAdapter(fragmentManager: FragmentManager)
      */
     internal var externalActionCallback: ((TripSegment?, Action?) -> Unit)? = null
 
+    internal var bottomSheetDragToggleCallback: ((Boolean) -> Unit)? = null
+
     override fun getItem(position: Int): Fragment {
         val page = pages[position]
         val fragment = when (page.type) {
@@ -104,6 +106,14 @@ class TripPreviewPagerAdapter(fragmentManager: FragmentManager)
             ITEM_QUICK_BOOKING -> {
                 DrtFragment.newInstance(page.tripSegment) { segment ->
                     pages.firstOrNull { it.tripSegment.id == segment.id }?.tripSegment = segment
+                }.apply {
+                    //bottomSheetDragToggleCallback = this@TripPreviewPagerAdapter.bottomSheetDragToggleCallback
+                    onNextPage = {
+                        onSwipePage.invoke(true)
+                    }
+                    onPreviousPage = {
+                        onSwipePage.invoke(false)
+                    }
                 }
             }
             else -> StandardTripPreviewItemFragment.newInstance(page.tripSegment)
