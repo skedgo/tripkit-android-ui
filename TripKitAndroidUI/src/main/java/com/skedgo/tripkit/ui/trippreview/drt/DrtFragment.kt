@@ -49,6 +49,8 @@ class DrtFragment : BaseFragment<FragmentDrtBinding>(), DrtHandler {
 
     private var focusedAfterBookingConfirmed = false
 
+    internal var bottomSheetDragToggleCallback: ((Boolean) -> Unit)? = null
+
     @Inject
     lateinit var actionsAdapter: ActionListAdapter
 
@@ -79,6 +81,11 @@ class DrtFragment : BaseFragment<FragmentDrtBinding>(), DrtHandler {
         initBinding()
         initObserver()
         initViews()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        bottomSheetDragToggleCallback?.invoke(true)
     }
 
     private fun initBinding() {
@@ -240,6 +247,7 @@ class DrtFragment : BaseFragment<FragmentDrtBinding>(), DrtHandler {
 
     override fun onResume() {
         super.onResume()
+        bottomSheetDragToggleCallback?.invoke(false)
         pagerItemViewModel.closeClicked.observable
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe { onCloseButtonListener?.onClick(null) }.addTo(autoDisposable)
@@ -290,6 +298,33 @@ class DrtFragment : BaseFragment<FragmentDrtBinding>(), DrtHandler {
                 }
             }
         }
+
+        /*
+        binding.drtNsv.setOnTouchListener { view, motionEvent ->
+            view.parent.requestDisallowInterceptTouchEvent(true)
+            view.onTouchEvent(motionEvent)
+            true
+        }
+        */
+
+        val swipeListener = OnSwipeTouchListener(requireContext(),
+                object : OnSwipeTouchListener.SwipeGestureListener {
+                    override fun onSwipeRight() {
+                        onNextPage?.invoke()
+                    }
+
+                    override fun onSwipeLeft() {
+                        onPreviousPage?.invoke()
+                    }
+                })
+
+        swipeListener.touchCallback = { v, event ->
+            v?.parent?.requestDisallowInterceptTouchEvent(true)
+            v?.onTouchEvent(event)
+        }
+
+        binding.drtNsv.setOnTouchListener(swipeListener)
+
     }
 
     companion object {

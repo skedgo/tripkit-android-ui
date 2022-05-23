@@ -221,6 +221,10 @@ class TripPreviewPagerFragment : BaseTripKitFragment() {
                 }
             }
         }
+
+        adapter.bottomSheetDragToggleCallback = {
+            tripPreviewPagerListener?.onToggleBottomSheetDrag(it)
+        }
     }
 
     //TODO add viewmodel and move logic there (not just for this class).
@@ -358,6 +362,8 @@ class TripPreviewPagerFragment : BaseTripKitFragment() {
 
         @Deprecated("UnusedClass")
         fun onExternalActionButtonClicked(action: String?)
+
+        fun onToggleBottomSheetDrag(isDraggable: Boolean)
     }
 
     companion object {
