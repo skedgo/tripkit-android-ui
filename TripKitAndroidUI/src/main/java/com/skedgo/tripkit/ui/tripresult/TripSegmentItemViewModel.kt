@@ -33,10 +33,6 @@ import com.skedgo.tripkit.ui.core.fetchAsync
 import com.skedgo.tripkit.ui.tripresults.GetTransportIconTintStrategy
 import com.skedgo.tripkit.ui.tripresults.TripSegmentHelper
 import com.skedgo.tripkit.ui.utils.*
-import com.technologies.wikiwayfinder.core.data.Point
-import com.technologies.wikiwayfinder.core.singleton.WayWikiFinder
-import com.technologies.wikiwayfinder.core.singleton.WayWikiFinder.getPointById
-import com.technologies.wikiwayfinder.core.singleton.WayWikiFinder.getPointWithGTFSCode
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import timber.log.Timber
@@ -82,8 +78,8 @@ TripSegmentItemViewModel @Inject internal constructor(
     val alertsClicked = BehaviorRelay.create<ArrayList<RealtimeAlert>>()
     //var tripSegment: TripSegment? = null
 
-    private val _wikiWayFinderRoutes = MutableLiveData(listOf<Point>())
-    val wikiWayFinderRoutes: LiveData<List<Point>> = _wikiWayFinderRoutes
+//    private val _wikiWayFinderRoutes = MutableLiveData(listOf<Point>())
+//    val wikiWayFinderRoutes: LiveData<List<Point>> = _wikiWayFinderRoutes
 
     private val _isHideExactTimes = MutableLiveData(false)
     val isHideExactTimes: LiveData<Boolean> = _isHideExactTimes
@@ -93,37 +89,37 @@ TripSegmentItemViewModel @Inject internal constructor(
     val externalAction = ObservableField<String>()
     val externalActionClicked = BehaviorRelay.create<TripSegment>()
 
-    fun setWayWikiSegments(previousPTSegment: TripSegment, nextPTSegment: TripSegment) {
-        if (!previousPTSegment.endStopCode.isNullOrBlank() && !nextPTSegment.startStopCode.isNullOrBlank()) {
-
-            val startArea = WayWikiFinder.getAreaWithGTFSCode(previousPTSegment.endStopCode)
-            val endArea = WayWikiFinder.getAreaWithGTFSCode(nextPTSegment.startStopCode)
-
-            if (startArea != null || endArea != null) {
-                val area = startArea ?: endArea
-
-                area?.apply {
-                    WayWikiFinder.setCurrentArea(this)
-                    WayWikiFinder.checkDownloadAreaPoints(this) { area ->
-
-                        val fromPoints = area.getPointWithGTFSCode(previousPTSegment.endStopCode)
-                        val toPoints = area.getPointWithGTFSCode(nextPTSegment.startStopCode)
-
-                        if (fromPoints.isNotEmpty() && toPoints.isNotEmpty()) {
-
-                            WayWikiFinder.getRoute(
-                                    context,
-                                    fromPoints.firstOrNull(),
-                                    toPoints
-                            ) { routePoints ->
-                                _wikiWayFinderRoutes.value = routePoints
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
+//    fun setWayWikiSegments(previousPTSegment: TripSegment, nextPTSegment: TripSegment) {
+//        if (!previousPTSegment.endStopCode.isNullOrBlank() && !nextPTSegment.startStopCode.isNullOrBlank()) {
+//
+//            val startArea = WayWikiFinder.getAreaWithGTFSCode(previousPTSegment.endStopCode)
+//            val endArea = WayWikiFinder.getAreaWithGTFSCode(nextPTSegment.startStopCode)
+//
+//            if (startArea != null || endArea != null) {
+//                val area = startArea ?: endArea
+//
+//                area?.apply {
+//                    WayWikiFinder.setCurrentArea(this)
+//                    WayWikiFinder.checkDownloadAreaPoints(this) { area ->
+//
+//                        val fromPoints = area.getPointWithGTFSCode(previousPTSegment.endStopCode)
+//                        val toPoints = area.getPointWithGTFSCode(nextPTSegment.startStopCode)
+//
+//                        if (fromPoints.isNotEmpty() && toPoints.isNotEmpty()) {
+//
+//                            WayWikiFinder.getRoute(
+//                                    context,
+//                                    fromPoints.firstOrNull(),
+//                                    toPoints
+//                            ) { routePoints ->
+//                                _wikiWayFinderRoutes.value = routePoints
+//                            }
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//    }
 
     fun setupSegment(viewType: SegmentViewType,
                      title: String,

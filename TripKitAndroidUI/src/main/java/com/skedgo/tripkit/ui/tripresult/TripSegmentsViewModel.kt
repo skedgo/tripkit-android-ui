@@ -31,7 +31,6 @@ import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButtonHandler
 import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButtonHandlerFactory
 import com.skedgo.tripkit.ui.utils.TripSegmentActionProcessor
 import com.squareup.otto.Bus
-import com.technologies.wikiwayfinder.core.data.Point
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
 import io.reactivex.subjects.PublishSubject
@@ -84,8 +83,8 @@ class TripSegmentsViewModel @Inject internal constructor(
     private var actionButtonHandler: ActionButtonHandler? = null
     private var trip: Trip? = null
 
-    private val _showWikiwayFinder = MutableLiveData<List<Point>>()
-    val showWikiwayFinder: LiveData<List<Point>> = _showWikiwayFinder
+//    private val _showWikiwayFinder = MutableLiveData<List<Point>>()
+//    val showWikiwayFinder: LiveData<List<Point>> = _showWikiwayFinder
 
     val tripGroupObservable: Observable<TripGroup>
         get() = tripGroupRelay.hide()
@@ -115,9 +114,9 @@ class TripSegmentsViewModel @Inject internal constructor(
     init {
     }
 
-    fun setShowWikiwayFinder(value: List<Point>) {
-        _showWikiwayFinder.value = value
-    }
+//    fun setShowWikiwayFinder(value: List<Point>) {
+//        _showWikiwayFinder.value = value
+//    }
 
     fun setActionButtonHandlerFactory(actionButtonHandlerFactory: ActionButtonHandlerFactory?) {
         actionButtonHandler = actionButtonHandlerFactory?.createHandler(this)
@@ -422,11 +421,11 @@ class TripSegmentsViewModel @Inject internal constructor(
 
                 viewModel.onClick.observable.subscribe {
                     it.tripSegment?.let { segment ->
-                        if (it.wikiWayFinderRoutes.value?.isNotEmpty() == true) {
-                            _showWikiwayFinder.value = it.wikiWayFinderRoutes.value
-                        } else {
+//                        if (it.wikiWayFinderRoutes.value?.isNotEmpty() == true) {
+//                            _showWikiwayFinder.value = it.wikiWayFinderRoutes.value
+//                        } else {
                             segmentClicked.accept(segment)
-                        }
+//                        }
                     }
                 }.autoClear()
                 viewModel.tripSegment = segment
@@ -459,7 +458,7 @@ class TripSegmentsViewModel @Inject internal constructor(
 
                     if (previousSummarySegment?.transportModeId == TransportMode.ID_PUBLIC_TRANSPORT &&
                             nextSummarySegment?.transportModeId == TransportMode.ID_PUBLIC_TRANSPORT) {
-                        viewModel.setWayWikiSegments(previousSummarySegment, nextSummarySegment)
+//                        viewModel.setWayWikiSegments(previousSummarySegment, nextSummarySegment)
                     }
                 }
 
@@ -474,11 +473,11 @@ class TripSegmentsViewModel @Inject internal constructor(
                         addMovingItem(bridgeModel, segment)
                         bridgeModel.onClick.observable.subscribe {
                             it.tripSegment?.let { segment ->
-                                if (it.wikiWayFinderRoutes.value?.isNotEmpty() == true) {
-                                    _showWikiwayFinder.value = it.wikiWayFinderRoutes.value
-                                } else {
+//                                if (it.wikiWayFinderRoutes.value?.isNotEmpty() == true) {
+//                                    _showWikiwayFinder.value = it.wikiWayFinderRoutes.value
+//                                } else {
                                     segmentClicked.accept(segment)
-                                }
+//                                }
                             }
                         }.autoClear()
                         segmentViewModels.add(bridgeModel)
