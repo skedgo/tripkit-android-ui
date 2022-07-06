@@ -24,6 +24,15 @@ fun setIcon(view: ImageView, iconResource: Int) {
     }
 }
 
+@BindingAdapter("android:src")
+fun setIconDrawable(view: ImageView, drawable: Drawable?) {
+    try {
+        view.setImageDrawable(drawable)
+    } catch (e: Exception) {
+        e.printStackTrace()
+    }
+}
+
 @BindingAdapter("drawableSource")
 fun setIcon(view: ImageView, iconResource: Drawable?) {
     try {
@@ -112,5 +121,12 @@ fun setAddRtlSupport(view: View, addRtlSupport: Boolean) {
         if (view is ImageView) {
             setMirrorImage(view, isRightToLeft)
         }
+    }
+}
+
+@BindingAdapter("backgroundDrawable")
+fun setBackgroundDrawable(view: View, drawable: Drawable?){
+    drawable?.let {
+        view.background = it
     }
 }

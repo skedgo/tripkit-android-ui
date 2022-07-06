@@ -22,6 +22,7 @@ class ActionButtonViewModel constructor (context: Context, button: ActionButton)
     val iconTint = ObservableField<Int>()
     val outlineTint = ObservableField<Int>()
     val backgroundTint = ObservableField<ColorStateList>()
+    val background = ObservableField<Drawable>()
     var tag : String = ""
 
     init {
@@ -40,11 +41,13 @@ class ActionButtonViewModel constructor (context: Context, button: ActionButton)
             this.outlineTint.set(Color.TRANSPARENT)
             val backgroundColorList = intArrayOf(ContextCompat.getColor(context, R.color.colorPrimary), 0)
             this.backgroundTint.set(ColorStateList(stateList, backgroundColorList))
+            this.background.set(ContextCompat.getDrawable(context, R.drawable.bg_circle_primary))
         } else {
             this.iconTint.set(ContextCompat.getColor(context, R.color.black1))
             this.outlineTint.set(ContextCompat.getColor(context, R.color.black4))
             val backgroundColorList = intArrayOf(0, 0)
             this.backgroundTint.set(ColorStateList(stateList, backgroundColorList))
+            this.background.set(ContextCompat.getDrawable(context, R.drawable.bg_circle_transparent_black_border))
         }
     }
 }
