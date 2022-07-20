@@ -191,12 +191,12 @@ class TripSegmentsViewModel @Inject internal constructor(
 
         isHideExactTimes.set(trip.isHideExactTimes || trip.segments.any { it.isHideExactTimes })
     }
-
     // TODO This function is duplicated in TripResultViewModel
     /**
      * For example, 1hr 50mins
      */
     private fun formatDuration(context: Context, startTimeInSecs: Long, endTimeInSecs: Long): String = TimeUtils.getDurationInDaysHoursMins(context,(endTimeInSecs - startTimeInSecs).toInt())
+
 
     fun findSegmentPosition(tripSegment: TripSegment): Int {
         for (i in segmentViewModels.indices) {
