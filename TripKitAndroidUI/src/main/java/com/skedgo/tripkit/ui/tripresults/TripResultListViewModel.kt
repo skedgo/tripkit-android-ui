@@ -55,7 +55,7 @@ import javax.inject.Inject
 import javax.inject.Provider
 
 class TripResultListViewModel @Inject constructor(
-        private val context: Context,
+        val context: Context,
         private val tripGroupRepository: TripGroupRepository,
         private val routingStatusRepositoryLazy: Lazy<RoutingStatusRepository>,
         private val tripResultViewModelProvider: Provider<TripResultViewModel>,
