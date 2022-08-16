@@ -2,19 +2,15 @@ package com.skedgo.tripkit.ui.tripresult;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.os.Handler;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.view.ViewCompat;
 import androidx.fragment.app.Fragment;
 import androidx.viewpager.widget.ViewPager;
 
-import com.skedgo.tripkit.analytics.GetChoiceSet;
 import com.skedgo.tripkit.model.ViewTrip;
 import com.skedgo.tripkit.routing.Trip;
 import com.skedgo.tripkit.ui.TripKitUI;
@@ -23,7 +19,6 @@ import com.skedgo.tripkit.ui.core.BaseTripKitFragment;
 import com.skedgo.tripkit.ui.databinding.TripResultPagerBinding;
 import com.skedgo.tripkit.ui.map.home.TripKitMapContributor;
 import com.skedgo.tripkit.ui.model.TripKitButtonConfigurator;
-import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButton;
 import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButtonHandlerFactory;
 import com.squareup.otto.Bus;
 
@@ -32,14 +27,7 @@ import org.jetbrains.annotations.NotNull;
 import com.skedgo.tripkit.logging.ErrorLogger;
 import com.skedgo.tripkit.routing.TripGroup;
 
-import io.reactivex.observers.DisposableObserver;
-import io.reactivex.schedulers.Schedulers;
-import kotlinx.coroutines.channels.Channel;
-import timber.log.Timber;
-
 import javax.inject.Inject;
-
-import java.util.ArrayList;
 import java.util.List;
 
 public class TripResultPagerFragment extends BaseTripKitFragment implements ViewPager.OnPageChangeListener, TripSegmentListFragment.OnTripKitButtonClickListener {
@@ -75,6 +63,7 @@ public class TripResultPagerFragment extends BaseTripKitFragment implements View
     TripResultPagerViewModel viewModel;
     @Inject
     ErrorLogger errorLogger;
+
 
     private TripGroupsPagerAdapter tripGroupsPagerAdapter;
     private TripResultPagerBinding binding;
@@ -118,7 +107,24 @@ public class TripResultPagerFragment extends BaseTripKitFragment implements View
                 .subscribe());
 
         getAutoDisposable().add(viewModel.observeTripGroups()
-                .subscribe());
+                .subscribe(
+                        /*
+                        groups -> {
+                            if (!groups.isEmpty()) {
+                                Map<String, Long> idsMap = tripGroupsPagerAdapter.getTripIds();
+                                Map.Entry<String, Long> entry = idsMap.entrySet().iterator().next();
+                                int index = 0;
+                                for (TripGroup group : groups) {
+                                    if (group.uuid().equals(entry.getKey())) {
+                                        currentPage = index;
+                                        binding.tripGroupsPager.setCurrentItem(currentPage);
+                                    }
+                                    index++;
+                                }
+                            }
+                        }
+                        */
+                ));
 
         getAutoDisposable().add(viewModel.observeInitialPage()
                 .subscribe());
@@ -134,7 +140,7 @@ public class TripResultPagerFragment extends BaseTripKitFragment implements View
                 .subscribe(tripGroup -> {
                     if (args instanceof FavoriteTrip) {
                         // The trip group will possibly have changed after reloading it, so set the map to the correct one here
-                        mapContributor.setTripGroupId(viewModel.getCurrentTripGroupId().get());
+                        mapContributor.setTripGroupId(viewModel.getCurrentTripGroupId().get(), null);
                     }
                 }, errorLogger::trackError));
 
@@ -218,15 +224,16 @@ public class TripResultPagerFragment extends BaseTripKitFragment implements View
 
         viewModel.onCreate(savedInstanceState);
         Long tripId = null;
+        String groupId = null;
         tripGroupsPagerAdapter = new TripGroupsPagerAdapter(getChildFragmentManager());
 
         if (savedInstanceState == null) {
             if (args instanceof HasInitialTripGroupId) {
-                String id = ((HasInitialTripGroupId) args).tripGroupId();
+                groupId = ((HasInitialTripGroupId) args).tripGroupId();
                 tripId = ((HasInitialTripGroupId) args).tripId();
-                tripGroupsPagerAdapter.getTripIds().put(id, tripId);
-                viewModel.setInitialSelectedTripGroupId(id);
-                mapContributor.setTripGroupId(id);
+                tripGroupsPagerAdapter.getTripIds().put(groupId, tripId);
+                viewModel.setInitialSelectedTripGroupId(groupId);
+                mapContributor.setTripGroupId(groupId, tripId);
             }
         }
 
@@ -289,7 +296,7 @@ public class TripResultPagerFragment extends BaseTripKitFragment implements View
     @Override
     public void onPageSelected(int position) {
         TripGroup group = this.tripGroupsPagerAdapter.getTripGroups().get(position);
-        mapContributor.setTripGroupId(group.uuid());
+        mapContributor.setTripGroupId(group.uuid(), null);
         viewModel.getCurrentPage().set(position);
     }
 

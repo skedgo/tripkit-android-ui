@@ -32,112 +32,119 @@ class TripResultMapViewModel @Inject internal constructor(
         private val segmentCameraUpdateRepository: SegmentCameraUpdateRepository,
         private val segmentCameraUpdateMapper: SegmentCameraUpdateMapper,
         private val schedulers: SchedulerFactory
-): RxViewModel() {
-  private val selectedTrip: BehaviorRelay<Trip> = BehaviorRelay.create()
+) : RxViewModel() {
+    private val selectedTrip: BehaviorRelay<Trip> = BehaviorRelay.create()
 
-  val tripCameraUpdate: Observable<CameraUpdate>
-      get() = selectedTrip
-        .distinctUntilChanged { x, y ->
-            x.uuid() == y.uuid() }
-        .map { it.segments }
-        .flatMap {
-            Observable.fromCallable { it.getVisibleGeoPointsOnMap() }
-              .map { it.toCameraUpdate() }
-        }
+    val tripCameraUpdate: Observable<CameraUpdate>
+        get() = selectedTrip
+                .distinctUntilChanged { x, y ->
+                    x.uuid() == y.uuid()
+                }
+                .map { it.segments }
+                .flatMap {
+                    Observable.fromCallable { it.getVisibleGeoPointsOnMap() }
+                            .map { it.toCameraUpdate() }
+                }
 
     val segments: Observable<List<TripSegment>>
-    get() = selectedTrip.map {
-      it.segments
-    }
-
-  val travelledStopMarkerViewModels: Observable<List<StopMarkerViewModel>>
-    get() = selectedTrip
-        .flatMap { trip ->
-          toStopMarkerViewModels(trip, travelled = true).toList().toObservable()
+        get() = selectedTrip.map {
+            it.segments
         }
-        .observeOn(mainThread())
 
-  val nonTravelledStopMarkerViewModels: Observable<List<StopMarkerViewModel>>
-    get() = selectedTrip
-        .flatMap { trip ->
-          toStopMarkerViewModels(trip, travelled = false).toList().toObservable()
-        }
-        .observeOn(mainThread())
+    val travelledStopMarkerViewModels: Observable<List<StopMarkerViewModel>>
+        get() = selectedTrip
+                .flatMap { trip ->
+                    toStopMarkerViewModels(trip, travelled = true).toList().toObservable()
+                }
+                .observeOn(mainThread())
 
-  val alertMarkerViewModels: Observable<List<AlertMarkerViewModel>>
-    get() = selectedTrip
-        .flatMap {
-          Observable.just(
-              it.segments.flatMap { segment ->
-                (segment.alerts ?: emptyList<RealtimeAlert>())
-                    .filter { it.location() != null }
-                    .map { alert -> AlertMarkerViewModel(alert, segment) }
-              }
-          )
-        }
-        .observeOn(mainThread())
+    val nonTravelledStopMarkerViewModels: Observable<List<StopMarkerViewModel>>
+        get() = selectedTrip
+                .flatMap { trip ->
+                    toStopMarkerViewModels(trip, travelled = false).toList().toObservable()
+                }
+                .observeOn(mainThread())
 
-  val vehicleMarkerViewModels: Observable<List<VehicleMarkerViewModel>>
-    get() = selectedTrip
-        .flatMap {
-          Observable.fromIterable(it.segments)
-              .filter { it.realTimeVehicle != null }
-              .map { VehicleMarkerViewModel(it) }
-              .toList().toObservable()
-        }
-        .observeOn(mainThread())
+    val alertMarkerViewModels: Observable<List<AlertMarkerViewModel>>
+        get() = selectedTrip
+                .flatMap {
+                    Observable.just(
+                            it.segments.flatMap { segment ->
+                                (segment.alerts ?: emptyList<RealtimeAlert>())
+                                        .filter { it.location() != null }
+                                        .map { alert -> AlertMarkerViewModel(alert, segment) }
+                            }
+                    )
+                }
+                .observeOn(mainThread())
 
-    fun setTripGroupId(tripGroupId: String) {
+    val vehicleMarkerViewModels: Observable<List<VehicleMarkerViewModel>>
+        get() = selectedTrip
+                .flatMap {
+                    Observable.fromIterable(it.segments)
+                            .filter { it.realTimeVehicle != null }
+                            .map { VehicleMarkerViewModel(it) }
+                            .toList().toObservable()
+                }
+                .observeOn(mainThread())
+
+    fun setTripGroupId(tripGroupId: String, tripId: Long? = null) {
         tripGroupRepository.getTripGroup(tripGroupId)
                 .subscribe {
-                    selectedTrip.accept(it.displayTrip!!)
+                    var trip = it.displayTrip!!
+                    tripId?.let { id ->
+                        if (trip.id != id) {
+                            trip = it.trips?.firstOrNull { it.id == id } ?: it.displayTrip!!
+                        }
+                    }
+                    selectedTrip.accept(trip)
                 }.autoClear()
     }
 
-  fun onTripSegmentTapped(): Observable<Pair<CameraUpdate, Long>> =
-      segmentCameraUpdateRepository.getSegmentCameraUpdate()
-          .flatMap {
-            val x = segmentCameraUpdateMapper.toCameraUpdate(it)
-            when (x) {
-              is Some -> Observable.just(Pair(x.value, it.tripSegmentId()))
-              is None -> Observable.empty()
-            }
-          }
-          .subscribeOn(schedulers.ioScheduler)
+    fun onTripSegmentTapped(): Observable<Pair<CameraUpdate, Long>> =
+            segmentCameraUpdateRepository.getSegmentCameraUpdate()
+                    .flatMap {
+                        val x = segmentCameraUpdateMapper.toCameraUpdate(it)
+                        when (x) {
+                            is Some -> Observable.just(Pair(x.value, it.tripSegmentId()))
+                            is None -> Observable.empty()
+                        }
+                    }
+                    .subscribeOn(schedulers.ioScheduler)
 
-  /**
-   * This function is to deal with some design flaws from legacy code
-   * which doesn't adhere well Clean Architecture.
-   */
-  @Deprecated("")
-  fun getSelectedTripByBlocking(): Trip = selectedTrip.blockingFirst()
+    /**
+     * This function is to deal with some design flaws from legacy code
+     * which doesn't adhere well Clean Architecture.
+     */
+    @Deprecated("")
+    fun getSelectedTripByBlocking(): Trip = selectedTrip.blockingFirst()
 
-  private fun toStopMarkerViewModels(
-      trip: Trip,
-      travelled: Boolean
-  ): Observable<StopMarkerViewModel>
-      = Observable.fromIterable(trip.segments)
-      .flatMap { segment ->
-        getStopsByTravelTypeLazy.get()
-            .execute(segment, travelled)
-            .flatMap { stop ->
-              val title = arrayOf(stop.arrivalDateTime, stop.departureDateTime)
-                  .firstOrNull { it != null }
-                  ?.let { printTimeLazy.get().execute(it).toObservable() } ?: Observable.just("")
-              title
-                  .map {
-                    StopMarkerViewModel(trip, stop, it, segment, travelled)
-                  }
-                  .cast(StopMarkerViewModel::class.java)
+    private fun toStopMarkerViewModels(
+            trip: Trip,
+            travelled: Boolean
+    ): Observable<StopMarkerViewModel> = Observable.fromIterable(trip.segments)
+            .flatMap { segment ->
+                getStopsByTravelTypeLazy.get()
+                        .execute(segment, travelled)
+                        .flatMap { stop ->
+                            val title = arrayOf(stop.arrivalDateTime, stop.departureDateTime)
+                                    .firstOrNull { it != null }
+                                    ?.let { printTimeLazy.get().execute(it).toObservable() }
+                                    ?: Observable.just("")
+                            title
+                                    .map {
+                                        StopMarkerViewModel(trip, stop, it, segment, travelled)
+                                    }
+                                    .cast(StopMarkerViewModel::class.java)
+                        }
             }
-      }
 }
 
 data class AlertMarkerViewModel(
-    val alert: RealtimeAlert,
-    val segment: TripSegment
+        val alert: RealtimeAlert,
+        val segment: TripSegment
 )
 
 data class VehicleMarkerViewModel(
-    val segment: TripSegment
+        val segment: TripSegment
 )

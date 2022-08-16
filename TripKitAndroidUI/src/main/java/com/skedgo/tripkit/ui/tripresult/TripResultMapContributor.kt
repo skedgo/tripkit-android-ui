@@ -46,19 +46,44 @@ class TripResultMapContributor : TripKitMapContributor {
     private val alertIdToMarkerCache: HashMap<Long, Marker> = LinkedHashMap()
     private val tripLines = Collections.synchronizedList(ArrayList<Polyline>())
 
-    @Inject lateinit var segmentStopMarkerMaker: SegmentStopMarkerMaker
-    @Inject lateinit var alertMarkerMaker: ServiceAlertMarkerMaker
-    @Inject lateinit var picasso: Picasso
-    @Inject lateinit var serviceStopCalloutAdapter: ServiceStopInfoWindowAdapter
-    @Inject lateinit var segmentCalloutAdapter: SegmentInfoWindowAdapter
-    @Inject lateinit var vehicleMarkerCreatorLazy: Lazy<TripVehicleMarkerCreator>
-    @Inject lateinit var vehicleMarkerIconFetcherLazy: Lazy<VehicleMarkerIconFetcher>
-    @Inject lateinit var alertMarkerIconFetcherLazy: Lazy<AlertMarkerIconFetcher>
-    @Inject lateinit var createSegmentMarkers: CreateSegmentMarkers
-    @Inject lateinit var getTripLineLazy: Lazy<GetTripLine>
-    @Inject lateinit var viewModel: TripResultMapViewModel
-    @Inject lateinit var errorLogger: ErrorLogger
-    @Inject lateinit  var segmentMarkerIconMaker: SegmentMarkerIconMaker
+    @Inject
+    lateinit var segmentStopMarkerMaker: SegmentStopMarkerMaker
+
+    @Inject
+    lateinit var alertMarkerMaker: ServiceAlertMarkerMaker
+
+    @Inject
+    lateinit var picasso: Picasso
+
+    @Inject
+    lateinit var serviceStopCalloutAdapter: ServiceStopInfoWindowAdapter
+
+    @Inject
+    lateinit var segmentCalloutAdapter: SegmentInfoWindowAdapter
+
+    @Inject
+    lateinit var vehicleMarkerCreatorLazy: Lazy<TripVehicleMarkerCreator>
+
+    @Inject
+    lateinit var vehicleMarkerIconFetcherLazy: Lazy<VehicleMarkerIconFetcher>
+
+    @Inject
+    lateinit var alertMarkerIconFetcherLazy: Lazy<AlertMarkerIconFetcher>
+
+    @Inject
+    lateinit var createSegmentMarkers: CreateSegmentMarkers
+
+    @Inject
+    lateinit var getTripLineLazy: Lazy<GetTripLine>
+
+    @Inject
+    lateinit var viewModel: TripResultMapViewModel
+
+    @Inject
+    lateinit var errorLogger: ErrorLogger
+
+    @Inject
+    lateinit var segmentMarkerIconMaker: SegmentMarkerIconMaker
 
     var markerManager: MarkerManager? = null
     protected val autoDisposable: CompositeDisposable by lazy {
@@ -96,25 +121,61 @@ class TripResultMapContributor : TripKitMapContributor {
                     .subscribeOn(Schedulers.computation())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(
-                            { it: List<Pair<TripSegment, MarkerOptions>> -> showSegmentMarkers(context, it, segmentMarkers!!) }) { error: Throwable? -> errorLogger!!.trackError(error!!) })
+                            { it: List<Pair<TripSegment, MarkerOptions>> ->
+                                showSegmentMarkers(context, it, segmentMarkers!!)
+                            }
+                    ) { error: Throwable? ->
+                        errorLogger!!.trackError(error!!)
+                    }
+            )
             autoDisposable.add(viewModel!!.vehicleMarkerViewModels
                     .subscribe(
-                            { it: List<VehicleMarkerViewModel> -> showVehicleMarkers(context, it, vehicleMarkers!!) }) { error: Throwable? -> errorLogger!!.trackError(error!!) })
+                            { it: List<VehicleMarkerViewModel> ->
+                                showVehicleMarkers(context, it, vehicleMarkers!!)
+                            }
+                    ) { error: Throwable? ->
+                        errorLogger!!.trackError(error!!)
+                    }
+            )
             autoDisposable.add(viewModel!!.alertMarkerViewModels
                     .subscribe(
-                            { it: List<AlertMarkerViewModel> -> showAlertMarkers(it, alertMarkers!!) }) { error: Throwable? -> errorLogger!!.trackError(error!!) })
+                            { it: List<AlertMarkerViewModel> ->
+                                showAlertMarkers(it, alertMarkers!!)
+                            }
+                    ) { error: Throwable? ->
+                        errorLogger!!.trackError(error!!)
+                    }
+            )
             autoDisposable.add(viewModel!!.travelledStopMarkerViewModels
                     .subscribe(
-                            { it: List<StopMarkerViewModel> -> showStopMarkers(it, travelledStopMarkers!!) }) { error: Throwable? -> errorLogger!!.trackError(error!!) })
+                            { it: List<StopMarkerViewModel> ->
+                                showStopMarkers(it, travelledStopMarkers!!)
+                            }
+                    ) { error: Throwable? ->
+                        errorLogger!!.trackError(error!!)
+                    }
+            )
             autoDisposable.add(viewModel!!.nonTravelledStopMarkerViewModels
                     .subscribe(
-                            { it: List<StopMarkerViewModel> -> showStopMarkers(it, nonTravelledStopMarkers!!) }) { error: Throwable? -> errorLogger!!.trackError(error!!) })
+                            { it: List<StopMarkerViewModel> ->
+                                showStopMarkers(it, nonTravelledStopMarkers!!)
+                            }
+                    ) { error: Throwable? ->
+                        errorLogger!!.trackError(error!!)
+                    }
+            )
             autoDisposable.add(viewModel!!.segments
                     .flatMap { segments: List<TripSegment> -> getTripLineLazy!!.get().execute(segments) }
                     .subscribeOn(Schedulers.computation())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(
-                            { polylineOptionsList: List<PolylineOptions> -> showTripLines(map, polylineOptionsList) }) { error: Throwable? -> errorLogger!!.trackError(error!!) })
+                            { polylineOptionsList: List<PolylineOptions> ->
+                                showTripLines(map, polylineOptionsList)
+                            }
+                    ) { error: Throwable? ->
+                        errorLogger!!.trackError(error!!)
+                    }
+            )
             autoDisposable.add(viewModel!!.onTripSegmentTapped()
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe({ (first, second) ->
@@ -130,7 +191,7 @@ class TripResultMapContributor : TripKitMapContributor {
         }
     }
 
-    override fun getInfoContents(marker: Marker): View?  {
+    override fun getInfoContents(marker: Marker): View? {
         return markerManager?.getInfoContents(marker)
     }
 
@@ -146,10 +207,8 @@ class TripResultMapContributor : TripKitMapContributor {
         tripLines.forEach { it.remove() }
     }
 
-
-
-    fun setTripGroupId(tripGroupId: String?) {
-        viewModel!!.setTripGroupId(tripGroupId!!)
+    fun setTripGroupId(tripGroupId: String?, tripId: Long? = null) {
+        viewModel!!.setTripGroupId(tripGroupId!!, tripId)
     }
 
     @Synchronized
@@ -166,7 +225,7 @@ class TripResultMapContributor : TripKitMapContributor {
 
     @Synchronized
     private fun showVehicleMarkers(
-            context:Context,
+            context: Context,
             vehicleMarkerViewModels: List<VehicleMarkerViewModel>,
             vehicleMarkers: MarkerManager.Collection) {
         vehicleMarkers.clear()
