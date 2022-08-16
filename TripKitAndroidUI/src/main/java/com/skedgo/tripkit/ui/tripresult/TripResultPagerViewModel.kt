@@ -82,55 +82,60 @@ class TripResultPagerViewModel @Inject internal constructor(
 
     fun getSortedTripGroups(args: PagerFragmentArguments, initialList: List<TripGroup>): Observable<Unit> {
         isLoading.set(true)
-        if (args is FromRoutes) {
-            return if (!initialList.isNullOrEmpty()) {
-                tripGroups.accept(initialList)
-                isLoading.set(false)
-                tripGroups.map {
-                    Unit
+        when (args) {
+            is FromRoutes -> {
+                return if (!initialList.isNullOrEmpty()) {
+                    tripGroups.accept(initialList)
+                    isLoading.set(false)
+                    tripGroups.map {
+                        Unit
+                    }
+                } else {
+                    getSortedTripGroups.execute(args.requestId, args.arriveBy, args.sortOrder, tripResultTransportViewFilter)
+                            .subscribeOn(Schedulers.io())
+                            .doOnNext {
+                                tripGroups.accept(initialList)
+                                isLoading.set(false)
+                            }
+                            .map { Unit }
                 }
-            } else {
-                getSortedTripGroups.execute(args.requestId, args.arriveBy, args.sortOrder, tripResultTransportViewFilter)
-                        .subscribeOn(Schedulers.io())
+
+            }
+            is SingleTrip -> {
+                selectedTripGroupRepository.setSelectedTripGroupId(args.tripGroupId)
+                return selectedTripGroupRepository.getSelectedTripGroup().map { listOf(it) }
                         .doOnNext {
-                            tripGroups.accept(initialList)
+                            tripGroups.accept(it)
                             isLoading.set(false)
                         }
                         .map { Unit }
             }
-
-        } else if (args is SingleTrip) {
-            selectedTripGroupRepository.setSelectedTripGroupId(args.tripGroupId)
-            return selectedTripGroupRepository.getSelectedTripGroup().map { listOf(it) }
-                    .doOnNext {
-                        tripGroups.accept(it)
-                        isLoading.set(false)
-                    }
-                    .map { Unit }
-        } else if (args is FavoriteTrip) {
-            fetchingRealtimeStatus.set(true)
-            return getTripGroupsFromWayPoints.execute(args.favoriteTripId)
-                    .doOnNext {
-                        it.trips?.firstOrNull { trip -> trip.uuid() == args.favoriteTripId }?.let { trip ->
-                            it.displayTripId = trip.id
+            is FavoriteTrip -> {
+                fetchingRealtimeStatus.set(true)
+                return getTripGroupsFromWayPoints.execute(args.favoriteTripId)
+                        .doOnNext {
+                            it.trips?.firstOrNull { trip -> trip.uuid() == args.favoriteTripId }?.let { trip ->
+                                it.displayTripId = trip.id
+                            }
+                            setInitialSelectedTripGroupId(it.uuid())
                         }
-                        setInitialSelectedTripGroupId(it.uuid())
-                    }
-                    .map {
-                        listOf(it)
-                    }
-                    .doOnNext {
-                        currentTrip.postValue(
-                                it.firstOrNull {
-                                    it.trips?.isNotEmpty() == true
-                                }?.trips?.firstOrNull()
-                        )
-                        tripGroups.accept(it)
-                        isLoading.set(false)
-                    }
-                    .map { Unit }
-        } else {
-            throw IllegalArgumentException("Unknown Argument: $args")
+                        .map {
+                            listOf(it)
+                        }
+                        .doOnNext {
+                            currentTrip.postValue(
+                                    it.firstOrNull {
+                                        it.trips?.isNotEmpty() == true
+                                    }?.trips?.firstOrNull()
+                            )
+                            tripGroups.accept(it)
+                            isLoading.set(false)
+                        }
+                        .map { Unit }
+            }
+            else -> {
+                throw IllegalArgumentException("Unknown Argument: $args")
+            }
         }
     }
 
@@ -152,13 +157,12 @@ class TripResultPagerViewModel @Inject internal constructor(
         }.map { Unit }
     }
 
-    fun observeTripGroups(): Observable<Unit> {
+    fun observeTripGroups(): Observable<List<TripGroup>> {
         return tripGroups
                 .doOnNext {
                     Log.i("viewModel", "tripGroupsBinding set")
                     tripGroupsBinding.set(it)
                 }
-                .map { Unit }
     }
 
     fun updateSelectedTripGroup(): Observable<TripGroup> {
