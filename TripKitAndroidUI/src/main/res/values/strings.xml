@@ -54,4 +54,6 @@
     <string name="str_minutes">minutes</string>
     <string name="pick_up_window">Pick up window</string>
     <string name="str_return_trip_voice_over">Select One-way only to decline a round trip, or select a date and time for your return trip.</string>
+    <string name="str_select">Select</string>
+    <string name="str_select_tickets">Select tickets</string>
 </resources>

@@ -18,6 +18,11 @@
             type="com.skedgo.tripkit.ui.trippreview.drt.DrtViewModel" />
     </data>
 
+    <!--    <androidx.coordinatorlayout.widget.CoordinatorLayout-->
+    <!--        android:layout_width="match_parent"-->
+    <!--        android:layout_height="match_parent"-->
+    <!--        tools:context=".trippreview.drt.DRTFragment">-->
+
     <androidx.core.widget.NestedScrollView
         android:id="@+id/drt_nsv"
         android:layout_width="match_parent"
@@ -28,16 +33,17 @@
         android:focusableInTouchMode="false"
         android:importantForAccessibility="no"
         android:overScrollMode="never"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        tools:context=".trippreview.drt.DRTFragment">
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+        <!--            tools:context=".trippreview.drt.DRTFragment"-->
+
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:focusable="false"
-            android:nestedScrollingEnabled="true"
             android:focusableInTouchMode="false"
             android:importantForAccessibility="no"
+            android:nestedScrollingEnabled="true"
             android:paddingBottom="200dp">
 
             <ImageButton
@@ -293,6 +299,35 @@
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
+            <TextView
+                android:id="@+id/drt_tv_selectTickets"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/spacing_small"
+                android:layout_marginTop="@dimen/spacing_normal"
+                android:layout_marginEnd="@dimen/spacing_small"
+                android:text="@string/str_select_tickets"
+                android:textStyle="bold"
+                android:visibility="@{viewModel.tickets.size() > 0}"
+                app:layout_constraintTop_toBottomOf="@+id/drt_br_dataList" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/drt_rvTickets"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/spacing_small"
+                android:layout_marginTop="@dimen/spacing_small"
+                android:layout_marginEnd="@dimen/spacing_small"
+                android:importantForAccessibility="no"
+                android:nestedScrollingEnabled="false"
+                android:nextFocusDown="@id/drt_bBook"
+                app:itemBinding="@{viewModel.ticketBinding}"
+                app:items="@{viewModel.tickets}"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                app:layout_constraintTop_toBottomOf="@+id/drt_tv_selectTickets"
+                tools:itemCount="3"
+                tools:listitem="@layout/item_drt_ticket" />
+
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/drt_rvData"
                 android:layout_width="match_parent"
@@ -306,7 +341,7 @@
                 app:itemBinding="@{viewModel.itemBinding}"
                 app:items="@{viewModel.items}"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                app:layout_constraintTop_toBottomOf="@+id/drt_br_dataList"
+                app:layout_constraintTop_toBottomOf="@+id/drt_rvTickets"
                 tools:itemCount="3"
                 tools:listitem="@layout/item_drt" />
 
@@ -436,10 +471,59 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="200dp"
-                app:layout_constraintTop_toBottomOf="@+id/drt_br_actions"
-                app:layout_constraintBottom_toBottomOf="parent" />
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/drt_br_actions" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.core.widget.NestedScrollView>
+
+    <!--        <androidx.constraintlayout.widget.ConstraintLayout-->
+    <!--            android:layout_width="match_parent"-->
+    <!--            android:layout_height="wrap_content"-->
+    <!--            android:layout_gravity="bottom"-->
+    <!--            android:background="@android:color/white">-->
+
+    <!--            <androidx.constraintlayout.widget.Barrier-->
+    <!--                android:id="@+id/drt_br_total"-->
+    <!--                android:layout_width="match_parent"-->
+    <!--                android:layout_height="wrap_content"-->
+    <!--                android:background="@android:color/transparent"-->
+    <!--                android:elevation="0dp"-->
+    <!--                app:barrierDirection="bottom"-->
+    <!--                app:layout_constraintTop_toTopOf="parent" />-->
+
+    <!--            <TextView-->
+    <!--                android:id="@+id/drt_tv_numberTickets"-->
+    <!--                style="@style/TextAppearance.MaterialComponents.Body1"-->
+    <!--                android:layout_width="match_parent"-->
+    <!--                android:layout_height="wrap_content"-->
+    <!--                android:layout_margin="@dimen/spacing_small"-->
+    <!--                android:focusable="false"-->
+    <!--                android:importantForAccessibility="no"-->
+    <!--                android:text="@{viewModel.numberTickets.toString()}"-->
+    <!--                android:textColor="@color/black1"-->
+    <!--                app:layout_constraintEnd_toEndOf="parent"-->
+    <!--                app:layout_constraintStart_toStartOf="parent"-->
+    <!--                app:layout_constraintTop_toBottomOf="parent"-->
+    <!--                tools:text="Subtitle" />-->
+
+    <!--            <TextView-->
+    <!--                android:id="@+id/drt_tv_totalTickets"-->
+    <!--                style="@style/TextAppearance.MaterialComponents.Headline6"-->
+    <!--                android:layout_width="match_parent"-->
+    <!--                android:layout_height="wrap_content"-->
+    <!--                android:layout_margin="@dimen/spacing_small"-->
+    <!--                android:focusable="false"-->
+    <!--                android:importantForAccessibility="no"-->
+    <!--                android:text="@{viewModel.tickets.size()}"-->
+    <!--                android:textColor="@color/black"-->
+    <!--                app:layout_constraintEnd_toEndOf="parent"-->
+    <!--                app:layout_constraintStart_toStartOf="parent"-->
+    <!--                app:layout_constraintTop_toBottomOf="@id/drt_tv_numberTickets"-->
+    <!--                app:layout_constraintBottom_toBottomOf="parent"-->
+    <!--                tools:text="Subtitle" />-->
+
+    <!--        </androidx.constraintlayout.widget.ConstraintLayout>-->
+    <!--    </androidx.coordinatorlayout.widget.CoordinatorLayout>-->
 </layout>

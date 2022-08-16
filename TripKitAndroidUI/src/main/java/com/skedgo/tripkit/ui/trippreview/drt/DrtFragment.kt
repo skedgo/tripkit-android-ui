@@ -190,11 +190,25 @@ class DrtFragment : BaseFragment<FragmentDrtBinding>(), DrtHandler {
                         }
                     }
                 }.launchIn(lifecycleScope)
+        
         segment?.let {
             pagerItemViewModel.setSegment(requireContext(), it)
             viewModel.setTripSegment(it)
             cachedReturnMills = TimeUnit.SECONDS.toMillis(it.startTimeInSecs + 3600)
         }
+
+        viewModel.onTicketChangeActionStream
+            .onEach { vm ->
+                var totalTickets = 0.0
+                var numberTickets = 0L
+                viewModel.tickets.forEach {
+                    totalTickets += (it.price.value ?: 0.0).times(it.value.value ?: 0)
+                    numberTickets += (it.value.value ?: 0)
+                }
+
+                viewModel.setTotalTickets(totalTickets, (vm.currency.value ?: ""))
+                viewModel.setNumberTickets(numberTickets)
+            }.launchIn(lifecycleScope)
 
         observe(viewModel.confirmationActions) {
             it?.let { actionsAdapter.collection = it }
