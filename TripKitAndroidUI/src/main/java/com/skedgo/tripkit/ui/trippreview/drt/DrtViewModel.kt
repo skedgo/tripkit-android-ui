@@ -276,6 +276,7 @@ class DrtViewModel @Inject constructor(
                     setCurrency(it.currency)
                     setPrice(it.price)
                     onChangeStream = onTicketChangeActionStream
+                    setTicket(it)
                 }
             )
         }

@@ -17,6 +17,7 @@ import androidx.viewpager.widget.ViewPager
 import com.haroldadmin.cnradapter.NetworkResponse
 import com.skedgo.TripKit
 import com.skedgo.tripkit.ExternalActionParams
+import com.skedgo.tripkit.booking.quickbooking.Ticket
 import com.skedgo.tripkit.bookingproviders.BookingResolver
 import com.skedgo.tripkit.common.model.TransportMode
 import com.skedgo.tripkit.routing.*
@@ -32,6 +33,7 @@ import com.skedgo.tripkit.ui.databinding.TripPreviewPagerBinding
 import com.skedgo.tripkit.ui.model.TimetableEntry
 import com.skedgo.tripkit.ui.routingresults.TripGroupRepository
 import com.skedgo.tripkit.ui.timetables.TimetableFragment
+import com.skedgo.tripkit.ui.trippreview.drt.DrtTicketViewModel
 import com.skedgo.tripkit.ui.tripresult.ARG_TRIP_GROUP_ID
 import com.skedgo.tripkit.ui.tripresults.GetTransportIconTintStrategy
 import com.skedgo.tripkit.ui.utils.*
@@ -63,6 +65,7 @@ class TripPreviewPagerFragment : BaseTripKitFragment() {
 
     private var previewHeadersCallback: ((List<TripPreviewHeader>) -> Unit)? = null
     private var pageIndexStream: PublishSubject<Pair<Long, String>>? = null
+    private var ticketStream: PublishSubject<List<DrtTicketViewModel>>? = null
 
     private var fromPageListener = false
     private var fromReload = false
@@ -201,6 +204,7 @@ class TripPreviewPagerFragment : BaseTripKitFragment() {
         adapter = TripPreviewPagerAdapter(childFragmentManager)
         adapter.onCloseButtonListener = this.onCloseButtonListener
         adapter.tripPreviewPagerListener = this.tripPreviewPagerListener
+        adapter.ticketStream = this.ticketStream
         binding.tripSegmentPager.adapter = adapter
         binding.tripSegmentPager.offscreenPageLimit = 2
         setViewPagerListeners()
@@ -378,6 +382,7 @@ class TripPreviewPagerFragment : BaseTripKitFragment() {
             tripPreviewPagerListener: Listener,
             fromAction: Boolean = false,
             pageIndexStream: PublishSubject<Pair<Long, String>>? = null,
+            ticketStream: PublishSubject<List<DrtTicketViewModel>>? = null,
             previewHeadersCallback: ((List<TripPreviewHeader>) -> Unit)? = null
         ): TripPreviewPagerFragment {
             val fragment = TripPreviewPagerFragment()
@@ -389,6 +394,7 @@ class TripPreviewPagerFragment : BaseTripKitFragment() {
             )
             fragment.tripPreviewPagerListener = tripPreviewPagerListener
             fragment.pageIndexStream = pageIndexStream
+            fragment.ticketStream = ticketStream
             fragment.previewHeadersCallback = previewHeadersCallback
             return fragment
         }

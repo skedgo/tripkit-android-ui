@@ -10,6 +10,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import com.skedgo.tripkit.booking.quickbooking.QuickBookingType
+import com.skedgo.tripkit.booking.quickbooking.Ticket
 import com.skedgo.tripkit.common.model.BookingConfirmationAction
 import com.skedgo.tripkit.common.model.TimeTag
 import com.skedgo.tripkit.routing.TripSegment
@@ -23,6 +24,7 @@ import com.skedgo.tripkit.ui.generic.action_list.ActionListAdapter
 import com.skedgo.tripkit.ui.trippreview.TripPreviewPagerItemViewModel
 import com.skedgo.tripkit.ui.utils.*
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.subjects.PublishSubject
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import org.joda.time.DateTime
@@ -42,6 +44,8 @@ class DrtFragment : BaseFragment<FragmentDrtBinding>(), DrtHandler {
     private val pagerItemViewModel: TripPreviewPagerItemViewModel by viewModels()
 
     private var segment: TripSegment? = null
+
+    private var ticketStream: PublishSubject<List<DrtTicketViewModel>>? = null
 
     private var tripSegmentUpdateCallback: ((TripSegment) -> Unit)? = null
 
@@ -208,6 +212,7 @@ class DrtFragment : BaseFragment<FragmentDrtBinding>(), DrtHandler {
 
                 viewModel.setTotalTickets(totalTickets, (vm.currency.value ?: ""))
                 viewModel.setNumberTickets(numberTickets)
+                ticketStream?.onNext(viewModel.tickets)
             }.launchIn(lifecycleScope)
 
         observe(viewModel.confirmationActions) {
@@ -343,12 +348,14 @@ class DrtFragment : BaseFragment<FragmentDrtBinding>(), DrtHandler {
 
     companion object {
         fun newInstance(
-                segment: TripSegment,
-                tripSegmentUpdateCallback: ((TripSegment) -> Unit)? = null
+            segment: TripSegment,
+            ticketStream: PublishSubject<List<DrtTicketViewModel>>?,
+            tripSegmentUpdateCallback: ((TripSegment) -> Unit)? = null
         ): DrtFragment {
             val fragment = DrtFragment()
             fragment.segment = segment
             fragment.tripSegmentUpdateCallback = tripSegmentUpdateCallback
+            fragment.ticketStream = ticketStream
             return fragment
         }
     }

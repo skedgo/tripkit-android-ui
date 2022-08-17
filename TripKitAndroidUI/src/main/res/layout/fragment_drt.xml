@@ -358,7 +358,7 @@
                 android:importantForAccessibility="yes"
                 android:text="@string/book"
                 android:textColor="@android:color/white"
-                android:visibility="@{viewModel.bookingConfirmation == null}"
+                android:visibility="@{viewModel.bookingConfirmation == null &amp; viewModel.tickets.size() == 0}"
                 app:clickWithDebounce="@{() -> handler.onBook()}"
                 app:layout_constraintTop_toBottomOf="@+id/drt_rvData" />
 
@@ -477,53 +477,4 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.core.widget.NestedScrollView>
-
-    <!--        <androidx.constraintlayout.widget.ConstraintLayout-->
-    <!--            android:layout_width="match_parent"-->
-    <!--            android:layout_height="wrap_content"-->
-    <!--            android:layout_gravity="bottom"-->
-    <!--            android:background="@android:color/white">-->
-
-    <!--            <androidx.constraintlayout.widget.Barrier-->
-    <!--                android:id="@+id/drt_br_total"-->
-    <!--                android:layout_width="match_parent"-->
-    <!--                android:layout_height="wrap_content"-->
-    <!--                android:background="@android:color/transparent"-->
-    <!--                android:elevation="0dp"-->
-    <!--                app:barrierDirection="bottom"-->
-    <!--                app:layout_constraintTop_toTopOf="parent" />-->
-
-    <!--            <TextView-->
-    <!--                android:id="@+id/drt_tv_numberTickets"-->
-    <!--                style="@style/TextAppearance.MaterialComponents.Body1"-->
-    <!--                android:layout_width="match_parent"-->
-    <!--                android:layout_height="wrap_content"-->
-    <!--                android:layout_margin="@dimen/spacing_small"-->
-    <!--                android:focusable="false"-->
-    <!--                android:importantForAccessibility="no"-->
-    <!--                android:text="@{viewModel.numberTickets.toString()}"-->
-    <!--                android:textColor="@color/black1"-->
-    <!--                app:layout_constraintEnd_toEndOf="parent"-->
-    <!--                app:layout_constraintStart_toStartOf="parent"-->
-    <!--                app:layout_constraintTop_toBottomOf="parent"-->
-    <!--                tools:text="Subtitle" />-->
-
-    <!--            <TextView-->
-    <!--                android:id="@+id/drt_tv_totalTickets"-->
-    <!--                style="@style/TextAppearance.MaterialComponents.Headline6"-->
-    <!--                android:layout_width="match_parent"-->
-    <!--                android:layout_height="wrap_content"-->
-    <!--                android:layout_margin="@dimen/spacing_small"-->
-    <!--                android:focusable="false"-->
-    <!--                android:importantForAccessibility="no"-->
-    <!--                android:text="@{viewModel.tickets.size()}"-->
-    <!--                android:textColor="@color/black"-->
-    <!--                app:layout_constraintEnd_toEndOf="parent"-->
-    <!--                app:layout_constraintStart_toStartOf="parent"-->
-    <!--                app:layout_constraintTop_toBottomOf="@id/drt_tv_numberTickets"-->
-    <!--                app:layout_constraintBottom_toBottomOf="parent"-->
-    <!--                tools:text="Subtitle" />-->
-
-    <!--        </androidx.constraintlayout.widget.ConstraintLayout>-->
-    <!--    </androidx.coordinatorlayout.widget.CoordinatorLayout>-->
 </layout>
