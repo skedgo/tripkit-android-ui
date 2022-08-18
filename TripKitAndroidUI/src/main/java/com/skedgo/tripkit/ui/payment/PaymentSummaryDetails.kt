@@ -1,7 +1,11 @@
 package com.skedgo.tripkit.ui.payment
 
+import com.skedgo.tripkit.booking.quickbooking.Ticket
+import com.skedgo.tripkit.ui.R
+import com.skedgo.tripkit.ui.utils.getCurrencySymbol
+
 data class PaymentSummaryDetails(
-        val id: Int,
+        val id: String,
         val icon: Int,
         val description: String,
         val breakdown: Long? = null,
@@ -13,6 +17,23 @@ data class PaymentSummaryDetails(
             "$breakdown x $description"
         } else {
             description
+        }
+    }
+
+    fun getTotal(): String {
+        return String.format("%s%.2f", currency?.getCurrencySymbol(), (breakdown ?: 0L).toDouble() * (price ?: 0.0))
+    }
+
+    companion object {
+        fun parseTicket(ticket: Ticket): PaymentSummaryDetails {
+            return PaymentSummaryDetails(
+                    ticket.id,
+                    R.drawable.ic_person,
+                    ticket.description,
+                    ticket.value,
+                    ticket.price,
+                    ticket.currency
+            )
         }
     }
 }

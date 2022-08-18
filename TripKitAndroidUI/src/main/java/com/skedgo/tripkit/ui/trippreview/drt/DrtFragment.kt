@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
@@ -21,7 +22,11 @@ import com.skedgo.tripkit.ui.core.addTo
 import com.skedgo.tripkit.ui.databinding.FragmentDrtBinding
 import com.skedgo.tripkit.ui.dialog.*
 import com.skedgo.tripkit.ui.generic.action_list.ActionListAdapter
+import com.skedgo.tripkit.ui.generic.transport.TransportDetails
+import com.skedgo.tripkit.ui.interactor.TripKitEvent
+import com.skedgo.tripkit.ui.interactor.TripKitEventBus
 import com.skedgo.tripkit.ui.payment.PaymentData
+import com.skedgo.tripkit.ui.payment.PaymentSummaryDetails
 import com.skedgo.tripkit.ui.trippreview.TripPreviewPagerItemViewModel
 import com.skedgo.tripkit.ui.utils.*
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -40,6 +45,9 @@ class DrtFragment : BaseFragment<FragmentDrtBinding>(), DrtHandler {
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
 
+    @Inject
+    lateinit var tripKitEventBus: TripKitEventBus
+
     private val viewModel: DrtViewModel by viewModels { viewModelFactory }
 
     private val pagerItemViewModel: TripPreviewPagerItemViewModel by viewModels()
@@ -55,6 +63,8 @@ class DrtFragment : BaseFragment<FragmentDrtBinding>(), DrtHandler {
     private var focusedAfterBookingConfirmed = false
 
     internal var bottomSheetDragToggleCallback: ((Boolean) -> Unit)? = null
+
+    private var bookingCallback: ((Boolean, PaymentData?) -> Unit)? = null
 
     @Inject
     lateinit var actionsAdapter: ActionListAdapter
@@ -204,7 +214,8 @@ class DrtFragment : BaseFragment<FragmentDrtBinding>(), DrtHandler {
         }
 
         viewModel.onTicketChangeActionStream
-                .onEach { vm ->
+                .onEach { drtTicket ->
+                    /*
                     var totalTickets = 0.0
                     var numberTickets = 0L
                     viewModel.tickets.forEach {
@@ -214,6 +225,9 @@ class DrtFragment : BaseFragment<FragmentDrtBinding>(), DrtHandler {
 
                     viewModel.setTotalTickets(totalTickets, (vm.currency.value ?: ""))
                     viewModel.setNumberTickets(numberTickets)
+                    */
+
+                    viewModel.updateTicketValue(drtTicket)
 
                     emitPaymentData()
                 }.launchIn(lifecycleScope)
@@ -246,9 +260,19 @@ class DrtFragment : BaseFragment<FragmentDrtBinding>(), DrtHandler {
                 }
             }
         }
+
+        observe(viewModel.goToPayment) {
+            it?.let {
+                bookingCallback?.invoke(true, generatePaymentData())
+            }
+        }
     }
 
     private fun emitPaymentData() {
+        paymentDataStream?.onNext(generatePaymentData())
+    }
+
+    private fun generatePaymentData(): PaymentData {
         val drtItems = (if (viewModel.items.isEmpty()) listOf() else viewModel.items).filter {
             val defaultValue = viewModel.getDefaultValueByType(
                     it.type.value ?: "", it.label.value ?: ""
@@ -259,23 +283,26 @@ class DrtFragment : BaseFragment<FragmentDrtBinding>(), DrtHandler {
             it.value.value ?: 0L > 0L
         }
 
-        val summaryDetails = drtTickets.map { it.generateSummaryDetails() } + drtItems.map { it.generateSummaryDetails() }
-        val transportDetails = pagerItemViewModel.generateTransportDetails()
+        val summaryDetails = viewModel.review.value?.firstOrNull()?.let { it.tickets.map { PaymentSummaryDetails.parseTicket(it) } }
+                ?: kotlin.run { drtTickets.map { it.generateSummaryDetails() } + drtItems.map { it.generateSummaryDetails() } }
+        val transportDetails = viewModel.review.value?.firstOrNull()?.let { TransportDetails.parseFromReview(it) }
+                ?: kotlin.run { pagerItemViewModel.generateTransportDetails() }
         val total = drtTickets.sumOf {
             (it.price.value ?: 0.0) * (it.value.value?.toDouble() ?: 0.0)
         }
         val currency = summaryDetails.first { it.currency != null }.currency
 
-        paymentDataStream?.onNext(
-                PaymentData(
-                        pagerItemViewModel.modeTitle.get().toString(),
-                        pagerItemViewModel.modeIconUrl.get(),
-                        pagerItemViewModel.segment?.darkVehicleIcon,
-                        summaryDetails,
-                        transportDetails,
-                        total,
-                        currency ?: ""
-                )
+        return PaymentData(
+                this@DrtFragment.hashCode(),
+                pagerItemViewModel.modeTitle.get().toString(),
+                pagerItemViewModel.modeIconUrl.get(),
+                pagerItemViewModel.segment?.darkVehicleIcon,
+                summaryDetails,
+                transportDetails,
+                total,
+                currency ?: "",
+                viewModel.paymentOptions.value,
+                viewModel.review.value
         )
     }
 
@@ -304,6 +331,14 @@ class DrtFragment : BaseFragment<FragmentDrtBinding>(), DrtHandler {
         pagerItemViewModel.closeClicked.observable
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe { onCloseButtonListener?.onClick(null) }.addTo(autoDisposable)
+
+        tripKitEventBus.listen(TripKitEvent.OnBookDrt::class.java)
+                .subscribe {
+                    if (it.fragmentHashCode == this@DrtFragment.hashCode()) {
+                        viewModel.book()
+                    }
+                    bookingCallback = it.bookCallBack
+                }.addTo(autoDisposable)
     }
 
     private fun initViews() {

@@ -51,6 +51,9 @@ class DrtTicketViewModel : ViewModel() {
     private val _ticket = MutableLiveData<Ticket>()
     val ticket: LiveData<Ticket> = _ticket
 
+    private val _itemId = MutableLiveData<String>()
+    val itemId: LiveData<String> = _itemId
+
     fun onChange() {
         viewModelScope.launch {
             onChangeStream?.emit(this@DrtTicketViewModel)
@@ -75,6 +78,10 @@ class DrtTicketViewModel : ViewModel() {
 
     fun setTicket(value: Ticket) {
         _ticket.value = value
+    }
+
+    fun setItemId(value: String) {
+        _itemId.value = value
     }
 
     fun onIncrementValue() {
@@ -105,9 +112,10 @@ class DrtTicketViewModel : ViewModel() {
         onChange()
     }
 
+    @Deprecated("Will be replaced by parsing details from Review")
     fun generateSummaryDetails(): PaymentSummaryDetails {
         return PaymentSummaryDetails(
-                hashCode(),
+                hashCode().toString(),
                 R.drawable.ic_person,
                 label.value ?: "",
                 breakdown = value.value,

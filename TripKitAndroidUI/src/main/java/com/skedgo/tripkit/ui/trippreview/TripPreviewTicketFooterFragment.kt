@@ -1,5 +1,6 @@
 package com.skedgo.tripkit.ui.trippreview
 
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -7,7 +8,10 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.skedgo.tripkit.booking.quickbooking.Ticket
+import com.skedgo.tripkit.ui.TripKitUI
 import com.skedgo.tripkit.ui.databinding.FragmentTripPreviewFooterBinding
+import com.skedgo.tripkit.ui.interactor.TripKitEvent
+import com.skedgo.tripkit.ui.interactor.TripKitEventBus
 import com.skedgo.tripkit.ui.payment.PaymentActivity
 import com.skedgo.tripkit.ui.payment.PaymentData
 import com.skedgo.tripkit.ui.trippreview.drt.DrtItemViewModel
@@ -17,15 +21,25 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.addTo
 import io.reactivex.subjects.PublishSubject
+import javax.inject.Inject
 
 class TripPreviewTicketFooterFragment : Fragment() {
 
     private val viewModel: TripPreviewTicketViewModel by viewModels()
 
+    @Inject
+    lateinit var tripKitEventBus: TripKitEventBus
+
     lateinit var binding: FragmentTripPreviewFooterBinding
 
     private val disposeBag = CompositeDisposable()
     private var paymentData: PublishSubject<PaymentData>? = null
+
+
+    override fun onAttach(context: Context) {
+        TripKitUI.getInstance().paymentComponent().inject(this)
+        super.onAttach(context)
+    }
 
     override fun onCreateView(
             inflater: LayoutInflater, container: ViewGroup?,
@@ -95,7 +109,16 @@ class TripPreviewTicketFooterFragment : Fragment() {
         observe(viewModel.goToPayment) {
             it?.let {
                 viewModel.paymentData.value?.let {
-                    startActivity(PaymentActivity.getIntent(requireActivity(), it))
+                    tripKitEventBus.publish(
+                            TripKitEvent.OnBookDrt(
+                                    it.drtFragmentHashCode
+                            ) { success, paymentData ->
+                                if (success && paymentData != null) {
+                                    viewModel.setPaymentData(paymentData)
+                                    startActivity(PaymentActivity.getIntent(requireActivity(), paymentData))
+                                }
+                            }
+                    )
                 }
 
             }

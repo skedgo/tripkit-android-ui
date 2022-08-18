@@ -45,7 +45,7 @@
             android:id="@+id/tvPrice"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@{item.price + ``}"
+            android:text="@{item.getTotal()}"
             android:textColor="@color/description_text"
             app:layout_constraintBottom_toBottomOf="@+id/tvDescription"
             app:layout_constraintEnd_toEndOf="parent"

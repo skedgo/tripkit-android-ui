@@ -61,7 +61,7 @@
                             android:layout_marginStart="@dimen/spacing_small"
                             android:layout_marginTop="@dimen/spacing_small"
                             android:layout_marginEnd="@dimen/spacing_small"
-                            android:text="@{viewModel.paymentData.modeTitle}"
+                            android:text="@{viewModel.paymentData.review.get(0).provider.title}"
                             android:textColor="@color/black"
                             android:textSize="@dimen/font_size_medium"
                             app:layout_constraintEnd_toStartOf="@+id/tvModePrice"
@@ -74,6 +74,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginEnd="@dimen/spacing_small"
+                            android:text="@{viewModel.paymentData.review.get(0).getPriceWithCurrency()}"
                             android:textColor="@color/black"
                             android:textSize="@dimen/font_size_medium"
                             app:layout_constraintBottom_toBottomOf="@+id/tvModeName"
@@ -81,12 +82,11 @@
                             app:layout_constraintTop_toTopOf="@+id/tvModeName"
                             tools:text="$4" />
 
-
                         <View
                             android:id="@+id/vModeDivider"
                             android:layout_width="match_parent"
                             android:layout_height="2dp"
-                            android:layout_marginTop="@dimen/spacing_small"
+                            android:layout_marginTop="@dimen/spacing_normal"
                             android:background="@color/divider"
                             app:layout_constraintTop_toBottomOf="@+id/tvModeName" />
 

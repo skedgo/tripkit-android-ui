@@ -26,7 +26,8 @@ class PaymentActivity : AppCompatActivity() {
         supportActionBar?.run {
             setHomeButtonEnabled(true)
             setDisplayHomeAsUpEnabled(true)
-            setDisplayShowTitleEnabled(false)
+            setDisplayShowTitleEnabled(true)
+            title = "Review Booking"
         }
 
         intent.extras?.let {

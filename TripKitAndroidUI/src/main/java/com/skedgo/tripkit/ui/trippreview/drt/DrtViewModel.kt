@@ -47,10 +47,10 @@ import kotlin.collections.HashMap
 
 @SuppressLint("StaticFieldLeak")
 class DrtViewModel @Inject constructor(
-    private val context: Context,
-    private val quickBookingService: QuickBookingService,
-    private val resources: Resources,
-    private val bookingService: BookingV2TrackingService
+        private val context: Context,
+        private val quickBookingService: QuickBookingService,
+        private val resources: Resources,
+        private val bookingService: BookingV2TrackingService
 ) : RxViewModel() {
 
     private val _quickBooking = MutableLiveData<QuickBooking>()
@@ -85,9 +85,9 @@ class DrtViewModel @Inject constructor(
     val bookingConfirmation: LiveData<BookingConfirmation> = _bookingConfirmation
 
     private val _confirmationActions =
-        MutableLiveData<List<com.skedgo.tripkit.ui.generic.action_list.Action>>()
+            MutableLiveData<List<com.skedgo.tripkit.ui.generic.action_list.Action>>()
     val confirmationActions: LiveData<List<com.skedgo.tripkit.ui.generic.action_list.Action>> =
-        _confirmationActions
+            _confirmationActions
 
     private val _accessibilityLabel = MutableLiveData<String>()
     val accessibilityLabel: LiveData<String> = _accessibilityLabel
@@ -95,6 +95,7 @@ class DrtViewModel @Inject constructor(
     private val _isHideExactTimes = MutableLiveData<Boolean>()
     val isHideExactTimes: LiveData<Boolean> = _isHideExactTimes
 
+    /*
     private val _totalTickets = MutableLiveData<Double>()
     val totalTickets: LiveData<Double> = _totalTickets
 
@@ -106,6 +107,16 @@ class DrtViewModel @Inject constructor(
 
     private val _labelTicketTotal = MutableLiveData<String>()
     val labelTicketTotal: LiveData<String> = _labelTicketTotal
+    */
+
+    private val _paymentOptions = MutableLiveData<List<PaymentOption>>()
+    val paymentOptions: LiveData<List<PaymentOption>> = _paymentOptions
+
+    private val _review = MutableLiveData<List<Review>>()
+    val review: LiveData<List<Review>> = _review
+
+    private val _goToPayment = MutableLiveData<Unit>()
+    val goToPayment: LiveData<Unit> = _goToPayment
 
     private val stopPollingUpdate = AtomicBoolean()
 
@@ -132,95 +143,95 @@ class DrtViewModel @Inject constructor(
             it.input().forEach { input ->
                 if (!input.value().isNullOrEmpty() || !input.values().isNullOrEmpty()) {
                     result.add(
-                        DrtItemViewModel().apply {
-                            setIcon(getIconById(input.id()))
-                            setLabel(input.title())
-                            setType(input.type())
-                            setValue(
-                                if (input.type().equals(QuickBookingType.RETURN_TRIP, true)) {
-                                    val segmentTz = DateTimeZone.forID(
-                                        segment.value?.timeZone
-                                            ?: "UTC"
-                                    )
-                                    val rawTz = DateTimeZone.forID("UTC")
+                            DrtItemViewModel().apply {
+                                setIcon(getIconById(input.id()))
+                                setLabel(input.title())
+                                setType(input.type())
+                                setValue(
+                                        if (input.type().equals(QuickBookingType.RETURN_TRIP, true)) {
+                                            val segmentTz = DateTimeZone.forID(
+                                                    segment.value?.timeZone
+                                                            ?: "UTC"
+                                            )
+                                            val rawTz = DateTimeZone.forID("UTC")
 
-                                    try {
-                                        val dateTime = DateTime.parse(
-                                            input.value()?.replace("Z", ""),
-                                            getISODateFormatter(rawTz)
-                                        )
-                                        val dateString =
-                                            dateTime.toString(getDisplayDateFormatter(segmentTz))
-                                        val timeString =
-                                            dateTime.toString(getDisplayTimeFormatter(segmentTz))
-                                        listOf("$dateString at $timeString")
-                                    } catch (e: Exception) {
-                                        listOf("One-way only")
-                                    }
-                                } else {
-                                    if (!input.value().isNullOrEmpty()) {
-                                        listOf(input.value() ?: "")
-                                    } else {
-                                        val list = ArrayList<String>()
-                                        val map = HashMap<String, String>()
-                                        input.options()?.forEach { option ->
-                                            map[option.id()] = option.title()
+                                            try {
+                                                val dateTime = DateTime.parse(
+                                                        input.value()?.replace("Z", ""),
+                                                        getISODateFormatter(rawTz)
+                                                )
+                                                val dateString =
+                                                        dateTime.toString(getDisplayDateFormatter(segmentTz))
+                                                val timeString =
+                                                        dateTime.toString(getDisplayTimeFormatter(segmentTz))
+                                                listOf("$dateString at $timeString")
+                                            } catch (e: Exception) {
+                                                listOf("One-way only")
+                                            }
+                                        } else {
+                                            if (!input.value().isNullOrEmpty()) {
+                                                listOf(input.value() ?: "")
+                                            } else {
+                                                val list = ArrayList<String>()
+                                                val map = HashMap<String, String>()
+                                                input.options()?.forEach { option ->
+                                                    map[option.id()] = option.title()
+                                                }
+                                                input.values()?.forEach { value ->
+                                                    map[value]?.let { title -> list.add(title) }
+                                                }
+                                                list
+                                            }
                                         }
-                                        input.values()?.forEach { value ->
-                                            map[value]?.let { title -> list.add(title) }
-                                        }
-                                        list
-                                    }
-                                }
-                            )
-                            setRequired(input.required())
-                            setItemId(input.id())
-                            input.options()?.let { opt ->
-                                setOptions(
-                                    opt.map {
-                                        Option.parseBookingConfirmationInputOptions(it)
-                                    }
                                 )
-                            }
-                            setViewMode(true)
-                            setShowChangeButton(
-                                !input.type().equals(QuickBookingType.RETURN_TRIP, true)
-                            )
-                            setContentDescription(
-                                if (input.type().equals(QuickBookingType.RETURN_TRIP, true)) {
-                                    resources.getString(R.string.str_return_trip_voice_over)
-                                } else {
-                                    "Tap Change to make selections"
+                                setRequired(input.required())
+                                setItemId(input.id())
+                                input.options()?.let { opt ->
+                                    setOptions(
+                                            opt.map {
+                                                Option.parseBookingConfirmationInputOptions(it)
+                                            }
+                                    )
                                 }
-                            )
-                            onChangeStream = onItemChangeActionStream
-                        }
+                                setViewMode(true)
+                                setShowChangeButton(
+                                        !input.type().equals(QuickBookingType.RETURN_TRIP, true)
+                                )
+                                setContentDescription(
+                                        if (input.type().equals(QuickBookingType.RETURN_TRIP, true)) {
+                                            resources.getString(R.string.str_return_trip_voice_over)
+                                        } else {
+                                            "Tap Change to make selections"
+                                        }
+                                )
+                                onChangeStream = onItemChangeActionStream
+                            }
                     )
                 }
             }
 
             if (it.notes().size > 0) {
                 result.add(
-                    DrtItemViewModel().apply {
-                        setIcon(getIconById(null))
-                        setLabel("Notes from operator")
-                        setType("Notes")
-                        setValue(
-                            listOf(String.format("You have %d note", it.notes().size))
-                        )
-                        setRequired(false)
-//                        setItemId(input.id())
-                        it.notes()?.let { opt ->
-                            setOptions(
-                                opt.map { note ->
-                                    Option.parseBookingConfirmationNotes(note)
-                                }
+                        DrtItemViewModel().apply {
+                            setIcon(getIconById(null))
+                            setLabel("Notes from operator")
+                            setType("Notes")
+                            setValue(
+                                    listOf(String.format("You have %d note", it.notes().size))
                             )
+                            setRequired(false)
+//                        setItemId(input.id())
+                            it.notes()?.let { opt ->
+                                setOptions(
+                                        opt.map { note ->
+                                            Option.parseBookingConfirmationNotes(note)
+                                        }
+                                )
+                            }
+                            setViewMode(true)
+                            setContentDescription(context.getString(R.string.tap_to_add_notes))
+                            onChangeStream = onItemChangeActionStream
                         }
-                        setViewMode(true)
-                        setContentDescription(context.getString(R.string.tap_to_add_notes))
-                        onChangeStream = onItemChangeActionStream
-                    }
                 )
             }
 
@@ -228,13 +239,13 @@ class DrtViewModel @Inject constructor(
 
             _confirmationActions.value = it.actions().map { confirmationAction ->
                 com.skedgo.tripkit.ui.generic.action_list.Action(
-                    confirmationAction.title(),
-                    if (confirmationAction.isDestructive) {
-                        R.color.tripKitError
-                    } else {
-                        R.color.colorPrimary
-                    },
-                    confirmationAction
+                        confirmationAction.title(),
+                        if (confirmationAction.isDestructive) {
+                            R.color.tripKitError
+                        } else {
+                            R.color.colorPrimary
+                        },
+                        confirmationAction
                 )
             }
         }
@@ -247,6 +258,7 @@ class DrtViewModel @Inject constructor(
         _bookingConfirmation.observeForever(bookingConfirmationObserver)
     }
 
+    /*
     fun setTotalTickets(value: Double, currency: String) {
         _totalTickets.value = value
         _labelTicketTotal.value = String.format("%s%s", currency, value.toString())
@@ -255,8 +267,9 @@ class DrtViewModel @Inject constructor(
     fun setNumberTickets(value: Long) {
         _numberTickets.value = value
         _labelTicketTotal.value =
-            String.format("%s%s", value.toString(), if (value > 1) "tickets" else "ticket")
+                String.format("%s%s", value.toString(), if (value > 1) "tickets" else "ticket")
     }
+    */
 
     private fun generateDrtTickets(list: List<Ticket>) {
 
@@ -270,14 +283,15 @@ class DrtViewModel @Inject constructor(
             */
 
             result.add(
-                DrtTicketViewModel().apply {
-                    setLabel(it.name)
-                    setDescription(it.description)
-                    setCurrency(it.currency)
-                    setPrice(it.price)
-                    onChangeStream = onTicketChangeActionStream
-                    setTicket(it)
-                }
+                    DrtTicketViewModel().apply {
+                        setLabel(it.name)
+                        setItemId(it.id)
+                        setDescription(it.description)
+                        setCurrency(it.currency)
+                        setPrice(it.price)
+                        onChangeStream = onTicketChangeActionStream
+                        setTicket(it)
+                    }
             )
         }
 
@@ -300,33 +314,33 @@ class DrtViewModel @Inject constructor(
             */
 
             result.add(
-                DrtItemViewModel().apply {
-                    setIcon(getIconById(it.id))
-                    setLabel(it.title)
-                    setType(it.type)
-                    setValue(getDefaultValue(it))
-                    setRequired(it.required)
-                    setItemId(it.id)
-                    if (it.type == QuickBookingType.NUMBER) {
-                        setMinValue(it.minValue)
-                        setMaxValue(it.maxValue)
-                    }
-                    it.options?.let { opt -> setOptions(opt) }
-                    setContentDescription(
-                        when {
-                            it.type.equals(QuickBookingType.RETURN_TRIP, true) -> {
-                                resources.getString(R.string.str_return_trip_voice_over)
-                            }
-                            it.type.equals(QuickBookingType.LONG_TEXT, true) -> {
-                                context.getString(R.string.tap_to_add_notes)
-                            }
-                            else -> {
-                                "Tap Change to make selections"
-                            }
+                    DrtItemViewModel().apply {
+                        setIcon(getIconById(it.id))
+                        setLabel(it.title)
+                        setType(it.type)
+                        setValue(getDefaultValue(it))
+                        setRequired(it.required)
+                        setItemId(it.id)
+                        if (it.type == QuickBookingType.NUMBER) {
+                            setMinValue(it.minValue)
+                            setMaxValue(it.maxValue)
                         }
-                    )
-                    onChangeStream = onItemChangeActionStream
-                }
+                        it.options?.let { opt -> setOptions(opt) }
+                        setContentDescription(
+                                when {
+                                    it.type.equals(QuickBookingType.RETURN_TRIP, true) -> {
+                                        resources.getString(R.string.str_return_trip_voice_over)
+                                    }
+                                    it.type.equals(QuickBookingType.LONG_TEXT, true) -> {
+                                        context.getString(R.string.tap_to_add_notes)
+                                    }
+                                    else -> {
+                                        "Tap Change to make selections"
+                                    }
+                                }
+                        )
+                        onChangeStream = onItemChangeActionStream
+                    }
             )
         }
 
@@ -351,6 +365,16 @@ class DrtViewModel @Inject constructor(
                     } else {
                         input.value = item.values.value?.firstOrNull()
                     }
+                }
+            }
+        }
+    }
+
+    fun updateTicketValue(ticketItem: DrtTicketViewModel) {
+        _tickets.updateFields {
+            it.value?.let { list ->
+                list.filter { ticket -> ticket.id == ticketItem.itemId.value }.map { ticket ->
+                    ticket.value = ticketItem.value.value ?: 0L
                 }
             }
         }
@@ -403,9 +427,9 @@ class DrtViewModel @Inject constructor(
     }
 
     fun getDefaultValueByType(
-        @QuickBookingType type: String,
-        title: String,
-        values: List<String>? = null
+            @QuickBookingType type: String,
+            title: String,
+            values: List<String>? = null
     ): String {
         return when (type) {
             QuickBookingType.LONG_TEXT -> {
@@ -445,36 +469,37 @@ class DrtViewModel @Inject constructor(
 
     private fun fetchQuickBooking(url: String) {
         quickBookingService.getQuickBooking(url)
-            .observeOn(AndroidSchedulers.mainThread())
-            .doOnSubscribe {
-                _loading.value = true
-            }
-            .subscribeBy(
-                onError = {
-                    it.printStackTrace()
-                    _loading.value = false
-
-                    try {
-                        val errorString = (it as HttpException).response()?.errorBody()?.string()
-                        errorString?.let {
-                            val json = Gson().fromJson(errorString, DRTError::class.java)
-                            _error.value = Pair(null, json.error)
-                        }
-                    } catch (e: Exception) {
-                    }
-                },
-                onSuccess = {
-                    it.firstOrNull()?.let {
-                        _quickBooking.value = it
-                    }
-                    _loading.value = false
+                .observeOn(AndroidSchedulers.mainThread())
+                .doOnSubscribe {
+                    _loading.value = true
                 }
-            ).autoClear()
+                .subscribeBy(
+                        onError = {
+                            it.printStackTrace()
+                            _loading.value = false
+
+                            try {
+                                val errorString = (it as HttpException).response()?.errorBody()?.string()
+                                errorString?.let {
+                                    val json = Gson().fromJson(errorString, DRTError::class.java)
+                                    _error.value = Pair(null, json.error)
+                                }
+                            } catch (e: Exception) {
+                            }
+                        },
+                        onSuccess = {
+                            it.firstOrNull()?.let {
+                                _quickBooking.value = it
+                            }
+                            _loading.value = false
+                        }
+                ).autoClear()
     }
 
 
     fun book() {
         items.forEach { updateInputValue(it) }
+        tickets.forEach { updateTicketValue(it) }
         _quickBooking.value?.let { quickBooking ->
             logAction(quickBooking.bookingURL)
         }
@@ -500,36 +525,47 @@ class DrtViewModel @Inject constructor(
     private fun proceedBooking() {
         _inputs.value?.let { inputs ->
             //inputs.singleOrNull { it.id == "mobilityOptions" }?.values = listOf("Guest")
-            _quickBooking.value?.let { quickBooking ->
-                quickBookingService.quickBook(
-                    quickBooking.bookingURL,
-                    QuickBookRequest(
-                        inputs.filter {
-                            !it.value.isNullOrEmpty() || !it.values.isNullOrEmpty()
-                        }
-                    )
-                ).observeOn(AndroidSchedulers.mainThread())
-                    .doOnSubscribe {
-                        _loading.value = true
-                    }
-                    .subscribeBy(
-                        onError = {
-                            if (it is HttpException) {
-                                val error: DRTError = Gson().fromJson(
-                                    it.response()?.errorBody()?.string(),
-                                    DRTError::class.java
-                                )
-                                this@DrtViewModel._error.value = Pair(error.title, error.error)
+            _tickets.value?.let { tickets ->
+                _quickBooking.value?.let { quickBooking ->
+                    quickBookingService.quickBook(
+                            quickBooking.bookingURL,
+                            QuickBookRequest(
+                                    inputs.filter {
+                                        !it.value.isNullOrEmpty() || !it.values.isNullOrEmpty()
+                                    },
+                                    tickets.filter {
+                                        it.value != null && (it.value ?: 0L) > 0
+                                    }
+                            )
+                    ).observeOn(AndroidSchedulers.mainThread())
+                            .doOnSubscribe {
+                                _loading.value = true
                             }
-                            _loading.value = false
+                            .subscribeBy(
+                                    onError = {
+                                        if (it is HttpException) {
+                                            val error: DRTError = Gson().fromJson(
+                                                    it.response()?.errorBody()?.string(),
+                                                    DRTError::class.java
+                                            )
+                                            this@DrtViewModel._error.value = Pair(error.title, error.error)
+                                        }
+                                        _loading.value = false
 
-                            //getBookingUpdate(quickBooking.tripUpdateURL)
-                        },
-                        onSuccess = { response ->
-                            _loading.value = false
-                            processBookingResponse(response.refreshURLForSourceObject)
-                        }
-                    ).autoClear()
+                                        //getBookingUpdate(quickBooking.tripUpdateURL)
+                                    },
+                                    onSuccess = { response ->
+                                        _loading.value = false
+                                        if(response.review != null && response.paymentOptions != null){
+                                            _review.postValue(response.review!!)
+                                            _paymentOptions.postValue(response.paymentOptions!!)
+                                            _goToPayment.postValue(Unit)
+                                        } else {
+                                            processBookingResponse(response.refreshURLForSourceObject)
+                                        }
+                                    }
+                            ).autoClear()
+                }
             }
         }
     }
@@ -542,61 +578,61 @@ class DrtViewModel @Inject constructor(
         //For the initial call before the polling
         stopPollingUpdate.set(false)
         Observable.interval(30L, TimeUnit.SECONDS, Schedulers.io())
-            .takeWhile { !stopPollingUpdate.get() }
-            .flatMapSingle {
-                quickBookingService.getBookingUpdate(url)
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .doOnSuccess { response ->
-                        response.processRawData(resources, Gson())
-                        val segment = response.tripGroupList.firstOrNull()?.trips
-                            ?.firstOrNull()?.segments?.firstOrNull { it.booking != null }
+                .takeWhile { !stopPollingUpdate.get() }
+                .flatMapSingle {
+                    quickBookingService.getBookingUpdate(url)
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .doOnSuccess { response ->
+                                response.processRawData(resources, Gson())
+                                val segment = response.tripGroupList.firstOrNull()?.trips
+                                        ?.firstOrNull()?.segments?.firstOrNull { it.booking != null }
 
-                        updateSegment(segment)
+                                updateSegment(segment)
 
-                        val confirmation = segment?.booking?.confirmation
-                        confirmation?.let {
-                            _bookingConfirmation.postValue(it)
-                            if (it.status().value() != BookingConfirmationStatusValue.PROCESSING) {
-                                stopPollingUpdate.set(true)
+                                val confirmation = segment?.booking?.confirmation
+                                confirmation?.let {
+                                    _bookingConfirmation.postValue(it)
+                                    if (it.status().value() != BookingConfirmationStatusValue.PROCESSING) {
+                                        stopPollingUpdate.set(true)
+                                    }
+                                }
                             }
+                }.subscribeBy(
+                        onError = {
+                            it.printStackTrace()
                         }
-                    }
-            }.subscribeBy(
-                onError = {
-                    it.printStackTrace()
-                }
-            ).autoClear()
+                ).autoClear()
     }
 
     private fun getBookingUpdate(url: String?) {
         url?.let { it ->
             quickBookingService.getBookingUpdate(it)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeBy(
-                    onSuccess = { response ->
-                        response.processRawData(resources, Gson())
-                        val segment = response.tripGroupList.firstOrNull()?.trips
-                            ?.firstOrNull()?.segments?.firstOrNull { it.booking != null }
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribeBy(
+                            onSuccess = { response ->
+                                response.processRawData(resources, Gson())
+                                val segment = response.tripGroupList.firstOrNull()?.trips
+                                        ?.firstOrNull()?.segments?.firstOrNull { it.booking != null }
 
-                        updateSegment(segment)
+                                updateSegment(segment)
 
-                        val confirmation = segment?.booking?.confirmation
-                        confirmation?.let { bookingConfirmation ->
-                            _bookingConfirmation.postValue(bookingConfirmation)
+                                val confirmation = segment?.booking?.confirmation
+                                confirmation?.let { bookingConfirmation ->
+                                    _bookingConfirmation.postValue(bookingConfirmation)
 
-                            if (bookingConfirmation.status()
-                                    .value() == BookingConfirmationStatusValue.PROCESSING
-                            ) {
-                                setBookingUpdatePolling(url)
-                            } else {
-                                stopPollingUpdate.set(true)
+                                    if (bookingConfirmation.status()
+                                                    .value() == BookingConfirmationStatusValue.PROCESSING
+                                    ) {
+                                        setBookingUpdatePolling(url)
+                                    } else {
+                                        stopPollingUpdate.set(true)
+                                    }
+                                }
+                            },
+                            onError = {
+                                it.printStackTrace()
                             }
-                        }
-                    },
-                    onError = {
-                        it.printStackTrace()
-                    }
-                ).autoClear()
+                    ).autoClear()
         }
     }
 
@@ -614,25 +650,25 @@ class DrtViewModel @Inject constructor(
         action?.let {
             it.internalURL()?.let {
                 quickBookingService.executeBookingAction(it)
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .doOnSubscribe { _loading.value = true }
-                    .subscribeBy(
-                        onError = { e ->
-                            e.printStackTrace()
-                            if (e is HttpException) {
-                                val error: DRTError = Gson().fromJson(
-                                    e.response()?.errorBody()?.string(),
-                                    DRTError::class.java
-                                )
-                                this@DrtViewModel._error.value = Pair(error.title, error.error)
-                            }
-                            _loading.value = false
-                        },
-                        onSuccess = { response ->
-                            getBookingUpdate(response.refreshURLForSourceObject)
-                            _loading.value = false
-                        }
-                    ).autoClear()
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .doOnSubscribe { _loading.value = true }
+                        .subscribeBy(
+                                onError = { e ->
+                                    e.printStackTrace()
+                                    if (e is HttpException) {
+                                        val error: DRTError = Gson().fromJson(
+                                                e.response()?.errorBody()?.string(),
+                                                DRTError::class.java
+                                        )
+                                        this@DrtViewModel._error.value = Pair(error.title, error.error)
+                                    }
+                                    _loading.value = false
+                                },
+                                onSuccess = { response ->
+                                    getBookingUpdate(response.refreshURLForSourceObject)
+                                    _loading.value = false
+                                }
+                        ).autoClear()
             }
         }
     }

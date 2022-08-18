@@ -151,10 +151,11 @@ class DrtItemViewModel : ViewModel() {
         _enableIncrement.value = currentValue < maxValue
     }
 
+    @Deprecated("Will be replaced by parsing details from Review")
     fun generateSummaryDetails(): PaymentSummaryDetails {
 
         return PaymentSummaryDetails(
-                hashCode(),
+                hashCode().toString(),
                 icon.value ?: 0,
                 getItemValueAsString() ?: ""
         )
