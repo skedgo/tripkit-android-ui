@@ -5,6 +5,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.skedgo.tripkit.booking.quickbooking.Ticket
 import com.skedgo.tripkit.ui.core.RxViewModel
+import com.skedgo.tripkit.ui.utils.TapStateFlow
 import javax.inject.Inject
 
 class TripPreviewTicketViewModel @Inject constructor(): RxViewModel() {
@@ -20,6 +21,8 @@ class TripPreviewTicketViewModel @Inject constructor(): RxViewModel() {
 
     private val _showView = MutableLiveData<Boolean>()
     val showView: LiveData<Boolean> = _showView
+
+    val onContinueStream = TapStateFlow.create { this }
 
     fun setTotalTickets(value: Double, currency: String) {
         _labelTicketTotal.value = String.format("%s%.2f", currency, value)
@@ -41,5 +44,6 @@ class TripPreviewTicketViewModel @Inject constructor(): RxViewModel() {
     fun onContinue() {
         // TODO
         Log.i("TripPreviewTicketViewModel", "onChange")
+        onContinueStream.perform()
     }
 }

@@ -6,13 +6,17 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import com.skedgo.tripkit.booking.quickbooking.Ticket
 import com.skedgo.tripkit.ui.databinding.FragmentTripPreviewFooterBinding
 import com.skedgo.tripkit.ui.trippreview.drt.DrtTicketViewModel
+import com.skedgo.tripkit.ui.utils.TapStateFlow
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.addTo
 import io.reactivex.subjects.PublishSubject
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 
 class TripPreviewTicketFooterFragment : Fragment() {
 
@@ -22,6 +26,7 @@ class TripPreviewTicketFooterFragment : Fragment() {
 
     private val disposeBag = CompositeDisposable()
     private var selectedTickets: PublishSubject<List<DrtTicketViewModel>>? = null
+    private var onContinueStream: TapStateFlow<*>? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -59,6 +64,10 @@ class TripPreviewTicketFooterFragment : Fragment() {
                 viewModel.setNumberTickets(numberTickets)
                 viewModel.setShowView(!(totalTickets == 0.0 && numberTickets == 0L))
             }?.addTo(disposeBag)
+
+        viewModel.onContinueStream.observable.onEach {
+            onContinueStream?.perform()
+        }.launchIn(lifecycleScope)
     }
 
     companion object {
@@ -66,10 +75,12 @@ class TripPreviewTicketFooterFragment : Fragment() {
         const val TAG = "TripPreviewFooter"
 
         fun newInstance(
-            selectedTickets: PublishSubject<List<DrtTicketViewModel>>?
+            selectedTickets: PublishSubject<List<DrtTicketViewModel>>?,
+            onContinueStream: TapStateFlow<*>?
         ): TripPreviewTicketFooterFragment {
             return TripPreviewTicketFooterFragment().apply {
                 this.selectedTickets = selectedTickets
+                this.onContinueStream = onContinueStream
             }
         }
     }

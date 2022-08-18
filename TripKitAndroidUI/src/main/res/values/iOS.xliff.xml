@@ -1479,5 +1479,6 @@ Note, your iCloud data will not be deleted by this, but you can delete this in t
 	<string name="tap_to">Tap to %s</string>
 	<string name="tap_to_add_notes">Tap to add notes</string>
 	<string name="tap_change_to_make_selection">Tap Change to make selections</string>
+	<string name="payments">Payments</string>
 </resources>
 	<!-- This is an auto generated file (Mon Jan 20 14:50:01 CET 2020) -->

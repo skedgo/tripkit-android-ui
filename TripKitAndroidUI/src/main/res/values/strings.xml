@@ -1,6 +1,8 @@
 <resources>
     <string name="skedgo_api_key">SKEDGO_API_KEY</string>
     <string name="google_places_api_key">GOOGLE_PLACES_API_KEY</string>
+    <string name="stripe_api_key">STRIPE_API_KEY</string>
+    <string name="stripe_api_key_sandbox">STRIPE_API_KEY_SANDBOX</string>
     <string name="stationName">Station name</string>
     <string name="no_realtime_available">No realtime available</string>
     <string name="more">More</string>
