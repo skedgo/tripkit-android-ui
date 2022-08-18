@@ -6,6 +6,10 @@
     <data>
 
         <variable
+            name="handler"
+            type="com.skedgo.tripkit.ui.payment.PaymentSummaryHandler" />
+
+        <variable
             name="viewModel"
             type="com.skedgo.tripkit.ui.payment.PaymentSummaryViewModel" />
     </data>
@@ -169,6 +173,7 @@
             android:layout_marginBottom="@dimen/spacing_normal"
             android:background="@drawable/bg_round_rect_primary"
             android:text="@string/action_continue_to_payment"
+            android:onClick="@{() -> handler.onContinue()}"
             android:textColor="@android:color/white"
             app:layout_constraintBottom_toBottomOf="parent" />
 

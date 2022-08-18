@@ -13,11 +13,12 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:visibility="@{viewModel.showView}"
         android:background="@drawable/bg_round_bottom_rect_white"
         android:importantForAccessibility="noHideDescendants"
+        android:paddingHorizontal="@dimen/spacing_small"
         android:paddingTop="@dimen/spacing_small"
-        android:paddingBottom="@dimen/spacing_small">
+        android:paddingBottom="@dimen/spacing_small"
+        android:visibility="@{viewModel.showView}">
 
         <TextView
             android:id="@+id/footer_tv_numberTickets"
@@ -56,17 +57,17 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/spacing_small"
             android:layout_marginEnd="@dimen/spacing_small"
-            android:paddingStart="@dimen/spacing_normal"
-            android:paddingEnd="@dimen/spacing_normal"
             android:background="@drawable/bg_button_primary"
             android:enabled="@{viewModel.showView}"
             android:importantForAccessibility="yes"
+            android:paddingStart="@dimen/spacing_normal"
+            android:paddingEnd="@dimen/spacing_normal"
             android:text="@string/continue_"
             android:textColor="@android:color/white"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
+            app:clickWithDebounce="@{() -> viewModel.onContinue()}"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:clickWithDebounce="@{() -> viewModel.onContinue()}" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

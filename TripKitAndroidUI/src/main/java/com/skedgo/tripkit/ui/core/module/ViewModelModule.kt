@@ -2,6 +2,7 @@ package com.skedgo.tripkit.ui.core.module
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import com.skedgo.tripkit.ui.payment.PaymentSummaryViewModel
 import com.skedgo.tripkit.ui.trippreview.drt.DrtViewModel
 import dagger.Binds
 import dagger.Module
@@ -19,5 +20,10 @@ abstract class ViewModelModule {
     @IntoMap
     @ViewModelKey(DrtViewModel::class)
     internal abstract fun bindDrtViewModel(viewModel: DrtViewModel): ViewModel
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(PaymentSummaryViewModel::class)
+    internal abstract fun bindPaymentSummaryViewModel(viewModel: PaymentSummaryViewModel): ViewModel
 
 }
