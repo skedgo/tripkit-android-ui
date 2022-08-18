@@ -4,7 +4,6 @@ import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentStatePagerAdapter
-import com.skedgo.tripkit.booking.quickbooking.Ticket
 import com.skedgo.tripkit.common.model.ScheduledStop
 import com.skedgo.tripkit.common.model.StopType
 import com.skedgo.tripkit.routing.TripSegment
@@ -13,8 +12,6 @@ import com.skedgo.tripkit.ui.timetables.TimetableFragment
 import com.skedgo.tripkit.ui.trippreview.standard.StandardTripPreviewItemFragment
 import com.skedgo.tripkit.ui.trippreview.directions.DirectionsTripPreviewItemFragment
 import com.skedgo.tripkit.ui.trippreview.drt.DrtFragment
-import com.skedgo.tripkit.ui.trippreview.drt.DrtItemViewModel
-import com.skedgo.tripkit.ui.trippreview.drt.DrtTicketViewModel
 import com.skedgo.tripkit.ui.trippreview.external.ExternalActionTripPreviewItemFragment
 import com.skedgo.tripkit.ui.trippreview.nearby.ModeLocationTripPreviewItemFragment
 import com.skedgo.tripkit.ui.trippreview.nearby.NearbyTripPreviewItemFragment

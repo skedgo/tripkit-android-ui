@@ -2,7 +2,6 @@ package com.skedgo.tripkit.ui.trippreview.drt
 
 import androidx.lifecycle.*
 import androidx.recyclerview.widget.DiffUtil
-import com.google.gson.Gson
 import com.skedgo.tripkit.booking.quickbooking.Option
 import com.skedgo.tripkit.booking.quickbooking.QuickBookingType
 import com.skedgo.tripkit.ui.payment.PaymentSummaryDetails

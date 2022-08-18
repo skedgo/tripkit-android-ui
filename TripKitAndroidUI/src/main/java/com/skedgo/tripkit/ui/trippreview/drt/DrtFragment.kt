@@ -4,14 +4,12 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import com.skedgo.tripkit.booking.quickbooking.QuickBookingType
-import com.skedgo.tripkit.booking.quickbooking.Ticket
 import com.skedgo.tripkit.common.model.BookingConfirmationAction
 import com.skedgo.tripkit.common.model.TimeTag
 import com.skedgo.tripkit.routing.TripSegment

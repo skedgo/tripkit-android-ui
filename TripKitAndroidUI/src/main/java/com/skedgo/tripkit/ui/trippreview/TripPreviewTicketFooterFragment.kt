@@ -7,15 +7,11 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import com.skedgo.tripkit.booking.quickbooking.Ticket
 import com.skedgo.tripkit.ui.TripKitUI
 import com.skedgo.tripkit.ui.databinding.FragmentTripPreviewFooterBinding
 import com.skedgo.tripkit.ui.interactor.TripKitEvent
 import com.skedgo.tripkit.ui.interactor.TripKitEventBus
-import com.skedgo.tripkit.ui.payment.PaymentActivity
 import com.skedgo.tripkit.ui.payment.PaymentData
-import com.skedgo.tripkit.ui.trippreview.drt.DrtItemViewModel
-import com.skedgo.tripkit.ui.trippreview.drt.DrtTicketViewModel
 import com.skedgo.tripkit.ui.utils.observe
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -34,10 +30,10 @@ class TripPreviewTicketFooterFragment : Fragment() {
 
     private val disposeBag = CompositeDisposable()
     private var paymentData: PublishSubject<PaymentData>? = null
-
+    private var onViewSummaryCallback: ((PaymentData) -> Unit)? = null
 
     override fun onAttach(context: Context) {
-        TripKitUI.getInstance().paymentComponent().inject(this)
+        TripKitUI.getInstance().tripPreviewComponent().inject(this)
         super.onAttach(context)
     }
 
@@ -115,7 +111,8 @@ class TripPreviewTicketFooterFragment : Fragment() {
                             ) { success, paymentData ->
                                 if (success && paymentData != null) {
                                     viewModel.setPaymentData(paymentData)
-                                    startActivity(PaymentActivity.getIntent(requireActivity(), paymentData))
+                                    //startActivity(PaymentActivity.getIntent(requireActivity(), paymentData))
+                                    onViewSummaryCallback?.invoke(paymentData)
                                 }
                             }
                     )
@@ -140,10 +137,12 @@ class TripPreviewTicketFooterFragment : Fragment() {
         */
 
         fun newInstance(
-                paymentData: PublishSubject<PaymentData>?
+                paymentData: PublishSubject<PaymentData>?,
+                onViewSummaryCallback: (PaymentData) -> Unit
         ): TripPreviewTicketFooterFragment {
             return TripPreviewTicketFooterFragment().apply {
                 this.paymentData = paymentData
+                this.onViewSummaryCallback = onViewSummaryCallback
             }
         }
     }

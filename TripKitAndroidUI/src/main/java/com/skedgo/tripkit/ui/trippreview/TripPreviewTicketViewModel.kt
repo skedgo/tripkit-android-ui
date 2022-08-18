@@ -2,11 +2,8 @@ package com.skedgo.tripkit.ui.trippreview
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.skedgo.tripkit.booking.quickbooking.Ticket
 import com.skedgo.tripkit.ui.core.RxViewModel
 import com.skedgo.tripkit.ui.payment.PaymentData
-import com.skedgo.tripkit.ui.trippreview.drt.DrtItemViewModel
-import com.skedgo.tripkit.ui.trippreview.drt.DrtTicketViewModel
 import javax.inject.Inject
 
 class TripPreviewTicketViewModel @Inject constructor() : RxViewModel() {

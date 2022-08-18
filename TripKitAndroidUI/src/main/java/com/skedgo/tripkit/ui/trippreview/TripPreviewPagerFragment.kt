@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,11 +14,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager.widget.ViewPager
 import com.haroldadmin.cnradapter.NetworkResponse
-import com.skedgo.TripKit
-import com.skedgo.tripkit.ExternalActionParams
-import com.skedgo.tripkit.booking.quickbooking.Ticket
-import com.skedgo.tripkit.bookingproviders.BookingResolver
-import com.skedgo.tripkit.common.model.TransportMode
 import com.skedgo.tripkit.routing.*
 import com.skedgo.tripkit.ui.ARG_FROM_TRIP_ACTION
 import com.skedgo.tripkit.ui.ARG_TRIP_ID
@@ -34,9 +28,6 @@ import com.skedgo.tripkit.ui.model.TimetableEntry
 import com.skedgo.tripkit.ui.payment.PaymentData
 import com.skedgo.tripkit.ui.routingresults.TripGroupRepository
 import com.skedgo.tripkit.ui.timetables.TimetableFragment
-import com.skedgo.tripkit.ui.trippreview.drt.DrtItem
-import com.skedgo.tripkit.ui.trippreview.drt.DrtItemViewModel
-import com.skedgo.tripkit.ui.trippreview.drt.DrtTicketViewModel
 import com.skedgo.tripkit.ui.tripresult.ARG_TRIP_GROUP_ID
 import com.skedgo.tripkit.ui.tripresults.GetTransportIconTintStrategy
 import com.skedgo.tripkit.ui.utils.*

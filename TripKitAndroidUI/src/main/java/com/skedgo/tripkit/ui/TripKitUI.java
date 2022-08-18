@@ -174,7 +174,6 @@ public abstract class TripKitUI {
     public abstract RoutesComponent routesComponent();
     public abstract LocationSearchComponent locationSearchComponent();
     public abstract TripPreviewComponent tripPreviewComponent();
-    public abstract PaymentComponent paymentComponent();
     public abstract Bus bus();
     public abstract OkHttpClient httpClient();
     public abstract Context appContext();
