@@ -6,17 +6,17 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.lifecycleScope
 import com.skedgo.tripkit.booking.quickbooking.Ticket
 import com.skedgo.tripkit.ui.databinding.FragmentTripPreviewFooterBinding
+import com.skedgo.tripkit.ui.payment.PaymentActivity
+import com.skedgo.tripkit.ui.payment.PaymentData
+import com.skedgo.tripkit.ui.trippreview.drt.DrtItemViewModel
 import com.skedgo.tripkit.ui.trippreview.drt.DrtTicketViewModel
-import com.skedgo.tripkit.ui.utils.TapStateFlow
+import com.skedgo.tripkit.ui.utils.observe
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.addTo
 import io.reactivex.subjects.PublishSubject
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
 
 class TripPreviewTicketFooterFragment : Fragment() {
 
@@ -25,12 +25,11 @@ class TripPreviewTicketFooterFragment : Fragment() {
     lateinit var binding: FragmentTripPreviewFooterBinding
 
     private val disposeBag = CompositeDisposable()
-    private var selectedTickets: PublishSubject<List<DrtTicketViewModel>>? = null
-    private var onContinueStream: TapStateFlow<*>? = null
+    private var paymentData: PublishSubject<PaymentData>? = null
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
+            inflater: LayoutInflater, container: ViewGroup?,
+            savedInstanceState: Bundle?
     ): View {
         binding = FragmentTripPreviewFooterBinding.inflate(inflater)
         binding.lifecycleOwner = this
@@ -46,41 +45,82 @@ class TripPreviewTicketFooterFragment : Fragment() {
     }
 
     private fun initObserver() {
-        selectedTickets?.subscribeOn(AndroidSchedulers.mainThread())
-            ?.subscribe { vms ->
-                var totalTickets = 0.0
-                var numberTickets = 0L
+        /*
+        drtItems?.subscribeOn(AndroidSchedulers.mainThread())
+                ?.subscribe { vms ->
+                    var totalTickets = 0.0
+                    var numberTickets = 0L
 
-                val updatedTickets = ArrayList<Ticket>()
-                vms.forEach {
-                    totalTickets += (it.price.value ?: 0.0).times(it.value.value ?: 0)
-                    numberTickets += (it.value.value ?: 0)
-                    it.ticket.value?.let { ticket ->
-                        updatedTickets.add(ticket)
+                    val updatedTickets = ArrayList<Ticket>()
+                    vms.second.forEach {
+                        totalTickets += (it.price.value ?: 0.0).times(it.value.value ?: 0)
+                        numberTickets += (it.value.value ?: 0)
+                        it.ticket.value?.let { ticket ->
+                            updatedTickets.add(ticket)
+                        }
                     }
-                }
-                viewModel.setTickets(updatedTickets)
-                viewModel.setTotalTickets(totalTickets, (vms.first().currency.value ?: ""))
-                viewModel.setNumberTickets(numberTickets)
-                viewModel.setShowView(!(totalTickets == 0.0 && numberTickets == 0L))
-            }?.addTo(disposeBag)
+                    viewModel.setTickets(updatedTickets)
+                    viewModel.setTotalTickets(totalTickets, (vms.second.first().currency.value
+                            ?: ""))
+                    viewModel.setNumberTickets(numberTickets)
+                    viewModel.setShowView(!(totalTickets == 0.0 && numberTickets == 0L))
 
-        viewModel.onContinueStream.observable.onEach {
-            onContinueStream?.perform()
-        }.launchIn(lifecycleScope)
+                    viewModel.setDrtItems(vms.first)
+                    viewModel.setDrtTickets(vms.second)
+                }?.addTo(disposeBag)
+        */
+
+        paymentData?.subscribeOn(AndroidSchedulers.mainThread())
+                ?.subscribe { paymentData ->
+                    viewModel.setPaymentData(paymentData)
+                }?.addTo(disposeBag)
+
+        observe(viewModel.paymentData) {
+            it?.let { paymentData ->
+                val totalPrice = paymentData.paymentSummaryDetails.sumOf {
+                    (it.price ?: 0.0) * (it.breakdown?.toDouble() ?: 0.0)
+                }
+                val numberTickets = paymentData.paymentSummaryDetails.sumOf {
+                    it.breakdown ?: 0
+                }.toInt()
+
+                val currency = paymentData.paymentSummaryDetails.first { it.price != null }.currency
+
+                viewModel.setTotalTickets(totalPrice, currency ?: "")
+                viewModel.setNumberTickets(numberTickets)
+                viewModel.setShowView(!(totalPrice == 0.0 && numberTickets == 0))
+            }
+        }
+
+        observe(viewModel.goToPayment) {
+            it?.let {
+                viewModel.paymentData.value?.let {
+                    startActivity(PaymentActivity.getIntent(requireActivity(), it))
+                }
+
+            }
+        }
     }
 
     companion object {
 
         const val TAG = "TripPreviewFooter"
 
+        /*
         fun newInstance(
-            selectedTickets: PublishSubject<List<DrtTicketViewModel>>?,
-            onContinueStream: TapStateFlow<*>?
+                drtItems: PublishSubject<Pair<List<DrtItemViewModel>, List<DrtTicketViewModel>>>?
         ): TripPreviewTicketFooterFragment {
             return TripPreviewTicketFooterFragment().apply {
-                this.selectedTickets = selectedTickets
-                this.onContinueStream = onContinueStream
+                this.drtItems = drtItems
+            }
+        }
+        */
+
+        fun newInstance(
+                paymentData: PublishSubject<PaymentData>?
+        ): TripPreviewTicketFooterFragment {
+            return TripPreviewTicketFooterFragment().apply {
+                this.paymentData = paymentData
             }
         }
     }

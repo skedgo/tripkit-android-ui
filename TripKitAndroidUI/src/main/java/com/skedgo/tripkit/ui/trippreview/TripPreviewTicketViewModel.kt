@@ -1,17 +1,20 @@
 package com.skedgo.tripkit.ui.trippreview
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.skedgo.tripkit.booking.quickbooking.Ticket
 import com.skedgo.tripkit.ui.core.RxViewModel
-import com.skedgo.tripkit.ui.utils.TapStateFlow
+import com.skedgo.tripkit.ui.payment.PaymentData
+import com.skedgo.tripkit.ui.trippreview.drt.DrtItemViewModel
+import com.skedgo.tripkit.ui.trippreview.drt.DrtTicketViewModel
 import javax.inject.Inject
 
-class TripPreviewTicketViewModel @Inject constructor(): RxViewModel() {
+class TripPreviewTicketViewModel @Inject constructor() : RxViewModel() {
 
+    /*
     private val _tickets = MutableLiveData<List<Ticket>>()
     val tickets: LiveData<List<Ticket>> = _tickets
+    */
 
     private val _labelTicketQuantity = MutableLiveData<String>()
     val labelTicketQuantity: LiveData<String> = _labelTicketQuantity
@@ -22,28 +25,52 @@ class TripPreviewTicketViewModel @Inject constructor(): RxViewModel() {
     private val _showView = MutableLiveData<Boolean>()
     val showView: LiveData<Boolean> = _showView
 
-    val onContinueStream = TapStateFlow.create { this }
+    private val _goToPayment = MutableLiveData<Unit>()
+    val goToPayment: LiveData<Unit> = _goToPayment
+
+    /*
+    private val _drtItems = MutableLiveData<List<DrtItemViewModel>>()
+    val drtItems: LiveData<List<DrtItemViewModel>> = _drtItems
+
+    private val _drtTickets = MutableLiveData<List<DrtTicketViewModel>>()
+    val drtTickets: LiveData<List<DrtTicketViewModel>> = _drtTickets
+
+    fun setDrtItems(items: List<DrtItemViewModel>) {
+        _drtItems.value = items
+    }
+
+    fun setDrtTickets(tickets: List<DrtTicketViewModel>) {
+        _drtTickets.value = tickets
+    }
+    */
+
+    private val _paymentData = MutableLiveData<PaymentData>()
+    val paymentData: LiveData<PaymentData> = _paymentData
+
+    fun setPaymentData(data: PaymentData) {
+        _paymentData.value = data
+    }
 
     fun setTotalTickets(value: Double, currency: String) {
         _labelTicketTotal.value = String.format("%s%.2f", currency, value)
     }
 
-    fun setNumberTickets(value: Long) {
+    fun setNumberTickets(value: Int) {
         _labelTicketQuantity.value =
-            String.format("%s %s", value.toString(), if (value > 1) "tickets" else "ticket")
+                String.format("%s %s", value.toString(), if (value > 1) "tickets" else "ticket")
     }
 
     fun setShowView(value: Boolean) {
         _showView.value = value
     }
 
+    /*
     fun setTickets(value: List<Ticket>) {
         _tickets.value = value
     }
+    */
 
     fun onContinue() {
-        // TODO
-        Log.i("TripPreviewTicketViewModel", "onChange")
-        onContinueStream.perform()
+        _goToPayment.value = Unit
     }
 }

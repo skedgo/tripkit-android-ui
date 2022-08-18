@@ -21,6 +21,7 @@ import com.skedgo.tripkit.ui.core.addTo
 import com.skedgo.tripkit.ui.databinding.FragmentDrtBinding
 import com.skedgo.tripkit.ui.dialog.*
 import com.skedgo.tripkit.ui.generic.action_list.ActionListAdapter
+import com.skedgo.tripkit.ui.payment.PaymentData
 import com.skedgo.tripkit.ui.trippreview.TripPreviewPagerItemViewModel
 import com.skedgo.tripkit.ui.utils.*
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -45,7 +46,7 @@ class DrtFragment : BaseFragment<FragmentDrtBinding>(), DrtHandler {
 
     private var segment: TripSegment? = null
 
-    private var ticketStream: PublishSubject<List<DrtTicketViewModel>>? = null
+    private var paymentDataStream: PublishSubject<PaymentData>? = null
 
     private var tripSegmentUpdateCallback: ((TripSegment) -> Unit)? = null
 
@@ -193,8 +194,9 @@ class DrtFragment : BaseFragment<FragmentDrtBinding>(), DrtHandler {
                             }
                         }
                     }
+                    emitPaymentData()
                 }.launchIn(lifecycleScope)
-        
+
         segment?.let {
             pagerItemViewModel.setSegment(requireContext(), it)
             viewModel.setTripSegment(it)
@@ -202,18 +204,19 @@ class DrtFragment : BaseFragment<FragmentDrtBinding>(), DrtHandler {
         }
 
         viewModel.onTicketChangeActionStream
-            .onEach { vm ->
-                var totalTickets = 0.0
-                var numberTickets = 0L
-                viewModel.tickets.forEach {
-                    totalTickets += (it.price.value ?: 0.0).times(it.value.value ?: 0)
-                    numberTickets += (it.value.value ?: 0)
-                }
+                .onEach { vm ->
+                    var totalTickets = 0.0
+                    var numberTickets = 0L
+                    viewModel.tickets.forEach {
+                        totalTickets += (it.price.value ?: 0.0).times(it.value.value ?: 0)
+                        numberTickets += (it.value.value ?: 0)
+                    }
 
-                viewModel.setTotalTickets(totalTickets, (vm.currency.value ?: ""))
-                viewModel.setNumberTickets(numberTickets)
-                ticketStream?.onNext(viewModel.tickets)
-            }.launchIn(lifecycleScope)
+                    viewModel.setTotalTickets(totalTickets, (vm.currency.value ?: ""))
+                    viewModel.setNumberTickets(numberTickets)
+
+                    emitPaymentData()
+                }.launchIn(lifecycleScope)
 
         observe(viewModel.confirmationActions) {
             it?.let { actionsAdapter.collection = it }
@@ -243,6 +246,37 @@ class DrtFragment : BaseFragment<FragmentDrtBinding>(), DrtHandler {
                 }
             }
         }
+    }
+
+    private fun emitPaymentData() {
+        val drtItems = (if (viewModel.items.isEmpty()) listOf() else viewModel.items).filter {
+            val defaultValue = viewModel.getDefaultValueByType(
+                    it.type.value ?: "", it.label.value ?: ""
+            )
+            it.values.value?.isNotEmpty() == true && it.getItemValueAsString() != defaultValue
+        }
+        val drtTickets = (if (viewModel.tickets.isEmpty()) listOf() else viewModel.tickets).filter {
+            it.value.value ?: 0L > 0L
+        }
+
+        val summaryDetails = drtTickets.map { it.generateSummaryDetails() } + drtItems.map { it.generateSummaryDetails() }
+        val transportDetails = pagerItemViewModel.generateTransportDetails()
+        val total = drtTickets.sumOf {
+            (it.price.value ?: 0.0) * (it.value.value?.toDouble() ?: 0.0)
+        }
+        val currency = summaryDetails.first { it.currency != null }.currency
+
+        paymentDataStream?.onNext(
+                PaymentData(
+                        pagerItemViewModel.modeTitle.get().toString(),
+                        pagerItemViewModel.modeIconUrl.get(),
+                        pagerItemViewModel.segment?.darkVehicleIcon,
+                        summaryDetails,
+                        transportDetails,
+                        total,
+                        currency ?: ""
+                )
+        )
     }
 
     private fun showDateTimePicker(listener: TripKitDateTimePickerDialogFragment.OnTimeSelectedListener) {
@@ -348,14 +382,14 @@ class DrtFragment : BaseFragment<FragmentDrtBinding>(), DrtHandler {
 
     companion object {
         fun newInstance(
-            segment: TripSegment,
-            ticketStream: PublishSubject<List<DrtTicketViewModel>>?,
-            tripSegmentUpdateCallback: ((TripSegment) -> Unit)? = null
+                segment: TripSegment,
+                paymentDataStream: PublishSubject<PaymentData>?,
+                tripSegmentUpdateCallback: ((TripSegment) -> Unit)? = null
         ): DrtFragment {
             val fragment = DrtFragment()
             fragment.segment = segment
             fragment.tripSegmentUpdateCallback = tripSegmentUpdateCallback
-            fragment.ticketStream = ticketStream
+            fragment.paymentDataStream = paymentDataStream
             return fragment
         }
     }

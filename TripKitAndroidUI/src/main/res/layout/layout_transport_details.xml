@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <import type="android.text.TextUtils" />
+
+        <variable
+            name="details"
+            type="com.skedgo.tripkit.ui.generic.transport.TransportDetails" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:id="@+id/ivPickUpIcon"
+            android:layout_width="@dimen/icon_small"
+            android:layout_height="@dimen/icon_small"
+            android:layout_marginStart="@dimen/spacing_small"
+            android:layout_marginTop="@dimen/spacing_normal"
+            android:adjustViewBounds="true"
+            android:focusable="false"
+            android:src="@drawable/small_circle"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:tint="@color/colorPrimary" />
+
+        <TextView
+            android:id="@+id/tvPickUpLabel"
+            style="@style/TextAppearance.MaterialComponents.Caption"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/spacing_normal"
+            android:focusable="false"
+            android:text="@string/lbl_pickup"
+            android:textColor="@color/black1"
+            app:layout_constraintBottom_toBottomOf="@+id/ivPickUpIcon"
+            app:layout_constraintStart_toEndOf="@+id/ivPickUpIcon"
+            app:layout_constraintTop_toTopOf="@+id/ivPickUpIcon" />
+
+        <TextView
+            android:id="@+id/tvPickUp"
+            style="@style/TextAppearance.MaterialComponents.Body2"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/spacing_normal"
+            android:layout_marginTop="@dimen/spacing_small"
+            android:layout_marginEnd="@dimen/shadow_height"
+            android:focusable="false"
+            android:text="@{details.pickUpAddress}"
+            android:visibility="@{!TextUtils.isEmpty(details.pickUpAddress)}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/ivPickUpIcon"
+            app:layout_constraintTop_toBottomOf="@+id/tvPickUpLabel"
+            tools:text="Near Scott Street" />
+
+        <TextView
+            android:id="@+id/tvRequestedPickUp"
+            style="@style/TextAppearance.MaterialComponents.Body2"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/spacing_normal"
+            android:layout_marginTop="@dimen/spacing_small"
+            android:layout_marginEnd="@dimen/shadow_height"
+            android:focusable="false"
+            android:text="@{details.pickUpTime}"
+            android:visibility="@{!TextUtils.isEmpty(details.pickUpTime)}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/ivPickUpIcon"
+            app:layout_constraintTop_toBottomOf="@+id/tvPickUp"
+            tools:text="Requested time {queryTime}" />
+
+        <ImageView
+            android:id="@+id/ivDropOffIcon"
+            android:layout_width="@dimen/icon_small"
+            android:layout_height="@dimen/icon_small"
+            android:layout_marginStart="@dimen/spacing_small"
+            android:layout_marginTop="@dimen/spacing_normal"
+            android:adjustViewBounds="true"
+            android:focusable="false"
+            android:src="@drawable/small_circle"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tvRequestedPickUp"
+            app:tint="@color/colorPrimary" />
+
+        <TextView
+            android:id="@+id/tvDropOffLabel"
+            style="@style/TextAppearance.MaterialComponents.Caption"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/spacing_normal"
+            android:focusable="false"
+            android:text="@string/lbl_drop_off"
+            android:textColor="@color/black1"
+            app:layout_constraintBottom_toBottomOf="@+id/ivDropOffIcon"
+            app:layout_constraintStart_toEndOf="@+id/ivDropOffIcon"
+            app:layout_constraintTop_toTopOf="@+id/ivDropOffIcon" />
+
+        <TextView
+            android:id="@+id/tvDropOff"
+            style="@style/TextAppearance.MaterialComponents.Body2"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/spacing_normal"
+            android:layout_marginTop="@dimen/spacing_small"
+            android:layout_marginEnd="@dimen/shadow_height"
+            android:focusable="false"
+            android:text="@{details.dropOffAddress}"
+            android:visibility="@{!TextUtils.isEmpty(details.dropOffAddress)}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/ivDropOffIcon"
+            app:layout_constraintTop_toBottomOf="@+id/tvDropOffLabel"
+            tools:text="Near Scott Street" />
+
+        <TextView
+            android:id="@+id/tvRequestedDropOff"
+            style="@style/TextAppearance.MaterialComponents.Body2"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/spacing_normal"
+            android:layout_marginTop="@dimen/spacing_small"
+            android:layout_marginEnd="@dimen/shadow_height"
+            android:layout_marginBottom="@dimen/spacing_normal"
+            android:focusable="false"
+            android:text="@{details.dropOffTime}"
+            android:visibility="@{!TextUtils.isEmpty(details.dropOffTime)}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/ivPickUpIcon"
+            app:layout_constraintTop_toBottomOf="@+id/tvDropOff"
+            tools:text="Requested time {queryTime}" />
+
+        <View
+            android:layout_width="1dp"
+            android:layout_height="0dp"
+            android:background="@color/colorPrimary"
+            app:layout_constraintBottom_toTopOf="@+id/ivDropOffIcon"
+            app:layout_constraintEnd_toEndOf="@+id/ivPickUpIcon"
+            app:layout_constraintStart_toStartOf="@+id/ivPickUpIcon"
+            app:layout_constraintTop_toBottomOf="@+id/ivPickUpIcon" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+</layout>

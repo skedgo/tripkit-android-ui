@@ -5,7 +5,11 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.DiffUtil
+import com.google.gson.Gson
+import com.skedgo.tripkit.booking.quickbooking.QuickBookingType
 import com.skedgo.tripkit.booking.quickbooking.Ticket
+import com.skedgo.tripkit.ui.R
+import com.skedgo.tripkit.ui.payment.PaymentSummaryDetails
 import com.skedgo.tripkit.ui.utils.toIntSafe
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
@@ -99,6 +103,17 @@ class DrtTicketViewModel : ViewModel() {
     fun onSelect() {
         _value.value = 1
         onChange()
+    }
+
+    fun generateSummaryDetails(): PaymentSummaryDetails {
+        return PaymentSummaryDetails(
+                hashCode(),
+                R.drawable.ic_person,
+                label.value ?: "",
+                breakdown = value.value,
+                price = price.value,
+                currency = currency.value
+        )
     }
 
     companion object {
