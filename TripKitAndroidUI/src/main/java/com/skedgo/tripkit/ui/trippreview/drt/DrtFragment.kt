@@ -283,14 +283,17 @@ class DrtFragment : BaseFragment<FragmentDrtBinding>(), DrtHandler {
             it.value.value ?: 0L > 0L
         }
 
+
         val summaryDetails = viewModel.review.value?.firstOrNull()?.let { it.tickets.map { PaymentSummaryDetails.parseTicket(it) } }
                 ?: kotlin.run { drtTickets.map { it.generateSummaryDetails() } + drtItems.map { it.generateSummaryDetails() } }
-        val transportDetails = viewModel.review.value?.firstOrNull()?.let { TransportDetails.parseFromReview(it) }
-                ?: kotlin.run { pagerItemViewModel.generateTransportDetails() }
+        val a = viewModel.review.value?.firstOrNull()?.let { TransportDetails.parseFromReview(it) }
+        val b = pagerItemViewModel.generateTransportDetails()
+        val transportDetails = a ?: b
         val total = drtTickets.sumOf {
-            (it.price.value ?: 0.0) * (it.value.value?.toDouble() ?: 0.0)
+            ((it.price.value ?: 0.0) / 100) * (it.value.value?.toDouble() ?: 0.0)
         }
-        val currency = summaryDetails.first { it.currency != null }.currency
+
+        val currency = drtTickets.firstOrNull { it.currency.value != null }?.currency?.value
 
         return PaymentData(
                 this@DrtFragment.hashCode(),
@@ -341,7 +344,7 @@ class DrtFragment : BaseFragment<FragmentDrtBinding>(), DrtHandler {
                 }.addTo(autoDisposable)
 
 
-        tripKitEventBus.listen(TripKitEvent.onDrtConfirmPaymentUpdate::class.java)
+        tripKitEventBus.listen(TripKitEvent.OnDrtConfirmPaymentUpdate::class.java)
                 .subscribe {
                     if (URLUtil.isValidUrl(it.updateUrl)) {
                         viewModel.processBookingResponse(it.updateUrl)

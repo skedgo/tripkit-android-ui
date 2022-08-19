@@ -20,8 +20,13 @@ data class PaymentSummaryDetails(
         }
     }
 
+    fun getConvertedPrice(): Double {
+        return (price ?: 0.0) / 100.0
+    }
+
     fun getTotal(): String {
-        return String.format("%s%.2f", currency?.getCurrencySymbol(), (breakdown ?: 0L).toDouble() * (price ?: 0.0))
+        return String.format("%s%.2f", currency?.getCurrencySymbol(), (breakdown
+                ?: 0L).toDouble() * getConvertedPrice())
     }
 
     companion object {

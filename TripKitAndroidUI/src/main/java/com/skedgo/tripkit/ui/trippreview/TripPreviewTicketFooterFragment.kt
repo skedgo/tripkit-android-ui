@@ -87,14 +87,14 @@ class TripPreviewTicketFooterFragment : Fragment() {
 
         observe(viewModel.paymentData) {
             it?.let { paymentData ->
-                val totalPrice = paymentData.paymentSummaryDetails.sumOf {
-                    (it.price ?: 0.0) * (it.breakdown?.toDouble() ?: 0.0)
-                }
-                val numberTickets = paymentData.paymentSummaryDetails.sumOf {
+                val totalPrice = if (paymentData.paymentSummaryDetails.isNotEmpty()) paymentData.paymentSummaryDetails.sumOf {
+                    it.getConvertedPrice() * (it.breakdown?.toDouble() ?: 0.0)
+                } else 0.0
+                val numberTickets = (if (paymentData.paymentSummaryDetails.isNotEmpty()) paymentData.paymentSummaryDetails.sumOf {
                     it.breakdown ?: 0
-                }.toInt()
+                } else 0.0).toInt()
 
-                val currency = paymentData.paymentSummaryDetails.first { it.price != null }.currency
+                val currency = paymentData.paymentSummaryDetails.firstOrNull { it.price != null }?.currency
 
                 viewModel.setTotalTickets(totalPrice, currency ?: "")
                 viewModel.setNumberTickets(numberTickets)
@@ -120,6 +120,10 @@ class TripPreviewTicketFooterFragment : Fragment() {
 
             }
         }
+
+        TripKitEventBus.listen(TripKitEvent.OnToggleDrtFooterVisibility::class.java).subscribe {
+            viewModel.setShowView(!it.isHide)
+        }.addTo(disposeBag)
     }
 
     companion object {
