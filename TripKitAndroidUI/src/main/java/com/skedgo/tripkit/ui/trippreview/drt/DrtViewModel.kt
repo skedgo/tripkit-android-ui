@@ -555,6 +555,7 @@ class DrtViewModel @Inject constructor(
                                         //getBookingUpdate(quickBooking.tripUpdateURL)
                                     },
                                     onSuccess = { response ->
+
                                         _loading.value = false
                                         if(response.review != null && response.paymentOptions != null){
                                             _review.postValue(response.review!!)
@@ -570,7 +571,7 @@ class DrtViewModel @Inject constructor(
         }
     }
 
-    private fun processBookingResponse(url: String) {
+    fun processBookingResponse(url: String) {
         getBookingUpdate(url)
     }
 

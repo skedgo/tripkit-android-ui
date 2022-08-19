@@ -19,4 +19,5 @@ class TripKitEvent {
             val fragmentHashCode: Int,
             val bookCallBack: (Boolean, PaymentData?) -> Unit //Boolean for if success or not
     )
+    data class onDrtConfirmPaymentUpdate(val updateUrl: String)
 }

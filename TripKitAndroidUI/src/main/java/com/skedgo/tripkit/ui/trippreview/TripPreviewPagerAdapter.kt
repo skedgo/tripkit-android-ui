@@ -106,7 +106,10 @@ class TripPreviewPagerAdapter(fragmentManager: FragmentManager)
                 timetableFragment
             }
             ITEM_QUICK_BOOKING -> {
-                DrtFragment.newInstance(page.tripSegment, paymentDataStream) { segment ->
+                DrtFragment.newInstance(
+                        page.tripSegment,
+                        paymentDataStream
+                ) { segment ->
                     pages.firstOrNull { it.tripSegment.id == segment.id }?.tripSegment = segment
                 }.apply {
                     //bottomSheetDragToggleCallback = this@TripPreviewPagerAdapter.bottomSheetDragToggleCallback

@@ -1,3 +1,4 @@
+
 package com.skedgo.tripkit.ui.utils
 
 import android.accessibilityservice.AccessibilityServiceInfo

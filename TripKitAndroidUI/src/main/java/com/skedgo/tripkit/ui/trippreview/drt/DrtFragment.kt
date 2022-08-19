@@ -5,6 +5,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.view.View
+import android.webkit.URLUtil
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -264,6 +265,7 @@ class DrtFragment : BaseFragment<FragmentDrtBinding>(), DrtHandler {
                 bookingCallback?.invoke(true, generatePaymentData())
             }
         }
+
     }
 
     private fun emitPaymentData() {
@@ -337,6 +339,15 @@ class DrtFragment : BaseFragment<FragmentDrtBinding>(), DrtHandler {
                     }
                     bookingCallback = it.bookCallBack
                 }.addTo(autoDisposable)
+
+
+        tripKitEventBus.listen(TripKitEvent.onDrtConfirmPaymentUpdate::class.java)
+                .subscribe {
+                    if (URLUtil.isValidUrl(it.updateUrl)) {
+                        viewModel.processBookingResponse(it.updateUrl)
+                    }
+                }.addTo(autoDisposable)
+
     }
 
     private fun initViews() {
@@ -417,7 +428,7 @@ class DrtFragment : BaseFragment<FragmentDrtBinding>(), DrtHandler {
         fun newInstance(
                 segment: TripSegment,
                 paymentDataStream: PublishSubject<PaymentData>?,
-                tripSegmentUpdateCallback: ((TripSegment) -> Unit)? = null
+                tripSegmentUpdateCallback: ((TripSegment) -> Unit)? = null,
         ): DrtFragment {
             val fragment = DrtFragment()
             fragment.segment = segment
