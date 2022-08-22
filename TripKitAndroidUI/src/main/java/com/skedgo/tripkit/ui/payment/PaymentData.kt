@@ -18,7 +18,7 @@ data class PaymentData(
         val review: List<Review>?
 ) {
     fun getTotalValue(): String {
-        return String.format("%s%.2f", currency.getCurrencySymbol(), total / 100.0)
+        return String.format("%s%.2f", currency.getCurrencySymbol(), total)
     }
 
 
