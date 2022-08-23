@@ -250,6 +250,34 @@ class DrtViewModel @Inject constructor(
                     confirmationAction
                 )
             }
+
+            val newTickets = mutableListOf<DrtTicketViewModel>()
+            it.tickets().forEach {
+                /*
+                if (it.type != QuickBookingType.LONG_TEXT && it.type != QuickBookingType.RETURN_TRIP && it.options.isNullOrEmpty()) {
+                    return@forEach
+                }
+                */
+                newTickets.add(
+                    DrtTicketViewModel().apply {
+                        setLabel(it.name())
+                        setItemId(it.id())
+                        setDescription(it.description())
+                        setCurrency(it.currency())
+                        setPrice(it.price())
+                        setValue(it.value() ?: 0)
+                        onChangeStream = onTicketChangeActionStream
+//                        setTicket(it)
+                        setViewMode(
+                            true
+                        )
+                    }
+                )
+            }
+
+            tickets.update(newTickets)
+
+
         }
     }
 
@@ -294,6 +322,10 @@ class DrtViewModel @Inject constructor(
                     setValue(it.value ?: 0)
                     onChangeStream = onTicketChangeActionStream
                     setTicket(it)
+                    setViewMode(
+                        segment.value?.booking?.confirmation?.status()
+                            ?.value() == BookingConfirmationStatusValue.PROCESSING
+                    )
                 }
             )
         }
@@ -466,9 +498,7 @@ class DrtViewModel @Inject constructor(
             if (it.status().value() != BookingConfirmationStatusValue.PROCESSING) {
                 stopPollingUpdate.set(true)
             }
-
         }
-
         _accessibilityLabel.value = segment.booking?.accessibilityLabel ?: "Book"
         _isHideExactTimes.value = segment.isHideExactTimes
     }
