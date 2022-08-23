@@ -173,6 +173,8 @@ class DrtViewModel @Inject constructor(
                                 } else {
                                     if (!input.value().isNullOrEmpty()) {
                                         listOf(input.value() ?: "")
+                                    } else if (!input.values().isNullOrEmpty()) {
+                                        input.values() ?: listOf("")
                                     } else {
                                         val list = ArrayList<String>()
                                         val map = HashMap<String, String>()
