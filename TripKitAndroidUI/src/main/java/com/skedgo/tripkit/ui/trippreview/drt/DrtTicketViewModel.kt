@@ -91,6 +91,10 @@ class DrtTicketViewModel : ViewModel() {
         _itemId.value = value
     }
 
+    fun setViewMode(value: Boolean) {
+        _viewMode.value = value
+    }
+
     fun onIncrementValue() {
         _accessibilityFocusIncrementAction.postValue(false)
         val result = ((value.value)?.toLong() ?: 0) + 1

@@ -107,7 +107,6 @@ class TripPreviewTicketFooterFragment : Fragment() {
                             }
                     )
                 }
-
             }
         }
 

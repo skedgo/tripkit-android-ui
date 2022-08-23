@@ -12,6 +12,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import com.skedgo.tripkit.booking.quickbooking.QuickBookingType
 import com.skedgo.tripkit.common.model.BookingConfirmationAction
+import com.skedgo.tripkit.common.model.BookingConfirmationStatusValue
 import com.skedgo.tripkit.common.model.TimeTag
 import com.skedgo.tripkit.routing.TripSegment
 import com.skedgo.tripkit.ui.R
@@ -29,6 +30,8 @@ import com.skedgo.tripkit.ui.payment.PaymentSummaryDetails
 import com.skedgo.tripkit.ui.trippreview.TripPreviewPagerItemViewModel
 import com.skedgo.tripkit.ui.utils.*
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.rxkotlin.addTo
 import io.reactivex.subjects.PublishSubject
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -219,6 +222,12 @@ class DrtFragment : BaseFragment<FragmentDrtBinding>(), DrtHandler {
             pagerItemViewModel.setSegment(requireContext(), it)
             viewModel.setTripSegment(it)
             cachedReturnMills = TimeUnit.SECONDS.toMillis(it.startTimeInSecs + 3600)
+            TripKitEventBus.publish(
+                TripKitEvent.OnToggleDrtFooterVisibility(
+                    it.booking?.confirmation?.status()?.value()
+                            == BookingConfirmationStatusValue.PROCESSING
+                )
+            )
         }
 
         viewModel.onTicketChangeActionStream

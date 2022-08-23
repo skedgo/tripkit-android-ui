@@ -17,6 +17,7 @@
         android:importantForAccessibility="yes"
         android:focusable="true"
         android:screenReaderFocusable="true"
+        android:visibility="@{viewModel.showView}"
         android:paddingHorizontal="@dimen/spacing_small"
         android:paddingTop="@dimen/spacing_small"
         android:paddingBottom="@dimen/spacing_small">
