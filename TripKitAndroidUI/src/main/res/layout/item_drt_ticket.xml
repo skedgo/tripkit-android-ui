@@ -55,7 +55,7 @@
                 android:textAlignment="center"
                 android:textColor="@color/grey3"
                 android:textSize="@dimen/font_size_small"
-                android:visibility="@{viewModel.required &amp;&amp; !viewModel.viewMode}"
+                android:visibility="@{viewModel.required &amp; !viewModel.viewMode}"
                 app:layout_constraintBottom_toBottomOf="@+id/itemDrt_tvLabel"
                 app:layout_constraintStart_toEndOf="@+id/itemDrt_tvLabel"
                 app:layout_constraintTop_toTopOf="parent" />
