@@ -60,4 +60,6 @@
     <string name="str_select_tickets">Select tickets</string>
     <string name="lbl_total">Total</string>
     <string name="action_continue_to_payment">Continue to Payment</string>
+    <string name="talkback_decrement">Decrement</string>
+    <string name="talkback_increment">Increment</string>
 </resources>

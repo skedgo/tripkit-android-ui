@@ -2,8 +2,11 @@ package com.skedgo.tripkit.ui.utils
 
 import android.content.res.Resources
 import android.graphics.drawable.Drawable
+import android.os.Handler
+import android.os.Looper
 import android.os.SystemClock
 import android.view.View
+import android.view.accessibility.AccessibilityEvent
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.annotation.ColorInt
@@ -125,8 +128,18 @@ fun setAddRtlSupport(view: View, addRtlSupport: Boolean) {
 }
 
 @BindingAdapter("backgroundDrawable")
-fun setBackgroundDrawable(view: View, drawable: Drawable?){
+fun setBackgroundDrawable(view: View, drawable: Drawable?) {
     drawable?.let {
         view.background = it
     }
+}
+
+@BindingAdapter("accessibilityViewFocus")
+fun focusViewForAccessibility(view: View, focus: Boolean) {
+    if (focus) {
+        view.postDelayed({
+            view.sendAccessibilityEvent(AccessibilityEvent.TYPE_VIEW_FOCUSED)
+        }, 500)
+    }
+
 }

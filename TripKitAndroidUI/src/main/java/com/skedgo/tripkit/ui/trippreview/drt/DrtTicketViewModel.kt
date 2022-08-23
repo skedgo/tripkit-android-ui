@@ -51,6 +51,12 @@ class DrtTicketViewModel : ViewModel() {
     private val _itemId = MutableLiveData<String>()
     val itemId: LiveData<String> = _itemId
 
+    private val _accessibilityFocusIncrementAction = MutableLiveData<Boolean>()
+    val accessibilityFocusIncrementAction: LiveData<Boolean> = _accessibilityFocusIncrementAction
+
+    private val _accessibilityFocusSelectAction = MutableLiveData<Boolean>()
+    val accessibilityFocusSelectAction: LiveData<Boolean> = _accessibilityFocusSelectAction
+
     fun onChange() {
         viewModelScope.launch {
             onChangeStream?.emit(this@DrtTicketViewModel)
@@ -90,6 +96,7 @@ class DrtTicketViewModel : ViewModel() {
     }
 
     fun onIncrementValue() {
+        _accessibilityFocusIncrementAction.postValue(false)
         val result = ((value.value)?.toLong() ?: 0) + 1
         _value.value = result
         updateTicket(result)
@@ -98,8 +105,12 @@ class DrtTicketViewModel : ViewModel() {
 
     fun onDecrementValue() {
         val result = ((value.value)?.toLong() ?: 0) - 1
+
         if (result >= 0) _value.value = result
         else _value.value = 0
+
+        _accessibilityFocusSelectAction.postValue((_value.value?: 0) == 0L)
+
         updateTicket(_value.value ?: 0)
         onChange()
     }
@@ -114,6 +125,8 @@ class DrtTicketViewModel : ViewModel() {
 
     fun onSelect() {
         _value.value = 1
+        _accessibilityFocusSelectAction.postValue(false)
+        _accessibilityFocusIncrementAction.postValue(true)
         onChange()
     }
 
@@ -132,16 +145,16 @@ class DrtTicketViewModel : ViewModel() {
     companion object {
         fun diffCallback() = object : DiffUtil.ItemCallback<DrtTicketViewModel>() {
             override fun areItemsTheSame(
-                oldItem: DrtTicketViewModel,
-                newItem: DrtTicketViewModel
+                    oldItem: DrtTicketViewModel,
+                    newItem: DrtTicketViewModel
             ): Boolean =
-                oldItem.label == newItem.label
+                    oldItem.label == newItem.label
 
             override fun areContentsTheSame(
-                oldItem: DrtTicketViewModel,
-                newItem: DrtTicketViewModel
+                    oldItem: DrtTicketViewModel,
+                    newItem: DrtTicketViewModel
             ): Boolean =
-                oldItem.label.value == newItem.label.value
+                    oldItem.label.value == newItem.label.value
         }
     }
 }
