@@ -87,7 +87,6 @@
             android:paddingTop="@dimen/shadow_height"
             android:paddingEnd="@dimen/spacing_small"
             android:paddingBottom="@dimen/shadow_height"
-            android:visibility="@{!viewModel.viewMode}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             tools:visibility="visible">
