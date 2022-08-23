@@ -15,14 +15,15 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:focusable="true"
+        android:importantForAccessibility="yes"
+        android:screenReaderFocusable="true">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/itemDrt_mainLayout"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:contentDescription="@{viewModel.contentDescription}"
-            android:importantForAccessibility="yes"
             android:padding="@dimen/spacing_small"
             app:layout_constraintEnd_toStartOf="@+id/itemDrt_actionLayout"
             app:layout_constraintStart_toStartOf="parent"
@@ -34,6 +35,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/shadow_height"
+                android:focusable="false"
                 android:text="@{viewModel.label}"
                 android:textColor="@color/black"
                 app:layout_constraintStart_toStartOf="parent"
@@ -47,6 +49,7 @@
                 android:layout_marginStart="@dimen/spacing_small"
                 android:layout_marginTop="@dimen/shadow_height"
                 android:background="@drawable/bg_round_rect_red"
+                android:focusable="false"
                 android:gravity="center"
                 android:padding="2sp"
                 android:paddingStart="@dimen/shadow_height"
@@ -67,6 +70,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/spacing_small"
                 android:layout_marginEnd="@dimen/spacing_small"
+                android:focusable="false"
                 android:text="@{viewModel.description}"
                 android:textColor="@color/black1"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -101,11 +105,13 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent">
 
+                <!-- TODO replace with plain imageview/button-->
                 <FrameLayout
                     android:id="@+id/itemDrt_ibDecrement"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:background="@drawable/bg_round_rect_primary_dark"
+                    android:contentDescription="@string/talkback_decrement"
                     android:onClick="@{() -> viewModel.onDecrementValue()}"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -136,12 +142,15 @@
                     app:layout_constraintTop_toTopOf="parent"
                     tools:text="x10" />
 
+                <!-- TODO replace with plain imageview/button-->
                 <FrameLayout
                     android:id="@+id/itemDrt_ibIncrement"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:background="@drawable/bg_round_rect_primary_dark"
+                    android:contentDescription="@string/talkback_increment"
                     android:onClick="@{() -> viewModel.onIncrementValue()}"
+                    app:accessibilityViewFocus="@{viewModel.accessibilityFocusIncrementAction}"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toEndOf="@id/itemDrt_tvQuantity"
                     app:layout_constraintTop_toTopOf="parent">
@@ -168,10 +177,12 @@
                 android:text="@string/str_select"
                 android:textColor="@color/colorPrimary"
                 android:visibility="@{!viewModel.viewMode &amp; viewModel.value == 0}"
+                app:accessibilityViewFocus="@{viewModel.accessibilityFocusSelectAction}"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 tools:visibility="visible" />
         </androidx.constraintlayout.widget.ConstraintLayout>
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
