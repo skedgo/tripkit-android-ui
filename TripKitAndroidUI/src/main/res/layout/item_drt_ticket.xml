@@ -87,7 +87,6 @@
             android:paddingTop="@dimen/shadow_height"
             android:paddingEnd="@dimen/spacing_small"
             android:paddingBottom="@dimen/shadow_height"
-            android:visibility="@{!viewModel.viewMode}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             tools:visibility="visible">
@@ -95,7 +94,6 @@
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:visibility="@{!viewModel.viewMode &amp; viewModel.value > 0}"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -107,6 +105,7 @@
                     android:layout_height="wrap_content"
                     android:background="@drawable/bg_round_rect_primary_dark"
                     android:onClick="@{() -> viewModel.onDecrementValue()}"
+                    android:visibility="@{!viewModel.viewMode &amp; viewModel.value > 0}"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent">
@@ -142,6 +141,7 @@
                     android:layout_height="wrap_content"
                     android:background="@drawable/bg_round_rect_primary_dark"
                     android:onClick="@{() -> viewModel.onIncrementValue()}"
+                    android:visibility="@{!viewModel.viewMode &amp; viewModel.value > 0}"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toEndOf="@id/itemDrt_tvQuantity"
                     app:layout_constraintTop_toTopOf="parent">

@@ -14,6 +14,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/bg_round_bottom_rect_white"
+        android:visibility="@{viewModel.showView}"
         android:importantForAccessibility="noHideDescendants"
         android:paddingHorizontal="@dimen/spacing_small"
         android:paddingTop="@dimen/spacing_small"
