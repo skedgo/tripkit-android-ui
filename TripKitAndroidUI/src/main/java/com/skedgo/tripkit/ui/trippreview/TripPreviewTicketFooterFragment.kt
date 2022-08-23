@@ -83,22 +83,12 @@ class TripPreviewTicketFooterFragment : Fragment() {
         paymentData?.subscribeOn(AndroidSchedulers.mainThread())
                 ?.subscribe { paymentData ->
                     viewModel.setPaymentData(paymentData)
+                    compute(paymentData)
                 }?.addTo(disposeBag)
 
         observe(viewModel.paymentData) {
             it?.let { paymentData ->
-                val totalPrice = if (paymentData.paymentSummaryDetails.isNotEmpty()) paymentData.paymentSummaryDetails.sumOf {
-                    it.getConvertedPrice() * (it.breakdown?.toDouble() ?: 0.0)
-                } else 0.0
-                val numberTickets = (if (paymentData.paymentSummaryDetails.isNotEmpty()) paymentData.paymentSummaryDetails.sumOf {
-                    it.breakdown ?: 0
-                } else 0.0).toInt()
-
-                val currency = paymentData.paymentSummaryDetails.firstOrNull { it.price != null }?.currency
-
-                viewModel.setTotalTickets(totalPrice, currency ?: "")
-                viewModel.setNumberTickets(numberTickets)
-                viewModel.setShowView(!(totalPrice == 0.0 && numberTickets == 0))
+                compute(paymentData)
             }
         }
 
@@ -124,6 +114,21 @@ class TripPreviewTicketFooterFragment : Fragment() {
         TripKitEventBus.listen(TripKitEvent.OnToggleDrtFooterVisibility::class.java).subscribe {
             viewModel.setShowView(!it.isHide)
         }.addTo(disposeBag)
+    }
+
+    private fun compute(paymentData: PaymentData) {
+        val totalPrice = if (paymentData.paymentSummaryDetails.isNotEmpty()) paymentData.paymentSummaryDetails.sumOf {
+            it.getConvertedPrice() * (it.breakdown?.toDouble() ?: 0.0)
+        } else 0.0
+        val numberTickets = (if (paymentData.paymentSummaryDetails.isNotEmpty()) paymentData.paymentSummaryDetails.sumOf {
+            it.breakdown ?: 0
+        } else 0.0).toInt()
+
+        val currency = paymentData.paymentSummaryDetails.firstOrNull { it.price != null }?.currency
+
+        viewModel.setTotalTickets(totalPrice, currency ?: "")
+        viewModel.setNumberTickets(numberTickets)
+        viewModel.setShowView(!(totalPrice == 0.0 && numberTickets == 0))
     }
 
     companion object {

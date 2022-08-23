@@ -77,6 +77,10 @@ class DrtTicketViewModel : ViewModel() {
         _ticket.value = value
     }
 
+    fun setValue(value: Long) {
+        _value.value = value
+    }
+
     fun setItemId(value: String) {
         _itemId.value = value
     }

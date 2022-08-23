@@ -17,8 +17,7 @@
         android:importantForAccessibility="noHideDescendants"
         android:paddingHorizontal="@dimen/spacing_small"
         android:paddingTop="@dimen/spacing_small"
-        android:paddingBottom="@dimen/spacing_small"
-        android:visibility="@{viewModel.showView}">
+        android:paddingBottom="@dimen/spacing_small">
 
         <TextView
             android:id="@+id/footer_tv_numberTickets"
