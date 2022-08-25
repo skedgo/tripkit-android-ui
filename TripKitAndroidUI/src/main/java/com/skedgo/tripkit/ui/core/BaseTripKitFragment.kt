@@ -13,6 +13,8 @@ open class BaseTripKitFragment : Fragment() {
         GenericLoadingDialog(requireContext())
     }
 
+    open var accessibilityListener: () -> Unit = {}
+
     val accessibilityDefaultViewManager: AccessibilityDefaultViewManager by lazy {
         AccessibilityDefaultViewManager(context)
     }
@@ -35,6 +37,7 @@ open class BaseTripKitFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         accessibilityDefaultViewManager.setAccessibilityObserver()
+        accessibilityDefaultViewManager.accessibilityListener = accessibilityListener
     }
 
     override fun onResume() {
