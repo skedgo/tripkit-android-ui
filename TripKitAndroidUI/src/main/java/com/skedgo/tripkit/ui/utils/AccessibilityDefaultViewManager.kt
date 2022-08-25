@@ -7,12 +7,13 @@ import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
 import javax.inject.Inject
 
-class AccessibilityDefaultViewManager constructor(
+open class AccessibilityDefaultViewManager constructor(
         private val context: Context?,
         private val observeAccessibility: Boolean = true
 ) {
 
     private var viewForAccessibility: View? = null
+    open var accessibilityListener: () -> Unit = {}
 
     fun setDefaultViewForAccessibility(view: View?) {
         viewForAccessibility = view
@@ -22,6 +23,7 @@ class AccessibilityDefaultViewManager constructor(
         if (observeAccessibility) {
             context?.getAccessibilityManager()?.let {
                 it.addAccessibilityStateChangeListener {
+                    accessibilityListener.invoke()
                     focusAccessibilityDefaultView(true)
                 }
             }
