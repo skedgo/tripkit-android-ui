@@ -38,4 +38,7 @@
     <dimen name="icon_increment_action">18dp</dimen>
 
     <dimen name="font_size_small">10sp</dimen>
+    <dimen name="font_size_normal">12sp</dimen>
+    <dimen name="font_size_medium">16sp</dimen>
+    <dimen name="font_size_large">20sp</dimen>
 </resources>

@@ -11,12 +11,20 @@ fun getISODateFormatter(tz: DateTimeZone? = null): DateTimeFormatter {
     return DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss").withZone(tz)
 }
 
+fun getISO2DateFormatter(tz: DateTimeZone? = null): DateTimeFormatter {
+    return DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ssZ").withZone(tz)
+}
+
 fun getDisplayDateFormatter(tz: DateTimeZone? = null): DateTimeFormatter {
     return DateTimeFormat.forPattern("MMM dd, yyyy").withZone(tz)
 }
 
 fun getDisplayTimeFormatter(tz: DateTimeZone? = null): DateTimeFormatter {
     return DateTimeFormat.forPattern("h:mm aa").withZone(tz)
+}
+
+fun getDisplayDateTimeFormatter(tz: DateTimeZone? = null): DateTimeFormatter {
+    return DateTimeFormat.forPattern("MMM dd, yyyy h:mm aa").withZone(tz)
 }
 
 fun Date.checkDateForStringLabel(context: Context): String? {

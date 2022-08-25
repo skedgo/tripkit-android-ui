@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <import type="com.skedgo.tripkit.booking.quickbooking.QuickBookingType" />
+
+        <variable
+            name="viewModel"
+            type="com.skedgo.tripkit.ui.trippreview.drt.DrtTicketViewModel" />
+    </data>
+
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:focusable="true"
+        android:importantForAccessibility="yes"
+        android:screenReaderFocusable="true">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/itemDrt_mainLayout"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/spacing_small"
+            app:layout_constraintEnd_toStartOf="@+id/itemDrt_actionLayout"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <TextView
+                android:id="@+id/itemDrt_tvLabel"
+                style="@style/TextAppearance.MaterialComponents.Body2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/shadow_height"
+                android:focusable="false"
+                android:text="@{viewModel.label}"
+                android:textColor="@color/black"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="Mobility Options" />
+
+            <TextView
+                style="@style/TextAppearance.MaterialComponents.Body2"
+                android:layout_width="60dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/spacing_small"
+                android:layout_marginTop="@dimen/shadow_height"
+                android:background="@drawable/bg_round_rect_red"
+                android:focusable="false"
+                android:gravity="center"
+                android:padding="2sp"
+                android:paddingStart="@dimen/shadow_height"
+                android:paddingEnd="@dimen/shadow_height"
+                android:text="@string/lbl_required"
+                android:textAlignment="center"
+                android:textColor="@color/grey3"
+                android:textSize="@dimen/font_size_small"
+                android:visibility="@{viewModel.required &amp; !viewModel.viewMode}"
+                app:layout_constraintBottom_toBottomOf="@+id/itemDrt_tvLabel"
+                app:layout_constraintStart_toEndOf="@+id/itemDrt_tvLabel"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/itemDrt_tvValue"
+                style="@style/TextAppearance.MaterialComponents.Body2"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_small"
+                android:layout_marginEnd="@dimen/spacing_small"
+                android:focusable="false"
+                android:text="@{viewModel.description}"
+                android:textColor="@color/black1"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/itemDrt_tvLabel"
+                tools:text="Tap Change to make selections" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/itemDrt_actionLayout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/shadow_height"
+            android:layout_marginBottom="@dimen/shadow_height"
+            android:clickable="false"
+            android:paddingStart="@dimen/spacing_small"
+            android:paddingTop="@dimen/shadow_height"
+            android:paddingEnd="@dimen/spacing_small"
+            android:paddingBottom="@dimen/shadow_height"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:visibility="visible">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <!-- TODO replace with plain imageview/button-->
+                <FrameLayout
+                    android:id="@+id/itemDrt_ibDecrement"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_round_rect_primary_dark"
+                    android:contentDescription="@string/talkback_decrement"
+                    android:onClick="@{() -> viewModel.onDecrementValue()}"
+                    android:visibility="@{!viewModel.viewMode &amp; viewModel.value > 0}"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent">
+
+                    <ImageView
+                        android:layout_width="@dimen/icon_increment_action"
+                        android:layout_height="@dimen/icon_increment_action"
+                        android:background="?attr/selectableItemBackground"
+                        android:padding="@dimen/map_icon_padding"
+                        android:src="@drawable/ic_minus_n"
+                        app:tint="@android:color/white" />
+
+                </FrameLayout>
+
+                <TextView
+                    android:id="@+id/itemDrt_tvQuantity"
+                    style="@style/TextAppearance.MaterialComponents.Body2"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/spacing_small"
+                    android:paddingEnd="@dimen/spacing_small"
+                    android:text="@{'x' + viewModel.value.toString()}"
+                    android:textColor="@color/black"
+                    android:visibility="@{viewModel.value > 0}"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/itemDrt_ibDecrement"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:text="x10" />
+
+                <!-- TODO replace with plain imageview/button-->
+                <FrameLayout
+                    android:id="@+id/itemDrt_ibIncrement"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_round_rect_primary_dark"
+                    android:contentDescription="@string/talkback_increment"
+                    android:onClick="@{() -> viewModel.onIncrementValue()}"
+                    android:visibility="@{!viewModel.viewMode &amp; viewModel.value > 0}"
+                    app:accessibilityViewFocus="@{viewModel.accessibilityFocusIncrementAction}"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/itemDrt_tvQuantity"
+                    app:layout_constraintTop_toTopOf="parent">
+
+                    <ImageView
+                        android:layout_width="@dimen/icon_increment_action"
+                        android:layout_height="@dimen/icon_increment_action"
+                        android:background="?attr/selectableItemBackground"
+                        android:padding="@dimen/map_icon_padding"
+                        android:src="@drawable/ic_add"
+                        app:tint="@android:color/white" />
+
+                </FrameLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <TextView
+                android:id="@+id/itemDrt_selectLayout"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_round_rect_primary_dark"
+                android:clickable="false"
+                android:onClick="@{() -> viewModel.onSelect()}"
+                android:padding="@dimen/spacing_small"
+                android:text="@string/str_select"
+                android:textColor="@color/colorPrimary"
+                android:visibility="@{!viewModel.viewMode &amp; viewModel.value == 0}"
+                app:accessibilityViewFocus="@{viewModel.accessibilityFocusSelectAction}"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                tools:visibility="visible" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

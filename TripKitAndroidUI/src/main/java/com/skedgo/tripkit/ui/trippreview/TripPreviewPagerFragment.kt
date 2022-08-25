@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,10 +14,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager.widget.ViewPager
 import com.haroldadmin.cnradapter.NetworkResponse
-import com.skedgo.TripKit
-import com.skedgo.tripkit.ExternalActionParams
-import com.skedgo.tripkit.bookingproviders.BookingResolver
-import com.skedgo.tripkit.common.model.TransportMode
 import com.skedgo.tripkit.routing.*
 import com.skedgo.tripkit.ui.ARG_FROM_TRIP_ACTION
 import com.skedgo.tripkit.ui.ARG_TRIP_ID
@@ -30,6 +25,7 @@ import com.skedgo.tripkit.ui.core.addTo
 import com.skedgo.tripkit.ui.core.logError
 import com.skedgo.tripkit.ui.databinding.TripPreviewPagerBinding
 import com.skedgo.tripkit.ui.model.TimetableEntry
+import com.skedgo.tripkit.ui.payment.PaymentData
 import com.skedgo.tripkit.ui.routingresults.TripGroupRepository
 import com.skedgo.tripkit.ui.timetables.TimetableFragment
 import com.skedgo.tripkit.ui.tripresult.ARG_TRIP_GROUP_ID
@@ -63,6 +59,7 @@ class TripPreviewPagerFragment : BaseTripKitFragment() {
 
     private var previewHeadersCallback: ((List<TripPreviewHeader>) -> Unit)? = null
     private var pageIndexStream: PublishSubject<Pair<Long, String>>? = null
+    private var paymentDataStream: PublishSubject<PaymentData>? = null
 
     private var fromPageListener = false
     private var fromReload = false
@@ -71,19 +68,19 @@ class TripPreviewPagerFragment : BaseTripKitFragment() {
         super.onResume()
 
         pageIndexStream?.observeOn(AndroidSchedulers.mainThread())
-            ?.subscribeBy {
-                if (!fromPageListener) {
-                    if (::adapter.isInitialized) {
-                        val index = adapter.getSegmentPositionById(it)
-                        if (index != -1) {
-                            currentPagerIndex = index
-                            binding.tripSegmentPager.currentItem = currentPagerIndex
+                ?.subscribeBy {
+                    if (!fromPageListener) {
+                        if (::adapter.isInitialized) {
+                            val index = adapter.getSegmentPositionById(it)
+                            if (index != -1) {
+                                currentPagerIndex = index
+                                binding.tripSegmentPager.currentItem = currentPagerIndex
+                            }
                         }
+                    } else {
+                        fromPageListener = false
                     }
-                } else {
-                    fromPageListener = false
-                }
-            }?.addTo(autoDisposable)
+                }?.addTo(autoDisposable)
     }
 
     override fun onAttach(context: Context) {
@@ -95,10 +92,10 @@ class TripPreviewPagerFragment : BaseTripKitFragment() {
         super.onViewCreated(view, savedInstanceState)
         arguments?.let {
             load(
-                it.getString(ARG_TRIP_GROUP_ID, ""),
-                it.getString(ARG_TRIP_ID, ""),
-                it.getLong(ARG_TRIP_SEGMENT_ID, 0L),
-                it.getBoolean(ARG_FROM_TRIP_ACTION, false)
+                    it.getString(ARG_TRIP_GROUP_ID, ""),
+                    it.getString(ARG_TRIP_ID, ""),
+                    it.getLong(ARG_TRIP_SEGMENT_ID, 0L),
+                    it.getBoolean(ARG_FROM_TRIP_ACTION, false)
             )
         }
 
@@ -130,65 +127,65 @@ class TripPreviewPagerFragment : BaseTripKitFragment() {
 
     fun load(tripGroupId: String, tripId: String, tripSegmentId: Long, fromTripAction: Boolean) {
         tripGroupRepository.getTripGroup(tripGroupId)
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe({ tripGroup ->
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe({ tripGroup ->
 
-                /*
-                //=== For testing isHideExactTimes purpose only while API is not yet updated ===
-                tripGroup.trips?.forEach { trip ->
-                    trip.getSummarySegments().forEach { segment ->
-                        if (segment.transportModeId == TransportMode.ID_WALK) {
-                            segment.isHideExactTimes = true
+                    /*
+                    //=== For testing isHideExactTimes purpose only while API is not yet updated ===
+                    tripGroup.trips?.forEach { trip ->
+                        trip.getSummarySegments().forEach { segment ->
+                            if (segment.transportModeId == TransportMode.ID_WALK) {
+                                segment.isHideExactTimes = true
+                            }
                         }
                     }
-                }
-                // ===
-                */
-                if (fromReload) return@subscribe
+                    // ===
+                    */
+                    if (fromReload) return@subscribe
 
-                val trip = tripGroup.trips?.find { it.uuid() == tripId }
-                trip?.let {
+                    val trip = tripGroup.trips?.find { it.uuid() == tripId }
+                    trip?.let {
 
-                    val list = ArrayList<TripGroup>()
-                    list.add(tripGroup)
-                    tripPreviewPagerListener?.reportPlannedTrip(trip, list)
+                        val list = ArrayList<TripGroup>()
+                        list.add(tripGroup)
+                        tripPreviewPagerListener?.reportPlannedTrip(trip, list)
 
-                    viewModel.generatePreviewHeaders(
-                        requireContext(),
-                        it.getSummarySegments(),
-                        getTransportIconTintStrategy,
-                    )
-
-                    var activeIndex =
-                        adapter.setTripSegments(
-                            tripSegmentId,
-                            trip.segments
-                                .filter {
-                                    !it.isContinuation
-                                }
-                                .filter {
-                                    it.type != SegmentType.DEPARTURE &&
-                                            it.type != SegmentType.ARRIVAL
-                                },
-                            fromTripAction
+                        viewModel.generatePreviewHeaders(
+                                requireContext(),
+                                it.getSummarySegments(),
+                                getTransportIconTintStrategy,
                         )
-                    adapter.notifyDataSetChanged()
-                    if (currentPagerIndex != 0 && activeIndex != currentPagerIndex) {
-                        activeIndex = currentPagerIndex
+
+                        var activeIndex =
+                                adapter.setTripSegments(
+                                        tripSegmentId,
+                                        trip.segments
+                                                .filter {
+                                                    !it.isContinuation
+                                                }
+                                                .filter {
+                                                    it.type != SegmentType.DEPARTURE &&
+                                                            it.type != SegmentType.ARRIVAL
+                                                },
+                                        fromTripAction
+                                )
+                        adapter.notifyDataSetChanged()
+                        if (currentPagerIndex != 0 && activeIndex != currentPagerIndex) {
+                            activeIndex = currentPagerIndex
+                        }
+                        currentPagerIndex = activeIndex
+                        binding.tripSegmentPager.currentItem = activeIndex
                     }
-                    currentPagerIndex = activeIndex
-                    binding.tripSegmentPager.currentItem = activeIndex
-                }
-            }, {
-                it.printStackTrace()
-            })
-            .addTo(autoDisposable)
+                }, {
+                    it.printStackTrace()
+                })
+                .addTo(autoDisposable)
     }
 
     override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
+            inflater: LayoutInflater,
+            container: ViewGroup?,
+            savedInstanceState: Bundle?
     ): View? {
         binding = TripPreviewPagerBinding.inflate(inflater)
         binding.lifecycleOwner = this
@@ -201,6 +198,7 @@ class TripPreviewPagerFragment : BaseTripKitFragment() {
         adapter = TripPreviewPagerAdapter(childFragmentManager)
         adapter.onCloseButtonListener = this.onCloseButtonListener
         adapter.tripPreviewPagerListener = this.tripPreviewPagerListener
+        adapter.paymentDataStream = this.paymentDataStream
         binding.tripSegmentPager.adapter = adapter
         binding.tripSegmentPager.offscreenPageLimit = 2
         setViewPagerListeners()
@@ -265,9 +263,9 @@ class TripPreviewPagerFragment : BaseTripKitFragment() {
     private fun setViewPagerListeners() {
         binding.tripSegmentPager.addOnPageChangeListener(object : ViewPager.OnPageChangeListener {
             override fun onPageScrolled(
-                position: Int,
-                positionOffset: Float,
-                positionOffsetPixels: Int
+                    position: Int,
+                    positionOffset: Float,
+                    positionOffsetPixels: Int
             ) {
             }
 
@@ -276,7 +274,7 @@ class TripPreviewPagerFragment : BaseTripKitFragment() {
                 (selectedFragment as? BaseTripKitFragment)?.let {
                     it.onCloseButtonListener = this@TripPreviewPagerFragment.onCloseButtonListener
                     it.tripPreviewPagerListener =
-                        this@TripPreviewPagerFragment.tripPreviewPagerListener
+                            this@TripPreviewPagerFragment.tripPreviewPagerListener
                     it.refresh(position)
                 }
                 currentPagerIndex = position
@@ -310,26 +308,26 @@ class TripPreviewPagerFragment : BaseTripKitFragment() {
         tripPreviewPagerListener?.reportPlannedTrip(segment.trip, listOf(segment.trip.group))
 
         adapter.setTripSegments(
-            segment.id,
-            tripSegments
-                .filter {
-                    !it.isContinuation
-                }.filter {
-                    it.type != SegmentType.DEPARTURE && it.type != SegmentType.ARRIVAL
-                }
+                segment.id,
+                tripSegments
+                        .filter {
+                            !it.isContinuation
+                        }.filter {
+                            it.type != SegmentType.DEPARTURE && it.type != SegmentType.ARRIVAL
+                        }
         )
 
         viewModel.generatePreviewHeaders(
-            requireContext(),
-            segment.trip.getSummarySegments(),
-            getTransportIconTintStrategy,
+                requireContext(),
+                segment.trip.getSummarySegments(),
+                getTransportIconTintStrategy,
         )
 
         tripGroupRepository.updateTrip(segment.trip.group.uuid(), segment.trip.uuid(), segment.trip)
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe()
-            .addTo(autoDisposable)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe()
+                .addTo(autoDisposable)
     }
 
     fun updateTripSegment(tripSegments: List<TripSegment>) {
@@ -351,9 +349,9 @@ class TripPreviewPagerFragment : BaseTripKitFragment() {
     interface Listener {
         fun onServiceActionButtonClicked(_tripSegment: TripSegment?, action: String?)
         fun onTimetableEntryClicked(
-            segment: TripSegment?,
-            scope: CoroutineScope,
-            entry: TimetableEntry
+                segment: TripSegment?,
+                scope: CoroutineScope,
+                entry: TimetableEntry
         )
 
         fun reportPlannedTrip(trip: Trip?, tripGroups: List<TripGroup>)
@@ -372,23 +370,25 @@ class TripPreviewPagerFragment : BaseTripKitFragment() {
         const val TAG = "tripPreview"
 
         fun newInstance(
-            tripGroupId: String,
-            tripId: String,
-            tripSegmentHashCode: Long,
-            tripPreviewPagerListener: Listener,
-            fromAction: Boolean = false,
-            pageIndexStream: PublishSubject<Pair<Long, String>>? = null,
-            previewHeadersCallback: ((List<TripPreviewHeader>) -> Unit)? = null
+                tripGroupId: String,
+                tripId: String,
+                tripSegmentHashCode: Long,
+                tripPreviewPagerListener: Listener,
+                fromAction: Boolean = false,
+                pageIndexStream: PublishSubject<Pair<Long, String>>? = null,
+                paymentDataStream: PublishSubject<PaymentData>? = null,
+                previewHeadersCallback: ((List<TripPreviewHeader>) -> Unit)? = null
         ): TripPreviewPagerFragment {
             val fragment = TripPreviewPagerFragment()
             fragment.arguments = bundleOf(
-                ARG_TRIP_GROUP_ID to tripGroupId,
-                ARG_TRIP_ID to tripId,
-                ARG_TRIP_SEGMENT_ID to tripSegmentHashCode,
-                ARG_FROM_TRIP_ACTION to fromAction
+                    ARG_TRIP_GROUP_ID to tripGroupId,
+                    ARG_TRIP_ID to tripId,
+                    ARG_TRIP_SEGMENT_ID to tripSegmentHashCode,
+                    ARG_FROM_TRIP_ACTION to fromAction
             )
             fragment.tripPreviewPagerListener = tripPreviewPagerListener
             fragment.pageIndexStream = pageIndexStream
+            fragment.paymentDataStream = paymentDataStream
             fragment.previewHeadersCallback = previewHeadersCallback
             return fragment
         }

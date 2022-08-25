@@ -4,6 +4,7 @@ import androidx.lifecycle.*
 import androidx.recyclerview.widget.DiffUtil
 import com.skedgo.tripkit.booking.quickbooking.Option
 import com.skedgo.tripkit.booking.quickbooking.QuickBookingType
+import com.skedgo.tripkit.ui.payment.PaymentSummaryDetails
 import com.skedgo.tripkit.ui.utils.toIntSafe
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
@@ -148,6 +149,25 @@ class DrtItemViewModel : ViewModel() {
         val currentValue = (values.value?.firstOrNull() ?: "").toIntSafe()
         _enableIncrement.value = currentValue < maxValue
     }
+
+    @Deprecated("Will be replaced by parsing details from Review")
+    fun generateSummaryDetails(): PaymentSummaryDetails {
+
+        return PaymentSummaryDetails(
+                hashCode().toString(),
+                icon.value ?: 0,
+                getItemValueAsString() ?: ""
+        )
+    }
+
+    fun getItemValueAsString(): String? {
+        return if (type.value == QuickBookingType.MULTIPLE_CHOICE) {
+            values.value?.joinToString(",")
+        } else {
+            values.value?.firstOrNull()
+        }
+    }
+
 
     companion object {
         fun diffCallback() = object : DiffUtil.ItemCallback<DrtItemViewModel>() {

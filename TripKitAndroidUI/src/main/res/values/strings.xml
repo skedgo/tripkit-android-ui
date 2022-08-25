@@ -1,6 +1,8 @@
 <resources>
     <string name="skedgo_api_key">SKEDGO_API_KEY</string>
     <string name="google_places_api_key">GOOGLE_PLACES_API_KEY</string>
+    <string name="stripe_api_key">STRIPE_API_KEY</string>
+    <string name="stripe_api_key_sandbox">STRIPE_API_KEY_SANDBOX</string>
     <string name="stationName">Station name</string>
     <string name="no_realtime_available">No realtime available</string>
     <string name="more">More</string>
@@ -54,4 +56,10 @@
     <string name="str_minutes">minutes</string>
     <string name="pick_up_window">Pick up window</string>
     <string name="str_return_trip_voice_over">Select One-way only to decline a round trip, or select a date and time for your return trip.</string>
+    <string name="str_select">Select</string>
+    <string name="str_select_tickets">Select tickets</string>
+    <string name="lbl_total">Total</string>
+    <string name="action_continue_to_payment">Continue to Payment</string>
+    <string name="talkback_decrement">Decrement</string>
+    <string name="talkback_increment">Increment</string>
 </resources>
