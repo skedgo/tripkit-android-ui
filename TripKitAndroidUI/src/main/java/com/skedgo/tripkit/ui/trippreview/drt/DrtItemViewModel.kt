@@ -58,11 +58,20 @@ class DrtItemViewModel : ViewModel() {
     private val _enableDecrement = MutableLiveData<Boolean>(false)
     val enableDecrement: LiveData<Boolean> = _enableDecrement
 
+    private val _defaultValue = MutableLiveData<String>()
+    val defaultValue: LiveData<String> = _defaultValue
+
     private val valuesObserver = Observer<List<String>> { values ->
         if (type.value == QuickBookingType.NUMBER) {
             val currentValue = (values.firstOrNull() ?: "").toInt()
             _enableDecrement.value = currentValue > minValue
             _enableIncrement.value = currentValue < maxValue
+        }
+
+        if(_viewMode.value != true) {
+            setContentDescriptionWithAppendingLabel(
+                    "${values.joinToString(",")}, ${defaultValue.value}"
+            )
         }
     }
 
@@ -152,6 +161,10 @@ class DrtItemViewModel : ViewModel() {
         maxValue = value
         val currentValue = (values.value?.firstOrNull() ?: "").toIntSafe()
         _enableIncrement.value = currentValue < maxValue
+    }
+
+    fun setDefaultValue(value: String) {
+        _defaultValue.postValue(value)
     }
 
     @Deprecated("Will be replaced by parsing details from Review")

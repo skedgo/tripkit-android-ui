@@ -352,6 +352,7 @@ class DrtViewModel @Inject constructor(
                         setLabel(it.title)
                         setType(it.type)
                         setValue(getDefaultValue(it))
+                        setDefaultValue(getDefaultValue(it).first())
                         setRequired(it.required)
                         setItemId(it.id)
                         if (it.type == QuickBookingType.NUMBER) {
@@ -479,7 +480,7 @@ class DrtViewModel @Inject constructor(
                 values?.firstOrNull() ?: "0"
             }
             else -> {
-                "Tap Change to make selections"
+                "Tap to make selections"
             }
         }
     }
