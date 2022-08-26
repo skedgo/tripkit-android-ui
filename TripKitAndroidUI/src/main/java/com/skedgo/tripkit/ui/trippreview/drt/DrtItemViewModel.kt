@@ -46,8 +46,8 @@ class DrtItemViewModel : ViewModel() {
     private val _rawDate = MutableLiveData<String>()
     val rawDate: LiveData<String> = _rawDate
 
-    private val _contentDescription = MutableLiveData<String>()
-    val contentDescription: LiveData<String> = _contentDescription
+    private val _contentDescription = MutableLiveData<String?>()
+    val contentDescription: LiveData<String?> = _contentDescription
 
     private var minValue = 0
     private var maxValue = 0
@@ -124,8 +124,12 @@ class DrtItemViewModel : ViewModel() {
         _rawDate.value = value
     }
 
-    fun setContentDescription(value: String) {
+    fun setContentDescription(value: String?) {
         _contentDescription.value = value
+    }
+
+    fun setContentDescriptionWithAppendingLabel(value: String?) {
+        _contentDescription.value = "${_label.value}, ${value ?: ""}"
     }
 
     fun onIncrementValue() {
