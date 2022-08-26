@@ -23,6 +23,7 @@
             android:layout_height="wrap_content"
             android:contentDescription="@{viewModel.contentDescription}"
             android:importantForAccessibility="yes"
+            android:screenReaderFocusable="true"
             android:padding="@dimen/spacing_small"
             app:clickWithDebounce="@{() -> viewModel.onChange()}"
             app:layout_constraintEnd_toStartOf="@+id/itemDrt_actionLayout"
