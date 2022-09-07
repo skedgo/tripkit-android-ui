@@ -13,81 +13,97 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:importantForAccessibility="no"
         android:background="#ffffff">
 
-        <TextView
-            android:id="@+id/toLocation"
-            style="@style/TextAppearance.MaterialComponents.Headline6"
-            android:layout_width="0dp"
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/clLocations"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginEnd="@dimen/spacing_small"
-            android:textDirection="locale"
-            android:contentDescription="@{viewModel.toContentDescription}"
-            android:ellipsize="end"
-            android:singleLine="true"
-            android:text="@{viewModel.toName}"
-            app:layout_constraintEnd_toStartOf="@+id/closeButton"
+            android:layout_marginTop="@dimen/spacing_small"
+            android:focusable="true"
+            android:importantForAccessibility="yes"
+            android:contentDescription="@{viewModel.toContentDescription + viewModel.fromContentDescription}"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:text="To Location"
-            tools:textColor="@color/black" />
+            app:layout_constraintTop_toTopOf="parent">
 
-        <ImageButton
-            android:id="@+id/closeButton"
-            android:layout_width="@dimen/close_button_size"
-            android:layout_height="@dimen/close_button_size"
-            android:layout_marginEnd="16dp"
-            android:accessibilityTraversalBefore="@id/toLocation"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="@string/desc_close"
-            android:src="@drawable/close"
-            android:visibility="@{viewModel.showCloseButton}"
-            app:layout_constraintBottom_toBottomOf="@+id/toLocation"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/toLocation"
-            tools:ignore="UnusedAttribute" />
+            <TextView
+                android:id="@+id/toLocation"
+                style="@style/TextAppearance.MaterialComponents.Headline6"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="@dimen/spacing_small"
+                android:ellipsize="end"
+                android:focusable="false"
+                android:singleLine="true"
+                android:importantForAccessibility="no"
+                android:text="@{viewModel.toName}"
+                android:textDirection="locale"
+                app:layout_constraintEnd_toStartOf="@+id/closeButton"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="To Location"
+                tools:textColor="@color/black" />
 
-        <TextView
-            android:id="@+id/fromLabel"
-            style="@style/TextAppearance.MaterialComponents.Body2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/from_with_colon"
-            android:focusable="false"
-            android:importantForAccessibility="no"
-            android:textColor="@color/black1"
-            app:layout_constraintStart_toStartOf="@id/toLocation"
-            app:layout_constraintTop_toBottomOf="@+id/toLocation" />
+            <ImageButton
+                android:id="@+id/closeButton"
+                android:layout_width="@dimen/close_button_size"
+                android:layout_height="@dimen/close_button_size"
+                android:layout_marginEnd="16dp"
+                android:accessibilityTraversalBefore="@id/toLocation"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/desc_close"
+                android:src="@drawable/close"
+                android:visibility="@{viewModel.showCloseButton}"
+                app:layout_constraintBottom_toBottomOf="@+id/toLocation"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/toLocation"
+                tools:ignore="UnusedAttribute" />
 
-        <TextView
-            android:id="@+id/from"
-            style="@style/TextAppearance.MaterialComponents.Body2"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="4dp"
-            android:layout_marginEnd="@dimen/spacing_small"
-            android:contentDescription="@{viewModel.fromContentDescription}"
-            android:ellipsize="end"
-            android:singleLine="true"
-            android:text="@{viewModel.fromName}"
-            android:textColor="@color/colorPrimary"
-            android:textDirection="locale"
-            app:layout_constraintEnd_toStartOf="@+id/fromAction"
-            app:layout_constraintStart_toEndOf="@+id/fromLabel"
-            app:layout_constraintTop_toTopOf="@+id/fromLabel"
-            tools:text="Current Location" />
+            <TextView
+                android:id="@+id/fromLabel"
+                style="@style/TextAppearance.MaterialComponents.Body2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:focusable="false"
+                android:importantForAccessibility="no"
+                android:text="@string/from_with_colon"
+                android:textColor="@color/black1"
+                app:layout_constraintStart_toStartOf="@id/toLocation"
+                app:layout_constraintTop_toBottomOf="@+id/toLocation" />
 
-        <ImageView
-            android:id="@+id/fromAction"
-            android:layout_width="16dp"
-            android:layout_height="16dp"
-            android:layout_marginEnd="20dp"
-            android:tint="@color/colorPrimary"
-            app:layout_constraintBottom_toBottomOf="@id/from"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/from"
-            app:srcCompat="@drawable/chevron_right" />
+            <TextView
+                android:id="@+id/from"
+                style="@style/TextAppearance.MaterialComponents.Body2"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:layout_marginEnd="@dimen/spacing_small"
+                android:ellipsize="end"
+                android:focusable="false"
+                android:singleLine="true"
+                android:text="@{viewModel.fromName}"
+                android:textColor="@color/colorPrimary"
+                android:importantForAccessibility="no"
+                android:textDirection="locale"
+                app:layout_constraintEnd_toStartOf="@+id/fromAction"
+                app:layout_constraintStart_toEndOf="@+id/fromLabel"
+                app:layout_constraintTop_toTopOf="@+id/fromLabel"
+                tools:text="Current Location" />
+            <!--            android:contentDescription="@{viewModel.fromContentDescription}"-->
+
+            <ImageView
+                android:id="@+id/fromAction"
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:layout_marginEnd="20dp"
+                android:tint="@color/colorPrimary"
+                app:layout_constraintBottom_toBottomOf="@id/from"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/from"
+                app:srcCompat="@drawable/chevron_right" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <!-- Leave Now & Transports header -->
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -98,7 +114,7 @@
             android:background="@drawable/list_header_background"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/fromLabel">
+            app:layout_constraintTop_toBottomOf="@id/clLocations">
             <!-- Start with the Transports header to the right -->
             <LinearLayout
                 android:id="@+id/transportsLayout"
