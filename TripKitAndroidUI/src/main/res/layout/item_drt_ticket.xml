@@ -73,6 +73,7 @@
                 android:focusable="false"
                 android:text="@{viewModel.description}"
                 android:textColor="@color/black1"
+                android:visibility="@{viewModel.description.length() > 0}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/itemDrt_tvLabel"

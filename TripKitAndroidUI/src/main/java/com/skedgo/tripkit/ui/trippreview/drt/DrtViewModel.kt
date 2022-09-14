@@ -20,6 +20,8 @@ import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.booking.apiv2.BookingV2TrackingService
 import com.skedgo.tripkit.ui.core.RxViewModel
 import com.skedgo.tripkit.ui.core.logError
+import com.skedgo.tripkit.ui.interactor.TripKitEvent
+import com.skedgo.tripkit.ui.interactor.TripKitEventBus
 import com.skedgo.tripkit.ui.utils.getDisplayDateFormatter
 import com.skedgo.tripkit.ui.utils.getDisplayTimeFormatter
 import com.skedgo.tripkit.ui.utils.getISODateFormatter
@@ -141,6 +143,12 @@ class DrtViewModel @Inject constructor(
 
     private val bookingConfirmationObserver = Observer<BookingConfirmation> {
         it?.let {
+            TripKitEventBus.publish(
+                TripKitEvent.OnToggleDrtFooterVisibility(
+                    it.status()?.value() != null
+                )
+            )
+
             val result = mutableListOf<DrtItemViewModel>()
             it.input().forEach { input ->
                 if ((!input.value().isNullOrEmpty() && input.value() != getDefaultValueByType(input.type(), input.title())) ||
