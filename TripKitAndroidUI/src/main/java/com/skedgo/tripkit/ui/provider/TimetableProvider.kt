@@ -23,7 +23,6 @@ class TimetableProvider : ContentProvider() {
 
   lateinit var scheduledServiceRealtimeInfoDao: ScheduledServiceRealtimeInfoDao
 
-
   override fun onCreate(): Boolean {
     val db = TripKitDatabase.getInstance(context!!)
     mDbHelper = DbHelper(context!!, "tripkit-legacy.db", DatabaseMigrator(db))

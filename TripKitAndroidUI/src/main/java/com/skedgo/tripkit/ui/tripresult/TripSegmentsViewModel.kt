@@ -31,7 +31,6 @@ import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButtonHandler
 import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButtonHandlerFactory
 import com.skedgo.tripkit.ui.utils.TripSegmentActionProcessor
 import com.squareup.otto.Bus
-import com.technologies.wikiwayfinder.core.data.Point
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
 import io.reactivex.subjects.PublishSubject
@@ -84,8 +83,8 @@ class TripSegmentsViewModel @Inject internal constructor(
     private var actionButtonHandler: ActionButtonHandler? = null
     private var trip: Trip? = null
 
-    private val _showWikiwayFinder = MutableLiveData<List<Point>>()
-    val showWikiwayFinder: LiveData<List<Point>> = _showWikiwayFinder
+//    private val _showWikiwayFinder = MutableLiveData<List<Point>>()
+//    val showWikiwayFinder: LiveData<List<Point>> = _showWikiwayFinder
 
     val tripGroupObservable: Observable<TripGroup>
         get() = tripGroupRelay.hide()
@@ -115,9 +114,9 @@ class TripSegmentsViewModel @Inject internal constructor(
     init {
     }
 
-    fun setShowWikiwayFinder(value: List<Point>) {
-        _showWikiwayFinder.value = value
-    }
+//    fun setShowWikiwayFinder(value: List<Point>) {
+//        _showWikiwayFinder.value = value
+//    }
 
     fun setActionButtonHandlerFactory(actionButtonHandlerFactory: ActionButtonHandlerFactory?) {
         actionButtonHandler = actionButtonHandlerFactory?.createHandler(this)
@@ -180,9 +179,9 @@ class TripSegmentsViewModel @Inject internal constructor(
         if (trip == null || trip.from == null || trip.to == null) return
         if (trip.isDepartureTimeFixed) {
             durationTitle.set("${printTime.print(trip.startDateTime)} - ${printTime.print(trip.endDateTime)}")
-            arriveAtTitle.set(formatDuration(trip.startTimeInSecs, trip.endTimeInSecs))
+            arriveAtTitle.set(formatDuration(context, trip.startTimeInSecs, trip.endTimeInSecs))
         } else {
-            durationTitle.set(formatDuration(trip.startTimeInSecs, trip.endTimeInSecs))
+            durationTitle.set(formatDuration(context, trip.startTimeInSecs, trip.endTimeInSecs))
             if (!trip.queryIsLeaveAfter()) {
                 arriveAtTitle.set(context.resources.getString(R.string.departs__pattern, printTime.print(trip.startDateTime)).capitalize())
             } else {
@@ -192,12 +191,12 @@ class TripSegmentsViewModel @Inject internal constructor(
 
         isHideExactTimes.set(trip.isHideExactTimes || trip.segments.any { it.isHideExactTimes })
     }
-
     // TODO This function is duplicated in TripResultViewModel
     /**
      * For example, 1hr 50mins
      */
-    private fun formatDuration(startTimeInSecs: Long, endTimeInSecs: Long): String = TimeUtils.getDurationInDaysHoursMins((endTimeInSecs - startTimeInSecs).toInt())
+    private fun formatDuration(context: Context, startTimeInSecs: Long, endTimeInSecs: Long): String = TimeUtils.getDurationInDaysHoursMins(context,(endTimeInSecs - startTimeInSecs).toInt())
+
 
     fun findSegmentPosition(tripSegment: TripSegment): Int {
         for (i in segmentViewModels.indices) {
@@ -395,7 +394,7 @@ class TripSegmentsViewModel @Inject internal constructor(
 
         viewModel.setupSegment(viewType = TripSegmentItemViewModel.SegmentViewType.MOVING,
                 title = processedText(tripSegment, tripSegment.action),
-                description = tripSegment.getDisplayNotes(context.resources, false),
+                description = tripSegment.getDisplayNotes(context, false),
                 lineColor = tripSegment.lineColor())
     }
 
@@ -422,11 +421,11 @@ class TripSegmentsViewModel @Inject internal constructor(
 
                 viewModel.onClick.observable.subscribe {
                     it.tripSegment?.let { segment ->
-                        if (it.wikiWayFinderRoutes.value?.isNotEmpty() == true) {
-                            _showWikiwayFinder.value = it.wikiWayFinderRoutes.value
-                        } else {
+//                        if (it.wikiWayFinderRoutes.value?.isNotEmpty() == true) {
+//                            _showWikiwayFinder.value = it.wikiWayFinderRoutes.value
+//                        } else {
                             segmentClicked.accept(segment)
-                        }
+//                        }
                     }
                 }.autoClear()
                 viewModel.tripSegment = segment
@@ -459,7 +458,7 @@ class TripSegmentsViewModel @Inject internal constructor(
 
                     if (previousSummarySegment?.transportModeId == TransportMode.ID_PUBLIC_TRANSPORT &&
                             nextSummarySegment?.transportModeId == TransportMode.ID_PUBLIC_TRANSPORT) {
-                        viewModel.setWayWikiSegments(previousSummarySegment, nextSummarySegment)
+//                        viewModel.setWayWikiSegments(previousSummarySegment, nextSummarySegment)
                     }
                 }
 
@@ -474,11 +473,11 @@ class TripSegmentsViewModel @Inject internal constructor(
                         addMovingItem(bridgeModel, segment)
                         bridgeModel.onClick.observable.subscribe {
                             it.tripSegment?.let { segment ->
-                                if (it.wikiWayFinderRoutes.value?.isNotEmpty() == true) {
-                                    _showWikiwayFinder.value = it.wikiWayFinderRoutes.value
-                                } else {
+//                                if (it.wikiWayFinderRoutes.value?.isNotEmpty() == true) {
+//                                    _showWikiwayFinder.value = it.wikiWayFinderRoutes.value
+//                                } else {
                                     segmentClicked.accept(segment)
-                                }
+//                                }
                             }
                         }.autoClear()
                         segmentViewModels.add(bridgeModel)

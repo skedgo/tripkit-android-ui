@@ -1,5 +1,6 @@
 package com.skedgo.tripkit.ui.map
 
+import android.annotation.SuppressLint
 import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.drawable.BitmapDrawable
@@ -19,6 +20,7 @@ class SegmentMarkerIconMaker @Inject internal constructor(
         private val getTransportIconTintStrategy: GetTransportIconTintStrategy
 ) {
 
+    @SuppressLint("CheckResult")
     fun make(segment: TripSegment, remoteSegmentMarkerIcon: BitmapDrawable? = null): Pair<Bitmap, Float> {
         val hasBearing = segment.type !== SegmentType.DEPARTURE && segment.type !== SegmentType.ARRIVAL
         val hasBearingVehicleIcon = segment.mode == VehicleMode.WALK

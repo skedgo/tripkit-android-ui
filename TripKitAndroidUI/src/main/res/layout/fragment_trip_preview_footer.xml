@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="viewModel"
+            type="com.skedgo.tripkit.ui.trippreview.TripPreviewTicketViewModel" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_round_bottom_rect_white"
+        android:importantForAccessibility="yes"
+        android:focusable="true"
+        android:screenReaderFocusable="true"
+        android:visibility="@{viewModel.showView}"
+        android:paddingHorizontal="@dimen/spacing_small"
+        android:paddingTop="@dimen/spacing_small"
+        android:paddingBottom="@dimen/spacing_small">
+
+        <TextView
+            android:id="@+id/footer_tv_numberTickets"
+            style="@style/TextAppearance.MaterialComponents.Body1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/spacing_small"
+            android:focusable="false"
+            android:text="@{viewModel.labelTicketQuantity}"
+            android:textColor="@color/black1"
+            app:layout_constraintEnd_toStartOf="@id/footer_btn_continue"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="Subtitle" />
+
+        <TextView
+            android:id="@+id/footer_tv_totalTickets"
+            style="@style/TextAppearance.MaterialComponents.Headline6"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/spacing_small"
+            android:focusable="false"
+            android:text="@{viewModel.labelTicketTotal}"
+            android:textColor="@color/black"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/footer_btn_continue"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/footer_tv_numberTickets"
+            tools:text="Subtitle" />
+
+        <Button
+            android:id="@+id/footer_btn_continue"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/spacing_small"
+            android:layout_marginEnd="@dimen/spacing_small"
+            android:background="@drawable/bg_button_primary"
+            android:enabled="@{viewModel.showView}"
+            android:importantForAccessibility="yes"
+            android:paddingStart="@dimen/spacing_normal"
+            android:paddingEnd="@dimen/spacing_normal"
+            android:text="@string/continue_"
+            android:textColor="@android:color/white"
+            app:clickWithDebounce="@{() -> viewModel.onContinue()}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

@@ -18,9 +18,10 @@ interface TripResultTransportViewFilter {
 
 const val PREF_KEY_IS_DEFAULT_CONFIG_SET = "pref_key_is_set_default_config"
 
-class PrefsBasedTransportViewFilter(context: Context) : TripResultTransportViewFilter {
+class PrefsBasedTransportViewFilter(val context: Context) : TripResultTransportViewFilter {
 
-    val prefs: SharedPreferences = context.getSharedPreferences("TransportPreferences", Context.MODE_PRIVATE)
+    val prefs: SharedPreferences =
+        context.getSharedPreferences("TransportPreferences", Context.MODE_PRIVATE)
 
 
     init {
@@ -64,7 +65,7 @@ class PrefsBasedTransportViewFilter(context: Context) : TripResultTransportViewF
     }
 }
 
-class PermissiveTransportViewFilter() : TripResultTransportViewFilter {
+class PermissiveTransportViewFilter : TripResultTransportViewFilter {
     var showWalking = true;
 
     override fun isSelected(mode: String): Boolean {

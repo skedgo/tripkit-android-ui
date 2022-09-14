@@ -118,4 +118,11 @@
     <string name="access_to_location_services_required_dot">位置情報サービスへのアクセスが必要です</string>
     <!-- Walkthrough -->
     <string name="tap_public_transport_stops_for_access_to_timetable">時刻表にアクセスするには、公共交通機関の停留所をタップします</string>
+    <string name="str_mins">分</string>
+    <string name="lbl_search_for_destination">目的地を検索</string>
+    <string name="lbl_pickup">乗車</string>
+    <string name="lbl_drop_off">降車</string>
+    <string name="managing_your_shared_data">共有データの管理</string>
+    <string name="read_to_learn_more_about_each_data_you_shared_comma_such_as_how_to_turn_sharing_on_or_off_later_dot_data_will_be_used_according_to_tripgo_quote_s_privacy_policy_dot">共有した各データの詳細については、後で共有をオンまたはオフにする方法などをご覧ください。 データは %1$s\の &lt;a href="%2$s"&gt;プライバシーポリシー&lt;/a&gt;に従って使用されます</string>
+    <string name="i_want_to_delete_my_account">アカウントを削除したい</string>
 </resources>

@@ -21,7 +21,7 @@ import com.skedgo.tripkit.ui.utils.isTalkBackOn
  * that's using databinding
  * Sample usage SampleFragment<FragmentSampleBinding>
  */
-abstract class BaseFragment<V : ViewDataBinding> : BaseTripKitFragment() {
+abstract class BaseFragment<V : ViewDataBinding> : BaseTripKitPagerFragment() {
 
     protected val gson = Gson()
 
@@ -66,11 +66,13 @@ abstract class BaseFragment<V : ViewDataBinding> : BaseTripKitFragment() {
         }
 
         if (observeAccessibility) {
-            context?.getAccessibilityManager()?.let {
-                it.addAccessibilityStateChangeListener {
-                    focusAccessibilityDefaultView(true)
+            try {
+                context?.getAccessibilityManager()?.let {
+                    it.addAccessibilityStateChangeListener {
+                        focusAccessibilityDefaultView(true)
+                    }
                 }
-            }
+            } catch (e: Exception) {}
         }
     }
 
@@ -80,15 +82,22 @@ abstract class BaseFragment<V : ViewDataBinding> : BaseTripKitFragment() {
     }
 
     protected fun focusAccessibilityDefaultView(withDelay: Boolean) {
-        Handler().postDelayed({
-            if (context?.isTalkBackOn() == true) {
-                getDefaultViewForAccessibility()?.apply {
-                    performAccessibilityAction(AccessibilityNodeInfo.ACTION_ACCESSIBILITY_FOCUS, null)
-                    sendAccessibilityEvent(AccessibilityEvent.TYPE_VIEW_FOCUSED)
+        try {
+            Handler().postDelayed({
+                try {
+                    if (context?.isTalkBackOn() == true) {
+                        getDefaultViewForAccessibility()?.apply {
+                            performAccessibilityAction(
+                                AccessibilityNodeInfo.ACTION_ACCESSIBILITY_FOCUS,
+                                null
+                            )
+                            sendAccessibilityEvent(AccessibilityEvent.TYPE_VIEW_FOCUSED)
+                        }
+                    }
+                } catch (e: Exception) {
                 }
-            }
-        }, if (withDelay) 500 else 0)
-
+            }, if (withDelay) 500 else 0)
+        } catch (e: Exception) {}
     }
 
 }

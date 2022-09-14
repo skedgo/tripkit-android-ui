@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <plurals name="number_of_stops">
+        <item quantity="one">%d ストップ</item>
+        <item quantity="other">%d 停止</item>
+    </plurals>
+    <plurals name="number_of_alerts">
+        <item quantity="one">%d 件の通知</item>
+        <item quantity="other">%d 通知</item>
+    </plurals>
+</resources>

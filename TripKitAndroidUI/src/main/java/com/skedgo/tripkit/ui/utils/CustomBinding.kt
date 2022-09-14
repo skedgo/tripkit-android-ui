@@ -2,8 +2,11 @@ package com.skedgo.tripkit.ui.utils
 
 import android.content.res.Resources
 import android.graphics.drawable.Drawable
+import android.os.Handler
+import android.os.Looper
 import android.os.SystemClock
 import android.view.View
+import android.view.accessibility.AccessibilityEvent
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.annotation.ColorInt
@@ -19,6 +22,15 @@ fun setIcon(view: ImageView, iconResource: Int) {
         ContextCompat.getDrawable(view.context, iconResource)?.let {
             view.setImageDrawable(it)
         }
+    } catch (e: Exception) {
+        e.printStackTrace()
+    }
+}
+
+@BindingAdapter("android:src")
+fun setIconDrawable(view: ImageView, drawable: Drawable?) {
+    try {
+        view.setImageDrawable(drawable)
     } catch (e: Exception) {
         e.printStackTrace()
     }
@@ -113,4 +125,21 @@ fun setAddRtlSupport(view: View, addRtlSupport: Boolean) {
             setMirrorImage(view, isRightToLeft)
         }
     }
+}
+
+@BindingAdapter("backgroundDrawable")
+fun setBackgroundDrawable(view: View, drawable: Drawable?) {
+    drawable?.let {
+        view.background = it
+    }
+}
+
+@BindingAdapter("accessibilityViewFocus")
+fun focusViewForAccessibility(view: View, focus: Boolean) {
+    if (focus) {
+        view.postDelayed({
+            view.sendAccessibilityEvent(AccessibilityEvent.TYPE_VIEW_FOCUSED)
+        }, 500)
+    }
+
 }

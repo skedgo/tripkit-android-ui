@@ -7,6 +7,7 @@ import androidx.fragment.app.FragmentStatePagerAdapter
 import com.skedgo.tripkit.common.model.ScheduledStop
 import com.skedgo.tripkit.common.model.StopType
 import com.skedgo.tripkit.routing.TripSegment
+import com.skedgo.tripkit.ui.payment.PaymentData
 import com.skedgo.tripkit.ui.timetables.TimetableFragment
 import com.skedgo.tripkit.ui.trippreview.standard.StandardTripPreviewItemFragment
 import com.skedgo.tripkit.ui.trippreview.directions.DirectionsTripPreviewItemFragment
@@ -28,6 +29,7 @@ class TripPreviewPagerAdapter(fragmentManager: FragmentManager)
     var pages = mutableListOf<TripPreviewPagerAdapterItem>()
     var onCloseButtonListener: View.OnClickListener? = null
     var tripPreviewPagerListener: TripPreviewPagerFragment.Listener? = null
+    var paymentDataStream: PublishSubject<PaymentData>? = null
 
     //To emit booking actions updates to TimetableFragment instead of getting and using the fragments instance
     var segmentActionStream = PublishSubject.create<TripSegment>()
@@ -44,6 +46,8 @@ class TripPreviewPagerAdapter(fragmentManager: FragmentManager)
      * from previous implementation) can be injected and be used in TripPreviewPagerFragment.
      */
     internal var externalActionCallback: ((TripSegment?, Action?) -> Unit)? = null
+
+    internal var bottomSheetDragToggleCallback: ((Boolean) -> Unit)? = null
 
     override fun getItem(position: Int): Fragment {
         val page = pages[position]
@@ -98,17 +102,29 @@ class TripPreviewPagerAdapter(fragmentManager: FragmentManager)
                 timetableFragment.onPreviousPage = {
                     onSwipePage.invoke(false)
                 }
+                bookingActions = page.tripSegment.booking?.externalActions
                 timetableFragment
             }
             ITEM_QUICK_BOOKING -> {
-                DrtFragment.newInstance(page.tripSegment) { segment ->
+                DrtFragment.newInstance(
+                        page.tripSegment,
+                        paymentDataStream
+                ) { segment ->
                     pages.firstOrNull { it.tripSegment.id == segment.id }?.tripSegment = segment
+                }.apply {
+                    //bottomSheetDragToggleCallback = this@TripPreviewPagerAdapter.bottomSheetDragToggleCallback
+                    onNextPage = {
+                        onSwipePage.invoke(true)
+                    }
+                    onPreviousPage = {
+                        onSwipePage.invoke(false)
+                    }
                 }
             }
             else -> StandardTripPreviewItemFragment.newInstance(page.tripSegment)
         }
-        fragment.onCloseButtonListener = onCloseButtonListener
         fragment.tripPreviewPagerListener = tripPreviewPagerListener
+        fragment.onCloseButtonListener = onCloseButtonListener
         return fragment
     }
 

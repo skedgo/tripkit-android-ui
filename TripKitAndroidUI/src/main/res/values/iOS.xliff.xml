@@ -777,9 +777,9 @@ We aggregate the anonymised data and provide it to researchers, regulators, and 
 	<!--This is a message displayed in an error alert. The error happens during a bundle/plan look up by an identifier.-->
 	<string name="plan_with_the_specified_id_cannot_be_found">Plan with the specified ID cannot be found</string>
 	<!--Alert message when users attempt to change their plans in the next month.-->
-	<string name="please_confirm_the_request_to_change_plan_dot_the_new_plan_will_become_effective_on_the_first_day_of_next_month_dot">Please confirm the request to change plan. The new plan will become effective on the first day of next month.</string>
+	<string name="please_confirm_the_request_to_change_plan_dot_the_new_plan_will_become_effective_on_the_first_day_of_next_month_dot">Please confirm the request to change plan. The new plan will become effective when your current plan expires.</string>
 	<!--Alert message when users attempt to unscribe from their upcoming plans-->
-	<string name="please_confirm_unsubscribing_from_this_plan_dot_you_will_remain_on_the_current_plan_in_the_next_month">Please confirm unsubscribing from this plan. You will remain on the current plan in the next month</string>
+	<string name="please_confirm_unsubscribing_from_this_plan_dot_you_will_remain_on_the_current_plan_in_the_next_month">Please confirm unsubscribing from this plan. You will remain on the current plan until it expires.</string>
 	<!--Recovery suggestion when TripGo cannot access its local files-->
 	<string name="please_delete_the_app_and_re_minusinstall_from_the_app_store_dot_sorry_for_the_inconvenience_exclam">Please delete the app and re-install from the App Store. Sorry for the inconvenience!</string>
 	<!--Recovery suggestion when an app restart is required, e.g., when the database got corrupted and/or the app can't access its local files.-->
@@ -1392,7 +1392,8 @@ Note, your iCloud data will not be deleted by this, but you can delete this in t
 	<string name="next_billing_cycle">Next Billing Cycle</string>
 	<string name="pick_a_subscription">Pick a subscription</string>
 	<string name="str_plan_status">Pass Status</string>
-	<string name="renew_plan">Renew pass for next month</string>
+	<string name="renew_plan">Renew plan</string>
+	<string name="renew_plan_for_next">Renew pass for next %s</string>
 	<string name="format_discount">Take %s</string>
 	<string name="this_is_your_current_plan">This is your current pass</string>
 	<string name="unlimited">Unlimited</string>
@@ -1461,5 +1462,23 @@ Note, your iCloud data will not be deleted by this, but you can delete this in t
 		<item quantity="one">%d day</item>
 		<item quantity="other">%d days</item>
 	</plurals>
+
+	<string name="choose_on_map">Choose on Map</string>
+	<string name="sign_in_to_continue">Sign in</string>
+	<string name="subscriber_only">Your %s account opens the door to more exciting features.</string>
+	<string name="choose_location">Choose location</string>
+	<string name="favorites">Favorites</string>
+	<string name="add_home">Add Home</string>
+	<string name="add_work">Add Work</string>
+	<string name="see_all">See All</string>
+	<string name="from_with_colon">From:</string>
+	<string name="sign_in_to_your_account">Sign in to your %s account</string>
+
+	<string name="edit_your_flavor_account">Edit your %s account</string>
+	<string name="click_to_change_profile_picture">Click to change your profile picture</string>
+	<string name="tap_to">Tap to %s</string>
+	<string name="tap_to_add_notes">Tap to add notes</string>
+	<string name="tap_change_to_make_selection">Tap to make selections</string>
+	<string name="payments">Payments</string>
 </resources>
 	<!-- This is an auto generated file (Mon Jan 20 14:50:01 CET 2020) -->

@@ -165,8 +165,8 @@ class TripResultViewModel @Inject constructor(private val context: Context,
         val newVm = TripResultTripViewModel()
         newVm.trip = trip
         newVm.clickFlow = clickFlow
-        newVm.title.set(buildTitle(trip))
-        newVm.subtitle.set(buildSubtitle(trip))
+        newVm.title.set(buildTitle(context, trip))
+        newVm.subtitle.set(buildSubtitle(context, trip))
         newVm.contentDescription.set(buildContentDescription(trip))
         newVm.isMissedPreBooking.set(trip.segments?.first()?.availability.equals(Availability.MissedPrebookingWindow.value))
         newVm.isHideExactTimes.set(trip.isHideExactTimes || trip.segments.any { it.isHideExactTimes })
@@ -192,10 +192,10 @@ class TripResultViewModel @Inject constructor(private val context: Context,
             if (it.modeInfo != null) {
                 contentDescBuilder.append(it.modeInfo?.alternativeText).append(" ")
                 contentDescBuilder.append(it.modeInfo?.description).append(" ")
-                contentDescBuilder.append("for ").append(buildTitle(trip).replace(context.getString(R.string.str_mins), context.getString(R.string.str_minutes))).append(". ")
+                contentDescBuilder.append("for ").append(buildTitle(context, trip).replace(context.getString(R.string.str_mins), context.getString(R.string.str_minutes))).append(". ")
             }
             if (it == trip.segments.last()) {
-                contentDescBuilder.append(buildSubtitle(trip))
+                contentDescBuilder.append(buildSubtitle(context, trip))
             }
         }
         return contentDescBuilder.toString()
@@ -235,11 +235,11 @@ class TripResultViewModel @Inject constructor(private val context: Context,
     }
 
 
-    private fun buildTitle(_trip: Trip): String {
+    private fun buildTitle(context: Context, _trip: Trip): String {
         return if (_trip.isDepartureTimeFixed) {
             showTimeRange(_trip.startDateTime, _trip.endDateTime)
         } else {
-            formatDuration(_trip.startTimeInSecs, _trip.endTimeInSecs)
+            formatDuration(context, _trip.startTimeInSecs, _trip.endTimeInSecs)
         }
     }
 
@@ -253,11 +253,11 @@ class TripResultViewModel @Inject constructor(private val context: Context,
     /**
      * For example, 1hr 50mins
      */
-    private fun formatDuration(startTimeInSecs: Long, endTimeInSecs: Long): String = TimeUtils.getDurationInDaysHoursMins((endTimeInSecs - startTimeInSecs).toInt())
+    private fun formatDuration(context: Context, startTimeInSecs: Long, endTimeInSecs: Long): String = TimeUtils.getDurationInDaysHoursMins(context, (endTimeInSecs - startTimeInSecs).toInt())
 
-    private fun buildSubtitle(_trip: Trip): String {
+    private fun buildSubtitle(context: Context, _trip: Trip): String {
         return if (_trip.isDepartureTimeFixed) {
-            formatDuration(_trip.startTimeInSecs, _trip.endTimeInSecs)
+            formatDuration(context, _trip.startTimeInSecs, _trip.endTimeInSecs)
         } else if (!_trip.queryIsLeaveAfter()) {
             resources.getString(R.string.departs__pattern, printTime.printLocalTime(_trip.startDateTime.toLocalTime()))
         } else {

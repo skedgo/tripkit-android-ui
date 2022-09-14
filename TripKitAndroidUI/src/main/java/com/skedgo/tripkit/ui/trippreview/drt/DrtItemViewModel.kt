@@ -1,12 +1,11 @@
 package com.skedgo.tripkit.ui.trippreview.drt
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
 import androidx.recyclerview.widget.DiffUtil
 import com.skedgo.tripkit.booking.quickbooking.Option
 import com.skedgo.tripkit.booking.quickbooking.QuickBookingType
+import com.skedgo.tripkit.ui.payment.PaymentSummaryDetails
+import com.skedgo.tripkit.ui.utils.toIntSafe
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 
@@ -47,8 +46,39 @@ class DrtItemViewModel : ViewModel() {
     private val _rawDate = MutableLiveData<String>()
     val rawDate: LiveData<String> = _rawDate
 
-    private val _contentDescription = MutableLiveData<String>()
-    val contentDescription: LiveData<String> = _contentDescription
+    private val _contentDescription = MutableLiveData<String?>()
+    val contentDescription: LiveData<String?> = _contentDescription
+
+    private var minValue = 0
+    private var maxValue = 0
+
+    private val _enableIncrement = MutableLiveData<Boolean>(true)
+    val enableIncrement: LiveData<Boolean> = _enableIncrement
+
+    private val _enableDecrement = MutableLiveData<Boolean>(false)
+    val enableDecrement: LiveData<Boolean> = _enableDecrement
+
+    private val _defaultValue = MutableLiveData<String>()
+    val defaultValue: LiveData<String> = _defaultValue
+
+    private val valuesObserver = Observer<List<String>> { values ->
+        if (type.value == QuickBookingType.NUMBER) {
+            val currentValue = (values.firstOrNull() ?: "").toInt()
+            _enableDecrement.value = currentValue > minValue
+            _enableIncrement.value = currentValue < maxValue
+        }
+
+        if(_viewMode.value != true) {
+            setContentDescriptionWithAppendingLabel(
+                    "${values.joinToString(",")}, ${defaultValue.value}"
+            )
+        }
+    }
+
+    init {
+        values.observeForever(valuesObserver)
+    }
+
 
     fun setIcon(value: Int) {
         _icon.value = value
@@ -103,9 +133,58 @@ class DrtItemViewModel : ViewModel() {
         _rawDate.value = value
     }
 
-    fun setContentDescription(value: String) {
+    fun setContentDescription(value: String?) {
         _contentDescription.value = value
     }
+
+    fun setContentDescriptionWithAppendingLabel(value: String?) {
+        _contentDescription.value = "${_label.value}, ${value ?: ""}"
+    }
+
+    fun onIncrementValue() {
+        val currentValue = (values.value?.firstOrNull() ?: "").toIntSafe()
+        _values.value = listOf((currentValue + 1).toString())
+    }
+
+    fun onDecrementValue() {
+        val currentValue = (values.value?.firstOrNull() ?: "").toIntSafe()
+        _values.value = listOf((currentValue - 1).toString())
+    }
+
+    fun setMinValue(value: Int) {
+        minValue = value
+        val currentValue = (values.value?.firstOrNull() ?: "").toIntSafe()
+        _enableDecrement.value = currentValue > minValue
+    }
+
+    fun setMaxValue(value: Int) {
+        maxValue = value
+        val currentValue = (values.value?.firstOrNull() ?: "").toIntSafe()
+        _enableIncrement.value = currentValue < maxValue
+    }
+
+    fun setDefaultValue(value: String) {
+        _defaultValue.postValue(value)
+    }
+
+    @Deprecated("Will be replaced by parsing details from Review")
+    fun generateSummaryDetails(): PaymentSummaryDetails {
+
+        return PaymentSummaryDetails(
+                hashCode().toString(),
+                icon.value ?: 0,
+                getItemValueAsString() ?: ""
+        )
+    }
+
+    fun getItemValueAsString(): String? {
+        return if (type.value == QuickBookingType.MULTIPLE_CHOICE) {
+            values.value?.joinToString(",")
+        } else {
+            values.value?.firstOrNull()
+        }
+    }
+
 
     companion object {
         fun diffCallback() = object : DiffUtil.ItemCallback<DrtItemViewModel>() {

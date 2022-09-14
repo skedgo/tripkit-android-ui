@@ -18,7 +18,13 @@
             type="com.skedgo.tripkit.ui.trippreview.drt.DrtViewModel" />
     </data>
 
+    <!--    <androidx.coordinatorlayout.widget.CoordinatorLayout-->
+    <!--        android:layout_width="match_parent"-->
+    <!--        android:layout_height="match_parent"-->
+    <!--        tools:context=".trippreview.drt.DRTFragment">-->
+
     <androidx.core.widget.NestedScrollView
+        android:id="@+id/drt_nsv"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:clickable="false"
@@ -27,8 +33,9 @@
         android:focusableInTouchMode="false"
         android:importantForAccessibility="no"
         android:overScrollMode="never"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        tools:context=".trippreview.drt.DRTFragment">
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+        <!--            tools:context=".trippreview.drt.DRTFragment"-->
+
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -36,6 +43,7 @@
             android:focusable="false"
             android:focusableInTouchMode="false"
             android:importantForAccessibility="no"
+            android:nestedScrollingEnabled="true"
             android:paddingBottom="200dp">
 
             <ImageButton
@@ -206,7 +214,7 @@
                     tools:text="Near Scott Street" />
 
                 <TextView
-                    android:id="@+id/drt_RequestedPickUp"
+                    android:id="@+id/drt_tvRequestedPickUp"
                     style="@style/TextAppearance.MaterialComponents.Body2"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -231,7 +239,7 @@
                     android:focusable="false"
                     android:src="@drawable/small_circle"
                     app:layout_constraintStart_toStartOf="@+id/drt_tvSchedule"
-                    app:layout_constraintTop_toBottomOf="@+id/drt_RequestedPickUp"
+                    app:layout_constraintTop_toBottomOf="@+id/drt_tvRequestedPickUp"
                     app:tint="@color/colorPrimary" />
 
                 <TextView
@@ -263,7 +271,7 @@
                     tools:text="Near Scott Street" />
 
                 <TextView
-                    android:id="@+id/drt_RequestedDropOff"
+                    android:id="@+id/drt_tvRequestedDropOff"
                     style="@style/TextAppearance.MaterialComponents.Body2"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -291,6 +299,35 @@
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
+            <TextView
+                android:id="@+id/drt_tv_selectTickets"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/spacing_small"
+                android:layout_marginTop="@dimen/spacing_normal"
+                android:layout_marginEnd="@dimen/spacing_small"
+                android:text="@string/str_select_tickets"
+                android:textStyle="bold"
+                android:visibility="@{viewModel.tickets.size() > 0}"
+                app:layout_constraintTop_toBottomOf="@+id/drt_br_dataList" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/drt_rvTickets"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/spacing_small"
+                android:layout_marginTop="@dimen/spacing_small"
+                android:layout_marginEnd="@dimen/spacing_small"
+                android:importantForAccessibility="no"
+                android:nestedScrollingEnabled="false"
+                android:nextFocusDown="@id/drt_bBook"
+                app:itemBinding="@{viewModel.ticketBinding}"
+                app:items="@{viewModel.tickets}"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                app:layout_constraintTop_toBottomOf="@+id/drt_tv_selectTickets"
+                tools:itemCount="3"
+                tools:listitem="@layout/item_drt_ticket" />
+
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/drt_rvData"
                 android:layout_width="match_parent"
@@ -304,7 +341,7 @@
                 app:itemBinding="@{viewModel.itemBinding}"
                 app:items="@{viewModel.items}"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                app:layout_constraintTop_toBottomOf="@+id/drt_br_dataList"
+                app:layout_constraintTop_toBottomOf="@+id/drt_rvTickets"
                 tools:itemCount="3"
                 tools:listitem="@layout/item_drt" />
 
@@ -321,7 +358,7 @@
                 android:importantForAccessibility="yes"
                 android:text="@string/book"
                 android:textColor="@android:color/white"
-                android:visibility="@{viewModel.bookingConfirmation == null}"
+                android:visibility="@{viewModel.bookingConfirmation == null &amp; viewModel.tickets.size() == 0}"
                 app:clickWithDebounce="@{() -> handler.onBook()}"
                 app:layout_constraintTop_toBottomOf="@+id/drt_rvData" />
 
@@ -333,7 +370,7 @@
                 android:layout_marginTop="@dimen/spacing_small"
                 android:layout_marginEnd="@dimen/spacing_small"
                 android:importantForAccessibility="yes"
-                android:nestedScrollingEnabled="true"
+                android:nestedScrollingEnabled="false"
                 android:visibility="@{viewModel.bookingConfirmation != null}"
                 app:layout_constraintTop_toBottomOf="@+id/drt_rvData"
                 app:spanCount="2"
@@ -411,6 +448,15 @@
                 app:barrierDirection="bottom"
                 app:constraint_referenced_ids="drt_clSchedule, drt_cl_progressHeader" />
 
+            <androidx.constraintlayout.widget.Barrier
+                android:id="@+id/drt_br_actions"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:elevation="0dp"
+                app:barrierDirection="bottom"
+                app:constraint_referenced_ids="drt_bBook, drt_rv_actions" />
+
             <ProgressBar
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -425,7 +471,8 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="200dp"
-                app:layout_constraintBottom_toBottomOf="parent" />
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/drt_br_actions" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

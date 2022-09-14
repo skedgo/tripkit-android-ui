@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,10 +14,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager.widget.ViewPager
 import com.haroldadmin.cnradapter.NetworkResponse
-import com.skedgo.TripKit
-import com.skedgo.tripkit.ExternalActionParams
-import com.skedgo.tripkit.bookingproviders.BookingResolver
-import com.skedgo.tripkit.common.model.TransportMode
 import com.skedgo.tripkit.routing.*
 import com.skedgo.tripkit.ui.ARG_FROM_TRIP_ACTION
 import com.skedgo.tripkit.ui.ARG_TRIP_ID
@@ -30,6 +25,7 @@ import com.skedgo.tripkit.ui.core.addTo
 import com.skedgo.tripkit.ui.core.logError
 import com.skedgo.tripkit.ui.databinding.TripPreviewPagerBinding
 import com.skedgo.tripkit.ui.model.TimetableEntry
+import com.skedgo.tripkit.ui.payment.PaymentData
 import com.skedgo.tripkit.ui.routingresults.TripGroupRepository
 import com.skedgo.tripkit.ui.timetables.TimetableFragment
 import com.skedgo.tripkit.ui.tripresult.ARG_TRIP_GROUP_ID
@@ -63,8 +59,10 @@ class TripPreviewPagerFragment : BaseTripKitFragment() {
 
     private var previewHeadersCallback: ((List<TripPreviewHeader>) -> Unit)? = null
     private var pageIndexStream: PublishSubject<Pair<Long, String>>? = null
+    private var paymentDataStream: PublishSubject<PaymentData>? = null
 
     private var fromPageListener = false
+    private var fromReload = false
 
     override fun onResume() {
         super.onResume()
@@ -143,6 +141,7 @@ class TripPreviewPagerFragment : BaseTripKitFragment() {
                     }
                     // ===
                     */
+                    if (fromReload) return@subscribe
 
                     val trip = tripGroup.trips?.find { it.uuid() == tripId }
                     trip?.let {
@@ -183,7 +182,11 @@ class TripPreviewPagerFragment : BaseTripKitFragment() {
                 .addTo(autoDisposable)
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+            inflater: LayoutInflater,
+            container: ViewGroup?,
+            savedInstanceState: Bundle?
+    ): View? {
         binding = TripPreviewPagerBinding.inflate(inflater)
         binding.lifecycleOwner = this
         updateAdapter()
@@ -195,6 +198,7 @@ class TripPreviewPagerFragment : BaseTripKitFragment() {
         adapter = TripPreviewPagerAdapter(childFragmentManager)
         adapter.onCloseButtonListener = this.onCloseButtonListener
         adapter.tripPreviewPagerListener = this.tripPreviewPagerListener
+        adapter.paymentDataStream = this.paymentDataStream
         binding.tripSegmentPager.adapter = adapter
         binding.tripSegmentPager.offscreenPageLimit = 2
         setViewPagerListeners()
@@ -214,6 +218,10 @@ class TripPreviewPagerFragment : BaseTripKitFragment() {
                     binding.tripSegmentPager.currentItem = binding.tripSegmentPager.currentItem - 1
                 }
             }
+        }
+
+        adapter.bottomSheetDragToggleCallback = {
+            tripPreviewPagerListener?.onToggleBottomSheetDrag(it)
         }
     }
 
@@ -254,13 +262,19 @@ class TripPreviewPagerFragment : BaseTripKitFragment() {
 
     private fun setViewPagerListeners() {
         binding.tripSegmentPager.addOnPageChangeListener(object : ViewPager.OnPageChangeListener {
-            override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {}
+            override fun onPageScrolled(
+                    position: Int,
+                    positionOffset: Float,
+                    positionOffsetPixels: Int
+            ) {
+            }
 
             override fun onPageSelected(position: Int) {
                 val selectedFragment = adapter.instantiateItem(binding.tripSegmentPager, position)
                 (selectedFragment as? BaseTripKitFragment)?.let {
                     it.onCloseButtonListener = this@TripPreviewPagerFragment.onCloseButtonListener
-                    it.tripPreviewPagerListener = this@TripPreviewPagerFragment.tripPreviewPagerListener
+                    it.tripPreviewPagerListener =
+                            this@TripPreviewPagerFragment.tripPreviewPagerListener
                     it.refresh(position)
                 }
                 currentPagerIndex = position
@@ -280,7 +294,7 @@ class TripPreviewPagerFragment : BaseTripKitFragment() {
     }
 
     fun setTripSegment(segment: TripSegment, tripSegments: List<TripSegment>) {
-
+        fromReload = true
         /*
         //=== For testing isHideExactTimes purpose only while API is not yet updated ===
         tripSegments.forEach { segment ->
@@ -334,13 +348,20 @@ class TripPreviewPagerFragment : BaseTripKitFragment() {
 
     interface Listener {
         fun onServiceActionButtonClicked(_tripSegment: TripSegment?, action: String?)
-        fun onTimetableEntryClicked(segment: TripSegment?, scope: CoroutineScope, entry: TimetableEntry)
+        fun onTimetableEntryClicked(
+                segment: TripSegment?,
+                scope: CoroutineScope,
+                entry: TimetableEntry
+        )
+
         fun reportPlannedTrip(trip: Trip?, tripGroups: List<TripGroup>)
         fun onBottomSheetResize(): MutableLiveData<Int>
         fun onRestartHomePage()
 
         @Deprecated("UnusedClass")
         fun onExternalActionButtonClicked(action: String?)
+
+        fun onToggleBottomSheetDrag(isDraggable: Boolean)
     }
 
     companion object {
@@ -355,7 +376,9 @@ class TripPreviewPagerFragment : BaseTripKitFragment() {
                 tripPreviewPagerListener: Listener,
                 fromAction: Boolean = false,
                 pageIndexStream: PublishSubject<Pair<Long, String>>? = null,
-                previewHeadersCallback: ((List<TripPreviewHeader>) -> Unit)? = null): TripPreviewPagerFragment {
+                paymentDataStream: PublishSubject<PaymentData>? = null,
+                previewHeadersCallback: ((List<TripPreviewHeader>) -> Unit)? = null
+        ): TripPreviewPagerFragment {
             val fragment = TripPreviewPagerFragment()
             fragment.arguments = bundleOf(
                     ARG_TRIP_GROUP_ID to tripGroupId,
@@ -365,6 +388,7 @@ class TripPreviewPagerFragment : BaseTripKitFragment() {
             )
             fragment.tripPreviewPagerListener = tripPreviewPagerListener
             fragment.pageIndexStream = pageIndexStream
+            fragment.paymentDataStream = paymentDataStream
             fragment.previewHeadersCallback = previewHeadersCallback
             return fragment
         }

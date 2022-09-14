@@ -31,8 +31,6 @@ class TripPreviewHeaderItemViewModel : ViewModel() {
     val isMirrored = ObservableBoolean(false)
 
     val itemClick = TapStateFlow.create { this }
-
-
 }
 
 class TripPreviewHeaderViewModel @Inject constructor() : RxViewModel() {

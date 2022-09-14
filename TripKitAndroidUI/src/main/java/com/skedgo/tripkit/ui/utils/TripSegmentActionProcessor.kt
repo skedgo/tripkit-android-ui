@@ -1,7 +1,6 @@
 package com.skedgo.tripkit.ui.utils
 
 import android.content.Context
-import android.content.res.Resources
 import com.skedgo.tripkit.common.util.DateTimeFormats
 import com.skedgo.tripkit.common.util.TimeUtils
 import com.skedgo.tripkit.ui.R
@@ -31,7 +30,12 @@ class TripSegmentActionProcessor @Inject constructor() {
         return false
     }
 
-    fun processText(context: Context, segment: TripSegment, text: String, withTime: Boolean): String {
+    fun processText(
+        context: Context,
+        segment: TripSegment,
+        text: String,
+        withTime: Boolean
+    ): String {
         var out = text
         segment.serviceNumber?.let {
             numberRegex.replace(text, it)
@@ -45,13 +49,16 @@ class TripSegmentActionProcessor @Inject constructor() {
             out = if (segment.serviceDirection.isNullOrEmpty()) {
                 directionRegex.replace(out, "")
             } else {
-                directionRegex.replace(out,  context.resources.getString(R.string.direction) + ": " + segment.direction)
+                directionRegex.replace(
+                    out,
+                    context.resources.getString(R.string.direction) + ": " + segment.direction
+                )
             }
         }
         out = locationsRegex.replace(out, "")
 
         if (stopsRegex.matches(out)) {
-            out = stopsRegex.replace(out, context.resources.getQuantityString(R.plurals.number_of_stops, segment.stopCount, segment.stopCount))
+            out = stopsRegex.replace(out, context.resources.getQuantityString(R.plurals.number_of_stops, segment.stopCount))
         }
 
         out = if (segment.platform != null) {
@@ -61,7 +68,8 @@ class TripSegmentActionProcessor @Inject constructor() {
         }
 
         out = if (withTime && segment.from != null) {
-            val timeText = DateTimeFormats.printTime(context, segment.startDateTime.millis, segment.timeZone)
+            val timeText =
+                DateTimeFormats.printTime(context, segment.startDateTime.millis, segment.timeZone)
             timeRegex.replace(out, timeText)
         } else {
             timeRegex.replace(out, "")
@@ -72,17 +80,30 @@ class TripSegmentActionProcessor @Inject constructor() {
             out = if (minutes < 0) {
                 durationRegex.replace(out, "")
             } else {
-                durationRegex.replace(out, " " + context.resources.getString(com.skedgo.tripkit.common.R.string.for__pattern, TimeUtils.getDurationInHoursMins((segment.endTimeInSecs - segment.startTimeInSecs).toInt())))
+                durationRegex.replace(
+                    out,
+                    " " + context.resources.getString(
+                        com.skedgo.tripkit.common.R.string.for__pattern,
+                        TimeUtils.getDurationInHoursMins(
+                            context,
+                            (segment.endTimeInSecs - segment.startTimeInSecs).toInt()
+                        )
+                    )
+                )
             }
         }
 
         if (trafficRegex.containsMatchIn(out)) {
-            val durationWithTraffic = (segment.endDateTime.millis - segment.startDateTime.millis) / 1000
+            val durationWithTraffic =
+                (segment.endDateTime.millis - segment.startDateTime.millis) / 1000
             out = if (segment.durationWithoutTraffic < durationWithTraffic + 60 /* secs */) {
                 // Plus 60 secs since we show both duration types in minutes.
                 // For instance, if durationWithTraffic is 65 secs, and durationWithoutTraffic is 60 secs,
                 // they will be both shown as '1min'. Thus, no need to show this difference.
-                trafficRegex.replace(out, getDurationWithoutTrafficText(context.resources, segment.durationWithoutTraffic))
+                trafficRegex.replace(
+                    out,
+                    getDurationWithoutTrafficText(context, segment.durationWithoutTraffic)
+                )
             } else {
                 trafficRegex.replace(out, "")
             }
@@ -95,9 +116,13 @@ class TripSegmentActionProcessor @Inject constructor() {
         return out
     }
 
-    private fun getDurationWithoutTrafficText(resources: Resources, durationWithoutTraffic: Long): String {
-        val durationText = TimeUtils.getDurationInDaysHoursMins(durationWithoutTraffic.toInt())
-        return resources.getString(R.string._pattern_w_slasho_traffic, durationText)
+    private fun getDurationWithoutTrafficText(
+        context: Context,
+        durationWithoutTraffic: Long
+    ): String {
+        val durationText =
+            TimeUtils.getDurationInDaysHoursMins(context, durationWithoutTraffic.toInt())
+        return context.resources.getString(R.string._pattern_w_slasho_traffic, durationText)
     }
 
 }

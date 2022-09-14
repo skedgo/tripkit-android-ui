@@ -21,6 +21,31 @@
         android:orientation="vertical"
         android:padding="8dp">
 
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?selectableItemBackground"
+            android:visibility="@{!viewModel.showSpinner}"
+            android:onClick="@{() -> listener.onItemClick(viewModel.tag, viewModel)}"
+            android:background="@{viewModel.background}">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@{viewModel.icon}"
+                android:layoutDirection="ltr"
+                android:adjustViewBounds="true"
+                app:customImageTint="@{viewModel.iconTint}"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <!--
         <com.google.android.material.button.MaterialButton
             style="@style/Widget.MaterialComponents.Button.OutlinedButton.Icon"
             android:layout_width="48dp"
@@ -38,6 +63,7 @@
             app:iconTint="@{viewModel.iconTint}"
             app:strokeColor="@{viewModel.outlineTint}"
             app:strokeWidth="2dp" />
+        -->
 
         <ProgressBar
             android:layout_width="48dp"
