@@ -187,7 +187,7 @@ public class WaypointTask implements SingleOnSubscribe<List<TripGroup>> {
             return;
         }
 
-        List<String> serverURLs = region.getURLs();
+        List<String> serverURLs = region.getURLs(null);
         if (serverURLs != null) {
             for (String serverURL : serverURLs) {
                 try {

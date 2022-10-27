@@ -1,0 +1,94 @@
+apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-kapt'
+
+android {
+    compileSdkVersion versions.compileSdkVersion
+
+    buildFeatures {
+        dataBinding true
+    }
+
+    defaultConfig {
+        applicationId "com.technologies.tripkituisample"
+        minSdkVersion versions.proMinSdkVersion
+        targetSdkVersion versions.targetSdkVersion
+        versionCode 1
+        versionName "1.0"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    signingConfigs {
+        debug {
+            storeFile file("keystores/debug.keystore")
+        }
+
+        release {
+            storeFile file("keystores/debug.keystore")
+        }
+    }
+
+    lintOptions { abortOnError false }
+    compileOptions {
+        coreLibraryDesugaringEnabled true
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+dependencies {
+    coreLibraryDesugaring libs.desugar
+
+    implementation project(":TripKitAndroid")
+    implementation project(":TripKitAndroidUI")
+
+    implementation 'androidx.appcompat:appcompat:1.2.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.0.2'
+
+    implementation libs.lifecycle
+    implementation libs.lifecycleViewModel
+    implementation libs.lifecycleLiveData
+
+    implementation libs.rxAndroid2
+    implementation libs.rxjava2
+    implementation libs.rxrelay2
+    implementation libs.rxkotlin
+    implementation libs.timber
+    implementation libs.dagger
+    implementation libs.daggerAndroid
+    implementation libs.daggerAndroidSupport
+    implementation libs.playServicesMaps
+    implementation libs.kotlin
+    implementation libs.coroutinesCore
+    implementation libs.coroutinesAndroid
+    implementation libs.coroutinesRx
+    implementation libs.coroutinesPlayServices
+
+    implementation libs.lifecycle
+    implementation libs.lifecycleViewModel
+    implementation libs.lifecycleRuntime
+    kapt libs.lifecycleCompiler
+
+    implementation libs.gson
+    implementation libs.immutablesGson
+    kapt libs.value
+    compileOnly libs.valueAnnotations
+    compileOnly libs.builderAnnotations
+    compileOnly libs.immutablesAndroidStub
+
+    implementation libs.retrofit
+    implementation libs.retrofitAdapterRxJava
+    implementation libs.retrofitConverterGson
+    implementation libs.retrofitConverterScalars
+
+    implementation libs.constraintLayout
+    implementation libs.bindingCollectionAdapter
+    implementation libs.bindingCollectionAdapterRecyclerView
+    implementation libs.bindingCollectionAdapterPaging
+    implementation libs.paging
+    implementation libs.preferences
+
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.3'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
+}

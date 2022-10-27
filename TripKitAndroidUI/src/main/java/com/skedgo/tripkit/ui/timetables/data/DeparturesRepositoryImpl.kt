@@ -23,7 +23,7 @@ class DeparturesRepositoryImpl @Inject constructor(
             limit: Int
     ): Single<DeparturesResponse> =
             regionService.getRegionByNameAsync(region)
-                    .flatMap { Observable.fromIterable(it.urLs) }
+                    .flatMap { Observable.fromIterable(it.getURLs(null)) }
                     .map {
                         it.toHttpUrlOrNull()!!
                                 .newBuilder()
