@@ -139,7 +139,7 @@
                 android:layout_height="@dimen/time_label_height"
                 android:onClick="@{() -> viewModel.onItemClick.perform()}"
                 android:padding="@dimen/shadow_height"
-                android:src="@drawable/right_arrow"
+                android:src="@drawable/chevron_right"
                 android:tint="@color/colorPrimary"
                 app:addRtlSupport="@{true}"
                 app:layout_constraintBottom_toBottomOf="parent"
