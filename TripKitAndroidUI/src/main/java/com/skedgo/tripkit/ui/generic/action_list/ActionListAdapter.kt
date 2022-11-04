@@ -14,11 +14,11 @@ class ActionListAdapter @Inject constructor() :
         RecyclerView.Adapter<ActionListAdapter.Holder>(),
         AutoUpdatableAdapter {
 
-    internal var collection: List<Action> by Delegates.observable(emptyList()) { prop, old, new ->
+    var collection: List<Action> by Delegates.observable(emptyList()) { prop, old, new ->
         autoNotify(old, new) { o, n -> o.label == n.label }
     }
 
-    internal var clickListener: (Action) -> Unit = { _ -> }
+    var clickListener: (Action) -> Unit = { _ -> }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
             Holder.from(

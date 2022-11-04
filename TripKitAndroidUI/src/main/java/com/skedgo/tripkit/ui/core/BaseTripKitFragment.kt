@@ -4,7 +4,7 @@ import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
 import com.skedgo.tripkit.ui.dialog.GenericLoadingDialog
-import com.skedgo.tripkit.ui.trippreview.TripPreviewPagerFragment
+import com.skedgo.tripkit.ui.trippreview.TripPreviewPagerListener
 import com.skedgo.tripkit.ui.utils.AccessibilityDefaultViewManager
 
 open class BaseTripKitFragment : Fragment() {
@@ -20,7 +20,7 @@ open class BaseTripKitFragment : Fragment() {
     }
 
     var onCloseButtonListener: View.OnClickListener? = null
-    var tripPreviewPagerListener: TripPreviewPagerFragment.Listener? = null
+    var tripPreviewPagerListener: TripPreviewPagerListener? = null
 
     fun setOnCloseButtonListener(listener: (View?) -> Unit) {
         this.onCloseButtonListener = View.OnClickListener { v -> listener(v) }

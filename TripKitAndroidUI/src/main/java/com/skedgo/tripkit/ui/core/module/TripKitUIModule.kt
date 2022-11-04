@@ -32,8 +32,6 @@ import com.skedgo.tripkit.routingstatus.RoutingStatusRepository
 import com.skedgo.tripkit.ui.core.CellsLoader
 import com.skedgo.tripkit.ui.core.CellsPersistor
 import com.skedgo.tripkit.ui.core.StopsPersistor
-import com.skedgo.tripkit.ui.interactor.TripKitEvent
-import com.skedgo.tripkit.ui.interactor.TripKitEventBus
 import com.skedgo.tripkit.ui.map.ScheduledStopRepository
 import com.skedgo.tripkit.ui.utils.MainThreadBus
 import com.squareup.otto.Bus
@@ -133,8 +131,8 @@ class TripKitUIModule {
     }
 
 
-    @Provides
-    @Singleton
-    fun tripKitEventBus() = TripKitEventBus
+//    @Provides
+//    @Singleton
+//    fun tripKitEventBus() = TripKitEventBus
 
 }
