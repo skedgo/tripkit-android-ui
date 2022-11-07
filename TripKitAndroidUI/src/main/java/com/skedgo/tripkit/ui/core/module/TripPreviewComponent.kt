@@ -1,7 +1,7 @@
 package com.skedgo.tripkit.ui.core.module
 
-import com.skedgo.tripkit.ui.trippreview.TripPreviewTicketFooterFragment
-import com.skedgo.tripkit.ui.trippreview.drt.DrtFragment
+//import com.skedgo.tripgo.sdk.booking.TripPreviewTicketFooterFragment
+//import com.skedgo.tripgo.sdk.booking.drt.DrtFragment
 import com.skedgo.tripkit.ui.trippreview.standard.StandardTripPreviewItemFragment
 import com.skedgo.tripkit.ui.trippreview.external.ExternalActionTripPreviewItemFragment
 import com.skedgo.tripkit.ui.trippreview.nearby.ModeLocationTripPreviewItemFragment
@@ -17,6 +17,6 @@ interface TripPreviewComponent {
     fun inject(fragment: NearbyTripPreviewItemFragment)
     fun inject(fragment: ExternalActionTripPreviewItemFragment)
     fun inject(fragment: ServiceTripPreviewItemFragment)
-    fun inject(fragment: DrtFragment)
-    fun inject(fragment: TripPreviewTicketFooterFragment)
+    //fun inject(fragment: DrtFragment)
+    //fun inject(fragment: com.skedgo.tripgo.sdk.booking.TripPreviewTicketFooterFragment)
 }

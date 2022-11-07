@@ -12,7 +12,7 @@ class OnSwipeTouchListener(context: Context, listener: SwipeGestureListener)
 
     private var gestureDetector: GestureDetector = GestureDetector(context, GestureListener(listener))
 
-    internal var touchCallback: (View?, MotionEvent?) -> Unit = { _, _ -> }
+    var touchCallback: (View?, MotionEvent?) -> Unit = { _, _ -> }
 
     override fun onTouch(p0: View?, p1: MotionEvent?): Boolean {
         touchCallback.invoke(p0, p1)

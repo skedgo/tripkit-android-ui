@@ -1,6 +1,3 @@
 [submodule "tripkit-android"]
 	path = tripkit-android
 	url = git@github.com:skedgo/tripkit-android.git
-[submodule "shared-android"]
-	path = shared-android
-	url = git@github.com:skedgo/shared-android.git

@@ -1,10 +1,7 @@
-
+include ':tripkituisample'
 include ':TripKitAndroidUI'
 include ':TripKitAndroidUIModules:TripKitAndroidUIData'
 include ':TripKitAndroidUIModules:TripKitAndroidUIDomain'
-
-include ':SnapshotTaker'
-project(':SnapshotTaker').projectDir = new File('shared-android/SnapshotTaker')
 
 include ':trip-kit-booking'
 project(':trip-kit-booking').projectDir = new File('tripkit-android/trip-kit-booking')

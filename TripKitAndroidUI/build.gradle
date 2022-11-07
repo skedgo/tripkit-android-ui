@@ -131,7 +131,7 @@ dependencies {
     api project(':TripKitAndroid')
     api project(':TripKitAndroidUIModules:TripKitAndroidUIData')
     api project(':TripKitAndroidUIModules:TripKitAndroidUIDomain')
-    api project(":wikiwayfinder")
+    //api project(":wikiwayfinder")
 
     implementation 'com.afollestad.material-dialogs:core:3.3.0'
     implementation 'com.afollestad.material-dialogs:bottomsheets:3.2.1'
@@ -143,8 +143,8 @@ version = tripkitVersion
 publishing {
     repositories {
         maven {
-//      url = "file://${localMaven}"
-            url = publishMavenUrl
+            url = "file://${localMaven}"
+            //url = publishMavenUrl
             credentials {
                 username = publishMavenUsername
                 password = publishMavenToken
@@ -164,6 +164,24 @@ publishing {
                     }
                 }
 
+            }
+            pom.withXml {
+                asNode().dependencies.'*'
+                        .findAll() {
+                            (it.scope.text() == 'runtime' || it.scope.text() == 'compile') &&
+                                    project.configurations.implementation.allDependencies.find {
+                                        dep -> dep.name == it.artifactId.text()
+                                    }
+                        }.each {
+                    it.appendNode("type", "aar")
+                }
+                asNode().dependencies.'*'
+                        .findAll() {
+                            it.scope.text() == 'runtime' &&
+                                    project.configurations.implementation.allDependencies.find {
+                                        dep -> dep.name == it.artifactId.text()
+                                    }
+                        }.each { it.scope*.value = 'compile'}
             }
         }
     }

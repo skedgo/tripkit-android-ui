@@ -18,7 +18,9 @@ class RealTimeRepositoryImpl @Inject constructor(
 
   override fun getUpdates(region: String, elements: List<IRealTimeElement>): Single<List<RealTimeVehicle>> =
       regionService.getRegionByNameAsync(region)
-          .flatMap { Observable.fromIterable(it.urLs) }
+          .flatMap {
+              Observable.fromIterable(it.getURLs(null))
+          }
           .map {
             it.toHttpUrlOrNull()!!
                 .newBuilder()

@@ -14,7 +14,7 @@ public class RegionalGeocoder extends Geocoder {
     final Region r = TripKitUI.getInstance().regionService()
         .getRegionByLocationAsync(latitude, longitude)
         .blockingFirst();
-    final List<String> urls = r.getURLs();
+    final List<String> urls = r.getURLs(null);
     return urls.get(0);
   }
 }
