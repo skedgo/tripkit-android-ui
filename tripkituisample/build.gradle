@@ -9,6 +9,9 @@ android {
         dataBinding true
     }
 
+    def Properties properties = new Properties()
+    properties.load(project.rootProject.file("local.properties").newDataInputStream())
+
     defaultConfig {
         applicationId "com.technologies.tripkituisample"
         minSdkVersion versions.proMinSdkVersion
@@ -16,6 +19,8 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        buildConfigField 'String', 'SKEDGO_API_KEY', properties.getProperty("skedgo.key", "")
     }
 
     signingConfigs {
@@ -37,6 +42,7 @@ android {
 }
 
 dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     coreLibraryDesugaring libs.desugar
 
     implementation project(":TripKitAndroid")
