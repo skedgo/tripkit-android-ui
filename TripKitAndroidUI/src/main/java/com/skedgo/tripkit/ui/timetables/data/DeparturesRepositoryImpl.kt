@@ -47,4 +47,41 @@ class DeparturesRepositoryImpl @Inject constructor(
                         it
                     }
                     .map { it.postProcess(embarkationStopCodes, disembarkationStopCodes) }
+
+    override fun getTimetableEntries(
+            region: String,
+            embarkationStopCodes: List<String>,
+            disembarkationStopCodes: List<String>?,
+            timeInSecs: Long,
+            limit: Int,
+            filters: List<DepartureFilter>,
+            includeStops: Boolean
+    ): Single<DeparturesResponse> =
+            regionService.getRegionByNameAsync(region)
+                    .flatMap { Observable.fromIterable(it.getURLs(null)) }
+                    .map {
+                        it.toHttpUrlOrNull()!!
+                                .newBuilder()
+                                .addPathSegment(DEPARTURES_ENDPOINT)
+                                .build()
+                                .toString()
+                    }
+                    .map { url ->
+                        // TODO Likely need to provide a configuration - see TripGo's ConfigCreator
+                        val requestBody = ImmutableDepartureRequestBody.builder()
+                                .embarkationStops(embarkationStopCodes)
+                                .disembarkationStops(disembarkationStopCodes)
+                                .regionName(region)
+                                .limit(limit)
+                                .timeInSecs(timeInSecs)
+                                .filters(filters)
+                                .includeStops(includeStops)
+                                .build()
+
+                        departuresApi.request(url, requestBody)
+                    }.lastOrError()
+                    .flatMap {
+                        it
+                    }
+                    .map { it.postProcess(embarkationStopCodes, disembarkationStopCodes) }
 }

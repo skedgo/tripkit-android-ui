@@ -11,15 +11,19 @@ import org.immutables.value.Value
 @JsonAdapter(GsonAdaptersDepartureRequestBody::class)
 interface DepartureRequestBody {
 
-  fun embarkationStops(): List<String>
+    fun embarkationStops(): List<String>
 
-  fun disembarkationStops(): List<String>?
+    fun disembarkationStops(): List<String>?
 
-  @SerializedName("region")
-  fun regionName(): String
+    @SerializedName("region")
+    fun regionName(): String
 
-  @SerializedName("timeStamp")
-  fun timeInSecs(): Long
+    @SerializedName("timeStamp")
+    fun timeInSecs(): Long
 
-  fun limit(): Int
+    fun limit(): Int
+
+    fun filters(): List<DepartureFilter>?
+
+    fun includeStops(): Boolean = false
 }
