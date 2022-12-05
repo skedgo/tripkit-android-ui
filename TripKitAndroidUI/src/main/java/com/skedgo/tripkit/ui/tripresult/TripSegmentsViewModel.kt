@@ -4,6 +4,7 @@ package com.skedgo.tripkit.ui.tripresult
 import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
+import androidx.core.content.ContextCompat
 import androidx.databinding.ObservableArrayList
 import androidx.databinding.ObservableBoolean
 import androidx.databinding.ObservableField
@@ -63,6 +64,7 @@ class TripSegmentsViewModel @Inject internal constructor(
             OnItemBindClass<Any>()
                     .map(CreditSourcesOfDataViewModel::class.java, BR.viewModel, R.layout.credit_sources_of_data)
                     .map(TripSegmentItemViewModel::class.java, BR.viewModel, R.layout.trip_segment)
+                    .map(TripSegmentGetOffAlertsViewModel::class.java, BR.viewModel, R.layout.trip_segment_get_off_alert)
     )
     val showCloseButton = ObservableBoolean(false)
     val isHideExactTimes = ObservableBoolean(false)
@@ -195,7 +197,7 @@ class TripSegmentsViewModel @Inject internal constructor(
     /**
      * For example, 1hr 50mins
      */
-    private fun formatDuration(context: Context, startTimeInSecs: Long, endTimeInSecs: Long): String = TimeUtils.getDurationInDaysHoursMins(context,(endTimeInSecs - startTimeInSecs).toInt())
+    private fun formatDuration(context: Context, startTimeInSecs: Long, endTimeInSecs: Long): String = TimeUtils.getDurationInDaysHoursMins(context, (endTimeInSecs - startTimeInSecs).toInt())
 
 
     fun findSegmentPosition(tripSegment: TripSegment): Int {
@@ -424,7 +426,7 @@ class TripSegmentsViewModel @Inject internal constructor(
 //                        if (it.wikiWayFinderRoutes.value?.isNotEmpty() == true) {
 //                            _showWikiwayFinder.value = it.wikiWayFinderRoutes.value
 //                        } else {
-                            segmentClicked.accept(segment)
+                        segmentClicked.accept(segment)
 //                        }
                     }
                 }.autoClear()
@@ -476,7 +478,7 @@ class TripSegmentsViewModel @Inject internal constructor(
 //                                if (it.wikiWayFinderRoutes.value?.isNotEmpty() == true) {
 //                                    _showWikiwayFinder.value = it.wikiWayFinderRoutes.value
 //                                } else {
-                                    segmentClicked.accept(segment)
+                                segmentClicked.accept(segment)
 //                                }
                             }
                         }.autoClear()
@@ -493,12 +495,39 @@ class TripSegmentsViewModel @Inject internal constructor(
             itemsChangeEmitter.onNext(segmentViewModels)
         }
 
+        val getOffAlertsViewModel = TripSegmentGetOffAlertsViewModel()
+        getOffAlertsViewModel.setup(
+                trip?.uuid() ?: "",
+                listOf(
+                        TripSegmentGetOffAlertDetailViewModel(
+                                ContextCompat.getDrawable(context, R.drawable.ic_navigation_start),
+                                "The trip is about to start"
+                        ),
+                        TripSegmentGetOffAlertDetailViewModel(
+                                ContextCompat.getDrawable(context, R.drawable.ic_navigation_near),
+                                "Getting within 500m of the disembarkation point"
+                        ),
+
+                        TripSegmentGetOffAlertDetailViewModel(
+                                ContextCompat.getDrawable(context, R.drawable.ic_navigation_near),
+                                "Passed by the previous stop"
+                        ),
+                        TripSegmentGetOffAlertDetailViewModel(
+                                ContextCompat.getDrawable(context, R.drawable.ic_final_destination),
+                                "About to arrive the final destination"
+                        )
+                )
+        )
+
+        newItems.add(getOffAlertsViewModel)
+
         if (tripGroup.sources != null && tripGroup.sources!!.size > 0) {
             val creditSourcesOfDataViewModel = creditSourcesOfDataViewModelProvider.get()
             creditSourcesOfDataViewModel.changeSources(tripGroup.sources!!)
             newItems.add(creditSourcesOfDataViewModel)
             this.creditSourcesOfDataViewModel.accept(creditSourcesOfDataViewModel)
         }
+
         itemViewModels.set(newItems)
     }
 

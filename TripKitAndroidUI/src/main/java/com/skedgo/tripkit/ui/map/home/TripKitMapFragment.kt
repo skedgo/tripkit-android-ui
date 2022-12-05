@@ -14,7 +14,7 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.GoogleMap.*
 import com.google.android.gms.maps.model.*
-import com.google.maps.android.MarkerManager
+import com.google.maps.android.collections.MarkerManager
 import com.skedgo.tripkit.AndroidGeocoder
 import com.skedgo.tripkit.common.model.Location
 import com.skedgo.tripkit.common.model.Region
@@ -808,12 +808,12 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
 
     private fun setUpCurrentLocationMarkers(markerManager: MarkerManager) {
         currentLocationMarkers = markerManager.newCollection("CurrentLocationMarkers")
-        currentLocationMarkers!!.setOnInfoWindowAdapter(myLocationWindowAdapter)
+        currentLocationMarkers!!.setInfoWindowAdapter(myLocationWindowAdapter)
     }
 
     private fun setUpDepartureAndArrivalMarkers(markerManager: MarkerManager) {
         departureMarkers = markerManager.newCollection("DepartureMarkers")
-        departureMarkers!!.setOnInfoWindowAdapter(infoWindowAdapter)
+        departureMarkers!!.setInfoWindowAdapter(infoWindowAdapter)
         departureMarkers!!.setOnInfoWindowClickListener(OnInfoWindowClickListener { marker: Marker ->
             val tag = marker.tag
             if (tag is NonCurrentType) {
@@ -822,7 +822,7 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
             }
         })
         arrivalMarkers = markerManager.newCollection("ArrivalMarkers")
-        arrivalMarkers!!.setOnInfoWindowAdapter(infoWindowAdapter)
+        arrivalMarkers!!.setInfoWindowAdapter(infoWindowAdapter)
         arrivalMarkers!!.setOnInfoWindowClickListener(OnInfoWindowClickListener { marker: Marker ->
             val tag = marker.tag
             if (tag is NonCurrentType) {
@@ -834,7 +834,7 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
 
     private fun setUpTripLocationMarkers(markerManager: MarkerManager) {
         tripLocationMarkers = markerManager.newCollection("TripLocationMarkers")
-        tripLocationMarkers!!.setOnInfoWindowAdapter(infoWindowAdapter)
+        tripLocationMarkers!!.setInfoWindowAdapter(infoWindowAdapter)
         tripLocationMarkers!!.setOnInfoWindowClickListener(OnInfoWindowClickListener { marker: Marker ->
             val tag = marker.tag
             if (tag is LocationTag) {
@@ -848,7 +848,7 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
 
     private fun setUpCityMarkers(markerManager: MarkerManager) {
         cityMarkers = markerManager.newCollection("CityMarkers")
-        cityMarkers!!.setOnInfoWindowAdapter(cityInfoWindowAdapter)
+        cityMarkers!!.setInfoWindowAdapter(cityInfoWindowAdapter)
         cityMarkers!!.setOnInfoWindowClickListener(OnInfoWindowClickListener { marker: Marker ->
             val tag = marker.tag
             if (tag is City) {
@@ -873,7 +873,7 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
             alpha = 0F
         }
         val poiLocationInfoWindowAdapter = POILocationInfoWindowAdapter(context!!)
-        poiMarkers.setOnInfoWindowAdapter(poiLocationInfoWindowAdapter)
+        poiMarkers.setInfoWindowAdapter(poiLocationInfoWindowAdapter)
         map.setOnInfoWindowCloseListener { marker: Marker ->
             if (marker.tag is IMapPoiLocation) {
                 poiLocationInfoWindowAdapter.onInfoWindowClosed(marker)

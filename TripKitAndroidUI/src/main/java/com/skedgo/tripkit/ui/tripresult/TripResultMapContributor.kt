@@ -11,7 +11,7 @@ import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.maps.model.Polyline
 import com.google.android.gms.maps.model.PolylineOptions
-import com.google.maps.android.MarkerManager
+import com.google.maps.android.collections.MarkerManager
 import com.skedgo.rxtry.toTrySingle
 import com.skedgo.tripkit.common.util.TransportModeUtils
 import com.skedgo.tripkit.logging.ErrorLogger
@@ -107,9 +107,9 @@ class TripResultMapContributor : TripKitMapContributor {
             nonTravelledStopMarkers = newCollection("nonTravelledStopMarkers")
             alertMarkers = newCollection("alertMarkers")
 
-            travelledStopMarkers!!.setOnInfoWindowAdapter(serviceStopCalloutAdapter)
-            nonTravelledStopMarkers!!.setOnInfoWindowAdapter(serviceStopCalloutAdapter)
-            segmentMarkers!!.setOnInfoWindowAdapter(segmentCalloutAdapter)
+            travelledStopMarkers!!.setInfoWindowAdapter(serviceStopCalloutAdapter)
+            nonTravelledStopMarkers!!.setInfoWindowAdapter(serviceStopCalloutAdapter)
+            segmentMarkers!!.setInfoWindowAdapter(segmentCalloutAdapter)
             val listener = GoogleMap.OnInfoWindowClickListener { marker: Marker -> val segment = marker.tag as TripSegment? }
             segmentMarkers!!.setOnInfoWindowClickListener(listener)
             alertMarkers!!.setOnInfoWindowClickListener(listener)

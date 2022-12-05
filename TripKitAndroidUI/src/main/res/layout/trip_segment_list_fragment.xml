@@ -13,9 +13,9 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="#ffffff"
         android:focusable="false"
-        android:importantForAccessibility="no"
-        android:background="#ffffff">
+        android:importantForAccessibility="no">
 
         <TextView
             android:id="@+id/duration"
@@ -25,9 +25,9 @@
             android:layout_marginStart="16dp"
             android:layout_marginTop="16dp"
             android:layout_marginEnd="16dp"
+            android:contentDescription="@{`Duration` + viewModel.durationTitle}"
             android:focusable="true"
             android:importantForAccessibility="yes"
-            android:contentDescription="@{`Duration` + viewModel.durationTitle}"
             android:text="@{viewModel.durationTitle}"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
