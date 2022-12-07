@@ -1,11 +1,16 @@
 package com.skedgo.tripkit.ui.tripresult
 
+import android.content.Context
 import android.graphics.drawable.Drawable
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.recyclerview.widget.DiffUtil
+import com.araujo.jordan.excuseme.ExcuseMe
+import com.google.gson.Gson
+import com.skedgo.tripkit.routing.GeoLocation
 import com.skedgo.tripkit.routing.GetOffAlertCache
+import com.skedgo.tripkit.routing.Trip
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.core.RxViewModel
 import me.tatarka.bindingcollectionadapter2.BR
@@ -19,22 +24,41 @@ class TripSegmentGetOffAlertsViewModel @Inject internal constructor() : RxViewMo
     private val _getOffAlertStateOn = MutableLiveData<Boolean>()
     val getOffAlertStateOn: LiveData<Boolean> = _getOffAlertStateOn
 
-    private var tripUuid: String = ""
+    private var trip: Trip? = null
 
     val items = DiffObservableList<TripSegmentGetOffAlertDetailViewModel>(TripSegmentGetOffAlertDetailViewModel.diffCallback())
     val itemBinding = ItemBinding.of<TripSegmentGetOffAlertDetailViewModel>(BR.viewModel, R.layout.item_alert_detail)
 
-    fun setup(tripUuid: String, details: List<TripSegmentGetOffAlertDetailViewModel>) {
-        this.tripUuid = tripUuid
+    fun setup(trip: Trip?, details: List<TripSegmentGetOffAlertDetailViewModel>) {
+        this.trip = trip
         items.clear()
         items.update(details)
+
+        trip?.uuid()?.let {
+            _getOffAlertStateOn.postValue(GetOffAlertCache.isTripAlertStateOn(it))
+        }
     }
 
-    fun onAlertChange(isOn: Boolean) {
+    fun onAlertChange(context: Context, isOn: Boolean) {
         _getOffAlertStateOn.postValue(isOn)
-        GetOffAlertCache.setTripAlertOnState(tripUuid, isOn)
+        trip?.uuid()?.let { GetOffAlertCache.setTripAlertOnState(it, isOn) }
 
-        Log.e("GetOffAlertCache", "state: $tripUuid ~ ${GetOffAlertCache.isTripAlertStateOn(tripUuid)}")
+        if (isOn) {
+            ExcuseMe.couldYouGive(context).permissionFor(
+                    android.Manifest.permission.ACCESS_FINE_LOCATION,
+                    android.Manifest.permission.ACCESS_BACKGROUND_LOCATION
+            ) {
+                if (it.denied.isNotEmpty()) {
+                    _getOffAlertStateOn.postValue(false)
+                } else {
+                    trip?.segments?.mapNotNull { it.geofences }?.flatten()?.let { geofences ->
+                        GeoLocation.createGeoFences(geofences)
+                    }
+                }
+            }
+        } else {
+            GeoLocation.clearGeofences()
+        }
     }
 
 }

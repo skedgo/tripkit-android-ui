@@ -12,6 +12,7 @@ import com.skedgo.tripkit.*;
 import com.skedgo.tripkit.data.database.DbHelper;
 import com.skedgo.tripkit.data.regions.RegionService;
 import com.skedgo.tripkit.regionrouting.RegionRoutingRepository;
+import com.skedgo.tripkit.routing.GeoLocation;
 import com.skedgo.tripkit.routing.GetOffAlertCache;
 import com.skedgo.tripkit.ui.core.module.*;
 import com.skedgo.tripkit.ui.core.settings.DeveloperPreferenceRepositoryImpl;
@@ -139,6 +140,7 @@ public abstract class TripKitUI {
                 TripKit.initialize(context, tripKit);
                 JodaTimeAndroid.init(context);
                 GetOffAlertCache.INSTANCE.init(context);
+                GeoLocation.INSTANCE.init(context);
             } else {
                 TripKit.initialize(tripKitConfigs);
             }

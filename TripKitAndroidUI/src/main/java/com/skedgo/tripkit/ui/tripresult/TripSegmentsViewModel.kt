@@ -497,7 +497,7 @@ class TripSegmentsViewModel @Inject internal constructor(
 
         val getOffAlertsViewModel = TripSegmentGetOffAlertsViewModel()
         getOffAlertsViewModel.setup(
-                trip?.uuid() ?: "",
+                trip,
                 listOf(
                         TripSegmentGetOffAlertDetailViewModel(
                                 ContextCompat.getDrawable(context, R.drawable.ic_navigation_start),
