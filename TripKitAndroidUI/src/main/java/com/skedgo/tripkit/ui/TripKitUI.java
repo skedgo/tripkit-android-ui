@@ -1,8 +1,11 @@
 package com.skedgo.tripkit.ui;
 
+import android.app.NotificationChannel;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
+import android.os.Build;
+
 import androidx.annotation.Nullable;
 import com.google.android.libraries.places.api.Places;
 import com.skedgo.DaggerTripKit;
@@ -11,6 +14,7 @@ import com.skedgo.routepersistence.RouteStore;
 import com.skedgo.tripkit.*;
 import com.skedgo.tripkit.data.database.DbHelper;
 import com.skedgo.tripkit.data.regions.RegionService;
+import com.skedgo.tripkit.notification.NotificationKt;
 import com.skedgo.tripkit.regionrouting.RegionRoutingRepository;
 import com.skedgo.tripkit.routing.GeoLocation;
 import com.skedgo.tripkit.routing.GetOffAlertCache;
@@ -37,7 +41,13 @@ import com.skedgo.tripkit.logging.ErrorLogger;
 import timber.log.Timber;
 
 import javax.inject.Singleton;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Callable;
+
+import static com.skedgo.tripkit.routing.TripAlarmBroadcastReceiver.NOTIFICATION_CHANNEL_START_TRIP;
+import static com.skedgo.tripkit.routing.TripAlarmBroadcastReceiver.NOTIFICATION_CHANNEL_START_TRIP_ID;
 
 @Singleton
 @Component(modules = {
@@ -141,6 +151,17 @@ public abstract class TripKitUI {
                 JodaTimeAndroid.init(context);
                 GetOffAlertCache.INSTANCE.init(context);
                 GeoLocation.INSTANCE.init(context);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    List<NotificationChannel> channels = new ArrayList<>();
+                    channels.add(NotificationKt.createChannel(
+                            NOTIFICATION_CHANNEL_START_TRIP_ID,
+                            NOTIFICATION_CHANNEL_START_TRIP)
+                    );
+                    NotificationKt.createNotificationChannels(
+                            context,
+                            channels
+                    );
+                }
             } else {
                 TripKit.initialize(tripKitConfigs);
             }

@@ -441,6 +441,7 @@ class TripSegmentsViewModel @Inject internal constructor(
                                             && it.id == segment.id)
                         } else {
                             it.visibility == Visibilities.VISIBILITY_IN_SUMMARY
+
                         }
                     }.sortedBy { it.id }
 
