@@ -3,6 +3,7 @@ package com.skedgo.tripkit.ui.tripresult
 
 import android.content.Context
 import android.graphics.Color
+import android.net.Uri
 import android.os.Bundle
 import androidx.core.content.ContextCompat
 import androidx.databinding.ObservableArrayList
@@ -496,31 +497,37 @@ class TripSegmentsViewModel @Inject internal constructor(
             itemsChangeEmitter.onNext(segmentViewModels)
         }
 
-        val getOffAlertsViewModel = TripSegmentGetOffAlertsViewModel()
-        getOffAlertsViewModel.setup(
-                trip,
-                listOf(
-                        TripSegmentGetOffAlertDetailViewModel(
-                                ContextCompat.getDrawable(context, R.drawable.ic_navigation_start),
-                                "The trip is about to start"
-                        ),
-                        TripSegmentGetOffAlertDetailViewModel(
-                                ContextCompat.getDrawable(context, R.drawable.ic_navigation_near),
-                                "Getting within 500m of the disembarkation point"
-                        ),
+        trip?.let {
+            val uri = Uri.parse(it.saveURL)
+            val tripUid = uri.lastPathSegment
+            val isOn = GetOffAlertCache.isTripAlertStateOn(tripUid ?: it.saveURL)
 
-                        TripSegmentGetOffAlertDetailViewModel(
-                                ContextCompat.getDrawable(context, R.drawable.ic_navigation_near),
-                                "Passed by the previous stop"
-                        ),
-                        TripSegmentGetOffAlertDetailViewModel(
-                                ContextCompat.getDrawable(context, R.drawable.ic_final_destination),
-                                "About to arrive the final destination"
-                        )
-                )
-        )
+            val getOffAlertsViewModel = TripSegmentGetOffAlertsViewModel(it, isOn)
+            getOffAlertsViewModel.setup(
+                    context,
+                    listOf(
+                            TripSegmentGetOffAlertDetailViewModel(
+                                    ContextCompat.getDrawable(context, R.drawable.ic_navigation_start),
+                                    "The trip is about to start"
+                            ),
+                            TripSegmentGetOffAlertDetailViewModel(
+                                    ContextCompat.getDrawable(context, R.drawable.ic_navigation_near),
+                                    "Getting within 500m of the disembarkation point"
+                            ),
 
-        newItems.add(getOffAlertsViewModel)
+                            TripSegmentGetOffAlertDetailViewModel(
+                                    ContextCompat.getDrawable(context, R.drawable.ic_navigation_near),
+                                    "Passed by the previous stop"
+                            ),
+                            TripSegmentGetOffAlertDetailViewModel(
+                                    ContextCompat.getDrawable(context, R.drawable.ic_final_destination),
+                                    "About to arrive the final destination"
+                            )
+                    )
+            )
+
+            newItems.add(getOffAlertsViewModel)
+        }
 
         if (tripGroup.sources != null && tripGroup.sources!!.size > 0) {
             val creditSourcesOfDataViewModel = creditSourcesOfDataViewModelProvider.get()
