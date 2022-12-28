@@ -3,6 +3,7 @@ package com.skedgo.tripkit.ui.routing.autocompleter
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.skedgo.tripkit.common.model.Location
+import com.skedgo.tripkit.regionrouting.RegionRoutingAutoCompleter
 import com.skedgo.tripkit.regionrouting.RegionRoutingRepository
 import com.skedgo.tripkit.regionrouting.data.RegionRoute
 import com.skedgo.tripkit.ui.TripKitUI
@@ -23,8 +24,29 @@ class RouteAutocompleteViewModel @Inject constructor(
     private val _error = MutableLiveData<Throwable>()
     val error: LiveData<Throwable> = _error
 
-    private var location: Location? = Location(-33.9504502,151.0309)
+    private var location: Location? = Location(-33.9504502, 151.0309)
 
+    private val regionRoutingAutoCompleter: RegionRoutingAutoCompleter by lazy {
+        TripKitUI.getInstance().regionRoutingAutoCompleter()
+    }
+
+    init {
+        regionRoutingAutoCompleter.observe({
+            _regionRoutes.postValue(it)
+        }, {
+            it.printStackTrace()
+        }).autoClear()
+    }
+
+    fun onSearchQueryChange(text: CharSequence) {
+        regionRoutingAutoCompleter.sendQuery(
+                RegionRoutingAutoCompleter.AutoCompleteQuery.Builder(
+                        text.toString()
+                ).byRegionName("US_CA_LosAngeles").build()
+        )
+    }
+
+    /*
     init {
         routeAutoCompletePublishSubject.configureInterceptor(500)
                 .subscribe {
@@ -37,7 +59,6 @@ class RouteAutocompleteViewModel @Inject constructor(
     }
 
     private fun handleSearch(query: String) {
-
         TripKitUI.getInstance().regionRoutingRepository().getRoutes(query, location)
                 .subscribe({
                     _regionRoutes.postValue(it)
@@ -45,4 +66,5 @@ class RouteAutocompleteViewModel @Inject constructor(
                     _error.postValue(it)
                 }).autoClear()
     }
+    */
 }

@@ -11,6 +11,7 @@ import com.skedgo.routepersistence.RouteStore;
 import com.skedgo.tripkit.*;
 import com.skedgo.tripkit.data.database.DbHelper;
 import com.skedgo.tripkit.data.regions.RegionService;
+import com.skedgo.tripkit.regionrouting.RegionRoutingAutoCompleter;
 import com.skedgo.tripkit.regionrouting.RegionRoutingRepository;
 import com.skedgo.tripkit.ui.core.module.*;
 import com.skedgo.tripkit.ui.core.settings.DeveloperPreferenceRepositoryImpl;
@@ -188,6 +189,7 @@ public abstract class TripKitUI {
     public abstract TripGroupRepository tripGroupRepository();
     public abstract RouteStore routeStore();
     public abstract RegionRoutingRepository regionRoutingRepository();
+    public abstract RegionRoutingAutoCompleter regionRoutingAutoCompleter();
 
     public abstract void inject(TimetableFragment fragment);
     public abstract void inject(ServiceDetailFragment fragment);
