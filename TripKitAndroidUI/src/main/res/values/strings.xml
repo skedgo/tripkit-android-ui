@@ -62,4 +62,6 @@
     <string name="action_continue_to_payment">Continue to Payment</string>
     <string name="talkback_decrement">Decrement</string>
     <string name="talkback_increment">Increment</string>
+    <string name="lbl_alert_when_get_off">Alert when get off</string>
+    <string name="lbl_get_notifications_when">Get notifications when:</string>
 </resources>

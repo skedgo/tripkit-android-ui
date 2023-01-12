@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="viewModel"
+            type="com.skedgo.tripkit.ui.tripresult.TripSegmentGetOffAlertsViewModel" />
+    </data>
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cvGetOffAlerts"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/spacing_small"
+        android:layout_marginHorizontal="@dimen/spacing_medium"
+        android:layout_marginBottom="@dimen/spacing_normal"
+        android:clipToPadding="true"
+        app:cardBackgroundColor="@color/grey2"
+        app:cardCornerRadius="@dimen/spacing_small"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/spacing_small">
+
+            <ImageView
+                android:id="@+id/ivNotification"
+                android:layout_width="@dimen/icon_regular"
+                android:layout_height="@dimen/icon_regular"
+                android:src="@drawable/ic_notifications"
+                app:layout_constraintBottom_toBottomOf="@+id/tvAlertsLabel"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/tvAlertsLabel"
+                app:tint="@color/colorPrimary"
+                tools:tint="@color/colorPrimary" />
+
+
+            <TextView
+                android:id="@+id/tvAlertsLabel"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/spacing_small"
+                android:text="@string/lbl_alert_when_get_off"
+                android:textColor="@color/black"
+                android:textSize="@dimen/font_size_medium"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="@+id/sAlertState"
+                app:layout_constraintEnd_toStartOf="@+id/sAlertState"
+                app:layout_constraintStart_toEndOf="@+id/ivNotification"
+                app:layout_constraintTop_toTopOf="@+id/sAlertState" />
+
+            <androidx.appcompat.widget.SwitchCompat
+                android:id="@+id/sAlertState"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_small"
+                android:checked="@{viewModel.getOffAlertStateOn}"
+                android:onCheckedChanged="@{(switch, checked) -> viewModel.onAlertChange(context, checked)}"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <View
+                android:id="@+id/vAlertLabelDivider"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="@dimen/spacing_small"
+                android:background="@color/black2"
+                android:visibility="@{viewModel.getOffAlertStateOn}"
+                app:layout_constraintTop_toBottomOf="@+id/sAlertState" />
+
+            <TextView
+                android:id="@+id/tvGetNotificationsWhen"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_small"
+                android:text="@string/lbl_get_notifications_when"
+                android:textColor="@color/black"
+                android:textSize="@dimen/font_size_normal"
+                android:visibility="@{viewModel.getOffAlertStateOn}"
+                app:layout_constraintTop_toBottomOf="@+id/vAlertLabelDivider" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_small"
+                android:visibility="@{viewModel.getOffAlertStateOn}"
+                app:itemBinding="@{viewModel.itemBinding}"
+                app:items="@{viewModel.items}"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                app:layout_constraintTop_toBottomOf="@+id/tvGetNotificationsWhen"
+                tools:itemCount="3"
+                tools:listitem="@layout/item_alert_detail" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.cardview.widget.CardView>
+</layout>
