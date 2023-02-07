@@ -39,6 +39,7 @@ class DeparturesRepositoryImpl @Inject constructor(
                                 .regionName(region)
                                 .limit(limit)
                                 .timeInSecs(timeInSecs)
+                                .includeStops(false)
                                 .build()
 
                         departuresApi.request(url, requestBody)
