@@ -312,21 +312,6 @@ class TripResultListViewModel @Inject constructor(
                 .map {
                     var list = it.first
 
-                    /*
-                    //=== For testing isHideExactTimes purpose only while API is not yet updated ===
-                    list = it.first.map { group ->
-                        group.trips?.forEach { trip ->
-                            trip.getSummarySegments()?.forEach { segment ->
-                                if (segment.transportModeId == TransportMode.ID_WALK) {
-                                    segment.isHideExactTimes = true
-                                }
-                            }
-                        }
-                        group
-                    }
-                    //===
-                    */
-
                     tripGroupList.clear()
                     tripGroupList.addAll(list)
                     val classifier = TripGroupClassifier(list)

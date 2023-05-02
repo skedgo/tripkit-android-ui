@@ -45,18 +45,20 @@ class TripSegmentViewModel @Inject constructor(private val context: Context, pri
     val showSecondary = ObservableBoolean(false)
     val secondaryText = ObservableField<CharSequence>()
     val isHideExactTimes = ObservableBoolean(false)
+    val isRealtime = ObservableBoolean(false)
 
     fun setSegment(trip: Trip, segment: TripSegment) {
         showTitle(segment)
 
         isHideExactTimes.set(segment.isHideExactTimes)
+        isRealtime.set(segment.isRealTime)
 
         buildSubtitle(trip, segment)
 
         if (segment.modeInfo == null || segment.modeInfo!!.localIconName == null) {
             return
         }
-        if (segment.darkVehicleIcon == 0) {
+        if (segment.darkVehicleIconWithNoRealtimeChecking == 0) {
             return
         }
         val url = TransportModeUtils.getIconUrlForModeInfo(context.resources, segment.modeInfo)
@@ -66,7 +68,7 @@ class TripSegmentViewModel @Inject constructor(private val context: Context, pri
                     .map { bitmap -> BitmapDrawable(context.resources, bitmap) }
         }
         Observable
-                .just(context.resources.getDrawable(segment.darkVehicleIcon))
+                .just(context.resources.getDrawable(segment.darkVehicleIconWithNoRealtimeChecking))
                 .concatWith(remoteIcon)
                 .doOnError { e -> Timber.e(e) }
                 .flatMap { drawable ->
@@ -165,7 +167,11 @@ class TripSegmentViewModel @Inject constructor(private val context: Context, pri
     private fun getSubtitle(trip: Trip, segment: TripSegment): String? {
         if (segment.isRealTime) {
             return if (segment.hasTimeTable()) {
-                context.resources.getString(R.string.real_minustime)
+                if (segment.frequency == 0) {
+                    printTime.printLocalTime(segment.startDateTime.toLocalTime())
+                } else {
+                    context.resources.getString(R.string.real_minustime)
+                }
             } else {
                 context.resources.getString(R.string.live_traffic)
             }
