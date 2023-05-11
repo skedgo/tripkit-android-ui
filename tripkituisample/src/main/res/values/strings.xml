@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">TripKitUiSample</string>
+    <string name="lbl_features">Features:</string>
+    <string name="feature_autocompleter">Autocompleter</string>
 </resources>
