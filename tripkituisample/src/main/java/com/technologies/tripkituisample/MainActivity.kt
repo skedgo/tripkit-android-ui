@@ -6,6 +6,7 @@ import android.os.Bundle
 import androidx.databinding.DataBindingUtil
 import com.technologies.tripkituisample.autocompleter.AutocompleterActivity
 import com.technologies.tripkituisample.databinding.ActivityMainBinding
+import com.technologies.tripkituisample.location_search.LocationSearchActivity
 
 class MainActivity : AppCompatActivity() {
 
@@ -19,6 +20,12 @@ class MainActivity : AppCompatActivity() {
         binding.bAutocompleter.setOnClickListener {
             startActivity(
                 Intent(this@MainActivity, AutocompleterActivity::class.java)
+            )
+        }
+
+        binding.bLocationSearch.setOnClickListener {
+            startActivity(
+                Intent(this@MainActivity, LocationSearchActivity::class.java)
             )
         }
     }

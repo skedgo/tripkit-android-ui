@@ -10,7 +10,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Tripkitandroidui">
-        <activity android:name=".autocompleter.AutocompleterActivity"></activity>
+        <activity android:name=".location_search.LocationSearchActivity"></activity>
+        <activity android:name=".autocompleter.AutocompleterActivity" />
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

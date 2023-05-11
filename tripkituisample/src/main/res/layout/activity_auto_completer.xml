@@ -13,7 +13,18 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/white"
+        android:padding="@dimen/spacing_small"
         tools:context=".autocompleter.AutocompleterActivity">
+
+        <ImageButton
+            android:id="@+id/ibBack"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:padding="@dimen/spacing_small"
+            android:src="@drawable/ic_back_button"
+            android:tint="@color/black"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <EditText
             android:id="@+id/etSearch"
@@ -21,8 +32,9 @@
             android:layout_height="wrap_content"
             android:textSize="12sp"
             android:hint="Search"
+            android:layout_marginTop="@dimen/spacing_small"
             android:onTextChanged="@{(text, start, before, count) -> viewModel.onSearchQueryChange(text)}"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toBottomOf="@+id/ibBack" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvResults"

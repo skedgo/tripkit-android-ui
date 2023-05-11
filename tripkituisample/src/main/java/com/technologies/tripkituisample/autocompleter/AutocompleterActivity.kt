@@ -22,6 +22,10 @@ class AutocompleterActivity : AppCompatActivity() {
         binding = DataBindingUtil.setContentView(this, R.layout.activity_auto_completer)
         autocompleterViewModel = ViewModelProvider(this).get(AutocompleterViewModel::class.java)
 
+        binding.ibBack.setOnClickListener {
+            this@AutocompleterActivity.finish()
+        }
+
         initBindings()
     }
 

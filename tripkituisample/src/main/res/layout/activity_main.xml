@@ -7,7 +7,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/white"
-        android:padding="8dp"
+        android:padding="@dimen/spacing_large"
         tools:context=".MainActivity">
 
         <TextView
@@ -16,6 +16,7 @@
             android:layout_height="wrap_content"
             android:text="@string/lbl_features"
             android:textSize="16sp"
+            android:textColor="@color/black"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -30,6 +31,18 @@
             android:textColor="@color/white"
             android:textSize="12sp"
             app:layout_constraintTop_toBottomOf="@+id/tvTitle" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/bLocationSearch"
+            style="@style/Widget.AppCompat.Button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="@color/colorPrimary"
+            android:text="@string/lbl_location_search"
+            android:textColor="@color/white"
+            android:textSize="12sp"
+            app:layout_constraintTop_toBottomOf="@+id/bAutocompleter" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
