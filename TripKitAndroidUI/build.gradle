@@ -15,6 +15,12 @@ android {
         targetSdkVersion versions.targetSdkVersion
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
+
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments += ["room.schemaLocation": "$projectDir/schemas".toString()]
+            }
+        }
     }
 
     packagingOptions {
@@ -48,6 +54,26 @@ android {
         checkReleaseBuilds true
         abortOnError false
     }
+
+    packagingOptions {
+        exclude '/META-INF/kotlin-stdlib.kotlin_module'
+        exclude '/META-INF/room-ktx_release.kotlin_module'
+    }
+
+    configurations.all {
+        resolutionStrategy {
+            //force 'androidx.room:room-ktx:2.2.4'
+            force("org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion")
+            force("org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlinVersion")
+            force("org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion")
+            force("org.jetbrains.kotlin:kotlin-stdlib-common:$kotlinVersion")
+            /*eachDependency { DependencyResolveDetails details ->
+                if (details.requested.name == 'room-ktx') {
+                    details.useVersion '1.5.21'
+                }
+            }*/
+        }
+    }
 }
 
 dependencies {
@@ -56,7 +82,6 @@ dependencies {
 
     implementation libs.supportDesign
     implementation libs.koptional
-    implementation libs.kotlin
     implementation libs.appCompat
     implementation libs.constraintLayout
     implementation libs.places
@@ -66,13 +91,32 @@ dependencies {
     implementation 'com.google.android:flexbox:1.1.1'
     implementation 'com.github.skedgo:wheel:v1.0'
     implementation libs.coroutinesRx
+
     implementation libs.roomRuntime
+    annotationProcessor libs.roomCompiler
     kapt libs.roomCompiler
     implementation libs.roomRxjava2
     implementation libs.roomKtx
 
+    implementation libs.value
+    implementation libs.kotlin
+    implementation libs.gson
+    implementation libs.immutablesGson
+
     kapt libs.value
+    annotationProcessor libs.value
+
+    kapt libs.gson
+    annotationProcessor libs.gson
+
+    kapt libs.valueAnnotations
     compileOnly libs.valueAnnotations
+
+    kapt libs.builderAnnotations
+    compileOnly libs.builderAnnotations
+
+    kapt libs.immutablesGson
+    annotationProcessor libs.immutablesGson
 
     implementation 'com.squareup:otto:1.3.8'
     implementation libs.picasso
@@ -98,6 +142,7 @@ dependencies {
     implementation libs.daggerAndroidSupport
     implementation libs.lifecycle
     implementation libs.lifecycleViewModel
+    implementation libs.lifecycleViewModelJava
     implementation libs.lifecycleRuntime
     implementation libs.appCompat
     implementation libs.supportDesign
@@ -108,7 +153,6 @@ dependencies {
     implementation libs.bindingCollectionAdapterRecyclerView
     implementation libs.networkResponse
 
-    implementation libs.immutablesGson
     implementation libs.mlkit
     implementation libs.camerax
     implementation libs.cameraxView
@@ -117,7 +161,6 @@ dependencies {
     implementation libs.glide
 
     implementation libs.timber
-    implementation libs.gson
     kapt libs.daggerCompiler
     kapt libs.daggerAndroidProcessor
     kapt libs.lifecycleCompiler
@@ -131,10 +174,12 @@ dependencies {
     api project(':TripKitAndroid')
     api project(':TripKitAndroidUIModules:TripKitAndroidUIData')
     api project(':TripKitAndroidUIModules:TripKitAndroidUIDomain')
-    //api project(":wikiwayfinder")
 
     implementation 'com.afollestad.material-dialogs:core:3.3.0'
     implementation 'com.afollestad.material-dialogs:bottomsheets:3.2.1'
+
+    implementation libs.javaxAnnotation
+    compileOnly 'com.github.pengrad:jdk9-deps:1.0'
 }
 
 group = tripkitGroup

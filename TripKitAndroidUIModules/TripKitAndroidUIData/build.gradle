@@ -25,6 +25,11 @@ android {
         }
     }
 
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
 }
 
 dependencies {
@@ -58,6 +63,9 @@ dependencies {
     implementation project(':TripKitAndroid')
     implementation project(':TripKitAndroidUIModules:TripKitAndroidUIDomain')
     implementation project(':sqliteutils')
+
+    implementation libs.javaxAnnotation
+    compileOnly 'com.github.pengrad:jdk9-deps:1.0'
 }
 repositories {
     mavenCentral()

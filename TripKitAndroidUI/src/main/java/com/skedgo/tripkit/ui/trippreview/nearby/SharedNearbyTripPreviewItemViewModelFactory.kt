@@ -10,7 +10,7 @@ import javax.inject.Provider
 @ActivityScope
 class SharedNearbyTripPreviewItemViewModelFactory @Inject constructor(private val sharedNearbyTripPreviewItemViewModel: Provider<SharedNearbyTripPreviewItemViewModel>)
     : ViewModelProvider.Factory  {
-    override fun <T : ViewModel?> create(modelClass: Class<T>): T {
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass == SharedNearbyTripPreviewItemViewModel::class.java) {
             return sharedNearbyTripPreviewItemViewModel.get() as T
         }

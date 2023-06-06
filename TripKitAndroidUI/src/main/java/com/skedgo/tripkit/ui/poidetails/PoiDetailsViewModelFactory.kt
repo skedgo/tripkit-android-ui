@@ -9,7 +9,7 @@ import javax.inject.Provider
 
 class PoiDetailsViewModelFactory @Inject constructor(private val poiDetailsViewModelProvider: Provider<PoiDetailsViewModel>)
     : ViewModelProvider.Factory {
-    override fun <T : ViewModel?> create(modelClass: Class<T>): T {
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass == PoiDetailsViewModel::class.java) {
             return poiDetailsViewModelProvider.get() as T
         }
