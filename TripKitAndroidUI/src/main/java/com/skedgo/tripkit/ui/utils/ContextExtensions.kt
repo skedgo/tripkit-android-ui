@@ -1,4 +1,3 @@
-
 package com.skedgo.tripkit.ui.utils
 
 import android.accessibilityservice.AccessibilityServiceInfo
@@ -13,12 +12,13 @@ import com.afollestad.materialdialogs.list.listItems
 import java.lang.Exception
 
 fun Context.viewAppDetailsSettingsIntent(): Intent = Intent(
-        Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
-        Uri.fromParts("package", this.packageName, null)
+    Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+    Uri.fromParts("package", this.packageName, null)
 ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
 
 fun Context.isNetworkConnected(): Boolean {
-    val cm: ConnectivityManager = this.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+    val cm: ConnectivityManager =
+        this.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
     return cm.activeNetworkInfo?.isConnectedOrConnecting ?: false
 }
 
@@ -32,9 +32,9 @@ fun Context.showSingleSelectionPopUpDialog(items: List<String>, onItemSelected: 
 }
 
 fun Context.showConfirmationPopUpDialog(
-        title: String? = null, message: String? = null, positiveLabel: String,
-        positiveCallback: (() -> Unit)? = null, negativeLabel: String? = null,
-        negativeCallback: (() -> Unit)? = null
+    title: String? = null, message: String? = null, positiveLabel: String,
+    positiveCallback: (() -> Unit)? = null, negativeLabel: String? = null,
+    negativeCallback: (() -> Unit)? = null
 ) {
     MaterialDialog(this).show {
         title?.let { title(text = it) }
@@ -76,7 +76,7 @@ fun Context.isTalkBackOn(): Boolean {
 
     if (manager.isEnabled) {
         val serviceInfoList =
-                manager.getEnabledAccessibilityServiceList(AccessibilityServiceInfo.FEEDBACK_SPOKEN)
+            manager.getEnabledAccessibilityServiceList(AccessibilityServiceInfo.FEEDBACK_SPOKEN)
         if (serviceInfoList.isNotEmpty()) {
             return true
         }
@@ -84,3 +84,5 @@ fun Context.isTalkBackOn(): Boolean {
 
     return false
 }
+
+fun Context.getVersionName(): String? = packageManager?.getPackageInfo(packageName, 0)?.versionName
