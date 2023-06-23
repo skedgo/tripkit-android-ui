@@ -1,6 +1,7 @@
 package com.skedgo.tripkit.ui.booking.apiv2
 
 import com.google.gson.annotations.SerializedName
+import com.skedgo.tripkit.common.model.BookingConfirmationNotes
 import com.skedgo.tripkit.routing.ModeInfo
 
 data class BookingV2ListResponse(
@@ -39,7 +40,8 @@ data class BookingV2ListResponse(
                 val provider: Provider? = null,
                 @SerializedName("status")
                 val status: Status? = null,
-
+                @SerializedName("notes")
+                val notes: List<BookingConfirmationNotes>? = null
                 ) {
             data class Purchase(
                     @SerializedName("budgetPoints")
