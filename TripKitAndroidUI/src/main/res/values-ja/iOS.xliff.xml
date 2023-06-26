@@ -130,6 +130,12 @@
     <string name="concession_pricing">値引き価格</string>
     <!-- Hassle preference -->
     <string name="convenience">利便性</string>
+    <!--Class = "UILabel"; text = "Save money"; ObjectID = "yuP-f9-IR1";-->
+    <string name="save_money">お金</string>
+    <!--Class = "UILabel"; text = "Save time"; ObjectID = "KSL-Sc-UHU";-->
+    <string name="save_time">時間</string>
+    <!--Class = "UILabel"; text = "Reduce carbon"; ObjectID = "RKH-vV-EU9";-->
+    <string name="reduce_carbon">環境</string>
     <!-- Error title when TripGo couldnt identify the users current city -->
     <string name="could_not_find_your_city_dot">あなたの都市が見つかりませんでした。</string>
     <!-- Title for button that allows users to create a user account -->
