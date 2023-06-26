@@ -9,10 +9,12 @@ import androidx.core.content.ContextCompat
 import androidx.databinding.ObservableBoolean
 import androidx.databinding.ObservableField
 import com.jakewharton.rxrelay2.PublishRelay
+import com.skedgo.tripkit.common.model.Region
 import com.skedgo.tripkit.common.model.TransportMode
 import com.skedgo.tripkit.common.util.TransportModeUtils
 import com.skedgo.tripkit.common.util.TripSegmentUtils
 import com.skedgo.tripkit.routing.*
+import com.skedgo.tripkit.ui.BuildConfig
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.TripKitUI
 import com.skedgo.tripkit.ui.core.RxViewModel
@@ -24,10 +26,12 @@ import com.skedgo.tripkit.ui.utils.TapStateFlow
 import com.skedgo.tripkit.ui.utils.checkDateForStringLabel
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
 import org.joda.time.DateTimeZone
 import org.joda.time.format.DateTimeFormat
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
+import javax.inject.Inject
 
 open class TripPreviewPagerItemViewModel : RxViewModel() {
     var title = ObservableField<String>()
@@ -172,27 +176,42 @@ open class TripPreviewPagerItemViewModel : RxViewModel() {
         }
 
         if (segment.trip.queryTime > 0) {
-            getPickUpWindowMessage(segment.trip, segment.trip.queryIsLeaveAfter())
+            fetchRegionAndSetupPickUpMessage(segment.trip, segment.trip.queryIsLeaveAfter())
         }
 
-        hasPickUpWindow.set(false)
-        segment.booking?.confirmation?.purchase()?.pickupWindowDuration()?.let {
-            hasPickUpWindow.set(true)
-        }
+        hasPickUpWindow.set(segment.booking?.confirmation?.purchase()?.pickupWindowDuration() != null)
     }
 
-    private fun getPickUpWindowMessage(trip: Trip, isLeaveAfter: Boolean) {
+    private fun fetchRegionAndSetupPickUpMessage(trip: Trip, isLeaveAfter: Boolean) {
+        TripKitUI.getInstance().regionService().getRegionByLocationAsync(trip.from)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({
+                getPickUpWindowMessage(trip, isLeaveAfter, it)
+            },{
+                Timber.e(it)
+                if(BuildConfig.DEBUG){
+                    it.printStackTrace()
+                }
+                getPickUpWindowMessage(trip, isLeaveAfter, null)
+            }).autoClear()
+    }
+
+    private fun getPickUpWindowMessage(trip: Trip, isLeaveAfter: Boolean, region: Region?) {
         var dateTime = trip.startDateTime
+
+        val timeZone: String? = region?.timezone ?: trip.segments.first().timeZone
+
         if (!isLeaveAfter) {
             dateTime = trip.queryDateTime
         }
         val date = dateTime.toString(
             DateTimeFormat.forPattern("MMM d, yyyy")
-                .withZone(DateTimeZone.forID(trip.segments.first().timeZone))
+                .withZone(DateTimeZone.forID(timeZone))
         )
         val time = dateTime.toString(
             DateTimeFormat.forPattern("h:mm aa")
-                .withZone(DateTimeZone.forID(trip.segments.first().timeZone))
+                .withZone(DateTimeZone.forID(timeZone))
         )
 
         pickUpWindowMessage.set(String.format("Starts at %s at %s", date, time))
