@@ -176,35 +176,32 @@ open class TripPreviewPagerItemViewModel : RxViewModel() {
         }
 
         if (segment.trip.queryTime > 0) {
-            fetchRegionAndSetupPickUpMessage(segment.trip, segment.trip.queryIsLeaveAfter())
+            fetchRegionAndSetupPickUpMessage(segment.trip)
         }
 
         hasPickUpWindow.set(segment.booking?.confirmation?.purchase()?.pickupWindowDuration() != null)
     }
 
-    private fun fetchRegionAndSetupPickUpMessage(trip: Trip, isLeaveAfter: Boolean) {
+    private fun fetchRegionAndSetupPickUpMessage(trip: Trip) {
         TripKitUI.getInstance().regionService().getRegionByLocationAsync(trip.from)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({
-                getPickUpWindowMessage(trip, isLeaveAfter, it)
+                getPickUpWindowMessage(trip, it)
             },{
                 Timber.e(it)
                 if(BuildConfig.DEBUG){
                     it.printStackTrace()
                 }
-                getPickUpWindowMessage(trip, isLeaveAfter, null)
+                getPickUpWindowMessage(trip, null)
             }).autoClear()
     }
 
-    private fun getPickUpWindowMessage(trip: Trip, isLeaveAfter: Boolean, region: Region?) {
-        var dateTime = trip.startDateTime
+    private fun getPickUpWindowMessage(trip: Trip, region: Region?) {
+        val dateTime = trip.startDateTime
 
         val timeZone: String? = region?.timezone ?: trip.segments.first().timeZone
 
-        if (!isLeaveAfter) {
-            dateTime = trip.queryDateTime
-        }
         val date = dateTime.toString(
             DateTimeFormat.forPattern("MMM d, yyyy")
                 .withZone(DateTimeZone.forID(timeZone))
