@@ -141,7 +141,7 @@ class ServiceDetailViewModel @Inject constructor(private val context: Context,
     fun setup(segment: TripSegment) {
         regionService.getRegionByLocationAsync(segment.from)
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe {
+                .subscribe ({
                     setup(it.name!!,
                             segment.serviceTripId,
                             segment.serviceName,
@@ -153,7 +153,10 @@ class ServiceDetailViewModel @Inject constructor(private val context: Context,
                             segment.timetableStartTime,
                             segment.realTimeVehicle,
                             segment.wheelchairAccessible)
-                }.autoClear()
+                },{
+                    Timber.e(it)
+                })
+                .autoClear()
     }
 
     fun setup(_stop: ScheduledStop, _entry: TimetableEntry) {
