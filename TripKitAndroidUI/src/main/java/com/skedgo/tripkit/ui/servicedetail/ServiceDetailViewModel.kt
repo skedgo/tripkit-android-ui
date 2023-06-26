@@ -10,6 +10,7 @@ import androidx.databinding.ObservableBoolean
 import androidx.databinding.ObservableField
 import androidx.databinding.ObservableInt
 import com.jakewharton.rxrelay2.PublishRelay
+import com.skedgo.TripKit
 import com.skedgo.tripkit.ServiceApi
 import com.skedgo.tripkit.ServiceResponse
 import com.skedgo.tripkit.common.model.Location
@@ -18,10 +19,7 @@ import com.skedgo.tripkit.common.model.ServiceStop
 import com.skedgo.tripkit.common.model.WheelchairAccessible
 import com.skedgo.tripkit.data.regions.RegionService
 import com.skedgo.tripkit.logging.ErrorLogger
-import com.skedgo.tripkit.routing.RealTimeVehicle
-import com.skedgo.tripkit.routing.ServiceColor
-import com.skedgo.tripkit.routing.TripSegment
-import com.skedgo.tripkit.routing.dateTimeZone
+import com.skedgo.tripkit.routing.*
 import com.skedgo.tripkit.ui.BR
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.core.RxViewModel
@@ -61,6 +59,7 @@ class ServiceDetailViewModel @Inject constructor(private val context: Context,
     val showWheelchairAccessible = ObservableBoolean(false)
     val wheelchairAccessibleText = ObservableField<String>()
     val showExpandableMenu = ObservableBoolean(false)
+    val modeInfo = ObservableField<ModeInfo>()
 
     val wheelchairIcon = ObservableField<Drawable?>()
 
@@ -76,19 +75,34 @@ class ServiceDetailViewModel @Inject constructor(private val context: Context,
               serviceName: String?,
               serviceNumber: String?,
               serviceColor: ServiceColor?,
-              operator: String,
+              operator: String?,
               startStopCode: String,
               endStopCode: String?,
               embarkation: Long,
               realTimeVehicle: RealTimeVehicle?,
-              wheelchairAccessible: Boolean?) {
+              wheelchairAccessible: Boolean?,
+              schedule: Pair<String, Int>? = null,
+              modeInfo: ModeInfo? = null
+    ) {
         this.stationName.set(serviceName)
         this.serviceNumber.set(serviceNumber)
 
 //        val (secondaryMessage, color) = getRealtimeText.execute(_stop.dateTimeZone, _entry, _entry.realtimeVehicle)
 //        secondaryText.set(secondaryMessage)
 //        secondaryTextColor.set(ContextCompat.getColor(context, color))
-//        tertiaryText.set(getServiceTertiaryText.execute(_entry))
+
+        schedule?.let {
+            secondaryText.set(it.first)
+            secondaryTextColor.set(ContextCompat.getColor(context, it.second))
+        }
+
+        modeInfo?.let {
+            this.modeInfo.set(modeInfo)
+        }
+
+        val globalConfigs = TripKit.getInstance().configs()
+        if (globalConfigs.showOperatorNames())
+            tertiaryText.set(operator)
 
         realTimeVehicle?.let { occupancyViewModel.setOccupancy(it, false) }
         showOccupancyInfo.set(occupancyViewModel.hasInformation())
@@ -145,10 +159,14 @@ class ServiceDetailViewModel @Inject constructor(private val context: Context,
     fun setup(_stop: ScheduledStop, _entry: TimetableEntry) {
         regionService.getRegionByLocationAsync(_stop)
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe {
-                    setup(it.name!!,
+                .subscribe({
+                    setup(
+                            it.name ?: "",
                             _entry.getServiceTripId(),
-                            _entry.serviceName,
+                            if (!_entry.serviceName.isNullOrEmpty())
+                                _entry.serviceName!!
+                            else
+                                getServiceTertiaryText.execute(_entry),
                             _entry.serviceNumber,
                             _entry.serviceColor,
                             _entry.getOperator(),
@@ -156,8 +174,13 @@ class ServiceDetailViewModel @Inject constructor(private val context: Context,
                             null,
                             _entry.startTimeInSecs,
                             _entry.realtimeVehicle,
-                            _entry.wheelchairAccessible)
-                }.autoClear()
+                            _entry.wheelchairAccessible,
+                            getRealtimeText.execute(_stop.dateTimeZone, _entry, _entry.realtimeVehicle),
+                            _entry.modeInfo
+                    )
+                }, {
+                    it.printStackTrace()
+                }).autoClear()
     }
 
     fun processResponse(response: ServiceResponse) {

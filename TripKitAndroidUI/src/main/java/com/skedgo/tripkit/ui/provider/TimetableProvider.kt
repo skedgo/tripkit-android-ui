@@ -93,6 +93,7 @@ class TimetableProvider : ContentProvider() {
       return cursor
     } catch (e: Exception) {
       if (BuildConfig.DEBUG) {
+        e.printStackTrace()
         Timber.w("Error querying data", e)
       }
 
@@ -251,6 +252,7 @@ class TimetableProvider : ContentProvider() {
       return numInserted
     } catch (e: Exception) {
       if (BuildConfig.DEBUG) {
+        e.printStackTrace()
         Timber.w("Error inserting data", e)
       }
 
