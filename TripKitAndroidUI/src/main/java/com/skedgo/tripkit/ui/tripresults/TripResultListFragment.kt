@@ -27,6 +27,7 @@ import com.skedgo.tripkit.ui.core.addTo
 import com.skedgo.tripkit.ui.databinding.TripResultListFragmentBinding
 import com.skedgo.tripkit.ui.dialog.TripKitDateTimePickerDialogFragment
 import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButtonHandlerFactory
+import com.skedgo.tripkit.ui.utils.TripSearchUtils
 import com.skedgo.tripkit.ui.views.MultiStateView
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
@@ -261,7 +262,12 @@ class TripResultListFragment : BaseTripKitFragment() {
         var departureTimezone: String? = null
         var arrivalTimezone: String? = null
 
-        var timeMillis = System.currentTimeMillis()
+        var timeMillis = if (TripSearchUtils.dateTimeQuery != 0L) {
+            TripSearchUtils.dateTimeQuery
+        } else {
+            System.currentTimeMillis()
+        }
+
         val timeTag = viewModel.query.timeTag
         if (!timeTag!!.isDynamic) {
             timeMillis = TimeUnit.SECONDS.toMillis(timeTag.timeInSecs)
@@ -283,6 +289,9 @@ class TripResultListFragment : BaseTripKitFragment() {
 
             val globalConfigs = TripKit.getInstance().configs()
 
+
+
+
             val builder = TripKitDateTimePickerDialogFragment.Builder()
                 .withTitle(getString(R.string.set_time))
                 .withTimeZones(departureTimezone, arrivalTimezone)
@@ -303,6 +312,7 @@ class TripResultListFragment : BaseTripKitFragment() {
 
             fragment.setOnTimeSelectedListener(object : TripKitDateTimePickerDialogFragment.OnTimeSelectedListener {
                 override fun onTimeSelected(timeTag: TimeTag) {
+                    TripSearchUtils.dateTimeQuery = timeTag.timeInMillis
                     viewModel.updateQueryTime(timeTag)
                     accessibilityDefaultViewManager.focusAccessibilityDefaultView(false)
                 }
@@ -332,6 +342,7 @@ class TripResultListFragment : BaseTripKitFragment() {
 
             viewModel.setup(
                     it, showTransportSelectionView, transportModeFilter, actionButtonHandlerFactory,
+
                     execute = !showDateTimePopUpOnOpen
             )
         }
