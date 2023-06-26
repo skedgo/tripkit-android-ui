@@ -13,7 +13,9 @@ import com.google.android.flexbox.FlexboxLayoutManager
 import com.skedgo.TripKit
 import com.skedgo.tripkit.TransportModeFilter
 import com.skedgo.tripkit.common.model.Query
+import com.skedgo.tripkit.common.model.Region
 import com.skedgo.tripkit.common.model.TimeTag
+import com.skedgo.tripkit.data.regions.RegionService
 import com.skedgo.tripkit.model.ViewTrip
 import com.skedgo.tripkit.routing.TripGroup
 import com.skedgo.tripkit.ui.R
@@ -26,6 +28,7 @@ import com.skedgo.tripkit.ui.dialog.TripKitDateTimePickerDialogFragment
 import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButtonHandlerFactory
 import com.skedgo.tripkit.ui.views.MultiStateView
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.trip_result_list_fragment.view.*
 import timber.log.Timber
 import java.util.*
@@ -87,6 +90,10 @@ class TripResultListFragment : BaseTripKitFragment() {
     var actionButtonHandlerFactory: ActionButtonHandlerFactory? = null
     private var showTransportSelectionView = true
 
+    @Inject
+    lateinit var regionService: RegionService
+    private var region: Region? = null
+
     fun query(): Query {
         return viewModel.query
     }
@@ -107,7 +114,7 @@ class TripResultListFragment : BaseTripKitFragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         viewModel = ViewModelProviders.of(this, viewModelProviderFactory)
-                .get(TripResultListViewModel::class.java);
+                .get(TripResultListViewModel::class.java)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -199,6 +206,24 @@ class TripResultListFragment : BaseTripKitFragment() {
     }
 
     private fun showDateTimePicker(isCancelable: Boolean = true) {
+
+        if (region == null) {
+            regionService.getRegionByLocationAsync(viewModel.query.fromLocation)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe({
+                    this@TripResultListFragment.region = it
+                    proceedWithShowingDateTimePicker(isCancelable)
+                }, {
+                    Timber.e(it)
+                }).addTo(autoDisposable)
+        } else {
+            proceedWithShowingDateTimePicker(isCancelable)
+        }
+
+    }
+
+    private fun proceedWithShowingDateTimePicker(isCancelable: Boolean = true) {
         var departureTimezone: String? = null
         var arrivalTimezone: String? = null
 
@@ -208,11 +233,16 @@ class TripResultListFragment : BaseTripKitFragment() {
             timeMillis = TimeUnit.SECONDS.toMillis(timeTag.timeInSecs)
         }
 
-        if (viewModel.query.fromLocation != null) {
-            departureTimezone = viewModel.query.fromLocation!!.timeZone
-        }
-        if (viewModel.query.toLocation != null) {
-            arrivalTimezone = viewModel.query.toLocation!!.timeZone
+        if (region != null) {
+            departureTimezone = region?.timezone
+            arrivalTimezone = region?.timezone
+        } else {
+            if (viewModel.query.fromLocation != null) {
+                departureTimezone = viewModel.query.fromLocation!!.timeZone
+            }
+            if (viewModel.query.toLocation != null) {
+                arrivalTimezone = viewModel.query.toLocation!!.timeZone
+            }
         }
 
         try {
@@ -220,16 +250,16 @@ class TripResultListFragment : BaseTripKitFragment() {
             val globalConfigs = TripKit.getInstance().configs()
 
             val builder = TripKitDateTimePickerDialogFragment.Builder()
-                    .withTitle(getString(R.string.set_time))
-                    .withTimeZones(departureTimezone, arrivalTimezone)
-                    .withTimeType(timeTag.type)
-                    .timeMillis(timeMillis)
-                    .withPositiveAction(R.string.done)
-                    /*.withNegativeAction(R.string.leave_now)*/
-                    .setTimePickerMinutesInterval(
-                            globalConfigs.dateTimePickerConfig()?.dateTimePickerMinuteInterval ?: 1)
-                    .setLeaveAtLabel(globalConfigs.dateTimePickerConfig()?.dateTimePickerLeaveAtLabel)
-                    .setArriveByLabel(globalConfigs.dateTimePickerConfig()?.dateTimePickerArriveByLabel)
+                .withTitle(getString(R.string.set_time))
+                .withTimeZones(departureTimezone, arrivalTimezone)
+                .withTimeType(timeTag.type)
+                .timeMillis(timeMillis)
+                .withPositiveAction(R.string.done)
+                /*.withNegativeAction(R.string.leave_now)*/
+                .setTimePickerMinutesInterval(
+                    globalConfigs.dateTimePickerConfig()?.dateTimePickerMinuteInterval ?: 1)
+                .setLeaveAtLabel(globalConfigs.dateTimePickerConfig()?.dateTimePickerLeaveAtLabel)
+                .setArriveByLabel(globalConfigs.dateTimePickerConfig()?.dateTimePickerArriveByLabel)
 
             if (globalConfigs.dateTimePickerConfig()?.isWithLeaveNow == true) {
                 builder.withNegativeAction(R.string.leave_now)
@@ -249,7 +279,6 @@ class TripResultListFragment : BaseTripKitFragment() {
             // To prevent https://fabric.io/skedgo/android/apps/com.buzzhives.android.tripplanner/issues/5967e7f0be077a4dcc839dc5.
             Timber.e("An error occurred", error)
         }
-
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

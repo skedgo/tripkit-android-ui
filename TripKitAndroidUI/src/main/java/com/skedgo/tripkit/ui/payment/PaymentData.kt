@@ -4,6 +4,9 @@ import com.skedgo.tripkit.booking.quickbooking.EphemeralKey
 import com.skedgo.tripkit.booking.quickbooking.Input
 import com.skedgo.tripkit.booking.quickbooking.PaymentOption
 import com.skedgo.tripkit.booking.quickbooking.Review
+import com.skedgo.tripkit.common.util.decimalFormatWithCurrencySymbol
+import com.skedgo.tripkit.common.util.factor100
+import com.skedgo.tripkit.common.util.nonDecimalFormatWithCurrencySymbol
 import com.skedgo.tripkit.ui.generic.transport.TransportDetails
 import com.skedgo.tripkit.ui.utils.getCurrencySymbol
 
@@ -31,6 +34,12 @@ data class PaymentData(
         review?.forEach {
             total += it.getFormattedPrice()
         }
-        return String.format("%s%.2f", currency.getCurrencySymbol(), total)
+
+        return if (total.factor100()) {
+            total.toInt().nonDecimalFormatWithCurrencySymbol(currency.getCurrencySymbol())
+        } else {
+            total.decimalFormatWithCurrencySymbol(currency.getCurrencySymbol())
+        }
+
     }
 }

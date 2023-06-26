@@ -49,6 +49,7 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import me.tatarka.bindingcollectionadapter2.collections.MergeObservableList
 import me.tatarka.bindingcollectionadapter2.itembindings.OnItemBindClass
+import org.joda.time.DateTimeZone
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -230,12 +231,22 @@ class TripResultListViewModel @Inject constructor(
 
     private fun setTimeLabel() {
         query.timeTag?.let { timeTag ->
-            query.fromLocation?.let {
-                routingTimeViewModelMapper.toText(timeTag.toRoutingTime(it.dateTimeZone)).toObservable()
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe { str ->
-                            timeLabel.set(str)
-                        }.autoClear()
+            query.fromLocation?.let { fromLocation ->
+                if (fromLocation.timeZone == null) {
+                    regionService.getRegionByLocationAsync(fromLocation)
+                        .map { it.timezone }
+                } else {
+                    Observable.just(fromLocation.timeZone)
+                }.flatMap { timeZone ->
+                    val dateTimeZone = DateTimeZone.forID(timeZone)
+                    routingTimeViewModelMapper.toText(timeTag.toRoutingTime(dateTimeZone))
+                        .toObservable()
+                }.observeOn(AndroidSchedulers.mainThread())
+                    .subscribe { str ->
+                        timeLabel.set(str)
+                    }.autoClear()
+
+
             }
         }
     }

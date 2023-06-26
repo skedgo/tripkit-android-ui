@@ -1483,5 +1483,10 @@ Note, your iCloud data will not be deleted by this, but you can delete this in t
 	<string name="payments">Payments</string>
 
 	<string name="earn_rewards">Earn Rewards</string>
+
+	<string name="review_booking">Review Booking</string>
+	<string name="total">Total</string>
+	<string name="confirm_booking">Confirm booking</string>
+	<string name="continue_to_payment">Continue to payment</string>
 </resources>
 	<!-- This is an auto generated file (Mon Jan 20 14:50:01 CET 2020) -->

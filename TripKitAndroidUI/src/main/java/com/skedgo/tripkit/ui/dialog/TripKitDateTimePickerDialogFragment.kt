@@ -174,19 +174,14 @@ class TripKitDateTimePickerDialogFragment : DialogFragment(), TimePicker.OnTimeC
 
     private fun onNegativeClickListener(): DialogInterface.OnClickListener {
         return DialogInterface.OnClickListener { dialog, buttonType ->
-            if (timeSelectedListener != null) {
-                timeSelectedListener!!.onTimeSelected(timePickerViewModel!!.leaveNow())
-            }
+            timeSelectedListener?.onTimeSelected(timePickerViewModel.leaveNow())
             dismiss()
         }
     }
 
     private fun onPositiveClickListener(): DialogInterface.OnClickListener {
         return DialogInterface.OnClickListener { dialog, buttonType ->
-            if (timeSelectedListener != null) {
-                timeSelectedListener!!.onTimeSelected(timePickerViewModel!!.done())
-            }
-
+            timeSelectedListener?.onTimeSelected(timePickerViewModel.done())
             dismiss()
         }
     }
