@@ -142,7 +142,7 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
 
     var bookingActions: ArrayList<String>? = null
         set(value) {
-            if (value != null && tripSegment?.ticket == null) {
+            if (value != null) {
                 this.viewModel.withBookingActions(value, tripSegment)
             }
             field = value

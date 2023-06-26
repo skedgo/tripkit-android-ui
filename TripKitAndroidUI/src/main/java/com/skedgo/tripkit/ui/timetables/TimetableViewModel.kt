@@ -331,10 +331,8 @@ class TimetableViewModel @Inject constructor(
         }
 
         showButton.set(
-                action.isNotEmpty() && (
-                        !segment?.booking?.quickBookingsUrl.isNullOrEmpty() || !segment?.booking?.confirmation?.tickets()
-                                ?.first()?.purchasedTickets().isNullOrEmpty()
-                        )
+                action.isNotEmpty() && (segment?.booking?.quickBookingsUrl.isNullOrEmpty()
+                        || !segment?.booking?.confirmation?.purchasedTickets().isNullOrEmpty())
         )
     }
 
