@@ -546,6 +546,7 @@
 	<string name="the_application_encountered_a_critical_error_and_can_apostt_recover_2points">The application encountered a critical error and can\'t recover:</string>
 	<!--Title for view that presents a purchased ticket-->
 	<string name="ticket">Ticket</string>
+	<string name="tickets">Tickets</string>
 	<!--Indicating that a ticket has expired.-->
 	<string name="ticket_expired">Ticket expired</string>
 	<!--Title for screen to pick your working hours-->

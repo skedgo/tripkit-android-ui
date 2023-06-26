@@ -20,6 +20,10 @@ class TripResultListViewTransportModeFilter(private val transportModeFilter: Tra
         return transportModeFilter.avoidTransportMode(mode)
     }
 
+    override fun getFilteredMode(originalModes: List<String>): List<String> {
+        return emptyList()
+    }
+
     override fun writeToParcel(parcel: Parcel, flags: Int) {
     }
 

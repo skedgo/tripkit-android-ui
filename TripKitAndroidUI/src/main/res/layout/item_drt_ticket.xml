@@ -27,6 +27,7 @@
             android:padding="@dimen/spacing_small"
             app:layout_constraintEnd_toStartOf="@+id/itemDrt_actionLayout"
             app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
             <TextView
@@ -73,11 +74,13 @@
                 android:focusable="false"
                 android:text="@{viewModel.description}"
                 android:textColor="@color/black1"
-                android:visibility="@{viewModel.description.length() > 0}"
+                android:visibility="visible"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/itemDrt_tvLabel"
                 tools:text="Tap to make selections" />
+
+<!--            android:visibility="@{viewModel.description.length() > 0}"-->
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

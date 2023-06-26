@@ -67,6 +67,7 @@ class GoogleAndTripGoSuggestionViewModel(context: Context,
     }
 
     override val title: String by lazy {
+
         if (!location.name.isNullOrEmpty()) {
             return@lazy location.name
         }

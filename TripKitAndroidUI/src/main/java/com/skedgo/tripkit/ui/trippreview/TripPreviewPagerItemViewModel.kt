@@ -62,8 +62,22 @@ open class TripPreviewPagerItemViewModel : RxViewModel() {
         this.segment = segment
         this.modeTitle.set(getModeTitle(segment))
         title.set(TripSegmentUtils.getTripSegmentAction(context, segment) ?: "Unknown Action")
-        instructionTitle.set(segment.miniInstruction?.instruction ?: title.get())
-        val instruction = segment.miniInstruction?.description
+        var title = segment.miniInstruction?.instruction ?: title.get()
+        title = try {
+            title?.replace(Templates.TEMPLATE_PLATFORM, segment.platform ?: "")?.replace(
+                SegmentActionTemplates.TEMPLATE_NUMBER, segment.serviceNumber
+            )
+        } catch (e: Exception) {
+            title
+        }
+        instructionTitle.set(title)
+
+        var instruction = segment.miniInstruction?.description
+        instruction = try {
+            instruction?.replace(SegmentNotesTemplates.TEMPLATE_DIRECTION, segment.serviceDirection ?: "")
+        } catch (e: Exception) {
+            instruction
+        }
 
         if (segment.metres > 0) {
             notes.set(DistanceFormatter.format(segment.metres))
@@ -102,17 +116,17 @@ open class TripPreviewPagerItemViewModel : RxViewModel() {
             } else {
                 if (url != null) {
                     remoteIcon = TripKitUI.getInstance().picasso().fetchAsync(url).toObservable()
-                            .map { bitmap -> BitmapDrawable(context.resources, bitmap) }
+                        .map { bitmap -> BitmapDrawable(context.resources, bitmap) }
                 }
                 Observable
-                        .just(ContextCompat.getDrawable(context, segment.darkVehicleIcon))
-                        .concatWith(remoteIcon)
-                        .map { it }
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe({ drawable:
-                                     Drawable ->
-                            icon.set(drawable)
-                        }, { e -> Timber.e(e) }).autoClear()
+                    .just(ContextCompat.getDrawable(context, segment.darkVehicleIcon))
+                    .concatWith(remoteIcon)
+                    .map { it }
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe({ drawable:
+                                 Drawable ->
+                        icon.set(drawable)
+                    }, { e -> Timber.e(e) }).autoClear()
 
             }
         }
@@ -144,13 +158,13 @@ open class TripPreviewPagerItemViewModel : RxViewModel() {
             val startDateTime = segment.startDateTime
             val labelForStartDate = startDateTime.toDate().checkDateForStringLabel(context)
             val startDate = labelForStartDate
-                    ?: startDateTime.toString(DateTimeFormat.forPattern("MMM d, yyyy"))
+                ?: startDateTime.toString(DateTimeFormat.forPattern("MMM d, yyyy"))
             val startTime = startDateTime.toString(DateTimeFormat.forPattern("h:mm aa"))
 
             val endDateTime = segment.endDateTime
             val labelForEndDate = endDateTime.toDate().checkDateForStringLabel(context)
             val endDate = labelForEndDate
-                    ?: endDateTime.toString(DateTimeFormat.forPattern("MMM d, yyyy"))
+                ?: endDateTime.toString(DateTimeFormat.forPattern("MMM d, yyyy"))
             val endTime = endDateTime.toString(DateTimeFormat.forPattern("h:mm aa"))
 
             requestedPickUp.set("$startDate $startTime")
@@ -173,12 +187,12 @@ open class TripPreviewPagerItemViewModel : RxViewModel() {
             dateTime = trip.queryDateTime
         }
         val date = dateTime.toString(
-                DateTimeFormat.forPattern("MMM d, yyyy")
-                        .withZone(DateTimeZone.forID(trip.segments.first().timeZone))
+            DateTimeFormat.forPattern("MMM d, yyyy")
+                .withZone(DateTimeZone.forID(trip.segments.first().timeZone))
         )
         val time = dateTime.toString(
-                DateTimeFormat.forPattern("h:mm aa")
-                        .withZone(DateTimeZone.forID(trip.segments.first().timeZone))
+            DateTimeFormat.forPattern("h:mm aa")
+                .withZone(DateTimeZone.forID(trip.segments.first().timeZone))
         )
 
         pickUpWindowMessage.set(String.format("Starts at %s at %s", date, time))
@@ -203,10 +217,10 @@ open class TripPreviewPagerItemViewModel : RxViewModel() {
 
     fun generateTransportDetails(): TransportDetails {
         return TransportDetails(
-                fromLocation.get() ?: "",
-                requestedPickUp.get() ?: "",
-                toLocation.get() ?: "",
-                requestedDropOff.get() ?: ""
+            fromLocation.get() ?: "",
+            requestedPickUp.get() ?: "",
+            toLocation.get() ?: "",
+            requestedDropOff.get() ?: ""
         )
     }
 }
