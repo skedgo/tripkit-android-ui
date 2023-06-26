@@ -1,6 +1,7 @@
 package com.skedgo.tripkit.ui.payment
 
 import com.skedgo.tripkit.booking.quickbooking.EphemeralKey
+import com.skedgo.tripkit.booking.quickbooking.Input
 import com.skedgo.tripkit.booking.quickbooking.PaymentOption
 import com.skedgo.tripkit.booking.quickbooking.Review
 import com.skedgo.tripkit.ui.generic.transport.TransportDetails
@@ -18,7 +19,8 @@ data class PaymentData(
     val paymentOptions: List<PaymentOption>?,
     val review: List<Review>?,
     val publishableApiKey: String?,
-    val ephemeralKey: EphemeralKey?
+    val ephemeralKey: EphemeralKey?,
+    val areInputsValid: Boolean
 ) {
     fun getTotalValue(): String {
         var total = 0.0

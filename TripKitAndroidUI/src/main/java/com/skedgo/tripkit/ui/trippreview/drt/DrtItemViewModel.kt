@@ -129,7 +129,7 @@ class DrtItemViewModel : ViewModel() {
         _isReturnTrip.value = value
     }
 
-    fun setRawDate(value: String) {
+    fun setRawDate(value: String?) {
         _rawDate.value = value
     }
 

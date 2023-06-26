@@ -179,7 +179,7 @@
                 android:onClick="@{() -> viewModel.onSelect()}"
                 android:padding="@dimen/spacing_small"
                 android:text="@string/str_select"
-                android:textColor="@color/colorPrimary"
+                android:textColor="@android:color/white"
                 android:visibility="@{!viewModel.viewMode &amp; viewModel.value == 0}"
                 app:accessibilityViewFocus="@{viewModel.accessibilityFocusSelectAction}"
                 app:layout_constraintBottom_toBottomOf="parent"
