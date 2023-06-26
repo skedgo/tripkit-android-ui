@@ -2,6 +2,7 @@ package com.skedgo.tripkit.ui.tripresults
 
 import android.content.Context
 import android.os.Bundle
+import android.text.format.DateUtils
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -30,6 +31,9 @@ import com.skedgo.tripkit.ui.views.MultiStateView
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.trip_result_list_fragment.view.*
+import org.joda.time.DateTime
+import org.joda.time.DateTimeZone
+import org.joda.time.format.DateTimeFormat
 import timber.log.Timber
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -135,6 +139,29 @@ class TripResultListFragment : BaseTripKitFragment() {
         }
 
         binding.leaveNowLayout.setOnClickListener { showDateTimePicker() }
+        binding.leaveNowLayout.accessibilityDelegate = object: View.AccessibilityDelegate() {
+            override fun sendAccessibilityEvent(host: View?, eventType: Int) {
+                viewModel.query.timeTag?.let { timeTag ->
+                    if(timeTag.isLeaveNow) {
+                        if(region != null) {
+                            modifyLeaveNowAccessibility(host, timeTag, region?.timezone)
+                        } else {
+                            regionService.getRegionByLocationAsync(viewModel.query.fromLocation)
+                                .observeOn(AndroidSchedulers.mainThread())
+                                .subscribeOn(Schedulers.io())
+                                .subscribe({
+                                    this@TripResultListFragment.region = it
+                                    modifyLeaveNowAccessibility(host, timeTag, it.timezone)
+                                }, {
+                                    Timber.e(it)
+                                }).addTo(autoDisposable)
+                        }
+                    }
+                }
+
+                super.sendAccessibilityEvent(host, eventType)
+            }
+        }
 //        binding.swipeRefreshLayout.setOnRefreshListener { viewModel.reload() }
         val layoutManager = FlexboxLayoutManager(context)
         layoutManager.flexDirection = FlexDirection.ROW
@@ -143,6 +170,13 @@ class TripResultListFragment : BaseTripKitFragment() {
         accessibilityDefaultViewManager.setDefaultViewForAccessibility(binding.toLocation)
 
         return binding.root
+    }
+
+    fun modifyLeaveNowAccessibility(host: View?, timeTag: TimeTag, timezone: String?) {
+        val dt = DateTime(timeTag.timeInMillis, DateTimeZone.forID(timezone))
+        val formatter = DateTimeFormat.forPattern("HH:mm aa")
+            .withZone(DateTimeZone.forID(timezone))
+        host?.contentDescription = "Leave now ${dt.toString(formatter)}"
     }
 
     fun showCloseButton(showCloseButton: Boolean) {
