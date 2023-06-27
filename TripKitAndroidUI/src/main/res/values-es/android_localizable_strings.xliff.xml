@@ -121,4 +121,7 @@
 <!--    <string name="Read_to_learn_more_about_each_data_you_shared_002c_such_as_how_to_turn_sharing_on_or_off_later__Data_will_be_used_according_to_privacy_policy">Lea para obtener más información sobre cada dato que compartió, por ejemplo, cómo activar o desactivar el uso compartido más adelante. Los datos se utilizarán de acuerdo con la política de privacidad&lt;/a&gt;de %1$s\\\'s &lt;a href=\"%2$s\"&gt;</string>-->
     <!-- I want to delete my account label -->
     <string name="i_want_to_delete_my_account">Quiero eliminar mi cuenta</string>
+    <string name="lbl_drop_off">Llegada</string>
+    <string name="lbl_pickup">Salida</string>
+    <string name="lbl_manage">Administrar</string>
 </resources>

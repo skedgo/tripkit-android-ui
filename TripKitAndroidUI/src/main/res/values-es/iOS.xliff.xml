@@ -1227,4 +1227,16 @@
     <string name="my_account">Mi cuenta</string>
     <string name="click_to_change_profile_picture">Clic para cambiar tu foto de perfil</string>
     <string name="tap_to">Toque para %s</string>
+    <string name="active_trip">Viaje activo</string>
+    <string name="str_my_bookings">Mis reservas</string>
+    <string name="my_bookings">Mis reservas</string>
+    <!--This is a type of mobility bundle. It usually means users have to pay some fees per month to access the benefits included in the bundle. The difference between this and the minimum purchase type is the fees paid cannot be used on any travel.-->
+    <string name="subscription">Suscripción</string>
+    <string name="pick_a_subscription">Elige una suscripción</string>
+    <string name="a_subscription_provides_access">Una suscripción proporciona acceso a un mundo de privilegios.</string>
+    <string name="where_do_you_want_to_go_question">Donde quieres ir?</string>
+    <string name="str_no_active_trip">Su viaje activo se mostrará aquí.</string>
+    <string name="str_getting_active_trip">Obteniendo tu viaje activo…</string>
+    <string name="str_getting_active_trip_msg">Por favor espere mientras buscamos su viaje activo.</string>
+    <string name="str_no_active_trip_msg">Actualmente no tienes ningún viaje activo.</string>
 </resources>
