@@ -19,6 +19,9 @@ class DrtItemViewModel : ViewModel() {
     private val _label = MutableLiveData<String>()
     val label: LiveData<String> = _label
 
+    private val _ids = MutableLiveData<List<String>>()
+    val ids: LiveData<List<String>> = _ids
+
     private val _values = MutableLiveData<List<String>>()
     val values: LiveData<List<String>> = _values
 
@@ -90,6 +93,10 @@ class DrtItemViewModel : ViewModel() {
 
     fun setValue(values: List<String>) {
         _values.value = values
+    }
+
+    fun setIds(ids: List<String>) {
+        _ids.value = ids
     }
 
     fun setRequired(value: Boolean) {
