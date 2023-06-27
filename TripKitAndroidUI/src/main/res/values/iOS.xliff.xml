@@ -1495,5 +1495,7 @@ Note, your iCloud data will not be deleted by this, but you can delete this in t
 
 	<string name="yes">Yes</string>
 	<string name="no">No</string>
+
+	<string name="notes">Notes</string>
 </resources>
 	<!-- This is an auto generated file (Mon Jan 20 14:50:01 CET 2020) -->
