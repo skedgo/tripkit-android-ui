@@ -123,7 +123,6 @@
     <string name="lbl_pickup">الركوب</string>
     <string name="lbl_drop_off">إنزال</string>
     <string name="managing_your_shared_data">إدارة البيانات المشتركة الخاصة بك</string>
-    <string name="read_to_learn_more_about_each_data_you_shared_comma_such_as_how_to_turn_sharing_on_or_off_later_dot_data_will_be_used_according_to_tripgo_quote_s_privacy_policy_dot">اقرأ المزيد عن كل البيانات التي شاركتها، مثل كيفية تشغيل المشاركة أو إيقافها لاحقاً. سيتم استخدام البيانات وفقا لسياسة الخصوصية %1$s\'s &lt;a href="%2$s"&gt;&lt;/a&gt;</string>
     <string name="i_want_to_delete_my_account">اريد حذف حسابي</string>
     <string name="lbl_manage">Manage</string>
 </resources>

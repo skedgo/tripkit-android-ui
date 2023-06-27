@@ -1465,7 +1465,6 @@ Note, your iCloud data will not be deleted by this, but you can delete this in t
 	</plurals>
 
 	<string name="choose_on_map">Choose on Map</string>
-	<string name="sign_in_to_continue">Sign in</string>
 	<string name="subscriber_only">Your %s account opens the door to more exciting features.</string>
 	<string name="choose_location">Choose location</string>
 	<string name="favorites">Favorites</string>
@@ -1492,10 +1491,14 @@ Note, your iCloud data will not be deleted by this, but you can delete this in t
 	<!--For phone number-->
 	<string name="phone">Phone</string>
 	<string name="warn_phone">To update your phone number, please call 1–833–653–6544 and request technical support. A live agent will be able to assist you. The ability to reach you regarding your trip plans is of utmost importance and we appreciate your support with this matter.</string>
-
 	<string name="yes">Yes</string>
 	<string name="no">No</string>
 
 	<string name="notes">Notes</string>
+
+	<string name="use_the_sliders_to_tell_us_what_most_important_to_you">Use the sliders to choose your highest and lowest priorities when travelling. Only one priority can be maximised. %s will display search results according to these preferences.</string>
+	<string name="sign_in_to_continue">Sign in to continue</string>
+
+	<string name="requested_time">Requested time %s at %s</string>
 </resources>
 	<!-- This is an auto generated file (Mon Jan 20 14:50:01 CET 2020) -->

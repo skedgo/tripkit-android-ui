@@ -744,7 +744,7 @@
     <!-- Repeats yearly -->
     <string name="repeats_yearly">التكرار السنوي</string>
     <!-- This is usually followed by a date/time, e.g., Requested time: Dec. 19, 2021, 10:00:00 -->
-    <string name="requested_time">الوقت المطلوب %s</string>
+    <string name="requested_time">الوقت المطلوب %s% s</string>
     <!-- Action title to reset something, e.g., settings -->
     <string name="reset">إعادة تعيين</string>
     <!-- No comment provided by engineer. -->

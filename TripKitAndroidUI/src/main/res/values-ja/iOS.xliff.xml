@@ -575,7 +575,7 @@
     <!-- Repeats yearly -->
     <string name="repeats_yearly">毎年繰り返す</string>
     <!-- This is usually followed by a date/time, e.g., Requested time: Dec. 19, 2021, 10:00:00 -->
-    <string name="requested_time">リクエスト時刻</string>
+    <string name="requested_time">%sリクエスト時刻</string>
     <!-- Action title to reset something, e.g., settings -->
     <string name="reset">リセット</string>
     <!-- No comment provided by engineer. -->

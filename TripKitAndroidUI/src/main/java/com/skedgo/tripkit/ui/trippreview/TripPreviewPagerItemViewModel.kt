@@ -151,7 +151,7 @@ open class TripPreviewPagerItemViewModel : RxViewModel() {
                 val queryDateTime = segment.trip.queryDateTime
                 val date = queryDateTime.toString(DateTimeFormat.forPattern("MMM d, yyyy"))
                 val time = queryDateTime.toString(DateTimeFormat.forPattern("h:mm aa"))
-                val label = String.format("Requested time %s at %s", date, time)
+                val label = String.format(context.getString(R.string.requested_time), date, time)
                 if (segment.trip.queryIsLeaveAfter()) {
                     requestedPickUp.set(label)
                 } else {
