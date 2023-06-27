@@ -1253,5 +1253,7 @@
     <string name="exercise">Ejercicio</string>
     <string name="sign_in_to_continue">Inicie sesión en su cuenta</string>
     <string name="warn_phone">Para actualizar su número de teléfono, llame al 1–833–653–6544 y solicite asistencia técnica. Un agente en vivo podrá ayudarlo. La capacidad de comunicarnos con usted con respecto a sus planes de viaje es de suma importancia y apreciamos su apoyo con este asunto.</string>
-    <string name="tap_change_to_make_selection">Toque Cambiar para hacer selecciones</string>-->
+    <string name="tap_change_to_make_selection">Toque Cambiar para hacer selecciones</string>
+    <string name="start_here">Comienza aquí</string>
+    <string name="end_here">Termina aquí</string>
 </resources>

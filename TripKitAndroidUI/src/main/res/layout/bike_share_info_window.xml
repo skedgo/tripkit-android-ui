@@ -28,14 +28,14 @@
             android:src="@drawable/ic_bicycle_share" />
 
     <TextView
-            android:id="@+id/availableBikesText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/operatorName"
-            android:layout_toRightOf="@id/bikeShareIcon"
-            android:padding="8dp"
-            android:text="@string/available_bikes"
-            android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
+        android:id="@+id/availableBikesText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/operatorName"
+        android:layout_toRightOf="@id/bikeShareIcon"
+        android:padding="8dp"
+        android:text="@string/available_bikes"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
 
     <TextView
             android:id="@+id/availableBikes"

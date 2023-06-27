@@ -10,10 +10,7 @@ import android.view.ViewGroup
 import androidx.lifecycle.ViewModelProviders
 import com.jakewharton.rxrelay2.PublishRelay
 import com.skedgo.tripkit.common.model.Location
-import com.skedgo.tripkit.ui.ARG_IS_FAVORITE
-import com.skedgo.tripkit.ui.ARG_LOCATION
-import com.skedgo.tripkit.ui.ARG_SHOW_CLOSE_BUTTON
-import com.skedgo.tripkit.ui.TripKitUI
+import com.skedgo.tripkit.ui.*
 import com.skedgo.tripkit.ui.core.BaseTripKitFragment
 import com.skedgo.tripkit.ui.databinding.PoiDetailsFragmentBinding
 import com.skedgo.tripkit.ui.utils.getPackageNameFromStoreUrl
@@ -38,7 +35,8 @@ class PoiDetailsFragment : BaseTripKitFragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        viewModel = ViewModelProviders.of(this, viewModelFactory).get(PoiDetailsViewModel::class.java)
+        viewModel =
+            ViewModelProviders.of(this, viewModelFactory).get(PoiDetailsViewModel::class.java)
     }
 
     fun toggleFavorite(isFavorite: Boolean) {
@@ -50,15 +48,21 @@ class PoiDetailsFragment : BaseTripKitFragment() {
         viewModel.refresh(requireContext())
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         val isFavorite = arguments?.getBoolean(ARG_IS_FAVORITE, false) ?: false
         val showCloseButton = arguments?.getBoolean(ARG_SHOW_CLOSE_BUTTON, false) ?: false
         val location = arguments?.getParcelable(ARG_LOCATION) as Location?
+        val isRouting = arguments?.getBoolean(ARG_IS_ROUTING, false) ?: false
+        val isDeparture = arguments?.getBoolean(ARG_IS_DEPARTURE, false) ?: false
 
         viewModel.showCloseButton.set(showCloseButton)
         viewModel.setFavorite(requireContext(), isFavorite)
 
-        location?.let { viewModel.start(requireContext(), it) }
+        location?.let { viewModel.start(requireContext(), it, isRouting, isDeparture) }
 
         binding = PoiDetailsFragmentBinding.inflate(inflater)
         binding.lifecycleOwner = this
@@ -76,7 +80,11 @@ class PoiDetailsFragment : BaseTripKitFragment() {
             location?.appUrl?.let {
                 if (it.isAppInstalled(requireContext().packageManager)) {
                     it.getPackageNameFromStoreUrl()?.let { appId ->
-                        startActivity(requireContext().packageManager.getLaunchIntentForPackage(appId))
+                        startActivity(
+                            requireContext().packageManager.getLaunchIntentForPackage(
+                                appId
+                            )
+                        )
                     }
                 } else {
                     startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(it)))
@@ -93,6 +101,8 @@ class PoiDetailsFragment : BaseTripKitFragment() {
     class Builder(val location: Location) {
         private var showCloseButton = false
         private var isFavorite = false
+        private var isDeparture = false
+        private var isRouting = false
         fun showCloseButton(showCloseButton: Boolean): Builder {
             this.showCloseButton = showCloseButton
             return this
@@ -103,11 +113,23 @@ class PoiDetailsFragment : BaseTripKitFragment() {
             return this
         }
 
+        fun isDeparture(isDeparture: Boolean): Builder {
+            this.isDeparture = isDeparture
+            return this
+        }
+
+        fun isRouting(isRouting: Boolean): Builder {
+            this.isRouting = isRouting
+            return this
+        }
+
         fun build() = PoiDetailsFragment().apply {
             arguments = Bundle().apply {
                 this.putBoolean(ARG_SHOW_CLOSE_BUTTON, showCloseButton)
                 this.putParcelable(ARG_LOCATION, location)
                 this.putBoolean(ARG_IS_FAVORITE, isFavorite)
+                this.putBoolean(ARG_IS_ROUTING, isRouting)
+                this.putBoolean(ARG_IS_DEPARTURE, isDeparture)
             }
         }
     }
