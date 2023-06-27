@@ -783,26 +783,29 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
 
     //0 = from/origin, 1 = to/destination
     fun getMarkerBitmap(type: Int): Bitmap {
+
+        val builder = BearingMarkerIconBuilder(resources, null)
+            .hasBearing(false)
+            .vehicleIconScale(ModeInfo.MAP_LIST_SIZE_RATIO)
+            .baseIcon(R.drawable.ic_map_pin_base)
+            .hasBearingVehicleIcon(false)
+            .hasTime(false)
+
         return if (type == 0) {
-            BearingMarkerIconBuilder(resources, null)
-                    .hasBearing(false)
-                    .vehicleIconScale(ModeInfo.MAP_LIST_SIZE_RATIO)
-                    .baseIcon(R.drawable.ic_map_pin_base)
-                    .vehicleIcon(VehicleDrawables.createLightDrawable(resources, com.skedgo.tripkit.common.R.drawable.v4_ic_map_location))
-                    .pointerIcon(R.drawable.ic_map_pin_departure)
-                    .hasBearingVehicleIcon(false)
-                    .hasTime(false)
-                    .build().first
+            builder.apply {
+                VehicleDrawables.createLightDrawable(resources, R.drawable.ic_location_on)?.let {
+                    vehicleIcon(it)
+                }
+                pointerIcon(R.drawable.ic_map_pin_departure)
+            }.build().first
+
         } else {
-            BearingMarkerIconBuilder(resources, null)
-                    .hasBearing(false)
-                    .vehicleIconScale(ModeInfo.MAP_LIST_SIZE_RATIO)
-                    .baseIcon(R.drawable.ic_map_pin_base)
-                    .vehicleIcon(VehicleDrawables.createLightDrawable(resources, com.skedgo.tripkit.common.R.drawable.v4_ic_map_location))
-                    .pointerIcon(R.drawable.ic_map_pin_arrival_small)
-                    .hasBearingVehicleIcon(false)
-                    .hasTime(false)
-                    .build().first
+            builder.apply {
+                VehicleDrawables.createLightDrawable(resources, R.drawable.ic_location_on)?.let {
+                    vehicleIcon(it)
+                }
+                pointerIcon(R.drawable.ic_map_pin_arrival_small)
+            }.build().first
         }
     }
 
