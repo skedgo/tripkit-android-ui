@@ -58,12 +58,17 @@ class GenericListAdapter @Inject constructor() :
 
                     super.onInitializeAccessibilityNodeInfo(host, info)
 
-                    val description = if(collection[position].selected) "unselect" else "select"
-                    val customClick = AccessibilityNodeInfo.AccessibilityAction(
-                        AccessibilityNodeInfoCompat.ACTION_CLICK, description
-                    )
+                    if(!isViewOnlyMode) {
 
-                    info?.addAction(customClick)
+                        val description =
+                            if (collection[position].selected) "unselect" else "select"
+
+                        val customClick = AccessibilityNodeInfo.AccessibilityAction(
+                            AccessibilityNodeInfoCompat.ACTION_CLICK, description
+                        )
+
+                        info?.addAction(customClick)
+                    }
                 }
 
                 override fun sendAccessibilityEvent(host: View?, eventType: Int) {
