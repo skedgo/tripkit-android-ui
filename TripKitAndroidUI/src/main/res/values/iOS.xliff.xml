@@ -1488,5 +1488,9 @@ Note, your iCloud data will not be deleted by this, but you can delete this in t
 	<string name="total">Total</string>
 	<string name="confirm_booking">Confirm booking</string>
 	<string name="continue_to_payment">Continue to payment</string>
+
+	<!--For phone number-->
+	<string name="phone">Phone</string>
+	<string name="warn_phone">To update your phone number, please call 1–833–653–6544 and request technical support. A live agent will be able to assist you. The ability to reach you regarding your trip plans is of utmost importance and we appreciate your support with this matter.</string>
 </resources>
 	<!-- This is an auto generated file (Mon Jan 20 14:50:01 CET 2020) -->
