@@ -19,6 +19,8 @@ import com.skedgo.tripkit.common.model.GsonAdaptersRealtimeAlert
 import com.skedgo.tripkit.common.util.Gsons
 import com.skedgo.tripkit.common.util.LowercaseEnumTypeAdapterFactory
 import com.skedgo.tripkit.configuration.Server
+import com.skedgo.tripkit.data.clients.ClientsApi
+import com.skedgo.tripkit.data.clients.ClientsRepository
 import com.skedgo.tripkit.data.database.TripKitDatabase
 import com.skedgo.tripkit.data.database.locations.bikepods.BikePodRepository
 import com.skedgo.tripkit.data.database.locations.bikepods.BikePodRepositoryImpl
@@ -119,7 +121,6 @@ class TripKitUIModule {
                 .build()
                 .create(ServiceApi::class.java)
     }
-
 
     @Provides
     fun getBookingResolver(context: Context): BookingResolver {

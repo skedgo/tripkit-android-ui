@@ -30,9 +30,12 @@ class AutoDisposable : LifecycleObserver {
     fun onDestroy() {
         compositeDisposable.dispose()
     }
+
+    fun clear() {
+        compositeDisposable.clear()
+    }
 }
 
 fun Disposable.addTo(autoDisposable: AutoDisposable) {
     autoDisposable.add(this)
 }
-
