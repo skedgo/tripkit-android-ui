@@ -26,6 +26,7 @@ import com.skedgo.tripkit.ui.core.OnResultStateListener
 import com.skedgo.tripkit.ui.core.addTo
 import com.skedgo.tripkit.ui.databinding.TripResultListFragmentBinding
 import com.skedgo.tripkit.ui.dialog.TripKitDateTimePickerDialogFragment
+import com.skedgo.tripkit.ui.model.UserMode
 import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButtonHandlerFactory
 import com.skedgo.tripkit.ui.utils.TripSearchUtils
 import com.skedgo.tripkit.ui.views.MultiStateView
@@ -95,6 +96,8 @@ class TripResultListFragment : BaseTripKitFragment() {
     var actionButtonHandlerFactory: ActionButtonHandlerFactory? = null
     private var showTransportSelectionView = true
 
+    var userModes: List<UserMode>? = null
+
     @Inject
     lateinit var regionService: RegionService
     private var region: Region? = null
@@ -129,6 +132,11 @@ class TripResultListFragment : BaseTripKitFragment() {
 
         binding = TripResultListFragmentBinding.inflate(layoutInflater)
         binding.viewModel = viewModel
+
+        userModes?.let {
+            viewModel.setReplaceMode(it)
+        }
+
         val showCloseButton = arguments?.getBoolean(ARG_SHOW_CLOSE_BUTTON, false) ?: false
         viewModel.showCloseButton.set(showCloseButton)
         binding.closeButton.setOnClickListener(onCloseButtonListener)
@@ -339,7 +347,6 @@ class TripResultListFragment : BaseTripKitFragment() {
                 globalConfigs.routeScreenConfig()?.popUpDateTimePickerOnOpen == true
 
         query?.let {
-
             viewModel.setup(
                     it, showTransportSelectionView, transportModeFilter, actionButtonHandlerFactory,
 
@@ -358,6 +365,7 @@ class TripResultListFragment : BaseTripKitFragment() {
         private var showTransportModeSelection = true
         private var showCloseButton = false
         private var actionButtonHandlerFactory: ActionButtonHandlerFactory? = null
+        private var userModes: List<UserMode>? = null
 
         fun withQuery(query: Query): Builder {
             this.query = query
@@ -384,6 +392,11 @@ class TripResultListFragment : BaseTripKitFragment() {
             return this
         }
 
+        fun withUserModes(modes: List<UserMode>): Builder {
+            this.userModes = modes
+            return this
+        }
+
         fun build(): TripResultListFragment {
             val args = Bundle()
             val fragment = TripResultListFragment()
@@ -392,6 +405,7 @@ class TripResultListFragment : BaseTripKitFragment() {
             args.putBoolean(ARG_SHOW_TRANSPORT_MODE_SELECTION, showTransportModeSelection)
             args.putBoolean(ARG_SHOW_CLOSE_BUTTON, showCloseButton)
             fragment.arguments = args
+            fragment.userModes = userModes
             fragment.actionButtonHandlerFactory = actionButtonHandlerFactory
             return fragment
         }

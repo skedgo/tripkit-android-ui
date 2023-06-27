@@ -4,11 +4,13 @@ import android.os.Parcel
 import android.os.Parcelable
 import com.skedgo.tripkit.TransportModeFilter
 import com.skedgo.tripkit.common.model.TransportMode
+import com.skedgo.tripkit.ui.model.UserMode
 
 
 class SimpleTransportModeFilter() : TransportModeFilter {
     private var transportModes: Set<String> = setOf()
     private var avoidTransportModes: Set<String> = setOf()
+    private var replacementModes: List<UserMode> = listOf()
 
     fun setTransportModes(transportModes: Set<String>) {
         this.transportModes = transportModes
@@ -39,8 +41,21 @@ class SimpleTransportModeFilter() : TransportModeFilter {
         }
     }
 
+    fun replaceTransportModes(mode: List<UserMode>) {
+        replacementModes = mode
+    }
+
     override fun getFilteredMode(originalModes: List<String>): List<String> {
-        return emptyList()
+        val modeArray = ArrayList(originalModes)
+        replacementModes.forEach {
+            if (modeArray.contains(it.mode)) {
+                modeArray.remove(it.mode)
+                it.rules?.replaceWith?.let { list ->
+                    modeArray.addAll(list)
+                }
+            }
+        }
+        return modeArray
     }
 
     constructor(parcel: Parcel) : this() {
