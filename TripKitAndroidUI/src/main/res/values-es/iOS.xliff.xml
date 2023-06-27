@@ -614,7 +614,7 @@
     <!-- Repeats yearly -->
     <string name="repeats_yearly">Repetir anualmente</string>
     <!-- This is usually followed by a date/time, e.g., Requested time: Dec. 19, 2021, 10:00:00 -->
-    <string name="requested_time">Hora solicitada %s</string>
+    <string name="requested_time">Hora solicitada %s %s</string>
     <!-- Indicatation that a response has to be provided. -->
     <string name="required">Requerido</string>
     <!-- Action title to reset something, e.g., settings -->
@@ -1001,7 +1001,7 @@
     <!-- Used when the trip does not end at the requested location, but nearby. The '%@' will be replaced with requested destination location. -->
     <string name="arrive_near__pattern">Llega cerca a %s</string>
     <!-- Text for vehicle of type: Bicycle -->
-    <string name="bicycle">bicicleta</string>
+    <string name="bicycle">Bicicleta</string>
     <!-- Action title to make a booking -->
     <string name="book">Reservar</string>
     <!-- Action title to make a booking using service/app named '@%' -->
@@ -1011,7 +1011,7 @@
     <!-- Action title to make a call to service/company named '@%' -->
     <string name="call__pattern">Llamar a %s</string>
     <!-- Text for vehicle of type: Car -->
-    <string name="car">coche</string>
+    <string name="car">Coche</string>
     <!-- Title of page to change the from/to of the routing results -->
     <string name="change_route">Modificar Ruta</string>
     <!-- Trip badge: Cheapest -->
@@ -1126,7 +1126,7 @@
     <!-- Text for vehicle of type: Moto Scooter -->
     <string name="moto_scooter">Moto Scooter</string>
     <!-- Text for vehicle of type: Motorbike -->
-    <string name="motorbike">moto</string>
+    <string name="motorbike">Moto</string>
     <!-- Title for the 'Near Me'/Nearby card -->
     <string name="near_me">Near Me</string>
     <!-- Indicating no trips have been planned within the next 24 hrs -->
@@ -1239,4 +1239,19 @@
     <string name="str_getting_active_trip">Obteniendo tu viaje activo…</string>
     <string name="str_getting_active_trip_msg">Por favor espere mientras buscamos su viaje activo.</string>
     <string name="str_no_active_trip_msg">Actualmente no tienes ningún viaje activo.</string>
+
+    <string name="use_the_sliders_to_tell_us_what_most_important_to_you">Deslice para elegir sus prioridades más altas y más bajas cuando viaje. Solo se puede maximizar una prioridad.</string>
+    <!--Class = "UILabel"; text = "Money"; ObjectID = "rQd-ri-hHa";-->
+    <string name="money">Dinero</string>
+    <string name="save_money">Dinero</string>
+    <!--Class = "UILabel"; text = "Time"; ObjectID = "o4h-JW-YBy";-->
+    <string name="time">Hora</string>
+    <string name="save_time">Hora</string>
+    <!--Class = "UILabel"; text = "Reduce carbon"; ObjectID = "RKH-vV-EU9";-->
+    <string name="reduce_carbon">Medio Ambiente</string>
+    <!--Class = "UILabel"; text = "Exercise"; ObjectID = "juE-EN-u70";-->
+    <string name="exercise">Ejercicio</string>
+    <string name="sign_in_to_continue">Inicie sesión en su cuenta</string>
+    <string name="warn_phone">Para actualizar su número de teléfono, llame al 1–833–653–6544 y solicite asistencia técnica. Un agente en vivo podrá ayudarlo. La capacidad de comunicarnos con usted con respecto a sus planes de viaje es de suma importancia y apreciamos su apoyo con este asunto.</string>
+    <string name="tap_change_to_make_selection">Toque Cambiar para hacer selecciones</string>-->
 </resources>
