@@ -2,6 +2,7 @@ package com.skedgo.tripkit.ui.tripresults
 
 import android.content.Context
 import android.os.Bundle
+import android.text.format.DateUtils
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -13,7 +14,9 @@ import com.google.android.flexbox.FlexboxLayoutManager
 import com.skedgo.TripKit
 import com.skedgo.tripkit.TransportModeFilter
 import com.skedgo.tripkit.common.model.Query
+import com.skedgo.tripkit.common.model.Region
 import com.skedgo.tripkit.common.model.TimeTag
+import com.skedgo.tripkit.data.regions.RegionService
 import com.skedgo.tripkit.model.ViewTrip
 import com.skedgo.tripkit.routing.TripGroup
 import com.skedgo.tripkit.ui.R
@@ -23,10 +26,16 @@ import com.skedgo.tripkit.ui.core.OnResultStateListener
 import com.skedgo.tripkit.ui.core.addTo
 import com.skedgo.tripkit.ui.databinding.TripResultListFragmentBinding
 import com.skedgo.tripkit.ui.dialog.TripKitDateTimePickerDialogFragment
+import com.skedgo.tripkit.ui.model.UserMode
 import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButtonHandlerFactory
+import com.skedgo.tripkit.ui.utils.TripSearchUtils
 import com.skedgo.tripkit.ui.views.MultiStateView
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.trip_result_list_fragment.view.*
+import org.joda.time.DateTime
+import org.joda.time.DateTimeZone
+import org.joda.time.format.DateTimeFormat
 import timber.log.Timber
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -87,6 +96,12 @@ class TripResultListFragment : BaseTripKitFragment() {
     var actionButtonHandlerFactory: ActionButtonHandlerFactory? = null
     private var showTransportSelectionView = true
 
+    var userModes: List<UserMode>? = null
+
+    @Inject
+    lateinit var regionService: RegionService
+    private var region: Region? = null
+
     fun query(): Query {
         return viewModel.query
     }
@@ -107,7 +122,7 @@ class TripResultListFragment : BaseTripKitFragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         viewModel = ViewModelProviders.of(this, viewModelProviderFactory)
-                .get(TripResultListViewModel::class.java);
+                .get(TripResultListViewModel::class.java)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -117,6 +132,11 @@ class TripResultListFragment : BaseTripKitFragment() {
 
         binding = TripResultListFragmentBinding.inflate(layoutInflater)
         binding.viewModel = viewModel
+
+        userModes?.let {
+            viewModel.setReplaceMode(it)
+        }
+
         val showCloseButton = arguments?.getBoolean(ARG_SHOW_CLOSE_BUTTON, false) ?: false
         viewModel.showCloseButton.set(showCloseButton)
         binding.closeButton.setOnClickListener(onCloseButtonListener)
@@ -128,6 +148,29 @@ class TripResultListFragment : BaseTripKitFragment() {
         }
 
         binding.leaveNowLayout.setOnClickListener { showDateTimePicker() }
+        binding.leaveNowLayout.accessibilityDelegate = object: View.AccessibilityDelegate() {
+            override fun sendAccessibilityEvent(host: View?, eventType: Int) {
+                viewModel.query.timeTag?.let { timeTag ->
+                    if(timeTag.isLeaveNow) {
+                        if(region != null) {
+                            modifyLeaveNowAccessibility(host, timeTag, region?.timezone)
+                        } else {
+                            regionService.getRegionByLocationAsync(viewModel.query.fromLocation)
+                                .observeOn(AndroidSchedulers.mainThread())
+                                .subscribeOn(Schedulers.io())
+                                .subscribe({
+                                    this@TripResultListFragment.region = it
+                                    modifyLeaveNowAccessibility(host, timeTag, it.timezone)
+                                }, {
+                                    Timber.e(it)
+                                }).addTo(autoDisposable)
+                        }
+                    }
+                }
+
+                super.sendAccessibilityEvent(host, eventType)
+            }
+        }
 //        binding.swipeRefreshLayout.setOnRefreshListener { viewModel.reload() }
         val layoutManager = FlexboxLayoutManager(context)
         layoutManager.flexDirection = FlexDirection.ROW
@@ -136,6 +179,13 @@ class TripResultListFragment : BaseTripKitFragment() {
         accessibilityDefaultViewManager.setDefaultViewForAccessibility(binding.toLocation)
 
         return binding.root
+    }
+
+    fun modifyLeaveNowAccessibility(host: View?, timeTag: TimeTag, timezone: String?) {
+        val dt = DateTime(timeTag.timeInMillis, DateTimeZone.forID(timezone))
+        val formatter = DateTimeFormat.forPattern("HH:mm aa")
+            .withZone(DateTimeZone.forID(timezone))
+        host?.contentDescription = "Leave now ${dt.toString(formatter)}"
     }
 
     fun showCloseButton(showCloseButton: Boolean) {
@@ -199,37 +249,68 @@ class TripResultListFragment : BaseTripKitFragment() {
     }
 
     private fun showDateTimePicker(isCancelable: Boolean = true) {
+
+        if (region == null) {
+            regionService.getRegionByLocationAsync(viewModel.query.fromLocation)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe({
+                    this@TripResultListFragment.region = it
+                    proceedWithShowingDateTimePicker(isCancelable)
+                }, {
+                    Timber.e(it)
+                }).addTo(autoDisposable)
+        } else {
+            proceedWithShowingDateTimePicker(isCancelable)
+        }
+
+    }
+
+    private fun proceedWithShowingDateTimePicker(isCancelable: Boolean = true) {
         var departureTimezone: String? = null
         var arrivalTimezone: String? = null
 
-        var timeMillis = System.currentTimeMillis()
+        var timeMillis = if (TripSearchUtils.dateTimeQuery != 0L) {
+            TripSearchUtils.dateTimeQuery
+        } else {
+            System.currentTimeMillis()
+        }
+
         val timeTag = viewModel.query.timeTag
         if (!timeTag!!.isDynamic) {
             timeMillis = TimeUnit.SECONDS.toMillis(timeTag.timeInSecs)
         }
 
-        if (viewModel.query.fromLocation != null) {
-            departureTimezone = viewModel.query.fromLocation!!.timeZone
-        }
-        if (viewModel.query.toLocation != null) {
-            arrivalTimezone = viewModel.query.toLocation!!.timeZone
+        if (region != null) {
+            departureTimezone = region?.timezone
+            arrivalTimezone = region?.timezone
+        } else {
+            if (viewModel.query.fromLocation != null) {
+                departureTimezone = viewModel.query.fromLocation!!.timeZone
+            }
+            if (viewModel.query.toLocation != null) {
+                arrivalTimezone = viewModel.query.toLocation!!.timeZone
+            }
         }
 
         try {
 
             val globalConfigs = TripKit.getInstance().configs()
 
+
+
+
             val builder = TripKitDateTimePickerDialogFragment.Builder()
-                    .withTitle(getString(R.string.set_time))
-                    .withTimeZones(departureTimezone, arrivalTimezone)
-                    .withTimeType(timeTag.type)
-                    .timeMillis(timeMillis)
-                    .withPositiveAction(R.string.done)
-                    /*.withNegativeAction(R.string.leave_now)*/
-                    .setTimePickerMinutesInterval(
-                            globalConfigs.dateTimePickerConfig()?.dateTimePickerMinuteInterval ?: 1)
-                    .setLeaveAtLabel(globalConfigs.dateTimePickerConfig()?.dateTimePickerLeaveAtLabel)
-                    .setArriveByLabel(globalConfigs.dateTimePickerConfig()?.dateTimePickerArriveByLabel)
+                .withTitle(getString(R.string.set_time))
+                .withTimeZones(departureTimezone, arrivalTimezone)
+                .withTimeType(timeTag.type)
+                .timeMillis(timeMillis)
+                .withPositiveAction(R.string.done)
+                /*.withNegativeAction(R.string.leave_now)*/
+                .setTimePickerMinutesInterval(
+                    globalConfigs.dateTimePickerConfig()?.dateTimePickerMinuteInterval ?: 1)
+                .setLeaveAtLabel(globalConfigs.dateTimePickerConfig()?.dateTimePickerLeaveAtLabel)
+                .setArriveByLabel(globalConfigs.dateTimePickerConfig()?.dateTimePickerArriveByLabel)
 
             if (globalConfigs.dateTimePickerConfig()?.isWithLeaveNow == true) {
                 builder.withNegativeAction(R.string.leave_now)
@@ -239,6 +320,7 @@ class TripResultListFragment : BaseTripKitFragment() {
 
             fragment.setOnTimeSelectedListener(object : TripKitDateTimePickerDialogFragment.OnTimeSelectedListener {
                 override fun onTimeSelected(timeTag: TimeTag) {
+                    TripSearchUtils.dateTimeQuery = timeTag.timeInMillis
                     viewModel.updateQueryTime(timeTag)
                     accessibilityDefaultViewManager.focusAccessibilityDefaultView(false)
                 }
@@ -249,7 +331,6 @@ class TripResultListFragment : BaseTripKitFragment() {
             // To prevent https://fabric.io/skedgo/android/apps/com.buzzhives.android.tripplanner/issues/5967e7f0be077a4dcc839dc5.
             Timber.e("An error occurred", error)
         }
-
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -266,9 +347,9 @@ class TripResultListFragment : BaseTripKitFragment() {
                 globalConfigs.routeScreenConfig()?.popUpDateTimePickerOnOpen == true
 
         query?.let {
-
             viewModel.setup(
                     it, showTransportSelectionView, transportModeFilter, actionButtonHandlerFactory,
+
                     execute = !showDateTimePopUpOnOpen
             )
         }
@@ -284,6 +365,7 @@ class TripResultListFragment : BaseTripKitFragment() {
         private var showTransportModeSelection = true
         private var showCloseButton = false
         private var actionButtonHandlerFactory: ActionButtonHandlerFactory? = null
+        private var userModes: List<UserMode>? = null
 
         fun withQuery(query: Query): Builder {
             this.query = query
@@ -310,6 +392,11 @@ class TripResultListFragment : BaseTripKitFragment() {
             return this
         }
 
+        fun withUserModes(modes: List<UserMode>): Builder {
+            this.userModes = modes
+            return this
+        }
+
         fun build(): TripResultListFragment {
             val args = Bundle()
             val fragment = TripResultListFragment()
@@ -318,6 +405,7 @@ class TripResultListFragment : BaseTripKitFragment() {
             args.putBoolean(ARG_SHOW_TRANSPORT_MODE_SELECTION, showTransportModeSelection)
             args.putBoolean(ARG_SHOW_CLOSE_BUTTON, showCloseButton)
             fragment.arguments = args
+            fragment.userModes = userModes
             fragment.actionButtonHandlerFactory = actionButtonHandlerFactory
             return fragment
         }

@@ -21,6 +21,7 @@ abstract class ServiceViewModel() : RxViewModel() {
     abstract val secondaryText: ObservableField<String>
     abstract val secondaryTextColor: ObservableInt
     abstract val tertiaryText: ObservableField<String>
+    abstract val quaternaryText: ObservableField<String>
     abstract val countDownTimeText: ObservableField<String>
     abstract val alpha: ObservableFloat
     abstract val countDownTimeTextBack: ObservableField<Drawable>

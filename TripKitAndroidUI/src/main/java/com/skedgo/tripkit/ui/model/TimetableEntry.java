@@ -54,6 +54,7 @@ public class TimetableEntry implements Parcelable, IRealTimeElement, ITimeRange,
             service.startStopShortName = in.readString();
             service.alertHashCodes = in.readArrayList(Long.class.getClassLoader());
             service.serviceColor = in.readParcelable(ServiceColor.class.getClassLoader());
+            service.startPlatform = in.readString();
             return service;
         }
 
@@ -96,6 +97,7 @@ public class TimetableEntry implements Parcelable, IRealTimeElement, ITimeRange,
     @SerializedName("alertHashCodes") private @Nullable ArrayList<Long> alertHashCodes;
     @SerializedName("wheelchairAccessible") private @Nullable Boolean wheelchairAccessible;
     @SerializedName("start_stop_short_name") private String startStopShortName;
+    @SerializedName("startPlatform") private String startPlatform;
     /**
      * Replacement: {@link #modeInfo}.
      */
@@ -324,6 +326,7 @@ public class TimetableEntry implements Parcelable, IRealTimeElement, ITimeRange,
         out.writeValue(wheelchairAccessible);
         out.writeValue(startStopShortName);
         out.writeList(alertHashCodes);
+        out.writeString(startPlatform);
     }
 
     @Deprecated
@@ -407,5 +410,13 @@ public class TimetableEntry implements Parcelable, IRealTimeElement, ITimeRange,
 
     public void setRealTimeArrival(int realTimeArrival) {
         this.realTimeArrival = realTimeArrival;
+    }
+
+    public String getStartPlatform() {
+        return startPlatform;
+    }
+
+    public void setStartPlatform(String startPlatform) {
+        this.startPlatform = startPlatform;
     }
 }

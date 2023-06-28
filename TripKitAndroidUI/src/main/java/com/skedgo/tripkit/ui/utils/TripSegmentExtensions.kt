@@ -11,6 +11,7 @@ const val ITEM_SERVICE = 4
 const val ITEM_QUICK_BOOKING = 5
 const val ITEM_EXTERNAL_BOOKING = 6
 const val ITEM_TIMETABLE = 7
+const val ITEM_TIMETABLE_PAYMENT = 8
 
 fun TripSegment.correctItemType(): Int {
     return if (this.turnByTurn != null) {

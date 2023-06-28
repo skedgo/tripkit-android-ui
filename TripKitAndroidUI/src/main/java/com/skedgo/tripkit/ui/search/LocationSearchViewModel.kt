@@ -2,6 +2,7 @@ package com.skedgo.tripkit.ui.search
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import androidx.databinding.ObservableArrayList
 import androidx.databinding.ObservableBoolean
 import androidx.databinding.ObservableField
@@ -47,16 +48,17 @@ import javax.inject.Inject
 const val KEY_BOUNDS = "bounds"
 const val KEY_CENTER = "center"
 
-class LocationSearchViewModel @Inject constructor(private val context: Context,
-                                                  private val regionService: RegionService,
-                                                  private val placeSearchRepository: PlaceSearchRepository,
-                                                  private val fetchSuggestions: FetchSuggestions,
-                                                  private val errorLogger: ErrorLogger,
-                                                  private val picasso: Picasso,
-                                                  private val schedulerFactory: SchedulerFactory,
-                                                  private val locationHistoryRepository: LocationHistoryRepository,
-                                                  val errorViewModel: LocationSearchErrorViewModel)
-    : RxViewModel() {
+class LocationSearchViewModel @Inject constructor(
+    private val context: Context,
+    private val regionService: RegionService,
+    private val placeSearchRepository: PlaceSearchRepository,
+    private val fetchSuggestions: FetchSuggestions,
+    private val errorLogger: ErrorLogger,
+    private val picasso: Picasso,
+    private val schedulerFactory: SchedulerFactory,
+    private val locationHistoryRepository: LocationHistoryRepository,
+    val errorViewModel: LocationSearchErrorViewModel
+) : RxViewModel() {
 
     var legacyLocationSearchIconProvider: LegacyLocationSearchIconProvider? = null
     var locationSearchIconProvider: LocationSearchIconProvider? = null
@@ -64,10 +66,11 @@ class LocationSearchViewModel @Inject constructor(private val context: Context,
     var locationSearchProvider: LocationSearchProvider? = null
 
     val unableToFindPlaceCoordinatesError: Observable<Throwable> get() = _unableToFindPlaceCoordinatesError.hide()
-    val dismiss: PublishRelay<Unit> = PublishRelay.create<Unit>()
-    val locationChosen: PublishRelay<Location> = PublishRelay.create<Location>()
-    val cityLocationChosen: PublishRelay<Location> = PublishRelay.create<Location>()
-    val fixedLocationChosen: PublishRelay<Any> = PublishRelay.create<Any>()
+    val dismiss: PublishRelay<Unit> = PublishRelay.create()
+    val locationChosen: PublishRelay<Location> = PublishRelay.create()
+    val cityLocationChosen: PublishRelay<Location> = PublishRelay.create()
+    val fixedLocationChosen: PublishRelay<Any> = PublishRelay.create()
+    val infoChosen: PublishRelay<Location?> = PublishRelay.create()
     val showRefreshing = ObservableBoolean()
     val showList = ObservableBoolean()
     val showGoogleAttribution = ObservableBoolean(false)
@@ -87,11 +90,14 @@ class LocationSearchViewModel @Inject constructor(private val context: Context,
     val fixedSuggestions: ObservableList<SuggestionViewModel> = ObservableArrayList()
     val providedSuggestions: ObservableList<SuggestionViewModel> = ObservableArrayList()
 
-    val googleAndTripGoSuggestions: ObservableList<GoogleAndTripGoSuggestionViewModel> = ObservableArrayList()
+    val googleAndTripGoSuggestions: ObservableList<GoogleAndTripGoSuggestionViewModel> =
+        ObservableArrayList()
     val allSuggestions = MergeObservableList<SuggestionViewModel>()
 
-    val itemBinding = ItemBinding.of<SuggestionViewModel>(BR.viewModel, R.layout.list_item_search_result_item)
-    val queries: PublishRelay<FetchLocationsParameters> = PublishRelay.create<FetchLocationsParameters>()
+    val itemBinding =
+        ItemBinding.of<SuggestionViewModel>(BR.viewModel, R.layout.list_item_search_result_item)
+    val queries: PublishRelay<FetchLocationsParameters> =
+        PublishRelay.create<FetchLocationsParameters>()
 
     private val _unableToFindPlaceCoordinatesError: PublishRelay<Throwable> = PublishRelay.create()
     private lateinit var bounds: LatLngBounds
@@ -112,34 +118,78 @@ class LocationSearchViewModel @Inject constructor(private val context: Context,
         allSuggestions.insertList(googleAndTripGoSuggestions)
         allSuggestions.insertList(citiesSuggestions)
         allSuggestions.asObservable()
-                .map {
-                    onFinishLoad.accept(false)
-                    it.mapIndexed { index, vm ->
-                        vm.onItemClicked.observable
-                                .map { viewModel -> viewModel to index }
-                    }
+            .map {
+                onFinishLoad.accept(false)
+                it.mapIndexed { index, vm ->
+                    vm.onItemClicked.observable
+                        .map { viewModel -> viewModel to index }
                 }
-                .switchMap {
-                    onFinishLoad.accept(true)
-                    Observable.merge(it)
+            }
+            .switchMap {
+                onFinishLoad.accept(true)
+                Observable.merge(it)
+            }
+            .subscribe({
+                when (it.first) {
+                    is SearchProviderSuggestionViewModel -> onSuggestionItemClick(
+                        SearchSuggestionChoice.SearchProviderChoice((it.first as SearchProviderSuggestionViewModel).suggestion.location())
+                    )
+                    is CityProviderSuggestionViewModel -> onSuggestionItemClick(
+                        SearchSuggestionChoice.CityProviderChoice((it.first as CityProviderSuggestionViewModel).suggestion.location())
+                    )
+                    is FixedSuggestionViewModel -> onSuggestionItemClick(
+                        SearchSuggestionChoice.FixedChoice(
+                            (it.first as FixedSuggestionViewModel).id
+                        )
+                    )
+                    is GoogleAndTripGoSuggestionViewModel -> onSuggestionItemClick(
+                        SearchSuggestionChoice.PlaceChoice(
+                            (it.first as GoogleAndTripGoSuggestionViewModel).place
+                        )
+                    )
                 }
-                .subscribe({
-                    when (it.first) {
-                        is SearchProviderSuggestionViewModel -> onSuggestionItemClick(SearchSuggestionChoice.SearchProviderChoice((it.first as SearchProviderSuggestionViewModel).suggestion.location()))
-                        is CityProviderSuggestionViewModel -> onSuggestionItemClick(SearchSuggestionChoice.CityProviderChoice((it.first as CityProviderSuggestionViewModel).suggestion.location()))
-                        is FixedSuggestionViewModel -> onSuggestionItemClick(SearchSuggestionChoice.FixedChoice((it.first as FixedSuggestionViewModel).id))
-                        is GoogleAndTripGoSuggestionViewModel -> onSuggestionItemClick(SearchSuggestionChoice.PlaceChoice(
-                                (it.first as GoogleAndTripGoSuggestionViewModel).place))
-                    }
-                }, errorLogger::trackError)
-                .autoClear()
+            }, errorLogger::trackError)
+            .autoClear()
+
+        allSuggestions.asObservable()
+            .map {
+                onFinishLoad.accept(false)
+                it.mapIndexed { index, vm ->
+                    vm.onInfoClicked.observable
+                        .map { viewModel ->
+                            viewModel to index
+                        }
+                }
+            }
+            .switchMap {
+                onFinishLoad.accept(true)
+                Observable.merge(it)
+            }
+            .subscribe({
+                when (it.first) {
+                    is SearchProviderSuggestionViewModel -> onInfoClicked(
+                        (it.first as SearchProviderSuggestionViewModel).suggestion.location()
+                    )
+                    is CityProviderSuggestionViewModel -> onInfoClicked(
+                        (it.first as SearchProviderSuggestionViewModel).suggestion.location()
+                    )
+                    is FixedSuggestionViewModel -> onInfoClicked(
+                        (it.first as FixedSuggestionViewModel).suggestion.location()
+                    )
+                    is GoogleAndTripGoSuggestionViewModel -> onInfoClicked(
+                        (it.first as GoogleAndTripGoSuggestionViewModel).location
+                    )
+                }
+            }, errorLogger::trackError)
+            .autoClear()
 
         queries
-                .observeOn(mainThread())
-                .subscribe({ params ->
-                    fixedSuggestions.clear()
-                    if (params.term().isEmpty()) {
-                        fixedSuggestionsProvider().fixedSuggestions(context, iconProvider()).forEach { suggestion ->
+            .observeOn(mainThread())
+            .subscribe({ params ->
+                fixedSuggestions.clear()
+                if (params.term().isEmpty()) {
+                    fixedSuggestionsProvider().fixedSuggestions(context, iconProvider())
+                        .forEach { suggestion ->
                             fixedSuggestions.add(FixedSuggestionViewModel(context, suggestion))
 
                             if (scrollResultsOfQuery) {
@@ -147,57 +197,67 @@ class LocationSearchViewModel @Inject constructor(private val context: Context,
                                 scrollResultsOfQuery = false
                             }
                         }
-                        loadFromHistory()
-                    } else {
-                        historySuggestions.clear()
+                    loadFromHistory()
+                } else {
+                    historySuggestions.clear()
 
-                        fixedSuggestionsProvider().specificSuggestions(
-                                context,
-                                listOf(DefaultFixedSuggestionType.CHOOSE_ON_MAP, DefaultFixedSuggestionType.CURRENT_LOCATION),
-                                iconProvider()
-                        ).forEach { suggestion ->
-                            fixedSuggestions.add(FixedSuggestionViewModel(context, suggestion))
-                        }
-                    }
-                    if (!isRouting && params.term().isNotEmpty()) {
-                        loadFromRegions(params.term())
-                    }
-                    providedSuggestions.clear()
-                    viewModelScope.launch {
-                        locationSearchProvider?.query(context, iconProvider(), params.term())?.forEach { suggestion ->
-                            providedSuggestions.add(SearchProviderSuggestionViewModel(context, suggestion))
-                        }
-                    }
-
-                }, errorLogger::trackError)
-                .autoClear()
-
-        val suggestionFetcher = queries.hide()
-                .switchMap { query ->
-                    // TODO Everything dealing with getting results, including this caching, needs to be refactored
-                    if (queryCache.containsKey(query.term())) {
-                        Observable.just(queryCache[query.term()]!!)
-                    } else {
-                        fetchSuggestions.query(query)
-                                .map {
-                                    if (it is HasResults) {
-                                        queryCache[query.term()] = it
-                                    }
-                                    it
-                                }
-                                .isExecuting { isSearchingSuggestion.set(it) }
-                                .repeatWhen { errorViewModel.retryObservable }
+                    fixedSuggestionsProvider().specificSuggestions(
+                        context,
+                        listOf(
+                            DefaultFixedSuggestionType.CHOOSE_ON_MAP,
+                            DefaultFixedSuggestionType.CURRENT_LOCATION
+                        ),
+                        iconProvider()
+                    ).forEach { suggestion ->
+                        fixedSuggestions.add(FixedSuggestionViewModel(context, suggestion))
                     }
                 }
-                .subscribeOn(schedulerFactory.ioScheduler)
-                .share()
-                .debounce(500, TimeUnit.MILLISECONDS)
+                if (!isRouting && params.term().isNotEmpty()) {
+                    loadFromRegions(params.term())
+                }
+                providedSuggestions.clear()
+                viewModelScope.launch {
+                    locationSearchProvider?.query(context, iconProvider(), params.term())
+                        ?.forEach { suggestion ->
+                            providedSuggestions.add(
+                                SearchProviderSuggestionViewModel(
+                                    context,
+                                    suggestion
+                                )
+                            )
+                        }
+                }
+
+            }, errorLogger::trackError)
+            .autoClear()
+
+        val suggestionFetcher = queries.hide()
+            .switchMap { query ->
+                // TODO Everything dealing with getting results, including this caching, needs to be refactored
+                if (queryCache.containsKey(query.term())) {
+                    Observable.just(queryCache[query.term()]!!)
+                } else {
+                    fetchSuggestions.query(query)
+                        .map {
+                            if (it is HasResults) {
+                                queryCache[query.term()] = it
+                            }
+                            it
+                        }
+                        .isExecuting { isSearchingSuggestion.set(it) }
+                        .repeatWhen { errorViewModel.retryObservable }
+                }
+            }
+            .subscribeOn(schedulerFactory.ioScheduler)
+            .share()
+            .debounce(500, TimeUnit.MILLISECONDS)
 
 
         Observables.combineLatest(
-                isFetchingPlaceDetails.asObservable(),
-                isSearchingSuggestion.asObservable(),
-                suggestionFetcher)
+            isFetchingPlaceDetails.asObservable(),
+            isSearchingSuggestion.asObservable(),
+            suggestionFetcher
+        )
         { fetchingPlaceDetails, fetchingSuggestions, googlePlaceResult ->
             when {
                 fetchingPlaceDetails -> VisibilityState.FetchingPlaceDetails
@@ -207,45 +267,53 @@ class LocationSearchViewModel @Inject constructor(private val context: Context,
                 else -> VisibilityState.HasSuggestions
             }
         }
-                .subscribe {
-                    showMiddleProgressBar.set(it == VisibilityState.FetchingPlaceDetails)
-                    showRefreshing.set(it == VisibilityState.HasSuggestionsAndFetchingSuggestions)
-                    showError.set(it == VisibilityState.Error)
-                    showList.set(it == VisibilityState.HasSuggestionsAndFetchingSuggestions || it == VisibilityState.HasSuggestions)
-                }
-                .autoClear()
+            .subscribe {
+                showMiddleProgressBar.set(it == VisibilityState.FetchingPlaceDetails)
+                showRefreshing.set(it == VisibilityState.HasSuggestionsAndFetchingSuggestions)
+                showError.set(it == VisibilityState.Error)
+                showList.set(it == VisibilityState.HasSuggestionsAndFetchingSuggestions || it == VisibilityState.HasSuggestions)
+            }
+            .autoClear()
 
         suggestionFetcher
-                .observeOn(mainThread())
-                .subscribe({ result ->
-                    when (result) {
-                        is NoConnection -> {
-                            googleAndTripGoSuggestions.clear()
-                            errorViewModel.updateError(SearchErrorType.NoConnection)
-                        }
-                        is HasResults -> {
-                            googleAndTripGoSuggestions.clear()
-                            googleAndTripGoSuggestions.addAll(result.suggestions.map { place ->
-                                GoogleAndTripGoSuggestionViewModel(context, picasso, place, canOpenTimetable, iconProvider(), result.query)
-                            })
-                            errorViewModel.updateError(null)
-                        }
-                        is NoResult -> {
-                            errorViewModel.updateError(SearchErrorType.NoResults(result.query))
-                        }
+            .observeOn(mainThread())
+            .subscribe({ result ->
+                when (result) {
+                    is NoConnection -> {
+                        googleAndTripGoSuggestions.clear()
+                        errorViewModel.updateError(SearchErrorType.NoConnection)
                     }
-                }, errorLogger::trackError)
-                .autoClear()
+                    is HasResults -> {
+                        googleAndTripGoSuggestions.clear()
+                        googleAndTripGoSuggestions.addAll(result.suggestions.map { place ->
+                            GoogleAndTripGoSuggestionViewModel(
+                                context,
+                                picasso,
+                                place,
+                                canOpenTimetable,
+                                iconProvider(),
+                                result.query
+                            )
+                        })
+                        errorViewModel.updateError(null)
+                    }
+                    is NoResult -> {
+                        errorViewModel.updateError(SearchErrorType.NoResults(result.query))
+                    }
+                }
+            }, errorLogger::trackError)
+            .autoClear()
 
         onQueryTextChangeEventThrottle.debounce(500, TimeUnit.MILLISECONDS)
-                .subscribe({
-                    this.searchResults(it)
-                }, { errorLogger.trackError(it) })
-                .autoClear()
+            .subscribe({
+                this.searchResults(it)
+            }, { errorLogger.trackError(it) })
+            .autoClear()
 
-        observeGoogleAttribution(googleAndTripGoSuggestions.asObservable().map { it.map { it.place } })
-                .subscribe({}, { errorLogger.trackError(it) })
-                .autoClear()
+        observeGoogleAttribution(
+            googleAndTripGoSuggestions.asObservable().map { it.map { it.place } })
+            .subscribe({}, { errorLogger.trackError(it) })
+            .autoClear()
 
     }
 
@@ -254,38 +322,46 @@ class LocationSearchViewModel @Inject constructor(private val context: Context,
         val historyStartCalendarMillis = System.currentTimeMillis() - TimeUnit.DAYS.toMillis(12L)
 
         locationHistoryRepository
-                .getLatestLocationHistory(historyStartCalendarMillis)
-                .observeOn(mainThread())
-                .subscribeOn(io())
-                .subscribe({
-                    fixedSuggestionsProvider().locationsToSuggestion(context, it.reversed(), legacyIconProvider()).forEach { suggestion ->
-                        historySuggestions.add(SearchProviderSuggestionViewModel(context, suggestion))
-                    }
-                }, {
-                    it.printStackTrace()
-                }).autoClear()
+            .getLatestLocationHistory(historyStartCalendarMillis)
+            .observeOn(mainThread())
+            .subscribeOn(io())
+            .subscribe({
+                fixedSuggestionsProvider().locationsToSuggestion(
+                    context,
+                    it.reversed(),
+                    legacyIconProvider()
+                ).forEach { suggestion ->
+                    historySuggestions.add(SearchProviderSuggestionViewModel(context, suggestion))
+                }
+            }, {
+                it.printStackTrace()
+            }).autoClear()
     }
 
     private fun loadFromRegions(query: String) {
         citiesSuggestions.clear()
 
         regionService.getRegionsAsync()
-                .observeOn(mainThread())
-                .subscribe({
-                    val newList = ArrayList<Region.City>()
-                    it.forEach { region ->
-                        region.cities?.let { list ->
-                            list.forEach { city ->
-                                if (city.name.contains(query, true)) {
-                                    newList.add(city)
-                                }
+            .observeOn(mainThread())
+            .subscribe({
+                val newList = ArrayList<Region.City>()
+                it.forEach { region ->
+                    region.cities?.let { list ->
+                        list.forEach { city ->
+                            if (city.name.contains(query, true)) {
+                                newList.add(city)
                             }
                         }
                     }
-                    fixedSuggestionsProvider().citiesToSuggestion(context, newList, legacyIconProvider()).forEach { suggestion ->
-                        citiesSuggestions.add(CityProviderSuggestionViewModel(context, suggestion))
-                    }
-                }, { Timber.e(it) }).autoClear()
+                }
+                fixedSuggestionsProvider().citiesToSuggestion(
+                    context,
+                    newList,
+                    legacyIconProvider()
+                ).forEach { suggestion ->
+                    citiesSuggestions.add(CityProviderSuggestionViewModel(context, suggestion))
+                }
+            }, { Timber.e(it) }).autoClear()
     }
 
     private fun legacyIconProvider(): LegacyLocationSearchIconProvider {
@@ -304,38 +380,40 @@ class LocationSearchViewModel @Inject constructor(private val context: Context,
 
     private fun fixedSuggestionsProvider(): FixedSuggestionsProvider {
         if (fixedSuggestionsProvider == null) {
-            fixedSuggestionsProvider = DefaultFixedSuggestionsProvider(showCurrentLocation, showDropPin)
+            fixedSuggestionsProvider =
+                DefaultFixedSuggestionsProvider(showCurrentLocation, showDropPin)
         }
 
         return fixedSuggestionsProvider!!
     }
 
     fun observeGoogleAttribution(suggestions: Observable<List<Place>>): Observable<Unit> =
-            suggestions.map { it.any { it.source() == Location.GOOGLE } }
-                    .subscribeOn(schedulerFactory.computationScheduler)
-                    .observeOn(schedulerFactory.mainScheduler)
-                    .doOnNext { showGoogleAttribution.set(it) }
-                    .map { Unit }
+        suggestions.map { it.any { it.source() == Location.GOOGLE } }
+            .subscribeOn(schedulerFactory.computationScheduler)
+            .observeOn(schedulerFactory.mainScheduler)
+            .doOnNext { showGoogleAttribution.set(it) }
+            .map { Unit }
 
     fun loadCity() {
         val center = this.center
         val location = Location(center.latitude, center.longitude)
         regionService.getRegionByLocationAsync(location)
-                .flatMap<Region.City> { region ->
-                    val cities = region.cities
-                    if (cities != null) {
-                        val city = min<Region.City>(cities) { lhs, rhs ->
-                            lhs.distanceTo(location).toDouble().compareTo(rhs.distanceTo(location).toDouble())
-                        }
-                        Observable.just(city)
-                    } else {
-                        Observable.empty()
+            .flatMap<Region.City> { region ->
+                val cities = region.cities
+                if (cities != null) {
+                    val city = min<Region.City>(cities) { lhs, rhs ->
+                        lhs.distanceTo(location).toDouble()
+                            .compareTo(rhs.distanceTo(location).toDouble())
                     }
+                    Observable.just(city)
+                } else {
+                    Observable.empty()
                 }
-                .subscribeOn(Schedulers.io())
-                .observeOn(mainThread())
-                .subscribe({ city -> chosenCityName.set(city.name) }, { errorLogger.trackError(it) })
-                .autoClear()
+            }
+            .subscribeOn(Schedulers.io())
+            .observeOn(mainThread())
+            .subscribe({ city -> chosenCityName.set(city.name) }, { errorLogger.trackError(it) })
+            .autoClear()
     }
 
     fun onQueryTextChanged(query: String, isRouting: Boolean = false) {
@@ -358,29 +436,29 @@ class LocationSearchViewModel @Inject constructor(private val context: Context,
     private fun onPlaceClicked(place: Place): Observable<Location> = when (place) {
         is Place.TripGoPOI -> Observable.just(place.location)
         is Place.WithoutLocation -> placeSearchRepository
-                .getPlaceDetails(place.prediction.placeId)
-                .map { (name: String, lat: Double, lng: Double, address: String) ->
-                    val location = Location(lat, lng)
-                    location.address = address
-                    location.name = name
-                    location.source = Location.GOOGLE
-                    location
-                }
-                .subscribeOn(io())
+            .getPlaceDetails(place.prediction.placeId)
+            .map { (name: String, lat: Double, lng: Double, address: String) ->
+                val location = Location(lat, lng)
+                location.address = address
+                location.name = name
+                location.source = Location.GOOGLE
+                location
+            }
+            .subscribeOn(io())
     }
 
     private fun searchResults(term: CharSequence) {
         val bounds = bounds()
         val center = center()
         val fetchLocationsParameters = FetchLocationsParameters.builder()
-                .northeastLat(bounds.northeast.latitude)
-                .northeastLon(bounds.northeast.longitude)
-                .southwestLat(bounds.southwest.latitude)
-                .southwestLon(bounds.southwest.longitude)
-                .nearbyLat(center.latitude)
-                .nearbyLon(center.longitude)
-                .term(term.toString())
-                .build()
+            .northeastLat(bounds.northeast.latitude)
+            .northeastLon(bounds.northeast.longitude)
+            .southwestLat(bounds.southwest.latitude)
+            .southwestLon(bounds.southwest.longitude)
+            .nearbyLat(center.latitude)
+            .nearbyLon(center.longitude)
+            .term(term.toString())
+            .build()
         queries.accept(fetchLocationsParameters)
     }
 
@@ -395,17 +473,21 @@ class LocationSearchViewModel @Inject constructor(private val context: Context,
             is SearchSuggestionChoice.PlaceChoice -> {
                 val (place) = choice
                 onPlaceClicked(place)
-                        .observeOn(mainThread())
-                        .subscribe({
-                            locationChosen.accept(it)
-                        }, {
-                            val error = UnableToFindPlaceCoordinatesError(it)
-                            errorLogger.trackError(error)
-                            _unableToFindPlaceCoordinatesError.accept(error)
-                        })
-                        .autoClear()
+                    .observeOn(mainThread())
+                    .subscribe({
+                        locationChosen.accept(it)
+                    }, {
+                        val error = UnableToFindPlaceCoordinatesError(it)
+                        errorLogger.trackError(error)
+                        _unableToFindPlaceCoordinatesError.accept(error)
+                    })
+                    .autoClear()
             }
         }
+    }
+
+    fun onInfoClicked(location: Location?) {
+        infoChosen.accept(location)
     }
 
     private fun onLocationSearchSuggestionItemClick(id: Any) {

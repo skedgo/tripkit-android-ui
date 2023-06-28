@@ -8,7 +8,7 @@
         android:focusable="false"
         android:importantForAccessibility="no">
 
-        <androidx.viewpager.widget.ViewPager
+        <com.skedgo.tripkit.ui.utils.BottomSheetViewPager
             android:id="@+id/tripSegmentPager"
             android:layout_width="match_parent"
             android:layout_height="match_parent"

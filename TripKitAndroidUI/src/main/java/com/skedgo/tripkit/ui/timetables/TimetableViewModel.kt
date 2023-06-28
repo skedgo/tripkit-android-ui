@@ -33,6 +33,7 @@ import io.reactivex.rxkotlin.Observables
 import me.tatarka.bindingcollectionadapter2.ItemBinding
 import org.joda.time.DateTimeZone
 import com.skedgo.tripkit.routing.toSeconds
+import com.skedgo.tripkit.ui.BuildConfig
 import com.skedgo.tripkit.ui.core.addTo
 import com.skedgo.tripkit.ui.favorites.trips.Waypoint
 import com.skedgo.tripkit.ui.favorites.trips.getModeForWayPoint
@@ -65,16 +66,24 @@ class TimetableViewModel @Inject constructor(
 
     val stationName = ObservableField<String>()
     val stationType = ObservableField<String>()
-    val itemBinding = ItemBinding.of<ServiceViewModel>(BR.viewModel, R.layout.timetable_fragment_list_item)
-    val serviceItemBinding = ItemBinding.of<TimetableHeaderLineItem>(BR.data, R.layout.timetable_header_line_item)
+    val itemBinding =
+            ItemBinding.of<ServiceViewModel>(BR.viewModel, R.layout.timetable_fragment_list_item)
+    val serviceItemBinding =
+            ItemBinding.of<TimetableHeaderLineItem>(BR.data, R.layout.timetable_header_line_item)
 
     object ServicesDiffCallback : DiffUtil.ItemCallback<ServiceViewModel>() {
-        override fun areItemsTheSame(oldItem: ServiceViewModel, newItem: ServiceViewModel): Boolean =
+        override fun areItemsTheSame(
+                oldItem: ServiceViewModel,
+                newItem: ServiceViewModel
+        ): Boolean =
                 oldItem.service.serviceTripId == newItem.service.serviceTripId
                         && oldItem.service.startTimeInSecs == newItem.service.startTimeInSecs
 
 
-        override fun areContentsTheSame(oldItem: ServiceViewModel, newItem: ServiceViewModel): Boolean =
+        override fun areContentsTheSame(
+                oldItem: ServiceViewModel,
+                newItem: ServiceViewModel
+        ): Boolean =
                 oldItem.serviceNumber.get() == newItem.serviceNumber.get()
                         && oldItem.secondaryText.get() == newItem.secondaryText.get()
                         && oldItem.tertiaryText.get() == newItem.tertiaryText.get()
@@ -85,7 +94,8 @@ class TimetableViewModel @Inject constructor(
 
     val services = DiffObservableList<ServiceViewModel>(ServicesDiffCallback)
 
-    val serviceNumbers: ObservableField<List<TimetableHeaderLineItem>> = ObservableField(emptyList())
+    val serviceNumbers: ObservableField<List<TimetableHeaderLineItem>> =
+            ObservableField(emptyList())
     val showLoading = ObservableBoolean(false)
     val showCloseButton = ObservableBoolean(false)
     val showSearch = ObservableBoolean(true)
@@ -127,7 +137,12 @@ class TimetableViewModel @Inject constructor(
                     val subscription = loadMore
                             .startWith(Unit)
                             .switchMap {
-                                fetchAndLoadTimetable.execute(stop.embarkationStopCode, stop.disembarkationStopCode, region, timeInSecs.get())
+                                fetchAndLoadTimetable.execute(
+                                        stop.embarkationStopCode,
+                                        stop.disembarkationStopCode,
+                                        region,
+                                        timeInSecs.get()
+                                )
                                         .toObservable()
                                         .ignoreNetworkErrors()
                                         .isExecuting { showLoading.set(it) }
@@ -135,7 +150,12 @@ class TimetableViewModel @Inject constructor(
                             .subscribe({
                                 emitter.onNext(it)
                                 timeInSecs.set(it.first.last().startTimeInSecs + 1)
-                            }, { emitter.onError(it) })
+                            }, {
+                                if(BuildConfig.DEBUG){
+                                    it.printStackTrace()
+                                }
+                                emitter.onError(it)
+                            })
                     emitter.setCancellable { subscription.dispose() }
                 }, BackpressureStrategy.LATEST).toObservable()
                         .doOnError { throwable: Throwable ->
@@ -152,68 +172,77 @@ class TimetableViewModel @Inject constructor(
     private val parentStop = servicesAndParentStop
             .map { it.second }
             .ignoreNetworkErrors()
-            .withLatestFrom(stop, BiFunction<Optional<ScheduledStop>, ScheduledStop, ScheduledStop> { parentStop: Optional<ScheduledStop>, stop: ScheduledStop ->
-                if (parentStop.value != null && parentStop.value.code == stop.code) {
-                    parentStop.value
-                } else {
-                    stop
-                }
-            })
+            .withLatestFrom(
+                    stop,
+                    BiFunction<Optional<ScheduledStop>, ScheduledStop, ScheduledStop> { parentStop: Optional<ScheduledStop>, stop: ScheduledStop ->
+                        if (parentStop.value != null && parentStop.value.code == stop.code) {
+                            parentStop.value
+                        } else {
+                            stop
+                        }
+                    })
 
     private val realtimeRelay = PublishRelay.create<Unit>()
 
-    private val servicesVMs = Observables.combineLatest(servicesAndParentStop.map { it.first }, regionObservable, currentServiceTripId)
-    { services: List<TimetableEntry>, region: Region, currentTripId: String -> Triple(services, region, currentTripId) }
-            .flatMap {
-                val services = it.first
-                val region = it.second
-                _currentServiceTripId = it.third
-                realTimeChoreographer.getRealTimeResultsFromCleanElements(region, elements = services)
-                        .takeUntil(realtimeRelay)
-                        .map { vehicles ->
-                            services.forEach { service: TimetableEntry ->
-                                val vehicle = vehicles.firstOrNull { service.serviceTripId == it.serviceTripId }
-                                vehicle?.let {
-                                    service.realtimeVehicle = it
-                                }
-                            }
-                            services
+    private val servicesVMs = Observables.combineLatest(
+            servicesAndParentStop.map { it.first },
+            regionObservable,
+            currentServiceTripId
+    ) { services: List<TimetableEntry>, region: Region, currentTripId: String ->
+        Triple(services, region, currentTripId)
+    }.flatMap {
+        val services = it.first
+        val region = it.second
+        _currentServiceTripId = it.third
+        realTimeChoreographer.getRealTimeResultsFromCleanElements(region, elements = services)
+                .takeUntil(realtimeRelay)
+                .map { vehicles ->
+                    services.forEach { service: TimetableEntry ->
+                        val vehicle =
+                                vehicles.firstOrNull { service.serviceTripId == it.serviceTripId }
+                        vehicle?.let {
+                            service.realtimeVehicle = it
                         }
-                        .map { it to region }
-                        .startWith(services to region)
-            }
-            .map {
-                val services = it.first
-                val region = it.second
-                val timeZone = DateTimeZone.forID(region.timezone)
+                    }
+                    services
+                }
+                .map { it to region }
+                .startWith(services to region)
+    }.map {
+        val services = it.first
+        val region = it.second
+        val timeZone = DateTimeZone.forID(region.timezone)
 
-                services.map {
-                    serviceViewModelProvider.get().apply {
-                        this.setService(_currentServiceTripId ?: "", it, timeZone)
-                        this.onItemClick.observable.observeOn(AndroidSchedulers.mainThread()).subscribe { entry ->
+        services.map {
+            serviceViewModelProvider.get().apply {
+                this.setService(_currentServiceTripId ?: "", it, timeZone)
+                this.onItemClick.observable.observeOn(AndroidSchedulers.mainThread())
+                        .subscribe { entry ->
 //                            if (action.isNotEmpty()) {
 //
 //                            } else {
                             timetableEntryChosen.accept(entry)
 //                            }
                         }
-                    }
-                }
             }
-            .map { it.sortedBy { it.getRealTimeDeparture() } }
-            .let {
-                Observables.combineLatest(it, filter.hide())
-                { services, filter ->
-                    val serviceList = services.filter {
-                        listOf(it.service.serviceNumber, it.service.serviceName, it.service.serviceDirection).filter { it != null }
-                                .any { it.orEmpty().contains(filter, ignoreCase = true) }
-                    }
+        }
+    }.map {
+        it.sortedBy { it.getRealTimeDeparture() }
+    }.let {
+        Observables.combineLatest(it, filter.hide())
+        { services, filter ->
+            val serviceList = services.filter {
+                listOf(
+                        it.service.serviceNumber,
+                        it.service.serviceName,
+                        it.service.serviceDirection
+                ).filter { it != null }
+                        .any { it.orEmpty().contains(filter, ignoreCase = true) }
+            }
 
-                    serviceList
-                }
-            }
-            .replay(1)
-            .refCount()
+            serviceList
+        }
+    }.replay(1).refCount()
 
 
     val onAlertClicks: Observable<ArrayList<RealtimeAlert>> = services
@@ -257,16 +286,25 @@ class TimetableViewModel @Inject constructor(
                             }
                         }
                     }
-                    val tmpServiceList: MutableList<TimetableHeaderLineItem> = arrayListOf<TimetableHeaderLineItem>()
+                    val tmpServiceList: MutableList<TimetableHeaderLineItem> =
+                            arrayListOf<TimetableHeaderLineItem>()
 
                     it.forEach {
-                        tmpServiceList.add(TimetableHeaderLineItem(it.serviceNumber.get(), it.serviceColor.get()))
+                        tmpServiceList.add(
+                                TimetableHeaderLineItem(
+                                        it.serviceNumber.get(),
+                                        it.serviceColor.get()
+                                )
+                        )
                     }
-                    serviceNumbers.set(tmpServiceList.distinctBy { it.serviceNumber }.sortedBy { it.serviceNumber })
+                    serviceNumbers.set(tmpServiceList.distinctBy { it.serviceNumber }
+                            .sortedBy { it.serviceNumber })
                 }, {
                     Timber.e(it)
-                    onError.accept(it.message
-                            ?: resources.getString(R.string.an_unexpected_network_error_has_occurred_dot_please_retry_dot))
+                    onError.accept(
+                            it.message
+                                    ?: resources.getString(R.string.an_unexpected_network_error_has_occurred_dot_please_retry_dot)
+                    )
                 })
                 .autoClear()
 
@@ -278,7 +316,7 @@ class TimetableViewModel @Inject constructor(
                 }, {}).autoClear()
     }
 
-    fun withBookingActions(bookingActions: ArrayList<String>?) {
+    fun withBookingActions(bookingActions: ArrayList<String>?, segment: TripSegment?) {
         bookingActions?.let { actions ->
             when {
                 actions.contains("showTicket") -> {
@@ -292,7 +330,10 @@ class TimetableViewModel @Inject constructor(
             }
         }
 
-        showButton.set(action.isNotEmpty())
+        showButton.set(
+                action.isNotEmpty() && (segment?.booking?.quickBookingsUrl.isNullOrEmpty()
+                        || !segment?.booking?.confirmation?.purchasedTickets().isNullOrEmpty())
+        )
     }
 
     fun downloadMoreTimetableAsync() {
@@ -329,5 +370,4 @@ class TimetableViewModel @Inject constructor(
 
     fun getShareUrl(shareUrl: String, stop: ScheduledStop) =
             createShareContent.execute(shareUrl, stop, services.map { it.service })
-
 }

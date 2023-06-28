@@ -130,6 +130,12 @@
     <string name="concession_pricing">値引き価格</string>
     <!-- Hassle preference -->
     <string name="convenience">利便性</string>
+    <!--Class = "UILabel"; text = "Save money"; ObjectID = "yuP-f9-IR1";-->
+    <string name="save_money">お金</string>
+    <!--Class = "UILabel"; text = "Save time"; ObjectID = "KSL-Sc-UHU";-->
+    <string name="save_time">時間</string>
+    <!--Class = "UILabel"; text = "Reduce carbon"; ObjectID = "RKH-vV-EU9";-->
+    <string name="reduce_carbon">環境</string>
     <!-- Error title when TripGo couldnt identify the users current city -->
     <string name="could_not_find_your_city_dot">あなたの都市が見つかりませんでした。</string>
     <!-- Title for button that allows users to create a user account -->
@@ -569,7 +575,7 @@
     <!-- Repeats yearly -->
     <string name="repeats_yearly">毎年繰り返す</string>
     <!-- This is usually followed by a date/time, e.g., Requested time: Dec. 19, 2021, 10:00:00 -->
-    <string name="requested_time">リクエスト時刻</string>
+    <string name="requested_time">%sリクエスト時刻</string>
     <!-- Action title to reset something, e.g., settings -->
     <string name="reset">リセット</string>
     <!-- No comment provided by engineer. -->
@@ -725,7 +731,7 @@
     <!-- Option for users if they don't yet have a SkedGo account -->
     <string name="don_apostt_have_an_account_question_sign_up">アカウントを持っていますか・サインアップ</string>
     <!-- Done action -->
-    <string name="done">行われます</string>
+    <string name="done">実行</string>
     <!-- Drop new pin -->
     <string name="drop_new_pin">新しいピンをドロップしてください</string>
     <!-- Title for the screen which allows users to edit their accounts -->
@@ -950,7 +956,7 @@
     <!-- The first '%@' will be replaced with the place of arrival, the second with the time. (old key: ArrivalLocationTime) -->
     <string name="arrive_at__pattern_at__pattern">%2$sに %1$sに到着</string>
     <!-- Arrive before button -->
-    <string name="arrive_by">到着します。</string>
+    <string name="arrive_by">到着時刻</string>
     <!-- Title for when you'll arrive when on a trip. Countdown to arrival will be displayed below. -->
     <string name="arrive_in">到着します。</string>
     <!-- Used when the trip does not end at the requested location, but nearby. The '%@' will be replaced with requested destination location. -->
@@ -1057,7 +1063,7 @@
     <!-- The place of departure with time. (old key: LeaveLocationTime) -->
     <string name="leave__pattern_at__pattern">%2$sに %1$sを出発</string>
     <!-- Leave after button -->
-    <string name="leave_at">出発</string>
+    <string name="leave_at">出発時刻</string>
     <!-- Time departure. (old key: LeaveTime) -->
     <string name="leave_at__pattern">%sに出発</string>
     <!-- Title for when to depart. Countdown to departure will be displayed below. -->
@@ -1549,4 +1555,9 @@
     <string name="click_to_change_profile_picture">クリックしてプロフィール画像を変更</string>
     <string name="tap_to">タップして %s</string>
     <string name="tap_change_to_make_selection">変更をタップして選択します</string>
+
+    <string name="review_booking">予約確認</string>
+    <string name="total">合計</string>
+    <string name="confirm_booking">予約実行</string>
+    <string name="continue_to_payment">お支払いに進む</string>
 </resources>

@@ -27,7 +27,7 @@ class TripPreviewHeaderFragment : Fragment() {
     private var hideExactTimes: Boolean = false
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
+                              savedInstanceState: Bundle?): View {
         binding = FragmentTripPreviewHeaderBinding.inflate(inflater)
         binding.lifecycleOwner = this
         binding.viewModel = viewModel

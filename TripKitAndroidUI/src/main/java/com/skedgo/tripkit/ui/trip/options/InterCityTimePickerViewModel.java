@@ -271,6 +271,7 @@ public class InterCityTimePickerViewModel implements ITimePickerViewModel {
                 singleSelectionCalendars.get(position) :
                 this.isLeaveAfter.get() ? departureCalendars.get(position) :
                         arrivalCalendars.get(position);
+        dateCalendar.setTimeZone(departureTimezone);
         return getTimeTagFromDateTime(dateCalendar, timeCalendar);
     }
 

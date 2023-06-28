@@ -134,6 +134,19 @@
                 app:layout_constraintTop_toBottomOf="@+id/status"
                 tools:text="Fürth" />
 
+            <TextView
+                android:id="@+id/footer"
+                style="@style/TextAppearance.MaterialComponents.Caption"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="@{viewModel.quaternaryText}"
+                android:textColor="@color/black1"
+                android:visibility="@{!viewModel.quaternaryText.empty}"
+                app:layout_constraintStart_toStartOf="@+id/status"
+                app:layout_constraintTop_toBottomOf="@+id/details"
+                tools:text="Footer" />
+
             <ImageView
                 android:layout_width="@dimen/time_label_height"
                 android:layout_height="@dimen/time_label_height"

@@ -9,10 +9,10 @@ import org.joda.time.format.DateTimeFormat
 import org.joda.time.format.DateTimeFormatter
 
 data class TransportDetails(
-        val pickUpAddress: String,
-        val pickUpTime: String,
-        val dropOffAddress: String,
-        val dropOffTime: String
+        val pickUpAddress: String?,
+        val pickUpTime: String?,
+        val dropOffAddress: String?,
+        val dropOffTime: String?
 ) {
     companion object {
         fun parseFromReview(review: Review): TransportDetails {
