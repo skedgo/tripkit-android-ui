@@ -82,7 +82,7 @@ publishing {
     }
 
     publications {
-        mavenAar(MavenPublication) {
+        release(MavenPublication) {
             groupId = group
             version = version
             artifactId = 'TripKitAndroidUIDomain'
