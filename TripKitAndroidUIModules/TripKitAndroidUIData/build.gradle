@@ -67,9 +67,12 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation libs.places
 
-    implementation project(':TripKitAndroid')
-    implementation project(':TripKitAndroidUIModules:TripKitAndroidUIDomain')
-    implementation project(':sqliteutils')
+    debugImplementation project(':TripKitAndroid')
+    releaseImplementation project(':TripKitAndroid')
+    debugImplementation project(':TripKitAndroidUIModules:TripKitAndroidUIDomain')
+    releaseImplementation project(':TripKitAndroidUIModules:TripKitAndroidUIDomain')
+    debugImplementation project(':sqliteutils')
+    releaseImplementation project(':sqliteutils')
 
     implementation libs.javaxAnnotation
     compileOnly 'com.github.pengrad:jdk9-deps:1.0'
