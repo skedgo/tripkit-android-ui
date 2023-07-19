@@ -30,6 +30,14 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
 
+    publishing {
+        singleVariant("release") {
+            // if you don't want sources/javadoc, remove these lines
+            withSourcesJar()
+            withJavadocJar()
+        }
+    }
+
 }
 
 androidExtensions {
@@ -76,7 +84,10 @@ publishing {
         mavenAar(MavenPublication) {
             groupId = group
             version = version
-            from components.android
+            artifactId = 'TripKitAndroidUIDomain'
+            afterEvaluate {
+                from components.release
+            }
             pom {
                 licenses {
                     license {

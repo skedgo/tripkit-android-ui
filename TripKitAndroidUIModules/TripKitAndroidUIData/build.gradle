@@ -30,6 +30,13 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
 
+    publishing {
+        singleVariant("release") {
+            // if you don't want sources/javadoc, remove these lines
+            withSourcesJar()
+            withJavadocJar()
+        }
+    }
 }
 
 dependencies {
@@ -47,7 +54,7 @@ dependencies {
     implementation libs.gson
     implementation libs.retrofitConverterGson
     implementation libs.immutablesGson
-    implementation libs.jodaTime
+    implementation libs.jodaTimeAndroid
 
     kapt libs.value
     kapt libs.daggerCompiler
@@ -93,7 +100,10 @@ publishing {
         mavenAar(MavenPublication) {
             groupId = group
             version = version
-            from components.android
+            artifactId = 'TripKitAndroidUIData'
+            afterEvaluate {
+                from components.release
+            }
             pom {
                 licenses {
                     license {
