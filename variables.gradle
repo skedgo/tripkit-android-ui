@@ -1,5 +1,5 @@
 ext {
-    localMaven = "${rootDir}/../tripkit-android/maven/"
+    localMaven = "${project.rootDir}/tripkit-android/maven/"
     tripkitGroup = "com.skedgo.tripkit"
     tripkitVersion = "2.1.43"
     publishMavenUrl = "https://www.myget.org/F/skedgo/maven"
