@@ -32,7 +32,7 @@ public class ServiceStopFetcher {
     params.add(new Pair<>("embarkationDate", time));
     params.add(new Pair<>("encode", "true"));
 
-    List<String> urls = region.getURLs(null);
+    List<String> urls = region.getURLs();
 
     final Gson gson = new Gson();
     for (String url : urls) {

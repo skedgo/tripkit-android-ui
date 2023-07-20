@@ -60,7 +60,7 @@ class SharedNearbyTripPreviewItemViewModel @Inject constructor(private val regio
             locationDetails.accept(details)
             regionService.getRegionByLocationAsync(segment.singleLocation)
                     .subscribe({ region ->
-                        val baseUrl = region.getURLs(null)!![0]
+                        val baseUrl = region.urLs!![0]
                         val url = baseUrl.toHttpUrlOrNull()!!
                                 .newBuilder()
                                 .addPathSegment("locations.json")
