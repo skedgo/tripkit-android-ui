@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <variable
+            name="viewModel"
+            type="com.technologies.tripkituisample.autocompleter.AutocompleterViewModel" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/white"
+        android:padding="@dimen/spacing_small"
+        tools:context=".autocompleter.AutocompleterActivity">
+
+        <ImageButton
+            android:id="@+id/ibBack"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:padding="@dimen/spacing_small"
+            android:src="@drawable/ic_back_button"
+            android:tint="@color/black"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <EditText
+            android:id="@+id/etSearch"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="12sp"
+            android:hint="Search"
+            android:layout_marginTop="@dimen/spacing_small"
+            android:onTextChanged="@{(text, start, before, count) -> viewModel.onSearchQueryChange(text)}"
+            app:layout_constraintTop_toBottomOf="@+id/ibBack" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvResults"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/etSearch" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

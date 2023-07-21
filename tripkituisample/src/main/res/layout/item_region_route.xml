@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="item"
+            type="com.skedgo.tripkit.regionrouting.data.RegionRoute" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/spacing_small">
+
+        <TextView
+            android:id="@+id/tvShortName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@{`Short Name: ` + item.shortName}"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="Short Name" />
+
+        <TextView
+            android:id="@+id/tvOperator"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@{`Operator Name: ` + item.operatorName}"
+            app:layout_constraintTop_toBottomOf="@+id/tvShortName"
+            tools:text="Operator" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>
