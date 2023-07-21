@@ -57,16 +57,16 @@ import javax.inject.Inject
 import javax.inject.Provider
 
 class TripResultListViewModel @Inject constructor(
-        val context: Context,
-        private val tripGroupRepository: TripGroupRepository,
-        private val routingStatusRepositoryLazy: Lazy<RoutingStatusRepository>,
-        private val tripResultViewModelProvider: Provider<TripResultViewModel>,
-        private val getSortedTripGroupsWithRoutingStatusProvider: Provider<GetSortedTripGroupsWithRoutingStatus>,
-        private val tripResultTransportItemViewModelProvider: Provider<TripResultTransportItemViewModel>,
-        private val regionService: RegionService,
-        private val routeService: RouteService,
-        private val errorLogger: ErrorLogger,
-        private val routingTimeViewModelMapper: RoutingTimeViewModelMapper) : RxViewModel(), ActionButtonContainer {
+    val context: Context,
+    private val tripGroupRepository: TripGroupRepository,
+    private val routingStatusRepositoryLazy: Lazy<RoutingStatusRepository>,
+    private val tripResultViewModelProvider: Provider<TripResultViewModel>,
+    private val getSortedTripGroupsWithRoutingStatusProvider: Provider<GetSortedTripGroupsWithRoutingStatus>,
+    private val tripResultTransportItemViewModelProvider: Provider<TripResultTransportItemViewModel>,
+    private val regionService: RegionService,
+    private val routeService: RouteService,
+    private val errorLogger: ErrorLogger,
+    private val routingTimeViewModelMapper: RoutingTimeViewModelMapper) : RxViewModel(), ActionButtonContainer {
     val loadingItem = LoaderPlaceholder()
     val fromName = ObservableField<String>()
     val fromContentDescription = ObservableField<String>()
@@ -83,11 +83,11 @@ class TripResultListViewModel @Inject constructor(
 
     //    val itemBinding = ItemBinding.of<TripResultViewModel>(BR.viewModel, R.layout.trip_result_list_item)
     val itemBinding =
-            ItemBinding.of(
-                    OnItemBindClass<Any>()
-                            .map(TripResultViewModel::class.java, BR.viewModel, R.layout.trip_result_list_item)
-                            .map(LoaderPlaceholder::class.java, ItemBinding.VAR_NONE, R.layout.circular_progress_loader)
-            )
+        ItemBinding.of(
+            OnItemBindClass<Any>()
+                .map(TripResultViewModel::class.java, BR.viewModel, R.layout.trip_result_list_item)
+                .map(LoaderPlaceholder::class.java, ItemBinding.VAR_NONE, R.layout.circular_progress_loader)
+        )
 
     val results = DiffObservableList<TripResultViewModel>(GroupDiffCallback)
     private val loadingList = ObservableArrayList<LoaderPlaceholder>()
@@ -112,10 +112,10 @@ class TripResultListViewModel @Inject constructor(
 
     init {
         transportModeChangeThrottle.debounce(500, TimeUnit.MILLISECONDS)
-                .subscribe(
-                        { load() },
-                        { errorLogger.trackError(it) })
-                .autoClear()
+            .subscribe(
+                { load() },
+                { errorLogger.trackError(it) })
+            .autoClear()
     }
 
     fun transportLayoutClicked(view: View) {
@@ -135,12 +135,12 @@ class TripResultListViewModel @Inject constructor(
     }
 
     fun setup(
-            _query: Query,
-            showTransportSelectionView: Boolean,
-            transportModeFilter: TransportModeFilter?,
-            actionButtonHandlerFactory: ActionButtonHandlerFactory?,
-            force: Boolean = false,
-            execute: Boolean = true
+        _query: Query,
+        showTransportSelectionView: Boolean,
+        transportModeFilter: TransportModeFilter?,
+        actionButtonHandlerFactory: ActionButtonHandlerFactory?,
+        force: Boolean = false,
+        execute: Boolean = true
     ) {
         if (!force && mergedList.size > 0) {
             return
@@ -183,52 +183,52 @@ class TripResultListViewModel @Inject constructor(
     private fun getTransport(execute: Boolean = true) {
         setLoading(true)
         regionService.getTransportModesByLocationsAsync(query.fromLocation!!, query.toLocation!!)
-                .observeOn(AndroidSchedulers.mainThread())
-                .flatMapIterable { value -> value }
-                .filter {
-                    transportModeFilter!!.useTransportMode(it.id)
+            .observeOn(AndroidSchedulers.mainThread())
+            .flatMapIterable { value -> value }
+            .filter {
+                transportModeFilter!!.useTransportMode(it.id)
+            }
+            .map { mode ->
+                tripResultTransportItemViewModelProvider.get().apply {
+                    this.setup(mode)
                 }
-                .map { mode ->
-                    tripResultTransportItemViewModelProvider.get().apply {
-                        this.setup(mode)
-                    }
-                }
-                .map { viewModel ->
-                    viewModel.checked.set(transportVisibilityFilter!!.isSelected(viewModel.modeId.get()!!))
-                    viewModel
-                }
-                .map {
-                    it.clicked
-                            .observeOn(AndroidSchedulers.mainThread())
-                            .subscribe {
-                                // The transportVisibilityFilter will save walking vs wheelchair automatically,
-                                // but we need to manually fix the display, as walking and wheelchair are mutually exclusive.
-                                if (it.first == TransportMode.ID_WALK) {
-                                    toggleTransportModeChecked(TransportMode.ID_WHEEL_CHAIR, false)
-                                } else if (it.first == TransportMode.ID_WHEEL_CHAIR) {
-                                    toggleTransportModeChecked(TransportMode.ID_WALK, false)
-                                }
+            }
+            .map { viewModel ->
+                viewModel.checked.set(transportVisibilityFilter!!.isSelected(viewModel.modeId.get()!!))
+                viewModel
+            }
+            .map {
+                it.clicked
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe {
+                        // The transportVisibilityFilter will save walking vs wheelchair automatically,
+                        // but we need to manually fix the display, as walking and wheelchair are mutually exclusive.
+                        if (it.first == TransportMode.ID_WALK) {
+                            toggleTransportModeChecked(TransportMode.ID_WHEEL_CHAIR, false)
+                        } else if (it.first == TransportMode.ID_WHEEL_CHAIR) {
+                            toggleTransportModeChecked(TransportMode.ID_WALK, false)
+                        }
 
-                                transportVisibilityFilter!!.setSelected(it.first, it.second)
-                                reload()
-                            }.autoClear()
-                    it
+                        transportVisibilityFilter!!.setSelected(it.first, it.second)
+                        reload()
+                    }.autoClear()
+                it
+            }
+            .toList()
+            .subscribe({ list ->
+                transportModes.set(list)
+                if (execute) {
+                    load()
                 }
-                .toList()
-                .subscribe({ list ->
-                    transportModes.set(list)
-                    if (execute) {
-                        load()
-                    }
-                }, {
-                    Timber.e(it)
-                    if (it.message != null) {
-                        onError.accept(it.message)
-                    } else {
-                        onError.accept("Invalid Response")
-                    }
-                })
-                .autoClear()
+            }, {
+                Timber.e(it)
+                if (it.message != null) {
+                    onError.accept(it.message)
+                } else {
+                    onError.accept("Invalid Response")
+                }
+            })
+            .autoClear()
     }
 
     private fun toggleTransportModeChecked(mode: String, checked: Boolean) {
@@ -241,23 +241,25 @@ class TripResultListViewModel @Inject constructor(
 
     private fun setTimeLabel() {
         query.timeTag?.let { timeTag ->
-            query.fromLocation?.let { fromLocation ->
-                if (fromLocation.timeZone == null) {
-                    regionService.getRegionByLocationAsync(fromLocation)
-                        .map { it.timezone }
-                } else {
-                    Observable.just(fromLocation.timeZone)
-                }.flatMap { timeZone ->
-                    val dateTimeZone = DateTimeZone.forID(timeZone)
-                    routingTimeViewModelMapper.toText(timeTag.toRoutingTime(dateTimeZone))
-                        .toObservable()
-                }.observeOn(AndroidSchedulers.mainThread())
-                    .subscribe { str ->
-                        timeLabel.set(str)
-                    }.autoClear()
+            try {
+                query.fromLocation?.let { fromLocation ->
+                    if (fromLocation.timeZone == null) {
+                        regionService.getRegionByLocationAsync(fromLocation)
+                            .map { it.timezone }
+                    } else {
+                        Observable.just(fromLocation.timeZone)
+                    }.flatMap { timeZone ->
+                        val dateTimeZone = DateTimeZone.forID(timeZone)
+                        routingTimeViewModelMapper.toText(timeTag.toRoutingTime(dateTimeZone))
+                            .toObservable()
+                    }.observeOn(AndroidSchedulers.mainThread())
+                        .subscribe { str ->
+                            timeLabel.set(str)
+                        }.autoClear()
 
 
-            }
+                }
+            } catch (_: Exception) {}
         }
     }
 
@@ -271,47 +273,47 @@ class TripResultListViewModel @Inject constructor(
             }
 
             routeService.routeAsync(query = query, transportModeFilter = filter)
-                    .flatMap {
-                        tripGroupRepository.addTripGroups(query.uuid(), it)
-                                .toObservable<List<TripGroup>>()
-                    }
+                .flatMap {
+                    tripGroupRepository.addTripGroups(query.uuid(), it)
+                        .toObservable<List<TripGroup>>()
+                }
         }.observeOn(AndroidSchedulers.mainThread())
-                .doOnSubscribe {
-                    setLoading(true)
-                    stateChange.accept(MultiStateView.ViewState.CONTENT)
-                    routingStatusRepositoryLazy.get().putRoutingStatus(RoutingStatus(
-                            query.uuid(),
-                            Status.InProgress()
-                    )).subscribe()
-                    loadFromStore()
-                }.doOnError {
-                    val message = when (it) {
-                        is RoutingError -> it.message
-                        else -> context.getString(R.string.error_encountered)
-                    }
-                    routingStatusRepositoryLazy.get().putRoutingStatus(RoutingStatus(
-                            query.uuid(),
-                            Status.Error(message)
-                    )).subscribe()
+            .doOnSubscribe {
+                setLoading(true)
+                stateChange.accept(MultiStateView.ViewState.CONTENT)
+                routingStatusRepositoryLazy.get().putRoutingStatus(RoutingStatus(
+                    query.uuid(),
+                    Status.InProgress()
+                )).subscribe()
+                loadFromStore()
+            }.doOnError {
+                val message = when (it) {
+                    is RoutingError -> it.message
+                    else -> context.getString(R.string.error_encountered)
                 }
-                .doOnComplete {
-                    routingStatusRepositoryLazy.get().putRoutingStatus(RoutingStatus(
-                            query.uuid(),
-                            Status.Completed()
-                    )).subscribe()
+                routingStatusRepositoryLazy.get().putRoutingStatus(RoutingStatus(
+                    query.uuid(),
+                    Status.Error(message)
+                )).subscribe()
+            }
+            .doOnComplete {
+                routingStatusRepositoryLazy.get().putRoutingStatus(RoutingStatus(
+                    query.uuid(),
+                    Status.Completed()
+                )).subscribe()
+            }
+            .doFinally {
+                onFinished.accept(true)
+                setLoading(false)
+            }.subscribe({}, { error ->
+                isError.set(true)
+                if (error.message.isNullOrBlank()) {
+                    onError.accept(context.getString(R.string.unknown_error))
+                } else {
+                    onError.accept(error.message)
                 }
-                .doFinally {
-                    onFinished.accept(true)
-                    setLoading(false)
-                }.subscribe({}, { error ->
-                    isError.set(true)
-                    if (error.message.isNullOrBlank()) {
-                        onError.accept(context.getString(R.string.unknown_error))
-                    } else {
-                        onError.accept(error.message)
-                    }
-                    Timber.e(error, "An error in routing occurred ${error.message}")
-                })
+                Timber.e(error, "An error in routing occurred ${error.message}")
+            })
 
         networkRequests.add(request)
         request.autoClear()
@@ -327,48 +329,48 @@ class TripResultListViewModel @Inject constructor(
         val tripFlow = MutableSharedFlow<Trip>()
         tripFlow.onEach {
             val clickEvent = ViewTrip(query = this.query,
-                    tripGroupUUID = it.group.uuid(),
-                    sortOrder = 1, /* TODO Proper sorting */
-                    displayTripID = it.id)
+                tripGroupUUID = it.group.uuid(),
+                sortOrder = 1, /* TODO Proper sorting */
+                displayTripID = it.id)
             onItemClicked.accept(clickEvent)
         }.launchIn(viewModelScope)
 
         getSortedTripGroupsWithRoutingStatusProvider.get().execute(query, 1, transportVisibilityFilter!!)
-                .observeOn(AndroidSchedulers.mainThread())
-                .map {
-                    var list = it.first
+            .observeOn(AndroidSchedulers.mainThread())
+            .map {
+                var list = it.first
 
-                    tripGroupList.clear()
-                    tripGroupList.addAll(list)
-                    val classifier = TripGroupClassifier(list)
-                    list.map { group ->
-                        val vm = tripResultViewModelProvider.get().apply {
-                            var handler: ActionButtonHandler? = actionButtonHandlerFactory?.createHandler(this@TripResultListViewModel)
-                            this.actionButtonHandler = handler
-                            this.clickFlow = tripFlow
-                            this.setTripGroup(context, group, classifier.classify(group))
-                            onMoreButtonClicked.observable
-                                    .subscribe {
-                                        if (it.otherTripGroups.isNullOrEmpty()) {
-                                            actionButtonHandler?.primaryActionClicked(it.trip)
-                                        } else {
-                                            it.toggleShowMore()
-                                        }
-                                    }.autoClear()
-                        }
-
-                        vm
-                    }.sortedByDescending { it.classification.ordinal }
-                }
-                .map {
-                    Pair(it, results.calculateDiff(it))
-                }
-                .subscribe {
-                    results.update(it.first, it.second)
-                    if (results.isEmpty() && !mergedList.contains(loadingItem) && !isError.get()) {
-                        stateChange.accept(MultiStateView.ViewState.EMPTY)
+                tripGroupList.clear()
+                tripGroupList.addAll(list)
+                val classifier = TripGroupClassifier(list)
+                list.map { group ->
+                    val vm = tripResultViewModelProvider.get().apply {
+                        var handler: ActionButtonHandler? = actionButtonHandlerFactory?.createHandler(this@TripResultListViewModel)
+                        this.actionButtonHandler = handler
+                        this.clickFlow = tripFlow
+                        this.setTripGroup(context, group, classifier.classify(group))
+                        onMoreButtonClicked.observable
+                            .subscribe {
+                                if (it.otherTripGroups.isNullOrEmpty()) {
+                                    actionButtonHandler?.primaryActionClicked(it.trip)
+                                } else {
+                                    it.toggleShowMore()
+                                }
+                            }.autoClear()
                     }
-                }.autoClear()
+
+                    vm
+                }.sortedByDescending { it.classification.ordinal }
+            }
+            .map {
+                Pair(it, results.calculateDiff(it))
+            }
+            .subscribe {
+                results.update(it.first, it.second)
+                if (results.isEmpty() && !mergedList.contains(loadingItem) && !isError.get()) {
+                    stateChange.accept(MultiStateView.ViewState.EMPTY)
+                }
+            }.autoClear()
 
     }
 
