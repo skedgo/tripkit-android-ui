@@ -15,11 +15,19 @@ allprojects {
 }
 ```
 
+Add `android.enableJetifier=true` on your `gradle.properties` file
+
+```groovy
+android.useAndroidX=true
+....
+android.enableJetifier=true
+```
+
 Then, in app's build file, add `TripKitAndroidUI` dependency into dependencies section:
 
 ```groovy
 dependencies {
-  implementation 'com.github.skedgo.tripkit-android-ui:TripKitAndroidUI:<insert-newest-version-here>'
+  implementation 'com.github.skedgo:tripkit-android-ui:<insert-newest-version-here>'
 }
 ```
 [![Release](https://jitpack.io/v/skedgo/tripkit-android-ui.svg)](https://jitpack.io/#skedgo/tripkit-android-ui)
