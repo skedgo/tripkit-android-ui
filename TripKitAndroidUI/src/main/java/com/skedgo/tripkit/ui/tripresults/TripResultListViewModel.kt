@@ -37,6 +37,7 @@ import com.skedgo.tripkit.routing.getSummarySegments
 import com.skedgo.tripkit.routingstatus.RoutingStatus
 import com.skedgo.tripkit.routingstatus.RoutingStatusRepository
 import com.skedgo.tripkit.routingstatus.Status
+import com.skedgo.tripkit.ui.model.UserMode
 import com.skedgo.tripkit.ui.routing.SimpleTransportModeFilter
 import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButtonContainer
 import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButtonHandler
@@ -49,6 +50,7 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import me.tatarka.bindingcollectionadapter2.collections.MergeObservableList
 import me.tatarka.bindingcollectionadapter2.itembindings.OnItemBindClass
+import org.joda.time.DateTimeZone
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -106,6 +108,7 @@ class TripResultListViewModel @Inject constructor(
     private var transportVisibilityFilter: TripResultTransportViewFilter? = null
     private var actionButtonHandlerFactory: ActionButtonHandlerFactory? = null
     private val networkRequests = CompositeDisposable()
+    private var replaceModes: List<UserMode>? = null
 
     init {
         transportModeChangeThrottle.debounce(500, TimeUnit.MILLISECONDS)
@@ -127,6 +130,9 @@ class TripResultListViewModel @Inject constructor(
         }
     }
 
+    fun setReplaceMode(list: List<UserMode>) {
+        replaceModes = list
+    }
 
     fun setup(
             _query: Query,
@@ -159,7 +165,12 @@ class TripResultListViewModel @Inject constructor(
         }
         this.actionButtonHandlerFactory = actionButtonHandlerFactory
         if (transportModeFilter == null) {
-            this.transportModeFilter = SimpleTransportModeFilter()
+            val filter = SimpleTransportModeFilter()
+            replaceModes?.let {
+                filter.replaceTransportModes(it)
+            }
+
+            this.transportModeFilter = filter
         } else {
             this.transportModeFilter = transportModeFilter
         }
@@ -230,12 +241,22 @@ class TripResultListViewModel @Inject constructor(
 
     private fun setTimeLabel() {
         query.timeTag?.let { timeTag ->
-            query.fromLocation?.let {
-                routingTimeViewModelMapper.toText(timeTag.toRoutingTime(it.dateTimeZone)).toObservable()
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe { str ->
-                            timeLabel.set(str)
-                        }.autoClear()
+            query.fromLocation?.let { fromLocation ->
+                if (fromLocation.timeZone == null) {
+                    regionService.getRegionByLocationAsync(fromLocation)
+                        .map { it.timezone }
+                } else {
+                    Observable.just(fromLocation.timeZone)
+                }.flatMap { timeZone ->
+                    val dateTimeZone = DateTimeZone.forID(timeZone)
+                    routingTimeViewModelMapper.toText(timeTag.toRoutingTime(dateTimeZone))
+                        .toObservable()
+                }.observeOn(AndroidSchedulers.mainThread())
+                    .subscribe { str ->
+                        timeLabel.set(str)
+                    }.autoClear()
+
+
             }
         }
     }
@@ -244,7 +265,12 @@ class TripResultListViewModel @Inject constructor(
         query = query.clone(true)
         query.setUseWheelchair(transportVisibilityFilter!!.isSelected(TransportMode.ID_WHEEL_CHAIR))
         val request = Observable.defer {
-            routeService.routeAsync(query = query, transportModeFilter = TripResultListViewTransportModeFilter(transportModeFilter!!, transportVisibilityFilter!!))
+            val filter = TripResultListViewTransportModeFilter(transportModeFilter!!, transportVisibilityFilter!!)
+            replaceModes?.let {
+                filter.replaceTransportModes(it)
+            }
+
+            routeService.routeAsync(query = query, transportModeFilter = filter)
                     .flatMap {
                         tripGroupRepository.addTripGroups(query.uuid(), it)
                                 .toObservable<List<TripGroup>>()
@@ -311,21 +337,6 @@ class TripResultListViewModel @Inject constructor(
                 .observeOn(AndroidSchedulers.mainThread())
                 .map {
                     var list = it.first
-
-                    /*
-                    //=== For testing isHideExactTimes purpose only while API is not yet updated ===
-                    list = it.first.map { group ->
-                        group.trips?.forEach { trip ->
-                            trip.getSummarySegments()?.forEach { segment ->
-                                if (segment.transportModeId == TransportMode.ID_WALK) {
-                                    segment.isHideExactTimes = true
-                                }
-                            }
-                        }
-                        group
-                    }
-                    //===
-                    */
 
                     tripGroupList.clear()
                     tripGroupList.addAll(list)

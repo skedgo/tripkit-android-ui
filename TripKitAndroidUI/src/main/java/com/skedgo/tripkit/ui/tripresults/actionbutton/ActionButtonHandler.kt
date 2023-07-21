@@ -16,10 +16,14 @@ import com.skedgo.tripkit.ui.utils.ITEM_QUICK_BOOKING
 import com.skedgo.tripkit.ui.utils.ITEM_SERVICE
 import com.skedgo.tripkit.ui.utils.correctItemType
 
-data class ActionButton(val text: String,
-                        val tag: String,
-                        @DrawableRes val icon: Int,
-                        val isPrimary: Boolean)
+data class ActionButton(
+        val text: String,
+        val tag: String,
+        @DrawableRes val icon: Int,
+        val isPrimary: Boolean,
+        val useIconTint: Boolean = true
+)
+
 /**
  * Trip results will display individual action buttons for different segments, for example, "View timetable" for public
  * transit results, or "Ride motorbike" for motorbike results. You can customize the provided text and functionality
@@ -37,6 +41,7 @@ open class ActionButtonHandler {
             (itemType == ITEM_QUICK_BOOKING || itemType == ITEM_SERVICE || itemType == ITEM_EXTERNAL_BOOKING)
         }
     }
+
     /**
     Given a trip, provide an action string, or return NULL if the action button should not be shown.
      */
@@ -74,7 +79,7 @@ open class ActionButtonHandler {
     /**
      * Given a trip, return a list of actions that can be taken. The default implementation lists nothing.
      */
-    open suspend fun getActions(context: Context, trip: Trip) : List<ActionButton> {
+    open suspend fun getActions(context: Context, trip: Trip): List<ActionButton> {
         return listOf<ActionButton>()
     }
 

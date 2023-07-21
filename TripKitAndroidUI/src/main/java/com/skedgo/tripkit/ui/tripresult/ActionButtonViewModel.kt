@@ -15,7 +15,7 @@ interface ActionButtonClickListener {
     fun onItemClick(tag: String, viewModel: ActionButtonViewModel)
 }
 
-class ActionButtonViewModel constructor (context: Context, button: ActionButton){
+class ActionButtonViewModel constructor(context: Context, button: ActionButton) {
     val showSpinner = ObservableBoolean(false)
     val title = ObservableField<String>()
     val icon = ObservableField<Drawable>()
@@ -23,7 +23,7 @@ class ActionButtonViewModel constructor (context: Context, button: ActionButton)
     val outlineTint = ObservableField<Int>()
     val backgroundTint = ObservableField<ColorStateList>()
     val background = ObservableField<Drawable>()
-    var tag : String = ""
+    var tag: String = ""
 
     init {
         update(context, button)
@@ -43,7 +43,8 @@ class ActionButtonViewModel constructor (context: Context, button: ActionButton)
             this.backgroundTint.set(ColorStateList(stateList, backgroundColorList))
             this.background.set(ContextCompat.getDrawable(context, R.drawable.bg_circle_primary))
         } else {
-            this.iconTint.set(ContextCompat.getColor(context, R.color.black1))
+            if (button.useIconTint)
+                this.iconTint.set(ContextCompat.getColor(context, R.color.black1))
             this.outlineTint.set(ContextCompat.getColor(context, R.color.black4))
             val backgroundColorList = intArrayOf(0, 0)
             this.backgroundTint.set(ColorStateList(stateList, backgroundColorList))

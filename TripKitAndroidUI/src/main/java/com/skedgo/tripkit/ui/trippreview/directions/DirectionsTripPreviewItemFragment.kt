@@ -27,7 +27,6 @@ class DirectionsTripPreviewItemFragment : BaseTripKitFragment() {
 
     private var segment: TripSegment? = null
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 

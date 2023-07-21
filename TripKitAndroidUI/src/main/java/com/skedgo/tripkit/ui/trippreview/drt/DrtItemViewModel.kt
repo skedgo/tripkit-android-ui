@@ -19,6 +19,9 @@ class DrtItemViewModel : ViewModel() {
     private val _label = MutableLiveData<String>()
     val label: LiveData<String> = _label
 
+    private val _ids = MutableLiveData<List<String>>()
+    val ids: LiveData<List<String>> = _ids
+
     private val _values = MutableLiveData<List<String>>()
     val values: LiveData<List<String>> = _values
 
@@ -92,6 +95,10 @@ class DrtItemViewModel : ViewModel() {
         _values.value = values
     }
 
+    fun setIds(ids: List<String>) {
+        _ids.value = ids
+    }
+
     fun setRequired(value: Boolean) {
         _required.value = value
     }
@@ -129,7 +136,7 @@ class DrtItemViewModel : ViewModel() {
         _isReturnTrip.value = value
     }
 
-    fun setRawDate(value: String) {
+    fun setRawDate(value: String?) {
         _rawDate.value = value
     }
 

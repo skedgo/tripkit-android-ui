@@ -143,7 +143,7 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
     var bookingActions: ArrayList<String>? = null
         set(value) {
             if (value != null) {
-                this.viewModel.withBookingActions(value)
+                this.viewModel.withBookingActions(value, tripSegment)
             }
             field = value
         }
@@ -484,6 +484,11 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
 
         val showSearchBar = arguments?.getBoolean(ARG_SHOW_SEARCH_FIELD) ?: cachedShowSearchBar
         viewModel.showSearch.set(showSearchBar)
+
+//        tripSegment?.ticket?.let {
+//            viewModel.showButton.set(true)
+//            viewModel.buttonText.set("Book")
+//        }
 
         binding.closeButton.setOnClickListener(onCloseButtonListener)
 

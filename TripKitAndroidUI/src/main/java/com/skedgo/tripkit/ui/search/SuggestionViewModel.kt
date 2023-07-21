@@ -14,6 +14,7 @@ import com.squareup.picasso.Picasso
 sealed class SuggestionViewModel(context: Context) {
     val icon: ObservableField<Drawable?> = ObservableField()
     open val showTimetableIcon: Boolean = false
+    open val showInfoIcon: Boolean = false
     abstract val title: String
     open val subtitle: String? = null
 
@@ -24,9 +25,12 @@ sealed class SuggestionViewModel(context: Context) {
     protected abstract val subtitleTextColorRes: Int
 
     abstract val onItemClicked: TapAction<SuggestionViewModel>
+
+    abstract val onInfoClicked: TapAction<SuggestionViewModel>
 }
 
-open class FixedSuggestionViewModel(context: Context, suggestion: SearchSuggestion) : SuggestionViewModel(context) {
+open class FixedSuggestionViewModel(context: Context, suggestion: SearchSuggestion) :
+    SuggestionViewModel(context) {
     val suggestion = suggestion
     val id = suggestion.id()
     override val title = suggestion.title()
@@ -34,23 +38,31 @@ open class FixedSuggestionViewModel(context: Context, suggestion: SearchSuggesti
     override val subtitle = suggestion.subtitle()
     override val subtitleTextColorRes = suggestion.subtitleColor()
     override val onItemClicked: TapAction<SuggestionViewModel> = TapAction.create { this }
-
+    override val showInfoIcon = suggestion.location() != null && suggestion.location() !is ScheduledStop
+    override val onInfoClicked: TapAction<SuggestionViewModel> = TapAction.create { this }
     init {
         icon.set(suggestion.icon())
     }
 }
 
-class SearchProviderSuggestionViewModel(context: Context, suggestion: SearchSuggestion) : FixedSuggestionViewModel(context, suggestion)
-class CityProviderSuggestionViewModel(context: Context, suggestion: SearchSuggestion) : FixedSuggestionViewModel(context, suggestion)
-class GoogleAndTripGoSuggestionViewModel(context: Context,
-                                         val picasso: Picasso,
-                                         val place: Place,
-                                         val canOpenTimetable: Boolean,
-                                         val iconProvider: LocationSearchIconProvider,
-                                         val query: String?) : SuggestionViewModel(context) {
+class SearchProviderSuggestionViewModel(context: Context, suggestion: SearchSuggestion) :
+    FixedSuggestionViewModel(context, suggestion)
+
+class CityProviderSuggestionViewModel(context: Context, suggestion: SearchSuggestion) :
+    FixedSuggestionViewModel(context, suggestion)
+
+class GoogleAndTripGoSuggestionViewModel(
+    context: Context,
+    val picasso: Picasso,
+    val place: Place,
+    val canOpenTimetable: Boolean,
+    val iconProvider: LocationSearchIconProvider,
+    val query: String?
+) : SuggestionViewModel(context) {
     override val titleTextColorRes: Int = R.color.title_text
     override val subtitleTextColorRes: Int = R.color.description_text
     override val onItemClicked: TapAction<SuggestionViewModel> = TapAction.create { this }
+    override val onInfoClicked: TapAction<SuggestionViewModel> = TapAction.create { this }
 
     val location: Location by lazy {
         if (place is Place.TripGoPOI) {
@@ -67,6 +79,7 @@ class GoogleAndTripGoSuggestionViewModel(context: Context,
     }
 
     override val title: String by lazy {
+
         if (!location.name.isNullOrEmpty()) {
             return@lazy location.name
         }
@@ -101,9 +114,14 @@ class GoogleAndTripGoSuggestionViewModel(context: Context,
 
     override val showTimetableIcon = canOpenTimetable && location is ScheduledStop
 
+    override val showInfoIcon = location !is ScheduledStop
+
     init {
         val iconRes = if (location is ScheduledStop) {
-            iconProvider.iconForSearchResult(LocationSearchIconProvider.SearchResultType.SCHEDULED_STOP, (location as ScheduledStop).type)
+            iconProvider.iconForSearchResult(
+                LocationSearchIconProvider.SearchResultType.SCHEDULED_STOP,
+                (location as ScheduledStop).type
+            )
         } else {
             when (location.locationType) {
                 Location.TYPE_CONTACT -> {
@@ -122,7 +140,8 @@ class GoogleAndTripGoSuggestionViewModel(context: Context,
                     iconProvider.iconForSearchResult(LocationSearchIconProvider.SearchResultType.WORK)
                 }
                 Location.TYPE_HISTORY -> {
-                    val default = iconProvider.iconForSearchResult(LocationSearchIconProvider.SearchResultType.HISTORY)
+                    val default =
+                        iconProvider.iconForSearchResult(LocationSearchIconProvider.SearchResultType.HISTORY)
                     if (default <= 0) iconProvider.iconForSearchResult(LocationSearchIconProvider.SearchResultType.GOOGLE)
                     else default
                 }

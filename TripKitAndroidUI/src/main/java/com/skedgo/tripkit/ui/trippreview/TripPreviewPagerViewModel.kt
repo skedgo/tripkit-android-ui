@@ -79,11 +79,9 @@ class TripPreviewPagerViewModel : RxViewModel() {
                     )
 
                 headersStream.onNext(previewHeaders)
-
                 //_headers.value = previewHeaders.sortedBy { it.id }
             }
         }
-
     }
 
     private fun getSegmentIcon(
@@ -177,5 +175,4 @@ class TripPreviewPagerViewModel : RxViewModel() {
             }
         }
     }
-
 }

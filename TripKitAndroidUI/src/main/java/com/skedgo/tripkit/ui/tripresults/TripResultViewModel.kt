@@ -70,6 +70,7 @@ class TripResultViewModel @Inject constructor(private val context: Context,
     val badgeVisible = ObservableBoolean(false)
     val tripResults = ObservableArrayList<TripResultTripViewModel>()
     val showMoreTrips = ObservableBoolean(false)
+    val hasTripLabels = ObservableBoolean(true)
 
     var actionButtonHandler: ActionButtonHandler? = null
 
@@ -300,5 +301,6 @@ class TripResultViewModel @Inject constructor(private val context: Context,
 
         val globalConfigs = TripKit.getInstance().configs()
         costVisible.set(!globalConfigs.hideTripMetrics())
+        hasTripLabels.set(globalConfigs.hasTripLabels())
     }
 }

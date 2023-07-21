@@ -14,8 +14,10 @@ import timber.log.Timber
 import javax.inject.Inject
 
 
-class PoiDetailsViewModel @Inject constructor(private val locationInfoService: LocationInfoService,
-                                              private val placeSearchRepository: PlaceSearchRepository) : RxViewModel() {
+class PoiDetailsViewModel @Inject constructor(
+    private val locationInfoService: LocationInfoService,
+    private val placeSearchRepository: PlaceSearchRepository
+) : RxViewModel() {
     val locationTitle = ObservableField<String>("")
     val showCloseButton = ObservableBoolean(false)
     val favoriteText = ObservableField<String>("")
@@ -26,6 +28,7 @@ class PoiDetailsViewModel @Inject constructor(private val locationInfoService: L
     val type = ObservableField(Location.TYPE_UNKNOWN)
     val withExternalApp = ObservableBoolean(false)
     val openAppButtonText = ObservableField("")
+    val goButtonText = ObservableField("")
 
     var what3words = ObservableField<String>("")
     var showWhat3words = ObservableBoolean(false)
@@ -40,7 +43,12 @@ class PoiDetailsViewModel @Inject constructor(private val locationInfoService: L
         }
     }
 
-    fun start(context: Context, location: Location) {
+    fun start(
+        context: Context,
+        location: Location,
+        isRouting: Boolean = false,
+        isDeparture: Boolean = false
+    ) {
         this.location.set(location)
         this.locationTitle.set(location.displayName)
         this.address.set(location.address)
@@ -48,51 +56,67 @@ class PoiDetailsViewModel @Inject constructor(private val locationInfoService: L
         this.type.set(location.locationType)
         this.withExternalApp.set(location.isWithExternalApp)
 
-        openAppButtonText.set(if (location.appUrl?.isAppInstalled(context.packageManager) == true) {
-            context.getString(R.string.open_app)
-        } else {
-            context.getString(R.string.get_app)
-        })
+        openAppButtonText.set(
+            if (location.appUrl?.isAppInstalled(context.packageManager) == true) {
+                context.getString(R.string.open_app)
+            } else {
+                context.getString(R.string.get_app)
+            }
+        )
+
+        goButtonText.set(
+            if (isRouting) {
+                if (isDeparture) {
+                    context.getString(R.string.start_here)
+                } else {
+                    context.getString(R.string.end_here)
+                }
+            } else {
+                context.getString(R.string.go)
+            }
+        )
 
         locationInfoService.getLocationInfoAsync(location)
-                .take(1)
-                .subscribe({
-                    val w3w = it.details()?.w3w()
-                    if (!w3w.isNullOrBlank()) {
-                        this.what3words.set(w3w)
-                        this.showWhat3words.set(true)
-                    }
-                }, { Timber.e(it) })
-                .autoClear()
+            .take(1)
+            .subscribe({
+                val w3w = it.details()?.w3w()
+                if (!w3w.isNullOrBlank()) {
+                    this.what3words.set(w3w)
+                    this.showWhat3words.set(true)
+                }
+            }, { Timber.e(it) })
+            .autoClear()
         showAddress.set(!location.address.isNullOrBlank())
         showWebsite.set(!location.url.isNullOrBlank())
 
         if (location is PoiLocation) {
             location.placeId?.let { placeId ->
                 placeSearchRepository.getPlaceDetails(placeId)
-                        .take(1)
-                        .subscribe({
-                            if (it.address.isNotBlank()) {
-                                this.address.set(it.address)
-                                this.showAddress.set(true)
-                            }
-                            var website = it.website?.toString()
-                            if (!website.isNullOrBlank()) {
-                                this.website.set(website)
-                                this.showWebsite.set(true)
-                            }
-                        }, { Timber.e(it) }).autoClear()
+                    .take(1)
+                    .subscribe({
+                        if (it.address.isNotBlank()) {
+                            this.address.set(it.address)
+                            this.showAddress.set(true)
+                        }
+                        var website = it.website?.toString()
+                        if (!website.isNullOrBlank()) {
+                            this.website.set(website)
+                            this.showWebsite.set(true)
+                        }
+                    }, { Timber.e(it) }).autoClear()
             }
         }
     }
 
-    fun refresh(context: Context){
+    fun refresh(context: Context) {
         location.get()?.let { location ->
-            openAppButtonText.set(if (location.appUrl?.isAppInstalled(context.packageManager) == true) {
-                context.getString(R.string.open_app)
-            } else {
-                context.getString(R.string.get_app)
-            })
+            openAppButtonText.set(
+                if (location.appUrl?.isAppInstalled(context.packageManager) == true) {
+                    context.getString(R.string.open_app)
+                } else {
+                    context.getString(R.string.get_app)
+                }
+            )
         }
     }
 }

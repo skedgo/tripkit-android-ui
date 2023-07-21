@@ -102,7 +102,7 @@ public class TimeDatePickerFragment extends DialogFragment implements View.OnCli
           public void onClick(DialogInterface dialog, int buttonType) {
             dismiss();
           }
-        })
+        }, null)
         .create();
 
     View view = dialogBuilder.getContentView();

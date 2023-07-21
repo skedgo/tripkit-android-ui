@@ -1,6 +1,7 @@
 package com.skedgo.tripkit.ui.dialog
 
 import android.annotation.SuppressLint
+import android.app.AlertDialog
 import android.app.Dialog
 import android.content.DialogInterface
 import android.os.Bundle
@@ -9,10 +10,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.accessibility.AccessibilityEvent
-import android.widget.AdapterView
-import android.widget.EditText
-import android.widget.NumberPicker
-import android.widget.TimePicker
+import android.widget.*
 import androidx.core.view.allViews
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.Observable
@@ -101,14 +99,34 @@ class TripKitDateTimePickerDialogFragment : DialogFragment(), TimePicker.OnTimeC
      * @suppress
      */
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        val dialogBuilder = FlatAlertDialogBuilder(activity)
+        val dialogBuilder = FlatAlertDialogBuilder(requireActivity())
 
         if (timePickerViewModel.showPositiveAction().get()) {
             dialogBuilder.setPositiveButton(timePickerViewModel.positiveActionLabel().get(), onPositiveClickListener())
         }
 
         if (timePickerViewModel.showNegativeAction().get()) {
-            dialogBuilder.setNegativeButton(timePickerViewModel.negativeActionLabel().get(), onNegativeClickListener())
+            dialogBuilder.setNegativeButton(
+                timePickerViewModel.negativeActionLabel().get(),
+                onNegativeClickListener(),
+                object: View.AccessibilityDelegate() {
+                    override fun sendAccessibilityEvent(host: View?, eventType: Int) {
+
+                        var hostText: String = ""
+
+                        if(host is Button) {
+                            hostText = host.text.toString()
+                        }
+
+                        binding?.timePicker?.let {
+                            host?.contentDescription =
+                                "$hostText ${getDateTimeForContentDescription(it)}"
+                        }
+                        super.sendAccessibilityEvent(host, eventType)
+                    }
+                }
+            )
+
         }
 
         val dialog = dialogBuilder.setContentView(R.layout.dialog_date_time_picker)
@@ -174,19 +192,14 @@ class TripKitDateTimePickerDialogFragment : DialogFragment(), TimePicker.OnTimeC
 
     private fun onNegativeClickListener(): DialogInterface.OnClickListener {
         return DialogInterface.OnClickListener { dialog, buttonType ->
-            if (timeSelectedListener != null) {
-                timeSelectedListener!!.onTimeSelected(timePickerViewModel!!.leaveNow())
-            }
+            timeSelectedListener?.onTimeSelected(timePickerViewModel.leaveNow())
             dismiss()
         }
     }
 
     private fun onPositiveClickListener(): DialogInterface.OnClickListener {
         return DialogInterface.OnClickListener { dialog, buttonType ->
-            if (timeSelectedListener != null) {
-                timeSelectedListener!!.onTimeSelected(timePickerViewModel!!.done())
-            }
-
+            timeSelectedListener?.onTimeSelected(timePickerViewModel.done())
             dismiss()
         }
     }
@@ -209,38 +222,41 @@ class TripKitDateTimePickerDialogFragment : DialogFragment(), TimePicker.OnTimeC
             override fun sendAccessibilityEvent(host: View?, eventType: Int) {
                 if (host is TimePicker) {
                     binding?.timePicker?.let {
-                        val currentMinute = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
-                            it.minute
-                        } else {
-                            it.currentMinute
-                        }
-
-                        var currentHour = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
-                            it.hour
-                        } else {
-                            it.currentHour
-                        }
-
-                        var amPm = "AM"
-
-                        if (!it.is24HourView) {
-                            if (currentHour > 11) {
-                                amPm = "PM"
-                                currentHour -= 12
-                            }
-                        }
-
-                        val convertedMinute = currentMinute * timePickerViewModel.timePickerMinuteInterval.get()
-                        val hourForDescription = "${if (currentHour == 0) 12 else currentHour}"
-                        val minutesForDescription = "${if (convertedMinute > 0) convertedMinute else ""}"
-                        val newDescription = "$hourForDescription $minutesForDescription ${if (!it.is24HourView) amPm else ""}"
-                        host.contentDescription = newDescription
+                        host.contentDescription = getDateTimeForContentDescription(it)
                     }
                 }
 
                 super.sendAccessibilityEvent(host, eventType)
             }
         }
+    }
+
+    private fun getDateTimeForContentDescription(timePicker: TimePicker): String {
+        val currentMinute = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+            timePicker.minute
+        } else {
+            timePicker.currentMinute
+        }
+
+        var currentHour = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+            timePicker.hour
+        } else {
+            timePicker.currentHour
+        }
+
+        var amPm = "AM"
+
+        if (!timePicker.is24HourView) {
+            if (currentHour > 11) {
+                amPm = "PM"
+                currentHour -= 12
+            }
+        }
+
+        val convertedMinute = currentMinute * timePickerViewModel.timePickerMinuteInterval.get()
+        val hourForDescription = "${if (currentHour == 0) 12 else currentHour}"
+        val minutesForDescription = "${if (convertedMinute > 0) convertedMinute else ""}"
+        return "$hourForDescription $minutesForDescription ${if (!timePicker.is24HourView) amPm else ""}"
     }
 
     @SuppressLint("PrivateApi")

@@ -546,6 +546,7 @@
 	<string name="the_application_encountered_a_critical_error_and_can_apostt_recover_2points">The application encountered a critical error and can\'t recover:</string>
 	<!--Title for view that presents a purchased ticket-->
 	<string name="ticket">Ticket</string>
+	<string name="tickets">Tickets</string>
 	<!--Indicating that a ticket has expired.-->
 	<string name="ticket_expired">Ticket expired</string>
 	<!--Title for screen to pick your working hours-->
@@ -1464,7 +1465,6 @@ Note, your iCloud data will not be deleted by this, but you can delete this in t
 	</plurals>
 
 	<string name="choose_on_map">Choose on Map</string>
-	<string name="sign_in_to_continue">Sign in</string>
 	<string name="subscriber_only">Your %s account opens the door to more exciting features.</string>
 	<string name="choose_location">Choose location</string>
 	<string name="favorites">Favorites</string>
@@ -1480,5 +1480,27 @@ Note, your iCloud data will not be deleted by this, but you can delete this in t
 	<string name="tap_to_add_notes">Tap to add notes</string>
 	<string name="tap_change_to_make_selection">Tap to make selections</string>
 	<string name="payments">Payments</string>
+
+	<string name="earn_rewards">Earn Rewards</string>
+
+	<string name="review_booking">Review Booking</string>
+	<string name="total">Total</string>
+	<string name="confirm_booking">Confirm booking</string>
+	<string name="continue_to_payment">Continue to payment</string>
+
+	<!--For phone number-->
+	<string name="phone">Phone</string>
+	<string name="warn_phone">To update your phone number, please call 1–833–653–6544 and request technical support. A live agent will be able to assist you. The ability to reach you regarding your trip plans is of utmost importance and we appreciate your support with this matter.</string>
+	<string name="yes">Yes</string>
+	<string name="no">No</string>
+
+	<string name="notes">Notes</string>
+
+	<string name="use_the_sliders_to_tell_us_what_most_important_to_you">Use the sliders to choose your highest and lowest priorities when travelling. Only one priority can be maximised. %s will display search results according to these preferences.</string>
+	<string name="sign_in_to_continue">Sign in to continue</string>
+
+	<string name="requested_time">Requested time %s at %s</string>
+	<string name="start_here">Start Here</string>
+	<string name="end_here">End Here</string>
 </resources>
 	<!-- This is an auto generated file (Mon Jan 20 14:50:01 CET 2020) -->

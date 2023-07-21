@@ -8,6 +8,7 @@ import androidx.databinding.ObservableBoolean
 import androidx.databinding.ObservableField
 import androidx.databinding.ObservableFloat
 import androidx.databinding.ObservableInt
+import com.skedgo.TripKit
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.model.TimetableEntry
 import com.skedgo.tripkit.ui.trip.details.viewmodel.OccupancyViewModel
@@ -43,6 +44,7 @@ internal class ServiceViewModelImpl @Inject constructor(
     override val showOccupancyInfo = ObservableBoolean(false)
 
     override val tertiaryText = ObservableField<String>()
+    override val quaternaryText = ObservableField<String>()
     override val countDownTimeText = ObservableField<String>()
     override val alpha = ObservableFloat(1f)
 
@@ -81,6 +83,11 @@ internal class ServiceViewModelImpl @Inject constructor(
         secondaryText.set(secondaryMessage)
         secondaryTextColor.set(ContextCompat.getColor(context, color))
         tertiaryText.set(getServiceTertiaryText.execute(service))
+
+        val globalConfigs = TripKit.getInstance().configs()
+        if(globalConfigs.showOperatorNames()) {
+            quaternaryText.set(service.operator)
+        }
 
         presentOccupancy()
         presentCountDownTimeForFrequency()

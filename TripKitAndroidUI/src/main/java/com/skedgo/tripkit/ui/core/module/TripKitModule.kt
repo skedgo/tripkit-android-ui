@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import com.skedgo.TripKit
 import com.skedgo.tripkit.DefaultTripPreferences
+import com.skedgo.tripkit.TripKitConstants
 import com.skedgo.tripkit.TripPreferences
 import com.skedgo.tripkit.a2brouting.RouteService
 import com.skedgo.tripkit.a2brouting.SingleRouteService
@@ -32,7 +33,7 @@ class TripKitModule {
 
   @Provides
   internal fun preferences(context: Context): SharedPreferences {
-    return context.getSharedPreferences("TripKit", Context.MODE_PRIVATE)
+    return context.getSharedPreferences(TripKitConstants.PREF_NAME_TRIP_KIT, Context.MODE_PRIVATE)
   }
 
   @Provides internal fun tripPreferences(context: Context): com.skedgo.tripkit.TripPreferences =

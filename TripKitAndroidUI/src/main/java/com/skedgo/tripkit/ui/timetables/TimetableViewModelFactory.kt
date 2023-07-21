@@ -9,7 +9,7 @@ import javax.inject.Provider
 
 class TimetableViewModelFactory @Inject constructor(private val timetableViewModelProvider: Provider<TimetableViewModel>)
     : ViewModelProvider.Factory {
-    override fun <T : ViewModel?> create(modelClass: Class<T>): T {
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass == TimetableViewModel::class.java) {
             return timetableViewModelProvider.get() as T
         }

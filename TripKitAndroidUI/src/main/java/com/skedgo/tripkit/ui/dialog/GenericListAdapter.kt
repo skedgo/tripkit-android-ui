@@ -1,7 +1,10 @@
 package com.skedgo.tripkit.ui.dialog
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
+import android.view.accessibility.AccessibilityNodeInfo
+import androidx.core.view.accessibility.AccessibilityNodeInfoCompat
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.skedgo.tripkit.ui.R
@@ -45,6 +48,38 @@ class GenericListAdapter @Inject constructor() :
                         notifyItemChanged(position)
                     }
                     clickListener.invoke(listItem)
+                }
+            }
+            clParent.accessibilityDelegate = object: View.AccessibilityDelegate(){
+                override fun onInitializeAccessibilityNodeInfo(
+                    host: View?,
+                    info: AccessibilityNodeInfo?
+                ) {
+
+                    super.onInitializeAccessibilityNodeInfo(host, info)
+
+                    if(!isViewOnlyMode) {
+
+                        val description =
+                            if (collection[position].selected) "unselect" else "select"
+
+                        val customClick = AccessibilityNodeInfo.AccessibilityAction(
+                            AccessibilityNodeInfoCompat.ACTION_CLICK, description
+                        )
+
+                        info?.addAction(customClick)
+                    }
+                }
+
+                override fun sendAccessibilityEvent(host: View?, eventType: Int) {
+
+                    val currentContentDescription = genericListItemTvLabel.text
+
+                    host?.contentDescription = "$currentContentDescription ${
+                            if(collection[position].selected) "\n Selected" else ""
+                    }"
+
+                    super.sendAccessibilityEvent(host, eventType)
                 }
             }
         }

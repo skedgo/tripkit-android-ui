@@ -68,6 +68,7 @@ public class CursorToServiceConverter implements CursorToEntityConverter<Timetab
 
     // TODO: What about hasAlerts()?
     service.setServiceDirection(cursor.getString(cursor.getColumnIndex(DbFields.SERVICE_DIRECTION.getName())));
+    service.setStartPlatform(cursor.getString(cursor.getColumnIndex(DbFields.START_PLATFORM.getName())));
     return service;
   }
 
@@ -196,6 +197,7 @@ public class CursorToServiceConverter implements CursorToEntityConverter<Timetab
     public int serviceOperator = -1;
     public int wheelchairAccessible = -1;
     public int startStopShortName = -1;
+    public int startPlatform = -1;
 
     public void getColumnIndices(@NotNull Cursor cursor) {
       // The '_id' column always appears on query result.
@@ -229,6 +231,7 @@ public class CursorToServiceConverter implements CursorToEntityConverter<Timetab
       serviceOperator = cursor.getColumnIndex(SERVICE_OPERATOR.getName());
       wheelchairAccessible = cursor.getColumnIndex(WHEELCHAIR_ACCESSIBLE.getName());
       startStopShortName = cursor.getColumnIndex(START_STOP_SHORT_NAME.getName());
+      startPlatform = cursor.getColumnIndex(START_PLATFORM.getName());
     }
   }
 }

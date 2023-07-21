@@ -106,12 +106,12 @@ class LocationSearchFragment : BaseTripKitFragment() {
     private fun saveLocationToHistory(location: Location) {
         if (location.name != getString(R.string.home) && location.name != getString(R.string.work)) {
             locationHistoryRepository.saveLocationsToHistory(
-                    listOf(location)
+                listOf(location)
             ).observeOn(Schedulers.io())
-                    .subscribeOn(Schedulers.io())
-                    .subscribe({}, {
-                        it.printStackTrace()
-                    }).addTo(autoDisposable)
+                .subscribeOn(Schedulers.io())
+                .subscribe({}, {
+                    it.printStackTrace()
+                }).addTo(autoDisposable)
         }
     }
 
@@ -145,6 +145,26 @@ class LocationSearchFragment : BaseTripKitFragment() {
     private var onAttachFragmentListener: OnAttachFragmentListener? = null
     fun setOnAttachFragmentListener(callback: OnAttachFragmentListener) {
         this.onAttachFragmentListener = callback
+    }
+
+    /**
+     * This callback will be invoked when info icon is clicked.
+     */
+    interface OnInfoSelectedListener {
+        fun onInfoSelectedListener(location: Location)
+    }
+
+    private var onInfoSelectedListener: OnInfoSelectedListener? = null
+    fun setOnInfoSelectedListener(callback: OnInfoSelectedListener) {
+        this.onInfoSelectedListener = callback
+    }
+
+    fun setOnInfoSelectedListener(listener: (Location) -> Unit) {
+        this.onInfoSelectedListener = object : OnInfoSelectedListener {
+            override fun onInfoSelectedListener(location: Location) {
+                listener(location)
+            }
+        }
     }
 
     /**
@@ -201,7 +221,7 @@ class LocationSearchFragment : BaseTripKitFragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         viewModel = ViewModelProviders.of(this, viewModelFactory)
-                .get(LocationSearchViewModel::class.java)
+            .get(LocationSearchViewModel::class.java)
         viewModel.locationSearchIconProvider = locationSearchIconProvider
         viewModel.fixedSuggestionsProvider = fixedSuggestionsProvider
         viewModel.locationSearchProvider = searchSuggestionProvider
@@ -210,7 +230,11 @@ class LocationSearchFragment : BaseTripKitFragment() {
     /**
      * @suppress
      */
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         binding = LocationSearchBinding.inflate(inflater)
 
         binding.viewModel = viewModel
@@ -239,69 +263,77 @@ class LocationSearchFragment : BaseTripKitFragment() {
     override fun onResume() {
         super.onResume()
         viewModel.locationChosen
-                .observeOn(mainThread())
-                .subscribe({
-                    locationSelectedListener?.onLocationSelected(it)
-                }, errorLogger::trackError).addTo(autoDisposable)
+            .observeOn(mainThread())
+            .subscribe({
+                locationSelectedListener?.onLocationSelected(it)
+            }, errorLogger::trackError).addTo(autoDisposable)
         viewModel.fixedLocationChosen
-                .observeOn(mainThread())
-                .subscribe({
-                    fixedSuggestionSelectedListener?.onFixedSuggestionSelected(it)
-                }, errorLogger::trackError).addTo(autoDisposable)
+            .observeOn(mainThread())
+            .subscribe({
+                fixedSuggestionSelectedListener?.onFixedSuggestionSelected(it)
+            }, errorLogger::trackError).addTo(autoDisposable)
         viewModel.cityLocationChosen
-                .observeOn(mainThread())
-                .subscribe({
-                    citySuggestionSelectedListener?.onCitySuggestionSelected(it)
-                }, errorLogger::trackError).addTo(autoDisposable)
+            .observeOn(mainThread())
+            .subscribe({
+                citySuggestionSelectedListener?.onCitySuggestionSelected(it)
+            }, errorLogger::trackError).addTo(autoDisposable)
         viewModel.dismiss
-                .observeOn(mainThread())
-                .subscribe({
-                    dismissKeyboard()
+            .observeOn(mainThread())
+            .subscribe({
+                dismissKeyboard()
 
-                    // FIXME: There's a case that the Search screen will not dismiss.
-                    // Steps to reproduce:
-                    // * Tap any Google search results.
-                    // * Push the app into background immediately before
-                    // the app manages to get the coordinates.
-                    // * Then get back to the app. We'll still see the Search screen
-                    // while it should have been dismissed.
+                // FIXME: There's a case that the Search screen will not dismiss.
+                // Steps to reproduce:
+                // * Tap any Google search results.
+                // * Push the app into background immediately before
+                // the app manages to get the coordinates.
+                // * Then get back to the app. We'll still see the Search screen
+                // while it should have been dismissed.
 
-                    val fragmentManager = fragmentManager
-                    fragmentManager?.let {
-                        if (!fragmentManager.isStateSaved) fragmentManager.popBackStackImmediate()
-                    }
-                }, errorLogger::trackError).addTo(autoDisposable)
+                val fragmentManager = fragmentManager
+                fragmentManager?.let {
+                    if (!fragmentManager.isStateSaved) fragmentManager.popBackStackImmediate()
+                }
+            }, errorLogger::trackError).addTo(autoDisposable)
         viewModel.unableToFindPlaceCoordinatesError
-                .observeOn(mainThread())
-                .subscribe({
-                    Toast.makeText(
-                            activity!!,
-                            R.string.failed_to_resolve_location,
-                            Toast.LENGTH_SHORT
-                    ).show()
-                }, errorLogger::trackError).addTo(autoDisposable)
+            .observeOn(mainThread())
+            .subscribe({
+                Toast.makeText(
+                    activity!!,
+                    R.string.failed_to_resolve_location,
+                    Toast.LENGTH_SHORT
+                ).show()
+            }, errorLogger::trackError).addTo(autoDisposable)
 
         viewModel.scrollListToTop.asObservable()
-                .observeOn(mainThread())
-                .subscribe({
-                    if (it) {
-                        scrollResultsToTop()
-                    }
-                }, {
-                    it.printStackTrace()
-                }).addTo(autoDisposable)
+            .observeOn(mainThread())
+            .subscribe({
+                if (it) {
+                    scrollResultsToTop()
+                }
+            }, {
+                it.printStackTrace()
+            }).addTo(autoDisposable)
 
         viewModel.onFinishLoad
-                .observeOn(mainThread())
-                .subscribe({
-                    if (it) {
-                        searchView?.post {
-                            onAttachFragmentListener?.onAttachFragment()
-                        }
+            .observeOn(mainThread())
+            .subscribe({
+                if (it) {
+                    searchView?.post {
+                        onAttachFragmentListener?.onAttachFragment()
                     }
-                }, errorLogger::trackError).addTo(autoDisposable)
+                }
+            }, errorLogger::trackError).addTo(autoDisposable)
 
-        if(!requireContext().isTalkBackOn()) {
+        viewModel.infoChosen
+            .observeOn(mainThread())
+            .subscribe({
+                it?.let {
+                    onInfoSelectedListener?.onInfoSelectedListener(it)
+                }
+            }, errorLogger::trackError).addTo(autoDisposable)
+
+        if (!requireContext().isTalkBackOn()) {
             searchView?.requestFocus()
             showKeyboard(requireActivity())
         }

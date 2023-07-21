@@ -23,4 +23,6 @@ interface TripPreviewPagerListener {
         fun onExternalActionButtonClicked(action: String?)
 
         fun onToggleBottomSheetDrag(isDraggable: Boolean)
+        fun getCurrentPagerItemType(): Int
+        fun getLatestTrip(): Trip?
     }

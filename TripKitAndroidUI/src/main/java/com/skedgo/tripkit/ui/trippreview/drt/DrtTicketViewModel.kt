@@ -72,10 +72,16 @@ class DrtTicketViewModel : ViewModel() {
     }
 
     fun setDescription(value: String?) {
-        _description.value = value
+        // Removed due to new design no longer showing this
+//        _description.value = value
     }
 
-    fun setPrice(value: Double) {
+    fun setPrice(value: Double, currency: String) {
+        _description.value = if ((value / 100.0) > 0) {
+            String.format("%s%.2f", currency, value / 100.0)
+        } else {
+            "FREE"
+        }
         _price.value = value
     }
 
@@ -97,7 +103,12 @@ class DrtTicketViewModel : ViewModel() {
 
     fun onIncrementValue() {
         _accessibilityFocusIncrementAction.postValue(false)
-        val result = ((value.value)?.toLong() ?: 0) + 1
+        var result = ((value.value)?.toLong() ?: 0) + 1
+
+        _ticket.value?.max?.let {
+            if (result > it) result = it.toLong()
+        }
+
         _value.value = result
         updateTicket(result)
         onChange()
@@ -109,7 +120,7 @@ class DrtTicketViewModel : ViewModel() {
         if (result >= 0) _value.value = result
         else _value.value = 0
 
-        _accessibilityFocusSelectAction.postValue((_value.value?: 0) == 0L)
+        _accessibilityFocusSelectAction.postValue((_value.value ?: 0) == 0L)
 
         updateTicket(_value.value ?: 0)
         onChange()
@@ -133,28 +144,28 @@ class DrtTicketViewModel : ViewModel() {
     @Deprecated("Will be replaced by parsing details from Review")
     fun generateSummaryDetails(): PaymentSummaryDetails {
         return PaymentSummaryDetails(
-                hashCode().toString(),
-                R.drawable.ic_person,
-                label.value ?: "",
-                breakdown = value.value,
-                price = price.value,
-                currency = currency.value
+            hashCode().toString(),
+            R.drawable.ic_person,
+            label.value ?: "",
+            breakdown = value.value,
+            price = price.value,
+            currency = currency.value
         )
     }
 
     companion object {
         fun diffCallback() = object : DiffUtil.ItemCallback<DrtTicketViewModel>() {
             override fun areItemsTheSame(
-                    oldItem: DrtTicketViewModel,
-                    newItem: DrtTicketViewModel
+                oldItem: DrtTicketViewModel,
+                newItem: DrtTicketViewModel
             ): Boolean =
-                    oldItem.label == newItem.label
+                oldItem.label == newItem.label
 
             override fun areContentsTheSame(
-                    oldItem: DrtTicketViewModel,
-                    newItem: DrtTicketViewModel
+                oldItem: DrtTicketViewModel,
+                newItem: DrtTicketViewModel
             ): Boolean =
-                    oldItem.label.value == newItem.label.value
+                oldItem.label.value == newItem.label.value
         }
     }
 }
