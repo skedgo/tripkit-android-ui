@@ -1,5 +1,5 @@
 apply plugin: 'com.android.library'
-apply plugin: 'digital.wup.android-maven-publish'
+apply plugin: 'maven-publish'
 apply plugin: "kotlin-android"
 apply plugin: "kotlin-kapt"
 apply plugin: 'kotlin-android-extensions'
@@ -72,6 +72,14 @@ android {
                     details.useVersion '1.5.21'
                 }
             }*/
+        }
+    }
+
+    publishing {
+        singleVariant("release") {
+            // if you don't want sources/javadoc, remove these lines
+            withSourcesJar()
+            withJavadocJar()
         }
     }
 }
@@ -170,10 +178,14 @@ dependencies {
 
     implementation libs.fragmentKtx
 
-    api project(':trip-kit-booking')
-    api project(':TripKitAndroid')
-    api project(':TripKitAndroidUIModules:TripKitAndroidUIData')
-    api project(':TripKitAndroidUIModules:TripKitAndroidUIDomain')
+    debugApi project(':trip-kit-booking')
+    releaseApi project(':trip-kit-booking')
+    debugApi project(':TripKitAndroid')
+    releaseApi project(':TripKitAndroid')
+    debugApi project(':TripKitAndroidUIModules:TripKitAndroidUIData')
+    releaseApi project(':TripKitAndroidUIModules:TripKitAndroidUIData')
+    debugApi project(':TripKitAndroidUIModules:TripKitAndroidUIDomain')
+    releaseApi project(':TripKitAndroidUIModules:TripKitAndroidUIDomain')
 
     implementation 'com.afollestad.material-dialogs:core:3.3.0'
     implementation 'com.afollestad.material-dialogs:bottomsheets:3.2.1'
@@ -198,10 +210,13 @@ publishing {
     }
 
     publications {
-        mavenAar(MavenPublication) {
+        release(MavenPublication) {
             groupId = group
             version = version
-            from components.android
+            artifactId = 'TripKitAndroidUI'
+            afterEvaluate {
+                from components.release
+            }
             pom {
                 licenses {
                     license {

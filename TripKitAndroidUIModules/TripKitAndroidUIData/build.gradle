@@ -2,7 +2,7 @@ apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: "kotlin-kapt"
-apply plugin: 'digital.wup.android-maven-publish'
+apply plugin: 'maven-publish'
 
 android {
     compileSdkVersion 29
@@ -30,6 +30,13 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
 
+    publishing {
+        singleVariant("release") {
+            // if you don't want sources/javadoc, remove these lines
+            withSourcesJar()
+            withJavadocJar()
+        }
+    }
 }
 
 dependencies {
@@ -47,7 +54,7 @@ dependencies {
     implementation libs.gson
     implementation libs.retrofitConverterGson
     implementation libs.immutablesGson
-    implementation libs.jodaTime
+    implementation libs.jodaTimeAndroid
 
     kapt libs.value
     kapt libs.daggerCompiler
@@ -60,9 +67,12 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation libs.places
 
-    implementation project(':TripKitAndroid')
-    implementation project(':TripKitAndroidUIModules:TripKitAndroidUIDomain')
-    implementation project(':sqliteutils')
+    debugImplementation project(':TripKitAndroid')
+    releaseImplementation project(':TripKitAndroid')
+    debugImplementation project(':TripKitAndroidUIModules:TripKitAndroidUIDomain')
+    releaseImplementation project(':TripKitAndroidUIModules:TripKitAndroidUIDomain')
+    debugImplementation project(':sqliteutils')
+    releaseImplementation project(':sqliteutils')
 
     implementation libs.javaxAnnotation
     compileOnly 'com.github.pengrad:jdk9-deps:1.0'
@@ -90,10 +100,13 @@ publishing {
     }
 
     publications {
-        mavenAar(MavenPublication) {
+        release(MavenPublication) {
             groupId = group
             version = version
-            from components.android
+            artifactId = 'TripKitAndroidUIData'
+            afterEvaluate {
+                from components.release
+            }
             pom {
                 licenses {
                     license {

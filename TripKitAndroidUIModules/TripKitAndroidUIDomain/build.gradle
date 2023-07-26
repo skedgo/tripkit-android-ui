@@ -2,7 +2,7 @@ apply plugin: 'com.android.library'
 apply plugin: "kotlin-android"
 apply plugin: "kotlin-kapt"
 apply plugin: 'kotlin-android-extensions'
-apply plugin: 'digital.wup.android-maven-publish'
+apply plugin: 'maven-publish'
 
 android {
     compileSdkVersion 29
@@ -30,6 +30,14 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
 
+    publishing {
+        singleVariant("release") {
+            // if you don't want sources/javadoc, remove these lines
+            withSourcesJar()
+            withJavadocJar()
+        }
+    }
+
 }
 
 androidExtensions {
@@ -54,7 +62,8 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
-    implementation project(':TripKitAndroid')
+    debugImplementation project(':TripKitAndroid')
+    releaseImplementation project(':TripKitAndroid')
 }
 
 group = tripkitGroup
@@ -73,10 +82,13 @@ publishing {
     }
 
     publications {
-        mavenAar(MavenPublication) {
+        release(MavenPublication) {
             groupId = group
             version = version
-            from components.android
+            artifactId = 'TripKitAndroidUIDomain'
+            afterEvaluate {
+                from components.release
+            }
             pom {
                 licenses {
                     license {
