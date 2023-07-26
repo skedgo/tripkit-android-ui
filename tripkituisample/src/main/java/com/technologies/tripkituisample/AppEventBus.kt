@@ -30,4 +30,6 @@ class AppEvent {
         val viewTrip: ViewTrip,
         val tripGroupList: List<TripGroup>
     )
+
+    data class ViewTripDetails(val tripSegment: TripSegment)
 }

@@ -35,5 +35,9 @@ class MainActivity : AppCompatActivity() {
                 Intent(this@MainActivity, RoutingResultActivity::class.java)
             )
         }
+
+        binding.bHomeView.setOnClickListener {
+
+        }
     }
 }

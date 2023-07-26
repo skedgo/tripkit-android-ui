@@ -4,16 +4,14 @@ import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import com.skedgo.TripKit
 import com.skedgo.tripkit.routing.TripGroup
 import com.skedgo.tripkit.routing.TripSegment
 import com.skedgo.tripkit.ui.core.BaseActivity
 import com.skedgo.tripkit.ui.tripresult.TripResultPagerFragment
 import com.skedgo.tripkit.ui.tripresult.TripSegmentListFragment
 import com.skedgo.tripkit.ui.tripresults.TripResultListFragment
-import com.technologies.tripkituisample.AppEvent
-import com.technologies.tripkituisample.AppEventBus
-import com.technologies.tripkituisample.R
-import com.technologies.tripkituisample.TripKitUISampleActionButtonHandlerFactory
+import com.technologies.tripkituisample.*
 import com.technologies.tripkituisample.databinding.ActivityRoutingResultBinding
 import javax.inject.Inject
 
@@ -34,11 +32,23 @@ class RoutingResultActivity : BaseActivity<ActivityRoutingResultBinding>() {
     }
 
     private fun initObservers() {
+
+        val globalConfigs = TripKit.getInstance().configs() as TripKitUISampleConfigs
+        val actionButtonHandlerFactory = globalConfigs.actionButtonHandlerFactory()
+
         viewModel.query.observe(this) { query ->
-            val tripResultListFragment = TripResultListFragment.Builder()
+
+            val tripResultListFragmentBuilder = TripResultListFragment.Builder()
                 .withQuery(query)
                 .showCloseButton()
-                .build()
+
+            if(actionButtonHandlerFactory != null) {
+                tripResultListFragmentBuilder.withActionButtonHandlerFactory(
+                    actionButtonHandlerFactory
+                )
+            }
+
+            val tripResultListFragment = tripResultListFragmentBuilder.build()
 
             tripResultListFragment.onCloseButtonListener = View.OnClickListener {
                 finish()
@@ -49,6 +59,11 @@ class RoutingResultActivity : BaseActivity<ActivityRoutingResultBinding>() {
                     .showCloseButton()
 
                 pagerFragmentBuilder.withViewTrip(viewTrip)
+
+                if(actionButtonHandlerFactory != null) {
+                    pagerFragmentBuilder
+                        .withActionButtonHandlerFactory(actionButtonHandlerFactory)
+                }
 
                 val sortedList = ArrayList<TripGroup>()
                 tripGroups.forEach {

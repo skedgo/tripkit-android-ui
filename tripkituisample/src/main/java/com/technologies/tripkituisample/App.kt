@@ -37,7 +37,8 @@ class App : Application(), HasAndroidInjector {
             .build()
             .inject(this)
 
-        val appConfigs = TripKitConfigs.builder()
+        val appConfigs = TripKitUISampleConfigs.builder()
+            .actionButtonHandlerFactory(tripKitUISampleActionButtonHandlerFactory)
             .from(baseConfig).build()
         TripKitUI.initialize(this, Key.ApiKey("84aff3ca785a8bd99bb96c39324c7fa6"), appConfigs, httpClientModule)
         TripKitUI.getInstance()
