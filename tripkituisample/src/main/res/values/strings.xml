@@ -3,4 +3,5 @@
     <string name="lbl_features">Features:</string>
     <string name="feature_autocompleter">Autocompleter</string>
     <string name="lbl_location_search">Location Search</string>
+    <string name="lbl_routing_result_view_controller">Routing Result View</string>
 </resources>

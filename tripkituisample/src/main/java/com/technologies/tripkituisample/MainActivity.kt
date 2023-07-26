@@ -7,6 +7,7 @@ import androidx.databinding.DataBindingUtil
 import com.technologies.tripkituisample.autocompleter.AutocompleterActivity
 import com.technologies.tripkituisample.databinding.ActivityMainBinding
 import com.technologies.tripkituisample.location_search.LocationSearchActivity
+import com.technologies.tripkituisample.routingresultview.RoutingResultActivity
 
 class MainActivity : AppCompatActivity() {
 
@@ -26,6 +27,12 @@ class MainActivity : AppCompatActivity() {
         binding.bLocationSearch.setOnClickListener {
             startActivity(
                 Intent(this@MainActivity, LocationSearchActivity::class.java)
+            )
+        }
+
+        binding.bRoutingResult.setOnClickListener {
+            startActivity(
+                Intent(this@MainActivity, RoutingResultActivity::class.java)
             )
         }
     }
