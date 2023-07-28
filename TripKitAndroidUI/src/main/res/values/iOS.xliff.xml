@@ -1502,5 +1502,9 @@ Note, your iCloud data will not be deleted by this, but you can delete this in t
 	<string name="requested_time">Requested time %s at %s</string>
 	<string name="start_here">Start Here</string>
 	<string name="end_here">End Here</string>
+
+	<string name="tap_to_add_details">Tap to add details</string>
+	<string name="select_payment_method">Select Payment Method</string>
+	<string name="discount">Discount</string>
 </resources>
 	<!-- This is an auto generated file (Mon Jan 20 14:50:01 CET 2020) -->
