@@ -6,7 +6,6 @@ import com.skedgo.tripkit.data.database.TripKitDatabase
 import com.skedgo.tripkit.data.database.timetables.ScheduledServiceRealtimeInfoDao
 import com.skedgo.tripkit.ui.database.TripKitUiDatabase
 import com.skedgo.tripkit.ui.database.location_history.LocationHistoryDao
-import com.skedgo.tripkit.ui.favorites.trips.FavoriteTripsDataBase
 import dagger.Module
 import dagger.Provides
 import skedgo.tripgo.data.timetables.ParentStopDao
