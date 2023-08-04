@@ -65,4 +65,5 @@
     <string name="notes_from_operator">Notes from operator</string>
     <string name="lbl_alert_when_get_off">Alert when get off</string>
     <string name="lbl_get_notifications_when">Get notifications when:</string>
+    <string name="msg_prominent_disclosure">This app collects location data to enable alerts feature to notify users when their trip is starting, is near the stops when trip is on going and when arriving at their destination even when the app is on the background.</string>
 </resources>
