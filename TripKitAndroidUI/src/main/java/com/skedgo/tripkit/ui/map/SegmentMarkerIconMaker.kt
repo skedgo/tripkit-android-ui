@@ -1,6 +1,7 @@
 package com.skedgo.tripkit.ui.map
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.drawable.BitmapDrawable
@@ -15,7 +16,7 @@ import com.skedgo.tripkit.routing.VehicleMode
 import javax.inject.Inject
 
 class SegmentMarkerIconMaker @Inject internal constructor(
-        private val resources: Resources,
+        private val context: Context,
         private val timeLabelMaker: TimeLabelMaker,
         private val getTransportIconTintStrategy: GetTransportIconTintStrategy
 ) {
@@ -30,7 +31,7 @@ class SegmentMarkerIconMaker @Inject internal constructor(
         val hasTime = segment.type === SegmentType.ARRIVAL || segment.type === SegmentType.SCHEDULED
 
         val timezone = segment.timeZone
-        val vehicleIcon = remoteSegmentMarkerIcon ?: segment.getLightTransportIcon(resources)
+        val vehicleIcon = remoteSegmentMarkerIcon ?: segment.getLightTransportIcon(context)
         val modeInfo = segment.modeInfo
         if (modeInfo != null) {
             getTransportIconTintStrategy()
@@ -41,7 +42,7 @@ class SegmentMarkerIconMaker @Inject internal constructor(
                                 drawable = vehicleIcon)
                     }
         }
-        return BearingMarkerIconBuilder(resources, timeLabelMaker)
+        return BearingMarkerIconBuilder(context, timeLabelMaker)
                 .hasBearing(hasBearing)
                 .bearing(segment.direction)
                 .vehicleIcon(vehicleIcon)

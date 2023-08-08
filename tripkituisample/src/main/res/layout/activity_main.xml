@@ -44,5 +44,17 @@
             android:textSize="12sp"
             app:layout_constraintTop_toBottomOf="@+id/bAutocompleter" />
 
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/bMap"
+            style="@style/Widget.AppCompat.Button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="@color/colorPrimary"
+            android:text="@string/lbl_tripkit_map"
+            android:textColor="@color/white"
+            android:textSize="12sp"
+            app:layout_constraintTop_toBottomOf="@+id/bLocationSearch" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
