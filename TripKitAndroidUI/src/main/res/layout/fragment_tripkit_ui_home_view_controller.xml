@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:id="@+id/mainLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:focusable="false"
+        android:importantForAccessibility="no">
+
+        <FrameLayout
+            android:id="@+id/mapFragmentParent"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/colorPrimary">
+
+            <fragment
+                android:id="@+id/mapFragment"
+                class="com.skedgo.tripkit.ui.map.home.TripKitMapFragment"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+        </FrameLayout>
+
+        <FrameLayout
+            android:id="@+id/topSheet"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top"
+            android:background="@drawable/bg_round_bottom_rect_white"
+            android:elevation="10dp"
+            android:visibility="gone" />
+
+        <FrameLayout
+            android:id="@+id/standardBottomSheet"
+            style="?attr/bottomSheetStyle"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clickable="true"
+            android:focusable="false"
+            android:importantForAccessibility="no"
+            app:behavior_hideable="false"
+            app:behavior_peekHeight="120dp"
+            app:layout_behavior="@string/bottom_sheet_behavior" />
+
+        <ImageButton
+            android:id="@+id/testAction"
+            android:src="@drawable/ic_search"
+            android:layout_width="@dimen/icon_large"
+            android:layout_height="@dimen/icon_large"
+            android:layout_gravity="bottom|end"/>
+
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+</layout>

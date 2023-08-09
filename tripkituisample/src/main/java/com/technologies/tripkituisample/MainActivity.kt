@@ -6,6 +6,7 @@ import android.os.Bundle
 import androidx.databinding.DataBindingUtil
 import com.technologies.tripkituisample.autocompleter.AutocompleterActivity
 import com.technologies.tripkituisample.databinding.ActivityMainBinding
+import com.technologies.tripkituisample.homeviewcontroller.HomeViewControllerActivity
 import com.technologies.tripkituisample.location_search.LocationSearchActivity
 import com.technologies.tripkituisample.map.MapActivity
 
@@ -38,7 +39,7 @@ class MainActivity : AppCompatActivity() {
 
         binding.bMap.setOnClickListener {
             startActivity(
-                Intent(this@MainActivity, MapActivity::class.java)
+                Intent(this@MainActivity, HomeViewControllerActivity::class.java)
             )
         }
     }
