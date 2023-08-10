@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/shareButton"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="?attr/selectableItemBackground"
+    android:clickable="true"
+    android:focusable="true"
+    android:orientation="vertical"
+    android:padding="8dp">
+
+    <ImageButton
+        android:layout_width="45dp"
+        android:layout_height="45dp"
+        android:layout_gravity="center"
+        android:scaleType="centerInside"
+        android:adjustViewBounds="true"
+        android:background="@drawable/bg_circle_grey"
+        android:clickable="false"
+        android:focusable="false"
+        android:src="@drawable/ic_share"
+        app:tint="@color/black" />
+
+    <TextView
+        style="@style/TextAppearance.MaterialComponents.Caption"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="@string/share_arrival" />
+</LinearLayout>

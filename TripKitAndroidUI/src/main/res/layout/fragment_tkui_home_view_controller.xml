@@ -3,6 +3,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <data>
+        <variable
+            name="viewModel"
+            type="com.skedgo.tripkit.ui.controller.homeviewcontroller.TKUIHomeViewControllerViewModel" />
+    </data>
+
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:id="@+id/mainLayout"
         android:layout_width="match_parent"
@@ -40,6 +46,7 @@
             android:layout_height="match_parent"
             android:clickable="true"
             android:focusable="false"
+            android:visibility="@{!viewModel.state.chooseOnMap}"
             android:importantForAccessibility="no"
             app:behavior_hideable="false"
             app:behavior_peekHeight="120dp"
@@ -47,10 +54,35 @@
 
         <ImageButton
             android:id="@+id/testAction"
-            android:src="@drawable/ic_search"
             android:layout_width="@dimen/icon_large"
             android:layout_height="@dimen/icon_large"
-            android:layout_gravity="bottom|end"/>
+            android:layout_gravity="bottom|end"
+            android:src="@drawable/ic_search" />
+
+        <ImageView
+            android:id="@+id/centerPin"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_gravity="center"
+            android:visibility="@{viewModel.state.chooseOnMap}"
+            app:srcCompat="@drawable/ic_pin"
+            app:tint="@android:color/holo_red_light" />
+
+        <FrameLayout
+            android:id="@+id/locationPointerFrame"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:clickable="true"
+            android:visibility="@{viewModel.state.chooseOnMap}">
+
+            <fragment
+                android:id="@+id/locationPointerFragment"
+                android:name="com.skedgo.tripkit.ui.locationpointer.LocationPointerFragment"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+        </FrameLayout>
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 

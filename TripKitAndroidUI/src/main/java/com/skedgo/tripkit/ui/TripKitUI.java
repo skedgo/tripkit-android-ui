@@ -19,10 +19,12 @@ import com.skedgo.tripkit.regionrouting.RegionRoutingAutoCompleter;
 import com.skedgo.tripkit.regionrouting.RegionRoutingRepository;
 import com.skedgo.tripkit.routing.GeoLocation;
 import com.skedgo.tripkit.routing.GetOffAlertCache;
+import com.skedgo.tripkit.ui.controller.homeviewcontroller.TKUIHomeViewControllerFragment;
 import com.skedgo.tripkit.ui.core.module.*;
 import com.skedgo.tripkit.ui.core.settings.DeveloperPreferenceRepositoryImpl;
 import com.skedgo.tripkit.ui.data.places.PlaceSearchRepository;
 import com.skedgo.tripkit.ui.data.waypoints.WaypointsModule;
+import com.skedgo.tripkit.ui.locationpointer.LocationPointerComponent;
 import com.skedgo.tripkit.ui.poidetails.PoiDetailsFragment;
 import com.skedgo.tripkit.ui.routingresults.TripGroupRepository;
 import com.skedgo.tripkit.ui.search.FetchSuggestions;
@@ -202,6 +204,7 @@ public abstract class TripKitUI {
     public abstract LocationSearchComponent locationSearchComponent();
     public abstract TripPreviewComponent tripPreviewComponent();
     public abstract AutoCompleteRoutingComponent autoCompleteRoutingComponent();
+    public abstract LocationPointerComponent locationPointerComponent();
     public abstract Bus bus();
     public abstract OkHttpClient httpClient();
     public abstract Context appContext();
@@ -219,4 +222,5 @@ public abstract class TripKitUI {
     public abstract void inject(TimetableFragment fragment);
     public abstract void inject(ServiceDetailFragment fragment);
     public abstract void inject(PoiDetailsFragment fragment);
+    public abstract void inject(TKUIHomeViewControllerFragment fragment);
 }
