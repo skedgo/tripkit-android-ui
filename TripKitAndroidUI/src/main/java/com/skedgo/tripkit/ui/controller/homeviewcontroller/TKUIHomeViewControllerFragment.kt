@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.Bundle
 import android.view.View
 import android.widget.FrameLayout
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -24,6 +25,7 @@ import com.skedgo.tripkit.ui.databinding.FragmentTkuiHomeViewControllerBinding
 import com.skedgo.tripkit.ui.locationpointer.LocationPointerFragment
 import com.skedgo.tripkit.ui.map.home.TripKitMapFragment
 import com.skedgo.tripkit.ui.search.FixedSuggestions
+import com.skedgo.tripkit.ui.utils.deFocusAndHideKeyboard
 import io.reactivex.Completable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import java.util.concurrent.TimeUnit
@@ -36,6 +38,7 @@ class TKUIHomeViewControllerFragment :
     lateinit var mapFragment: TripKitMapFragment
     lateinit var map: GoogleMap
     lateinit var locationPointerFragment: LocationPointerFragment
+    lateinit var bottomSheetFragment: TKUIHomeBottomSheetFragment
 
     lateinit var bottomSheetBehavior: BottomSheetBehavior<FrameLayout>
 
@@ -62,6 +65,25 @@ class TKUIHomeViewControllerFragment :
         initMap()
         initViews()
         initObservers()
+        handleBackPress()
+    }
+
+    private fun handleBackPress() {
+        requireActivity().onBackPressedDispatcher.addCallback(
+            this,
+            object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    if (viewModel.state.value?.isChooseOnMap == true) {
+                        viewModel.toggleChooseOnMap(false)
+                    } else if (bottomSheetFragment.childFragmentManager.backStackEntryCount > 1) {
+                        bottomSheetFragment.popActiveFragment()
+                    } else {
+                        remove()
+                        activity?.onBackPressed()
+                    }
+                }
+            }
+        )
     }
 
     private fun initBinding() {
@@ -92,15 +114,22 @@ class TKUIHomeViewControllerFragment :
     }
 
     private fun loadTimetable(stop: ScheduledStop) {
-        val fragment = TKUITimetableControllerFragment.newInstance(stop, mapFragment)
+        val fragment = TKUITimetableControllerFragment.newInstance(
+            stop,
+            mapFragment,
+            eventBus
+        )
 
-        val timetableFragment = childFragmentManager
+        val timetableFragment = bottomSheetFragment
+            .childFragmentManager
             .findFragmentByTag(TKUITimetableControllerFragment.TAG)
 
         if (timetableFragment != null && timetableFragment is TKUITimetableControllerFragment) {
             timetableFragment.updateData(stop)
             if (!timetableFragment.isVisible) {
-                childFragmentManager.popBackStackImmediate(TKUITimetableControllerFragment.TAG, 0)
+                bottomSheetFragment
+                    .childFragmentManager
+                    .popBackStackImmediate(TKUITimetableControllerFragment.TAG, 0)
             }
         } else {
             updateBottomSheetFragment(fragment, TKUITimetableControllerFragment.TAG)
@@ -141,19 +170,21 @@ class TKUIHomeViewControllerFragment :
     }
 
     private fun setupLocationPointerFragment() {
-        locationPointerFragment.setMap(map, object: LocationPointerFragment.LocationPointerListener {
-            override fun onDone(location: Location) {
-                loadRoute(location)
-            }
+        locationPointerFragment.setMap(
+            map,
+            object : LocationPointerFragment.LocationPointerListener {
+                override fun onDone(location: Location) {
+                    loadRoute(location)
+                }
 
-            override fun loadPoiDetails(location: Location) {
+                override fun loadPoiDetails(location: Location) {
 
-            }
+                }
 
-            override fun onClose() {
-                viewModel.toggleChooseOnMap(false)
-            }
-        })
+                override fun onClose() {
+                    viewModel.toggleChooseOnMap(false)
+                }
+            })
     }
 
     private fun loadRoute(location: Location) {
@@ -163,46 +194,67 @@ class TKUIHomeViewControllerFragment :
     private fun initViews() {
         initBottomSheet()
         binding.testAction.setOnClickListener {
-            if (this::map.isInitialized) {
-                val bounds = map.projection.visibleRegion.latLngBounds
-                val near = map.cameraPosition.target
-                fixedSuggestionsProvider.showCurrentLocation = false
-                val locationSearchFragment = TKUILocationSearchViewControllerFragment
-                    .newInstance(
-                        bounds,
-                        near,
-                        fixedSuggestionsProvider,
-                        eventBus
-                    )
+            loadSearchCardFragment()
+        }
+    }
 
-                updateBottomSheetFragment(
-                    locationSearchFragment,
-                    TKUILocationSearchViewControllerFragment.TAG
+    fun loadSearchCardFragment() {
+        if (this::map.isInitialized) {
+            val bounds = map.projection.visibleRegion.latLngBounds
+            val near = map.cameraPosition.target
+            fixedSuggestionsProvider.showCurrentLocation = false
+            val locationSearchFragment = TKUILocationSearchViewControllerFragment
+                .newInstance(
+                    bounds,
+                    near,
+                    fixedSuggestionsProvider,
+                    eventBus
                 )
 
-                bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
-            }
+            updateBottomSheetFragment(
+                locationSearchFragment,
+                TKUILocationSearchViewControllerFragment.TAG
+            )
+
+            bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
         }
     }
 
     private fun updateBottomSheetFragment(fragment: Fragment, tag: String? = null) {
-        childFragmentManager
-            .beginTransaction()
-            .replace(R.id.standardBottomSheet, fragment, tag)
-            .addToBackStack(tag)
-            .commit()
+        bottomSheetFragment.update(fragment, tag)
+        bottomSheetBehavior.state = BottomSheetBehavior.STATE_HALF_EXPANDED
     }
 
     private fun initBottomSheet() {
+
+        bottomSheetFragment = TKUIHomeBottomSheetFragment()
+
+        childFragmentManager
+            .beginTransaction()
+            .replace(R.id.standardBottomSheet, bottomSheetFragment, tag)
+            .addToBackStack(tag)
+            .commit()
+
         bottomSheetBehavior = BottomSheetBehavior.from(binding.standardBottomSheet)
+        bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
     }
 
     private fun initObservers() {
-        eventBus.listen(
-            ViewControllerEvent.OnLocationSuggestionSelected::class.java
-        ).subscribe {
-            handleFixedSuggestionAction(it.suggestion)
-        }.addTo(autoDisposable)
+        eventBus.apply {
+            listen(
+                ViewControllerEvent.OnLocationSuggestionSelected::class.java
+            ).subscribe {
+                handleFixedSuggestionAction(it.suggestion)
+            }.addTo(autoDisposable)
+
+            listen(
+                ViewControllerEvent.OnCloseAction::class.java
+            ).subscribe {
+                bottomSheetFragment.popActiveFragment()
+            }.addTo(autoDisposable)
+        }
+
+
     }
 
     private fun handleFixedSuggestionAction(it: Any) {

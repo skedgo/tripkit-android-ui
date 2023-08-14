@@ -30,7 +30,14 @@ class TKUILocationSearchViewControllerFragment : BaseFragment<FragmentTkuiLocati
     override fun getDefaultViewForAccessibility(): View? = null
 
     override fun onCreated(savedInstance: Bundle?) {
+        initViews()
         initSearchFragment()
+    }
+
+    private fun initViews() {
+        binding.bClose.setOnClickListener {
+            eventBus?.publish(ViewControllerEvent.OnCloseAction())
+        }
     }
 
     private fun initSearchFragment() {
@@ -49,39 +56,9 @@ class TKUILocationSearchViewControllerFragment : BaseFragment<FragmentTkuiLocati
                 }
                 setOnFixedSuggestionSelectedListener {
                     eventBus?.publish(ViewControllerEvent.OnLocationSuggestionSelected(it))
-                    /*
-                    if (it is TripGoFixedSuggestionsProvider.FixedSuggestions) {
-                        when (it) {
-                            TripGoFixedSuggestionsProvider.FixedSuggestions.CHOOSE_ON_MAP -> {
-                                eventBus.publish(
-                                    TripGoEvent.SearchFragmentSelected(
-                                        ClickType.CHOOSE_ON_MAP,
-                                        null
-                                    )
-                                )
-                            }
-                            TripGoFixedSuggestionsProvider.FixedSuggestions.HOME -> {
-                                viewModel.getLocation(Location.TYPE_HOME)
-                            }
-                            TripGoFixedSuggestionsProvider.FixedSuggestions.WORK -> {
-                                viewModel.getLocation(Location.TYPE_WORK)
-                            }
-                        }
-                    }
-                    */
                 }
                 setOnCitySelectedListener {
                     eventBus?.publish(ViewControllerEvent.OnCitySelected(it))
-                    /*
-                    eventBus.publish(
-                        TripGoEvent.ZoomToLatLng(
-                            com.skedgo.geocoding.LatLng(
-                                it.lat,
-                                it.lon
-                            )
-                        )
-                    )
-                    */
                 }
                 setOnAttachFragmentListener(object :
                     LocationSearchFragment.OnAttachFragmentListener {

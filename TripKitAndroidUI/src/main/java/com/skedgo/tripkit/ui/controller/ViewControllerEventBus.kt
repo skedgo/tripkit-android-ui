@@ -15,6 +15,8 @@ object ViewControllerEventBus {
 }
 
 class ViewControllerEvent {
+
+    class OnCloseAction()
     data class OnLocationSuggestionSelected(val suggestion: Any)
     data class OnCitySelected(val location: Location)
     data class OnLocationSelected(val location: Location)

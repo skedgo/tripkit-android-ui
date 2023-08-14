@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:focusable="false"
+        android:importantForAccessibility="no"
+        android:paddingTop="12dp"
+        tools:context=".routing.RouteCardFragment">
+
+        <TextView
+            android:id="@+id/tvRouteLabel"
+            style="@style/TextAppearance.MaterialComponents.Headline6"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            android:text="@string/route"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="Route" />
+
+        <ImageView
+            android:id="@+id/bClose"
+            android:layout_width="@dimen/close_button_size"
+            android:layout_height="@dimen/close_button_size"
+            android:layout_marginStart="16dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/desc_close"
+            android:focusableInTouchMode="false"
+            android:padding="4dp"
+            android:src="@drawable/close"
+            app:layout_constraintBottom_toBottomOf="@+id/tvRouteLabel"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/tvRouteLabel" />
+
+        <ImageView
+            android:id="@+id/ivSwap"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginEnd="19dp"
+            android:background="?android:selectableItemBackground"
+            android:contentDescription="Swap locations"
+
+            app:layout_constraintBottom_toTopOf="@+id/ivDestEditIcon"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/ivStartEdit"
+            app:srcCompat="@drawable/swap_vertical" />
+
+        <ImageView
+            android:id="@+id/ivStartEdit"
+            android:layout_width="10dp"
+            android:layout_height="10dp"
+            android:layout_marginStart="23dp"
+            app:layout_constraintBottom_toBottomOf="@+id/tilStartEdit"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/tilStartEdit"
+            app:srcCompat="@drawable/small_circle"
+            app:tint="@color/black4" />
+
+        <ImageView
+            android:id="@+id/ivDots"
+            android:layout_width="14dp"
+            android:layout_height="14dp"
+            app:layout_constraintBottom_toTopOf="@+id/ivDestEditIcon"
+            app:layout_constraintEnd_toEndOf="@+id/ivStartEdit"
+            app:layout_constraintStart_toStartOf="@+id/ivStartEdit"
+            app:layout_constraintTop_toBottomOf="@id/ivStartEdit"
+            app:srcCompat="@drawable/dots_vertical"
+            app:tint="@color/black4" />
+
+        <ImageView
+            android:id="@+id/ivDestEditIcon"
+            android:layout_width="10dp"
+            android:layout_height="10dp"
+            app:layout_constraintBottom_toBottomOf="@+id/tilDestinationEdit"
+            app:layout_constraintEnd_toEndOf="@+id/ivDots"
+            app:layout_constraintStart_toStartOf="@+id/ivDots"
+            app:layout_constraintTop_toTopOf="@id/tilDestinationEdit"
+            app:srcCompat="@drawable/small_circle"
+            app:tint="@color/black4" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/tilStartEdit"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="4dp"
+            android:clipToPadding="true"
+            app:endIconDrawable="@drawable/close"
+            app:endIconMode="clear_text"
+            app:hintEnabled="false"
+            app:layout_constraintEnd_toStartOf="@+id/ivSwap"
+            app:layout_constraintStart_toEndOf="@+id/ivStartEdit"
+            app:layout_constraintTop_toBottomOf="@+id/tvRouteLabel">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/tieStartEdit"
+
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/start_location"
+                android:imeOptions="actionDone"
+                android:inputType="text"
+                android:maxLines="1"
+
+                android:textAppearance="?attr/textAppearanceBody2" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/tilDestinationEdit"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="4dp"
+            android:layout_marginEnd="16dp"
+            android:clipToPadding="true"
+            app:endIconDrawable="@drawable/close"
+            app:endIconMode="clear_text"
+            app:hintEnabled="false"
+            app:layout_constraintEnd_toStartOf="@+id/ivSwap"
+            app:layout_constraintStart_toEndOf="@+id/ivStartEdit"
+            app:layout_constraintTop_toBottomOf="@+id/tilStartEdit">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/tieDestinationEdit"
+
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/where_do_you_want_to_go_question"
+                android:imeOptions="actionDone"
+                android:inputType="text"
+                android:maxLines="1"
+
+                android:textAppearance="?attr/textAppearanceBody2">
+
+            </com.google.android.material.textfield.TextInputEditText>
+
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <FrameLayout
+            android:id="@+id/content"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginTop="8dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tilDestinationEdit" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

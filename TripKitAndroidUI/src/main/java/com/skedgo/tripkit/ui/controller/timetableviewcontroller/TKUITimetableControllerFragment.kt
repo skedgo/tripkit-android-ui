@@ -8,6 +8,8 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.skedgo.tripkit.common.model.ScheduledStop
 import com.skedgo.tripkit.ui.R
+import com.skedgo.tripkit.ui.controller.ViewControllerEvent
+import com.skedgo.tripkit.ui.controller.ViewControllerEventBus
 import com.skedgo.tripkit.ui.core.BaseFragment
 import com.skedgo.tripkit.ui.databinding.FragmentTkuiTimetableControllerBinding
 import com.skedgo.tripkit.ui.map.home.TripKitMapFragment
@@ -28,6 +30,7 @@ class TKUITimetableControllerFragment : BaseFragment<FragmentTkuiTimetableContro
         }
 
     private var timetableFragment: TimetableFragment?  = null
+    private var eventBus: ViewControllerEventBus? = null
 
     override val layoutRes: Int
         get() = R.layout.fragment_tkui_timetable_controller
@@ -77,7 +80,7 @@ class TKUITimetableControllerFragment : BaseFragment<FragmentTkuiTimetableContro
         timetableFragment?.apply {
 
             setOnCloseButtonListener {
-                //eventBus.publish(TripGoEvent.CloseButtonClicked())
+                eventBus?.publish(ViewControllerEvent.OnCloseAction())
             }
 
             addOnTimetableEntrySelectedListener { entry, stop, l ->
@@ -143,11 +146,13 @@ class TKUITimetableControllerFragment : BaseFragment<FragmentTkuiTimetableContro
 
         fun newInstance(
             stop: ScheduledStop,
-            mapFragment: TripKitMapFragment
+            mapFragment: TripKitMapFragment,
+            eventBus: ViewControllerEventBus? = null
         ): TKUITimetableControllerFragment =
             TKUITimetableControllerFragment().apply {
                 this.stop = stop
                 this.mapFragment = mapFragment
+                this.eventBus = eventBus
             }
     }
 }

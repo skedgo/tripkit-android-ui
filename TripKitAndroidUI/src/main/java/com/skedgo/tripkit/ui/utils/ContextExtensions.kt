@@ -6,6 +6,7 @@ import android.content.Intent
 import android.net.ConnectivityManager
 import android.net.Uri
 import android.provider.Settings
+import android.view.View
 import android.view.accessibility.AccessibilityManager
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.list.listItems
@@ -86,3 +87,8 @@ fun Context.isTalkBackOn(): Boolean {
 }
 
 fun Context.getVersionName(): String? = packageManager?.getPackageInfo(packageName, 0)?.versionName
+
+fun Context.deFocusAndHideKeyboard(focus: View?) {
+    hideKeyboard(this, focus)
+    focus?.clearFocus()
+}

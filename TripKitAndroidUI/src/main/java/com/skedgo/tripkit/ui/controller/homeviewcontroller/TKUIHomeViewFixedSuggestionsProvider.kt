@@ -13,7 +13,7 @@ import com.skedgo.tripkit.ui.search.LegacyLocationSearchIconProvider
 import com.skedgo.tripkit.ui.search.LocationSearchIconProvider
 import com.skedgo.tripkit.ui.search.SearchSuggestion
 
-class TKUIHomeViewFixedSuggestionsProvider() : FixedSuggestionsProvider {
+class TKUIHomeViewFixedSuggestionsProvider : FixedSuggestionsProvider {
 
     var showCurrentLocation = true
 
