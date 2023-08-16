@@ -5,7 +5,7 @@ import com.skedgo.tripkit.ui.controller.locationsearchcontroller.TKUIFavoritesSu
 
 object ControllerDataProvider {
 
-    private var suggestionProvider: TKUIHomeViewFixedSuggestionsProvider? = null
-    private var favoriteProvider: TKUIFavoritesSuggestionProvider? = null
+    var suggestionProvider: TKUIHomeViewFixedSuggestionsProvider? = null
+    var favoriteProvider: TKUIFavoritesSuggestionProvider? = null
 
 }

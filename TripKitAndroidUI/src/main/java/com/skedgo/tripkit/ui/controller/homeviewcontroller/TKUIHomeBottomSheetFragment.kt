@@ -13,6 +13,7 @@ import com.skedgo.tripkit.ui.utils.deFocusAndHideKeyboard
 class TKUIHomeBottomSheetFragment : BaseFragment<FragmentTkuiHomeBottomSheetBinding>() {
 
     private val listener: TKUIHomeBottomSheetListener? = null
+    var currentFragmentTag: String? = ""
 
     override val layoutRes: Int
         get() = R.layout.fragment_tkui_home_bottom_sheet
@@ -27,6 +28,7 @@ class TKUIHomeBottomSheetFragment : BaseFragment<FragmentTkuiHomeBottomSheetBind
     override fun getDefaultViewForAccessibility(): View? = null
 
     fun update(fragment: Fragment, tag: String? = null) {
+        currentFragmentTag = tag
         childFragmentManager
             .beginTransaction()
             .replace(R.id.container, fragment, tag)

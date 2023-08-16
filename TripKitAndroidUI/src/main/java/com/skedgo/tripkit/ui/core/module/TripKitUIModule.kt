@@ -31,9 +31,13 @@ import com.skedgo.tripkit.data.locations.StopsFetcher
 import com.skedgo.tripkit.data.routingstatus.RoutingStatusRepositoryImpl
 import com.skedgo.tripkit.logging.ErrorLogger
 import com.skedgo.tripkit.routingstatus.RoutingStatusRepository
+import com.skedgo.tripkit.ui.controller.ViewControllerEventBus
+import com.skedgo.tripkit.ui.controller.utils.actionhandler.TKUIActionButtonHandler
+import com.skedgo.tripkit.ui.controller.utils.actionhandler.TKUIActionButtonHandlerFactory
 import com.skedgo.tripkit.ui.core.CellsLoader
 import com.skedgo.tripkit.ui.core.CellsPersistor
 import com.skedgo.tripkit.ui.core.StopsPersistor
+import com.skedgo.tripkit.ui.favorites.trips.FavoriteTripsRepository
 import com.skedgo.tripkit.ui.map.ScheduledStopRepository
 import com.skedgo.tripkit.ui.utils.MainThreadBus
 import com.squareup.otto.Bus
@@ -44,6 +48,7 @@ import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
+import javax.inject.Provider
 import javax.inject.Singleton
 
 
@@ -131,9 +136,15 @@ class TripKitUIModule {
         )
     }
 
+    @Provides
+    fun provideViewControllerEventBus() = ViewControllerEventBus
 
-//    @Provides
-//    @Singleton
-//    fun tripKitEventBus() = TripKitEventBus
+    @Provides
+    fun tkuiActionButtonHandler(eventBus: ViewControllerEventBus,
+                                  favoriteTripsRepository: FavoriteTripsRepository
+    ): TKUIActionButtonHandler = TKUIActionButtonHandler(eventBus, favoriteTripsRepository)
+
+    @Provides
+    fun tkuiActionButtonHandlerFactory(provider: Provider<TKUIActionButtonHandler>): TKUIActionButtonHandlerFactory = TKUIActionButtonHandlerFactory(provider)
 
 }

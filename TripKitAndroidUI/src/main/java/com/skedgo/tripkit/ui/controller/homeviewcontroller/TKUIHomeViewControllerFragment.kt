@@ -18,14 +18,16 @@ import com.skedgo.tripkit.ui.TripKitUI
 import com.skedgo.tripkit.ui.controller.ViewControllerEvent
 import com.skedgo.tripkit.ui.controller.ViewControllerEventBus
 import com.skedgo.tripkit.ui.controller.locationsearchcontroller.TKUILocationSearchViewControllerFragment
+import com.skedgo.tripkit.ui.controller.routeviewcontroller.TKUIRouteFragment
 import com.skedgo.tripkit.ui.controller.timetableviewcontroller.TKUITimetableControllerFragment
+import com.skedgo.tripkit.ui.controller.tripresultcontroller.TKUITripResultsFragment
+import com.skedgo.tripkit.ui.controller.utils.LocationField
 import com.skedgo.tripkit.ui.core.BaseFragment
 import com.skedgo.tripkit.ui.core.addTo
 import com.skedgo.tripkit.ui.databinding.FragmentTkuiHomeViewControllerBinding
 import com.skedgo.tripkit.ui.locationpointer.LocationPointerFragment
 import com.skedgo.tripkit.ui.map.home.TripKitMapFragment
 import com.skedgo.tripkit.ui.search.FixedSuggestions
-import com.skedgo.tripkit.ui.utils.deFocusAndHideKeyboard
 import io.reactivex.Completable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import java.util.concurrent.TimeUnit
@@ -46,6 +48,25 @@ class TKUIHomeViewControllerFragment :
     private val fixedSuggestionsProvider = TKUIHomeViewFixedSuggestionsProvider()
 
     private val eventBus = ViewControllerEventBus
+
+    private val searchCardListener =
+        object : TKUILocationSearchViewControllerFragment.TKUILocationSearchViewControllerListener {
+            override fun onLocationSelected(location: Location) {
+                routeLocation(location)
+            }
+
+            override fun onFixedSuggestionSelected(any: Any) {
+                handleFixedSuggestionAction(any)
+            }
+
+            override fun onCitySelected(location: Location) {
+
+            }
+
+            override fun onInfoSelected(location: Location) {
+
+            }
+        }
 
     override val layoutRes: Int
         get() = R.layout.fragment_tkui_home_view_controller
@@ -173,8 +194,11 @@ class TKUIHomeViewControllerFragment :
         locationPointerFragment.setMap(
             map,
             object : LocationPointerFragment.LocationPointerListener {
-                override fun onDone(location: Location) {
-                    loadRoute(location)
+                override fun onDone(
+                    location: Location,
+                    field: LocationField
+                ) {
+                    eventBus.publish(ViewControllerEvent.OnLocationChosen(location, field))
                 }
 
                 override fun loadPoiDetails(location: Location) {
@@ -187,8 +211,18 @@ class TKUIHomeViewControllerFragment :
             })
     }
 
-    private fun loadRoute(location: Location) {
+    private fun routeLocation(
+        location: Location
+    ) {
+        val routeFragment = TKUIRouteFragment.newInstance(
+            map.projection.visibleRegion.latLngBounds,
+            map.cameraPosition.target,
+            location
+        )
 
+        updateBottomSheetFragment(
+            routeFragment, TKUIRouteFragment.TAG, BottomSheetBehavior.STATE_EXPANDED
+        )
     }
 
     private fun initViews() {
@@ -204,12 +238,7 @@ class TKUIHomeViewControllerFragment :
             val near = map.cameraPosition.target
             fixedSuggestionsProvider.showCurrentLocation = false
             val locationSearchFragment = TKUILocationSearchViewControllerFragment
-                .newInstance(
-                    bounds,
-                    near,
-                    fixedSuggestionsProvider,
-                    eventBus
-                )
+                .newInstance(bounds, near, fixedSuggestionsProvider, eventBus, searchCardListener)
 
             updateBottomSheetFragment(
                 locationSearchFragment,
@@ -220,9 +249,13 @@ class TKUIHomeViewControllerFragment :
         }
     }
 
-    private fun updateBottomSheetFragment(fragment: Fragment, tag: String? = null) {
+    private fun updateBottomSheetFragment(
+        fragment: Fragment,
+        tag: String,
+        state: Int = BottomSheetBehavior.STATE_HALF_EXPANDED
+    ) {
         bottomSheetFragment.update(fragment, tag)
-        bottomSheetBehavior.state = BottomSheetBehavior.STATE_HALF_EXPANDED
+        bottomSheetBehavior.state = state
     }
 
     private fun initBottomSheet() {
@@ -252,20 +285,58 @@ class TKUIHomeViewControllerFragment :
             ).subscribe {
                 bottomSheetFragment.popActiveFragment()
             }.addTo(autoDisposable)
+
+            listen(
+                ViewControllerEvent.OnChooseOnMap::class.java
+            ).subscribe {
+                onChooseOnMap(it.locationField)
+            }.addTo(autoDisposable)
+
+            listen(
+                ViewControllerEvent.OnLocationChosen::class.java
+            ).subscribe {
+                viewModel.toggleChooseOnMap(false)
+                routeLocation(it.location)
+            }.addTo(autoDisposable)
+
+            listen(
+                ViewControllerEvent.OnGetRouteTripResults::class.java
+            ).subscribe {
+                getRouteTrips(it.origin, it.destination)
+            }.addTo(autoDisposable)
         }
 
 
+    }
+
+    private fun getRouteTrips(
+        origin: Location,
+        destination: Location
+    ) {
+        val tripResultsFragment =
+            TKUITripResultsFragment.newInstance(origin, destination, true)
+
+        updateBottomSheetFragment(
+            tripResultsFragment, TKUITripResultsFragment.TAG,
+            BottomSheetBehavior.STATE_EXPANDED
+        )
     }
 
     private fun handleFixedSuggestionAction(it: Any) {
         if (it is FixedSuggestions) {
             when (it) {
                 FixedSuggestions.CURRENT_LOCATION -> {}
-                FixedSuggestions.CHOOSE_ON_MAP -> onChooseOnMap()
+                FixedSuggestions.CHOOSE_ON_MAP ->
+                    eventBus.publish(ViewControllerEvent.OnChooseOnMap(LocationField.NONE))
+
                 FixedSuggestions.HOME -> {}
                 FixedSuggestions.WORK -> {}
             }
         }
+    }
+
+    private fun getSuggestionLocation() {
+
     }
 
     private fun moveMapToDefaultLocation(location: LatLng) {
@@ -277,7 +348,8 @@ class TKUIHomeViewControllerFragment :
             }.subscribe().addTo(autoDisposable)
     }
 
-    private fun onChooseOnMap() {
+    private fun onChooseOnMap(locationField: LocationField = LocationField.NONE) {
+        locationPointerFragment.setLocationField(locationField)
         viewModel.toggleChooseOnMap(true)
     }
 
@@ -330,9 +402,8 @@ class TKUIHomeViewControllerFragment :
 
         fun newInstance(
             defaultLocation: LatLng? = null
-        ) =
-            TKUIHomeViewControllerFragment().apply {
-                this.defaultLocation = defaultLocation
-            }
+        ) = TKUIHomeViewControllerFragment().apply {
+            this.defaultLocation = defaultLocation
+        }
     }
 }

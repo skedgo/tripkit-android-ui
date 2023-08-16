@@ -3,6 +3,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <data>
+
+        <variable
+            name="viewModel"
+            type="com.skedgo.tripkit.ui.controller.locationsearchcontroller.TKUILocationSearchViewControllerViewModel" />
+    </data>
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -18,6 +25,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/spacing_normal"
             android:text="@string/search"
+            android:visibility="@{viewModel.withHeaders}"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             tools:text="Search" />
@@ -31,6 +39,7 @@
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="@string/desc_close"
             android:src="@drawable/close"
+            android:visibility="@{viewModel.withHeaders}"
             app:layout_constraintBottom_toBottomOf="@+id/tvSearch"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@+id/tvSearch"

@@ -14,6 +14,7 @@ import com.skedgo.tripkit.AndroidGeocoder
 import com.skedgo.tripkit.common.model.Location
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.TripKitUI
+import com.skedgo.tripkit.ui.controller.utils.LocationField
 import com.skedgo.tripkit.ui.core.BaseTripKitFragment
 import com.skedgo.tripkit.ui.core.addTo
 import com.skedgo.tripkit.ui.databinding.FragmentLocationPointerBinding
@@ -21,19 +22,17 @@ import timber.log.Timber
 import javax.inject.Inject
 
 class LocationPointerFragment() : BaseTripKitFragment() {
+
     private var onCloseListener: View.OnClickListener? = null
     private var closeButton: ImageButton? = null
 
-    /*
-    @Inject
-    lateinit var eventBus: TripGoEventBus
-    */
     @Inject
     lateinit var viewModelFactory: LocationPointerViewModelFactory
     private val viewModel: LocationPointerViewModel by viewModels{ viewModelFactory }
     private var map: GoogleMap? = null
     private var geocoder: AndroidGeocoder? = null
     private var cachedMarker: Marker? = null
+    private var locationField: LocationField = LocationField.NONE
     
     private lateinit var binding: FragmentLocationPointerBinding
     private var listener: LocationPointerListener? = null
@@ -112,7 +111,7 @@ class LocationPointerFragment() : BaseTripKitFragment() {
                     address = viewModel.currentAddress
                 }
                 viewModel.saveLocation(newLocation)
-                listener?.onDone(newLocation)
+                listener?.onDone(newLocation, locationField)
             }
         }.addTo(autoDisposable)
     }
@@ -125,9 +124,13 @@ class LocationPointerFragment() : BaseTripKitFragment() {
     fun setListener(listener: LocationPointerListener) {
         this.listener = listener
     }
-    
+
+    fun setLocationField(locationField: LocationField) {
+        this.locationField = locationField
+    }
+
     interface LocationPointerListener {
-        fun onDone(location: Location)
+        fun onDone(location: Location, field: LocationField = LocationField.NONE)
         fun loadPoiDetails(location: Location)
         fun onClose()
     }

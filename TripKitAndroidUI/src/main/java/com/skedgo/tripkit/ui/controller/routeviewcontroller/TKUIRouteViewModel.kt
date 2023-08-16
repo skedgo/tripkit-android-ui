@@ -18,7 +18,7 @@ import timber.log.Timber
 import javax.inject.Inject
 
 
-class TKUIRouteViewModel constructor(/*private val favoriteRepository: FavoriteRepository*/) : RxViewModel() {
+class TKUIRouteViewModel : RxViewModel() {
     enum class FocusedField {
         NONE,
         START,
@@ -27,33 +27,20 @@ class TKUIRouteViewModel constructor(/*private val favoriteRepository: FavoriteR
 
     var focusedField = FocusedField.NONE
 
-    private val _start = MutableLiveData<String>("")
-    val start: LiveData<String> = _start
+    val start = MutableLiveData<String>("")
 
-    private val _destination = MutableLiveData<String>("")
-    val destination: LiveData<String> = _destination
-
-    /*
-    var home = ObservableField<Home>()
-    var work = ObservableField<Work>()
-    */
-
-    private val _accessibilityFocusStartField = MutableLiveData<Boolean>()
-    val accessibilityFocusStartField: LiveData<Boolean> = _accessibilityFocusStartField
-
-    private val _accessibilityFocusDestinationField = MutableLiveData<Boolean>()
-    val accessibilityFocusDestinationField: LiveData<Boolean> = _accessibilityFocusDestinationField
+    val destination = MutableLiveData<String>("")
 
     var destinationLocation: Location? = null
         set(value) {
             field = value
-            _destination.postValue(destinationLocation?.displayName ?: "")
+            destination.postValue(destinationLocation?.displayName ?: "")
         }
 
     var startLocation: Location? = null
         set(value) {
             field = value
-            _start.postValue(startLocation?.displayName ?: "")
+            start.postValue(startLocation?.displayName ?: "")
         }
 
     var swap = PublishRelay.create<Unit>()
@@ -70,22 +57,6 @@ class TKUIRouteViewModel constructor(/*private val favoriteRepository: FavoriteR
                 && (destinationLocation!!.lat != 0.0 && destinationLocation!!.lon != 0.0))
     }
 
-    /*
-    fun getLocation(type: Int) {
-        if (type == Location.TYPE_WORK) {
-            favoriteRepository.work()
-                    .onEach { work ->
-                        this.work.set(work)
-                    }.launchIn(viewModelScope)
-        } else if (type == Location.TYPE_HOME) {
-            favoriteRepository.home()
-                    .onEach { home ->
-                        this.home.set(home)
-                    }.launchIn(viewModelScope)
-        }
-    }
-    */
-
     fun swapLocations() {
         val startLoc = startLocation
         val destLoc = destinationLocation
@@ -94,13 +65,11 @@ class TKUIRouteViewModel constructor(/*private val favoriteRepository: FavoriteR
         startLocation = destLoc
     }
 
-    fun setStartAccessibilityFocus() {
-        _accessibilityFocusStartField.postValue(true)
-        _accessibilityFocusDestinationField.postValue(false)
+    fun setStart(value: String) {
+        start.postValue(value)
     }
 
-    fun setDestinationAccessibilityFocus() {
-        _accessibilityFocusStartField.postValue(false)
-        _accessibilityFocusDestinationField.postValue(true)
+    fun setDestination(value: String) {
+        destination.postValue(value)
     }
 }
