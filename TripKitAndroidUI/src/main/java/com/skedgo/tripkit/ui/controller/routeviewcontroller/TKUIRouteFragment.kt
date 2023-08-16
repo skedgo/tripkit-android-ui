@@ -49,6 +49,9 @@ class TKUIRouteFragment : BaseFragment<FragmentTkuiRouteBinding>() {
     @Inject
     lateinit var userGeoPointRepository: UserGeoPointRepository
 
+    @Inject
+    lateinit var eventBus: ViewControllerEventBus
+
     private val viewModel: TKUIRouteViewModel by viewModels()
 
     lateinit var bounds: LatLngBounds
@@ -56,8 +59,6 @@ class TKUIRouteFragment : BaseFragment<FragmentTkuiRouteBinding>() {
 
     var origin: Location? = null
     var destination: Location? = null
-
-    private val eventBus = ViewControllerEventBus
 
     private var locationSearchFragment: TKUILocationSearchViewControllerFragment? = null
 
@@ -225,7 +226,7 @@ class TKUIRouteFragment : BaseFragment<FragmentTkuiRouteBinding>() {
 
     private fun initSearchCard() {
         locationSearchFragment = TKUILocationSearchViewControllerFragment.newInstance(
-            bounds, near, suggestionProvider, eventBus, searchCardListener, false
+            bounds, near, suggestionProvider, searchCardListener, false
         )
 
         locationSearchFragment?.let {

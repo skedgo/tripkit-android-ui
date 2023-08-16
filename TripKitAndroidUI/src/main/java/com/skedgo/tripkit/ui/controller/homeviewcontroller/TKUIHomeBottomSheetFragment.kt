@@ -1,22 +1,36 @@
 package com.skedgo.tripkit.ui.controller.homeviewcontroller
 
+import android.content.Context
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.skedgo.tripkit.ui.R
+import com.skedgo.tripkit.ui.TripKitUI
+import com.skedgo.tripkit.ui.controller.ViewControllerEvent
+import com.skedgo.tripkit.ui.controller.ViewControllerEventBus
 import com.skedgo.tripkit.ui.core.BaseFragment
 import com.skedgo.tripkit.ui.databinding.FragmentTkuiHomeBottomSheetBinding
 import com.skedgo.tripkit.ui.utils.deFocusAndHideKeyboard
+import timber.log.Timber
+import javax.inject.Inject
 
 class TKUIHomeBottomSheetFragment : BaseFragment<FragmentTkuiHomeBottomSheetBinding>() {
 
-    private val listener: TKUIHomeBottomSheetListener? = null
+    @Inject
+    lateinit var eventBus: ViewControllerEventBus
+
+    private var listener: TKUIHomeBottomSheetListener? = null
     var currentFragmentTag: String? = ""
 
     override val layoutRes: Int
         get() = R.layout.fragment_tkui_home_bottom_sheet
+
+    override fun onAttach(context: Context) {
+        TripKitUI.getInstance().controllerComponent().inject(this)
+        super.onAttach(context)
+    }
 
     override fun onCreated(savedInstance: Bundle?) {
 
@@ -34,9 +48,22 @@ class TKUIHomeBottomSheetFragment : BaseFragment<FragmentTkuiHomeBottomSheetBind
             .replace(R.id.container, fragment, tag)
             .addToBackStack(tag)
             .commit()
+
+        eventBus.publish(
+            ViewControllerEvent.OnBottomSheetFragmentCountUpdate(
+                childFragmentManager.backStackEntryCount + 1
+            )
+        )
     }
 
     fun popActiveFragment() {
+
+        eventBus.publish(
+            ViewControllerEvent.OnBottomSheetFragmentCountUpdate(
+                childFragmentManager.backStackEntryCount - 1
+            )
+        )
+
         requireContext().deFocusAndHideKeyboard(
             requireActivity().currentFocus
                 ?: view?.rootView
@@ -54,5 +81,12 @@ class TKUIHomeBottomSheetFragment : BaseFragment<FragmentTkuiHomeBottomSheetBind
     interface TKUIHomeBottomSheetListener {
         fun refreshMap()
         fun removePinnedLocationMarker()
+    }
+
+    companion object {
+        fun newInstance(listener: TKUIHomeBottomSheetListener? = null) =
+            TKUIHomeBottomSheetFragment().apply {
+                this.listener = listener
+            }
     }
 }

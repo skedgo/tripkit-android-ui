@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
+
         <variable
             name="viewModel"
             type="com.skedgo.tripkit.ui.controller.homeviewcontroller.TKUIHomeViewControllerViewModel" />
@@ -46,8 +47,8 @@
             android:layout_height="match_parent"
             android:clickable="true"
             android:focusable="false"
-            android:visibility="@{!viewModel.state.chooseOnMap}"
             android:importantForAccessibility="no"
+            android:visibility="@{!viewModel.state.chooseOnMap}"
             app:behavior_hideable="false"
             app:behavior_peekHeight="120dp"
             app:layout_behavior="@string/bottom_sheet_behavior" />
@@ -57,7 +58,8 @@
             android:layout_width="@dimen/icon_large"
             android:layout_height="@dimen/icon_large"
             android:layout_gravity="bottom|end"
-            android:src="@drawable/ic_search" />
+            android:src="@drawable/ic_search"
+            android:visibility="gone" />
 
         <ImageView
             android:id="@+id/centerPin"

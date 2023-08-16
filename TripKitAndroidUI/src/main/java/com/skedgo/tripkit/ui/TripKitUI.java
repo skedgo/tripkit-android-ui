@@ -20,6 +20,7 @@ import com.skedgo.tripkit.regionrouting.RegionRoutingRepository;
 import com.skedgo.tripkit.routing.GeoLocation;
 import com.skedgo.tripkit.routing.GetOffAlertCache;
 import com.skedgo.tripkit.ui.controller.ControllerComponent;
+import com.skedgo.tripkit.ui.controller.ControllerModule;
 import com.skedgo.tripkit.ui.controller.homeviewcontroller.TKUIHomeViewControllerFragment;
 import com.skedgo.tripkit.ui.core.module.*;
 import com.skedgo.tripkit.ui.core.settings.DeveloperPreferenceRepositoryImpl;
@@ -88,7 +89,8 @@ import static com.skedgo.tripkit.routing.TripAlarmBroadcastReceiver.NOTIFICATION
         WaypointsModule.class,
         FavoriteTripsModule.class,
         UserInfoRepositoryModule.class,
-        ViewModelModule.class
+        ViewModelModule.class,
+        ControllerModule.class
         })
 public abstract class TripKitUI {
     private static TripKitUI instance;
@@ -224,5 +226,4 @@ public abstract class TripKitUI {
     public abstract void inject(TimetableFragment fragment);
     public abstract void inject(ServiceDetailFragment fragment);
     public abstract void inject(PoiDetailsFragment fragment);
-    public abstract void inject(TKUIHomeViewControllerFragment fragment);
 }

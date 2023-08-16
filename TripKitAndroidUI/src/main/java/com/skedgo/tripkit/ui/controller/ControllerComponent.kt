@@ -5,6 +5,7 @@ import com.skedgo.tripkit.ui.controller.homeviewcontroller.TKUIHomeViewControlle
 import com.skedgo.tripkit.ui.controller.locationsearchcontroller.TKUILocationSearchViewControllerFragment
 import com.skedgo.tripkit.ui.controller.routeviewcontroller.TKUIRouteFragment
 import com.skedgo.tripkit.ui.controller.timetableviewcontroller.TKUITimetableControllerFragment
+import com.skedgo.tripkit.ui.controller.tripdetailsviewcontroller.TKUITripDetailsViewControllerFragment
 import com.skedgo.tripkit.ui.controller.tripresultcontroller.TKUITripResultsFragment
 import com.skedgo.tripkit.ui.core.module.ActivityScope
 import com.skedgo.tripkit.ui.core.module.LocationStuffModule
@@ -19,4 +20,5 @@ interface ControllerComponent {
     fun inject(fragment: TKUITimetableControllerFragment)
     fun inject(fragment: TKUIRouteFragment)
     fun inject(fragment: TKUITripResultsFragment)
+    fun inject(fragment: TKUITripDetailsViewControllerFragment)
 }

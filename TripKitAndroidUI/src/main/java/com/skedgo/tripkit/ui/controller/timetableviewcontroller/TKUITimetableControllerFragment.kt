@@ -8,6 +8,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.skedgo.tripkit.common.model.ScheduledStop
 import com.skedgo.tripkit.ui.R
+import com.skedgo.tripkit.ui.TripKitUI
 import com.skedgo.tripkit.ui.controller.ViewControllerEvent
 import com.skedgo.tripkit.ui.controller.ViewControllerEventBus
 import com.skedgo.tripkit.ui.core.BaseFragment
@@ -17,8 +18,12 @@ import com.skedgo.tripkit.ui.model.TimetableEntry
 import com.skedgo.tripkit.ui.servicedetail.ServiceDetailFragment
 import com.skedgo.tripkit.ui.timetables.TimetableFragment
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 class TKUITimetableControllerFragment : BaseFragment<FragmentTkuiTimetableControllerBinding>() {
+
+    @Inject
+    lateinit var eventBus: ViewControllerEventBus
 
     private lateinit var stop: ScheduledStop
 
@@ -29,8 +34,7 @@ class TKUITimetableControllerFragment : BaseFragment<FragmentTkuiTimetableContro
             value?.setContributor(serviceDetailsFragment?.contributor())
         }
 
-    private var timetableFragment: TimetableFragment?  = null
-    private var eventBus: ViewControllerEventBus? = null
+    private var timetableFragment: TimetableFragment? = null
 
     override val layoutRes: Int
         get() = R.layout.fragment_tkui_timetable_controller
@@ -49,6 +53,12 @@ class TKUITimetableControllerFragment : BaseFragment<FragmentTkuiTimetableContro
         }
     }
 
+    override fun onAttach(context: Context) {
+        TripKitUI.getInstance().controllerComponent().inject(this)
+        super.onAttach(context)
+        setupTimeTableFragment()
+    }
+
     override fun onCreated(savedInstance: Bundle?) {}
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -63,11 +73,6 @@ class TKUITimetableControllerFragment : BaseFragment<FragmentTkuiTimetableContro
         }
     }
 
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        setupTimeTableFragment()
-    }
-
     private fun setupTimeTableFragment() {
         timetableFragment = TimetableFragment.Builder()
             .withStop(stop)
@@ -80,7 +85,7 @@ class TKUITimetableControllerFragment : BaseFragment<FragmentTkuiTimetableContro
         timetableFragment?.apply {
 
             setOnCloseButtonListener {
-                eventBus?.publish(ViewControllerEvent.OnCloseAction())
+                eventBus.publish(ViewControllerEvent.OnCloseAction())
             }
 
             addOnTimetableEntrySelectedListener { entry, stop, l ->
@@ -88,12 +93,22 @@ class TKUITimetableControllerFragment : BaseFragment<FragmentTkuiTimetableContro
             }
 
             setOnTripKitButtonClickListener { tag, scheduledStop ->
-                if (tag == R.id.goButton) {
-                    //eventBus.publish(TripGoEvent.RouteFromCurrentLocation(scheduledStop))
-                } else if (tag == R.id.shareButton) {
-                    timetableFragment!!.showShareDialog()
-                } else if (tag == R.id.favoriteButton) {
+                when (tag) {
+                    R.id.goButton -> {
+                        eventBus.publish(
+                            ViewControllerEvent.OnRouteFromCurrentLocation(
+                                scheduledStop
+                            )
+                        )
+                    }
 
+                    R.id.shareButton -> {
+                        timetableFragment?.showShareDialog()
+                    }
+
+                    R.id.favoriteButton -> {
+
+                    }
                 }
             }
 
@@ -115,7 +130,11 @@ class TKUITimetableControllerFragment : BaseFragment<FragmentTkuiTimetableContro
         return false
     }
 
-    private fun loadDetails(timetableEntry: TimetableEntry, scheduledStop: ScheduledStop, time: Long) {
+    private fun loadDetails(
+        timetableEntry: TimetableEntry,
+        scheduledStop: ScheduledStop,
+        time: Long
+    ) {
         serviceDetailsFragment = ServiceDetailFragment.Builder()
             .withStop(scheduledStop)
             .showCloseButton()
@@ -136,7 +155,7 @@ class TKUITimetableControllerFragment : BaseFragment<FragmentTkuiTimetableContro
 
     }
 
-    fun updateData(stop: ScheduledStop){
+    fun updateData(stop: ScheduledStop) {
         timetableFragment?.updateStop(stop)
     }
 
@@ -147,12 +166,10 @@ class TKUITimetableControllerFragment : BaseFragment<FragmentTkuiTimetableContro
         fun newInstance(
             stop: ScheduledStop,
             mapFragment: TripKitMapFragment,
-            eventBus: ViewControllerEventBus? = null
         ): TKUITimetableControllerFragment =
             TKUITimetableControllerFragment().apply {
                 this.stop = stop
                 this.mapFragment = mapFragment
-                this.eventBus = eventBus
             }
     }
 }

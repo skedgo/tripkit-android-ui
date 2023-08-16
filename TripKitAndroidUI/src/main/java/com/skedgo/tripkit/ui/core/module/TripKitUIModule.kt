@@ -137,6 +137,7 @@ class TripKitUIModule {
     }
 
     @Provides
+    @Singleton
     fun provideViewControllerEventBus() = ViewControllerEventBus
 
     @Provides

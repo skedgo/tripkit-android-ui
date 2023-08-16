@@ -32,14 +32,15 @@ class TKUITripResultsFragment : BaseFragment<FragmentTkuiTripResultsBinding>() {
     @Inject
     lateinit var routingConfig: GetRoutingConfig
 
+    @Inject
+    lateinit var eventBus: ViewControllerEventBus
+
     private var origin: Location? = null
     private var destination: Location? = null
     private var fromRouteCard: Boolean = true
 
     private var tripResultsCardFragment: TripResultListFragment? = null
     private var actionButtonHandlerFactory: ActionButtonHandlerFactory? = null
-
-    private val eventBus = ViewControllerEventBus
 
     override val layoutRes: Int
         get() = R.layout.fragment_tkui_trip_results
@@ -96,10 +97,10 @@ class TKUITripResultsFragment : BaseFragment<FragmentTkuiTripResultsBinding>() {
                 .replace(R.id.container, this).commit()
 
             setOnCloseButtonListener {
-                eventBus.publish(ViewControllerEvent.OnCloseAction())
+                eventBus?.publish(ViewControllerEvent.OnCloseAction())
             }
             setOnTripSelectedListener { viewTrip: ViewTrip, list: List<TripGroup> ->
-                eventBus.publish(ViewControllerEvent.OnViewTrip(viewTrip, list))
+                eventBus?.publish(ViewControllerEvent.OnViewTrip(viewTrip, list))
             }
 
             setOnLocationClickListener({
@@ -112,21 +113,24 @@ class TKUITripResultsFragment : BaseFragment<FragmentTkuiTripResultsBinding>() {
 
     private fun originDestinationClickAction() {
         if (fromRouteCard) {
-            eventBus.publish(ViewControllerEvent.OnCloseAction())
+            eventBus?.publish(ViewControllerEvent.OnCloseAction())
         } else {
-            eventBus.publish(ViewControllerEvent.OnShowRouteSelection(origin!!, destination!!))
+            eventBus?.publish(ViewControllerEvent.OnShowRouteSelection(origin!!, destination!!))
         }
     }
 
     companion object {
         const val TAG = "TKUITripResultsFragment"
-
          fun newInstance(
-             origin: Location, destination: Location, fromRouteCard: Boolean
+             origin: Location,
+             destination: Location,
+             fromRouteCard: Boolean,
+             eventBus: ViewControllerEventBus
          ) = TKUITripResultsFragment().apply {
              this.origin = origin
              this.destination = destination
              this.fromRouteCard = fromRouteCard
+             this.eventBus = eventBus
          }
     }
 }

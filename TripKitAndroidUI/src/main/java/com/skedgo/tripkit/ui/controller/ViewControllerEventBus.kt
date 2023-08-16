@@ -33,6 +33,9 @@ class ViewControllerEvent {
     data class OnLaunchReportingTripBug(val trip: Trip)
     data class OnTripPrimaryActionClick(val tripSegment: TripSegment, val fromListOverviewAction: Boolean)
     data class OnViewTrip(val viewTrip: ViewTrip, val tripGroupList: List<TripGroup>)
-
     data class OnShowRouteSelection(val startLocation: Location, val destLocation: Location)
+    data class OnRouteFromCurrentLocation(val location: Location)
+    data class OnReportPlannedTrip(val tripGroups: List<TripGroup>, val trip: Trip)
+    data class OnTripSegmentClicked(val tripSegment: TripSegment)
+    data class OnBottomSheetFragmentCountUpdate(val count: Int)
 }

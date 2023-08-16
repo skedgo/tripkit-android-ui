@@ -2,17 +2,29 @@ package com.skedgo.tripkit.ui.controller.homeviewcontroller
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.View
+import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import com.araujo.jordan.excuseme.ExcuseMe
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.skedgo.geocoding.LatLng
+import com.skedgo.rxtry.Failure
+import com.skedgo.rxtry.Success
+import com.skedgo.rxtry.Try
+import com.skedgo.rxtry.toTry
 import com.skedgo.tripkit.common.model.Location
 import com.skedgo.tripkit.common.model.ScheduledStop
+import com.skedgo.tripkit.location.GeoPoint
+import com.skedgo.tripkit.location.UserGeoPointRepository
+import com.skedgo.tripkit.model.ViewTrip
+import com.skedgo.tripkit.routing.TripGroup
+import com.skedgo.tripkit.routing.TripSegment
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.TripKitUI
 import com.skedgo.tripkit.ui.controller.ViewControllerEvent
@@ -20,6 +32,7 @@ import com.skedgo.tripkit.ui.controller.ViewControllerEventBus
 import com.skedgo.tripkit.ui.controller.locationsearchcontroller.TKUILocationSearchViewControllerFragment
 import com.skedgo.tripkit.ui.controller.routeviewcontroller.TKUIRouteFragment
 import com.skedgo.tripkit.ui.controller.timetableviewcontroller.TKUITimetableControllerFragment
+import com.skedgo.tripkit.ui.controller.tripdetailsviewcontroller.TKUITripDetailsViewControllerFragment
 import com.skedgo.tripkit.ui.controller.tripresultcontroller.TKUITripResultsFragment
 import com.skedgo.tripkit.ui.controller.utils.LocationField
 import com.skedgo.tripkit.ui.core.BaseFragment
@@ -30,10 +43,21 @@ import com.skedgo.tripkit.ui.map.home.TripKitMapFragment
 import com.skedgo.tripkit.ui.search.FixedSuggestions
 import io.reactivex.Completable
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
+import timber.log.Timber
 import java.util.concurrent.TimeUnit
+import javax.inject.Inject
+import kotlin.math.max
+import kotlin.math.roundToInt
 
 class TKUIHomeViewControllerFragment :
     BaseFragment<FragmentTkuiHomeViewControllerBinding>() {
+
+    @Inject
+    lateinit var userGeoPointRepository: UserGeoPointRepository
+
+    @Inject
+    lateinit var eventBus: ViewControllerEventBus
 
     private val viewModel: TKUIHomeViewControllerViewModel by viewModels()
 
@@ -41,13 +65,12 @@ class TKUIHomeViewControllerFragment :
     lateinit var map: GoogleMap
     lateinit var locationPointerFragment: LocationPointerFragment
     lateinit var bottomSheetFragment: TKUIHomeBottomSheetFragment
-
     lateinit var bottomSheetBehavior: BottomSheetBehavior<FrameLayout>
 
+    private var bottomSheetVisibilityCallback: ((Int) -> Unit)? = null
+    private var maxSheetHeight = 0
     var defaultLocation: LatLng? = null
     private val fixedSuggestionsProvider = TKUIHomeViewFixedSuggestionsProvider()
-
-    private val eventBus = ViewControllerEventBus
 
     private val searchCardListener =
         object : TKUILocationSearchViewControllerFragment.TKUILocationSearchViewControllerListener {
@@ -68,6 +91,24 @@ class TKUIHomeViewControllerFragment :
             }
         }
 
+    private var currentGeoPointAsLocation = lazy {
+        userGeoPointRepository.getFirstCurrentGeoPoint()
+            .toTry()
+            .map<Try<Location>> { tried: Try<GeoPoint> ->
+                when (tried) {
+                    is Success -> {
+                        val l = Location(tried.invoke().latitude, tried.invoke().longitude).also {
+                            it.name = resources.getString(R.string.current_location)
+                        }
+                        Success(l)
+                    }
+
+                    is Failure -> Failure<Location>(tried())
+                }
+            }
+            .subscribeOn(Schedulers.io())
+    }
+
     override val layoutRes: Int
         get() = R.layout.fragment_tkui_home_view_controller
 
@@ -77,14 +118,19 @@ class TKUIHomeViewControllerFragment :
     override fun getDefaultViewForAccessibility(): View? = null
 
     override fun onAttach(context: Context) {
-        TripKitUI.getInstance().inject(this)
+        TripKitUI.getInstance().controllerComponent().inject(this)
         super.onAttach(context)
     }
 
     override fun onCreated(savedInstance: Bundle?) {
+
+        binding.mainLayout.post {
+            maxSheetHeight = binding.mainLayout.height
+        }
+
         initBinding()
-        initMap()
         initViews()
+        initMap()
         initObservers()
         handleBackPress()
     }
@@ -116,6 +162,10 @@ class TKUIHomeViewControllerFragment :
         mapFragment = childFragmentManager.findFragmentById(R.id.mapFragment) as TripKitMapFragment
         mapFragment.getMapAsync {
             map = it
+            bottomSheetBehavior.let { bottomSheet ->
+                // We need to always show the Google logo
+                map.setPadding(0, 0, 0, bottomSheet.peekHeight)
+            }
             defaultLocation?.let { moveMapToDefaultLocation(it) }
             setupLocationPointerFragment()
         }
@@ -134,11 +184,17 @@ class TKUIHomeViewControllerFragment :
 
     }
 
+    private fun setMapPadding(offset: Float) {
+        val peekHeight = bottomSheetBehavior.peekHeight
+        val maxPadding = maxSheetHeight - peekHeight
+        val calculatedPadding = (offset * maxPadding).roundToInt() + peekHeight
+        map.setPadding(0, 0, 0, max(calculatedPadding, peekHeight))
+    }
+
     private fun loadTimetable(stop: ScheduledStop) {
         val fragment = TKUITimetableControllerFragment.newInstance(
             stop,
-            mapFragment,
-            eventBus
+            mapFragment
         )
 
         val timetableFragment = bottomSheetFragment
@@ -238,14 +294,13 @@ class TKUIHomeViewControllerFragment :
             val near = map.cameraPosition.target
             fixedSuggestionsProvider.showCurrentLocation = false
             val locationSearchFragment = TKUILocationSearchViewControllerFragment
-                .newInstance(bounds, near, fixedSuggestionsProvider, eventBus, searchCardListener)
+                .newInstance(bounds, near, fixedSuggestionsProvider, searchCardListener)
 
             updateBottomSheetFragment(
                 locationSearchFragment,
-                TKUILocationSearchViewControllerFragment.TAG
+                TKUILocationSearchViewControllerFragment.TAG,
+                BottomSheetBehavior.STATE_EXPANDED
             )
-
-            bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
         }
     }
 
@@ -260,7 +315,16 @@ class TKUIHomeViewControllerFragment :
 
     private fun initBottomSheet() {
 
-        bottomSheetFragment = TKUIHomeBottomSheetFragment()
+        bottomSheetFragment = TKUIHomeBottomSheetFragment.newInstance(object :
+            TKUIHomeBottomSheetFragment.TKUIHomeBottomSheetListener {
+            override fun refreshMap() {
+                mapFragment.refreshMap(map)
+            }
+
+            override fun removePinnedLocationMarker() {
+                mapFragment.removePinnedLocationMarker()
+            }
+        })
 
         childFragmentManager
             .beginTransaction()
@@ -269,7 +333,14 @@ class TKUIHomeViewControllerFragment :
             .commit()
 
         bottomSheetBehavior = BottomSheetBehavior.from(binding.standardBottomSheet)
+        bottomSheetBehavior.isFitToContents = false
+        bottomSheetBehavior.isDraggable = true
         bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+        binding.standardBottomSheet.let { frameLayout ->
+            frameLayout.layoutParams = frameLayout.layoutParams.apply {
+                height = ViewGroup.LayoutParams.MATCH_PARENT
+            }
+        }
     }
 
     private fun initObservers() {
@@ -304,17 +375,66 @@ class TKUIHomeViewControllerFragment :
             ).subscribe {
                 getRouteTrips(it.origin, it.destination)
             }.addTo(autoDisposable)
+
+            listen(
+                ViewControllerEvent.OnRouteFromCurrentLocation::class.java
+            ).subscribe {
+                routeFromCurrentLocation(it.location)
+            }.addTo(autoDisposable)
+
+            listen(
+                ViewControllerEvent.OnViewTrip::class.java
+            ).subscribe {
+                loadTrip(it.viewTrip, it.tripGroupList)
+            }.addTo(autoDisposable)
+
+            listen(
+                ViewControllerEvent.OnBottomSheetFragmentCountUpdate::class.java
+            ).subscribe {
+                if(it.count > 0) {
+                    bottomSheetVisibilityCallback?.invoke(1)
+                } else {
+                    bottomSheetVisibilityCallback?.invoke(0)
+                }
+            }.addTo(autoDisposable)
         }
 
+    }
 
+    private fun routeFromCurrentLocation(destination: Location?) {
+        if (destination == null) {
+            return
+        }
+
+        ExcuseMe.couldYouGive(this)
+            .permissionFor(android.Manifest.permission.ACCESS_FINE_LOCATION) {
+                if (it.granted.contains(android.Manifest.permission.ACCESS_FINE_LOCATION)) {
+                    currentGeoPointAsLocation.value
+                        .subscribe({
+                            when (it) {
+                                is Success -> getRouteTrips(it.invoke(), destination, false)
+                                is Failure -> Timber.d("Could not get location")
+                            }
+                        }, { e -> Timber.e(e) })
+                        .addTo(autoDisposable)
+
+                }
+            }
     }
 
     private fun getRouteTrips(
         origin: Location,
-        destination: Location
+        destination: Location,
+        fromRouteCard: Boolean = true
     ) {
         val tripResultsFragment =
-            TKUITripResultsFragment.newInstance(origin, destination, true)
+            TKUITripResultsFragment.newInstance(
+                origin,
+                destination,
+                fromRouteCard,
+                eventBus
+            )
+
 
         updateBottomSheetFragment(
             tripResultsFragment, TKUITripResultsFragment.TAG,
@@ -378,32 +498,80 @@ class TKUIHomeViewControllerFragment :
             mMap.setPadding(0, 0, 0, bottomSheet.measuredHeight)
         }
     }
-
      */
 
-    companion object {
+    private fun loadTrip(trip: ViewTrip, tripGroupList: List<TripGroup>) {
+        val fragment = TKUITripDetailsViewControllerFragment.newInstance(
+            trip,
+            tripGroupList
+        )
+        setupTripFragment(fragment, null)
+    }
 
+    private fun setupTripFragment(
+        fragment: TKUITripDetailsViewControllerFragment,
+        segment: TripSegment?
+    ) {
+        fragment.tripKitMapFragment = mapFragment
+        fragment.initialTripSegment = segment
+
+        updateBottomSheetFragment(
+            fragment,
+            TKUITripDetailsViewControllerFragment.TAG
+        )
+
+        if (bottomSheetBehavior.state == BottomSheetBehavior.STATE_HALF_EXPANDED) {
+            fragment.initializationRelay.observeOn(AndroidSchedulers.mainThread())
+                .subscribe {
+                    Log.i("MapFragment", "Settled From Init")
+                    fragment.settled()
+                }
+                .addTo(autoDisposable)
+        }
+
+        // We only want to set the map contributor after the fragment has settled into the half-expanded state, otherwise it messes
+        // up the camera animation zooming in on the first selected trip in the pager.
+        val bottomSheetCallback = object : BottomSheetBehavior.BottomSheetCallback() {
+            override fun onStateChanged(bottomSheet: View, newState: Int) {
+                if (newState == BottomSheetBehavior.STATE_HALF_EXPANDED) {
+                    fragment.settled()
+                }
+                bottomSheetBehavior.removeBottomSheetCallback(this)
+            }
+
+            override fun onSlide(bottomSheet: View, slideOffset: Float) {}
+        }
+        bottomSheetBehavior.addBottomSheetCallback(bottomSheetCallback)
+    }
+
+    companion object {
         fun load(
             activity: AppCompatActivity,
             containerId: Int,
-            defaultLocation: LatLng? = null
-        ) {
+            defaultLocation: LatLng? = null,
+            bottomSheetVisibilityCallback: ((Int) -> Unit)? = null
+        ): TKUIHomeViewControllerFragment {
+            val fragment =
+                newInstance(defaultLocation, bottomSheetVisibilityCallback)
+
             activity.supportFragmentManager
                 .beginTransaction()
                 .replace(
                     containerId,
-                    newInstance(
-                        defaultLocation
-                    )
+                    fragment
                 )
                 .addToBackStack(null)
                 .commit()
+
+            return fragment
         }
 
         fun newInstance(
-            defaultLocation: LatLng? = null
+            defaultLocation: LatLng? = null,
+            bottomSheetVisibilityCallback: ((Int) -> Unit)? = null
         ) = TKUIHomeViewControllerFragment().apply {
             this.defaultLocation = defaultLocation
+            this.bottomSheetVisibilityCallback = bottomSheetVisibilityCallback
         }
     }
 }

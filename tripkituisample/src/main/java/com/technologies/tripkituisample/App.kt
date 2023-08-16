@@ -5,11 +5,19 @@ import com.skedgo.tripkit.HttpClientModule
 import com.skedgo.tripkit.TripKitConfigs
 import com.skedgo.tripkit.configuration.Key
 import com.skedgo.tripkit.ui.TripKitUI
+import com.uber.rxdogtag.RxDogTag
+import io.reactivex.plugins.RxJavaPlugins
+import timber.log.Timber
 
 class App : Application() {
 
     override fun onCreate() {
         super.onCreate()
+
+        RxDogTag.install()
+        RxJavaPlugins.setErrorHandler { e ->
+            Timber.e(e)
+        }
 
         val baseConfig = TripKitUI.buildTripKitConfig(applicationContext, Key.ApiKey("84aff3ca785a8bd99bb96c39324c7fa6"))
         val httpClientModule = HttpClientModule(null, BuildConfig.VERSION_NAME, baseConfig, getSharedPreferences("MyPersonalData", MODE_PRIVATE))
