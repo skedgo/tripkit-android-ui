@@ -180,7 +180,7 @@ class TKUIRouteFragment : BaseFragment<FragmentTkuiRouteBinding>() {
     }
 
     override fun onCreated(savedInstance: Bundle?) {
-        binding.lifecycleOwner = this
+        binding.lifecycleOwner = viewLifecycleOwner
         binding.viewModel = viewModel
 
         initSearchCard()

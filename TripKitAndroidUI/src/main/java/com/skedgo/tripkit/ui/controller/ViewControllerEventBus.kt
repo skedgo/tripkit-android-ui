@@ -38,4 +38,5 @@ class ViewControllerEvent {
     data class OnReportPlannedTrip(val tripGroups: List<TripGroup>, val trip: Trip)
     data class OnTripSegmentClicked(val tripSegment: TripSegment)
     data class OnBottomSheetFragmentCountUpdate(val count: Int)
+    data class OnTripSegmentDataSetChange(val trip: Trip, val tripSegment: TripSegment)
 }

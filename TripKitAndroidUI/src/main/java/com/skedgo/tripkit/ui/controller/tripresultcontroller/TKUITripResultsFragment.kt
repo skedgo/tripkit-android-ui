@@ -24,6 +24,7 @@ import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButtonHandlerFactory
 import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
+//TODO for code refactoring
 class TKUITripResultsFragment : BaseFragment<FragmentTkuiTripResultsBinding>() {
 
     @Inject
@@ -60,7 +61,7 @@ class TKUITripResultsFragment : BaseFragment<FragmentTkuiTripResultsBinding>() {
     }
 
     override fun onCreated(savedInstance: Bundle?) {
-        binding.lifecycleOwner = this
+        binding.lifecycleOwner = viewLifecycleOwner
         initTripResults()
     }
 
@@ -97,10 +98,10 @@ class TKUITripResultsFragment : BaseFragment<FragmentTkuiTripResultsBinding>() {
                 .replace(R.id.container, this).commit()
 
             setOnCloseButtonListener {
-                eventBus?.publish(ViewControllerEvent.OnCloseAction())
+                eventBus.publish(ViewControllerEvent.OnCloseAction())
             }
             setOnTripSelectedListener { viewTrip: ViewTrip, list: List<TripGroup> ->
-                eventBus?.publish(ViewControllerEvent.OnViewTrip(viewTrip, list))
+                eventBus.publish(ViewControllerEvent.OnViewTrip(viewTrip, list))
             }
 
             setOnLocationClickListener({
@@ -113,9 +114,9 @@ class TKUITripResultsFragment : BaseFragment<FragmentTkuiTripResultsBinding>() {
 
     private fun originDestinationClickAction() {
         if (fromRouteCard) {
-            eventBus?.publish(ViewControllerEvent.OnCloseAction())
+            eventBus.publish(ViewControllerEvent.OnCloseAction())
         } else {
-            eventBus?.publish(ViewControllerEvent.OnShowRouteSelection(origin!!, destination!!))
+            eventBus.publish(ViewControllerEvent.OnShowRouteSelection(origin!!, destination!!))
         }
     }
 

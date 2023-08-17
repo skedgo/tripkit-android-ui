@@ -8,21 +8,21 @@ import com.skedgo.tripkit.ui.model.TimetableEntry
 import kotlinx.coroutines.CoroutineScope
 
 interface TripPreviewPagerListener {
-        fun onServiceActionButtonClicked(_tripSegment: TripSegment?, action: String?)
-        fun onTimetableEntryClicked(
-                segment: TripSegment?,
-                scope: CoroutineScope,
-                entry: TimetableEntry
-        )
+    fun onServiceActionButtonClicked(_tripSegment: TripSegment?, action: String?)
+    fun onTimetableEntryClicked(
+        segment: TripSegment?,
+        scope: CoroutineScope,
+        entry: TimetableEntry
+    )
 
-        fun reportPlannedTrip(trip: Trip?, tripGroups: List<TripGroup>)
-        fun onBottomSheetResize(): MutableLiveData<Int>
-        fun onRestartHomePage()
+    fun reportPlannedTrip(trip: Trip?, tripGroups: List<TripGroup>)
+    fun onBottomSheetResize(): MutableLiveData<Int>
+    fun onRestartHomePage()
 
-        @Deprecated("UnusedClass")
-        fun onExternalActionButtonClicked(action: String?)
+    @Deprecated("UnusedClass")
+    fun onExternalActionButtonClicked(action: String?)
 
-        fun onToggleBottomSheetDrag(isDraggable: Boolean)
-        fun getCurrentPagerItemType(): Int
-        fun getLatestTrip(): Trip?
-    }
+    fun onToggleBottomSheetDrag(isDraggable: Boolean)
+    fun getCurrentPagerItemType(): Int
+    fun getLatestTrip(): Trip?
+}

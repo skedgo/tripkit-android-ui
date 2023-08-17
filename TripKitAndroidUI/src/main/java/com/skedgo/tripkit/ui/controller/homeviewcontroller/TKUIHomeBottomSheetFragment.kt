@@ -10,6 +10,7 @@ import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.TripKitUI
 import com.skedgo.tripkit.ui.controller.ViewControllerEvent
 import com.skedgo.tripkit.ui.controller.ViewControllerEventBus
+import com.skedgo.tripkit.ui.controller.tripdetailsviewcontroller.TKUITripDetailsViewControllerFragment
 import com.skedgo.tripkit.ui.core.BaseFragment
 import com.skedgo.tripkit.ui.databinding.FragmentTkuiHomeBottomSheetBinding
 import com.skedgo.tripkit.ui.utils.deFocusAndHideKeyboard
@@ -73,6 +74,10 @@ class TKUIHomeBottomSheetFragment : BaseFragment<FragmentTkuiHomeBottomSheetBind
             listener?.refreshMap()
         }
 
+        if(childFragmentManager.findFragmentByTag(TKUITripDetailsViewControllerFragment.TAG)?.isVisible == true) {
+            listener?.reloadMapMarkers()
+        }
+
         listener?.removePinnedLocationMarker()
 
         childFragmentManager.popBackStackImmediate()
@@ -81,6 +86,7 @@ class TKUIHomeBottomSheetFragment : BaseFragment<FragmentTkuiHomeBottomSheetBind
     interface TKUIHomeBottomSheetListener {
         fun refreshMap()
         fun removePinnedLocationMarker()
+        fun reloadMapMarkers()
     }
 
     companion object {

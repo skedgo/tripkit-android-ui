@@ -47,7 +47,7 @@ class TKUILocationSearchViewControllerFragment :
     }
 
     override fun onCreated(savedInstance: Bundle?) {
-        binding.lifecycleOwner = this
+        binding.lifecycleOwner = viewLifecycleOwner
         binding.viewModel = viewModel
         viewModel.setWithHeaders(withHeaders)
         initViews()

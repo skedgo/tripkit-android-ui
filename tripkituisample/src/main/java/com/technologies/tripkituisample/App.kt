@@ -1,6 +1,7 @@
 package com.technologies.tripkituisample
 
 import android.app.Application
+import com.skedgo.tripkit.DateTimePickerConfig
 import com.skedgo.tripkit.HttpClientModule
 import com.skedgo.tripkit.TripKitConfigs
 import com.skedgo.tripkit.configuration.Key
@@ -19,11 +20,31 @@ class App : Application() {
             Timber.e(e)
         }
 
-        val baseConfig = TripKitUI.buildTripKitConfig(applicationContext, Key.ApiKey("84aff3ca785a8bd99bb96c39324c7fa6"))
-        val httpClientModule = HttpClientModule(null, BuildConfig.VERSION_NAME, baseConfig, getSharedPreferences("MyPersonalData", MODE_PRIVATE))
+        val baseConfig = TripKitUI.buildTripKitConfig(
+            applicationContext,
+            Key.ApiKey("84aff3ca785a8bd99bb96c39324c7fa6")
+        )
+        val httpClientModule = HttpClientModule(
+            null,
+            BuildConfig.VERSION_NAME,
+            baseConfig,
+            getSharedPreferences("MyPersonalData", MODE_PRIVATE)
+        )
 
-        val appConfigs = TripKitConfigs.builder().from(baseConfig).build()
-        TripKitUI.initialize(this, Key.ApiKey("84aff3ca785a8bd99bb96c39324c7fa6"), appConfigs, httpClientModule)
+        val dateTimePickerConfig = DateTimePickerConfig(
+            getString(R.string.leave_at),
+            getString(R.string.arrive_by)
+        )
+
+        val appConfigs =
+            TripKitConfigs.builder().from(baseConfig).dateTimePickerConfig(dateTimePickerConfig)
+                .build()
+        TripKitUI.initialize(
+            this,
+            Key.ApiKey("84aff3ca785a8bd99bb96c39324c7fa6"),
+            appConfigs,
+            httpClientModule
+        )
 
     }
 }

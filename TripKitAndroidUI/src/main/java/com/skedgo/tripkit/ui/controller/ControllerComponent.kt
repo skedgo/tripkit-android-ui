@@ -6,13 +6,15 @@ import com.skedgo.tripkit.ui.controller.locationsearchcontroller.TKUILocationSea
 import com.skedgo.tripkit.ui.controller.routeviewcontroller.TKUIRouteFragment
 import com.skedgo.tripkit.ui.controller.timetableviewcontroller.TKUITimetableControllerFragment
 import com.skedgo.tripkit.ui.controller.tripdetailsviewcontroller.TKUITripDetailsViewControllerFragment
+import com.skedgo.tripkit.ui.controller.trippreviewcontroller.TKUITripPreviewFragment
 import com.skedgo.tripkit.ui.controller.tripresultcontroller.TKUITripResultsFragment
 import com.skedgo.tripkit.ui.core.module.ActivityScope
 import com.skedgo.tripkit.ui.core.module.LocationStuffModule
+import com.skedgo.tripkit.ui.core.module.ServiceDetailsModule
 import dagger.Subcomponent
 
 @ActivityScope
-@Subcomponent(modules = [LocationStuffModule::class])
+@Subcomponent(modules = [LocationStuffModule::class, ServiceDetailsModule::class])
 interface ControllerComponent {
     fun inject(fragment: TKUIHomeViewControllerFragment)
     fun inject(fragment: TKUIHomeBottomSheetFragment)
@@ -21,4 +23,5 @@ interface ControllerComponent {
     fun inject(fragment: TKUIRouteFragment)
     fun inject(fragment: TKUITripResultsFragment)
     fun inject(fragment: TKUITripDetailsViewControllerFragment)
+    fun inject(fragment: TKUITripPreviewFragment)
 }
