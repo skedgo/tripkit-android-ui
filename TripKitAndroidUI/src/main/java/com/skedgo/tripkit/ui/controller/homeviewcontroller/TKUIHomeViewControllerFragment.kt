@@ -35,6 +35,7 @@ import com.skedgo.tripkit.routing.TripGroup
 import com.skedgo.tripkit.routing.TripSegment
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.TripKitUI
+import com.skedgo.tripkit.ui.controller.ControllerDataProvider
 import com.skedgo.tripkit.ui.controller.ViewControllerEvent
 import com.skedgo.tripkit.ui.controller.ViewControllerEventBus
 import com.skedgo.tripkit.ui.controller.locationsearchcontroller.TKUILocationSearchViewControllerFragment
@@ -169,11 +170,17 @@ class TKUIHomeViewControllerFragment :
             maxSheetHeight = binding.mainLayout.height
         }
 
+        ControllerDataProvider.suggestionProvider = fixedSuggestionsProvider
+
         initBinding()
         initViews()
         initMap()
-        initObservers()
         handleBackPress()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        initObservers()
     }
 
     private fun handleBackPress() {
@@ -278,6 +285,7 @@ class TKUIHomeViewControllerFragment :
                 }
             } else {
                 replaceFragment(fragment, PoiDetailsFragment.TAG)
+
             }
 
             if (locationChooserFrame.visibility == View.VISIBLE) {
@@ -350,6 +358,7 @@ class TKUIHomeViewControllerFragment :
         tag: String,
         state: Int = BottomSheetBehavior.STATE_HALF_EXPANDED
     ) {
+        binding.standardBottomSheet.visibility = View.VISIBLE
         bottomSheetFragment.update(fragment, tag)
         bottomSheetBehavior.state = state
     }
@@ -361,6 +370,7 @@ class TKUIHomeViewControllerFragment :
             override fun refreshMap() {
                 mapFragment.refreshMap(map)
                 bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+                binding.standardBottomSheet.visibility = View.GONE
             }
 
             override fun removePinnedLocationMarker() {
@@ -433,7 +443,13 @@ class TKUIHomeViewControllerFragment :
                 ViewControllerEvent.OnLocationChosen::class.java
             ).subscribe {
                 viewModel.toggleChooseOnMap(false)
-                routeLocation(it.location)
+                if (bottomSheetFragment
+                        .getFragmentByTag(
+                            TKUILocationSearchViewControllerFragment.TAG
+                        )?.isVisible == true
+                ) {
+                    routeLocation(it.location)
+                }
             }.addTo(autoDisposable)
 
             listen(
@@ -527,8 +543,7 @@ class TKUIHomeViewControllerFragment :
             TKUITripResultsFragment.newInstance(
                 origin,
                 destination,
-                fromRouteCard,
-                eventBus
+                fromRouteCard
             )
 
 
@@ -818,9 +833,7 @@ class TKUIHomeViewControllerFragment :
     }
 
     private fun reloadTrip(tripGroup: TripGroup) {
-        val fragment = bottomSheetFragment.childFragmentManager.findFragmentByTag(
-            TKUITripDetailsViewControllerFragment.TAG
-        )
+        val fragment = bottomSheetFragment.getFragmentByTag(TKUITripDetailsViewControllerFragment.TAG)
         if (fragment != null && fragment is TKUITripDetailsViewControllerFragment) {
             val list = ArrayList<TripGroup>()
             list.add(tripGroup)
@@ -831,7 +844,7 @@ class TKUIHomeViewControllerFragment :
 
     private fun reloadTripPreview(tripSegment: TripSegment, trip: Trip) {
         tripSegmentOnPreview = tripSegment
-        val fragment = childFragmentManager.findFragmentByTag(TKUITripPreviewFragment.TAG)
+        val fragment = bottomSheetFragment.getFragmentByTag(TKUITripPreviewFragment.TAG)
         if (fragment?.isVisible == true) {
             val tripPreviewPagerFragment = fragment as TKUITripPreviewFragment
             tripPreviewPagerFragment.setTripSegment(tripSegment, trip.segments)

@@ -15,6 +15,7 @@ import com.skedgo.tripkit.ui.core.BaseFragment
 import com.skedgo.tripkit.ui.databinding.FragmentTkuiLocationSearchViewControllerBinding
 import com.skedgo.tripkit.ui.search.FixedSuggestionsProvider
 import com.skedgo.tripkit.ui.search.LocationSearchFragment
+import timber.log.Timber
 import javax.inject.Inject
 
 class TKUILocationSearchViewControllerFragment :
@@ -46,6 +47,16 @@ class TKUILocationSearchViewControllerFragment :
         super.onAttach(context)
     }
 
+    override fun clearInstances() {
+        listener = null
+        fixedSuggestionsProvider = null
+        mapBounds = null
+        if(locationSearchFragment != null) {
+            locationSearchFragment?.unregisterListeners()
+            locationSearchFragment = null
+        }
+    }
+
     override fun onCreated(savedInstance: Bundle?) {
         binding.lifecycleOwner = viewLifecycleOwner
         binding.viewModel = viewModel
@@ -58,8 +69,6 @@ class TKUILocationSearchViewControllerFragment :
         binding.bClose.setOnClickListener {
             eventBus.publish(ViewControllerEvent.OnCloseAction())
         }
-
-
     }
 
     private fun initSearchFragment() {

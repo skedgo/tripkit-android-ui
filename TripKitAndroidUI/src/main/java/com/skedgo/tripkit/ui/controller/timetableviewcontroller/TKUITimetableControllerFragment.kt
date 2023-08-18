@@ -18,6 +18,7 @@ import com.skedgo.tripkit.ui.model.TimetableEntry
 import com.skedgo.tripkit.ui.servicedetail.ServiceDetailFragment
 import com.skedgo.tripkit.ui.timetables.TimetableFragment
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 class TKUITimetableControllerFragment : BaseFragment<FragmentTkuiTimetableControllerBinding>() {
@@ -56,7 +57,6 @@ class TKUITimetableControllerFragment : BaseFragment<FragmentTkuiTimetableContro
     override fun onAttach(context: Context) {
         TripKitUI.getInstance().controllerComponent().inject(this)
         super.onAttach(context)
-        setupTimeTableFragment()
     }
 
     override fun onCreated(savedInstance: Bundle?) {}
@@ -66,11 +66,26 @@ class TKUITimetableControllerFragment : BaseFragment<FragmentTkuiTimetableContro
         //setupTimeTableFragment()
     }
 
+    override fun onResume() {
+        super.onResume()
+        setupTimeTableFragment()
+    }
+
     override fun onAttachFragment(childFragment: Fragment) {
         super.onAttachFragment(childFragment)
         if (childFragment is ServiceDetailFragment) {
             mapFragment?.setContributor(childFragment.contributor())
         }
+    }
+
+    override fun clearInstances() {
+        super.clearInstances()
+        if(timetableFragment != null) {
+            timetableFragment?.clearInstances()
+            timetableFragment = null
+        }
+        serviceDetailsFragment = null
+        mapFragment = null
     }
 
     private fun setupTimeTableFragment() {
@@ -161,7 +176,7 @@ class TKUITimetableControllerFragment : BaseFragment<FragmentTkuiTimetableContro
 
     companion object {
 
-        const val TAG = "timetable"
+        const val TAG = "TKUITimetableControllerFragment"
 
         fun newInstance(
             stop: ScheduledStop,

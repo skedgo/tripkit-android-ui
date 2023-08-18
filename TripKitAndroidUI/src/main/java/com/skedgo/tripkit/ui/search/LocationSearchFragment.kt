@@ -405,6 +405,14 @@ class LocationSearchFragment : BaseTripKitFragment() {
         viewModel.scrollListToTop.set(false)
     }
 
+    fun unregisterListeners() {
+        locationSelectedListener = null
+        citySuggestionSelectedListener = null
+        onAttachFragmentListener = null
+        fixedSuggestionSelectedListener = null
+        onInfoSelectedListener = null
+    }
+
     /**
      * Used to create a new instance of the fragment.
      */

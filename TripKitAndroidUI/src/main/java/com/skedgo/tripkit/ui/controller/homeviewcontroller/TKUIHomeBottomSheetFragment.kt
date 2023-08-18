@@ -10,8 +10,12 @@ import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.TripKitUI
 import com.skedgo.tripkit.ui.controller.ViewControllerEvent
 import com.skedgo.tripkit.ui.controller.ViewControllerEventBus
+import com.skedgo.tripkit.ui.controller.locationsearchcontroller.TKUILocationSearchViewControllerFragment
+import com.skedgo.tripkit.ui.controller.routeviewcontroller.TKUIRouteFragment
+import com.skedgo.tripkit.ui.controller.timetableviewcontroller.TKUITimetableControllerFragment
 import com.skedgo.tripkit.ui.controller.tripdetailsviewcontroller.TKUITripDetailsViewControllerFragment
 import com.skedgo.tripkit.ui.core.BaseFragment
+import com.skedgo.tripkit.ui.core.BaseTripKitFragment
 import com.skedgo.tripkit.ui.databinding.FragmentTkuiHomeBottomSheetBinding
 import com.skedgo.tripkit.ui.utils.deFocusAndHideKeyboard
 import timber.log.Timber
@@ -80,8 +84,21 @@ class TKUIHomeBottomSheetFragment : BaseFragment<FragmentTkuiHomeBottomSheetBind
 
         listener?.removePinnedLocationMarker()
 
+        checkFragmentAndClearInstances()
+
         childFragmentManager.popBackStackImmediate()
     }
+
+    private fun checkFragmentAndClearInstances() {
+        childFragmentManager.fragments.firstOrNull { it.isVisible }?.let {
+            if(it is BaseFragment<*>) {
+                it.clearInstances()
+            }
+        }
+    }
+
+    fun getFragmentByTag(tag: String): Fragment?
+        = childFragmentManager.findFragmentByTag(tag)
 
     interface TKUIHomeBottomSheetListener {
         fun refreshMap()

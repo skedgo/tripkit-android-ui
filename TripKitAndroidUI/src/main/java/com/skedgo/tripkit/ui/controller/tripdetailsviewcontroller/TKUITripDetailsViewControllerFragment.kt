@@ -72,6 +72,19 @@ class TKUITripDetailsViewControllerFragment :
         super.onAttach(context)
     }
 
+    override fun clearInstances() {
+        super.clearInstances()
+        trip = null
+        tripGroupId = null
+        tripId = null
+        favoriteTripId = null
+        tripGroupList = null
+        pagerFragment = null
+        actionButtonHandlerFactory = null
+        tripKitMapFragment = null
+        initialTripSegment = null
+    }
+
     override fun onCreated(savedInstance: Bundle?) {
         initPagerFragment()
     }

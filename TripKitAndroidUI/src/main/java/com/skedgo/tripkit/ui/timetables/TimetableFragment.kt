@@ -515,7 +515,27 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
     }
 
     override fun onDestroyView() {
+        removeViewLsiteners()
         super.onDestroyView()
+        clearInstances()
+    }
+
+    private fun removeViewLsiteners() {
+        binding.recyclerView.setOnTouchListener(null)
+        binding.recyclerView.clearOnScrollListeners()
+
+    }
+
+    fun clearInstances() {
+        timetableEntrySelectedListener.clear()
+        tripButtonClickListener = null
+        segmentActionStream = null
+        stop = null
+        tripSegment = null
+        _tripSegment = null
+        cachedStop = null
+        cachedBookingActions = null
+        bookingActions = null
     }
 
     override fun onDestroy() {

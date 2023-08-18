@@ -68,7 +68,6 @@ class TKUITripPreviewFragment : BaseFragment<FragmentTkuiTripPreviewBinding>() {
     private var tripSegmentHashCode: Long = 0L
     private var fromTripAction: Boolean = false
 
-
     private var fromPageListener = false
     private var fromReload = false
 
@@ -84,6 +83,15 @@ class TKUITripPreviewFragment : BaseFragment<FragmentTkuiTripPreviewBinding>() {
     override fun onAttach(context: Context) {
         TripKitUI.getInstance().controllerComponent().inject(this)
         super.onAttach(context)
+    }
+
+    override fun clearInstances() {
+        super.clearInstances()
+        previewHeadersCallback = null
+        pageIndexStream = null
+        paymentDataStream = null
+        ticketActionStream = null
+        latestTrip = null
     }
 
     override fun onCreated(savedInstance: Bundle?) {

@@ -22,6 +22,7 @@ import com.skedgo.tripkit.ui.routing.GetRoutingConfig
 import com.skedgo.tripkit.ui.tripresults.TripResultListFragment
 import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButtonHandlerFactory
 import kotlinx.coroutines.runBlocking
+import timber.log.Timber
 import javax.inject.Inject
 
 //TODO for code refactoring
@@ -53,6 +54,17 @@ class TKUITripResultsFragment : BaseFragment<FragmentTkuiTripResultsBinding>() {
     override fun onAttach(context: Context) {
         TripKitUI.getInstance().controllerComponent().inject(this)
         super.onAttach(context)
+    }
+
+    override fun clearInstances() {
+        super.clearInstances()
+        origin = null
+        destination = null
+        if (tripResultsCardFragment != null) {
+            tripResultsCardFragment?.clearInstances()
+            tripResultsCardFragment = null
+        }
+        actionButtonHandlerFactory = null
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -122,16 +134,14 @@ class TKUITripResultsFragment : BaseFragment<FragmentTkuiTripResultsBinding>() {
 
     companion object {
         const val TAG = "TKUITripResultsFragment"
-         fun newInstance(
-             origin: Location,
-             destination: Location,
-             fromRouteCard: Boolean,
-             eventBus: ViewControllerEventBus
-         ) = TKUITripResultsFragment().apply {
-             this.origin = origin
-             this.destination = destination
-             this.fromRouteCard = fromRouteCard
-             this.eventBus = eventBus
-         }
+        fun newInstance(
+            origin: Location,
+            destination: Location,
+            fromRouteCard: Boolean
+        ) = TKUITripResultsFragment().apply {
+            this.origin = origin
+            this.destination = destination
+            this.fromRouteCard = fromRouteCard
+        }
     }
 }
