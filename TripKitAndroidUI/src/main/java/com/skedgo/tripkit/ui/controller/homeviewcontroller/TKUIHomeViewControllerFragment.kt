@@ -38,6 +38,7 @@ import com.skedgo.tripkit.ui.TripKitUI
 import com.skedgo.tripkit.ui.controller.ControllerDataProvider
 import com.skedgo.tripkit.ui.controller.ViewControllerEvent
 import com.skedgo.tripkit.ui.controller.ViewControllerEventBus
+import com.skedgo.tripkit.ui.controller.locationsearchcontroller.TKUIFavoritesSuggestionProvider
 import com.skedgo.tripkit.ui.controller.locationsearchcontroller.TKUILocationSearchViewControllerFragment
 import com.skedgo.tripkit.ui.controller.routeviewcontroller.TKUIRouteFragment
 import com.skedgo.tripkit.ui.controller.timetableviewcontroller.TKUITimetableControllerFragment
@@ -107,7 +108,8 @@ class TKUIHomeViewControllerFragment :
     private var bottomSheetVisibilityCallback: ((Int) -> Unit)? = null
     private var maxSheetHeight = 0
     var defaultLocation: LatLng? = null
-    private val fixedSuggestionsProvider = TKUIHomeViewFixedSuggestionsProvider()
+
+    private var fixedSuggestionsProvider = TKUIHomeViewFixedSuggestionsProvider()
 
     private var tripSegmentOnPreview: TripSegment? = null
     private var tripGroupOnPreview: TripGroup? = null
@@ -559,9 +561,16 @@ class TKUIHomeViewControllerFragment :
                 FixedSuggestions.CURRENT_LOCATION -> {}
                 FixedSuggestions.CHOOSE_ON_MAP ->
                     eventBus.publish(ViewControllerEvent.OnChooseOnMap(LocationField.NONE))
-
-                FixedSuggestions.HOME -> {}
-                FixedSuggestions.WORK -> {}
+                FixedSuggestions.HOME -> {
+                    ControllerDataProvider.favoriteProvider?.getHome()?.let {
+                        eventBus.publish(ViewControllerEvent.OnLocationChosen(it, LocationField.NONE))
+                    }
+                }
+                FixedSuggestions.WORK -> {
+                    ControllerDataProvider.favoriteProvider?.getWork()?.let {
+                        eventBus.publish(ViewControllerEvent.OnLocationChosen(it, LocationField.NONE))
+                    }
+                }
             }
         }
     }
@@ -833,7 +842,8 @@ class TKUIHomeViewControllerFragment :
     }
 
     private fun reloadTrip(tripGroup: TripGroup) {
-        val fragment = bottomSheetFragment.getFragmentByTag(TKUITripDetailsViewControllerFragment.TAG)
+        val fragment =
+            bottomSheetFragment.getFragmentByTag(TKUITripDetailsViewControllerFragment.TAG)
         if (fragment != null && fragment is TKUITripDetailsViewControllerFragment) {
             val list = ArrayList<TripGroup>()
             list.add(tripGroup)
@@ -858,10 +868,17 @@ class TKUIHomeViewControllerFragment :
             activity: AppCompatActivity,
             containerId: Int,
             defaultLocation: LatLng? = null,
+            favoriteSuggestionProvider: TKUIFavoritesSuggestionProvider? = null,
             bottomSheetVisibilityCallback: ((Int) -> Unit)? = null
         ): TKUIHomeViewControllerFragment {
+
+            ControllerDataProvider.favoriteProvider = favoriteSuggestionProvider
+
             val fragment =
-                newInstance(defaultLocation, bottomSheetVisibilityCallback)
+                newInstance(
+                    defaultLocation,
+                    bottomSheetVisibilityCallback
+                )
 
             activity.supportFragmentManager
                 .beginTransaction()
@@ -877,7 +894,7 @@ class TKUIHomeViewControllerFragment :
 
         fun newInstance(
             defaultLocation: LatLng? = null,
-            bottomSheetVisibilityCallback: ((Int) -> Unit)? = null
+            bottomSheetVisibilityCallback: ((Int) -> Unit)? = null,
         ) = TKUIHomeViewControllerFragment().apply {
             this.defaultLocation = defaultLocation
             this.bottomSheetVisibilityCallback = bottomSheetVisibilityCallback

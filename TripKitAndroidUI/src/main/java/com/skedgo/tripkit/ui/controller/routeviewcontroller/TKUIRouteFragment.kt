@@ -431,7 +431,7 @@ class TKUIRouteFragment : BaseFragment<FragmentTkuiRouteBinding>() {
                 FixedSuggestions.HOME -> {
                     val home = ControllerDataProvider.favoriteProvider?.getHome()
                     if (home != null) {
-                        setCorrectLocation(home.first)
+                        setCorrectLocation(home)
                         callRouteTrips()
                     }
                 }
@@ -439,7 +439,7 @@ class TKUIRouteFragment : BaseFragment<FragmentTkuiRouteBinding>() {
                 FixedSuggestions.WORK -> {
                     val work = ControllerDataProvider.favoriteProvider?.getWork()
                     if (work != null) {
-                        setCorrectLocation(work.first)
+                        setCorrectLocation(work)
                         callRouteTrips()
                     }
                 }

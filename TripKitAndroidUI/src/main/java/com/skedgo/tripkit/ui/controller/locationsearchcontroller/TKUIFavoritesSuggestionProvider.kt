@@ -23,16 +23,16 @@ open class TKUIFavoritesSuggestionProvider : LocationSearchProvider {
 
     open fun saveFavorite(location: Location, id: Any, additionalData: Any? = null) {}
 
-    open fun getFavorite(id: Any): Pair<Location, Any?>? {
+    open fun getFavorite(id: Any): Location? {
         return null
     }
 
     open fun saveWork(location: Location, additionalData: Any? = null) {}
-    open fun getWork(): Pair<Location, Any?>? {
+    open fun getWork(): Location? {
         return null
     }
 
-    open fun getHome(): Pair<Location, Any?>? {
+    open fun getHome(): Location? {
         return null
     }
 

@@ -9,6 +9,7 @@ import com.google.android.gms.maps.model.LatLngBounds
 import com.skedgo.tripkit.common.model.Location
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.TripKitUI
+import com.skedgo.tripkit.ui.controller.ControllerDataProvider
 import com.skedgo.tripkit.ui.controller.ViewControllerEvent
 import com.skedgo.tripkit.ui.controller.ViewControllerEventBus
 import com.skedgo.tripkit.ui.core.BaseFragment
@@ -51,7 +52,7 @@ class TKUILocationSearchViewControllerFragment :
         listener = null
         fixedSuggestionsProvider = null
         mapBounds = null
-        if(locationSearchFragment != null) {
+        if (locationSearchFragment != null) {
             locationSearchFragment?.unregisterListeners()
             locationSearchFragment = null
         }
@@ -77,13 +78,18 @@ class TKUILocationSearchViewControllerFragment :
             .near(nearLatLng)
             .withHint(getString(R.string.where_do_you_want_to_go_question))
             .allowDropPin()
-            .withLocationSearchProvider(TKUIFavoritesSuggestionProvider())
             .showBackButton(false)
             .showSearchField(withHeaders)
             .withLocationSearchIconProvider(TKUILocationSearchIconProvider())
 
         fixedSuggestionsProvider?.let {
             locationSearchFragmentBuilder.withFixedSuggestionsProvider(it)
+        }
+
+        ControllerDataProvider.favoriteProvider?.let {
+            locationSearchFragmentBuilder.withLocationSearchProvider(it)
+        } ?: kotlin.run {
+            locationSearchFragmentBuilder.withLocationSearchProvider(TKUIFavoritesSuggestionProvider())
         }
 
         locationSearchFragment = locationSearchFragmentBuilder

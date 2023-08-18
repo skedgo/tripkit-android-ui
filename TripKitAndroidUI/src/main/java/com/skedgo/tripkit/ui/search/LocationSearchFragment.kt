@@ -104,7 +104,7 @@ class LocationSearchFragment : BaseTripKitFragment() {
     }
 
     private fun saveLocationToHistory(location: Location) {
-        if (location.name != getString(R.string.home) && location.name != getString(R.string.work)) {
+        if (location.name != getString(R.string.home) && location.name != getString(R.string.work) && !location.isFavourite) {
             locationHistoryRepository.saveLocationsToHistory(
                 listOf(location)
             ).observeOn(Schedulers.io())
