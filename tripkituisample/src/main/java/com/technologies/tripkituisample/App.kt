@@ -7,10 +7,19 @@ import com.skedgo.tripkit.TripKitConfigs
 import com.skedgo.tripkit.configuration.Key
 import com.skedgo.tripkit.ui.TripKitUI
 import com.uber.rxdogtag.RxDogTag
+import dagger.android.AndroidInjector
+import dagger.android.DispatchingAndroidInjector
+import dagger.android.HasAndroidInjector
 import io.reactivex.plugins.RxJavaPlugins
 import timber.log.Timber
+import javax.inject.Inject
 
-class App : Application() {
+class App : Application(), HasAndroidInjector {
+
+    @Inject
+    lateinit var androidInjector: DispatchingAndroidInjector<Any>
+
+    override fun androidInjector(): AndroidInjector<Any> = androidInjector
 
     override fun onCreate() {
         super.onCreate()
@@ -37,7 +46,8 @@ class App : Application() {
         )
 
         val appConfigs =
-            TripKitConfigs.builder().from(baseConfig).dateTimePickerConfig(dateTimePickerConfig)
+            TripKitConfigs.builder().from(baseConfig)
+                .dateTimePickerConfig(dateTimePickerConfig)
                 .build()
         TripKitUI.initialize(
             this,

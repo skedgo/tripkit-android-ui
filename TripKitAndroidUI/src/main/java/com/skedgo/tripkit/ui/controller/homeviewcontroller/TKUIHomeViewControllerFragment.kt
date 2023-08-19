@@ -46,6 +46,8 @@ import com.skedgo.tripkit.ui.controller.tripdetailsviewcontroller.TKUITripDetail
 import com.skedgo.tripkit.ui.controller.trippreviewcontroller.TKUITripPreviewFragment
 import com.skedgo.tripkit.ui.controller.tripresultcontroller.TKUITripResultsFragment
 import com.skedgo.tripkit.ui.controller.utils.LocationField
+import com.skedgo.tripkit.ui.controller.utils.actionhandler.TKUIActionButtonHandler
+import com.skedgo.tripkit.ui.controller.utils.actionhandler.TKUIActionButtonHandlerFactory
 import com.skedgo.tripkit.ui.core.BaseFragment
 import com.skedgo.tripkit.ui.core.addTo
 import com.skedgo.tripkit.ui.databinding.FragmentTkuiHomeViewControllerBinding
@@ -869,10 +871,12 @@ class TKUIHomeViewControllerFragment :
             containerId: Int,
             defaultLocation: LatLng? = null,
             favoriteSuggestionProvider: TKUIFavoritesSuggestionProvider? = null,
+            actionButtonHandlerFactory: TKUIActionButtonHandlerFactory? = null,
             bottomSheetVisibilityCallback: ((Int) -> Unit)? = null
         ): TKUIHomeViewControllerFragment {
 
             ControllerDataProvider.favoriteProvider = favoriteSuggestionProvider
+            ControllerDataProvider.actionButtonHandlerFactory = actionButtonHandlerFactory
 
             val fragment =
                 newInstance(

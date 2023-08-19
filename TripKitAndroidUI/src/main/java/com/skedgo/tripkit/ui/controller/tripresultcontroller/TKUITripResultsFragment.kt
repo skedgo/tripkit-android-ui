@@ -13,6 +13,7 @@ import com.skedgo.tripkit.model.ViewTrip
 import com.skedgo.tripkit.routing.TripGroup
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.TripKitUI
+import com.skedgo.tripkit.ui.controller.ControllerDataProvider
 import com.skedgo.tripkit.ui.controller.ViewControllerEvent
 import com.skedgo.tripkit.ui.controller.ViewControllerEventBus
 import com.skedgo.tripkit.ui.controller.utils.actionhandler.TKUIActionButtonHandlerFactory
@@ -78,6 +79,9 @@ class TKUITripResultsFragment : BaseFragment<FragmentTkuiTripResultsBinding>() {
     }
 
     private fun initData() {
+
+        actionButtonHandlerFactory = ControllerDataProvider.actionButtonHandlerFactory
+
         if (actionButtonHandlerFactory == null) {
             actionButtonHandlerFactory = tkuiActionButtonHandlerFactory
         }

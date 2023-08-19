@@ -8,8 +8,11 @@ import androidx.databinding.DataBindingUtil
 import com.skedgo.geocoding.LatLng
 import com.skedgo.tripkit.common.model.Location
 import com.skedgo.tripkit.ui.controller.homeviewcontroller.TKUIHomeViewControllerFragment
+import com.skedgo.tripkit.ui.controller.utils.actionhandler.TKUIActionButtonHandler
+import com.skedgo.tripkit.ui.controller.utils.actionhandler.TKUIActionButtonHandlerFactory
 import com.technologies.tripkituisample.R
 import com.technologies.tripkituisample.databinding.ActivityHomeViewControllerBinding
+import javax.inject.Provider
 
 class HomeViewControllerActivity : AppCompatActivity() {
 
@@ -22,13 +25,16 @@ class HomeViewControllerActivity : AppCompatActivity() {
 
         binding = DataBindingUtil.setContentView(this, R.layout.activity_home_view_controller)
 
-        addSampleFavoriteData()
+        val actionButtonHandler = SampleActionButtonHandler()
+        val actionButtonHandlerFactory = TKUIActionButtonHandlerFactory { actionButtonHandler }
 
+        addSampleFavoriteData()
         val homeControllerFragment = TKUIHomeViewControllerFragment
             .load(
                 activity = this@HomeViewControllerActivity,
                 containerId = R.id.homeFragment,
                 defaultLocation = LatLng(-27.470125, 153.021072),
+                actionButtonHandlerFactory = actionButtonHandlerFactory,
                 favoriteSuggestionProvider = favoriteProvider
             ) {
                 if (it == 0) {

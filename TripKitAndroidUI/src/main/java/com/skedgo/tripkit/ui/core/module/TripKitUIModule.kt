@@ -4,23 +4,12 @@ import android.app.Application
 import android.content.Context
 import android.content.res.Resources
 import com.google.gson.Gson
-import com.google.gson.GsonBuilder
-import com.skedgo.TripKit
-import com.skedgo.routepersistence.LocationTypeAdapterFactory
-import com.skedgo.routepersistence.RouteDatabaseHelper
-import com.skedgo.routepersistence.RouteStore
-import com.skedgo.routepersistence.RoutingStatusStore
 import com.skedgo.tripkit.AndroidGeocoder
 import com.skedgo.tripkit.ServiceApi
 import com.skedgo.tripkit.bookingproviders.BookingResolver
 import com.skedgo.tripkit.bookingproviders.BookingResolverImpl
-import com.skedgo.tripkit.common.model.GsonAdaptersBooking
-import com.skedgo.tripkit.common.model.GsonAdaptersRealtimeAlert
 import com.skedgo.tripkit.common.util.Gsons
-import com.skedgo.tripkit.common.util.LowercaseEnumTypeAdapterFactory
 import com.skedgo.tripkit.configuration.Server
-import com.skedgo.tripkit.data.clients.ClientsApi
-import com.skedgo.tripkit.data.clients.ClientsRepository
 import com.skedgo.tripkit.data.database.TripKitDatabase
 import com.skedgo.tripkit.data.database.locations.bikepods.BikePodRepository
 import com.skedgo.tripkit.data.database.locations.bikepods.BikePodRepositoryImpl
@@ -28,16 +17,13 @@ import com.skedgo.tripkit.data.database.locations.freefloating.FreeFloatingRepos
 import com.skedgo.tripkit.data.database.locations.freefloating.FreeFloatingRepositoryImpl
 import com.skedgo.tripkit.data.locations.LocationsApi
 import com.skedgo.tripkit.data.locations.StopsFetcher
-import com.skedgo.tripkit.data.routingstatus.RoutingStatusRepositoryImpl
 import com.skedgo.tripkit.logging.ErrorLogger
-import com.skedgo.tripkit.routingstatus.RoutingStatusRepository
 import com.skedgo.tripkit.ui.controller.ViewControllerEventBus
 import com.skedgo.tripkit.ui.controller.utils.actionhandler.TKUIActionButtonHandler
 import com.skedgo.tripkit.ui.controller.utils.actionhandler.TKUIActionButtonHandlerFactory
 import com.skedgo.tripkit.ui.core.CellsLoader
 import com.skedgo.tripkit.ui.core.CellsPersistor
 import com.skedgo.tripkit.ui.core.StopsPersistor
-import com.skedgo.tripkit.ui.favorites.trips.FavoriteTripsRepository
 import com.skedgo.tripkit.ui.map.ScheduledStopRepository
 import com.skedgo.tripkit.ui.utils.MainThreadBus
 import com.squareup.otto.Bus
@@ -141,9 +127,7 @@ class TripKitUIModule {
     fun provideViewControllerEventBus() = ViewControllerEventBus
 
     @Provides
-    fun tkuiActionButtonHandler(eventBus: ViewControllerEventBus,
-                                  favoriteTripsRepository: FavoriteTripsRepository
-    ): TKUIActionButtonHandler = TKUIActionButtonHandler(eventBus, favoriteTripsRepository)
+    fun tkuiActionButtonHandler(): TKUIActionButtonHandler = TKUIActionButtonHandler()
 
     @Provides
     fun tkuiActionButtonHandlerFactory(provider: Provider<TKUIActionButtonHandler>): TKUIActionButtonHandlerFactory = TKUIActionButtonHandlerFactory(provider)

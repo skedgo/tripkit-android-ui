@@ -19,10 +19,10 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 
-open class TKUIActionButtonHandler @Inject constructor(
-    private val eventBus: ViewControllerEventBus,
-    private val favoriteTripsRepository: FavoriteTripsRepository
-) : ActionButtonHandler() {
+open class TKUIActionButtonHandler @Inject constructor() : ActionButtonHandler() {
+
+    @Inject
+    lateinit var eventBus: ViewControllerEventBus
 
     private var actionList = mutableListOf<ActionButton>()
     private var favouriteText = ""
@@ -32,7 +32,7 @@ open class TKUIActionButtonHandler @Inject constructor(
         findSegmentAndLaunchPreview(trip, true)
     }
 
-    private fun findSegmentAndLaunchPreview(trip: Trip, fromListOverviewAction: Boolean = false) {
+    open fun findSegmentAndLaunchPreview(trip: Trip, fromListOverviewAction: Boolean = false) {
         var foundSegment = segmentSearch(trip)
         if (foundSegment == null) {
             foundSegment = trip.getMainTripSegment() ?: kotlin.run {
@@ -54,7 +54,7 @@ open class TKUIActionButtonHandler @Inject constructor(
         actionList.clear()
         favouriteText = context.getString(R.string.favourite)
         unfavouriteText = context.getString(R.string.remove_favourite)
-        var favText = if (favoriteTripsRepository.isFavoriteTrip(trip.uuid())) {
+        val favText = if (isTripFavorite(trip)) {
             unfavouriteText
         } else {
             favouriteText
@@ -62,16 +62,16 @@ open class TKUIActionButtonHandler @Inject constructor(
         actionList.add(
             ActionButton(
                 context.getString(R.string.go),
-                "go",
+                ACTION_TAG_GO,
                 R.drawable.ic_directions,
                 true
             )
         )
-        actionList.add(ActionButton(favText, "favorite", R.drawable.ic_bookmark, false))
+        actionList.add(ActionButton(favText, ACTION_TAG_FAVORITE, R.drawable.ic_bookmark, false))
         actionList.add(
             ActionButton(
                 context.getString(R.string.share),
-                "share",
+                ACTION_TAG_SHARE,
                 R.drawable.ic_share,
                 false
             )
@@ -83,7 +83,7 @@ open class TKUIActionButtonHandler @Inject constructor(
             actionList.add(
                 ActionButton(
                     context.getString(R.string.report_problem),
-                    "report",
+                    ACTION_TAG_REPORT,
                     R.drawable.ic_action_warning,
                     false
                 )
@@ -100,26 +100,25 @@ open class TKUIActionButtonHandler @Inject constructor(
         viewModel: ActionButtonViewModel
     ) {
         when (tag) {
-            "share" -> eventBus.publish(ViewControllerEvent.OnShareTrip(trip))
-            "go" -> findSegmentAndLaunchPreview(trip)
-            "favorite" -> handleFavoriteClick(trip, viewModel)
-            "report" -> eventBus.publish(ViewControllerEvent.OnLaunchReportingTripBug(trip))
+            ACTION_TAG_SHARE -> eventBus.publish(ViewControllerEvent.OnShareTrip(trip))
+            ACTION_TAG_GO -> findSegmentAndLaunchPreview(trip)
+            ACTION_TAG_FAVORITE -> handleFavoriteClick(trip, viewModel)
+            ACTION_TAG_REPORT -> eventBus.publish(ViewControllerEvent.OnLaunchReportingTripBug(trip))
             else -> super.actionClicked(context, tag, trip, viewModel)
         }
     }
 
-    private fun handleFavoriteClick(trip: Trip, viewModel: ActionButtonViewModel) {
-        container?.scope()?.launch {
-            withContext(Dispatchers.IO) {
-                if (favoriteTripsRepository.isFavoriteTrip(trip.uuid())) {
-                    favoriteTripsRepository.deleteFavoriteTrip(trip.toFavoriteTrip())
-                    viewModel.title.set(favouriteText)
-                } else {
-                    favoriteTripsRepository.saveFavoriteTrip(trip.toFavoriteTrip())
-                    viewModel.title.set(unfavouriteText)
-                }
-            }
-        }
+    open fun handleFavoriteClick(trip: Trip, viewModel: ActionButtonViewModel) {}
+
+    open fun isTripFavorite(trip: Trip): Boolean {
+        return false
+    }
+
+    companion object {
+        const val ACTION_TAG_SHARE = "share"
+        const val ACTION_TAG_GO = "go"
+        const val ACTION_TAG_FAVORITE = "favorite"
+        const val ACTION_TAG_REPORT = "report"
     }
 
 }
