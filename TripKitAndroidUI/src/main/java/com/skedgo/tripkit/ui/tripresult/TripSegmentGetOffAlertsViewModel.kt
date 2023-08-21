@@ -14,6 +14,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.recyclerview.widget.DiffUtil
 import com.araujo.jordan.excuseme.ExcuseMe
 import com.google.gson.Gson
+import com.skedgo.TripKit
 import com.skedgo.tripkit.routing.*
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.core.RxViewModel
@@ -33,11 +34,17 @@ class TripSegmentGetOffAlertsViewModel @Inject internal constructor(
     private val _getOffAlertStateOn = MutableLiveData<Boolean>(defaultValue)
     val getOffAlertStateOn: LiveData<Boolean> = _getOffAlertStateOn
 
+    private val _isVisible = MutableLiveData<Boolean>()
+    val isVisible: LiveData<Boolean> = _isVisible
+
+    private val configs = TripKit.getInstance().configs()
+
     init {
         val uri = Uri.parse(trip.saveURL)
         val tripUid = uri.lastPathSegment
         val isOn = GetOffAlertCache.isTripAlertStateOn(tripUid ?: trip.saveURL)
         _getOffAlertStateOn.postValue(isOn)
+        _isVisible.postValue(configs.hasGetOffAlerts())
     }
 
     val items = DiffObservableList<TripSegmentGetOffAlertDetailViewModel>(TripSegmentGetOffAlertDetailViewModel.diffCallback())
