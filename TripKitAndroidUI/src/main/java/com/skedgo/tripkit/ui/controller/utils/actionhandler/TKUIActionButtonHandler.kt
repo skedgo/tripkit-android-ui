@@ -19,10 +19,14 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 
-open class TKUIActionButtonHandler @Inject constructor() : ActionButtonHandler() {
+open class TKUIActionButtonHandler @Inject constructor(
+    val eventBus: ViewControllerEventBus
+) : ActionButtonHandler() {
 
+    /*
     @Inject
     lateinit var eventBus: ViewControllerEventBus
+    */
 
     private var actionList = mutableListOf<ActionButton>()
     private var favouriteText = ""

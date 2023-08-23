@@ -40,6 +40,7 @@ import com.skedgo.tripkit.ui.controller.ViewControllerEvent
 import com.skedgo.tripkit.ui.controller.ViewControllerEventBus
 import com.skedgo.tripkit.ui.controller.locationsearchcontroller.TKUIFavoritesSuggestionProvider
 import com.skedgo.tripkit.ui.controller.locationsearchcontroller.TKUILocationSearchViewControllerFragment
+import com.skedgo.tripkit.ui.controller.poidetails.TKUIPoiDetailsFragment
 import com.skedgo.tripkit.ui.controller.routeviewcontroller.TKUIRouteFragment
 import com.skedgo.tripkit.ui.controller.timetableviewcontroller.TKUITimetableControllerFragment
 import com.skedgo.tripkit.ui.controller.tripdetailsviewcontroller.TKUITripDetailsViewControllerFragment
@@ -129,11 +130,11 @@ class TKUIHomeViewControllerFragment :
             }
 
             override fun onCitySelected(location: Location) {
-
+                handleCitySelected(location)
             }
 
             override fun onInfoSelected(location: Location) {
-
+                loadPoiDetails(location)
             }
         }
 
@@ -277,6 +278,22 @@ class TKUIHomeViewControllerFragment :
         isRouting: Boolean = false,
         isDeparture: Boolean = false
     ) {
+
+        location?.let {
+            val fragmentByTag = bottomSheetFragment.getFragmentByTag(TKUIPoiDetailsFragment.TAG)
+
+            if (fragmentByTag != null && fragmentByTag is TKUIPoiDetailsFragment && fragmentByTag.isVisible) {
+                fragmentByTag.updateData(it)
+            } else {
+                val fragment = TKUIPoiDetailsFragment
+                    .newInstance(it, isRouting, isDeparture)
+
+                updateBottomSheetFragment(
+                    fragment, TKUIPoiDetailsFragment.TAG, BottomSheetBehavior.STATE_HALF_EXPANDED
+                )
+            }
+        }
+
         /*
         location?.let {
             val fragment = PoiDetailsFragment.newInstance(it, isRouting, isDeparture)
@@ -311,7 +328,7 @@ class TKUIHomeViewControllerFragment :
                 }
 
                 override fun loadPoiDetails(location: Location) {
-
+                    eventBus.publish(ViewControllerEvent.OnViewPoiDetails(location))
                 }
 
                 override fun onClose() {
@@ -391,6 +408,17 @@ class TKUIHomeViewControllerFragment :
                     }
                     .addTo(autoDisposable)
             }
+
+            override fun onFragmentPopped() {
+                val searchFragment = bottomSheetFragment
+                    .getFragmentByTag(
+                        TKUILocationSearchViewControllerFragment.TAG
+                    )
+                if (searchFragment?.isVisible == true) {
+                    (searchFragment as TKUILocationSearchViewControllerFragment)
+                        .updateSuggestionProviderCurrentLocation(false)
+                }
+            }
         })
 
         childFragmentManager
@@ -450,6 +478,9 @@ class TKUIHomeViewControllerFragment :
                 if (bottomSheetFragment
                         .getFragmentByTag(
                             TKUILocationSearchViewControllerFragment.TAG
+                        )?.isVisible == true || bottomSheetFragment
+                        .getFragmentByTag(
+                            TKUIPoiDetailsFragment.TAG
                         )?.isVisible == true
                 ) {
                     routeLocation(it.location)
@@ -497,6 +528,21 @@ class TKUIHomeViewControllerFragment :
             listen(ViewControllerEvent.OnTripPrimaryActionClick::class.java)
                 .subscribe {
                     loadTripPreview(it.tripSegment, it.tripSegment.id)
+                }.addTo(autoDisposable)
+
+            listen(ViewControllerEvent.OnViewPoiDetails::class.java)
+                .subscribe {
+                    val currentBottomSheetFragment =
+                        bottomSheetFragment.getFragmentByTag(TKUIRouteFragment.TAG)
+                    if (currentBottomSheetFragment is TKUIRouteFragment && currentBottomSheetFragment.isVisible) {
+                        loadPoiDetails(
+                            it.location,
+                            true,
+                            currentBottomSheetFragment.getLocationField() == LocationField.ORIGIN
+                        )
+                    } else {
+                        loadPoiDetails(it.location)
+                    }
                 }.addTo(autoDisposable)
         }
 
@@ -563,17 +609,39 @@ class TKUIHomeViewControllerFragment :
                 FixedSuggestions.CURRENT_LOCATION -> {}
                 FixedSuggestions.CHOOSE_ON_MAP ->
                     eventBus.publish(ViewControllerEvent.OnChooseOnMap(LocationField.NONE))
+
                 FixedSuggestions.HOME -> {
                     ControllerDataProvider.favoriteProvider?.getHome()?.let {
-                        eventBus.publish(ViewControllerEvent.OnLocationChosen(it, LocationField.NONE))
+                        eventBus.publish(
+                            ViewControllerEvent.OnLocationChosen(
+                                it,
+                                LocationField.NONE
+                            )
+                        )
                     }
                 }
+
                 FixedSuggestions.WORK -> {
                     ControllerDataProvider.favoriteProvider?.getWork()?.let {
-                        eventBus.publish(ViewControllerEvent.OnLocationChosen(it, LocationField.NONE))
+                        eventBus.publish(
+                            ViewControllerEvent.OnLocationChosen(
+                                it,
+                                LocationField.NONE
+                            )
+                        )
                     }
                 }
             }
+        }
+    }
+
+    private fun handleCitySelected(location: Location) {
+        bottomSheetFragment.popActiveFragment()
+        mapFragment.moveToLatLng(
+            LatLng(location.lat, location.lon)
+        )
+        if(bottomSheetBehavior.state != BottomSheetBehavior.STATE_HALF_EXPANDED) {
+            bottomSheetBehavior.state = BottomSheetBehavior.STATE_HALF_EXPANDED
         }
     }
 

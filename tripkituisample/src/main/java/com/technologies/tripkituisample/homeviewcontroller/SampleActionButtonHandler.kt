@@ -3,6 +3,7 @@ package com.technologies.tripkituisample.homeviewcontroller
 import android.content.Context
 import android.widget.Toast
 import com.skedgo.tripkit.routing.Trip
+import com.skedgo.tripkit.ui.controller.ViewControllerEventBus
 import com.skedgo.tripkit.ui.controller.utils.actionhandler.TKUIActionButtonHandler
 import com.skedgo.tripkit.ui.tripresult.ActionButtonViewModel
 import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButton
@@ -10,7 +11,9 @@ import com.technologies.tripkituisample.R
 import javax.inject.Inject
 
 
-open class SampleActionButtonHandler @Inject constructor() : TKUIActionButtonHandler() {
+open class SampleActionButtonHandler @Inject constructor(
+    eventBus: ViewControllerEventBus
+) : TKUIActionButtonHandler(eventBus) {
 
     override fun findSegmentAndLaunchPreview(trip: Trip, fromListOverviewAction: Boolean) {
         //can add additional actions here then super.findSegmentAndLaunchPreview will trigger the eventBus

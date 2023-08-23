@@ -162,7 +162,7 @@ class TKUIRouteFragment : BaseFragment<FragmentTkuiRouteBinding>() {
             override fun onCitySelected(location: Location) {}
 
             override fun onInfoSelected(location: Location) {
-                //eventBus.publish(TripGoEvent.LoadPoiDetails(location))
+                eventBus.publish(ViewControllerEvent.OnViewPoiDetails(location))
             }
         }
 
@@ -216,6 +216,9 @@ class TKUIRouteFragment : BaseFragment<FragmentTkuiRouteBinding>() {
     }
 
     private fun initChangeListeners() {
+
+        toggleShowCurrentLocation()
+
         binding.tieStartEdit.setOnFocusChangeListener(focusChangeListener)
         binding.tieDestinationEdit.setOnFocusChangeListener(focusChangeListener)
         binding.tieStartEdit.addTextChangedListener(textChangedHandler)
@@ -241,6 +244,8 @@ class TKUIRouteFragment : BaseFragment<FragmentTkuiRouteBinding>() {
         locationSearchFragment = TKUILocationSearchViewControllerFragment.newInstance(
             bounds, near, suggestionProvider, searchCardListener, false
         )
+
+        locationSearchFragment?.updateSuggestionProviderCurrentLocation(true)
 
         locationSearchFragment?.let {
             childFragmentManager.beginTransaction().replace(R.id.content, it).addToBackStack(null)
@@ -447,7 +452,7 @@ class TKUIRouteFragment : BaseFragment<FragmentTkuiRouteBinding>() {
         }
     }
 
-    private fun getLocationField(): LocationField = if (binding.tieStartEdit.hasFocus()) {
+     fun getLocationField(): LocationField = if (binding.tieStartEdit.hasFocus()) {
         LocationField.ORIGIN
     } else if (binding.tieDestinationEdit.hasFocus()) {
         LocationField.DESTINATION
@@ -456,7 +461,6 @@ class TKUIRouteFragment : BaseFragment<FragmentTkuiRouteBinding>() {
     } else {
         LocationField.ORIGIN
     }
-
 
     companion object {
 

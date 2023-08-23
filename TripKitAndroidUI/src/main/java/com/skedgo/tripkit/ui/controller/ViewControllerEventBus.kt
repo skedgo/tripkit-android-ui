@@ -1,5 +1,6 @@
 package com.skedgo.tripkit.ui.controller
 
+import com.skedgo.geocoding.LatLng
 import com.skedgo.tripkit.common.model.Location
 import com.skedgo.tripkit.model.ViewTrip
 import com.skedgo.tripkit.routing.Trip
@@ -28,6 +29,7 @@ class ViewControllerEvent {
     data class OnLocationSuggestionSelected(val suggestion: Any)
     data class OnCitySelected(val location: Location)
     data class OnLocationSelected(val location: Location)
+    data class OnViewPoiDetails(val location: Location)
     data class OnGetRouteTripResults(val origin: Location, val destination: Location)
     data class OnShareTrip(val trip: Trip)
     data class OnLaunchReportingTripBug(val trip: Trip)
@@ -39,4 +41,5 @@ class ViewControllerEvent {
     data class OnTripSegmentClicked(val tripSegment: TripSegment)
     data class OnBottomSheetFragmentCountUpdate(val count: Int)
     data class OnTripSegmentDataSetChange(val trip: Trip, val tripSegment: TripSegment)
+    data class OnZoomToLocation(val latLng: LatLng)
 }

@@ -12,6 +12,7 @@ import com.skedgo.tripkit.ui.TripKitUI
 import com.skedgo.tripkit.ui.controller.ControllerDataProvider
 import com.skedgo.tripkit.ui.controller.ViewControllerEvent
 import com.skedgo.tripkit.ui.controller.ViewControllerEventBus
+import com.skedgo.tripkit.ui.controller.homeviewcontroller.TKUIHomeViewFixedSuggestionsProvider
 import com.skedgo.tripkit.ui.core.BaseFragment
 import com.skedgo.tripkit.ui.databinding.FragmentTkuiLocationSearchViewControllerBinding
 import com.skedgo.tripkit.ui.search.FixedSuggestionsProvider
@@ -64,6 +65,14 @@ class TKUILocationSearchViewControllerFragment :
         viewModel.setWithHeaders(withHeaders)
         initViews()
         initSearchFragment()
+        updateSuggestionProviderCurrentLocation(false)
+    }
+
+    fun updateSuggestionProviderCurrentLocation(show: Boolean) {
+        if (fixedSuggestionsProvider is TKUIHomeViewFixedSuggestionsProvider) {
+            (fixedSuggestionsProvider as TKUIHomeViewFixedSuggestionsProvider)
+                .showCurrentLocation = show
+        }
     }
 
     private fun initViews() {

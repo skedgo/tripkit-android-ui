@@ -127,7 +127,7 @@ class TripKitUIModule {
     fun provideViewControllerEventBus() = ViewControllerEventBus
 
     @Provides
-    fun tkuiActionButtonHandler(): TKUIActionButtonHandler = TKUIActionButtonHandler()
+    fun tkuiActionButtonHandler(): TKUIActionButtonHandler = TKUIActionButtonHandler(ViewControllerEventBus)
 
     @Provides
     fun tkuiActionButtonHandlerFactory(provider: Provider<TKUIActionButtonHandler>): TKUIActionButtonHandlerFactory = TKUIActionButtonHandlerFactory(provider)

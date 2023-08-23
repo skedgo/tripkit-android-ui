@@ -87,6 +87,8 @@ class TKUIHomeBottomSheetFragment : BaseFragment<FragmentTkuiHomeBottomSheetBind
         checkFragmentAndClearInstances()
 
         childFragmentManager.popBackStackImmediate()
+
+        listener?.onFragmentPopped()
     }
 
     private fun checkFragmentAndClearInstances() {
@@ -104,6 +106,7 @@ class TKUIHomeBottomSheetFragment : BaseFragment<FragmentTkuiHomeBottomSheetBind
         fun refreshMap()
         fun removePinnedLocationMarker()
         fun reloadMapMarkers()
+        fun onFragmentPopped()
     }
 
     companion object {

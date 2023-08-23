@@ -3,6 +3,7 @@ package com.skedgo.tripkit.ui.controller
 import com.skedgo.tripkit.ui.controller.homeviewcontroller.TKUIHomeBottomSheetFragment
 import com.skedgo.tripkit.ui.controller.homeviewcontroller.TKUIHomeViewControllerFragment
 import com.skedgo.tripkit.ui.controller.locationsearchcontroller.TKUILocationSearchViewControllerFragment
+import com.skedgo.tripkit.ui.controller.poidetails.TKUIPoiDetailsFragment
 import com.skedgo.tripkit.ui.controller.routeviewcontroller.TKUIRouteFragment
 import com.skedgo.tripkit.ui.controller.timetableviewcontroller.TKUITimetableControllerFragment
 import com.skedgo.tripkit.ui.controller.tripdetailsviewcontroller.TKUITripDetailsViewControllerFragment
@@ -24,4 +25,5 @@ interface ControllerComponent {
     fun inject(fragment: TKUITripResultsFragment)
     fun inject(fragment: TKUITripDetailsViewControllerFragment)
     fun inject(fragment: TKUITripPreviewFragment)
+    fun inject(fragment: TKUIPoiDetailsFragment)
 }

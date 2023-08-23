@@ -7,6 +7,7 @@ import android.widget.EditText
 import androidx.databinding.DataBindingUtil
 import com.skedgo.geocoding.LatLng
 import com.skedgo.tripkit.common.model.Location
+import com.skedgo.tripkit.ui.controller.ViewControllerEventBus
 import com.skedgo.tripkit.ui.controller.homeviewcontroller.TKUIHomeViewControllerFragment
 import com.skedgo.tripkit.ui.controller.utils.actionhandler.TKUIActionButtonHandler
 import com.skedgo.tripkit.ui.controller.utils.actionhandler.TKUIActionButtonHandlerFactory
@@ -25,7 +26,7 @@ class HomeViewControllerActivity : AppCompatActivity() {
 
         binding = DataBindingUtil.setContentView(this, R.layout.activity_home_view_controller)
 
-        val actionButtonHandler = SampleActionButtonHandler()
+        val actionButtonHandler = SampleActionButtonHandler(ViewControllerEventBus)
         val actionButtonHandlerFactory = TKUIActionButtonHandlerFactory { actionButtonHandler }
 
         addSampleFavoriteData()
