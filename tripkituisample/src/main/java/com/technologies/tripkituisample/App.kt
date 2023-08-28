@@ -12,6 +12,7 @@ import dagger.android.DispatchingAndroidInjector
 import dagger.android.HasAndroidInjector
 import io.reactivex.plugins.RxJavaPlugins
 import timber.log.Timber
+import java.util.concurrent.Callable
 import javax.inject.Inject
 
 class App : Application(), HasAndroidInjector {
@@ -29,10 +30,17 @@ class App : Application(), HasAndroidInjector {
             Timber.e(e)
         }
 
+        val baseUrlAdapterFactory: Callable<String> = Callable {
+            // Your code here to generate the custom base URL
+            "https://example.com/"
+        }
+
         val baseConfig = TripKitUI.buildTripKitConfig(
             applicationContext,
-            Key.ApiKey("84aff3ca785a8bd99bb96c39324c7fa6")
+            Key.ApiKey("84aff3ca785a8bd99bb96c39324c7fa6")/*,
+            baseUrlAdapterFactory*/ //Add here your baseUrlAdapterFactory for your custom url
         )
+
         val httpClientModule = HttpClientModule(
             null,
             BuildConfig.VERSION_NAME,
@@ -53,7 +61,8 @@ class App : Application(), HasAndroidInjector {
             this,
             Key.ApiKey("84aff3ca785a8bd99bb96c39324c7fa6"),
             appConfigs,
-            httpClientModule
+            httpClientModule,
+            "AIzaSyDDG_4m7xVSCA4gZj-RlgBVFCnhoPMh7oo" //Adding your google api key here to initialize google Places API
         )
 
     }

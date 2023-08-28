@@ -35,6 +35,8 @@
     <dimen name="icon_large">64dp</dimen>
     <dimen name="icon_huge">120dp</dimen>
 
+    <dimen name="fab_icon_my_location">40dp</dimen>
+
     <dimen name="icon_increment_action">18dp</dimen>
 
     <dimen name="font_size_small">10sp</dimen>

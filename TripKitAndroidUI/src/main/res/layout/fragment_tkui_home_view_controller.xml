@@ -40,6 +40,22 @@
             android:elevation="10dp"
             android:visibility="gone" />
 
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fabMyLocation"
+            android:layout_width="@dimen/fab_icon_my_location"
+            android:layout_height="@dimen/fab_icon_my_location"
+            android:layout_marginEnd="@dimen/spacing_normal"
+            android:animateLayoutChanges="true"
+            android:contentDescription="@string/lbl_go_to_current_location"
+            android:scaleType="center"
+            android:src="@drawable/ic_nav_my_location"
+            android:translationY="-24dp"
+            app:backgroundTint="@android:color/white"
+            app:behavior_autoHide="true"
+            app:fabSize="mini"
+            app:layout_anchor="@+id/standardBottomSheet"
+            app:layout_anchorGravity="top|right" />
+
         <FrameLayout
             android:id="@+id/standardBottomSheet"
             style="?attr/bottomSheetStyle"
@@ -52,14 +68,6 @@
             app:behavior_hideable="false"
             app:behavior_peekHeight="120dp"
             app:layout_behavior="@string/bottom_sheet_behavior" />
-
-        <ImageButton
-            android:id="@+id/testAction"
-            android:layout_width="@dimen/icon_large"
-            android:layout_height="@dimen/icon_large"
-            android:layout_gravity="bottom|end"
-            android:src="@drawable/ic_search"
-            android:visibility="gone" />
 
         <ImageView
             android:id="@+id/centerPin"

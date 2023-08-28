@@ -7,6 +7,7 @@ import android.content.pm.ApplicationInfo;
 import android.os.Build;
 
 import androidx.annotation.Nullable;
+
 import com.google.android.libraries.places.api.Places;
 import com.skedgo.DaggerTripKit;
 import com.skedgo.TripKit;
@@ -35,14 +36,21 @@ import com.skedgo.tripkit.ui.timetables.TimetableFragment;
 import com.squareup.otto.Bus;
 import com.squareup.picasso.Picasso;
 import com.uber.rxdogtag.RxDogTag;
+
 import dagger.Component;
+
 import net.danlew.android.joda.JodaTimeAndroid;
+
 import okhttp3.OkHttpClient;
+
 import com.skedgo.tripkit.ui.core.module.CyclingSpeedRepositoryModule;
+
 import skedgo.tripgo.agenda.legacy.GetRoutingConfigModule;
 import skedgo.tripgo.agenda.legacy.WalkingSpeedRepositoryModule;
+
 import com.skedgo.tripkit.configuration.Key;
 import com.skedgo.tripkit.logging.ErrorLogger;
+
 import timber.log.Timber;
 
 import javax.inject.Singleton;
@@ -90,8 +98,9 @@ import static com.skedgo.tripkit.routing.TripAlarmBroadcastReceiver.NOTIFICATION
         FavoriteTripsModule.class,
         UserInfoRepositoryModule.class,
         ViewModelModule.class,
-        ControllerModule.class
-        })
+        ControllerModule.class,
+        DeveloperOptionModule.class,
+})
 public abstract class TripKitUI {
     private static TripKitUI instance;
     public static String AUTHORITY_END = ".com.skedgo.tripkit.ui.";
@@ -110,10 +119,10 @@ public abstract class TripKitUI {
         DeveloperPreferenceRepositoryImpl repository = new DeveloperPreferenceRepositoryImpl(context, context.getSharedPreferences(
                 "TripKit", Context.MODE_PRIVATE));
         boolean isDebuggable = (0 != (context.getApplicationInfo().flags
-                & ApplicationInfo.FLAG_DEBUGGABLE ) || BuildConfig.DEBUG);
-       return TripKitConfigs.builder().context(context)
+                & ApplicationInfo.FLAG_DEBUGGABLE) || BuildConfig.DEBUG);
+        return TripKitConfigs.builder().context(context)
 
-               .debuggable(isDebuggable)
+                .debuggable(isDebuggable)
                 .baseUrlAdapterFactory(new Callable<String>() {
                     @Override
                     public String call() throws Exception {
@@ -130,9 +139,47 @@ public abstract class TripKitUI {
                 .key(() -> key).build();
     }
 
+    public static Configs buildTripKitConfig(
+            Context context,
+            Key.ApiKey key,
+            @Nullable Callable<String> customUrlAdapterFactory
+    ) {
+        DeveloperPreferenceRepositoryImpl repository = new DeveloperPreferenceRepositoryImpl(context, context.getSharedPreferences(
+                "TripKit", Context.MODE_PRIVATE));
+        boolean isDebuggable = (0 != (context.getApplicationInfo().flags
+                & ApplicationInfo.FLAG_DEBUGGABLE) || BuildConfig.DEBUG);
+        return TripKitConfigs.builder().context(context)
+                .debuggable(isDebuggable)
+                .baseUrlAdapterFactory(
+                        (customUrlAdapterFactory != null) ?
+                                customUrlAdapterFactory :
+                                (Callable<String>) repository::getServer
+
+                )
+                .userTokenProvider(new Callable<String>() {
+                    @Override
+                    public String call() throws Exception {
+                        SharedPreferences prefs = context.getSharedPreferences("UserTokenPreferences", Context.MODE_PRIVATE);
+                        return prefs.getString("userToken", "");
+                    }
+                })
+                .key(() -> key).build();
+    }
+
     public static void initialize(Context context, Key.ApiKey key, @Nullable Configs configs) {
         initialize(context, key, configs, null);
     }
+
+    public static void initialize(Context context, Key.ApiKey key,
+                                  @Nullable Configs configs,
+                                  @Nullable HttpClientModule httpClientModule,
+                                  String placesApiKey) {
+        initialize(context, key, configs, httpClientModule);
+        if (!Places.isInitialized()) {
+            Places.initialize(context, placesApiKey);
+        }
+    }
+
     public static void initialize(Context context, Key.ApiKey key,
                                   @Nullable Configs configs,
                                   @Nullable HttpClientModule httpClientModule) {
@@ -183,47 +230,71 @@ public abstract class TripKitUI {
                 Timber.plant(new Timber.DebugTree());
             }
 
-        DaggerTripKitUI.Builder builder = DaggerTripKitUI.builder();
+            DaggerTripKitUI.Builder builder = DaggerTripKitUI.builder();
             if (httpClientModule != null) {
                 builder.httpClientModule(httpClientModule);
             } else {
                 builder.httpClientModule(new HttpClientModule(null, null, tripKitConfigs, null));
             }
 
-        instance = builder.contextModule(new ContextModule(context))
-                .build();
+            instance = builder.contextModule(new ContextModule(context))
+                    .build();
         }
     }
 
     public abstract RouteInputViewComponent routeInputViewComponent();
+
     public abstract TripSegmentViewModelComponent tripSegmentViewModelComponent();
+
     public abstract TimePickerComponent timePickerComponent();
 
     public abstract TripDetailsComponent tripDetailsComponent();
 
     public abstract HomeMapFragmentComponent homeMapFragmentComponent(HomeMapFragmentModule module);
+
     public abstract ServiceStopMapComponent serviceStopMapComponent();
+
     public abstract RoutesComponent routesComponent();
+
     public abstract LocationSearchComponent locationSearchComponent();
+
     public abstract TripPreviewComponent tripPreviewComponent();
+
     public abstract AutoCompleteRoutingComponent autoCompleteRoutingComponent();
+
     public abstract LocationPointerComponent locationPointerComponent();
+
     public abstract ControllerComponent controllerComponent();
+
     public abstract Bus bus();
+
     public abstract OkHttpClient httpClient();
+
     public abstract Context appContext();
+
     public abstract RegionService regionService();
+
     public abstract FetchSuggestions fetchSuggestions();
+
     public abstract Picasso picasso();
+
     public abstract ErrorLogger errorLogger();
+
     public abstract PlaceSearchRepository searchRepository();
+
     public abstract DbHelper dbHelper();
+
     public abstract TripGroupRepository tripGroupRepository();
+
     public abstract RouteStore routeStore();
+
     public abstract RegionRoutingRepository regionRoutingRepository();
+
     public abstract RegionRoutingAutoCompleter regionRoutingAutoCompleter();
 
     public abstract void inject(TimetableFragment fragment);
+
     public abstract void inject(ServiceDetailFragment fragment);
+
     public abstract void inject(PoiDetailsFragment fragment);
 }

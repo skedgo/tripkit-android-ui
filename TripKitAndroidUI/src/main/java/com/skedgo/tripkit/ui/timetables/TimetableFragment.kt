@@ -515,9 +515,7 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
     }
 
     override fun onDestroyView() {
-        removeViewLsiteners()
         super.onDestroyView()
-        clearInstances()
     }
 
     private fun removeViewLsiteners() {

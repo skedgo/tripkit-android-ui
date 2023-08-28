@@ -429,7 +429,19 @@ class TKUIRouteFragment : BaseFragment<FragmentTkuiRouteBinding>() {
     private fun handleFixedSuggestionAction(it: Any) {
         if (it is FixedSuggestions) {
             when (it) {
-                FixedSuggestions.CURRENT_LOCATION -> {}
+                FixedSuggestions.CURRENT_LOCATION -> {
+                    val fixedLocation = Location().apply {
+                        locationType = Location.TYPE_CURRENT_LOCATION
+                        name = getString(R.string.current_location)
+                        lat = 0.0
+                        lon = 0.0
+                    }
+                    locationSearchFragment?.setQuery("") // To reset the list
+                    setCorrectLocation(fixedLocation)
+                    lifecycleScope.launch {
+                        getCurrentLocation()
+                    }
+                }
                 FixedSuggestions.CHOOSE_ON_MAP ->
                     eventBus.publish(ViewControllerEvent.OnChooseOnMap(getLocationField()))
 

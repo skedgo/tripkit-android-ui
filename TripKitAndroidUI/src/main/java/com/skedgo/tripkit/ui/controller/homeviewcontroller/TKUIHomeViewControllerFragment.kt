@@ -17,6 +17,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.lifecycleScope
 import com.araujo.jordan.excuseme.ExcuseMe
+import com.araujo.jordan.excuseme.model.PermissionStatus
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -65,6 +66,8 @@ import com.skedgo.tripkit.ui.routingresults.TripGroupRepository
 import com.skedgo.tripkit.ui.search.FixedSuggestions
 import com.skedgo.tripkit.ui.trippreview.TripPreviewHeaderFragment
 import com.skedgo.tripkit.ui.trippreview.TripPreviewPagerListener
+import com.skedgo.tripkit.ui.utils.deFocusAndHideKeyboard
+import com.skedgo.tripkit.ui.utils.defocusAndHideKeyboard
 import com.skedgo.tripkit.ui.utils.isTalkBackOn
 import com.skedgo.tripkit.ui.utils.replaceFragment
 import io.reactivex.Completable
@@ -235,7 +238,52 @@ class TKUIHomeViewControllerFragment :
         locationPointerFragment =
             childFragmentManager.findFragmentById(R.id.locationPointerFragment) as LocationPointerFragment
 
+        setupPinLocationListener()
     }
+
+    private fun setupPinLocationListener() {
+        mapFragment.pinLocationSelectedListener = { pinnedLocation, type ->
+            if (mapFragment.pinnedOriginLocation == null) {
+                getCurrentLocation { granted ->
+                    if (granted) {
+                        currentGeoPointAsLocation.value
+                            .subscribe({
+                                when (it) {
+                                    is Success -> {
+                                        val currentLocation = it.invoke()
+                                        mapFragment.addOriginDestinationMarker(0, currentLocation)
+                                        mapFragment.addOriginDestinationMarker(1, pinnedLocation)
+                                        routeLocation(currentLocation, pinnedLocation)
+                                    }
+                                    is Failure -> routeLocation(
+                                        pinnedLocation
+                                    )
+                                }
+                            }, { e -> Timber.e(e) })
+                            .addTo(autoDisposable)
+                    } else {
+                        routeLocation(pinnedLocation)
+                    }
+                }
+            } else {
+                mapFragment.addOriginDestinationMarker(type, pinnedLocation)
+
+                mapFragment.pinnedOriginLocation?.let { originLocation ->
+                    mapFragment.pinnedDepartureLocation?.let { departureLocation ->
+                        routeLocation(
+                            originLocation,
+                            departureLocation
+                        )
+                    }
+                }
+            }
+
+            mapFragment.updatePinForType()
+        }
+
+        mapFragment.enablePinLocationOnClick = true
+    }
+
 
     private fun setMapPadding(offset: Float) {
         val peekHeight = bottomSheetBehavior.peekHeight
@@ -338,12 +386,14 @@ class TKUIHomeViewControllerFragment :
     }
 
     private fun routeLocation(
-        location: Location
+        origin: Location,
+        destination: Location? = null
     ) {
         val routeFragment = TKUIRouteFragment.newInstance(
             map.projection.visibleRegion.latLngBounds,
             map.cameraPosition.target,
-            location
+            origin,
+            destination
         )
 
         updateBottomSheetFragment(
@@ -353,8 +403,8 @@ class TKUIHomeViewControllerFragment :
 
     private fun initViews() {
         initBottomSheet()
-        binding.testAction.setOnClickListener {
-            loadSearchCardFragment()
+        binding.fabMyLocation.setOnClickListener {
+            mapFragment.animateToMyLocation()
         }
     }
 
@@ -382,6 +432,8 @@ class TKUIHomeViewControllerFragment :
         binding.standardBottomSheet.visibility = View.VISIBLE
         bottomSheetFragment.update(fragment, tag)
         bottomSheetBehavior.state = state
+        mapFragment.enablePinLocationOnClick =
+            tag == TKUILocationSearchViewControllerFragment.TAG || tag == TKUIRouteFragment.TAG
     }
 
     private fun initBottomSheet() {
@@ -395,7 +447,7 @@ class TKUIHomeViewControllerFragment :
             }
 
             override fun removePinnedLocationMarker() {
-                //mapFragment.removePinnedLocationMarker()
+                mapFragment.removePinnedLocationMarker()
             }
 
             override fun reloadMapMarkers() {
@@ -418,6 +470,14 @@ class TKUIHomeViewControllerFragment :
                     (searchFragment as TKUILocationSearchViewControllerFragment)
                         .updateSuggestionProviderCurrentLocation(false)
                 }
+
+                mapFragment.enablePinLocationOnClick = when {
+                    bottomSheetFragment.childFragmentManager.backStackEntryCount <= 1 -> true
+                    bottomSheetFragment.getFragmentByTag(
+                        TKUIRouteFragment.TAG
+                    )?.isVisible == true -> true
+                    else -> false
+                }
             }
         })
 
@@ -437,6 +497,8 @@ class TKUIHomeViewControllerFragment :
             }
         }
 
+        binding.standardBottomSheet.visibility = View.GONE
+
         bottomSheetBehavior.addBottomSheetCallback(object :
             BottomSheetBehavior.BottomSheetCallback() {
             override fun onStateChanged(bottomSheet: View, newState: Int) {
@@ -447,6 +509,11 @@ class TKUIHomeViewControllerFragment :
                 lifecycleScope.launch {
                     bottomSheetOffset.value = (binding.mainLayout.bottom) - bottomSheet.top
                 }
+
+                requireContext().deFocusAndHideKeyboard(
+                    requireActivity().currentFocus
+                        ?: view?.rootView
+                )
             }
         })
     }
@@ -568,19 +635,24 @@ class TKUIHomeViewControllerFragment :
             return
         }
 
+        getCurrentLocation { granted ->
+            if (granted) {
+                currentGeoPointAsLocation.value
+                    .subscribe({
+                        when (it) {
+                            is Success -> getRouteTrips(it.invoke(), destination, false)
+                            is Failure -> Timber.d("Could not get location")
+                        }
+                    }, { e -> Timber.e(e) })
+                    .addTo(autoDisposable)
+            }
+        }
+    }
+
+    private fun getCurrentLocation(callback: (Boolean) -> Unit) {
         ExcuseMe.couldYouGive(this)
             .permissionFor(android.Manifest.permission.ACCESS_FINE_LOCATION) {
-                if (it.granted.contains(android.Manifest.permission.ACCESS_FINE_LOCATION)) {
-                    currentGeoPointAsLocation.value
-                        .subscribe({
-                            when (it) {
-                                is Success -> getRouteTrips(it.invoke(), destination, false)
-                                is Failure -> Timber.d("Could not get location")
-                            }
-                        }, { e -> Timber.e(e) })
-                        .addTo(autoDisposable)
-
-                }
+                callback.invoke(it.granted.contains(android.Manifest.permission.ACCESS_FINE_LOCATION))
             }
     }
 
@@ -640,7 +712,7 @@ class TKUIHomeViewControllerFragment :
         mapFragment.moveToLatLng(
             LatLng(location.lat, location.lon)
         )
-        if(bottomSheetBehavior.state != BottomSheetBehavior.STATE_HALF_EXPANDED) {
+        if (bottomSheetBehavior.state != BottomSheetBehavior.STATE_HALF_EXPANDED) {
             bottomSheetBehavior.state = BottomSheetBehavior.STATE_HALF_EXPANDED
         }
     }
