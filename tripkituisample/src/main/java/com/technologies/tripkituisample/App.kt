@@ -31,6 +31,8 @@ class App : Application(), HasAndroidInjector {
             Timber.e(e)
         }
 
+        val tripGoApiKey = Key.ApiKey("YOUR_TRIPGO_API_KEY_HERE") //BuildConfig.tripgo_api_key
+
         val baseUrlAdapterFactory: Callable<String> = Callable {
             // Your code here to generate the custom base URL
             "https://example.com/"
@@ -38,8 +40,8 @@ class App : Application(), HasAndroidInjector {
 
         val baseConfig = TripKitUI.buildTripKitConfig(
             applicationContext,
-            Key.ApiKey(BuildConfig.tripgo_api_key)/*,
-            baseUrlAdapterFactory*/ //Add here your baseUrlAdapterFactory for your custom url
+            tripGoApiKey
+            /*, baseUrlAdapterFactory*/ //Add here your baseUrlAdapterFactory for your custom url
         )
 
         val httpClientModule = HttpClientModule(
@@ -72,10 +74,11 @@ class App : Application(), HasAndroidInjector {
 
         TripKitUI.initialize(
             this,
-            Key.ApiKey(BuildConfig.tripgo_api_key),
+            tripGoApiKey,
             appConfigs,
             httpClientModule,
-            BuildConfig.google_map_key //Adding your google api key here to initialize google Places API
+            //BuildConfig.google_map_key
+            "YOUR_GOOGLE_API_KEY" //Adding your google api key here to initialize google Places API
         )
 
     }
