@@ -5,6 +5,7 @@ import com.skedgo.tripkit.DateTimePickerConfig
 import com.skedgo.tripkit.HttpClientModule
 import com.skedgo.tripkit.TripKitConfigs
 import com.skedgo.tripkit.configuration.Key
+import com.skedgo.tripkit.data.HttpClientCustomDataStore
 import com.skedgo.tripkit.ui.TripKitUI
 import com.uber.rxdogtag.RxDogTag
 import dagger.android.AndroidInjector
@@ -37,7 +38,7 @@ class App : Application(), HasAndroidInjector {
 
         val baseConfig = TripKitUI.buildTripKitConfig(
             applicationContext,
-            Key.ApiKey("84aff3ca785a8bd99bb96c39324c7fa6")/*,
+            Key.ApiKey(BuildConfig.tripgo_api_key)/*,
             baseUrlAdapterFactory*/ //Add here your baseUrlAdapterFactory for your custom url
         )
 
@@ -48,6 +49,17 @@ class App : Application(), HasAndroidInjector {
             getSharedPreferences("MyPersonalData", MODE_PRIVATE)
         )
 
+        HttpClientCustomDataStore.apply {
+            init(this@App)
+            setCustomHeaders(
+                mapOf(
+                    "CustomHeader1" to "CustomHeader1Value",
+                    "CustomHeader2" to "CustomHeader1Value2",
+                    "CustomHeader3" to "CustomHeader1Value3",
+                )
+            )
+        }
+
         val dateTimePickerConfig = DateTimePickerConfig(
             getString(R.string.leave_at),
             getString(R.string.arrive_by)
@@ -57,12 +69,13 @@ class App : Application(), HasAndroidInjector {
             TripKitConfigs.builder().from(baseConfig)
                 .dateTimePickerConfig(dateTimePickerConfig)
                 .build()
+
         TripKitUI.initialize(
             this,
-            Key.ApiKey("84aff3ca785a8bd99bb96c39324c7fa6"),
+            Key.ApiKey(BuildConfig.tripgo_api_key),
             appConfigs,
             httpClientModule,
-            "AIzaSyDDG_4m7xVSCA4gZj-RlgBVFCnhoPMh7oo" //Adding your google api key here to initialize google Places API
+            BuildConfig.google_map_key //Adding your google api key here to initialize google Places API
         )
 
     }
