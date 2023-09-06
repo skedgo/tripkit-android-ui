@@ -49,8 +49,10 @@
             android:contentDescription="@string/lbl_go_to_current_location"
             android:scaleType="center"
             android:src="@drawable/ic_nav_my_location"
+            app:srcCompat="@drawable/ic_nav_my_location"
             android:translationY="-24dp"
             app:backgroundTint="@android:color/white"
+            android:tint="@color/black"
             app:behavior_autoHide="true"
             app:fabSize="mini"
             app:layout_anchor="@+id/standardBottomSheet"
@@ -66,7 +68,7 @@
             android:importantForAccessibility="no"
             android:visibility="@{!viewModel.state.chooseOnMap}"
             app:behavior_hideable="false"
-            app:behavior_peekHeight="120dp"
+            app:behavior_peekHeight="0dp"
             app:layout_behavior="@string/bottom_sheet_behavior" />
 
         <ImageView

@@ -1,15 +1,20 @@
 package com.skedgo.tripkit.ui.controller.homeviewcontroller
 
+import android.Manifest
 import android.content.Context
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.Handler
 import android.util.Log
+import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
+import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
@@ -68,6 +73,7 @@ import com.skedgo.tripkit.ui.trippreview.TripPreviewHeaderFragment
 import com.skedgo.tripkit.ui.trippreview.TripPreviewPagerListener
 import com.skedgo.tripkit.ui.utils.deFocusAndHideKeyboard
 import com.skedgo.tripkit.ui.utils.defocusAndHideKeyboard
+import com.skedgo.tripkit.ui.utils.hideKeyboard
 import com.skedgo.tripkit.ui.utils.isTalkBackOn
 import com.skedgo.tripkit.ui.utils.replaceFragment
 import io.reactivex.Completable
@@ -222,7 +228,15 @@ class TKUIHomeViewControllerFragment :
                 // We need to always show the Google logo
                 map.setPadding(0, 0, 0, bottomSheet.peekHeight)
             }
-            defaultLocation?.let { moveMapToDefaultLocation(it) }
+
+            if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED) {
+                mapFragment.animateToMyLocation()
+            } else {
+                defaultLocation?.let { location ->
+                    moveMapToDefaultLocation(location)
+                }
+            }
             setupLocationPointerFragment()
         }
 
@@ -429,6 +443,8 @@ class TKUIHomeViewControllerFragment :
         tag: String,
         state: Int = BottomSheetBehavior.STATE_HALF_EXPANDED
     ) {
+        bottomSheetBehavior.peekHeight = resources.getDimensionPixelSize(R.dimen.bottom_sheet_peek_height)
+        updateFabMyLocationAnchor(binding.standardBottomSheet.id, Gravity.TOP or Gravity.END)
         binding.standardBottomSheet.visibility = View.VISIBLE
         bottomSheetFragment.update(fragment, tag)
         bottomSheetBehavior.state = state
@@ -514,6 +530,19 @@ class TKUIHomeViewControllerFragment :
                     requireActivity().currentFocus
                         ?: view?.rootView
                 )
+
+                if (this@TKUIHomeViewControllerFragment::map.isInitialized) {
+                    val currentCenter = map.cameraPosition.target
+                    if (bottomSheetBehavior.state == BottomSheetBehavior.STATE_DRAGGING) {
+                        setMapPadding(slideOffset)
+                        map.moveCamera(CameraUpdateFactory.newLatLng(currentCenter))
+                    }
+                    else if (bottomSheetBehavior.state == BottomSheetBehavior.STATE_SETTLING) {
+                        setMapPadding(slideOffset)
+                        map.moveCamera(CameraUpdateFactory.newLatLng(currentCenter))
+                        hideKeyboard(requireContext(), bottomSheet)
+                    }
+                }
             }
         })
     }
@@ -578,6 +607,8 @@ class TKUIHomeViewControllerFragment :
                 if (it.count > 0) {
                     bottomSheetVisibilityCallback?.invoke(1)
                 } else {
+                    updateFabMyLocationAnchor(binding.mapFragmentParent.id, Gravity.BOTTOM or Gravity.END)
+                    bottomSheetBehavior.peekHeight = 0
                     bottomSheetVisibilityCallback?.invoke(0)
                 }
             }.addTo(autoDisposable)
@@ -613,6 +644,13 @@ class TKUIHomeViewControllerFragment :
                 }.addTo(autoDisposable)
         }
 
+    }
+
+    private fun updateFabMyLocationAnchor(anchorId: Int, anchorGravity: Int) {
+        val layoutParams = binding.fabMyLocation.layoutParams as CoordinatorLayout.LayoutParams
+        layoutParams.anchorId = anchorId
+        layoutParams.anchorGravity = anchorGravity
+        binding.fabMyLocation.layoutParams = layoutParams
     }
 
     private fun handleCloseAction() {

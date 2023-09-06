@@ -44,4 +44,6 @@
     <dimen name="font_size_medium">16sp</dimen>
     <dimen name="font_size_large">20sp</dimen>
     <dimen name="font_size_xlarge">28sp</dimen>
+
+    <dimen name="bottom_sheet_peek_height">120dp</dimen>
 </resources>
