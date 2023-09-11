@@ -15,6 +15,8 @@ class TKUIHomeViewControllerViewModel : RxViewModel() {
     private val _locationPointerFrameVisible = MutableLiveData(false)
     val locationPointerFrameVisible: LiveData<Boolean> = _locationPointerFrameVisible
 
+    private val _myLocationButtonVisible = MutableLiveData(false)
+    val myLocationButtonVisible: LiveData<Boolean> = _myLocationButtonVisible
 
     fun setCenterPinVisible(isVisible: Boolean) {
         _centerPinVisible.postValue(isVisible)
@@ -22,6 +24,10 @@ class TKUIHomeViewControllerViewModel : RxViewModel() {
 
     fun setLocationPointerFrameVisible(isVisible: Boolean) {
         _locationPointerFrameVisible.postValue(isVisible)
+    }
+
+    fun setMyLocationButtonVisible(isVisible: Boolean) {
+        _myLocationButtonVisible.postValue(isVisible)
     }
 
     fun toggleChooseOnMap(isShow: Boolean) {

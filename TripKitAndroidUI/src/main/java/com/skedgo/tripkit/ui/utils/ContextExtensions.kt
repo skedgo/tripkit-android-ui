@@ -1,8 +1,10 @@
 package com.skedgo.tripkit.ui.utils
 
+import android.Manifest
 import android.accessibilityservice.AccessibilityServiceInfo
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.net.Uri
@@ -11,6 +13,7 @@ import android.provider.Settings
 import android.view.View
 import android.view.accessibility.AccessibilityManager
 import androidx.annotation.RequiresApi
+import androidx.core.content.ContextCompat
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.list.listItems
 import java.lang.Exception
@@ -110,3 +113,6 @@ fun Context.deFocusAndHideKeyboard(focus: View?) {
     hideKeyboard(this, focus)
     focus?.clearFocus()
 }
+
+fun Context.isPermissionGranted(permission: String): Boolean =
+    ContextCompat.checkSelfPermission(this, permission)== PackageManager.PERMISSION_GRANTED

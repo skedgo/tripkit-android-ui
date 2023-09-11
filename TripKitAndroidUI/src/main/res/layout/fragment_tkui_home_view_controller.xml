@@ -40,21 +40,18 @@
             android:elevation="10dp"
             android:visibility="gone" />
 
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/fabMyLocation"
+        <ImageView
+            android:id="@+id/ivMyLocation"
             android:layout_width="@dimen/fab_icon_my_location"
             android:layout_height="@dimen/fab_icon_my_location"
             android:layout_marginEnd="@dimen/spacing_normal"
             android:animateLayoutChanges="true"
             android:contentDescription="@string/lbl_go_to_current_location"
-            android:scaleType="center"
-            android:src="@drawable/ic_nav_my_location"
-            app:srcCompat="@drawable/ic_nav_my_location"
             android:translationY="-24dp"
-            app:backgroundTint="@android:color/white"
-            android:tint="@color/black"
+            android:scaleType="center"
+            android:background="?attr/selectableItemBackground"
+            android:visibility="@{viewModel.myLocationButtonVisible}"
             app:behavior_autoHide="true"
-            app:fabSize="mini"
             app:layout_anchor="@+id/standardBottomSheet"
             app:layout_anchorGravity="top|right" />
 

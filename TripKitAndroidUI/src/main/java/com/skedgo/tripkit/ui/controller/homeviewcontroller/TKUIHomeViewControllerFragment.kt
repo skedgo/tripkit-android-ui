@@ -23,6 +23,9 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.lifecycleScope
 import com.araujo.jordan.excuseme.ExcuseMe
 import com.araujo.jordan.excuseme.model.PermissionStatus
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.bitmap.CircleCrop
+import com.bumptech.glide.request.RequestOptions
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -74,6 +77,7 @@ import com.skedgo.tripkit.ui.trippreview.TripPreviewPagerListener
 import com.skedgo.tripkit.ui.utils.deFocusAndHideKeyboard
 import com.skedgo.tripkit.ui.utils.defocusAndHideKeyboard
 import com.skedgo.tripkit.ui.utils.hideKeyboard
+import com.skedgo.tripkit.ui.utils.isPermissionGranted
 import com.skedgo.tripkit.ui.utils.isTalkBackOn
 import com.skedgo.tripkit.ui.utils.replaceFragment
 import io.reactivex.Completable
@@ -128,6 +132,11 @@ class TKUIHomeViewControllerFragment :
     private var updateModalDialog: UpdateModalDialog? = null
     private val bottomSheetOffset = MutableLiveData(0)
 
+    private var showMyLocationButtonWithoutPermission = false
+
+    /**
+     * Listener for TKUILocationSearchViewControllerFragment actions
+     */
     private val searchCardListener =
         object : TKUILocationSearchViewControllerFragment.TKUILocationSearchViewControllerListener {
             override fun onLocationSelected(location: Location) {
@@ -147,6 +156,9 @@ class TKUIHomeViewControllerFragment :
             }
         }
 
+    /**
+     * To fetch user location asynchronously from @see com.skedgo.tripkit.location.UserGeoPointRepository
+     */
     private var currentGeoPointAsLocation = lazy {
         userGeoPointRepository.getFirstCurrentGeoPoint()
             .toTry()
@@ -220,6 +232,11 @@ class TKUIHomeViewControllerFragment :
         binding.viewModel = viewModel
     }
 
+    /**
+     * Initialize map (@see com.skedgo.tripkit.ui.map.home.TripKitMapFragment)
+     * Check and set if default location is available
+     * Check and set my location button visibility
+     */
     private fun initMap() {
         mapFragment = childFragmentManager.findFragmentById(R.id.mapFragment) as TripKitMapFragment
         mapFragment.getMapAsync {
@@ -229,10 +246,11 @@ class TKUIHomeViewControllerFragment :
                 map.setPadding(0, 0, 0, bottomSheet.peekHeight)
             }
 
-            if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION)
-                == PackageManager.PERMISSION_GRANTED) {
+            if (requireContext().isPermissionGranted(Manifest.permission.ACCESS_FINE_LOCATION)) {
                 mapFragment.animateToMyLocation()
+                viewModel.setMyLocationButtonVisible(true)
             } else {
+                viewModel.setMyLocationButtonVisible(showMyLocationButtonWithoutPermission)
                 defaultLocation?.let { location ->
                     moveMapToDefaultLocation(location)
                 }
@@ -355,27 +373,6 @@ class TKUIHomeViewControllerFragment :
                 )
             }
         }
-
-        /*
-        location?.let {
-            val fragment = PoiDetailsFragment.newInstance(it, isRouting, isDeparture)
-
-            val poiDetailsFragment = childFragmentManager.findFragmentByTag(PoiDetailsFragment.TAG)
-            if (poiDetailsFragment != null && poiDetailsFragment is PoiDetailsFragment) {
-                poiDetailsFragment.updateData(it)
-                if (!poiDetailsFragment.isVisible) {
-                    childFragmentManager.popBackStackImmediate(PoiDetailsFragment.TAG, 0)
-                }
-            } else {
-                replaceFragment(fragment, PoiDetailsFragment.TAG)
-
-            }
-
-            if (locationChooserFrame.visibility == View.VISIBLE) {
-                activity?.onBackPressed()
-            }
-        }
-        */
     }
 
     private fun setupLocationPointerFragment() {
@@ -417,9 +414,15 @@ class TKUIHomeViewControllerFragment :
 
     private fun initViews() {
         initBottomSheet()
-        binding.fabMyLocation.setOnClickListener {
+        binding.ivMyLocation.setOnClickListener {
             mapFragment.animateToMyLocation()
         }
+
+        val requestOptions = RequestOptions().transform(CircleCrop())
+        Glide.with(requireContext())
+            .load(R.drawable.ic_my_location)
+            .apply(requestOptions)
+            .into(binding.ivMyLocation)
     }
 
     fun loadSearchCardFragment() {
@@ -647,10 +650,10 @@ class TKUIHomeViewControllerFragment :
     }
 
     private fun updateFabMyLocationAnchor(anchorId: Int, anchorGravity: Int) {
-        val layoutParams = binding.fabMyLocation.layoutParams as CoordinatorLayout.LayoutParams
+        val layoutParams = binding.ivMyLocation.layoutParams as CoordinatorLayout.LayoutParams
         layoutParams.anchorId = anchorId
         layoutParams.anchorGravity = anchorGravity
-        binding.fabMyLocation.layoutParams = layoutParams
+        binding.ivMyLocation.layoutParams = layoutParams
     }
 
     private fun handleCloseAction() {
@@ -1050,7 +1053,8 @@ class TKUIHomeViewControllerFragment :
             defaultLocation: LatLng? = null,
             favoriteSuggestionProvider: TKUIFavoritesSuggestionProvider? = null,
             actionButtonHandlerFactory: TKUIActionButtonHandlerFactory? = null,
-            bottomSheetVisibilityCallback: ((Int) -> Unit)? = null
+            showMyLocationButtonWithoutPermission: Boolean = false,
+            bottomSheetVisibilityCallback: ((Int) -> Unit)? = null,
         ): TKUIHomeViewControllerFragment {
 
             ControllerDataProvider.favoriteProvider = favoriteSuggestionProvider
@@ -1058,8 +1062,9 @@ class TKUIHomeViewControllerFragment :
 
             val fragment =
                 newInstance(
-                    defaultLocation,
-                    bottomSheetVisibilityCallback
+                    defaultLocation = defaultLocation,
+                    bottomSheetVisibilityCallback = bottomSheetVisibilityCallback,
+                    showMyLocationButtonWithoutPermission = showMyLocationButtonWithoutPermission,
                 )
 
             activity.supportFragmentManager
@@ -1074,12 +1079,25 @@ class TKUIHomeViewControllerFragment :
             return fragment
         }
 
+        /**
+         * Create TKUIHomeViewControllerFragment instance
+         *
+         * @param defaultLocation - to set map default location after it loads
+         * @param bottomSheetVisibilityCallback - Callback to detect if TKUIHomeViewControllerFragment
+         * bottom sheet is hidden (0) or visible (1)
+         * @param showMyLocationButtonWithoutPermission - when true, show my location button even if
+         * Manifest.permission.ACCESS_FINE_LOCATION is not yet granted and permission request will be asked
+         * once the button is clicked.Will hide the button if false.
+         *
+         */
         fun newInstance(
             defaultLocation: LatLng? = null,
             bottomSheetVisibilityCallback: ((Int) -> Unit)? = null,
+            showMyLocationButtonWithoutPermission: Boolean = false
         ) = TKUIHomeViewControllerFragment().apply {
             this.defaultLocation = defaultLocation
             this.bottomSheetVisibilityCallback = bottomSheetVisibilityCallback
+            this.showMyLocationButtonWithoutPermission = showMyLocationButtonWithoutPermission
         }
     }
 }
