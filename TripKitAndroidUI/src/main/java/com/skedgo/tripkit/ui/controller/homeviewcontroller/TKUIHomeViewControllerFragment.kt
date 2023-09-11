@@ -447,12 +447,13 @@ class TKUIHomeViewControllerFragment :
         state: Int = BottomSheetBehavior.STATE_HALF_EXPANDED
     ) {
         bottomSheetBehavior.peekHeight = resources.getDimensionPixelSize(R.dimen.bottom_sheet_peek_height)
-        updateFabMyLocationAnchor(binding.standardBottomSheet.id, Gravity.TOP or Gravity.END)
         binding.standardBottomSheet.visibility = View.VISIBLE
         bottomSheetFragment.update(fragment, tag)
         bottomSheetBehavior.state = state
         mapFragment.enablePinLocationOnClick =
             tag == TKUILocationSearchViewControllerFragment.TAG || tag == TKUIRouteFragment.TAG
+
+        updateFabMyLocationAnchor(binding.standardBottomSheet.id, Gravity.TOP or Gravity.END)
     }
 
     private fun initBottomSheet() {
@@ -651,6 +652,9 @@ class TKUIHomeViewControllerFragment :
 
     private fun updateFabMyLocationAnchor(anchorId: Int, anchorGravity: Int) {
         val layoutParams = binding.ivMyLocation.layoutParams as CoordinatorLayout.LayoutParams
+        if(layoutParams.anchorId == anchorId) {
+            return
+        }
         layoutParams.anchorId = anchorId
         layoutParams.anchorGravity = anchorGravity
         binding.ivMyLocation.layoutParams = layoutParams
