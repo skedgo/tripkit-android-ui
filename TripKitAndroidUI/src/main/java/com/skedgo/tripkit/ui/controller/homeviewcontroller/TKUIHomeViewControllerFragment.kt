@@ -646,6 +646,11 @@ class TKUIHomeViewControllerFragment :
                         loadPoiDetails(it.location)
                     }
                 }.addTo(autoDisposable)
+
+            listen(ViewControllerEvent.OnUpdateBottomSheetState::class.java)
+                .subscribe {
+                    bottomSheetBehavior.state = it.state
+                }.addTo(autoDisposable)
         }
 
     }

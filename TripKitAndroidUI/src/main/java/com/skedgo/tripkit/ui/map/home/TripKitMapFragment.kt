@@ -13,7 +13,6 @@ import com.google.android.gms.maps.CameraUpdate
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.GoogleMap.*
-import com.google.android.gms.maps.MapsInitializer
 import com.google.android.gms.maps.model.*
 import com.google.maps.android.collections.MarkerManager
 import com.skedgo.tripkit.AndroidGeocoder
@@ -935,6 +934,10 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
         if (show) {
             loadMarkers()
         }
+    }
+
+    fun moveToCameraPosition(cameraPosition: CameraPosition) {
+        map?.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition))
     }
 
     companion object {

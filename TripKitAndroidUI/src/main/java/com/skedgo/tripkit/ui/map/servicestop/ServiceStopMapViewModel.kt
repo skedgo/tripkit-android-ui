@@ -28,97 +28,116 @@ import io.reactivex.schedulers.Schedulers
 import com.skedgo.tripkit.routing.RealTimeVehicle
 import javax.inject.Inject
 
-class ServiceStopMapViewModel @Inject constructor(val context: Context,
-                                                  val fetchAndLoadServices: FetchAndLoadServices,
-                                                  val regionService: RegionService,
-                                                  val getStopDisplayText: GetStopDisplayText) : RxViewModel() {
+class ServiceStopMapViewModel @Inject constructor(
+    val context: Context,
+    val fetchAndLoadServices: FetchAndLoadServices,
+    val regionService: RegionService,
+    val getStopDisplayText: GetStopDisplayText
+) : RxViewModel() {
 
-  val service = BehaviorRelay.create<TimetableEntry>()
+    val service = BehaviorRelay.create<TimetableEntry>()
 
-  val stop = BehaviorRelay.create<ScheduledStop>()
+    val stop = BehaviorRelay.create<ScheduledStop>()
 
-  private val serviceStop = Observable
-      .combineLatest(stop.hide(), service.hide(), BiFunction
-      { stop: ScheduledStop, service: TimetableEntry -> getStopForService(stop, service) })
-
-  lateinit var realtimeViewModel: RealTimeChoreographerViewModel
-  lateinit var serviceStopMarkerCreator: ServiceStopMarkerCreator
-
-  private val serviceStopsAndLines =
-      Observable.combineLatest(service, serviceStop, BiFunction { service: TimetableEntry, stop: ScheduledStop -> service to stop })
-          .distinctUntilChanged()
-          .observeOn(Schedulers.io())
-          .switchMap { (service, stop) ->
-            fetchAndLoadServices.execute(service, stop).toObservable()
-          }
-          .replay(1)
-          .refCount()
-
-  val realtimeVehicle = service
-      .observeOn(Schedulers.io())
-      .switchMap {
-        if (it.realTimeStatus in listOf(RealTimeStatus.IS_REAL_TIME, RealTimeStatus.CAPABLE)) {
-          realtimeViewModel.realTimeVehicleObservable(it)
-              .map { Some(it) }
-        } else {
-          Observable.just(None)
-        }
-      }
-      .observeOn(AndroidSchedulers.mainThread())
-      .autoClear()
-
-  val region by lazy {
-    serviceStop.hide()
-        .flatMap { regionService.getRegionByLocationAsync(it) }
-        .replay(1)
-        .autoConnect()
-  }
-
-  val drawStops = serviceStopsAndLines
-      .map { it.first }
-      .compose(DiffTransformer<StopInfo, MarkerOptions>({ it.stop.code }, { stopInfo ->
-        getStopDisplayText.execute(stopInfo.stop)
-            .withLatestFrom(region, BiFunction { text: String, region: Region -> text to region })
-            .firstOrError()
-            .flatMap {
-              Single.just(serviceStopMarkerCreator.toMarkerOptions(stopInfo, it.first, it.second.timezone))
+    private val serviceStop = Observable
+        .combineLatest(
+            stop.hide(),
+            service.hide(),
+            BiFunction { stop: ScheduledStop, service: TimetableEntry ->
+                getStopForService(stop, service)
             }
-      }))
-      .map { it.first.map { it.first to it.second.stop.code } to it.second }
-      .observeOn(AndroidSchedulers.mainThread())
-      .autoClear()
+        )
 
-  val drawServiceLine = serviceStopsAndLines.map { it.second }
-      .map { ServiceLineOverlayTask().apply(it) }
-      .observeOn(AndroidSchedulers.mainThread())
-      .autoClear()
+    lateinit var realtimeViewModel: RealTimeChoreographerViewModel
+    lateinit var serviceStopMarkerCreator: ServiceStopMarkerCreator
 
-  val viewPort by lazy {
-    Observables
-        .combineLatest(realtimeVehicle, serviceStop)
-        { realtimeVehicle: Optional<RealTimeVehicle>, stop: ScheduledStop ->
-          if (realtimeVehicle is Some) {
-            with(realtimeVehicle.value.location) {
-              if (this != null) {
-                return@combineLatest listOf(this.toLatLng(), stop.toLatLng())
-              }
+    private val serviceStopsAndLines =
+        Observable.combineLatest(
+            service,
+            serviceStop,
+            BiFunction { service: TimetableEntry, stop: ScheduledStop -> service to stop })
+            .distinctUntilChanged()
+            .observeOn(Schedulers.io())
+            .switchMap { (service, stop) ->
+                fetchAndLoadServices.load(service, stop).toObservable()
             }
-          }
-          return@combineLatest listOf(stop.toLatLng())
+            .replay(1)
+            .refCount()
+
+    val realtimeVehicle = service
+        .observeOn(Schedulers.io())
+        .switchMap {
+            if (it.realTimeStatus in listOf(RealTimeStatus.IS_REAL_TIME, RealTimeStatus.CAPABLE)) {
+                realtimeViewModel.realTimeVehicleObservable(it)
+                    .map { Some(it) }
+            } else {
+                Observable.just(None)
+            }
         }
         .observeOn(AndroidSchedulers.mainThread())
         .autoClear()
-  }
 
-  private fun getStopForService(stop: ScheduledStop, service: TimetableEntry): ScheduledStop {
-    if (stop.code == service.stopCode || stop.children == null) {
-      return stop
+    val region by lazy {
+        serviceStop.hide()
+            .flatMap { regionService.getRegionByLocationAsync(it) }
+            .replay(1)
+            .autoConnect()
     }
-    for (child in stop.children) {
-      if (child.code == service.stopCode) {
-        return child
-      }
+
+    val drawStops = serviceStopsAndLines
+        .map { it.first }
+        .compose(DiffTransformer<StopInfo, MarkerOptions>({ it.stop.code }, { stopInfo ->
+            getStopDisplayText.execute(stopInfo.stop)
+                .withLatestFrom(
+                    region,
+                    BiFunction { text: String, region: Region -> text to region })
+                .firstOrError()
+                .flatMap {
+                    Single.just(
+                        serviceStopMarkerCreator.toMarkerOptions(
+                            stopInfo,
+                            it.first,
+                            it.second.timezone
+                        )
+                    )
+                }
+        }))
+        .map { it.first.map { it.first to it.second.stop.code } to it.second }
+        .observeOn(AndroidSchedulers.mainThread())
+        .autoClear()
+
+    val drawServiceLine = serviceStopsAndLines.map {
+        it.second
+    }.map {
+        ServiceLineOverlayTask().apply(it)
+    }.observeOn(AndroidSchedulers.mainThread()).autoClear()
+
+    val viewPort by lazy {
+        Observables
+            .combineLatest(realtimeVehicle, serviceStop)
+            { realtimeVehicle: Optional<RealTimeVehicle>, stop: ScheduledStop ->
+                if (realtimeVehicle is Some) {
+                    with(realtimeVehicle.value.location) {
+                        if (this != null) {
+                            return@combineLatest listOf(this.toLatLng(), stop.toLatLng())
+                        }
+                    }
+                }
+                return@combineLatest listOf(stop.toLatLng())
+            }
+            .observeOn(AndroidSchedulers.mainThread())
+            .autoClear()
     }
-    return stop
-  }
+
+    private fun getStopForService(stop: ScheduledStop, service: TimetableEntry): ScheduledStop {
+        if (stop.code == service.stopCode || stop.children == null) {
+            return stop
+        }
+        for (child in stop.children) {
+            if (child.code == service.stopCode) {
+                return child
+            }
+        }
+        return stop
+    }
 }

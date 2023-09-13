@@ -5,7 +5,7 @@ import android.os.Bundle
 import android.view.View
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.lifecycleScope
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.skedgo.tripkit.common.model.ScheduledStop
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.TripKitUI
@@ -17,8 +17,7 @@ import com.skedgo.tripkit.ui.map.home.TripKitMapFragment
 import com.skedgo.tripkit.ui.model.TimetableEntry
 import com.skedgo.tripkit.ui.servicedetail.ServiceDetailFragment
 import com.skedgo.tripkit.ui.timetables.TimetableFragment
-import kotlinx.coroutines.launch
-import timber.log.Timber
+import com.skedgo.tripkit.ui.timetables.TimetableMapContributor
 import javax.inject.Inject
 
 class TKUITimetableControllerFragment : BaseFragment<FragmentTkuiTimetableControllerBinding>() {
@@ -150,12 +149,16 @@ class TKUITimetableControllerFragment : BaseFragment<FragmentTkuiTimetableContro
         scheduledStop: ScheduledStop,
         time: Long
     ) {
+
+        mapFragment?.setShowPoiMarkers(false, null)
+
         serviceDetailsFragment = ServiceDetailFragment.Builder()
             .withStop(scheduledStop)
             .showCloseButton()
             .withTimetableEntry(timetableEntry).build().apply {
                 setOnCloseButtonListener {
                     popServiceFragment()
+                    resetMapState()
                 }
             }
 
@@ -168,6 +171,19 @@ class TKUITimetableControllerFragment : BaseFragment<FragmentTkuiTimetableContro
             .addToBackStack(null)
             .commitAllowingStateLoss()
 
+        eventBus.publish(
+            ViewControllerEvent.OnUpdateBottomSheetState(BottomSheetBehavior.STATE_HALF_EXPANDED)
+        )
+    }
+
+    private fun resetMapState() {
+        mapFragment?.setShowPoiMarkers(true, emptyList())
+        val contributor = serviceDetailsFragment?.contributor()
+        if(contributor is TimetableMapContributor) {
+            contributor.getMapPreviousPosition().let {
+                it?.let { mapFragment?.moveToCameraPosition(it) }
+            }
+        }
     }
 
     fun updateData(stop: ScheduledStop) {

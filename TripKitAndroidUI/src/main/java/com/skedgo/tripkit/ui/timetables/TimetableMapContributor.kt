@@ -1,6 +1,7 @@
 package com.skedgo.tripkit.ui.timetables
 
 import android.content.Context
+import android.graphics.Camera
 import android.graphics.Color
 import android.text.TextUtils
 import android.view.View
@@ -57,6 +58,9 @@ class TimetableMapContributor(val fragment: Fragment) : TripKitMapContributor {
     private val stopCodesToMarkerMap = HashMap<String, Marker>()
     private val serviceLines = Collections.synchronizedList(ArrayList<Polyline>())
     private var googleMap: GoogleMap? = null
+
+    private var previousCameraPosition: CameraPosition? = null
+
     override fun initialize() {
         TripKitUI.getInstance()
                 .serviceStopMapComponent()
@@ -68,7 +72,7 @@ class TimetableMapContributor(val fragment: Fragment) : TripKitMapContributor {
         viewModel.realtimeViewModel = realTimeViewModel
         val timeTextView = fragment.layoutInflater.inflate(R.layout.view_time_label, null) as TextView
         val timeLabelMaker = TimeLabelMaker(timeTextView)
-        val serviceStopMarkerCreator = ServiceStopMarkerCreator(fragment.context!!, timeLabelMaker)
+        val serviceStopMarkerCreator = ServiceStopMarkerCreator(fragment.requireContext(), timeLabelMaker)
         viewModel.serviceStopMarkerCreator = serviceStopMarkerCreator
     }
 
@@ -77,8 +81,11 @@ class TimetableMapContributor(val fragment: Fragment) : TripKitMapContributor {
     }
 
     override fun safeToUseMap(context: Context, map: GoogleMap) {
+
         googleMap = map
-        map.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(mStop!!.lat, mStop!!.lon), 15.0f))
+        previousCameraPosition = map.cameraPosition
+
+        //map.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(mStop!!.lat, mStop!!.lon), 15.0f))
 
         autoDisposable.add(viewModel.drawStops
                 .subscribe({ (newMarkerOptions, removedStopIds) ->
@@ -102,9 +109,21 @@ class TimetableMapContributor(val fragment: Fragment) : TripKitMapContributor {
                         line.remove()
                     }
                     serviceLines.clear()
+                    val builder = LatLngBounds.Builder()
                     for (polylineOption in polylineOptions) {
                         serviceLines.add(map.addPolyline(polylineOption))
+
+                        polylineOption?.let {
+                            for (point in it.points) {
+                                builder.include(point)
+                            }
+                        }
                     }
+
+                    val bounds = builder.build()
+                    val padding = 50 // Optional padding around the bounds
+                    val cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, padding)
+                    map.animateCamera(cameraUpdate)
                 })
 
         autoDisposable.add(viewModel.realtimeVehicle
@@ -115,7 +134,6 @@ class TimetableMapContributor(val fragment: Fragment) : TripKitMapContributor {
                         setRealTimeVehicle(null)
                     }
                 })
-
     }
 
     override fun getInfoContents(marker: Marker): View? {
@@ -214,5 +232,7 @@ class TimetableMapContributor(val fragment: Fragment) : TripKitMapContributor {
         }
     }
 
-
+    fun getMapPreviousPosition(): CameraPosition? {
+        return previousCameraPosition
+    }
 }

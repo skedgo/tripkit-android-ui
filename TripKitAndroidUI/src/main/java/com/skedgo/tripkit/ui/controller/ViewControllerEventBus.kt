@@ -42,4 +42,5 @@ class ViewControllerEvent {
     data class OnBottomSheetFragmentCountUpdate(val count: Int)
     data class OnTripSegmentDataSetChange(val trip: Trip, val tripSegment: TripSegment)
     data class OnZoomToLocation(val latLng: LatLng)
+    data class OnUpdateBottomSheetState(val state: Int)
 }

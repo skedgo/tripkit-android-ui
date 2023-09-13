@@ -13,28 +13,43 @@ import io.reactivex.Single
 import javax.inject.Inject
 
 class ServiceRepositoryImpl @Inject constructor(
-        private val context: Context,
-        private val fetchService: FetchService) : ServiceRepository {
+    private val context: Context,
+    private val fetchService: FetchService
+) : ServiceRepository {
 
-  override fun fetchServices(service: TimetableEntry, stop: ScheduledStop): Completable {
-    return fetchService.execute(service, stop)
-  }
+    override fun fetchServices(service: TimetableEntry, stop: ScheduledStop): Completable {
+        return fetchService.execute(service, stop)
+    }
 
-  override fun loadServices(service: TimetableEntry, stop: ScheduledStop): Single<Pair<List<StopInfo>, List<ServiceLineOverlayTask.ServiceLineInfo>>> {
-    val timeInSeconds: Long = service.startTimeInSecs
-    val serviceTripId = service.serviceTripId
-    return Single
-        .fromCallable {
-          val cursor = context.contentResolver.query(
-              ServiceStopsProvider.STOPS_BY_SERVICE_URI,
-              ServiceStopsLoaderFactory.PROJECTION,
-              ServiceStopsLoaderFactory.SELECTION,
-              arrayOf(serviceTripId, TimeUtils.getJulianDay(timeInSeconds * TimeUtils.InMillis.SECOND).toString()),
-              ServiceStopsLoaderFactory.SORT_ORDER)
-          val data = LoadServiceTask(stop, cursor).call()
-          cursor?.close()
-          data
-        }
-  }
+    override fun fetchAndLoadServices(
+        service: TimetableEntry,
+        stop: ScheduledStop
+    ): Single<Pair<List<StopInfo>, List<ServiceLineOverlayTask.ServiceLineInfo>>> {
+        return fetchService.executeWithResponse(service, stop)
+    }
+
+    override fun loadServices(
+        service: TimetableEntry,
+        stop: ScheduledStop
+    ): Single<Pair<List<StopInfo>, List<ServiceLineOverlayTask.ServiceLineInfo>>> {
+        val timeInSeconds: Long = service.startTimeInSecs
+        val serviceTripId = service.serviceTripId
+        return Single
+            .fromCallable {
+                val cursor = context.contentResolver.query(
+                    ServiceStopsProvider.STOPS_BY_SERVICE_URI,
+                    ServiceStopsLoaderFactory.PROJECTION,
+                    ServiceStopsLoaderFactory.SELECTION,
+                    arrayOf(
+                        serviceTripId,
+                        TimeUtils.getJulianDay(timeInSeconds * TimeUtils.InMillis.SECOND).toString()
+                    ),
+                    ServiceStopsLoaderFactory.SORT_ORDER
+                )
+                val data = LoadServiceTask(stop, cursor).call()
+                cursor?.close()
+                data
+            }
+    }
 
 }
