@@ -18,6 +18,7 @@
         android:layout_marginHorizontal="@dimen/spacing_medium"
         android:layout_marginBottom="@dimen/spacing_normal"
         android:clipToPadding="true"
+        android:visibility="@{viewModel.isVisible()}"
         app:cardBackgroundColor="@color/grey2"
         app:cardCornerRadius="@dimen/spacing_small"
         app:layout_constraintBottom_toBottomOf="parent">
