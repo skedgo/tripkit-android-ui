@@ -214,6 +214,8 @@ class LocationSearchViewModel @Inject constructor(
                 }
                 if (!isRouting && params.term().isNotEmpty()) {
                     loadFromRegions(params.term())
+                } else if(params.term().isEmpty()) {
+                    citiesSuggestions.clear()
                 }
                 providedSuggestions.clear()
                 viewModelScope.launch {

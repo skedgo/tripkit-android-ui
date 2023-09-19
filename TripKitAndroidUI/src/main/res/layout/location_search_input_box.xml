@@ -1,56 +1,57 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
->
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
     <data>
+
         <variable
-                name="viewModel"
-                type="com.skedgo.tripkit.ui.search.LocationSearchViewModel" />
+            name="viewModel"
+            type="com.skedgo.tripkit.ui.search.LocationSearchViewModel" />
     </data>
 
-<FrameLayout
-            android:visibility="@{viewModel.showSearchBox}"
-             android:layout_width="match_parent"
-             android:layout_height="wrap_content">
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="@{viewModel.showSearchBox}">
 
-    <!--
-         Intentionally NOT using a MaterialCardView here because it would force SDK users to use a MaterialTheme,
-         which they may not want
-     -->
-    <androidx.cardview.widget.CardView
+        <!--
+             Intentionally NOT using a MaterialCardView here because it would force SDK users to use a MaterialTheme,
+             which they may not want
+         -->
+        <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/spacing_small"
             app:cardBackgroundColor="@android:color/white"
             app:cardElevation="0dp">
 
-    <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/location_search_input_box_background">
-
-        <ImageView
-                android:id="@+id/back"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:layout_alignParentLeft="true"
-                android:layout_alignParentStart="true"
-                android:layout_alignParentTop="true"
-                android:visibility="@{viewModel.showBackButton}"
-                android:onClick="@{() -> viewModel.goBack()}"
-                android:scaleType="center"
-                app:srcCompat="@drawable/back_green"/>
-
-        <androidx.appcompat.widget.SearchView
-                android:id="@+id/searchView"
+            <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:layout_toRightOf="@id/back"
-                app:iconifiedByDefault="false"
-                app:queryBackground="@null"
-                app:searchIcon="@null"
-                app:submitBackground="@null" />
-    </RelativeLayout>
-</androidx.cardview.widget.CardView>
-</FrameLayout>
+                android:layout_height="wrap_content"
+                android:background="@drawable/location_search_input_box_background">
+
+                <ImageView
+                    android:id="@+id/back"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:layout_alignParentStart="true"
+                    android:layout_alignParentLeft="true"
+                    android:layout_alignParentTop="true"
+                    android:onClick="@{() -> viewModel.goBack()}"
+                    android:scaleType="center"
+                    android:visibility="@{viewModel.showBackButton}"
+                    app:srcCompat="@drawable/back_green" />
+
+                <androidx.appcompat.widget.SearchView
+                    android:id="@+id/searchView"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:layout_toRightOf="@id/back"
+                    app:iconifiedByDefault="false"
+                    app:queryBackground="@null"
+                    app:searchIcon="@null"
+                    app:submitBackground="@null" />
+            </RelativeLayout>
+        </androidx.cardview.widget.CardView>
+    </FrameLayout>
 </layout>

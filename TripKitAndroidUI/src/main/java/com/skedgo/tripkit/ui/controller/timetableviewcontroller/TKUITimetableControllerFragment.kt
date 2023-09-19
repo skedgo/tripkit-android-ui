@@ -6,6 +6,7 @@ import android.view.View
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
 import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.skedgo.TripKit
 import com.skedgo.tripkit.common.model.ScheduledStop
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.TripKitUI
@@ -88,13 +89,23 @@ class TKUITimetableControllerFragment : BaseFragment<FragmentTkuiTimetableContro
     }
 
     private fun setupTimeTableFragment() {
-        timetableFragment = TimetableFragment.Builder()
+        val timetableFragmentBuilder = TimetableFragment.Builder()
             .withStop(stop)
             .withButton(getString(R.string.go), R.layout.layout_go_button)
-            .withButton(getString(R.string.favorites), R.layout.layout_favorite_button)
-            .withButton(getString(R.string.share), R.layout.layout_share_button)
+
+        val globalConfigs = TripKit.getInstance().configs()
+        if (!globalConfigs.hideFavorites()) {
+            timetableFragmentBuilder.withButton(
+                getString(R.string.favorites),
+                R.layout.layout_favorite_button
+            )
+        }
+
+        timetableFragmentBuilder.withButton(getString(R.string.share), R.layout.layout_share_button)
             .showCloseButton()
-            .build()
+
+
+        timetableFragment = timetableFragmentBuilder.build()
 
         timetableFragment?.apply {
 

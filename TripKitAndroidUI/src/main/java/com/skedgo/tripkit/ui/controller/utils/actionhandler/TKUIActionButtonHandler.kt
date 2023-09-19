@@ -55,14 +55,10 @@ open class TKUIActionButtonHandler @Inject constructor(
     }
 
     override suspend fun getActions(context: Context, trip: Trip): List<ActionButton> {
+
+        val globalConfigs = TripKit.getInstance().configs()
+
         actionList.clear()
-        favouriteText = context.getString(R.string.favourite)
-        unfavouriteText = context.getString(R.string.remove_favourite)
-        val favText = if (isTripFavorite(trip)) {
-            unfavouriteText
-        } else {
-            favouriteText
-        }
         actionList.add(
             ActionButton(
                 context.getString(R.string.go),
@@ -71,7 +67,25 @@ open class TKUIActionButtonHandler @Inject constructor(
                 true
             )
         )
-        actionList.add(ActionButton(favText, ACTION_TAG_FAVORITE, R.drawable.ic_bookmark, false))
+
+        if(!globalConfigs.hideFavorites()) {
+            favouriteText = context.getString(R.string.favourite)
+            unfavouriteText = context.getString(R.string.remove_favourite)
+            val favText = if (isTripFavorite(trip)) {
+                unfavouriteText
+            } else {
+                favouriteText
+            }
+            actionList.add(
+                ActionButton(
+                    favText,
+                    ACTION_TAG_FAVORITE,
+                    R.drawable.ic_bookmark,
+                    false
+                )
+            )
+        }
+
         actionList.add(
             ActionButton(
                 context.getString(R.string.share),
@@ -80,8 +94,6 @@ open class TKUIActionButtonHandler @Inject constructor(
                 false
             )
         )
-
-        val globalConfigs = TripKit.getInstance().configs()
 
         if (globalConfigs.showReportProblemOnTripAction()) {
             actionList.add(

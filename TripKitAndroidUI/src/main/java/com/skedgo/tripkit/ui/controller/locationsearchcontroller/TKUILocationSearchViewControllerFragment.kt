@@ -6,6 +6,7 @@ import android.view.View
 import androidx.fragment.app.viewModels
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
+import com.skedgo.TripKit
 import com.skedgo.tripkit.common.model.Location
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.TripKitUI
@@ -66,12 +67,21 @@ class TKUILocationSearchViewControllerFragment :
         initViews()
         initSearchFragment()
         updateSuggestionProviderCurrentLocation(false)
+        checkConfigs()
     }
 
     fun updateSuggestionProviderCurrentLocation(show: Boolean) {
         if (fixedSuggestionsProvider is TKUIHomeViewFixedSuggestionsProvider) {
             (fixedSuggestionsProvider as TKUIHomeViewFixedSuggestionsProvider)
                 .showCurrentLocation = show
+        }
+    }
+
+    private fun checkConfigs() {
+        val globalConfigs = TripKit.getInstance().configs()
+        if (fixedSuggestionsProvider is TKUIHomeViewFixedSuggestionsProvider) {
+            (fixedSuggestionsProvider as TKUIHomeViewFixedSuggestionsProvider)
+                .hideFavorites = globalConfigs.hideFavorites()
         }
     }
 

@@ -2,9 +2,7 @@ package com.skedgo.tripkit.ui.controller.homeviewcontroller
 
 import android.Manifest
 import android.content.Context
-import android.content.pm.PackageManager
 import android.os.Bundle
-import android.os.Handler
 import android.util.Log
 import android.view.Gravity
 import android.view.View
@@ -14,7 +12,6 @@ import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.coordinatorlayout.widget.CoordinatorLayout
-import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
@@ -375,6 +372,8 @@ class TKUIHomeViewControllerFragment :
         }
     }
 
+    private var isFromChooseOnMap = false
+
     private fun setupLocationPointerFragment() {
         locationPointerFragment.setMap(
             map,
@@ -387,6 +386,8 @@ class TKUIHomeViewControllerFragment :
                 }
 
                 override fun loadPoiDetails(location: Location) {
+                    isFromChooseOnMap = true
+                    viewModel.toggleChooseOnMap(false)
                     eventBus.publish(ViewControllerEvent.OnViewPoiDetails(location))
                 }
 
@@ -446,6 +447,10 @@ class TKUIHomeViewControllerFragment :
         tag: String,
         state: Int = BottomSheetBehavior.STATE_HALF_EXPANDED
     ) {
+        if(fragment !is TKUIPoiDetailsFragment) {
+            isFromChooseOnMap = false
+        }
+
         bottomSheetBehavior.peekHeight = resources.getDimensionPixelSize(R.dimen.bottom_sheet_peek_height)
         binding.standardBottomSheet.visibility = View.VISIBLE
         bottomSheetFragment.update(fragment, tag)
@@ -666,6 +671,12 @@ class TKUIHomeViewControllerFragment :
     }
 
     private fun handleCloseAction() {
+
+        if(isFromChooseOnMap) {
+            isFromChooseOnMap = false
+            viewModel.toggleChooseOnMap(true)
+        }
+
         bottomSheetFragment.popActiveFragment()
 
         if (childFragmentManager.findFragmentByTag(TripPreviewHeaderFragment.TAG) != null &&
