@@ -22,7 +22,7 @@
         <TextView
             android:id="@+id/title"
             style="@style/TextAppearance.MaterialComponents.Headline6"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_marginTop="16dp"
@@ -30,6 +30,7 @@
             android:text="@{viewModel.locationTitle}"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/closeButton"
             tools:text="Some POI" />
 
         <ImageButton
