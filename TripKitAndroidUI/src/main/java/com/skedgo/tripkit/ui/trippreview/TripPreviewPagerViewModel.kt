@@ -42,8 +42,7 @@ import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 class TripPreviewPagerViewModel @Inject constructor(
-    private val tripGroupRepository: TripGroupRepository,
-    private val bookingService: BookingV2TrackingService
+    private val tripGroupRepository: TripGroupRepository
 ) : RxViewModel() {
 
     private val _headers = MutableLiveData<List<TripPreviewHeader>>()
