@@ -141,5 +141,4 @@ fun focusViewForAccessibility(view: View, focus: Boolean) {
             view.sendAccessibilityEvent(AccessibilityEvent.TYPE_VIEW_FOCUSED)
         }, 500)
     }
-
 }

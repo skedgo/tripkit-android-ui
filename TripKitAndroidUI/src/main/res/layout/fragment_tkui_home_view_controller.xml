@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="viewModel"
+            type="com.skedgo.tripkit.ui.controller.homeviewcontroller.TKUIHomeViewControllerViewModel" />
+    </data>
+
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:id="@+id/mainLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:focusable="false"
+        android:importantForAccessibility="no">
+
+        <FrameLayout
+            android:id="@+id/mapFragmentParent"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/colorPrimary">
+
+            <fragment
+                android:id="@+id/mapFragment"
+                class="com.skedgo.tripkit.ui.map.home.TripKitMapFragment"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+        </FrameLayout>
+
+        <FrameLayout
+            android:id="@+id/topSheet"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top"
+            android:background="@drawable/bg_round_bottom_rect_white"
+            android:elevation="10dp"
+            android:visibility="gone" />
+
+        <ImageView
+            android:id="@+id/ivMyLocation"
+            android:layout_width="@dimen/fab_icon_my_location"
+            android:layout_height="@dimen/fab_icon_my_location"
+            android:layout_marginEnd="@dimen/spacing_normal"
+            android:animateLayoutChanges="true"
+            android:contentDescription="@string/lbl_go_to_current_location"
+            android:translationY="-24dp"
+            android:scaleType="center"
+            android:background="?attr/selectableItemBackground"
+            android:visibility="@{viewModel.myLocationButtonVisible}"
+            app:behavior_autoHide="true"
+            app:layout_anchor="@+id/standardBottomSheet"
+            app:layout_anchorGravity="top|right" />
+
+        <FrameLayout
+            android:id="@+id/standardBottomSheet"
+            style="?attr/bottomSheetStyle"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clickable="true"
+            android:focusable="false"
+            android:importantForAccessibility="no"
+            android:visibility="@{!viewModel.state.chooseOnMap}"
+            app:behavior_hideable="false"
+            app:behavior_peekHeight="0dp"
+            app:layout_behavior="@string/bottom_sheet_behavior" />
+
+        <ImageView
+            android:id="@+id/centerPin"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_gravity="center"
+            android:visibility="@{viewModel.state.chooseOnMap}"
+            app:srcCompat="@drawable/ic_pin"
+            app:tint="@android:color/holo_red_light" />
+
+        <FrameLayout
+            android:id="@+id/locationPointerFrame"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:clickable="true"
+            android:visibility="@{viewModel.state.chooseOnMap}">
+
+            <fragment
+                android:id="@+id/locationPointerFragment"
+                android:name="com.skedgo.tripkit.ui.locationpointer.LocationPointerFragment"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+        </FrameLayout>
+
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+</layout>

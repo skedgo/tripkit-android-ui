@@ -3,4 +3,5 @@
     <string name="lbl_features">Features:</string>
     <string name="feature_autocompleter">Autocompleter</string>
     <string name="lbl_location_search">Location Search</string>
+    <string name="lbl_tripkit_map">TripKit Map</string>
 </resources>

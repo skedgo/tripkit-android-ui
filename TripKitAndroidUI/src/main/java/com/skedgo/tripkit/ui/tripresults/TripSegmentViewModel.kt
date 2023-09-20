@@ -10,6 +10,7 @@ import android.text.TextUtils
 import android.text.style.DynamicDrawableSpan
 import android.text.style.ImageSpan
 import android.text.style.RelativeSizeSpan
+import androidx.core.content.ContextCompat
 import androidx.databinding.ObservableBoolean
 import androidx.databinding.ObservableField
 import com.google.android.gms.common.util.CollectionUtils
@@ -68,7 +69,7 @@ class TripSegmentViewModel @Inject constructor(private val context: Context, pri
                     .map { bitmap -> BitmapDrawable(context.resources, bitmap) }
         }
         Observable
-                .just(context.resources.getDrawable(segment.darkVehicleIconWithNoRealtimeChecking))
+                .just(ContextCompat.getDrawable(context, segment.darkVehicleIconWithNoRealtimeChecking))
                 .concatWith(remoteIcon)
                 .doOnError { e -> Timber.e(e) }
                 .flatMap { drawable ->
@@ -140,7 +141,7 @@ class TripSegmentViewModel @Inject constructor(private val context: Context, pri
             R.drawable.ic_alert_red_overlay
         else
             R.drawable.ic_alert_yellow_overlay
-        return context.resources.getDrawable(iconRes)
+        return ContextCompat.getDrawable(context, iconRes) ?: context.resources.getDrawable(iconRes)
     }
 
     internal fun shouldAttachAlertIconToSubtitle(segment: TripSegment): Boolean {

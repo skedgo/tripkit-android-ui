@@ -9,7 +9,15 @@ import io.reactivex.Completable
 import io.reactivex.Single
 
 interface ServiceRepository {
-  fun fetchServices(service: TimetableEntry, stop: ScheduledStop): Completable
+    fun fetchServices(service: TimetableEntry, stop: ScheduledStop): Completable
 
-  fun loadServices(service: TimetableEntry, stop: ScheduledStop): Single<Pair<List<StopInfo>, List<ServiceLineOverlayTask.ServiceLineInfo>>>
+    fun fetchAndLoadServices(
+        service: TimetableEntry,
+        stop: ScheduledStop
+    ): Single<Pair<List<StopInfo>, List<ServiceLineOverlayTask.ServiceLineInfo>>>
+
+    fun loadServices(
+        service: TimetableEntry,
+        stop: ScheduledStop
+    ): Single<Pair<List<StopInfo>, List<ServiceLineOverlayTask.ServiceLineInfo>>>
 }

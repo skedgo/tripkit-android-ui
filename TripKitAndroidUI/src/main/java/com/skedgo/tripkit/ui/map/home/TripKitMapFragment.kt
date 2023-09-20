@@ -784,7 +784,7 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
     //0 = from/origin, 1 = to/destination
     fun getMarkerBitmap(type: Int): Bitmap {
 
-        val builder = BearingMarkerIconBuilder(resources, null)
+        val builder = BearingMarkerIconBuilder(requireContext(), null)
             .hasBearing(false)
             .vehicleIconScale(ModeInfo.MAP_LIST_SIZE_RATIO)
             .baseIcon(R.drawable.ic_map_pin_base)
@@ -793,7 +793,7 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
 
         return if (type == 0) {
             builder.apply {
-                VehicleDrawables.createLightDrawable(resources, R.drawable.ic_location_on)?.let {
+                VehicleDrawables.createLightDrawable(requireContext(), R.drawable.ic_location_on)?.let {
                     vehicleIcon(it)
                 }
                 pointerIcon(R.drawable.ic_map_pin_departure)
@@ -801,7 +801,7 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
 
         } else {
             builder.apply {
-                VehicleDrawables.createLightDrawable(resources, R.drawable.ic_location_on)?.let {
+                VehicleDrawables.createLightDrawable(requireContext(), R.drawable.ic_location_on)?.let {
                     vehicleIcon(it)
                 }
                 pointerIcon(R.drawable.ic_map_pin_arrival_small)
@@ -875,7 +875,7 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
                 .visible(false)).apply {
             alpha = 0F
         }
-        val poiLocationInfoWindowAdapter = POILocationInfoWindowAdapter(context!!)
+        val poiLocationInfoWindowAdapter = POILocationInfoWindowAdapter(requireContext())
         poiMarkers.setInfoWindowAdapter(poiLocationInfoWindowAdapter)
         map.setOnInfoWindowCloseListener { marker: Marker ->
             if (marker.tag is IMapPoiLocation) {
@@ -934,6 +934,10 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
         if (show) {
             loadMarkers()
         }
+    }
+
+    fun moveToCameraPosition(cameraPosition: CameraPosition) {
+        map?.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition))
     }
 
     companion object {

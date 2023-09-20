@@ -6,5 +6,8 @@ import javax.inject.Inject
 class BaseUrlAdapter  constructor(
     private val developerPreferenceRepository: DeveloperPreferenceRepository
 ) : Callable<String> {
-  override fun call(): String = developerPreferenceRepository.server
+  override fun call(): String {
+      val url = developerPreferenceRepository.server
+      return url
+  }
 }

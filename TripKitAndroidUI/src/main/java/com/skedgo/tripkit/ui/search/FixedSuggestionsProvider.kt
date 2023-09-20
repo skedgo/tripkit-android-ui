@@ -1,8 +1,6 @@
 package com.skedgo.tripkit.ui.search
 
 import android.content.Context
-import android.graphics.drawable.Drawable
-import androidx.annotation.ColorRes
 import androidx.core.content.ContextCompat
 import com.skedgo.tripkit.common.model.Location
 import com.skedgo.tripkit.common.model.Region
@@ -14,6 +12,13 @@ interface FixedSuggestionsProvider {
     fun locationsToSuggestion(context: Context, locations: List<Location>, iconProvider: LegacyLocationSearchIconProvider): List<SearchSuggestion>
     fun citiesToSuggestion(context: Context, locations: List<Region.City>, iconProvider: LegacyLocationSearchIconProvider): List<SearchSuggestion>
     fun specificSuggestions(context: Context, suggestionTypes: List<DefaultFixedSuggestionType>, iconProvider: LocationSearchIconProvider): List<SearchSuggestion>
+}
+
+enum class FixedSuggestions {
+    CURRENT_LOCATION,
+    CHOOSE_ON_MAP,
+    HOME,
+    WORK
 }
 
 enum class DefaultFixedSuggestionType {

@@ -3,6 +3,7 @@ package com.skedgo.tripkit.ui.core.module
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.skedgo.tripkit.ui.routing.autocompleter.RouteAutocompleteViewModel
+import com.skedgo.tripkit.ui.trippreview.TripPreviewPagerViewModel
 import dagger.Binds
 import dagger.Module
 import dagger.multibindings.IntoMap
@@ -20,4 +21,8 @@ abstract class ViewModelModule {
     @ViewModelKey(RouteAutocompleteViewModel::class)
     internal abstract fun bindRouteAutocompleteViewModel(viewModel: RouteAutocompleteViewModel): ViewModel
 
+    @Binds
+    @IntoMap
+    @ViewModelKey(TripPreviewPagerViewModel::class)
+    internal abstract fun bindTripPreviewPagerViewModel(viewModel: TripPreviewPagerViewModel): ViewModel
 }

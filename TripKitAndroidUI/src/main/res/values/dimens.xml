@@ -35,6 +35,8 @@
     <dimen name="icon_large">64dp</dimen>
     <dimen name="icon_huge">120dp</dimen>
 
+    <dimen name="fab_icon_my_location">40dp</dimen>
+
     <dimen name="icon_increment_action">18dp</dimen>
 
     <dimen name="font_size_small">10sp</dimen>
@@ -42,4 +44,6 @@
     <dimen name="font_size_medium">16sp</dimen>
     <dimen name="font_size_large">20sp</dimen>
     <dimen name="font_size_xlarge">28sp</dimen>
+
+    <dimen name="bottom_sheet_peek_height">120dp</dimen>
 </resources>

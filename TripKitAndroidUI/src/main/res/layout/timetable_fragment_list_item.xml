@@ -18,7 +18,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:alpha="@{viewModel.alpha}"
-            android:background="?android:attr/selectableItemBackground"
             android:descendantFocusability="blocksDescendants"
             android:paddingStart="16dp"
             android:paddingTop="12dp"
@@ -148,13 +147,14 @@
                 tools:text="Footer" />
 
             <ImageView
-                android:layout_width="@dimen/time_label_height"
-                android:layout_height="@dimen/time_label_height"
+                android:layout_width="@dimen/icon_medium"
+                android:layout_height="@dimen/icon_medium"
                 android:onClick="@{() -> viewModel.onItemClick.perform()}"
-                android:padding="@dimen/shadow_height"
+                android:padding="@dimen/spacing_small"
                 android:src="@drawable/chevron_right"
-                android:tint="@color/colorPrimary"
+                app:tint="@color/colorPrimary"
                 app:addRtlSupport="@{true}"
+                android:background="?android:attr/selectableItemBackground"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent" />
         </androidx.constraintlayout.widget.ConstraintLayout>

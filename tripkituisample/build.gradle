@@ -1,6 +1,7 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
+//apply plugin: 'com.google.android.libraries.mapsplatform.secrets-gradle-plugin'
 
 android {
     compileSdkVersion versions.compileSdkVersion
@@ -25,9 +26,16 @@ android {
 
         release {
             storeFile file("keystores/debug.keystore")
+            storePassword "android"
+            keyAlias "androiddebugkey"
+            keyPassword "android"
         }
     }
-
+    buildTypes {
+        release {
+            signingConfig signingConfigs.release
+        }
+    }
     lintOptions { abortOnError false }
     compileOptions {
         coreLibraryDesugaringEnabled true
@@ -42,6 +50,7 @@ android {
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    implementation 'com.google.android.material:material:1.4.0'
     coreLibraryDesugaring libs.desugar
 
     implementation project(":TripKitAndroid")
@@ -62,6 +71,8 @@ dependencies {
     implementation libs.dagger
     implementation libs.daggerAndroid
     implementation libs.daggerAndroidSupport
+    kapt libs.daggerAndroidProcessor
+    kapt libs.daggerCompiler
     implementation libs.playServicesMaps
     implementation libs.kotlin
     implementation libs.coroutinesCore
@@ -92,6 +103,9 @@ dependencies {
     implementation libs.bindingCollectionAdapterPaging
     implementation libs.paging
     implementation libs.preferences
+
+    implementation libs.javaxAnnotation
+    compileOnly 'com.github.pengrad:jdk9-deps:1.0'
 
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'

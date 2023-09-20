@@ -14,6 +14,7 @@ import android.widget.Toast
 import androidx.appcompat.widget.SearchView
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
 import com.skedgo.tripkit.common.model.Location
@@ -104,7 +105,7 @@ class LocationSearchFragment : BaseTripKitFragment() {
     }
 
     private fun saveLocationToHistory(location: Location) {
-        if (location.name != getString(R.string.home) && location.name != getString(R.string.work)) {
+        if (location.name != getString(R.string.home) && location.name != getString(R.string.work) && !location.isFavourite) {
             locationHistoryRepository.saveLocationsToHistory(
                 listOf(location)
             ).observeOn(Schedulers.io())
@@ -241,6 +242,16 @@ class LocationSearchFragment : BaseTripKitFragment() {
         searchView = binding.searchLayout.searchView
 
         binding.resultView.addItemDecoration(buildItemDecoration())
+        binding.resultView.addOnScrollListener(object: RecyclerView.OnScrollListener() {
+            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                super.onScrollStateChanged(recyclerView, newState)
+                if(newState == RecyclerView.SCROLL_STATE_DRAGGING) {
+                    defocusAndHideKeyboard(
+                        requireContext(), requireActivity().currentFocus ?: view?.rootView
+                    )
+                }
+            }
+        })
 
         initSearchView(binding.searchLayout.searchView)
 
@@ -403,6 +414,14 @@ class LocationSearchFragment : BaseTripKitFragment() {
             binding.resultView.scrollToPosition(0)
         }
         viewModel.scrollListToTop.set(false)
+    }
+
+    fun unregisterListeners() {
+        locationSelectedListener = null
+        citySuggestionSelectedListener = null
+        onAttachFragmentListener = null
+        fixedSuggestionSelectedListener = null
+        onInfoSelectedListener = null
     }
 
     /**

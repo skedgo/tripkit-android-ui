@@ -62,4 +62,9 @@ open class BaseTripKitFragment : Fragment() {
         loadingDialog.dismiss()
         super.onDestroyView()
     }
+
+    private fun clearListeners() {
+        tripPreviewPagerListener = null
+        onCloseButtonListener = null
+    }
 }
