@@ -37,6 +37,7 @@ import com.skedgo.tripkit.routing.getSummarySegments
 import com.skedgo.tripkit.routingstatus.RoutingStatus
 import com.skedgo.tripkit.routingstatus.RoutingStatusRepository
 import com.skedgo.tripkit.routingstatus.Status
+import com.skedgo.tripkit.ui.BuildConfig
 import com.skedgo.tripkit.ui.model.UserMode
 import com.skedgo.tripkit.ui.routing.SimpleTransportModeFilter
 import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButtonContainer
@@ -253,9 +254,19 @@ class TripResultListViewModel @Inject constructor(
                         routingTimeViewModelMapper.toText(timeTag.toRoutingTime(dateTimeZone))
                             .toObservable()
                     }.observeOn(AndroidSchedulers.mainThread())
-                        .subscribe { str ->
+                        .subscribe({ str ->
                             timeLabel.set(str)
-                        }.autoClear()
+                        }, { error ->
+                            isError.set(true)
+                            if (error.message.isNullOrBlank()) {
+                                onError.accept(context.getString(R.string.unknown_error))
+                            } else {
+                                onError.accept(error.message)
+                            }
+                            if(BuildConfig.DEBUG) {
+                                error.printStackTrace()
+                            }
+                        }).autoClear()
 
 
                 }
