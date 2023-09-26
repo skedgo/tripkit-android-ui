@@ -253,9 +253,17 @@ class TripResultListViewModel @Inject constructor(
                         routingTimeViewModelMapper.toText(timeTag.toRoutingTime(dateTimeZone))
                             .toObservable()
                     }.observeOn(AndroidSchedulers.mainThread())
-                        .subscribe { str ->
+                        .subscribe({ str ->
                             timeLabel.set(str)
-                        }.autoClear()
+                        }, { error ->
+                            isError.set(true)
+                            if (error.message.isNullOrBlank()) {
+                                onError.accept(context.getString(R.string.unknown_error))
+                            } else {
+                                onError.accept(error.message)
+                            }
+                            Timber.e(error, "An error in routing occurred ${error.message}")
+                        }).autoClear()
 
 
                 }
