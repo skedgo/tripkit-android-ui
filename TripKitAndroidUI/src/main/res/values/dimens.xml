@@ -56,4 +56,6 @@
     <dimen name="segment_chart_height_2">200dp</dimen>
     <dimen name="segment_chart_height_3">300dp</dimen>
     <dimen name="segment_chart_height_4">400dp</dimen>
+
+    <dimen name="cardview_corner_radius">12dp</dimen>
 </resources>
