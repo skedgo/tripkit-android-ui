@@ -50,33 +50,35 @@ class TripSegmentCustomRecyclerViewAdapter<T> : BindingRecyclerViewAdapter<T>() 
             item.roadTagChartItems.observe(binding.lifecycleOwner!!) { chartItems ->
                 with(binding as TripSegmentBinding) {
 
-                    val chartHeight =
-                        context.resources.getDimensionPixelSize(R.dimen.segment_chart_height_1) /*when {
-                        chartItems.size < 3 -> {
-                            context.resources.getDimensionPixelSize(R.dimen.segment_chart_height_1)
-                        }
-                        chartItems.size < 7 -> {
-                            context.resources.getDimensionPixelSize(R.dimen.segment_chart_height_2)
-                        }
-                        chartItems.size < 11 -> {
-                            context.resources.getDimensionPixelSize(R.dimen.segment_chart_height_3)
-                        }
-                        else -> {
-                            context.resources.getDimensionPixelSize(R.dimen.segment_chart_height_4)
-                        }
-                    }*/
+                    val max = chartItems.maxOf { it.length }.roundToNearestHundred()
+                    val middle = max / 2
+                    val items = chartItems.map {
+                        it.maxProgress = max
+                        it
+                    }
 
+                    RoadTagChartAdapter().let { adapter ->
+                        binding.layoutRoadTags.rvRoadTagsChart.adapter = adapter
+                        adapter.collection = listOf(
+                            RoadTagChart(
+                                max = max,
+                                middle = middle,
+                                items = items
+                            )
+                        )
+                    }
+
+                    /*
                     val layoutParams = binding.layoutRoadTags.parent.layoutParams
                     layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT
                     binding.layoutRoadTags.parent.layoutParams = layoutParams
 
                     this.layoutRoadTags.chartRoadTags.let { horizontalBarChart ->
 
-
                         //val labels = mutableListOf<String>()
                         //labels.addAll(listOf("One", "", "Two", "", "Three", "", "Four"))
 
-                        /*
+                        *//*
                         val entries = ArrayList<BarEntry>()
                         entries.add(BarEntry(0f, 4f))
                         entries.add(BarEntry(2f, 7f))
@@ -95,8 +97,8 @@ class TripSegmentCustomRecyclerViewAdapter<T> : BindingRecyclerViewAdapter<T>() 
                         dataSets.add(dataSet2)
 
                         val data = BarData(dataSets)
-                        */
-
+                        *//*
+                        *//*
                         val labels = chartItems.generateLabels()
                         val axisLeftGranularity = chartItems.maxOf {
                             it.length
@@ -125,7 +127,9 @@ class TripSegmentCustomRecyclerViewAdapter<T> : BindingRecyclerViewAdapter<T>() 
                         horizontalBarChart.legend.isEnabled = false
                         horizontalBarChart.zoomOut()
                         horizontalBarChart.zoomOut()
+                        *//*
                     }
+                    */
                 }
             }
         }
