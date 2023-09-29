@@ -91,6 +91,7 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
     private var tripGroupId: String? = null
     private var tripId: Long? = null
     var actionButtonHandlerFactory: ActionButtonHandlerFactory? = null
+    private var tripResultMapContributor: TripResultMapContributor? = null
 
     override fun onAttach(context: Context) {
         TripKitUI.getInstance().tripDetailsComponent().inject(this)
@@ -124,6 +125,7 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
         val showCloseButton = arguments?.getBoolean(ARG_SHOW_CLOSE_BUTTON, false) ?: false
         viewModel.showCloseButton.set(showCloseButton)
         binding.closeButton.setOnClickListener(onCloseButtonListener)
+
         binding.itemsView.isNestedScrollingEnabled = true
 
         tripGroupId?.let {
@@ -175,14 +177,15 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
                     val dialog = TripSegmentAlertsSheet.newInstance(list)
                     dialog.show(requireFragmentManager(), "alerts_sheet")
                 }.addTo(autoDisposable)
-//        viewModel.apply {
-//            observe(showWikiwayFinder) {
-//                if (!it.isNullOrEmpty()) {
-//                    WayWikiFinder.showRouteActivity(requireContext(), it)
-//                    viewModel.setShowWikiwayFinder(emptyList())
-//                }
-//            }
-//        }
+        viewModel.mapTiles
+            .observe(viewLifecycleOwner) {
+                if(it != null && it.urlTemplates.isNotEmpty()) {
+                    tripResultMapContributor?.setTileProvider(
+                        requireContext(),
+                        it.urlTemplates
+                    )
+                }
+            }
     }
 
     private fun startAndLogActivity(tripSegment: TripSegment, intent: Intent) {
@@ -364,6 +367,7 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
         private var buttonConfigurator: TripKitButtonConfigurator? = null
         private var showCloseButton = false
         private var actionButtonHandlerFactory: ActionButtonHandlerFactory? = null
+        private var tripResultMapContributor: TripResultMapContributor? = null
         fun withTripGroupId(tripGroupId: String): Builder {
             this.tripGroupId = tripGroupId
             return this
@@ -378,6 +382,11 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
 
         fun withActionButtonHandlerFactory(factory: ActionButtonHandlerFactory?): Builder {
             this.actionButtonHandlerFactory = factory
+            return this
+        }
+
+        fun withMapContributor(contributor: TripResultMapContributor): Builder {
+            this.tripResultMapContributor = contributor
             return this
         }
 
@@ -399,6 +408,7 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
             fragment.tripGroupId = tripGroupId
             fragment.tripId = tripId ?: -1
             fragment.actionButtonHandlerFactory = actionButtonHandlerFactory
+            fragment.tripResultMapContributor = tripResultMapContributor
             return fragment
 
         }

@@ -1,18 +1,17 @@
 package com.skedgo.tripkit.ui.tripresult
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
 import android.graphics.PorterDuff
 import android.graphics.Typeface.BOLD
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
-import android.location.Location
 import android.text.Spannable
 import android.text.SpannableString
 import android.text.style.ForegroundColorSpan
 import android.text.style.StrikethroughSpan
 import android.text.style.StyleSpan
-import android.util.Log
 import android.view.View
 import androidx.core.content.ContextCompat
 import androidx.databinding.ObservableBoolean
@@ -20,12 +19,14 @@ import androidx.databinding.ObservableField
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.jakewharton.rxrelay2.BehaviorRelay
+import com.skedgo.tripkit.common.model.ImmutableStreet
 import com.skedgo.tripkit.common.model.RealtimeAlert
-import com.skedgo.tripkit.common.model.TransportMode
 import com.skedgo.tripkit.datetime.PrintTime
-import com.skedgo.tripkit.location.UserGeoPointRepository
+import com.skedgo.tripkit.routing.RoadTag
 import com.skedgo.tripkit.routing.SegmentType
 import com.skedgo.tripkit.routing.TripSegment
+import com.skedgo.tripkit.routing.getRoadSafetyColorPair
+import com.skedgo.tripkit.routing.getRoadTagLabel
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.TripKitUI
 import com.skedgo.tripkit.ui.core.RxViewModel
@@ -39,12 +40,12 @@ import timber.log.Timber
 import javax.inject.Inject
 
 
-class
-TripSegmentItemViewModel @Inject internal constructor(
-        private val context: Context,
-        private val getTransportIconTintStrategy: GetTransportIconTintStrategy,
-        private val tripSegmentHelper: TripSegmentHelper,
-        private val printTime: PrintTime
+@SuppressLint("StaticFieldLeak")
+class TripSegmentItemViewModel @Inject internal constructor(
+    private val context: Context,
+    private val getTransportIconTintStrategy: GetTransportIconTintStrategy,
+    private val tripSegmentHelper: TripSegmentHelper,
+    private val printTime: PrintTime
 ) : RxViewModel() {
     enum class SegmentViewType {
         TERMINAL,
@@ -89,48 +90,22 @@ TripSegmentItemViewModel @Inject internal constructor(
     val externalAction = ObservableField<String>()
     val externalActionClicked = BehaviorRelay.create<TripSegment>()
 
-//    fun setWayWikiSegments(previousPTSegment: TripSegment, nextPTSegment: TripSegment) {
-//        if (!previousPTSegment.endStopCode.isNullOrBlank() && !nextPTSegment.startStopCode.isNullOrBlank()) {
-//
-//            val startArea = WayWikiFinder.getAreaWithGTFSCode(previousPTSegment.endStopCode)
-//            val endArea = WayWikiFinder.getAreaWithGTFSCode(nextPTSegment.startStopCode)
-//
-//            if (startArea != null || endArea != null) {
-//                val area = startArea ?: endArea
-//
-//                area?.apply {
-//                    WayWikiFinder.setCurrentArea(this)
-//                    WayWikiFinder.checkDownloadAreaPoints(this) { area ->
-//
-//                        val fromPoints = area.getPointWithGTFSCode(previousPTSegment.endStopCode)
-//                        val toPoints = area.getPointWithGTFSCode(nextPTSegment.startStopCode)
-//
-//                        if (fromPoints.isNotEmpty() && toPoints.isNotEmpty()) {
-//
-//                            WayWikiFinder.getRoute(
-//                                    context,
-//                                    fromPoints.firstOrNull(),
-//                                    toPoints
-//                            ) { routePoints ->
-//                                _wikiWayFinderRoutes.value = routePoints
-//                            }
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//    }
+    private val _roadTagsCharItems = MutableLiveData<List<RoadTagChartItem>>()
+    val roadTagChartItems: LiveData<List<RoadTagChartItem>> = _roadTagsCharItems
 
-    fun setupSegment(viewType: SegmentViewType,
-                     title: String,
-                     description: String? = null,
-                     startTime: String? = null,
-                     endTime: String? = null,
-                     delay: Long = 0,
-                     hasRealtime: Boolean = false,
-                     lineColor: Int = Color.TRANSPARENT,
-                     topConnectionColor: Int = lineColor,
-                     bottomConnectionColor: Int = lineColor) {
+    //TODO break this big function into small functions
+    fun setupSegment(
+        viewType: SegmentViewType,
+        title: String,
+        description: String? = null,
+        startTime: String? = null,
+        endTime: String? = null,
+        delay: Long = 0,
+        hasRealtime: Boolean = false,
+        lineColor: Int = Color.TRANSPARENT,
+        topConnectionColor: Int = lineColor,
+        bottomConnectionColor: Int = lineColor
+    ) {
         var tintWhite = false
         tripSegment?.let {
             this.title.set(title)
@@ -139,7 +114,8 @@ TripSegmentItemViewModel @Inject internal constructor(
             this.showDescription.set(description != null)
 
             if ((it.correctItemType() == ITEM_EXTERNAL_BOOKING && viewType == SegmentViewType.MOVING)
-                    || (it.correctItemType() == ITEM_NEARBY && it.booking?.externalActions?.isNotEmpty() == true)) {
+                || (it.correctItemType() == ITEM_NEARBY && it.booking?.externalActions?.isNotEmpty() == true)
+            ) {
                 externalAction.set(it.booking!!.title)
             }
 
@@ -150,27 +126,45 @@ TripSegmentItemViewModel @Inject internal constructor(
                 // Similarly, we do the same in red when a service is late.
 
                 val startTimeSpannable = SpannableString(startTime)
-                startTimeSpannable.setSpan(StyleSpan(BOLD),
-                        0,
-                        startTimeSpannable.length,
-                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+                startTimeSpannable.setSpan(
+                    StyleSpan(BOLD),
+                    0,
+                    startTimeSpannable.length,
+                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                )
 
                 if (delay > 0) { // Late
-                    startTimeSpannable.setSpan(ForegroundColorSpan(ContextCompat.getColor(context, R.color.tripKitError)),
-                            0,
-                            startTimeSpannable.length,
-                            Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+                    startTimeSpannable.setSpan(
+                        ForegroundColorSpan(ContextCompat.getColor(context, R.color.tripKitError)),
+                        0,
+                        startTimeSpannable.length,
+                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                    )
 
                 } else if (delay < 0) { // Early
-                    startTimeSpannable.setSpan(ForegroundColorSpan(ContextCompat.getColor(context, R.color.tripKitWarning)),
-                            0,
-                            startTimeSpannable.length,
-                            Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+                    startTimeSpannable.setSpan(
+                        ForegroundColorSpan(
+                            ContextCompat.getColor(
+                                context,
+                                R.color.tripKitWarning
+                            )
+                        ),
+                        0,
+                        startTimeSpannable.length,
+                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                    )
                 } else { // On time
-                    startTimeSpannable.setSpan(ForegroundColorSpan(ContextCompat.getColor(context, R.color.tripKitSuccess)),
-                            0,
-                            startTimeSpannable.length,
-                            Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+                    startTimeSpannable.setSpan(
+                        ForegroundColorSpan(
+                            ContextCompat.getColor(
+                                context,
+                                R.color.tripKitSuccess
+                            )
+                        ),
+                        0,
+                        startTimeSpannable.length,
+                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                    )
                 }
                 this.startTime.set(startTimeSpannable)
                 this.showStartTime.set(true)
@@ -179,10 +173,12 @@ TripSegmentItemViewModel @Inject internal constructor(
                     // This is not the end time, but rather the timetable time for realtime services. It is shown
                     // crossed out.
                     val endTimeSpannable = SpannableString(endTime)
-                    endTimeSpannable.setSpan(StrikethroughSpan(),
-                            0,
-                            endTimeSpannable.length,
-                            Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+                    endTimeSpannable.setSpan(
+                        StrikethroughSpan(),
+                        0,
+                        endTimeSpannable.length,
+                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                    )
                     this.endTime.set(endTimeSpannable)
                     this.showEndTime.set(true)
                 }
@@ -204,12 +200,18 @@ TripSegmentItemViewModel @Inject internal constructor(
             // Those STATIONARY_BRIDGE views set the lineColor to transparent and just use a connection color, so
             // we also handle the special case of a TERMINAL being the last segment.
             if (lineColor != Color.TRANSPARENT
-                    && viewType != SegmentViewType.TERMINAL /* Don't show the circle background when it's a terminal */) {
-                tintWhite = if (it.modeInfo?.remoteIconIsBranding != null && it.modeInfo?.remoteIconIsBranding!!
-                        && it.modeInfo?.remoteIconName != null && it.modeInfo?.remoteIconName!!.contains("neuron")) {
-                    false
-                } else !(it.modeInfo?.remoteIconIsBranding != null && it.modeInfo?.remoteIconIsBranding!!
-                        && it.modeInfo?.remoteIconName != null && it.modeInfo?.remoteIconName!!.contains("lime"))
+                && viewType != SegmentViewType.TERMINAL /* Don't show the circle background when it's a terminal */) {
+                tintWhite =
+                    if (it.modeInfo?.remoteIconIsBranding != null && it.modeInfo?.remoteIconIsBranding!!
+                        && it.modeInfo?.remoteIconName != null && it.modeInfo?.remoteIconName!!.contains(
+                            "neuron"
+                        )
+                    ) {
+                        false
+                    } else !(it.modeInfo?.remoteIconIsBranding != null && it.modeInfo?.remoteIconIsBranding!!
+                            && it.modeInfo?.remoteIconName != null && it.modeInfo?.remoteIconName!!.contains(
+                        "lime"
+                    ))
                 backgroundCircleTint.set(lineColor)
                 showBackgroundCircle.set(true)
             }
@@ -272,6 +274,48 @@ TripSegmentItemViewModel @Inject internal constructor(
         }
     }
 
+    fun generateRoadTags() {
+        val roadTagChartItems = mutableListOf<RoadTagChartItem>()
+        tripSegment?.streets?.filter { !it.roadTags().isNullOrEmpty() }
+            ?.flatMap { street ->
+                street.roadTags()!!.map { roadTag ->
+                    val newStreet = ImmutableStreet.builder()
+                        .name(street.name())
+                        .metres(street.metres())
+                        .encodedWaypoints(street.encodedWaypoints())
+                        .safe(street.safe())
+                        .dismount(street.dismount())
+                        .roadTags(listOf(roadTag))
+                        .build()
+                    newStreet
+                }
+            }
+            ?.groupBy { it.roadTags() }
+            ?.mapValues { entry ->
+                entry.key?.firstOrNull()?.let {
+                    val roadTag = RoadTag.valueOf(it.replace("-","_"))
+                    val street = entry.value
+                    val colorPair = roadTag.getRoadSafetyColorPair()
+                    val color = if(colorPair.second) {
+                        ContextCompat.getColor(context, colorPair.first)
+                    } else {
+                        colorPair.first
+                    }
+                    roadTagChartItems.add(
+                        RoadTagChartItem(
+                            label = roadTag.getRoadTagLabel(),
+                            length = street.sumOf { it.metres().toInt() },
+                            color = color
+                        )
+                    )
+                }
+            }
+
+        if(roadTagChartItems.isNotEmpty()) {
+            _roadTagsCharItems.postValue(roadTagChartItems)
+        }
+    }
+
     private fun serviceColor(): Int {
         tripSegment?.serviceColor?.let {
             return when (it.color) {
@@ -300,27 +344,28 @@ TripSegmentItemViewModel @Inject internal constructor(
             if (segment.modeInfo == null || segment.modeInfo!!.modeCompat == null) {
                 icon.set(null)
             } else {
-                val url = tripSegmentHelper.getIconUrlForModeInfo(context.resources, segment.modeInfo)
+                val url =
+                    tripSegmentHelper.getIconUrlForModeInfo(context.resources, segment.modeInfo)
                 var remoteIcon = Observable.empty<Drawable>()
                 if (url != null) {
                     remoteIcon = TripKitUI.getInstance().picasso().fetchAsync(url).toObservable()
-                            .map { bitmap -> BitmapDrawable(context.resources, bitmap) }
+                        .map { bitmap -> BitmapDrawable(context.resources, bitmap) }
                 }
                 Observable
-                        .just(ContextCompat.getDrawable(context, segment.darkVehicleIcon))
-                        .concatWith(remoteIcon)
-                        .map {
-                            if (tintWhite) {
-                                it.tint(Color.WHITE)
-                            } else {
-                                it
-                            }
+                    .just(ContextCompat.getDrawable(context, segment.darkVehicleIcon))
+                    .concatWith(remoteIcon)
+                    .map {
+                        if (tintWhite) {
+                            it.tint(Color.WHITE)
+                        } else {
+                            it
                         }
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe({ drawable:
-                                     Drawable ->
-                            icon.set(drawable)
-                        }, { e -> Timber.e(e) }).autoClear()
+                    }
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe({ drawable:
+                                 Drawable ->
+                        icon.set(drawable)
+                    }, { e -> Timber.e(e) }).autoClear()
 
             }
         }
