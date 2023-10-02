@@ -20,7 +20,7 @@
             android:id="@+id/tvMax"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@{String.valueOf(item.max) + `m`}"
+            android:text="@{item.getMaxDistance()}"
             app:layout_constraintEnd_toEndOf="@+id/vTopDivider"
             app:layout_constraintTop_toTopOf="parent"
             tools:text="100" />
@@ -29,7 +29,7 @@
             android:id="@+id/tvMiddle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@{String.valueOf(item.middle) + `m`}"
+            android:text="@{item.getMiddleDistance()}"
             app:layout_constraintEnd_toStartOf="@+id/tvMax"
             app:layout_constraintHorizontal_bias="0.7"
             app:layout_constraintStart_toEndOf="@+id/tvStart"

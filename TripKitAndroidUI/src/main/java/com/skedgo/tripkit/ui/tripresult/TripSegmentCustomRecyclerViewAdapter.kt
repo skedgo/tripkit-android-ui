@@ -55,7 +55,7 @@ class TripSegmentCustomRecyclerViewAdapter<T> : BindingRecyclerViewAdapter<T>() 
                     val items = chartItems.map {
                         it.maxProgress = max
                         it
-                    }
+                    }.sortedBy { it.index }
 
                     RoadTagChartAdapter().let { adapter ->
                         binding.layoutRoadTags.rvRoadTagsChart.adapter = adapter

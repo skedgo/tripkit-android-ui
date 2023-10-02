@@ -9,5 +9,6 @@ data class RoadTagChartItem(
     val color: Int,
     val textColor: Int = Color.WHITE,
     var progress: Int = 0,
-    var maxProgress: Int = 0
+    var maxProgress: Int = 0,
+    var index: Int = 0
 )

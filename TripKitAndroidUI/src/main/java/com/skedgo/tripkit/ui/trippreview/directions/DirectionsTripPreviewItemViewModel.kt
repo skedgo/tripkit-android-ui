@@ -30,16 +30,17 @@ class DirectionsTripPreviewItemStepViewModel : ViewModel() {
 
     fun generateRoadTagItems(): List<RoadTagChartItem> {
         val result = mutableListOf<RoadTagChartItem>()
-        roadTags.forEach { roadTag ->
-            result.add(
-                RoadTagChartItem(
-                    label = roadTag.getRoadTagLabel(),
-                    length = 0,
-                    color = roadTag.getRoadSafetyColor(),
-                    textColor = roadTag.getTextColor()
+        roadTags.filter { it.getRoadTagLabel() != RoadTag.UNKNOWN.getRoadTagLabel() }
+            .forEach { roadTag ->
+                result.add(
+                    RoadTagChartItem(
+                        label = roadTag.getRoadTagLabel(),
+                        length = 0,
+                        color = roadTag.getRoadSafetyColor(),
+                        textColor = roadTag.getTextColor()
+                    )
                 )
-            )
-        }
+            }
         return result
     }
 }

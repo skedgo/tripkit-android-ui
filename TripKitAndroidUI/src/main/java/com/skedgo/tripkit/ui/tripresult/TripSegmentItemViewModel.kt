@@ -22,10 +22,12 @@ import com.jakewharton.rxrelay2.BehaviorRelay
 import com.skedgo.tripkit.common.model.ImmutableStreet
 import com.skedgo.tripkit.common.model.RealtimeAlert
 import com.skedgo.tripkit.datetime.PrintTime
-import com.skedgo.tripkit.routing.RoadTag
 import com.skedgo.tripkit.routing.SegmentType
 import com.skedgo.tripkit.routing.TripSegment
+import com.skedgo.tripkit.routing.getRoadSafetyColor
 import com.skedgo.tripkit.routing.getRoadSafetyColorPair
+import com.skedgo.tripkit.routing.getRoadSafetyIndex
+import com.skedgo.tripkit.routing.parseRoadTag
 import com.skedgo.tripkit.routing.getRoadTagLabel
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.TripKitUI
@@ -293,19 +295,14 @@ class TripSegmentItemViewModel @Inject internal constructor(
             ?.groupBy { it.roadTags() }
             ?.mapValues { entry ->
                 entry.key?.firstOrNull()?.let {
-                    val roadTag = RoadTag.valueOf(it.replace("-","_"))
+                    val roadTag = it.parseRoadTag()
                     val street = entry.value
-                    val colorPair = roadTag.getRoadSafetyColorPair()
-                    val color = if(colorPair.second) {
-                        ContextCompat.getColor(context, colorPair.first)
-                    } else {
-                        colorPair.first
-                    }
                     roadTagChartItems.add(
                         RoadTagChartItem(
                             label = roadTag.getRoadTagLabel(),
                             length = street.sumOf { it.metres().toInt() },
-                            color = color
+                            color = roadTag.getRoadSafetyColor(),
+                            index = roadTag.getRoadSafetyIndex()
                         )
                     )
                 }

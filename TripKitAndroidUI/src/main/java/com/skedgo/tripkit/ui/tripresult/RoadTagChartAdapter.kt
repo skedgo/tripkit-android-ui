@@ -7,6 +7,8 @@ import android.view.accessibility.AccessibilityNodeInfo
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.RecyclerView
+import com.skedgo.tripkit.routing.RoadTag
+import com.skedgo.tripkit.routing.getRoadTagLabel
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.databinding.ItemFakeGraphBinding
 import com.skedgo.tripkit.ui.databinding.ItemRoadTagLabelBinding
@@ -38,7 +40,7 @@ class RoadTagChartAdapter @Inject constructor() :
 
             RoadTagChartItemAdapter().let { adapter ->
                 rvRoadTags.adapter = adapter
-                adapter.collection= roadTagChart.items
+                adapter.collection = roadTagChart.items
             }
 
             executePendingBindings()

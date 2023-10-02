@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@android:id/background">
+        <shape android:shape="rectangle">
+            <corners android:radius="12dp" /> <!-- Adjust the radius to control the roundness -->
+            <solid android:color="#ffffff" /> <!-- Background color of the ProgressBar -->
+        </shape>
+    </item>
+    <item android:id="@android:id/progress">
+        <scale android:scaleWidth="100%">
+            <shape android:shape="rectangle">
+                <corners android:radius="12dp" /> <!-- Adjust the radius to match the background -->
+                <solid android:color="#00FF00" /> <!-- Progress color -->
+            </shape>
+        </scale>
+    </item>
+</layer-list>
