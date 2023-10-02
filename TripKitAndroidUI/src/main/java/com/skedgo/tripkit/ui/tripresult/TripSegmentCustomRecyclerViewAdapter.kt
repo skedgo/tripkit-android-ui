@@ -50,7 +50,10 @@ class TripSegmentCustomRecyclerViewAdapter<T> : BindingRecyclerViewAdapter<T>() 
             item.roadTagChartItems.observe(binding.lifecycleOwner!!) { chartItems ->
                 with(binding as TripSegmentBinding) {
 
-                    val max = chartItems.maxOf { it.length }.roundToNearestHundred()
+
+                    val segmentLength = item.tripSegment?.metres ?: chartItems.maxOf { it.length }
+                        .roundToNearestHundred()
+                    val max = segmentLength
                     val middle = max / 2
                     val items = chartItems.map {
                         it.maxProgress = max
