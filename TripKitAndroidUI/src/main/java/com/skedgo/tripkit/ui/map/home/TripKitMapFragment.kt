@@ -41,13 +41,18 @@ import com.skedgo.tripkit.ui.map.home.ViewPort.NotCloseEnough
 import com.skedgo.tripkit.ui.model.LocationTag
 import com.skedgo.tripkit.ui.tracking.EventTracker
 import com.skedgo.tripkit.ui.trip.options.SelectionType
+import com.skedgo.tripkit.ui.utils.APP_PREF_CLEAR_CAR_PODS_ONCE
+import com.skedgo.tripkit.ui.utils.APP_PREF_DEACTIVATED
+import com.skedgo.tripkit.ui.utils.KEY_APP_PREF
 import com.skedgo.tripkit.ui.utils.getVersionCode
+import com.skedgo.tripkit.ui.utils.isNetworkConnected
 import com.squareup.otto.Bus
 import dagger.Lazy
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.functions.Consumer
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.qr_scan_activity.*
+import retrofit2.HttpException
 import java.util.*
 import javax.inject.Inject
 
@@ -135,6 +140,7 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
     var pinnedOriginLocationOnClickMarker: Marker? = null
     var pinnedOriginLocation: Location? = null
     var pinLocationSelectedListener: ((Location, Int) -> Unit)? = null //for type, 0 = from and 1 = to
+    var appDeactivatedListener: (() -> Unit)? = null
 
     /**
      * When an icon in the map is clicked, an information window is displayed. When that information window
@@ -194,10 +200,13 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
         super.onCreate(savedInstanceState)
 
         //TODO remove on future releases(version > 75).
-        val prefs = requireContext().getSharedPreferences("app", Context.MODE_PRIVATE)
-        if (context?.getVersionCode() == 75L && !prefs.getBoolean("clear_car_pods_once", false)) {
+        val prefs = requireContext().getSharedPreferences(
+            KEY_APP_PREF,
+            Context.MODE_PRIVATE
+        )
+        if (context?.getVersionCode() == 75L && !prefs.getBoolean(APP_PREF_CLEAR_CAR_PODS_ONCE, false)) {
             viewModel.clearCarPods()
-            prefs.edit().putBoolean("clear_car_pods_once", true).apply()
+            prefs.edit().putBoolean(APP_PREF_CLEAR_CAR_PODS_ONCE, true).apply()
         }
 
         geocoder = AndroidGeocoder(requireContext())
@@ -252,6 +261,10 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
 
         loadMarkers()
 
+        if(!requireContext().isNetworkConnected() &&
+                preferences.getBoolean(APP_PREF_DEACTIVATED, false)) {
+            appDeactivatedListener?.invoke()
+        }
     }
 
     private fun loadMarkers() {
@@ -576,11 +589,25 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
 
     private fun initStuff() {
         regionService.getRegionsAsync()
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({ regions: List<Region> ->
-                    this.regions = regions
-                    whenSafeToUseMap(Consumer { m: GoogleMap -> showCities(m, regions) })
-                }) { error: Throwable? -> errorLogger.logError(error!!) }.addTo(autoDisposable)
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({ regions: List<Region> ->
+                preferences
+                    .edit().putBoolean(APP_PREF_DEACTIVATED, false)
+                    .apply()
+                this.regions = regions
+                whenSafeToUseMap { m: GoogleMap -> showCities(m, regions) }
+            }) { error: Throwable? ->
+                error?.let {
+                    it.printStackTrace()
+                    errorLogger.logError(it)
+                    if(error is HttpException && error.code() == 401) {
+                        preferences
+                            .edit().putBoolean(APP_PREF_DEACTIVATED, true)
+                            .apply()
+                        appDeactivatedListener?.invoke()
+                    }
+                }
+            }.addTo(autoDisposable)
     }
 
     private fun updateArrivalMarker(pinUpdate: PinUpdate) {
