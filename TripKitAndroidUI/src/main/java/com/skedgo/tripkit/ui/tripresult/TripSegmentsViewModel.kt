@@ -88,6 +88,11 @@ class TripSegmentsViewModel @Inject internal constructor(
     private var actionButtonHandler: ActionButtonHandler? = null
     private var trip: Trip? = null
 
+    val customAdapter = TripSegmentCustomRecyclerViewAdapter<Any>()
+
+    private val _mapTiles = MutableLiveData<TripKitMapTiles>()
+    val mapTiles: LiveData<TripKitMapTiles> = _mapTiles
+
 //    private val _showWikiwayFinder = MutableLiveData<List<Point>>()
 //    val showWikiwayFinder: LiveData<List<Point>> = _showWikiwayFinder
 
@@ -412,6 +417,9 @@ class TripSegmentsViewModel @Inject internal constructor(
             this.trip = trip
             val tripSegments = trip.segments
             segmentViewModels.clear()
+
+            _mapTiles.postValue(tripSegments.firstOrNull { it.mapTiles != null }?.mapTiles)
+
             tripSegments.forEachIndexed { index, segment ->
                 var previousSegment = tripSegments.elementAtOrNull(index - 1)
                 val nextSegment = tripSegments.elementAtOrNull(index + 1)
@@ -427,11 +435,7 @@ class TripSegmentsViewModel @Inject internal constructor(
 
                 viewModel.onClick.observable.subscribe {
                     it.tripSegment?.let { segment ->
-//                        if (it.wikiWayFinderRoutes.value?.isNotEmpty() == true) {
-//                            _showWikiwayFinder.value = it.wikiWayFinderRoutes.value
-//                        } else {
                         segmentClicked.accept(segment)
-//                        }
                     }
                 }.autoClear()
                 viewModel.tripSegment = segment

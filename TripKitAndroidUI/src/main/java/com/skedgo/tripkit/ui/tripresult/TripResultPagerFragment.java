@@ -225,7 +225,7 @@ public class TripResultPagerFragment extends BaseTripKitFragment implements View
         viewModel.onCreate(savedInstanceState);
         Long tripId = null;
         String groupId = null;
-        tripGroupsPagerAdapter = new TripGroupsPagerAdapter(getChildFragmentManager());
+        tripGroupsPagerAdapter = new TripGroupsPagerAdapter(getChildFragmentManager(), mapContributor);
 
         if (savedInstanceState == null) {
             if (args instanceof HasInitialTripGroupId) {
