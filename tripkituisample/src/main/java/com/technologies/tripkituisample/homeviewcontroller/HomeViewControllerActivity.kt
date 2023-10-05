@@ -36,15 +36,20 @@ class HomeViewControllerActivity : AppCompatActivity() {
                 containerId = R.id.homeFragment,
                 defaultLocation = LatLng(-27.470125, 153.021072),
                 actionButtonHandlerFactory = actionButtonHandlerFactory,
-                favoriteSuggestionProvider = favoriteProvider,
-                showMyLocationButtonWithoutPermission = false
-            ) {
-                if (it == 0) {
-                    binding.etSearch.visibility = View.VISIBLE
-                } else {
-                    binding.etSearch.visibility = View.GONE
+                favoriteSuggestionProvider = null,
+                showMyLocationButtonWithoutPermission = false,
+                bottomSheetVisibilityCallback = {
+                    if (it == 0) {
+                        binding.etSearch.visibility = View.VISIBLE
+                    } else {
+                        binding.etSearch.visibility = View.GONE
+                    }
+                },
+                onBackPressOnEmptyBottomSheetCallback = {
+                    it.remove()
+                    this@HomeViewControllerActivity.finish()
                 }
-            }
+            )
 
         binding.etSearch.setOnClickListener {
             homeControllerFragment.loadSearchCardFragment()

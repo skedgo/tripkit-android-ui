@@ -131,6 +131,8 @@ class TKUIHomeViewControllerFragment :
 
     private var showMyLocationButtonWithoutPermission = false
 
+    private var onBackPressOnEmptyBottomSheetCallback: ((OnBackPressedCallback) -> Unit)? = null
+
     /**
      * Listener for TKUILocationSearchViewControllerFragment actions
      */
@@ -213,11 +215,10 @@ class TKUIHomeViewControllerFragment :
                 override fun handleOnBackPressed() {
                     if (viewModel.state.value?.isChooseOnMap == true) {
                         viewModel.toggleChooseOnMap(false)
-                    } else if (bottomSheetFragment.childFragmentManager.backStackEntryCount > 1) {
+                    } else if (bottomSheetFragment.childFragmentManager.backStackEntryCount > 0) {
                         bottomSheetFragment.popActiveFragment()
                     } else {
-                        remove()
-                        activity?.onBackPressed()
+                        onBackPressOnEmptyBottomSheetCallback?.invoke(this)
                     }
                 }
             }
@@ -1075,6 +1076,7 @@ class TKUIHomeViewControllerFragment :
             actionButtonHandlerFactory: TKUIActionButtonHandlerFactory? = null,
             showMyLocationButtonWithoutPermission: Boolean = false,
             bottomSheetVisibilityCallback: ((Int) -> Unit)? = null,
+            onBackPressOnEmptyBottomSheetCallback: ((OnBackPressedCallback) -> Unit)? = null,
         ): TKUIHomeViewControllerFragment {
 
             ControllerDataProvider.favoriteProvider = favoriteSuggestionProvider
@@ -1085,6 +1087,7 @@ class TKUIHomeViewControllerFragment :
                     defaultLocation = defaultLocation,
                     bottomSheetVisibilityCallback = bottomSheetVisibilityCallback,
                     showMyLocationButtonWithoutPermission = showMyLocationButtonWithoutPermission,
+                    onBackPressOnEmptyBottomSheetCallback = onBackPressOnEmptyBottomSheetCallback,
                 )
 
             activity.supportFragmentManager
@@ -1100,24 +1103,30 @@ class TKUIHomeViewControllerFragment :
         }
 
         /**
-         * Create TKUIHomeViewControllerFragment instance
+         * Create [TKUIHomeViewControllerFragment] instance
          *
          * @param defaultLocation - to set map default location after it loads
-         * @param bottomSheetVisibilityCallback - Callback to detect if TKUIHomeViewControllerFragment
+         * @param bottomSheetVisibilityCallback - Callback to detect if [TKUIHomeViewControllerFragment]
          * bottom sheet is hidden (0) or visible (1)
          * @param showMyLocationButtonWithoutPermission - when true, show my location button even if
-         * Manifest.permission.ACCESS_FINE_LOCATION is not yet granted and permission request will be asked
+         * [Manifest.permission.ACCESS_FINE_LOCATION] is not yet granted and permission request will be asked
          * once the button is clicked.Will hide the button if false.
-         *
+         * @param onBackPressOnEmptyBottomSheetCallback - callback to be triggered when user clicked
+         * back button and [TKUIHomeViewControllerFragment]'s [TKUIHomeBottomSheetFragment] is empty so the action
+         * can be handled on the parent activity/fragment. Including [OnBackPressedCallback] in the callback
+         * for the parent to remove([OnBackPressedCallback.remove] or not (i.e. you want to close parent activity
+         * on backpress when [TKUIHomeBottomSheetFragment] is empty)
          */
         fun newInstance(
             defaultLocation: LatLng? = null,
             bottomSheetVisibilityCallback: ((Int) -> Unit)? = null,
-            showMyLocationButtonWithoutPermission: Boolean = false
+            showMyLocationButtonWithoutPermission: Boolean = false,
+            onBackPressOnEmptyBottomSheetCallback: ((OnBackPressedCallback) -> Unit)? = null,
         ) = TKUIHomeViewControllerFragment().apply {
             this.defaultLocation = defaultLocation
             this.bottomSheetVisibilityCallback = bottomSheetVisibilityCallback
             this.showMyLocationButtonWithoutPermission = showMyLocationButtonWithoutPermission
+            this.onBackPressOnEmptyBottomSheetCallback = onBackPressOnEmptyBottomSheetCallback
         }
     }
 }
