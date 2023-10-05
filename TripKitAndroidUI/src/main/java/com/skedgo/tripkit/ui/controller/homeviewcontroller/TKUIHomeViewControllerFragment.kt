@@ -1105,13 +1105,13 @@ class TKUIHomeViewControllerFragment :
         /**
          * Create [TKUIHomeViewControllerFragment] instance
          *
-         * @param defaultLocation - to set map default location after it loads
-         * @param bottomSheetVisibilityCallback - Callback to detect if [TKUIHomeViewControllerFragment]
+         * @param defaultLocation to set map default location after it loads
+         * @param bottomSheetVisibilityCallback Callback to detect if [TKUIHomeViewControllerFragment]
          * bottom sheet is hidden (0) or visible (1)
-         * @param showMyLocationButtonWithoutPermission - when true, show my location button even if
+         * @param showMyLocationButtonWithoutPermission when true, show my location button even if
          * [Manifest.permission.ACCESS_FINE_LOCATION] is not yet granted and permission request will be asked
          * once the button is clicked.Will hide the button if false.
-         * @param onBackPressOnEmptyBottomSheetCallback - callback to be triggered when user clicked
+         * @param onBackPressOnEmptyBottomSheetCallback callback to be triggered when user clicked
          * back button and [TKUIHomeViewControllerFragment]'s [TKUIHomeBottomSheetFragment] is empty so the action
          * can be handled on the parent activity/fragment. Including [OnBackPressedCallback] in the callback
          * for the parent to remove([OnBackPressedCallback.remove] or not (i.e. you want to close parent activity
