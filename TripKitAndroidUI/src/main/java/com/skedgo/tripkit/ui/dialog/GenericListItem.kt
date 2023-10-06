@@ -13,7 +13,9 @@ data class GenericListItem(
     val subLabel: String?,
     val date: String?,
     var selected: Boolean,
-    val itemId: String? = null
+    val itemId: String? = null,
+    val descriptionTitle: String? = null,
+    val description: String? = null
 ) {
     companion object {
         fun parseStrings(stringsForList: List<String>): List<GenericListItem> {
@@ -49,7 +51,7 @@ data class GenericListItem(
         fun parseRiders(riders: List<Rider>): List<GenericListItem> {
             return riders.map {
                 GenericListItem(
-                    it.name, null, null, selected = false
+                    it.name, null, null, selected = false, null, it.name, it.description
                 )
             }
         }
