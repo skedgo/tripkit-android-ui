@@ -56,9 +56,10 @@ fun Context.showSingleSelectionPopUpDialog(items: List<String>, onItemSelected: 
 fun Context.showConfirmationPopUpDialog(
     title: String? = null, message: String? = null, positiveLabel: String,
     positiveCallback: (() -> Unit)? = null, negativeLabel: String? = null,
-    negativeCallback: (() -> Unit)? = null
+    negativeCallback: (() -> Unit)? = null,
+    cancellable: Boolean = true
 ) {
-    MaterialDialog(this).show {
+    MaterialDialog(this).cancelable(cancellable).show {
         title?.let { title(text = it) }
         message?.let { message(text = it) }
         positiveButton(text = positiveLabel) {
@@ -116,3 +117,18 @@ fun Context.deFocusAndHideKeyboard(focus: View?) {
 
 fun Context.isPermissionGranted(permission: String): Boolean =
     ContextCompat.checkSelfPermission(this, permission)== PackageManager.PERMISSION_GRANTED
+
+fun Context.openAppInPlayStore() {
+    val packageName = applicationContext.packageName
+    val intent = Intent(Intent.ACTION_VIEW)
+    intent.data = Uri.parse("market://details?id=$packageName")
+
+    if (intent.resolveActivity(packageManager) != null) {
+        startActivity(intent)
+    } else {
+        // If the Play Store app is not available, open the Play Store website.
+        val webIntent = Intent(Intent.ACTION_VIEW)
+        webIntent.data = Uri.parse("https://play.google.com/store/apps/details?id=$packageName")
+        startActivity(webIntent)
+    }
+}

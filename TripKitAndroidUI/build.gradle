@@ -192,6 +192,8 @@ dependencies {
 
     implementation libs.javaxAnnotation
     compileOnly 'com.github.pengrad:jdk9-deps:1.0'
+
+    implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0'
 }
 
 group = tripkitGroup

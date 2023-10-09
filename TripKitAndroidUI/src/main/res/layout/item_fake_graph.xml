@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?><!-- Interim solutions since having difficulties on setting labels and controlling bar width on
+ horizontal bar graph of MPAndroid library -->
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="item"
+            type="com.skedgo.tripkit.ui.tripresult.RoadTagChart" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/spacing_small">
+
+        <TextView
+            android:id="@+id/tvMax"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@{item.getMaxDistance()}"
+            app:layout_constraintEnd_toEndOf="@+id/vTopDivider"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="100" />
+
+        <TextView
+            android:id="@+id/tvMiddle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@{item.getMiddleDistance()}"
+            app:layout_constraintEnd_toStartOf="@+id/tvMax"
+            app:layout_constraintHorizontal_bias="0.7"
+            app:layout_constraintStart_toEndOf="@+id/tvStart"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="50" />
+
+        <TextView
+            android:id="@+id/tvStart"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="0"
+            android:visibility="invisible"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="0" />
+
+        <View
+            android:id="@+id/vTopDivider"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="@dimen/spacing_small"
+            android:background="@color/black"
+            app:layout_constraintTop_toBottomOf="@+id/tvMax" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvRoadTags"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/spacing_small"
+            android:layout_marginVertical="@dimen/spacing_medium"
+            android:layout_marginTop="@dimen/spacing_small"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/vTopDivider"
+            tools:listitem="@layout/item_road_tag_chart" />
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

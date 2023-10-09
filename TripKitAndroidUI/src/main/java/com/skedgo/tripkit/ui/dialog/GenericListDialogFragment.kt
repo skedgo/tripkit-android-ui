@@ -85,6 +85,13 @@ class GenericListDialogFragment : DialogFragment(), GenericListDialogFragmentHan
 
     private fun initViews() {
         adapter = GenericListAdapter()
+        adapter.setCallback(object : GenericListAdapter.Callback {
+            override fun onSelect(position: Int) {
+                val item = adapter.collection[position]
+                viewModel.setDescription(item.description ?: "")
+                viewModel.setDescriptionTitle(item.descriptionTitle ?: "")
+            }
+        })
         adapter.isViewOnlyMode = arguments?.getBoolean(ARGS_VIEW_ONLY_MODE, false) ?: false
         binding.genericListRvSelection.adapter = adapter
         binding.genericListRvSelection.addItemDecoration(

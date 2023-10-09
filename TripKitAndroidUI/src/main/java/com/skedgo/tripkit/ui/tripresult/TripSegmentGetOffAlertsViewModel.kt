@@ -40,9 +40,7 @@ class TripSegmentGetOffAlertsViewModel @Inject internal constructor(
     private val configs = TripKit.getInstance().configs()
 
     init {
-        val uri = Uri.parse(trip.saveURL)
-        val tripUid = uri.lastPathSegment
-        val isOn = GetOffAlertCache.isTripAlertStateOn(tripUid ?: trip.saveURL)
+        val isOn = GetOffAlertCache.isTripAlertStateOn(trip.tripUuid)
         _getOffAlertStateOn.postValue(isOn)
         _isVisible.postValue(configs.hasGetOffAlerts())
     }
@@ -57,9 +55,7 @@ class TripSegmentGetOffAlertsViewModel @Inject internal constructor(
 
     fun onAlertChange(context: Context, isOn: Boolean) {
         trip.let {
-            val uri = Uri.parse(it.saveURL)
-            val tripUid = uri.lastPathSegment
-            GetOffAlertCache.setTripAlertOnState(tripUid ?: it.saveURL, isOn)
+            GetOffAlertCache.setTripAlertOnState(it.tripUuid, isOn)
         }
 
         cancelStartTripAlarms(context) //this will cancel previous alarm that was setup

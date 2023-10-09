@@ -10,6 +10,7 @@ import android.view.accessibility.AccessibilityEvent
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.annotation.ColorInt
+import androidx.cardview.widget.CardView
 import androidx.core.content.ContextCompat
 import androidx.databinding.BindingAdapter
 import com.bumptech.glide.Glide
@@ -140,5 +141,19 @@ fun focusViewForAccessibility(view: View, focus: Boolean) {
         view.postDelayed({
             view.sendAccessibilityEvent(AccessibilityEvent.TYPE_VIEW_FOCUSED)
         }, 500)
+    }
+}
+
+@BindingAdapter("app:cardBackgroundColor")
+fun setCardBackgroundColor(view: CardView, color: Int?) {
+    color?.let {
+        view.setBackgroundColor(it)
+    }
+}
+
+@BindingAdapter("android:textColor")
+fun setTextViewTextColor(view: TextView, color: Int?) {
+    color?.let {
+        view.setTextColor(it)
     }
 }
