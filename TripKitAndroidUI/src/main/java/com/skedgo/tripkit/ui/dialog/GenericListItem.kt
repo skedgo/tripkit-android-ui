@@ -1,17 +1,21 @@
 package com.skedgo.tripkit.ui.dialog
 
 import com.skedgo.tripkit.booking.quickbooking.Option
+import com.skedgo.tripkit.booking.quickbooking.Rider
+import com.skedgo.tripkit.booking.quickbooking.Ticket
 import org.joda.time.format.ISODateTimeFormat
 import java.lang.Exception
 import java.text.SimpleDateFormat
 import java.util.*
 
 data class GenericListItem(
-        val label: String,
-        val subLabel: String?,
-        val date: String?,
-        var selected: Boolean,
-        val itemId: String? = null
+    val label: String,
+    val subLabel: String?,
+    val date: String?,
+    var selected: Boolean,
+    val itemId: String? = null,
+    val descriptionTitle: String? = null,
+    val description: String? = null
 ) {
     companion object {
         fun parseStrings(stringsForList: List<String>): List<GenericListItem> {
@@ -34,8 +38,38 @@ data class GenericListItem(
                         formattedDate = String.format("%s at %s", _formattedDate, _formattedTime)
                     }
                 }
-                GenericListItem(label = it.title, subLabel = it.provider, date = formattedDate, selected = false, itemId = it.id)
+                GenericListItem(
+                    label = it.title,
+                    subLabel = it.provider,
+                    date = formattedDate,
+                    selected = false,
+                    itemId = it.id
+                )
             }
+        }
+
+        fun parseRiders(riders: List<Rider>): List<GenericListItem> {
+            return riders.map {
+                GenericListItem(
+                    it.name, null, null, selected = false, null, it.name, it.description
+                )
+            }
+        }
+
+        fun parseFares(tickets: List<Ticket>, rider: Rider?): List<GenericListItem> {
+            rider?.let {
+                val filteredTickets = tickets.filter { ticket ->
+                    ticket.riders.contains(it)
+                }
+
+                return filteredTickets.map {
+                    GenericListItem(
+                        it.name, null, null, selected = false
+                    )
+                }
+            }
+
+            return emptyList()
         }
     }
 }

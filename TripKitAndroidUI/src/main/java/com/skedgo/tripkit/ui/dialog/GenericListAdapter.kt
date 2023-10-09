@@ -24,6 +24,11 @@ class GenericListAdapter @Inject constructor() :
     internal var isSingleSelection: Boolean = false
     internal var isViewOnlyMode: Boolean = false
     internal var clickListener: (GenericListItem) -> Unit = { _ -> }
+    internal var callback: Callback? = null
+
+    fun setCallback(callback: Callback) {
+        this.callback = callback
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
             Holder.from(
@@ -47,6 +52,7 @@ class GenericListAdapter @Inject constructor() :
                         listItem.selected = !listItem.selected
                         notifyItemChanged(position)
                     }
+                    callback?.onSelect(position)
                     clickListener.invoke(listItem)
                 }
             }
@@ -109,5 +115,9 @@ class GenericListAdapter @Inject constructor() :
                 return Holder(binding)
             }
         }
+    }
+
+    interface Callback {
+        fun onSelect(position: Int)
     }
 }

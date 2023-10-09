@@ -10,6 +10,12 @@ class GenericListViewModel @Inject constructor() : RxViewModel() {
     private val _title = MutableLiveData<String>()
     val title: LiveData<String> = _title
 
+    private val _descriptionTitle = MutableLiveData<String>()
+    val descriptionTitle: LiveData<String> = _descriptionTitle
+
+    private val _description = MutableLiveData<String>()
+    val description: LiveData<String> = _description
+
     private val _selection = MutableLiveData<List<GenericListItem>>()
     val selection: LiveData<List<GenericListItem>> = _selection
 
@@ -26,6 +32,14 @@ class GenericListViewModel @Inject constructor() : RxViewModel() {
 
     fun setListSelection(value: List<GenericListItem>) {
         _selection.value = value
+    }
+
+    fun setDescription(value: String) {
+        _description.value = value
+    }
+
+    fun setDescriptionTitle(value: String) {
+        _descriptionTitle.value = value
     }
 
     fun setSelectedItems(selectedValues: List<String>) {
