@@ -306,9 +306,6 @@ class TripResultListFragment : BaseTripKitFragment() {
 
             val globalConfigs = TripKit.getInstance().configs()
 
-
-
-
             val builder = TripKitDateTimePickerDialogFragment.Builder()
                 .withTitle(getString(R.string.set_time))
                 .withTimeZones(departureTimezone, arrivalTimezone)
