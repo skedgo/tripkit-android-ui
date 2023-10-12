@@ -81,6 +81,7 @@
             android:layout_height="wrap_content"
             android:onClick="@{() -> viewModel.onInfoClicked.perform()}"
             android:padding="@dimen/content_padding"
+            app:tint="@color/colorPrimary"
             android:src="@drawable/ic_icon_info"
             android:visibility="@{viewModel.showInfoIcon}"
             app:layout_constraintEnd_toEndOf="parent"
