@@ -17,11 +17,11 @@ import com.skedgo.tripkit.ui.utils.ITEM_SERVICE
 import com.skedgo.tripkit.ui.utils.correctItemType
 
 data class ActionButton(
-        val text: String,
-        val tag: String,
-        @DrawableRes val icon: Int,
-        val isPrimary: Boolean,
-        val useIconTint: Boolean = true
+    val text: String,
+    val tag: String,
+    @DrawableRes val icon: Int,
+    val isPrimary: Boolean,
+    val useIconTint: Boolean = true
 )
 
 /**
@@ -34,6 +34,15 @@ data class ActionButton(
  * `getActions()`
  */
 open class ActionButtonHandler {
+
+    companion object {
+        const val ACTION_TAG_GO = "go"
+        const val ACTION_TAG_SHARE = "share"
+        const val ACTION_TAG_FAVORITE = "favorite"
+        const val ACTION_TAG_REPORT = "report"
+        const val ACTION_TAG_ALERT = "alert"
+    }
+
     var container: ActionButtonContainer? = null
     protected fun segmentSearch(trip: Trip): TripSegment? {
         return trip.segments.find {
@@ -54,15 +63,16 @@ open class ActionButtonHandler {
 //            result.set(context.getString(R.string.view_times))
             return result
         } else if (type == ITEM_QUICK_BOOKING
-                || type == ITEM_EXTERNAL_BOOKING) {
+            || type == ITEM_EXTERNAL_BOOKING
+        ) {
 
-             /*
-            if (!foundSegment.booking?.accessibilityLabel.isNullOrEmpty()) {
-                result.set(foundSegment.booking?.accessibilityLabel)
-            } else {
-                result.set(foundSegment.booking?.title)
-            }
-            */
+            /*
+           if (!foundSegment.booking?.accessibilityLabel.isNullOrEmpty()) {
+               result.set(foundSegment.booking?.accessibilityLabel)
+           } else {
+               result.set(foundSegment.booking?.title)
+           }
+           */
             result.set(foundSegment.booking?.title)
             return result
         } else {
@@ -87,7 +97,12 @@ open class ActionButtonHandler {
 
     }
 
-    open fun actionClicked(context: Context, tag: String, trip: Trip, viewModel: ActionButtonViewModel) {
+    open fun actionClicked(
+        context: Context,
+        tag: String,
+        trip: Trip,
+        viewModel: ActionButtonViewModel
+    ) {
     }
 
 }
