@@ -36,7 +36,7 @@ import java.time.format.FormatStyle
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
-class TripPreviewPagerViewModel : RxViewModel() {
+class TripPreviewPagerViewModel @Inject constructor(): RxViewModel() {
 
     private val _headers = MutableLiveData<List<TripPreviewHeader>>()
     val headers: LiveData<List<TripPreviewHeader>> = _headers
