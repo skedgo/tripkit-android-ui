@@ -3,7 +3,7 @@ package com.skedgo.tripkit.ui.tripresult
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.drawable.BitmapDrawable
-import android.os.Handler
+import android.util.Log
 import android.view.View
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -11,6 +11,10 @@ import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.maps.model.Polyline
 import com.google.android.gms.maps.model.PolylineOptions
+import com.google.android.gms.maps.model.TileOverlay
+import com.google.android.gms.maps.model.TileOverlayOptions
+import com.google.android.gms.maps.model.TileProvider
+import com.google.android.gms.maps.model.UrlTileProvider
 import com.google.maps.android.collections.MarkerManager
 import com.skedgo.rxtry.toTrySingle
 import com.skedgo.tripkit.common.util.TransportModeUtils
@@ -23,7 +27,6 @@ import com.skedgo.tripkit.ui.map.*
 import com.skedgo.tripkit.ui.map.adapter.SegmentInfoWindowAdapter
 import com.skedgo.tripkit.ui.map.adapter.ServiceStopInfoWindowAdapter
 import com.skedgo.tripkit.ui.map.home.TripKitMapContributor
-import com.skedgo.tripkit.ui.routing.updateCamera
 import com.squareup.picasso.Picasso
 import dagger.Lazy
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -31,6 +34,8 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.functions.Consumer
 import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
+import java.net.MalformedURLException
+import java.net.URL
 import java.util.*
 import javax.inject.Inject
 
@@ -90,6 +95,59 @@ class TripResultMapContributor : TripKitMapContributor {
         CompositeDisposable()
     }
 
+
+    private lateinit var map: GoogleMap
+    private var tileProvider: TileProvider? = null
+    private var tileOverlays = mutableListOf<TileOverlay>()
+
+    fun setTileProvide(url: String) {
+        tileProvider = object : UrlTileProvider(256, 256) {
+            override fun getTileUrl(x: Int, y: Int, zoom: Int): URL? {
+
+                val updatedUrl =
+                    url.replace("{x}", x.toString())
+                        .replace("{y}", y.toString())
+                        .replace("{z}", zoom.toString())
+
+                return try {
+                    URL(updatedUrl)
+                } catch (e: MalformedURLException) {
+                    throw AssertionError(e)
+                }
+            }
+        }
+
+
+        if(this::map.isInitialized) {
+            tileOverlays
+        }
+    }
+
+    fun setTileProvider(context: Context, urls: List<String>) {
+
+        tileProvider = CustomUrlTileProvider(urls).apply {
+            mapLoaded = {
+                //drawSegmentMarkers(context) no need to re-draw
+            }
+        }
+
+        if(this::map.isInitialized && tileOverlays.isEmpty()) {
+            tileProvider?.let {
+                tileOverlays.add(
+                    map.addTileOverlay(
+                        TileOverlayOptions()
+                            .tileProvider(it)
+                    )
+                )
+            }
+        }
+    }
+
+    private fun removeTileOverlay() {
+        tileOverlays.forEach { it.remove() }
+        tileOverlays.clear()
+    }
+
     override fun initialize() {
         TripKitUI.getInstance().tripDetailsComponent().inject(this)
         segmentCalloutAdapter!!.setSegmentCache(marker2SegmentCache)
@@ -100,6 +158,7 @@ class TripResultMapContributor : TripKitMapContributor {
     }
 
     override fun safeToUseMap(context: Context, map: GoogleMap) {
+        this.map = map
         markerManager = MarkerManager(map).apply {
             travelledStopMarkers = newCollection("travelledStopMarkers")
             vehicleMarkers = newCollection("vehicleMarkers")
@@ -116,18 +175,9 @@ class TripResultMapContributor : TripKitMapContributor {
             map.setOnInfoWindowClickListener(markerManager)
             map.isIndoorEnabled = false
             map.uiSettings.isRotateGesturesEnabled = true
-            autoDisposable.add(viewModel!!.segments
-                    .flatMap { it: List<TripSegment> -> createSegmentMarkers!!.execute(it) }
-                    .subscribeOn(Schedulers.computation())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(
-                            { it: List<Pair<TripSegment, MarkerOptions>> ->
-                                showSegmentMarkers(context, it, segmentMarkers!!)
-                            }
-                    ) { error: Throwable? ->
-                        errorLogger!!.trackError(error!!)
-                    }
-            )
+
+            drawSegmentMarkers(context)
+
             autoDisposable.add(viewModel!!.vehicleMarkerViewModels
                     .subscribe(
                             { it: List<VehicleMarkerViewModel> ->
@@ -191,6 +241,21 @@ class TripResultMapContributor : TripKitMapContributor {
         }
     }
 
+    private fun drawSegmentMarkers(context: Context) {
+        autoDisposable.add(viewModel.segments
+            .flatMap { it: List<TripSegment> -> createSegmentMarkers!!.execute(it) }
+            .subscribeOn(Schedulers.computation())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(
+                { it: List<Pair<TripSegment, MarkerOptions>> ->
+                    showSegmentMarkers(context, it, segmentMarkers!!)
+                }
+            ) { error: Throwable? ->
+                errorLogger.trackError(error!!)
+            }
+        )
+    }
+
     override fun getInfoContents(marker: Marker): View? {
         return markerManager?.getInfoContents(marker)
     }
@@ -205,6 +270,12 @@ class TripResultMapContributor : TripKitMapContributor {
         marker2SegmentCache.clear()
         alertIdToMarkerCache.clear()
         tripLines.forEach { it.remove() }
+        removeTileOverlay()
+        tileProvider?.let {
+            if(it is CustomUrlTileProvider) {
+                it.clear()
+            }
+        }
     }
 
     fun setTripGroupId(tripGroupId: String?, tripId: Long? = null) {
@@ -219,6 +290,7 @@ class TripResultMapContributor : TripKitMapContributor {
         }
         tripLines.clear()
         for (polylineOption in polylineOptionsList) {
+            polylineOption.zIndex(2.0f)
             tripLines.add(map.addPolyline(polylineOption))
         }
     }

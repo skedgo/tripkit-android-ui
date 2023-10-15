@@ -214,6 +214,8 @@ class LocationSearchViewModel @Inject constructor(
                 }
                 if (!isRouting && params.term().isNotEmpty()) {
                     loadFromRegions(params.term())
+                } else if(params.term().isEmpty()) {
+                    citiesSuggestions.clear()
                 }
                 providedSuggestions.clear()
                 viewModelScope.launch {
@@ -233,7 +235,7 @@ class LocationSearchViewModel @Inject constructor(
 
         val suggestionFetcher = queries.hide()
             .switchMap { query ->
-                // TODO Everything dealing with getting results, including this caching, needs to be refactored
+                // TODO MIKE Everything dealing with getting results, including this caching, needs to be refactored
                 if (queryCache.containsKey(query.term())) {
                     Observable.just(queryCache[query.term()]!!)
                 } else {

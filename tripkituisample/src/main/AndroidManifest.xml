@@ -2,15 +2,32 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.technologies.tripkituisample">
 
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+
     <application
         android:name=".App"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
+        android:largeHeap="true"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Tripkitandroidui">
-        <activity android:name=".location_search.LocationSearchActivity"></activity>
+        <activity
+            android:name=".homeviewcontroller.HomeViewControllerActivity"
+            android:exported="false" />
+
+        <!-- replace with ${google_map_key} to get key from local.properties -->
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="GOOGLE_MAP_API_KEY_HERE" />
+
+        <activity
+            android:name=".map.MapActivity"
+            android:exported="false" />
+        <activity android:name=".location_search.LocationSearchActivity" />
         <activity android:name=".autocompleter.AutocompleterActivity" />
         <activity android:name=".MainActivity">
             <intent-filter>

@@ -7,24 +7,32 @@ import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentStatePagerAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.skedgo.tripkit.routing.TripGroup
+import com.skedgo.tripkit.ui.map.home.TripKitMapContributor
 import com.skedgo.tripkit.ui.tripresult.TripSegmentListFragment.OnTripSegmentClickListener
 import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButtonHandlerFactory
 
-class TripGroupsPagerAdapter(private val fragmentManager: FragmentManager) : FragmentStatePagerAdapter(fragmentManager, BEHAVIOR_SET_USER_VISIBLE_HINT) {
+class TripGroupsPagerAdapter(
+    private val fragmentManager: FragmentManager,
+    private val tripResultMapContributor: TripResultMapContributor
+) :
+    FragmentStatePagerAdapter(fragmentManager, BEHAVIOR_SET_USER_VISIBLE_HINT) {
     var tripGroups: List<TripGroup>? = null
-    set(value) {
-        field = value
-        notifyDataSetChanged()
-    }
+        set(value) {
+            field = value
+            notifyDataSetChanged()
+        }
 
     var tripIds = mutableMapOf<String, Long>()
 
     private var actionButtonHandlerFactory: ActionButtonHandlerFactory? = null
     private var showCloseButton = false
+
     @JvmField
     var closeListener: View.OnClickListener? = null
+
     @JvmField
     var listener: TripSegmentListFragment.OnTripKitButtonClickListener? = null
+
     @JvmField
     var segmentClickListener: OnTripSegmentClickListener? = null
 
@@ -60,11 +68,12 @@ class TripGroupsPagerAdapter(private val fragmentManager: FragmentManager) : Fra
         val tripGroup = tripGroups!![position]
         val tripId = tripIds[tripGroup.uuid()]
         val fragment = TripSegmentListFragment.Builder()
-                .withTripGroupId(tripGroup.uuid())
-                .withTripId(tripId ?: tripGroup.displayTripId)
-                .withActionButtonHandlerFactory(actionButtonHandlerFactory)
-                .showCloseButton(showCloseButton)
-                .build()
+            .withTripGroupId(tripGroup.uuid())
+            .withTripId(tripId ?: tripGroup.displayTripId)
+            .withActionButtonHandlerFactory(actionButtonHandlerFactory)
+            .withMapContributor(tripResultMapContributor)
+            .showCloseButton(showCloseButton)
+            .build()
         fragment.setOnTripKitButtonClickListener(listener!!)
         fragment.onCloseButtonListener = closeListener
         fragment.setOnTripSegmentClickListener(segmentClickListener!!)

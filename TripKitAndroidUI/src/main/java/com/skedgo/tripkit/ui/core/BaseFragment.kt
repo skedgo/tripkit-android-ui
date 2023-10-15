@@ -38,6 +38,8 @@ abstract class BaseFragment<V : ViewDataBinding> : BaseTripKitPagerFragment() {
 
     protected abstract fun getDefaultViewForAccessibility(): View?
 
+    open fun clearInstances() {}
+
     private var previouslyInitialized = false
 
     override fun onCreateView(

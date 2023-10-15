@@ -19,7 +19,11 @@ import static com.skedgo.tripkit.common.util.TransportModeUtils.getIconUrlForId;
 public final class ImageViewBindingAdapters {
     @BindingAdapter("android:visibility")
     public static void setVisibility(View view, boolean visible) {
-        view.animate().cancel();
+        try {
+            view.animate().cancel();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         view.setVisibility((visible) ? View.VISIBLE : View.GONE);
     }
     @BindingAdapter("fadeVisible")

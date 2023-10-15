@@ -1,5 +1,6 @@
 package com.skedgo.tripkit.ui.map;
 
+import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -10,6 +11,8 @@ import android.graphics.drawable.Drawable;
 import android.util.Pair;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
+
 import com.skedgo.tripkit.ui.R;
 
 public class BearingMarkerIconBuilder {
@@ -20,16 +23,16 @@ public class BearingMarkerIconBuilder {
   private int mPointerIconResourceId;
   private boolean mHasTime;
   private long mMillis;
-  private Resources mResources;
+  private Context mContext;
   private TimeLabelMaker mTimeLabelMaker;
   private Paint mRotationPaint;
   private Drawable vehicleIconRes;
   private float vehicleIconScale = 1f;
   private String mTimezone;
 
-  public BearingMarkerIconBuilder(@NonNull Resources resources,
+  public BearingMarkerIconBuilder(@NonNull Context context,
                                   TimeLabelMaker timeLabelMaker) {
-    mResources = resources;
+    mContext = context;
     mTimeLabelMaker = timeLabelMaker;
 
     mRotationPaint = new Paint();
@@ -112,13 +115,13 @@ public class BearingMarkerIconBuilder {
     int rotateAngle = convertToCanvasAxes(mBearing);
     boolean bearingToWesternSide = isBearingToWesternSide(rotateAngle);
 
-    int offset = mResources.getDimensionPixelSize(R.dimen.v4_content_padding);
+    int offset = mContext.getResources().getDimensionPixelSize(R.dimen.v4_content_padding);
     int timeLabelLeft = bearingToWesternSide
         ? vehiclePointerPinBitmap.getWidth() - offset
         : offset;
     float timeLabelTop = (vehiclePointerPinBitmap.getWidth() - timeLabelBitmap.getHeight()) / 2f;
 
-    final Drawable timeLabelBackgroundDrawable = mResources.getDrawable(R.drawable.v4_shape_map_time_label);
+    final Drawable timeLabelBackgroundDrawable = ContextCompat.getDrawable(mContext, R.drawable.v4_shape_map_time_label);
     if (timeLabelBackgroundDrawable != null) {
       canvas.save();
       {
@@ -152,8 +155,8 @@ public class BearingMarkerIconBuilder {
 
   private Bitmap createVehiclePointerPinBitmap(Bitmap vehiclePointerBitmap) {
     // Padding between the VehiclePointer and the PinBase
-    int padding = -mResources.getDimensionPixelSize(R.dimen.v4_base_pointer_padding) * 2;
-    Bitmap baseBitmap = BitmapFactory.decodeResource(mResources, mBaseIconResourceId);
+    int padding = -mContext.getResources().getDimensionPixelSize(R.dimen.v4_base_pointer_padding) * 2;
+    Bitmap baseBitmap = BitmapFactory.decodeResource(mContext.getResources(), mBaseIconResourceId);
     Bitmap vehiclePointerPinBitmap = Bitmap.createBitmap(
         vehiclePointerBitmap.getWidth(),
         vehiclePointerBitmap.getHeight() + padding + baseBitmap.getHeight(),
@@ -172,7 +175,7 @@ public class BearingMarkerIconBuilder {
   }
 
   private Bitmap createVehiclePointerBitmap() {
-    Bitmap pointerBitmap = BitmapFactory.decodeResource(mResources, mPointerIconResourceId);
+    Bitmap pointerBitmap = BitmapFactory.decodeResource(mContext.getResources(), mPointerIconResourceId);
     Bitmap vehiclePointerBitmap = Bitmap.createBitmap(
         pointerBitmap.getWidth(),
         pointerBitmap.getHeight(),

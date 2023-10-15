@@ -113,6 +113,15 @@ class TripResultListFragment : BaseTripKitFragment() {
     var shouldShowMoreButton = false
     var previouslyInitialized = false
 
+    fun clearInstances() {
+        tripSelectedListener = null
+        locationClickListener = null
+        query = null
+        transportModeFilter = null
+        actionButtonHandlerFactory = null
+        userModes = null
+        region = null
+    }
 
     override fun onAttach(context: Context) {
         TripKitUI.getInstance().routesComponent().inject(this);

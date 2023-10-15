@@ -1,56 +1,57 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools">
+    xmlns:tools="http://schemas.android.com/tools">
 
     <data>
 
         <variable
-                name="viewModel"
-                type="com.skedgo.tripkit.ui.search.LocationSearchErrorViewModel" />
+            name="viewModel"
+            type="com.skedgo.tripkit.ui.search.LocationSearchErrorViewModel" />
 
         <variable
-                name="visibility"
-                type="boolean" />
+            name="visibility"
+            type="boolean" />
     </data>
 
     <LinearLayout
-            android:id="@+id/errorLayout"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:gravity="top|center"
-            android:orientation="vertical"
-            android:paddingTop="48dp"
-            android:visibility="@{visibility}">
+        android:id="@+id/errorLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="top|center"
+        android:orientation="vertical"
+        android:paddingTop="48dp"
+        android:visibility="@{visibility}">
 
         <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@{viewModel.iconSrc}"
-                tools:src="@drawable/ic_noconnection_big" />
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@{viewModel.iconSrc}"
+            tools:src="@drawable/ic_noconnection_big" />
 
         <TextView
-                android:id="@+id/errorMessageView"
-                tools:text="Some Error"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="@dimen/spacing_normal"
-                android:layout_marginEnd="@dimen/spacing_huge"
-                android:layout_marginStart="@dimen/spacing_huge"
-                android:layout_marginTop="@dimen/spacing_huge"
-                android:gravity="center"
-                android:text="@{viewModel.title}"
-                android:textColor="@color/light_grey_2"
-                android:textSize="20sp" />
+            android:id="@+id/errorMessageView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/spacing_huge"
+            android:layout_marginTop="@dimen/spacing_huge"
+            android:layout_marginEnd="@dimen/spacing_huge"
+            android:layout_marginBottom="@dimen/spacing_normal"
+            android:gravity="center"
+            android:text="@{viewModel.title}"
+            android:textColor="@color/light_grey_2"
+            android:textSize="20sp"
+            tools:text="Some Error" />
 
         <Button
-                android:id="@+id/changeButton"
-                style="?attr/borderlessButtonStyle"
-                tools:text="Action Text"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:onClick="@{() -> viewModel.performAction()}"
-                android:text="@{viewModel.actionText}"
-                android:textColor="#23b15e" />
+            android:id="@+id/changeButton"
+            style="?attr/borderlessButtonStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="@{() -> viewModel.performAction()}"
+            android:text="@{viewModel.actionText}"
+            android:textColor="#23b15e"
+            android:visibility="gone"
+            tools:text="Action Text" />
     </LinearLayout>
 
 

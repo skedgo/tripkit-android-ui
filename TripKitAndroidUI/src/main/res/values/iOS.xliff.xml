@@ -111,7 +111,7 @@
 	<!--Error text to show when trying to use a feature which requires an account, but the user hasn't set one up (yet).-->
 	<string name="account_required">Account required</string>
 	<!--Add favourite activity title-->
-	<string name="add_favourite">Add Favourite</string>
+	<string name="add_favourite">Add Favorite</string>
 	<!--Add reminder activity title-->
 	<string name="add_reminder">Add Reminder</string>
 	<!--No comment provided by engineer.-->
@@ -123,7 +123,7 @@
 	<!--Action button to log a trip-->
 	<string name="add_to_my_log">Add to My Log</string>
 	<!--No comment provided by engineer.-->
-	<string name="add_to_favourites">Add to favourites</string>
+	<string name="add_to_favourites">Add to favorites</string>
 	<!--Action title for adding a vehicle-->
 	<string name="add_vehicle">Add vehicle</string>
 	<!--Action title for adding another habitual visit to a favourite (old key: NewItemHereActionTitle)-->
@@ -251,9 +251,9 @@
 	<!--Speed preference 'fast'-->
 	<string name="fast">Fast</string>
 	<!--No comment provided by engineer.-->
-	<string name="favourite">Favourite</string>
+	<string name="favourite">Favorite</string>
 	<!--No comment provided by engineer.-->
-	<string name="favourite_trip">Favourite Trip</string>
+	<string name="favourite_trip">Favorite Trip</string>
 	<!--Help title-->
 	<string name="feedback__ampersand_support">Feedback &amp; Support</string>
 	<!--Placeholder text for search bar that is used for filtering-->
@@ -696,7 +696,7 @@
 	<!--Title for an error alert. This error typically occurs when the app cannot update/retrieve details of a mobility plan-->
 	<string name="error_updating_bundle_details">Error updating bundle details</string>
 	<!--Title for button to access favourites-->
-	<string name="favourites">Favourites</string>
+	<string name="favourites">Favorites</string>
 	<!--Title for a flight-->
 	<string name="flight">Flight</string>
 	<!--This usually means some service is free of charge, for instance, public transport may be free inside a mobility bundle-->
@@ -1510,5 +1510,9 @@ Note, your iCloud data will not be deleted by this, but you can delete this in t
 	<string name="current_balance">Current Balance</string>
 	<string name="new_balance">New</string>
 	<string name="purchase">Purchase</string>
+
+	<string name="deactivated">Deactivated</string>
+	<string name="deactivated_message">This app has been deactivated. Please check if there\'s a new version in the App Store.</string>
+	<string name="open_play_store">Open Playstore</string>
 </resources>
 	<!-- This is an auto generated file (Mon Jan 20 14:50:01 CET 2020) -->

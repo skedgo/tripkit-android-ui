@@ -5,8 +5,9 @@
 
     <data>
 
-        <import type="android.view.View"/>
-        <import type="android.text.TextUtils"/>
+        <import type="android.view.View" />
+
+        <import type="android.text.TextUtils" />
 
         <variable
             name="viewModel"
@@ -17,19 +18,20 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="?selectableItemBackground"
-        android:paddingStart="24dp"
-        android:paddingTop="12dp"
-        android:paddingEnd="12dp"
-        android:paddingBottom="12dp">
+        android:paddingStart="@dimen/spacing_medium"
+        android:paddingTop="@dimen/content_padding"
+        android:paddingEnd="@dimen/content_padding"
+        android:paddingBottom="@dimen/content_padding">
 
         <ImageView
             android:id="@+id/icon"
             android:layout_width="@dimen/tripkit_trip_preview_icon_size"
             android:layout_height="@dimen/tripkit_trip_preview_icon_size"
             android:src="@{viewModel.icon}"
-            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintBottom_toBottomOf="@+id/description"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            tools:src="@drawable/maneuver_light_left" />
 
         <TextView
             android:id="@+id/title"
@@ -39,9 +41,9 @@
             android:layout_marginStart="16dp"
             android:paddingEnd="@dimen/content_padding"
             android:text="@{viewModel.title}"
+            android:visibility="@{TextUtils.isEmpty(viewModel.title)? View.GONE: View.VISIBLE}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
-            android:visibility="@{TextUtils.isEmpty(viewModel.title)? View.GONE: View.VISIBLE}"
             app:layout_constraintStart_toEndOf="@+id/icon"
             app:layout_constraintTop_toTopOf="parent"
             tools:text="An example step" />
@@ -59,6 +61,16 @@
             app:layout_constraintStart_toEndOf="@+id/icon"
             app:layout_constraintTop_toBottomOf="@id/title"
             tools:text="Along some road" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvTags"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_normal"
+            android:orientation="horizontal"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            app:layout_constraintTop_toBottomOf="@+id/description"
+            app:spanCount="2" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

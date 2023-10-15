@@ -7,6 +7,8 @@ import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.util.Pair;
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
+
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -34,22 +36,22 @@ public class ServiceStopMarkerCreator {
     this.timeLabelMaker = timeLabelMaker;
   }
 
-  public static Drawable convert(@NonNull Resources resources,
+  public static Drawable convert(@NonNull Context context,
                                  VehicleMode mode,
                                  RealTimeStatus realTimeStatus) {
     return mode != null
-        ? (realTimeStatus == RealTimeStatus.IS_REAL_TIME) ? mode.getRealtimeMapIconRes(resources) : mode.getMapIconRes(resources)
-        : resources.getDrawable(R.drawable.v4_ic_map_location);
+        ? (realTimeStatus == RealTimeStatus.IS_REAL_TIME) ? mode.getRealtimeMapIconRes(context) : mode.getMapIconRes(context)
+        : ContextCompat.getDrawable(context, R.drawable.v4_ic_map_location);
   }
 
   public MarkerOptions toMarkerOptions(@NonNull StopInfo stopInfo, String displayText, String timeZone) {
     ServiceStop stop = stopInfo.stop;
     if (stop.getType() != null) {
-      Pair<Bitmap, Float> icon = new BearingMarkerIconBuilder(context.getResources(), timeLabelMaker)
+      Pair<Bitmap, Float> icon = new BearingMarkerIconBuilder(context, timeLabelMaker)
           .hasBearing(true)
           .bearing(stop.getBearing())
           .vehicleIcon(convert(
-              context.getResources(),
+              context,
               ScheduledStop.convertStopTypeToVehicleMode(stop.getType()),
               stopInfo.realTimeStatus
           ))

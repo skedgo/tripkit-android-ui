@@ -3,6 +3,9 @@ package com.skedgo.tripkit.ui.poidetails
 import android.content.Context
 import androidx.databinding.ObservableBoolean
 import androidx.databinding.ObservableField
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import com.skedgo.TripKit
 import com.skedgo.tripkit.LocationInfoService
 import com.skedgo.tripkit.common.model.Location
 import com.skedgo.tripkit.common.model.PoiLocation
@@ -34,6 +37,14 @@ class PoiDetailsViewModel @Inject constructor(
     var showWhat3words = ObservableBoolean(false)
 
     val location = ObservableField<Location>()
+
+    private val _favoriteVisible = MutableLiveData(true)
+    val favoriteVisible: LiveData<Boolean> = _favoriteVisible
+
+    init {
+        val globalConfigs = TripKit.getInstance().configs()
+        _favoriteVisible.postValue(!globalConfigs.hideFavorites())
+    }
 
     fun setFavorite(context: Context, favorite: Boolean) {
         if (favorite) {

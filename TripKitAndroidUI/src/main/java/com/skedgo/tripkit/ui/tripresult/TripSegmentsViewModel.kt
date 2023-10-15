@@ -22,6 +22,7 @@ import com.skedgo.tripkit.common.util.TimeUtils
 import com.skedgo.tripkit.datetime.PrintTime
 import com.skedgo.tripkit.routing.*
 import com.skedgo.tripkit.ui.BR
+import com.skedgo.tripkit.ui.BuildConfig
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.core.RxViewModel
 import com.skedgo.tripkit.ui.core.settings.DeveloperPreferenceRepository
@@ -40,6 +41,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import me.tatarka.bindingcollectionadapter2.ItemBinding
 import me.tatarka.bindingcollectionadapter2.itembindings.OnItemBindClass
+import java.lang.Exception
 import java.util.*
 import java.util.Collections.emptyList
 import javax.inject.Inject
@@ -85,6 +87,11 @@ class TripSegmentsViewModel @Inject internal constructor(
     val locationLabel = PublishRelay.create<String>()
     private var actionButtonHandler: ActionButtonHandler? = null
     private var trip: Trip? = null
+
+    val customAdapter = TripSegmentCustomRecyclerViewAdapter<Any>()
+
+    private val _mapTiles = MutableLiveData<TripKitMapTiles>()
+    val mapTiles: LiveData<TripKitMapTiles> = _mapTiles
 
 //    private val _showWikiwayFinder = MutableLiveData<List<Point>>()
 //    val showWikiwayFinder: LiveData<List<Point>> = _showWikiwayFinder
@@ -133,6 +140,7 @@ class TripSegmentsViewModel @Inject internal constructor(
         tripGroupRepository.getTripGroup(tripGroupId)
                 .observeOn(mainThread())
                 .onErrorResumeNext(Observable.empty())
+            .doOnError { it.printStackTrace() }
                 .subscribe(
                         { tripGroup ->
                             /*
@@ -409,6 +417,9 @@ class TripSegmentsViewModel @Inject internal constructor(
             this.trip = trip
             val tripSegments = trip.segments
             segmentViewModels.clear()
+
+            _mapTiles.postValue(tripSegments.firstOrNull { it.mapTiles != null }?.mapTiles)
+
             tripSegments.forEachIndexed { index, segment ->
                 var previousSegment = tripSegments.elementAtOrNull(index - 1)
                 val nextSegment = tripSegments.elementAtOrNull(index + 1)
@@ -424,11 +435,7 @@ class TripSegmentsViewModel @Inject internal constructor(
 
                 viewModel.onClick.observable.subscribe {
                     it.tripSegment?.let { segment ->
-//                        if (it.wikiWayFinderRoutes.value?.isNotEmpty() == true) {
-//                            _showWikiwayFinder.value = it.wikiWayFinderRoutes.value
-//                        } else {
                         segmentClicked.accept(segment)
-//                        }
                     }
                 }.autoClear()
                 viewModel.tripSegment = segment
@@ -498,35 +505,9 @@ class TripSegmentsViewModel @Inject internal constructor(
         }
 
         trip?.let {
-            val uri = Uri.parse(it.saveURL)
-            val tripUid = uri.lastPathSegment
-            val isOn = GetOffAlertCache.isTripAlertStateOn(tripUid ?: it.saveURL)
-
-            val getOffAlertsViewModel = TripSegmentGetOffAlertsViewModel(it, isOn)
-            getOffAlertsViewModel.setup(
-                    context,
-                    listOf(
-                            TripSegmentGetOffAlertDetailViewModel(
-                                    ContextCompat.getDrawable(context, R.drawable.ic_navigation_start),
-                                    "The trip is about to start"
-                            ),
-                            TripSegmentGetOffAlertDetailViewModel(
-                                    ContextCompat.getDrawable(context, R.drawable.ic_navigation_near),
-                                    "Getting within 500m of the disembarkation point"
-                            ),
-
-                            TripSegmentGetOffAlertDetailViewModel(
-                                    ContextCompat.getDrawable(context, R.drawable.ic_navigation_near),
-                                    "Passed by the previous stop"
-                            ),
-                            TripSegmentGetOffAlertDetailViewModel(
-                                    ContextCompat.getDrawable(context, R.drawable.ic_final_destination),
-                                    "About to arrive the final destination"
-                            )
-                    )
-            )
-
-            newItems.add(getOffAlertsViewModel)
+            setupGetOffAlert(it)?.let { viewModel ->
+                newItems.add(viewModel)
+            }
         }
 
         if (tripGroup.sources != null && tripGroup.sources!!.size > 0) {
@@ -537,6 +518,43 @@ class TripSegmentsViewModel @Inject internal constructor(
         }
 
         itemViewModels.set(newItems)
+    }
+
+    private fun setupGetOffAlert(trip: Trip): TripSegmentGetOffAlertsViewModel? {
+        try {
+            val isOn = GetOffAlertCache.isTripAlertStateOn(trip.tripUuid)
+
+            val getOffAlertsViewModel = TripSegmentGetOffAlertsViewModel(trip, isOn)
+            getOffAlertsViewModel.setup(
+                context,
+                listOf(
+                    TripSegmentGetOffAlertDetailViewModel(
+                        ContextCompat.getDrawable(context, R.drawable.ic_navigation_start),
+                        "The trip is about to start"
+                    ),
+                    TripSegmentGetOffAlertDetailViewModel(
+                        ContextCompat.getDrawable(context, R.drawable.ic_navigation_near),
+                        "Getting within 500m of the disembarkation point"
+                    ),
+
+                    TripSegmentGetOffAlertDetailViewModel(
+                        ContextCompat.getDrawable(context, R.drawable.ic_navigation_near),
+                        "Passed by the previous stop"
+                    ),
+                    TripSegmentGetOffAlertDetailViewModel(
+                        ContextCompat.getDrawable(context, R.drawable.ic_final_destination),
+                        "About to arrive the final destination"
+                    )
+                )
+            )
+
+            return getOffAlertsViewModel
+        } catch (e: Exception) {
+            if (BuildConfig.DEBUG) {
+                e.printStackTrace()
+            }
+            return null
+        }
     }
 
     private fun startUpdate() {

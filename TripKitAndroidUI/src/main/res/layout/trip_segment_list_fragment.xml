@@ -87,6 +87,7 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:tag="segmentList"
+            app:adapter="@{viewModel.customAdapter}"
             app:itemBinding="@{viewModel.itemBinding}"
             app:items="@{viewModel.itemViewModels}"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
