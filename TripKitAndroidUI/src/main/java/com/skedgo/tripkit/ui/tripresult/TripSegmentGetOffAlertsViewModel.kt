@@ -39,6 +39,8 @@ class TripSegmentGetOffAlertsViewModel @Inject internal constructor(
 
     private val configs = TripKit.getInstance().configs()
 
+    internal var alertStateListener: (Boolean) -> Unit = { _ -> }
+
     init {
         val isOn = GetOffAlertCache.isTripAlertStateOn(trip.tripUuid)
         _getOffAlertStateOn.postValue(isOn)
@@ -51,6 +53,10 @@ class TripSegmentGetOffAlertsViewModel @Inject internal constructor(
     fun setup(context: Context, details: List<TripSegmentGetOffAlertDetailViewModel>) {
         items.clear()
         items.update(details)
+    }
+
+    fun setAlertState(isOn: Boolean) {
+        _getOffAlertStateOn.postValue(isOn)
     }
 
     fun onAlertChange(context: Context, isOn: Boolean) {
@@ -72,6 +78,7 @@ class TripSegmentGetOffAlertsViewModel @Inject internal constructor(
             GeoLocation.clearGeofences()
         }
 
+        alertStateListener.invoke(isOn)
         _getOffAlertStateOn.postValue(isOn)
     }
 
