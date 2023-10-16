@@ -63,7 +63,7 @@ class TripSegmentGetOffAlertsViewModel @Inject internal constructor(
         if (isOn) {
             showProminentDisclosure(context) { isAccepted ->
                 if(isAccepted) {
-                    checkLocationPermissionAndSetAlerts(context)
+                    checkAccessFineLocationPermission(context)
                 } else {
                     _getOffAlertStateOn.postValue(false)
                 }
@@ -89,9 +89,25 @@ class TripSegmentGetOffAlertsViewModel @Inject internal constructor(
         )
     }
 
-    private fun checkLocationPermissionAndSetAlerts(context: Context) {
+    /*
+    * There's an issue getting automatically rejected when asking ACCESS_FINE_LOCATION and
+    * ACCESS_BACKGROUND_LOCATION at the same time. So will be asking one permission
+    * after the other.
+    */
+    private fun checkAccessFineLocationPermission(context: Context) {
         ExcuseMe.couldYouGive(context).permissionFor(
-            android.Manifest.permission.ACCESS_FINE_LOCATION,
+            android.Manifest.permission.ACCESS_FINE_LOCATION
+        ) {
+            if (it.denied.isNotEmpty()) {
+                _getOffAlertStateOn.postValue(false)
+            } else {
+                checkBackgroundLocationPermission(context)
+            }
+        }
+    }
+
+    private fun checkBackgroundLocationPermission(context: Context) {
+        ExcuseMe.couldYouGive(context).permissionFor(
             android.Manifest.permission.ACCESS_BACKGROUND_LOCATION
         ) {
 

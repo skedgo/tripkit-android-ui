@@ -2,11 +2,14 @@ package com.skedgo.tripkit.ui.tripresult
 
 import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.Color
 import android.graphics.drawable.BitmapDrawable
 import android.util.Log
 import android.view.View
+import androidx.core.graphics.ColorUtils
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.maps.model.Polyline
@@ -17,16 +20,19 @@ import com.google.android.gms.maps.model.TileProvider
 import com.google.android.gms.maps.model.UrlTileProvider
 import com.google.maps.android.collections.MarkerManager
 import com.skedgo.rxtry.toTrySingle
+import com.skedgo.tripkit.common.util.PolyUtil
 import com.skedgo.tripkit.common.util.TransportModeUtils
 import com.skedgo.tripkit.logging.ErrorLogger
 import com.skedgo.tripkit.routing.TripSegment
 import com.skedgo.tripkit.ui.TripKitUI
 import com.skedgo.tripkit.ui.core.UnableToFetchBitmapError
 import com.skedgo.tripkit.ui.core.fetchAsync
+import com.skedgo.tripkit.ui.data.location.toLatLng
 import com.skedgo.tripkit.ui.map.*
 import com.skedgo.tripkit.ui.map.adapter.SegmentInfoWindowAdapter
 import com.skedgo.tripkit.ui.map.adapter.ServiceStopInfoWindowAdapter
 import com.skedgo.tripkit.ui.map.home.TripKitMapContributor
+import com.skedgo.tripkit.ui.utils.correctItemType
 import com.squareup.picasso.Picasso
 import dagger.Lazy
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -50,6 +56,7 @@ class TripResultMapContributor : TripKitMapContributor {
     private val marker2SegmentCache: HashMap<Marker, TripSegment> = LinkedHashMap()
     private val alertIdToMarkerCache: HashMap<Long, Marker> = LinkedHashMap()
     private val tripLines = Collections.synchronizedList(ArrayList<Polyline>())
+    private val tripLinesTravelled = Collections.synchronizedList(ArrayList<Polyline>())
 
     @Inject
     lateinit var segmentStopMarkerMaker: SegmentStopMarkerMaker
@@ -219,8 +226,8 @@ class TripResultMapContributor : TripKitMapContributor {
                     .subscribeOn(Schedulers.computation())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(
-                            { polylineOptionsList: List<PolylineOptions> ->
-                                showTripLines(map, polylineOptionsList)
+                            { polylineOptionsList: List<SegmentsPolyLineOptions> ->
+                                showTripLinesWithTravelledChecking(map, polylineOptionsList)
                             }
                     ) { error: Throwable? ->
                         errorLogger!!.trackError(error!!)
@@ -270,6 +277,8 @@ class TripResultMapContributor : TripKitMapContributor {
         marker2SegmentCache.clear()
         alertIdToMarkerCache.clear()
         tripLines.forEach { it.remove() }
+        tripLines.clear()
+        tripLinesTravelled.clear()
         removeTileOverlay()
         tileProvider?.let {
             if(it is CustomUrlTileProvider) {
@@ -283,6 +292,29 @@ class TripResultMapContributor : TripKitMapContributor {
     }
 
     @Synchronized
+    private fun showTripLinesWithTravelledChecking(
+        map: GoogleMap,
+        segmentsPolyLineOptions: List<SegmentsPolyLineOptions>
+    ) {
+        // To remove old lines before adding new ones.
+        for (line in tripLines) {
+            line.remove()
+        }
+        tripLines.clear()
+        tripLinesTravelled.clear()
+        segmentsPolyLineOptions.forEach { segment ->
+            segment.polyLineOptions.forEach { polylineOption ->
+                polylineOption.zIndex(2.0f)
+                val polyLine = map.addPolyline(polylineOption)
+                tripLines.add(polyLine)
+                if (segment.isTravelled) {
+                    tripLinesTravelled.add(polyLine)
+                }
+            }
+        }
+    }
+
+    @Synchronized
     private fun showTripLines(map: GoogleMap, polylineOptionsList: List<PolylineOptions>) {
         // To remove old lines before adding new ones.
         for (line in tripLines) {
@@ -293,6 +325,105 @@ class TripResultMapContributor : TripKitMapContributor {
             polylineOption.zIndex(2.0f)
             tripLines.add(map.addPolyline(polylineOption))
         }
+    }
+
+    fun resetTripLineTravelled() {
+        tripLinesTravelled.forEach {
+            it.color = it.color.removeAlpha()
+        }
+
+        val builder = LatLngBounds.Builder()
+        tripLinesTravelled.forEach {
+            for (point in it.points) {
+                builder.include(point)
+            }
+        }
+
+        val bounds = builder.build()
+
+        // Move the camera to focus on the bounds
+        val cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, 50)
+        map.animateCamera(cameraUpdate)
+    }
+
+    fun focusTripLine(segment: TripSegment) {
+
+        val segmentPolyLines = segment.getPolyLines()
+
+        updateTravelledPolyLinesHighlight(segmentPolyLines)
+
+        if (segmentPolyLines.isNotEmpty()) {
+            val builder = LatLngBounds.Builder()
+            segmentPolyLines.forEach {
+                for (point in it.points) {
+                    builder.include(point)
+                }
+            }
+
+            val bounds = builder.build()
+
+            // Move the camera to focus on the bounds
+            val cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, 50)
+            map.animateCamera(cameraUpdate)
+        } else if (segment.singleLocation != null) {
+            val cameraUpdate =
+                CameraUpdateFactory.newLatLngZoom(segment.singleLocation.toLatLng(), 20f)
+            map.animateCamera(cameraUpdate)
+        }
+    }
+
+    private fun updateTravelledPolyLinesHighlight(segmentPolyLines: List<Polyline>) {
+        tripLinesTravelled.forEach { polyLine ->
+            if (segmentPolyLines.any { it == polyLine }) {
+                polyLine.color = polyLine.color.removeAlpha()
+            } else {
+                polyLine.color = polyLine.color.adjustAlpha(0.25f)
+            }
+        }
+    }
+
+    private fun TripSegment.getPolyLines() =
+        if (this.streets != null) {
+            tripLinesTravelled.filter {
+                it.points.any { point ->
+                    this.streets?.filter { it.encodedWaypoints() != null }?.any { street ->
+                        PolyUtil.decode(street.encodedWaypoints())
+                            .zipWithNext()
+                            .any { (start, end) ->
+                                (point.latitude == start.latitude && point.longitude == start.longitude) ||
+                                        (point.latitude == end.latitude && point.longitude == end.longitude)
+                            }
+                    } ?: false
+                }
+            }
+        } else {
+            tripLinesTravelled.filter {
+                it.points.any { point ->
+                    this.shapes?.filter { it.isTravelled }?.any { shape ->
+                        PolyUtil.decode(shape.encodedWaypoints)
+                            .orEmpty().zipWithNext()
+                            .any { (start, end) ->
+                                (point.latitude == start.latitude && point.longitude == start.longitude) ||
+                                        (point.latitude == end.latitude && point.longitude == end.longitude)
+                            }
+                    } ?: false
+                }
+            }
+        }
+
+    private fun Int.adjustAlpha(alpha: Float): Int {
+        val red = Color.red(this)
+        val green = Color.green(this)
+        val blue = Color.blue(this)
+        val alphaValue = (alpha * 255).toInt()
+        return ColorUtils.setAlphaComponent(Color.rgb(red, green, blue), alphaValue)
+    }
+
+    private fun Int.removeAlpha(): Int {
+        val red = Color.red(this)
+        val green = Color.green(this)
+        val blue = Color.blue(this)
+        return Color.rgb(red, green, blue)
     }
 
     @Synchronized
