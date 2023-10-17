@@ -46,6 +46,7 @@ import com.skedgo.tripkit.ui.utils.APP_PREF_DEACTIVATED
 import com.skedgo.tripkit.ui.utils.KEY_APP_PREF
 import com.skedgo.tripkit.ui.utils.getVersionCode
 import com.skedgo.tripkit.ui.utils.isNetworkConnected
+import com.skedgo.tripkit.ui.utils.showProminentDisclosure
 import com.squareup.otto.Bus
 import dagger.Lazy
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -714,11 +715,16 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
         return marker
     }
 
+    @SuppressLint("MissingPermission")
     private fun goToMyLocation() {
-        ExcuseMe.couldYouGive(this).permissionFor(android.Manifest.permission.ACCESS_FINE_LOCATION) {
-            if (it.granted.contains(android.Manifest.permission.ACCESS_FINE_LOCATION)) {
-                map?.isMyLocationEnabled = true
-                viewModel.goToMyLocation()
+        requireContext().showProminentDisclosure { isAccepted ->
+            if(isAccepted) {
+                ExcuseMe.couldYouGive(this).permissionFor(android.Manifest.permission.ACCESS_FINE_LOCATION) {
+                    if (it.granted.contains(android.Manifest.permission.ACCESS_FINE_LOCATION)) {
+                        map?.isMyLocationEnabled = true
+                        viewModel.goToMyLocation()
+                    }
+                }
             }
         }
     }

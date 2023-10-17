@@ -12,10 +12,12 @@ import android.os.Build
 import android.provider.Settings
 import android.view.View
 import android.view.accessibility.AccessibilityManager
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.list.listItems
+import com.skedgo.tripkit.ui.R
 import java.lang.Exception
 
 fun Context.viewAppDetailsSettingsIntent(): Intent = Intent(
@@ -131,4 +133,22 @@ fun Context.openAppInPlayStore() {
         webIntent.data = Uri.parse("https://play.google.com/store/apps/details?id=$packageName")
         startActivity(webIntent)
     }
+}
+
+fun Context.showProminentDisclosure(onActionClicked: (Boolean) -> Unit) {
+    showConfirmationPopUpDialog(
+        message = getString(R.string.msg_prominent_disclosure),
+        positiveLabel = getString(R.string.continue_),
+        positiveCallback = {
+            onActionClicked.invoke(true)
+        },
+        negativeLabel = getString(R.string.cancel),
+        negativeCallback = {
+            onActionClicked.invoke(false)
+        }
+    )
+}
+
+fun Context.showToast(message: String) {
+    Toast.makeText(this, message, Toast.LENGTH_LONG).show()
 }

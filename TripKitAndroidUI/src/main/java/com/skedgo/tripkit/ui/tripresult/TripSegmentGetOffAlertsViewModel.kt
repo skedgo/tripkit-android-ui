@@ -19,6 +19,7 @@ import com.skedgo.tripkit.routing.*
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.core.RxViewModel
 import com.skedgo.tripkit.ui.utils.showConfirmationPopUpDialog
+import com.skedgo.tripkit.ui.utils.showProminentDisclosure
 import me.tatarka.bindingcollectionadapter2.BR
 import me.tatarka.bindingcollectionadapter2.ItemBinding
 import me.tatarka.bindingcollectionadapter2.collections.DiffObservableList
@@ -67,7 +68,7 @@ class TripSegmentGetOffAlertsViewModel @Inject internal constructor(
         cancelStartTripAlarms(context) //this will cancel previous alarm that was setup
 
         if (isOn) {
-            showProminentDisclosure(context) { isAccepted ->
+            context.showProminentDisclosure { isAccepted ->
                 if(isAccepted) {
                     checkAccessFineLocationPermission(context)
                 } else {
@@ -80,20 +81,6 @@ class TripSegmentGetOffAlertsViewModel @Inject internal constructor(
 
         alertStateListener.invoke(isOn)
         _getOffAlertStateOn.postValue(isOn)
-    }
-
-    private fun showProminentDisclosure(context: Context, onActionClicked: (Boolean) -> Unit) {
-        context.showConfirmationPopUpDialog(
-            message = context.getString(R.string.msg_prominent_disclosure),
-            positiveLabel = context.getString(R.string.continue_),
-            positiveCallback = {
-                onActionClicked.invoke(true)
-            },
-            negativeLabel = context.getString(R.string.cancel),
-            negativeCallback = {
-                onActionClicked.invoke(false)
-            }
-        )
     }
 
     /*
