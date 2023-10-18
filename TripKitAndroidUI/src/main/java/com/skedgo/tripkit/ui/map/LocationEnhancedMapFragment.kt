@@ -71,7 +71,7 @@ open class LocationEnhancedMapFragment : BaseMapFragment() {
         return originalView
     }
 
-    open fun animateToMyLocation() {
+    open fun animateToMyLocation(showProminentDisclosure: Boolean = false) {
         if (activity == null) {
             return
         }

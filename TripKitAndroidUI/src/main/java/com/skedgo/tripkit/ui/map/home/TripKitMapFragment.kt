@@ -9,6 +9,7 @@ import android.util.Log
 import android.view.View
 import android.widget.Toast
 import com.araujo.jordan.excuseme.ExcuseMe
+import com.araujo.jordan.excuseme.model.PermissionStatus
 import com.google.android.gms.maps.CameraUpdate
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -576,8 +577,8 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
 //        })
 //    }
 
-    override fun animateToMyLocation() {
-        goToMyLocation()
+    override fun animateToMyLocation(showProminentDisclosure: Boolean) {
+        goToMyLocation(showProminentDisclosure)
     }
 
     fun animateToCity(city: Location) {
@@ -715,18 +716,37 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
         return marker
     }
 
-    @SuppressLint("MissingPermission")
-    private fun goToMyLocation() {
-        requireContext().showProminentDisclosure { isAccepted ->
-            if(isAccepted) {
-                ExcuseMe.couldYouGive(this).permissionFor(android.Manifest.permission.ACCESS_FINE_LOCATION) {
-                    if (it.granted.contains(android.Manifest.permission.ACCESS_FINE_LOCATION)) {
-                        map?.isMyLocationEnabled = true
-                        viewModel.goToMyLocation()
+    private fun goToMyLocation(showProminentDisclosure: Boolean) {
+        if (showProminentDisclosure) {
+            requireContext().showProminentDisclosure { isAccepted ->
+                if (isAccepted) {
+                    askForLocationPermission {
+                        if (it.granted.contains(android.Manifest.permission.ACCESS_FINE_LOCATION)) {
+                            enableAndGoToCurrentLocation()
+                        }
                     }
                 }
             }
+        } else {
+            askForLocationPermission {
+                if (it.granted.contains(android.Manifest.permission.ACCESS_FINE_LOCATION)) {
+                    enableAndGoToCurrentLocation()
+                }
+            }
         }
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun enableAndGoToCurrentLocation() {
+        map?.isMyLocationEnabled = true
+        viewModel.goToMyLocation()
+    }
+
+    private fun askForLocationPermission(completion: (permissionStatus: PermissionStatus) -> Unit) {
+        ExcuseMe.couldYouGive(this)
+            .permissionFor(android.Manifest.permission.ACCESS_FINE_LOCATION) {
+                completion.invoke(it)
+            }
     }
 
     private fun showMyLocation(myLocation: Location) { // Prepare marker for my location.
