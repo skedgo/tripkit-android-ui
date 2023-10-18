@@ -10,6 +10,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
+import android.widget.EditText
 import android.widget.Toast
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -59,6 +60,8 @@ class TKUIRouteFragment : BaseFragment<FragmentTkuiRouteBinding>() {
 
     var origin: Location? = null
     var destination: Location? = null
+
+    private var focusedField: View? = null
 
     private var locationSearchFragment: TKUILocationSearchViewControllerFragment? = null
 
@@ -114,6 +117,7 @@ class TKUIRouteFragment : BaseFragment<FragmentTkuiRouteBinding>() {
 
     private var focusChangeListener = { v: View, hasFocus: Boolean ->
         if (v == binding.tieStartEdit && hasFocus) {
+            focusedField = binding.tieStartEdit
             if (viewModel.startLocation?.locationType != Location.TYPE_CURRENT_LOCATION) {
                 locationSearchFragment?.setQuery(binding.tieStartEdit.text.toString(), true)
             } else {
@@ -121,6 +125,7 @@ class TKUIRouteFragment : BaseFragment<FragmentTkuiRouteBinding>() {
             }
             viewModel.focusedField = TKUIRouteViewModel.FocusedField.START
         } else if (v == binding.tieDestinationEdit && hasFocus) {
+            focusedField = binding.tieDestinationEdit
             if (viewModel.destinationLocation?.locationType != Location.TYPE_CURRENT_LOCATION) {
                 locationSearchFragment?.setQuery(binding.tieDestinationEdit.text.toString(), true)
             } else {
@@ -396,6 +401,14 @@ class TKUIRouteFragment : BaseFragment<FragmentTkuiRouteBinding>() {
 
             binding.tieDestinationEdit.hasFocus() -> {
                 viewModel.destinationLocation = location
+            }
+
+            focusedField != null -> {
+                if (focusedField == binding.tieStartEdit) {
+                    viewModel.startLocation = location
+                } else {
+                    viewModel.destinationLocation = location
+                }
             }
 
             binding.tieStartEdit.text.isNullOrBlank() -> {
