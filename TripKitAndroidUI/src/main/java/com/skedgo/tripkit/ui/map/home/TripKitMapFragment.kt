@@ -239,6 +239,8 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
         }
     }
 
+    fun getContributor(): TripKitMapContributor? = contributor
+
     override fun onResume() {
         super.onResume()
         viewModel.getOriginPinUpdate()

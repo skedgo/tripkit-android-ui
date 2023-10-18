@@ -13,7 +13,7 @@ import java.util.*
 import javax.inject.Inject
 
 // FIXME: Create a pure domain model to represent a trip line.
-typealias TripLine = List<PolylineOptions>
+typealias TripLine = List<SegmentsPolyLineOptions>
 
 open class GetTripLine @Inject internal constructor(
     private val getNonTravelledLineForTrip: GetNonTravelledLineForTrip,
@@ -33,7 +33,7 @@ open class GetTripLine @Inject internal constructor(
                 )
             }
 
-    private fun createPolylineListForNonTravelledLines(nonTravelledLinesToDraw: List<List<LineSegment>>?): List<PolylineOptions> {
+    private fun createPolylineListForNonTravelledLines(nonTravelledLinesToDraw: List<List<LineSegment>>?): List<SegmentsPolyLineOptions> {
         val polylineOptionsList = mutableListOf<PolylineOptions>()
         if (nonTravelledLinesToDraw != null && !nonTravelledLinesToDraw.isEmpty()) {
             val lines = mutableListOf<LatLng>()
@@ -54,10 +54,12 @@ open class GetTripLine @Inject internal constructor(
                 }
             }
         }
-        return polylineOptionsList
+        return listOf(
+            SegmentsPolyLineOptions(polylineOptionsList, false)
+        )
     }
 
-    private fun createPolylineListForTravelledLines(results: List<List<LineSegment>>?): List<PolylineOptions> {
+    private fun createPolylineListForTravelledLines(results: List<List<LineSegment>>?): List<SegmentsPolyLineOptions> {
         val polylineOptionsList = mutableListOf<PolylineOptions>()
         if (!results.isNullOrEmpty()) {
             val lines = LinkedList<LatLng>()
@@ -68,12 +70,13 @@ open class GetTripLine @Inject internal constructor(
                     lines.add(LatLng(it.start.latitude, it.start.longitude))
                     lines.add(LatLng(it.end.latitude, it.end.longitude))
 
+                    //Background only for non-black color lines to standout in map
                     if (it.color != Color.BLACK) {
                         polylineOptionsList.add(
                             PolylineOptions()
                                 .addAll(lines)
                                 .color(Color.BLACK)
-                                .width(10f)
+                                .width(20f)
                         )
                     }
 
@@ -81,11 +84,13 @@ open class GetTripLine @Inject internal constructor(
                         PolylineOptions()
                             .addAll(lines)
                             .color(it.color)
-                            .width((if (it.color != Color.BLACK) 6 else 7).toFloat())
+                            .width((if (it.color != Color.BLACK) 14 else 15).toFloat())
                     )
                 }
             }
         }
-        return polylineOptionsList
+        return listOf(
+            SegmentsPolyLineOptions(polylineOptionsList, true)
+        )
     }
 }

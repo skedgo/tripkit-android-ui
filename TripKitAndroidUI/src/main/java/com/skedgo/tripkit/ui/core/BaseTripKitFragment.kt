@@ -52,7 +52,7 @@ open class BaseTripKitFragment : Fragment() {
         loadingDialog.let {
             if (isLoading && !loadingDialog.isShowing)
                 loadingDialog.show()
-            else if (!isLoading && loadingDialog.isShowing) {
+            else if (!isLoading) {
                 loadingDialog.dismiss()
             }
         }

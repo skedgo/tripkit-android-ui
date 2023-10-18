@@ -39,6 +39,8 @@ class TripSegmentGetOffAlertsViewModel @Inject internal constructor(
 
     private val configs = TripKit.getInstance().configs()
 
+    internal var alertStateListener: (Boolean) -> Unit = { _ -> }
+
     init {
         val isOn = GetOffAlertCache.isTripAlertStateOn(trip.tripUuid)
         _getOffAlertStateOn.postValue(isOn)
@@ -53,6 +55,10 @@ class TripSegmentGetOffAlertsViewModel @Inject internal constructor(
         items.update(details)
     }
 
+    fun setAlertState(isOn: Boolean) {
+        _getOffAlertStateOn.postValue(isOn)
+    }
+
     fun onAlertChange(context: Context, isOn: Boolean) {
         trip.let {
             GetOffAlertCache.setTripAlertOnState(it.tripUuid, isOn)
@@ -63,7 +69,7 @@ class TripSegmentGetOffAlertsViewModel @Inject internal constructor(
         if (isOn) {
             showProminentDisclosure(context) { isAccepted ->
                 if(isAccepted) {
-                    checkLocationPermissionAndSetAlerts(context)
+                    checkAccessFineLocationPermission(context)
                 } else {
                     _getOffAlertStateOn.postValue(false)
                 }
@@ -72,6 +78,7 @@ class TripSegmentGetOffAlertsViewModel @Inject internal constructor(
             GeoLocation.clearGeofences()
         }
 
+        alertStateListener.invoke(isOn)
         _getOffAlertStateOn.postValue(isOn)
     }
 
@@ -89,9 +96,25 @@ class TripSegmentGetOffAlertsViewModel @Inject internal constructor(
         )
     }
 
-    private fun checkLocationPermissionAndSetAlerts(context: Context) {
+    /*
+    * There's an issue getting automatically rejected when asking ACCESS_FINE_LOCATION and
+    * ACCESS_BACKGROUND_LOCATION at the same time. So will be asking one permission
+    * after the other.
+    */
+    private fun checkAccessFineLocationPermission(context: Context) {
         ExcuseMe.couldYouGive(context).permissionFor(
-            android.Manifest.permission.ACCESS_FINE_LOCATION,
+            android.Manifest.permission.ACCESS_FINE_LOCATION
+        ) {
+            if (it.denied.isNotEmpty()) {
+                _getOffAlertStateOn.postValue(false)
+            } else {
+                checkBackgroundLocationPermission(context)
+            }
+        }
+    }
+
+    private fun checkBackgroundLocationPermission(context: Context) {
+        ExcuseMe.couldYouGive(context).permissionFor(
             android.Manifest.permission.ACCESS_BACKGROUND_LOCATION
         ) {
 

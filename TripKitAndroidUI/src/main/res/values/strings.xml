@@ -63,8 +63,12 @@
     <string name="talkback_decrement">Decrement</string>
     <string name="talkback_increment">Increment</string>
     <string name="notes_from_operator">Notes from operator</string>
-    <string name="lbl_alert_when_get_off">Alert when get off</string>
+    <string name="lbl_alert_when_get_off">Trip Notifications</string>
     <string name="lbl_get_notifications_when">Get notifications when:</string>
     <string name="msg_prominent_disclosure">This app collects location data to enable alerts feature to notify users when their trip is starting, is near the stops when trip is on going and when arriving at their destination even when the app is on the background.</string>
     <string name="lbl_go_to_current_location">Go to current location</string>
+    <string name="get_off_alerts_trip_about_to_start">The trip is about to start</string>
+    <string name="get_off_alerts_getting_within_disembarkation_point">Getting within 500m of the disembarkation point</string>
+    <string name="get_off_alerts_passed_by_the_previous_stop">Passed by the previous stop</string>
+    <string name="get_off_alerts_about_to_arrive_final_destination">About to arrive the final destination</string>
 </resources>
