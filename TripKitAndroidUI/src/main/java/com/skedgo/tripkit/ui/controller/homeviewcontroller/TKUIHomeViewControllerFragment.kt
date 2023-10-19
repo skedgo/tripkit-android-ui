@@ -139,7 +139,7 @@ class TKUIHomeViewControllerFragment :
     private val searchCardListener =
         object : TKUILocationSearchViewControllerFragment.TKUILocationSearchViewControllerListener {
             override fun onLocationSelected(location: Location) {
-                routeLocation(location)
+                routeLocation(destination = location)
             }
 
             override fun onFixedSuggestionSelected(any: Any) {
@@ -399,7 +399,7 @@ class TKUIHomeViewControllerFragment :
     }
 
     private fun routeLocation(
-        origin: Location,
+        origin: Location? = null,
         destination: Location? = null
     ) {
         val routeFragment = TKUIRouteFragment.newInstance(
