@@ -158,7 +158,7 @@ class TripResultListFragment : BaseTripKitFragment() {
 
         binding.leaveNowLayout.setOnClickListener { showDateTimePicker() }
         binding.leaveNowLayout.accessibilityDelegate = object: View.AccessibilityDelegate() {
-            override fun sendAccessibilityEvent(host: View?, eventType: Int) {
+            override fun sendAccessibilityEvent(host: View, eventType: Int) {
                 viewModel.query.timeTag?.let { timeTag ->
                     if(timeTag.isLeaveNow) {
                         if(region != null) {

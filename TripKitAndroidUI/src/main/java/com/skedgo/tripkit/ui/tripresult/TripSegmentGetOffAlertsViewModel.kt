@@ -6,19 +6,22 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.graphics.drawable.Drawable
-import android.net.Uri
-import android.os.Handler
-import android.util.Log
+import android.os.Build
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.recyclerview.widget.DiffUtil
 import com.araujo.jordan.excuseme.ExcuseMe
 import com.google.gson.Gson
 import com.skedgo.TripKit
+import com.skedgo.tripkit.TripUpdater
 import com.skedgo.tripkit.routing.*
+import com.skedgo.tripkit.ui.BuildConfig
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.core.RxViewModel
+import com.skedgo.tripkit.ui.utils.requestPermissionGently
 import com.skedgo.tripkit.ui.utils.showConfirmationPopUpDialog
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.rxkotlin.addTo
 import me.tatarka.bindingcollectionadapter2.BR
 import me.tatarka.bindingcollectionadapter2.ItemBinding
 import me.tatarka.bindingcollectionadapter2.collections.DiffObservableList
@@ -28,7 +31,8 @@ import javax.inject.Inject
 
 class TripSegmentGetOffAlertsViewModel @Inject internal constructor(
         val trip: Trip,
-        defaultValue: Boolean = false
+        defaultValue: Boolean = false,
+        val tripUpdater: TripUpdater
 ) : RxViewModel() {
 
     private val _getOffAlertStateOn = MutableLiveData<Boolean>(defaultValue)
@@ -40,6 +44,8 @@ class TripSegmentGetOffAlertsViewModel @Inject internal constructor(
     private val configs = TripKit.getInstance().configs()
 
     internal var alertStateListener: (Boolean) -> Unit = { _ -> }
+
+    private val disposable = CompositeDisposable()
 
     init {
         val isOn = GetOffAlertCache.isTripAlertStateOn(trip.tripUuid)
@@ -67,7 +73,7 @@ class TripSegmentGetOffAlertsViewModel @Inject internal constructor(
         cancelStartTripAlarms(context) //this will cancel previous alarm that was setup
 
         if (isOn) {
-            showProminentDisclosure(context) { isAccepted ->
+            checkPermissionAndShowProminentDisclosure(context) { isAccepted ->
                 if(isAccepted) {
                     checkAccessFineLocationPermission(context)
                 } else {
@@ -80,6 +86,38 @@ class TripSegmentGetOffAlertsViewModel @Inject internal constructor(
 
         alertStateListener.invoke(isOn)
         _getOffAlertStateOn.postValue(isOn)
+    }
+
+    @SuppressLint("InlinedApi")
+    private fun checkPermissionAndShowProminentDisclosure(
+        context: Context,
+        isAccepted: (Boolean) -> Unit
+    ) {
+        context.requestPermissionGently(
+            listOf(android.Manifest.permission.POST_NOTIFICATIONS),
+            { permissionStatus ->
+                permissionStatus?.let {
+                    if (it.granted.isNotEmpty()) {
+                        showProminentDisclosure(context, isAccepted)
+                    } else {
+                        isAccepted.invoke(false)
+                    }
+                } ?: kotlin.run {
+                    showProminentDisclosure(context, isAccepted)
+                }
+            },
+            title = context.getString(R.string.permission_request_title),
+            description = context.getString(
+                R.string.permission_request_notificaiton,
+                context.getString(R.string.app_name)
+            ),
+            openSettingsTitle = context.getString(
+                R.string.permission_request_notificaiton,
+                context.getString(R.string.app_name)
+            ),
+            openSettingsExplanation = context.getString(R.string.permission_request_notificaiton_open_settings_explanation),
+            Build.VERSION_CODES.TIRAMISU
+        )
     }
 
     private fun showProminentDisclosure(context: Context, onActionClicked: (Boolean) -> Unit) {
@@ -105,6 +143,7 @@ class TripSegmentGetOffAlertsViewModel @Inject internal constructor(
         ExcuseMe.couldYouGive(context).permissionFor(
             android.Manifest.permission.ACCESS_FINE_LOCATION
         ) {
+
             if (it.denied.isNotEmpty()) {
                 _getOffAlertStateOn.postValue(false)
             } else {
@@ -128,6 +167,17 @@ class TripSegmentGetOffAlertsViewModel @Inject internal constructor(
                 alarmIntent.putExtra(TripAlarmBroadcastReceiver.ACTION_START_TRIP_EVENT, true)
                 alarmIntent.putExtra(TripAlarmBroadcastReceiver.EXTRA_START_TRIP_EVENT_TRIP, Gson().toJson(trip))
                 pendingIntent = PendingIntent.getBroadcast(context, 0, alarmIntent, 0 or PendingIntent.FLAG_IMMUTABLE)
+            }
+
+            trip.subscribeURL?.let { url ->
+                tripUpdater.tripSubscription(url)
+                    .subscribe({
+                        //Do nothing
+                    }, { e ->
+                        if (BuildConfig.DEBUG) {
+                            e.printStackTrace()
+                        }
+                    }).addTo(disposable)
             }
 
             if (it.denied.isNotEmpty()) {
@@ -164,6 +214,10 @@ class TripSegmentGetOffAlertsViewModel @Inject internal constructor(
         }
     }
 
+    override fun onCleared() {
+        disposable.clear()
+        super.onCleared()
+    }
 }
 
 class TripSegmentGetOffAlertDetailViewModel @Inject internal constructor(
