@@ -37,6 +37,7 @@ import com.skedgo.tripkit.routing.getSummarySegments
 import com.skedgo.tripkit.routingstatus.RoutingStatus
 import com.skedgo.tripkit.routingstatus.RoutingStatusRepository
 import com.skedgo.tripkit.routingstatus.Status
+import com.skedgo.tripkit.ui.BuildConfig
 import com.skedgo.tripkit.ui.model.UserMode
 import com.skedgo.tripkit.ui.routing.SimpleTransportModeFilter
 import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButtonContainer
@@ -262,7 +263,9 @@ class TripResultListViewModel @Inject constructor(
                             } else {
                                 onError.accept(error.message)
                             }
-                            Timber.e(error, "An error in routing occurred ${error.message}")
+                            if(BuildConfig.DEBUG) {
+                                error.printStackTrace()
+                            }
                         }).autoClear()
 
 

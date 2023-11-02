@@ -7,8 +7,10 @@ import android.graphics.drawable.BitmapDrawable
 import android.util.Log
 import android.view.View
 import androidx.core.graphics.ColorUtils
+import com.google.android.gms.maps.CameraUpdate
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
@@ -26,6 +28,7 @@ import com.skedgo.tripkit.logging.ErrorLogger
 import com.skedgo.tripkit.routing.TripSegment
 import com.skedgo.tripkit.ui.TripKitUI
 import com.skedgo.tripkit.ui.core.UnableToFetchBitmapError
+import com.skedgo.tripkit.ui.core.addTo
 import com.skedgo.tripkit.ui.core.fetchAsync
 import com.skedgo.tripkit.ui.data.location.toLatLng
 import com.skedgo.tripkit.ui.map.*
@@ -35,6 +38,7 @@ import com.skedgo.tripkit.ui.map.home.TripKitMapContributor
 import com.skedgo.tripkit.ui.utils.correctItemType
 import com.squareup.picasso.Picasso
 import dagger.Lazy
+import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.functions.Consumer
@@ -138,14 +142,12 @@ class TripResultMapContributor : TripKitMapContributor {
             }
         }
 
-        if(this::map.isInitialized && tileOverlays.isEmpty()) {
+        if (this::map.isInitialized && tileOverlays.isEmpty()) {
             tileProvider?.let {
-                tileOverlays.add(
-                    map.addTileOverlay(
-                        TileOverlayOptions()
-                            .tileProvider(it)
-                    )
-                )
+                map.addTileOverlay(
+                    TileOverlayOptions()
+                        .tileProvider(it)
+                )?.let { tileOverlays.add(it) }
             }
         }
     }

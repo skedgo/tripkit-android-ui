@@ -71,19 +71,19 @@ open class GetTripLine @Inject internal constructor(
                     lines.add(LatLng(it.end.latitude, it.end.longitude))
 
                     //Background only for non-black color lines to standout in map
-                    if (it.color != Color.BLACK) {
+                    /*if (it.color != Color.BLACK) {
                         polylineOptionsList.add(
                             PolylineOptions()
                                 .addAll(lines)
                                 .color(Color.BLACK)
                                 .width(20f)
                         )
-                    }
+                    }*/
 
                     polylineOptionsList.add(
                         PolylineOptions()
                             .addAll(lines)
-                            .color(it.color)
+                            .color(if (isWhiteColor(it.color)) Color.GRAY else it.color)
                             .width((if (it.color != Color.BLACK) 14 else 15).toFloat())
                     )
                 }
@@ -92,5 +92,14 @@ open class GetTripLine @Inject internal constructor(
         return listOf(
             SegmentsPolyLineOptions(polylineOptionsList, true)
         )
+    }
+
+    private fun isWhiteColor(colorInt: Int): Boolean {
+        val red = (colorInt shr 16) and 0xFF
+        val green = (colorInt shr 8) and 0xFF
+        val blue = colorInt and 0xFF
+
+        // Check if all RGB components are at their maximum value and alpha is 0xFF (fully opaque).
+        return red == 0xFF && green == 0xFF && blue == 0xFF
     }
 }
