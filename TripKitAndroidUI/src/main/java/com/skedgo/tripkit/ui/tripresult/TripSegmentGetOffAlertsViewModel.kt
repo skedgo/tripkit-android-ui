@@ -18,6 +18,7 @@ import com.skedgo.tripkit.routing.*
 import com.skedgo.tripkit.ui.BuildConfig
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.core.RxViewModel
+import com.skedgo.tripkit.ui.utils.removeQueryParamFromUrl
 import com.skedgo.tripkit.ui.utils.requestPermissionGently
 import com.skedgo.tripkit.ui.utils.showConfirmationPopUpDialog
 import io.reactivex.disposables.CompositeDisposable
@@ -30,10 +31,14 @@ import javax.inject.Inject
 
 
 class TripSegmentGetOffAlertsViewModel @Inject internal constructor(
-        val trip: Trip,
+        var trip: Trip,
         defaultValue: Boolean = false,
         val tripUpdater: TripUpdater
 ) : RxViewModel() {
+
+    companion object {
+        const val URL_PARAM_HASH = "hash"
+    }
 
     private val _getOffAlertStateOn = MutableLiveData<Boolean>(defaultValue)
     val getOffAlertStateOn: LiveData<Boolean> = _getOffAlertStateOn
@@ -82,6 +87,16 @@ class TripSegmentGetOffAlertsViewModel @Inject internal constructor(
             }
         } else {
             GeoLocation.clearGeofences()
+            trip.unsubscribeURL?.let { unsubscribeUrl ->
+                tripUpdater.tripSubscription(unsubscribeUrl)
+                    .subscribe({
+                        //Do nothing
+                    }, { e ->
+                        if (BuildConfig.DEBUG) {
+                            e.printStackTrace()
+                        }
+                    }).addTo(disposable)
+            }
         }
 
         alertStateListener.invoke(isOn)
@@ -161,7 +176,7 @@ class TripSegmentGetOffAlertsViewModel @Inject internal constructor(
             var pendingIntent: PendingIntent? = null
             var startSegmentStartTimeInSecs = 0L
 
-            trip?.segments?.minByOrNull { it.startTimeInSecs }?.let { startSegment ->
+            trip.segments?.minByOrNull { it.startTimeInSecs }?.let { startSegment ->
                 startSegmentStartTimeInSecs = startSegment.startTimeInSecs
                 val alarmIntent = Intent(context, TripAlarmBroadcastReceiver::class.java)
                 alarmIntent.putExtra(TripAlarmBroadcastReceiver.ACTION_START_TRIP_EVENT, true)
@@ -171,8 +186,16 @@ class TripSegmentGetOffAlertsViewModel @Inject internal constructor(
 
             trip.subscribeURL?.let { url ->
                 tripUpdater.tripSubscription(url)
+                    .flatMap {
+                        val updateUrl = trip.updateURL ?: ""
+                        // remove hash to force get updated trip for getting the unsubscribeURL
+                        if(updateUrl.contains(URL_PARAM_HASH)) {
+                            updateUrl.removeQueryParamFromUrl(URL_PARAM_HASH)
+                        }
+                        tripUpdater.getUpdateAsync(updateUrl)
+                    }
                     .subscribe({
-                        //Do nothing
+                        this.trip = it
                     }, { e ->
                         if (BuildConfig.DEBUG) {
                             e.printStackTrace()
