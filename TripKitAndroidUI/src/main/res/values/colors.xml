@@ -83,4 +83,7 @@
     <color name="warning_late">#AE6500</color>
 
     <color name="pink1">#BE205F</color>
+
+    <color name="textinputlayout_border">#595959</color>
+    <color name="textinputlayout_border_focused">#262626</color>
 </resources>
