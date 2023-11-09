@@ -110,7 +110,7 @@ class TripKitDateTimePickerDialogFragment : DialogFragment(), TimePicker.OnTimeC
                 timePickerViewModel.negativeActionLabel().get(),
                 onNegativeClickListener(),
                 object: View.AccessibilityDelegate() {
-                    override fun sendAccessibilityEvent(host: View?, eventType: Int) {
+                    override fun sendAccessibilityEvent(host: View, eventType: Int) {
 
                         var hostText: String = ""
 
@@ -119,7 +119,7 @@ class TripKitDateTimePickerDialogFragment : DialogFragment(), TimePicker.OnTimeC
                         }
 
                         binding?.timePicker?.let {
-                            host?.contentDescription =
+                            host.contentDescription =
                                 "$hostText ${getDateTimeForContentDescription(it)}"
                         }
                         super.sendAccessibilityEvent(host, eventType)
@@ -219,7 +219,7 @@ class TripKitDateTimePickerDialogFragment : DialogFragment(), TimePicker.OnTimeC
         timePicker.accessibilityDelegate = object : View.AccessibilityDelegate() {
             //To override and bypass accessibility reading since timepicker class
             //is inaccessible and cannot set content description programmatically
-            override fun sendAccessibilityEvent(host: View?, eventType: Int) {
+            override fun sendAccessibilityEvent(host: View, eventType: Int) {
                 if (host is TimePicker) {
                     binding?.timePicker?.let {
                         host.contentDescription = getDateTimeForContentDescription(it)

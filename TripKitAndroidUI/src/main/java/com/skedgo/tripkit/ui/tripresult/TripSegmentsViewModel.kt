@@ -15,10 +15,10 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.jakewharton.rxrelay2.BehaviorRelay
 import com.jakewharton.rxrelay2.PublishRelay
+import com.skedgo.tripkit.TripUpdater
 import com.skedgo.tripkit.booking.BookingForm
 import com.skedgo.tripkit.common.model.Location
 import com.skedgo.tripkit.common.model.RealtimeAlert
-import com.skedgo.tripkit.common.model.TransportMode
 import com.skedgo.tripkit.common.util.TimeUtils
 import com.skedgo.tripkit.datetime.PrintTime
 import com.skedgo.tripkit.routing.*
@@ -26,8 +26,6 @@ import com.skedgo.tripkit.ui.BR
 import com.skedgo.tripkit.ui.BuildConfig
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.core.RxViewModel
-import com.skedgo.tripkit.ui.core.settings.DeveloperPreferenceRepository
-import com.skedgo.tripkit.ui.core.settings.DeveloperPreferenceRepositoryImpl
 import com.skedgo.tripkit.ui.creditsources.CreditSourcesOfDataViewModel
 import com.skedgo.tripkit.ui.routingresults.TripGroupRepository
 import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButtonContainer
@@ -57,7 +55,8 @@ class TripSegmentsViewModel @Inject internal constructor(
     private val updateTripForRealtime: UpdateTripForRealtime,
     private val tripGroupRepository: TripGroupRepository,
     private val tripSegmentActionProcessor: TripSegmentActionProcessor,
-    private val getAlternativeTripForAlternativeService: GetAlternativeTripForAlternativeService
+    private val getAlternativeTripForAlternativeService: GetAlternativeTripForAlternativeService,
+    private val tripUpdater: TripUpdater
 ) : RxViewModel(), ActionButtonContainer, ActionButtonClickListener {
 
     private val segmentViewModels: MutableList<TripSegmentItemViewModel> = ArrayList()
@@ -523,7 +522,7 @@ class TripSegmentsViewModel @Inject internal constructor(
         try {
             val isOn = GetOffAlertCache.isTripAlertStateOn(trip.tripUuid)
 
-            val getOffAlertsViewModel = TripSegmentGetOffAlertsViewModel(trip, isOn)
+            val getOffAlertsViewModel = TripSegmentGetOffAlertsViewModel(trip, isOn, tripUpdater)
 
             getOffAlertsViewModel.alertStateListener = {
                 setupButtons(tripGroup)
