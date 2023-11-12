@@ -1472,7 +1472,7 @@ Note, your iCloud data will not be deleted by this, but you can delete this in t
 	<string name="add_work">Add Work</string>
 	<string name="see_all">See All</string>
 	<string name="from_with_colon">From:</string>
-	<string name="sign_in_to_your_account">Sign in to your %s account</string>
+	<string name="sign_in_to_your_account">Log in to your %s account</string>
 
 	<string name="edit_your_flavor_account">Edit your %s account</string>
 	<string name="click_to_change_profile_picture">Click to change your profile picture</string>
@@ -1497,7 +1497,7 @@ Note, your iCloud data will not be deleted by this, but you can delete this in t
 	<string name="notes">Notes</string>
 
 	<string name="use_the_sliders_to_tell_us_what_most_important_to_you">Use the sliders to choose your highest and lowest priorities when travelling. Only one priority can be maximised. %s will display search results according to these preferences.</string>
-	<string name="sign_in_to_continue">Sign in to continue</string>
+	<string name="sign_in_to_continue">Log in to continue</string>
 
 	<string name="requested_time">Requested time %s at %s</string>
 	<string name="start_here">Start Here</string>
