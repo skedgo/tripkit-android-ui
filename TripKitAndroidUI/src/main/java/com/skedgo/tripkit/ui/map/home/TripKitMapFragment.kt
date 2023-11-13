@@ -1,6 +1,7 @@
 package com.skedgo.tripkit.ui.map.home
 
 import android.annotation.SuppressLint
+import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
 import android.graphics.Bitmap
@@ -16,6 +17,7 @@ import com.google.android.gms.maps.GoogleMap.*
 import com.google.android.gms.maps.model.*
 import com.google.maps.android.collections.MarkerManager
 import com.skedgo.tripkit.AndroidGeocoder
+import com.skedgo.tripkit.TripKitConstants.Companion.PREF_NAME_APP
 import com.skedgo.tripkit.common.model.Location
 import com.skedgo.tripkit.common.model.Region
 import com.skedgo.tripkit.common.model.Region.City
@@ -103,6 +105,10 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
 
     @Inject
     lateinit var eventTracker: EventTracker
+
+    private val appPreferences: SharedPreferences by lazy {
+        requireContext().getSharedPreferences(PREF_NAME_APP, Application.MODE_PRIVATE)
+    }
 
     private val cityMarkerMap = HashMap<String, Marker>()
     private var regions: List<Region> = LinkedList()
@@ -227,9 +233,7 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
     }
 
     fun setContributor(newContributor: TripKitMapContributor?) {
-        contributor?.let {
-            it.cleanup()
-        }
+        contributor?.cleanup()
         contributor = newContributor
         contributor?.let {
             whenSafeToUseMap(Consumer { map: GoogleMap ->
@@ -264,7 +268,7 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
         loadMarkers()
 
         if(!requireContext().isNetworkConnected() &&
-                preferences.getBoolean(APP_PREF_DEACTIVATED, false)) {
+                appPreferences.getBoolean(APP_PREF_DEACTIVATED, false)) {
             appDeactivatedListener?.invoke()
         }
     }
@@ -593,7 +597,7 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
         regionService.getRegionsAsync()
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({ regions: List<Region> ->
-                preferences
+                appPreferences
                     .edit().putBoolean(APP_PREF_DEACTIVATED, false)
                     .apply()
                 this.regions = regions
@@ -602,12 +606,6 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
                 error?.let {
                     it.printStackTrace()
                     errorLogger.logError(it)
-                    if(error is HttpException && error.code() == 401) {
-                        preferences
-                            .edit().putBoolean(APP_PREF_DEACTIVATED, true)
-                            .apply()
-                        appDeactivatedListener?.invoke()
-                    }
                 }
             }.addTo(autoDisposable)
     }

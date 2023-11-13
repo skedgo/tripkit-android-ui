@@ -234,7 +234,11 @@ public abstract class TripKitUI {
             if (httpClientModule != null) {
                 builder.httpClientModule(httpClientModule);
             } else {
-                builder.httpClientModule(new HttpClientModule(null, null, tripKitConfigs, null));
+                builder.httpClientModule(new HttpClientModule(
+                        null, null,
+                        tripKitConfigs,
+                        null, null
+                ));
             }
 
             instance = builder.contextModule(new ContextModule(context))

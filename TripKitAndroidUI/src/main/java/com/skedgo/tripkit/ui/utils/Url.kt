@@ -42,3 +42,19 @@ fun String.checkUrl(): String? {
         guessUrl
     }
 }
+
+fun String.removeQueryParamFromUrl(paramToRemove: String): String {
+    val uri = Uri.parse(this)
+    val builder = uri.buildUpon()
+
+    val queryParams = uri.queryParameterNames.toMutableList()
+    queryParams.removeAll { it == paramToRemove }
+
+    builder.clearQuery()
+
+    for (param in queryParams) {
+        builder.appendQueryParameter(param, uri.getQueryParameter(param))
+    }
+
+    return builder.build().toString()
+}
