@@ -3,9 +3,7 @@ package com.skedgo.tripkit.ui.servicedetail
 import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.Drawable
-import android.view.View
 import androidx.core.content.ContextCompat
-import androidx.databinding.ObservableArrayList
 import androidx.databinding.ObservableBoolean
 import androidx.databinding.ObservableField
 import androidx.databinding.ObservableInt
@@ -15,10 +13,9 @@ import com.jakewharton.rxrelay2.PublishRelay
 import com.skedgo.TripKit
 import com.skedgo.tripkit.ServiceApi
 import com.skedgo.tripkit.ServiceResponse
-import com.skedgo.tripkit.common.model.Location
+import com.skedgo.tripkit.common.model.RealtimeAlert
 import com.skedgo.tripkit.common.model.ScheduledStop
 import com.skedgo.tripkit.common.model.ServiceStop
-import com.skedgo.tripkit.common.model.WheelchairAccessible
 import com.skedgo.tripkit.data.regions.RegionService
 import com.skedgo.tripkit.logging.ErrorLogger
 import com.skedgo.tripkit.routing.*
@@ -32,7 +29,6 @@ import com.skedgo.tripkit.ui.timetables.GetServiceTertiaryText
 import com.skedgo.tripkit.ui.timetables.GetServiceTitleText
 import com.skedgo.tripkit.ui.trip.details.viewmodel.OccupancyViewModel
 import com.skedgo.tripkit.ui.trip.details.viewmodel.ServiceAlertViewModel
-import com.skedgo.tripkit.ui.trippreview.service.ServiceTripActionViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers
 import me.tatarka.bindingcollectionadapter2.ItemBinding
 import timber.log.Timber
@@ -77,6 +73,15 @@ class ServiceDetailViewModel @Inject constructor(
     val onItemClicked = PublishRelay.create<ServiceStop>()
     var showCloseButton = ObservableBoolean(false)
 
+    private val _alerts = MutableLiveData<List<RealtimeAlert>>()
+    val alerts: LiveData<List<RealtimeAlert>> = _alerts
+
+    var alertClickListener: AlertClickListener? = null
+
+    fun setAlerts(alerts: List<RealtimeAlert>?) {
+        _alerts.postValue(alerts.orEmpty())
+    }
+
     fun setup(
         region: String,
         serviceId: String,
@@ -94,10 +99,6 @@ class ServiceDetailViewModel @Inject constructor(
     ) {
         this.stationName.set(serviceName)
         this.serviceNumber.set(serviceNumber)
-
-//        val (secondaryMessage, color) = getRealtimeText.execute(_stop.dateTimeZone, _entry, _entry.realtimeVehicle)
-//        secondaryText.set(secondaryMessage)
-//        secondaryTextColor.set(ContextCompat.getColor(context, color))
 
         schedule?.let {
             secondaryText.set(it.first)
@@ -151,7 +152,6 @@ class ServiceDetailViewModel @Inject constructor(
         )
             .subscribe({ processResponse(it) }, { Timber.e(it) })
             .autoClear()
-
     }
 
     fun setup(segment: TripSegment) {
@@ -175,6 +175,8 @@ class ServiceDetailViewModel @Inject constructor(
                 Timber.e(it)
             })
             .autoClear()
+
+        _alerts.postValue(segment.alerts)
     }
 
     fun setup(_stop: ScheduledStop, _entry: TimetableEntry) {
@@ -216,7 +218,7 @@ class ServiceDetailViewModel @Inject constructor(
                     this.setDrawable(context, ServiceDetailItemViewModel.LineDirection.MIDDLE)
                     this.onItemClick.observable.subscribe { stopInfo ->
                         stopInfo?.let { onItemClicked.accept(it) }
-                    }
+                    }.autoClear()
                 })
             }
         }

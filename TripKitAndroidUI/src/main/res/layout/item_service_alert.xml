@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <variable
+            name="item"
+            type="com.skedgo.tripkit.common.model.RealtimeAlert" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_round_corner_warning"
+        android:layout_marginTop="@dimen/spacing_small"
+        android:padding="@dimen/spacing_small">
+
+        <ImageView
+            android:id="@+id/ivWarning"
+            android:layout_width="@dimen/icon_regular"
+            android:layout_height="@dimen/icon_regular"
+            android:src="@{item.severity()}"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:src="@drawable/ic_action_warning"/>
+
+        <TextView
+            android:id="@+id/tvTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/spacing_small"
+            android:ellipsize="end"
+            android:maxLines="2"
+            android:textColor="@color/black"
+            android:textSize="@dimen/font_size_medium"
+            android:text="@{item.title()}"
+            app:layout_constraintEnd_toStartOf="@+id/ivAction"
+            app:layout_constraintStart_toEndOf="@+id/ivWarning"
+            app:layout_constraintTop_toTopOf="@+id/ivWarning"
+            tools:text="Title here" />
+
+        <ImageView
+            android:id="@+id/ivAction"
+            android:layout_width="@dimen/icon_medium"
+            android:layout_height="@dimen/icon_medium"
+            android:padding="@dimen/spacing_small"
+            android:src="@drawable/chevron_right"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/font_size_normal"
+            android:layout_marginTop="@dimen/spacing_small"
+            android:text="@{item.text()}"
+            app:layout_constraintTop_toBottomOf="@+id/tvTitle"
+            tools:text="Description here"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</layout>

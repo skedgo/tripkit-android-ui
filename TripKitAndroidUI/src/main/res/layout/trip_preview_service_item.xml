@@ -15,14 +15,14 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#ffffff">
+        android:background="@android:color/white">
 
         <TextView
             android:id="@+id/stopName"
             style="@style/TextAppearance.MaterialComponents.Headline6"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_margin="16dp"
+            android:layout_margin="@dimen/spacing_normal"
             android:text="@{viewModel.stationName}"
             app:layout_constraintEnd_toStartOf="@+id/closeButton"
             app:layout_constraintStart_toStartOf="parent"
@@ -31,9 +31,9 @@
 
         <ImageButton
             android:id="@+id/closeButton"
-            android:layout_width="@dimen/close_button_size"
-            android:layout_height="@dimen/close_button_size"
-            android:layout_marginEnd="16dp"
+            android:layout_width="@dimen/icon_medium"
+            android:layout_height="@dimen/icon_medium"
+            android:layout_marginEnd="@dimen/spacing_normal"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:src="@drawable/close"
             android:contentDescription="@string/desc_close"
@@ -47,8 +47,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_marginTop="16dp"
-            android:layout_marginBottom="8dp"
+            android:layout_marginTop="@dimen/spacing_normal"
+            android:layout_marginBottom="@dimen/spacing_small"
             app:layout_constraintStart_toStartOf="@+id/stopName"
             app:layout_constraintTop_toBottomOf="@+id/stopName">
 
@@ -56,10 +56,10 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
-                android:paddingLeft="4dp"
-                android:paddingRight="4dp"
+                android:paddingLeft="@dimen/spacing_extra_small"
+                android:paddingRight="@dimen/spacing_extra_small"
                 card_view:cardBackgroundColor="@{viewModel.serviceColor}"
-                card_view:cardCornerRadius="4dp"
+                card_view:cardCornerRadius="@dimen/cardview_corner_radius_small"
                 card_view:cardElevation="0dp">
 
                 <TextView
@@ -67,8 +67,8 @@
                     style="@style/TextAppearance.MaterialComponents.Caption"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:paddingLeft="4dp"
-                    android:paddingRight="4dp"
+                    android:paddingLeft="@dimen/spacing_extra_small"
+                    android:paddingRight="@dimen/spacing_extra_small"
                     android:text="@{viewModel.serviceNumber}"
                     android:textColor="@android:color/white"
                     tools:text="U1" />
@@ -79,16 +79,11 @@
                 style="@style/TextAppearance.MaterialComponents.Body2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
+                android:layout_marginStart="@dimen/spacing_small"
                 android:text="@{viewModel.secondaryText}"
                 android:textColor="@{viewModel.secondaryTextColor}"
                 tools:text="Scheduled" />
         </LinearLayout>
-
-<!--        <include-->
-<!--            android:id="@+id/content"-->
-<!--            layout="@layout/service_detail_fragment_content"-->
-<!--            bind:viewModel="@{viewModel}" />-->
 
         <TextView
             tools:text="Fürth"
@@ -96,7 +91,7 @@
             android:layout_height="wrap_content"
             android:id="@+id/details"
             android:text="@{viewModel.tertiaryText}"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="@dimen/spacing_small"
             android:textColor="@color/black1"
             style="@style/TextAppearance.MaterialComponents.Caption"
             app:layout_constraintStart_toStartOf="@+id/iconLayout"
@@ -106,7 +101,7 @@
             android:layout_height="1dp"
             android:id="@+id/firstDividingLine"
             android:background="@color/black4"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="@dimen/spacing_small"
             android:visibility="@{viewModel.showExpandableMenu}"
             app:layout_constraintTop_toBottomOf="@+id/details"
             app:layout_constraintStart_toStartOf="parent"/>
@@ -114,7 +109,7 @@
         <androidx.constraintlayout.motion.widget.MotionLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="@dimen/spacing_small"
             android:id="@+id/motionLayout"
             android:visibility="@{viewModel.showExpandableMenu}"
             app:layoutDescription="@xml/service_detail_motion"
@@ -122,42 +117,47 @@
             app:layout_constraintTop_toBottomOf="@+id/firstDividingLine">
 
             <ImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="8dp"
+                android:id="@+id/wheelchair"
+                android:layout_width="@dimen/icon_regular"
+                android:layout_height="@dimen/icon_regular"
+                android:layout_marginStart="@dimen/spacing_normal"
+                android:layout_marginEnd="@dimen/spacing_small"
                 android:src="@{viewModel.wheelchairIcon}"
                 android:tint="@color/black2"
                 android:visibility="@{viewModel.showWheelchairAccessible}"
-                android:id="@+id/wheelchair"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintStart_toStartOf="parent"/>
-            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                android:text="@{viewModel.wheelchairAccessibleText}"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
                 android:id="@+id/wheelchairLabel"
-                android:layout_marginStart="32dp"
-                android:visibility="@{viewModel.showWheelchairAccessible}"
                 style="@style/TextAppearance.MaterialComponents.Body1"
-                app:layout_constraintTop_toTopOf="@+id/wheelchair"
-                app:layout_constraintStart_toEndOf="@id/wheelchair"/>
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/spacing_large"
+                android:text="@{viewModel.wheelchairAccessibleText}"
+                android:visibility="@{viewModel.showWheelchairAccessible}"
+                app:layout_constraintStart_toEndOf="@id/wheelchair"
+                app:layout_constraintTop_toTopOf="@+id/wheelchair" />
+
             <ImageView
                 android:id="@+id/occupancyView"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
+                android:layout_width="@dimen/icon_regular"
+                android:layout_height="@dimen/icon_regular"
                 android:src="@{viewModel.occupancyViewModel.drawableLeft}"
                 android:visibility="@{viewModel.showOccupancyInfo}"
                 app:layout_constraintTop_toTopOf="@id/wheelchair"
                 app:layout_constraintStart_toEndOf="@id/wheelchair"/>
 
-            <TextView android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@{viewModel.occupancyViewModel.occupancyText}"
+            <TextView
                 android:id="@+id/occupancyLabel"
-                android:layout_marginStart="32dp"
-                android:visibility="@{viewModel.showOccupancyInfo}"
                 style="@style/TextAppearance.MaterialComponents.Body1"
-                app:layout_constraintTop_toTopOf="@+id/occupancyView"
-                app:layout_constraintStart_toEndOf="@id/occupancyView"/>
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/spacing_large"
+                android:text="@{viewModel.occupancyViewModel.occupancyText}"
+                android:visibility="@{viewModel.showOccupancyInfo}"
+                app:layout_constraintStart_toEndOf="@id/occupancyView"
+                app:layout_constraintTop_toTopOf="@+id/occupancyView" />
 
             <ImageView
                 android:src="@drawable/chevron_down"
@@ -166,15 +166,16 @@
                 android:clickable="true"
                 android:focusable="true"
                 android:id="@+id/expandButton"
-                android:layout_marginEnd="16dp"
+                android:layout_marginEnd="@dimen/spacing_normal"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"/>
+
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/occupancyList"
                 android:layout_width="wrap_content"
                 android:layout_height="0dp"
                 android:nestedScrollingEnabled="false"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="@dimen/spacing_small"
                 android:layout_gravity="center"
                 android:visibility="@{viewModel.showOccupancyInfo}"
                 app:itemBinding="@{viewModel.occupancyViewModel.itemBinding}"
@@ -186,27 +187,42 @@
         </androidx.constraintlayout.motion.widget.MotionLayout>
 
         <View
+            android:id="@+id/secondDividingLine"
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:id="@+id/secondDividingLine"
+            android:layout_marginTop="@dimen/spacing_small"
             android:background="@color/black4"
-            android:layout_marginTop="8dp"
             android:visibility="@{viewModel.showExpandableMenu}"
-            app:layout_constraintTop_toBottomOf="@+id/motionLayout"
-            app:layout_constraintStart_toStartOf="parent"/>
-
-        <androidx.recyclerview.widget.RecyclerView android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/recyclerView"
-            android:nestedScrollingEnabled="true"
-            android:focusableInTouchMode="true"
             app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/motionLayout" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvAlerts"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/spacing_extra_small"
+            android:visibility="@{viewModel.alerts.size() > 0}"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             app:layout_constraintTop_toBottomOf="@id/secondDividingLine"
+            app:alerts="@{viewModel.alerts}"
+            app:alertClickListener="@{viewModel.alertClickListener}"
+            tools:itemCount="2"
+            tools:listitem="@layout/item_service_alert" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:focusableInTouchMode="true"
+            android:nestedScrollingEnabled="true"
             android:requiresFadingEdge="vertical|horizontal"
             app:itemBinding="@{viewModel.itemBinding}"
             app:items="@{viewModel.items}"
+            android:layout_marginTop="@dimen/spacing_small"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            />
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/rvAlerts" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </layout>
