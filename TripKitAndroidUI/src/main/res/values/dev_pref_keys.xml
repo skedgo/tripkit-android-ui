@@ -7,5 +7,7 @@
     <string name="pref_server_type" translatable="false">serverType</string>
     <string name="pref_production_server" translatable="false">productionServer</string>
     <string name="pref_beta_server" translatable="false">betaServer</string>
-    <string name="pref_custom_server" translatable="false">customServer</string>
+    <string name="pref_custom_server" translatable="false">csdustomServer</string>
+    <string name="pref_user_id" translatable="false">userId</string>
+    <string name="pref_fcm_token" translatable="false">fcmToken</string>
 </resources>
