@@ -536,7 +536,7 @@ class LocationSearchViewModel @Inject constructor(
             locationHistoryRepository.saveLocationsToHistory(
                 listOf(location)
             ).observeOn(io())
-                .subscribeOn(mainThread())
+                .subscribeOn(io())
                 .subscribe({
                     //Do nothing
                 }, {
