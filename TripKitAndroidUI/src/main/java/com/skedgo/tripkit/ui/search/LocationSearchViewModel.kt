@@ -21,6 +21,7 @@ import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.core.RxViewModel
 import com.skedgo.tripkit.ui.core.SchedulerFactory
 import com.skedgo.tripkit.ui.core.UnableToFindPlaceCoordinatesError
+import com.skedgo.tripkit.ui.core.addTo
 import com.skedgo.tripkit.ui.core.isExecuting
 import com.skedgo.tripkit.ui.core.rxproperty.asObservable
 import com.skedgo.tripkit.ui.data.places.Place
@@ -536,7 +537,7 @@ class LocationSearchViewModel @Inject constructor(
             locationHistoryRepository.saveLocationsToHistory(
                 listOf(location)
             ).observeOn(io())
-                .subscribeOn(mainThread())
+                .subscribeOn(io())
                 .subscribe({
                     //Do nothing
                 }, {

@@ -527,26 +527,41 @@ class TripSegmentsViewModel @Inject internal constructor(
             getOffAlertsViewModel.alertStateListener = {
                 setupButtons(tripGroup)
             }
+            val messageTypes =
+                trip.segments.flatMap { it.geofences.orEmpty() }.map { it.messageType }
 
             getOffAlertsViewModel.setup(
                 context,
                 listOf(
                     TripSegmentGetOffAlertDetailViewModel(
                         ContextCompat.getDrawable(context, R.drawable.ic_navigation_start),
-                        context.getString(R.string.get_off_alerts_trip_about_to_start)
+                        context.getString(R.string.get_off_alerts_trip_about_to_start),
+                        messageTypes.any { it == MessageType.TRIP_START.name }
+                                && trip.subscribeURL.isNullOrBlank().not()
+                    ),TripSegmentGetOffAlertDetailViewModel(
+                        ContextCompat.getDrawable(context, R.drawable.ic_navigation_near),
+                        context.getString(R.string.get_off_alerts_vehicle_is_approaching_your_boarding_stop),
+                        messageTypes.any { it == MessageType.VEHICLE_IS_APPROACHING.name }
+                                && trip.subscribeURL.isNullOrBlank().not()
                     ),
                     TripSegmentGetOffAlertDetailViewModel(
                         ContextCompat.getDrawable(context, R.drawable.ic_navigation_near),
-                        context.getString(R.string.get_off_alerts_getting_within_disembarkation_point)
+                        context.getString(R.string.get_off_alerts_getting_within_disembarkation_point),
+                        messageTypes.any { it == MessageType.ARRIVING_AT_YOUR_STOP.name }
+                                && trip.subscribeURL.isNullOrBlank().not()
                     ),
 
                     TripSegmentGetOffAlertDetailViewModel(
                         ContextCompat.getDrawable(context, R.drawable.ic_navigation_near),
-                        context.getString(R.string.get_off_alerts_passed_by_the_previous_stop)
+                        context.getString(R.string.get_off_alerts_passed_by_the_previous_stop),
+                        messageTypes.any { it == MessageType.NEXT_STOP_IS_YOURS.name }
+                                && trip.subscribeURL.isNullOrBlank().not()
                     ),
                     TripSegmentGetOffAlertDetailViewModel(
                         ContextCompat.getDrawable(context, R.drawable.ic_final_destination),
-                        context.getString(R.string.get_off_alerts_about_to_arrive_final_destination)
+                        context.getString(R.string.get_off_alerts_about_to_arrive_final_destination),
+                        messageTypes.any { it == MessageType.TRIP_END.name }
+                                && trip.subscribeURL.isNullOrBlank().not()
                     )
                 )
             )

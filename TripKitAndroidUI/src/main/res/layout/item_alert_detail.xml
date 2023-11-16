@@ -24,6 +24,7 @@
             app:layout_constraintBottom_toBottomOf="@+id/tvTitle"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@+id/tvTitle"
+            app:customImageTint="@{viewModel.enabled ? @color/black : @color/disabled}"
             tools:src="@drawable/ic_navigation_start" />
 
 
@@ -33,7 +34,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/spacing_small"
             android:text="@{viewModel.title}"
-            android:textColor="@color/black"
+            android:textColor="@{viewModel.enabled ? @color/black : @color/disabled}"
             android:textSize="@dimen/font_size_normal"
             app:layout_constraintStart_toEndOf="@+id/ivIcon"
             app:layout_constraintTop_toTopOf="parent"

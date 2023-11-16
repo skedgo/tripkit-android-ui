@@ -245,7 +245,8 @@ class TripSegmentGetOffAlertsViewModel @Inject internal constructor(
 
 class TripSegmentGetOffAlertDetailViewModel @Inject internal constructor(
         val icon: Drawable?,
-        val title: String
+        val title: String,
+        val isEnabled: Boolean = true
 ) : RxViewModel() {
     companion object {
         fun diffCallback() = object : DiffUtil.ItemCallback<TripSegmentGetOffAlertDetailViewModel>() {
