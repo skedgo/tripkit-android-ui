@@ -18,11 +18,13 @@ import com.skedgo.tripkit.routing.*
 import com.skedgo.tripkit.ui.BuildConfig
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.core.RxViewModel
+import com.skedgo.tripkit.ui.routing.settings.RemindersRepository
 import com.skedgo.tripkit.ui.utils.removeQueryParamFromUrl
 import com.skedgo.tripkit.ui.utils.requestPermissionGently
 import com.skedgo.tripkit.ui.utils.showConfirmationPopUpDialog
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.addTo
+import kotlinx.coroutines.runBlocking
 import me.tatarka.bindingcollectionadapter2.BR
 import me.tatarka.bindingcollectionadapter2.ItemBinding
 import me.tatarka.bindingcollectionadapter2.collections.DiffObservableList
@@ -33,7 +35,8 @@ import javax.inject.Inject
 class TripSegmentGetOffAlertsViewModel @Inject internal constructor(
         var trip: Trip,
         defaultValue: Boolean = false,
-        val tripUpdater: TripUpdater
+        private val tripUpdater: TripUpdater,
+        private val remindersRepository: RemindersRepository
 ) : RxViewModel() {
 
     companion object {
@@ -175,12 +178,19 @@ class TripSegmentGetOffAlertsViewModel @Inject internal constructor(
             val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
             var pendingIntent: PendingIntent? = null
             var startSegmentStartTimeInSecs = 0L
+            val reminderInMinute = runBlocking { remindersRepository.getTripNotificationReminderMinutes() }
 
             trip.segments?.minByOrNull { it.startTimeInSecs }?.let { startSegment ->
                 startSegmentStartTimeInSecs = startSegment.startTimeInSecs
                 val alarmIntent = Intent(context, TripAlarmBroadcastReceiver::class.java)
                 alarmIntent.putExtra(TripAlarmBroadcastReceiver.ACTION_START_TRIP_EVENT, true)
                 alarmIntent.putExtra(TripAlarmBroadcastReceiver.EXTRA_START_TRIP_EVENT_TRIP, Gson().toJson(trip))
+                trip.group?.let {
+                    alarmIntent.putExtra(
+                        TripAlarmBroadcastReceiver.EXTRA_START_TRIP_EVENT_TRIP_GROUP_UUID,
+                        it.uuid()
+                    )
+                }
                 pendingIntent = PendingIntent.getBroadcast(context, 0, alarmIntent, 0 or PendingIntent.FLAG_IMMUTABLE)
             }
 
@@ -209,11 +219,12 @@ class TripSegmentGetOffAlertsViewModel @Inject internal constructor(
             } else {
                 alarmManager.set(
                     AlarmManager.RTC_WAKEUP,
-                    (TimeUnit.SECONDS.toMillis(startSegmentStartTimeInSecs) - TimeUnit.MINUTES.toMillis(5)),
+                    (TimeUnit.SECONDS.toMillis(startSegmentStartTimeInSecs) - TimeUnit.MINUTES.toMillis(reminderInMinute)),
                     pendingIntent
                 )
                 trip.segments?.mapNotNull { it.geofences }?.flatten()?.let { geofences ->
                     GeoLocation.createGeoFences(
+                        trip,
                         geofences.map { geofence ->
                             geofence.computeAndSetTimeline(trip.endDateTime.millis)
                             geofence

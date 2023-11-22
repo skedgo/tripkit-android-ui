@@ -100,6 +100,7 @@ import static com.skedgo.tripkit.routing.TripAlarmBroadcastReceiver.NOTIFICATION
         ViewModelModule.class,
         ControllerModule.class,
         DeveloperOptionModule.class,
+        RemindersRepositoryModule.class
 })
 public abstract class TripKitUI {
     private static TripKitUI instance;

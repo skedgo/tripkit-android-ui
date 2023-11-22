@@ -27,6 +27,7 @@ import com.skedgo.tripkit.ui.BuildConfig
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.core.RxViewModel
 import com.skedgo.tripkit.ui.creditsources.CreditSourcesOfDataViewModel
+import com.skedgo.tripkit.ui.routing.settings.RemindersRepository
 import com.skedgo.tripkit.ui.routingresults.TripGroupRepository
 import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButtonContainer
 import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButtonHandler
@@ -38,11 +39,15 @@ import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
 import io.reactivex.subjects.PublishSubject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import me.tatarka.bindingcollectionadapter2.ItemBinding
 import me.tatarka.bindingcollectionadapter2.itembindings.OnItemBindClass
+import org.joda.time.DateTime
+import timber.log.Timber
 import java.lang.Exception
 import java.util.*
 import java.util.Collections.emptyList
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Provider
 
@@ -56,7 +61,8 @@ class TripSegmentsViewModel @Inject internal constructor(
     private val tripGroupRepository: TripGroupRepository,
     private val tripSegmentActionProcessor: TripSegmentActionProcessor,
     private val getAlternativeTripForAlternativeService: GetAlternativeTripForAlternativeService,
-    private val tripUpdater: TripUpdater
+    private val tripUpdater: TripUpdater,
+    private val remindersRepository: RemindersRepository
 ) : RxViewModel(), ActionButtonContainer, ActionButtonClickListener {
 
     private val segmentViewModels: MutableList<TripSegmentItemViewModel> = ArrayList()
@@ -522,7 +528,7 @@ class TripSegmentsViewModel @Inject internal constructor(
         try {
             val isOn = GetOffAlertCache.isTripAlertStateOn(trip.tripUuid)
 
-            val getOffAlertsViewModel = TripSegmentGetOffAlertsViewModel(trip, isOn, tripUpdater)
+            val getOffAlertsViewModel = TripSegmentGetOffAlertsViewModel(trip, isOn, tripUpdater, remindersRepository)
 
             getOffAlertsViewModel.alertStateListener = {
                 setupButtons(tripGroup)
@@ -530,38 +536,52 @@ class TripSegmentsViewModel @Inject internal constructor(
             val messageTypes =
                 trip.segments.flatMap { it.geofences.orEmpty() }.map { it.messageType }
 
+            val startSegmentStartTimeInSecs =
+                trip.segments?.minByOrNull { it.startTimeInSecs }?.startTimeInSecs ?: 0
+
+            val reminderInMinutes =
+                runBlocking { remindersRepository.getTripNotificationReminderMinutes() }
+
+            val reminder = TimeUnit.MINUTES.toSeconds(reminderInMinutes)
+
+            val currentDateTimeInSeconds = TimeUnit.MILLISECONDS.toSeconds(
+                DateTime(System.currentTimeMillis(), trip.from.dateTimeZone).millis
+            )
+
+            val isAboutToStart = if(startSegmentStartTimeInSecs > currentDateTimeInSeconds) {
+                (startSegmentStartTimeInSecs - currentDateTimeInSeconds) <= reminder
+            } else {
+                false
+            }
+
             getOffAlertsViewModel.setup(
                 context,
                 listOf(
                     TripSegmentGetOffAlertDetailViewModel(
                         ContextCompat.getDrawable(context, R.drawable.ic_navigation_start),
                         context.getString(R.string.get_off_alerts_trip_about_to_start),
-                        messageTypes.any { it == MessageType.TRIP_START.name }
-                                && trip.subscribeURL.isNullOrBlank().not()
+                        isAboutToStart
                     ),TripSegmentGetOffAlertDetailViewModel(
                         ContextCompat.getDrawable(context, R.drawable.ic_navigation_near),
                         context.getString(R.string.get_off_alerts_vehicle_is_approaching_your_boarding_stop),
                         messageTypes.any { it == MessageType.VEHICLE_IS_APPROACHING.name }
-                                && trip.subscribeURL.isNullOrBlank().not()
+                                || trip.subscribeURL.isNullOrBlank().not()
                     ),
                     TripSegmentGetOffAlertDetailViewModel(
                         ContextCompat.getDrawable(context, R.drawable.ic_navigation_near),
                         context.getString(R.string.get_off_alerts_getting_within_disembarkation_point),
                         messageTypes.any { it == MessageType.ARRIVING_AT_YOUR_STOP.name }
-                                && trip.subscribeURL.isNullOrBlank().not()
                     ),
 
                     TripSegmentGetOffAlertDetailViewModel(
                         ContextCompat.getDrawable(context, R.drawable.ic_navigation_near),
                         context.getString(R.string.get_off_alerts_passed_by_the_previous_stop),
                         messageTypes.any { it == MessageType.NEXT_STOP_IS_YOURS.name }
-                                && trip.subscribeURL.isNullOrBlank().not()
                     ),
                     TripSegmentGetOffAlertDetailViewModel(
                         ContextCompat.getDrawable(context, R.drawable.ic_final_destination),
                         context.getString(R.string.get_off_alerts_about_to_arrive_final_destination),
                         messageTypes.any { it == MessageType.TRIP_END.name }
-                                && trip.subscribeURL.isNullOrBlank().not()
                     )
                 )
             )
