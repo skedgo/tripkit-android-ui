@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <dimen name="spacing_extra_small">8dp</dimen>
+    <dimen name="spacing_extra_small">4dp</dimen>
     <dimen name="spacing_small">8dp</dimen>
     <dimen name="spacing_normal">16dp</dimen>
     <dimen name="spacing_medium">24dp</dimen>
@@ -59,4 +59,5 @@
     <dimen name="segment_progress_height">10dp</dimen>
 
     <dimen name="cardview_corner_radius">12dp</dimen>
+    <dimen name="cardview_corner_radius_small">4dp</dimen>
 </resources>

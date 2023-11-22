@@ -76,16 +76,10 @@ class ServiceDetailFragment : BaseTripKitFragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         binding = ServiceDetailFragmentBinding.inflate(layoutInflater)
+        binding.lifecycleOwner = viewLifecycleOwner
         binding.viewModel = viewModel
         binding.content.occupancyList.layoutManager = LinearLayoutManager(context, RecyclerView.HORIZONTAL, false)
 
-//        binding.content.occupancyList.isNestedScrollingEnabled = false
-//        binding.content.recyclerView.isNestedScrollingEnabled = true
-////        binding.content.recyclerView.setOnTouchListener{ v, event ->
-////            v.parent.requestDisallowInterceptTouchEvent(true)
-////            v.onTouchEvent(event)
-////            true
-////        }
         return binding.root
     }
 
@@ -97,7 +91,7 @@ class ServiceDetailFragment : BaseTripKitFragment() {
                 ?: false
         viewModel.showCloseButton.set(showCloseButton)
         binding.closeButton.setOnClickListener(onCloseButtonListener)
-
+        viewModel.setAlerts(timetableEntry?.alerts)
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {

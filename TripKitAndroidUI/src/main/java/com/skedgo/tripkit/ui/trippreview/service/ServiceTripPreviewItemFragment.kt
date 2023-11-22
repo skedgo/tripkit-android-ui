@@ -1,7 +1,9 @@
 package com.skedgo.tripkit.ui.trippreview.service
 
 import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -10,6 +12,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.gson.Gson
+import com.skedgo.tripkit.common.model.RealtimeAlert
 import com.skedgo.tripkit.data.regions.RegionService
 import com.skedgo.tripkit.routing.Trip
 import com.skedgo.tripkit.routing.TripGroup
@@ -17,6 +20,7 @@ import com.skedgo.tripkit.routing.TripSegment
 import com.skedgo.tripkit.ui.TripKitUI
 import com.skedgo.tripkit.ui.core.BaseTripKitPagerFragment
 import com.skedgo.tripkit.ui.databinding.TripPreviewServiceItemBinding
+import com.skedgo.tripkit.ui.servicedetail.AlertClickListener
 import com.skedgo.tripkit.ui.servicedetail.ServiceDetailViewModel
 import com.skedgo.tripkit.ui.timetables.FetchAndLoadTimetable
 import com.skedgo.tripkit.ui.utils.OnSwipeTouchListener
@@ -53,12 +57,6 @@ class ServiceTripPreviewItemFragment : BaseTripKitPagerFragment() {
     override fun onAttach(context: Context) {
         TripKitUI.getInstance().tripPreviewComponent().inject(this)
         super.onAttach(context)
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -103,16 +101,24 @@ class ServiceTripPreviewItemFragment : BaseTripKitPagerFragment() {
 
         binding.recyclerView.setOnTouchListener(swipeListener)
 
-        tripPreviewPagerListener?.onBottomSheetResize()?.observe(requireActivity(), {
+        tripPreviewPagerListener?.onBottomSheetResize()?.observe(requireActivity()) {
             val titleHeight = binding.secondDividingLine.bottom - binding.stopName.top
             val params = binding.recyclerView.layoutParams as ConstraintLayout.LayoutParams
             params.height = it - (titleHeight + 250)
             binding.recyclerView.layoutParams = params
-        })
+        }
 
         binding.closeButton.setOnClickListener(onCloseButtonListener)
 
         handleSegment()
+
+        viewModel.alertClickListener = object : AlertClickListener {
+            override fun onAlertClick(alert: RealtimeAlert) {
+                alert.url()?.let { url ->
+                    requireActivity().startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+                }
+            }
+        }
 
         return binding.root
     }
@@ -158,27 +164,6 @@ class ServiceTripPreviewItemFragment : BaseTripKitPagerFragment() {
                 prefs.edit().remove("${positionInAdapter}_$ARGS_SHOW_CLOSE_BUTTON").apply()
             }
         }
-
-        /*
-        savedInstanceState?.let {
-            val segment: TripSegment = gson.fromJson(
-                    it.getString(ARGS_TRIP_SEGMENT, ""), TripSegment::class.java
-            )
-            val trip = gson.fromJson(
-                    it.getString(ARGS_TRIP_SEGMENT_TRIP),
-                    Trip::class.java
-            )
-
-            trip.group = gson.fromJson(
-                    it.getString(ARGS_TRIP_SEGMENT_TRIP_GROUP),
-                    TripGroup::class.java
-            )
-            segment.trip = trip
-            this@ServiceTripPreviewItemFragment.segment = segment
-            viewModel.setup(segment)
-
-        }
-        */
     }
 
     companion object {
