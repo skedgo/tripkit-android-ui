@@ -4,7 +4,6 @@ package com.skedgo.tripkit.ui.tripresult
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
-import android.net.Uri
 import android.os.Bundle
 import androidx.core.content.ContextCompat
 import androidx.databinding.ObservableArrayList
@@ -43,7 +42,6 @@ import kotlinx.coroutines.runBlocking
 import me.tatarka.bindingcollectionadapter2.ItemBinding
 import me.tatarka.bindingcollectionadapter2.itembindings.OnItemBindClass
 import org.joda.time.DateTime
-import timber.log.Timber
 import java.lang.Exception
 import java.util.*
 import java.util.Collections.emptyList
@@ -108,6 +106,9 @@ class TripSegmentsViewModel @Inject internal constructor(
 
     private val _mapTiles = MutableLiveData<TripKitMapTiles>()
     val mapTiles: LiveData<TripKitMapTiles> = _mapTiles
+
+    private val _updatedState = MutableLiveData<Unit>()
+    val updatedState: LiveData<Unit> = _updatedState
 
     val tripGroupObservable: Observable<TripGroup>
         get() = tripGroupRelay.hide()
@@ -532,6 +533,7 @@ class TripSegmentsViewModel @Inject internal constructor(
 
             getOffAlertsViewModel.alertStateListener = {
                 setupButtons(tripGroup)
+                _updatedState.postValue(Unit)
             }
             val messageTypes =
                 trip.segments.flatMap { it.geofences.orEmpty() }.map { it.messageType }
@@ -593,6 +595,10 @@ class TripSegmentsViewModel @Inject internal constructor(
             }
             return null
         }
+    }
+
+    fun validateGetOffAlerts() {
+        tripSegmentGetOffAlertsViewModel?.validate()
     }
 
     private fun startUpdate() {

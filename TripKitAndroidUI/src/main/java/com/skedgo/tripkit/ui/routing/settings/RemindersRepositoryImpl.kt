@@ -10,7 +10,7 @@ internal class RemindersRepositoryImpl @Inject constructor(
 ) : RemindersRepository {
 
     private val tripNotificationReminderKey = "tripNotificationReminder"
-    private val tripNotificationReminderDefaultValue = 30L
+    private val tripNotificationReminderDefaultValue = 10L
 
     override suspend fun getTripNotificationReminderMinutes(): Long =
         prefs.getLong(tripNotificationReminderKey, tripNotificationReminderDefaultValue)

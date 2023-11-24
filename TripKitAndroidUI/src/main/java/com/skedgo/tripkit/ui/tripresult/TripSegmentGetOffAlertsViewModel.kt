@@ -14,6 +14,7 @@ import com.araujo.jordan.excuseme.ExcuseMe
 import com.google.gson.Gson
 import com.skedgo.TripKit
 import com.skedgo.tripkit.TripUpdater
+import com.skedgo.tripkit.notification.cancelChannelNotifications
 import com.skedgo.tripkit.routing.*
 import com.skedgo.tripkit.ui.BuildConfig
 import com.skedgo.tripkit.ui.R
@@ -28,6 +29,7 @@ import kotlinx.coroutines.runBlocking
 import me.tatarka.bindingcollectionadapter2.BR
 import me.tatarka.bindingcollectionadapter2.ItemBinding
 import me.tatarka.bindingcollectionadapter2.collections.DiffObservableList
+import org.joda.time.DateTime
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
@@ -64,6 +66,10 @@ class TripSegmentGetOffAlertsViewModel @Inject internal constructor(
     val items = DiffObservableList<TripSegmentGetOffAlertDetailViewModel>(TripSegmentGetOffAlertDetailViewModel.diffCallback())
     val itemBinding = ItemBinding.of<TripSegmentGetOffAlertDetailViewModel>(BR.viewModel, R.layout.item_alert_detail)
 
+    fun validate() {
+        _getOffAlertStateOn.postValue(GetOffAlertCache.isTripAlertStateOn(trip.tripUuid))
+    }
+
     fun setup(context: Context, details: List<TripSegmentGetOffAlertDetailViewModel>) {
         items.clear()
         items.update(details)
@@ -79,6 +85,8 @@ class TripSegmentGetOffAlertsViewModel @Inject internal constructor(
         }
 
         cancelStartTripAlarms(context) //this will cancel previous alarm that was setup
+        cancelNotifications(context) //will cancel trip start and geofence notifications
+        GeoLocation.clearGeofences()
 
         if (isOn) {
             checkPermissionAndShowProminentDisclosure(context) { isAccepted ->
@@ -89,7 +97,6 @@ class TripSegmentGetOffAlertsViewModel @Inject internal constructor(
                 }
             }
         } else {
-            GeoLocation.clearGeofences()
             trip.unsubscribeURL?.let { unsubscribeUrl ->
                 tripUpdater.tripSubscription(unsubscribeUrl)
                     .subscribe({
@@ -178,7 +185,7 @@ class TripSegmentGetOffAlertsViewModel @Inject internal constructor(
             val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
             var pendingIntent: PendingIntent? = null
             var startSegmentStartTimeInSecs = 0L
-            val reminderInMinute = runBlocking { remindersRepository.getTripNotificationReminderMinutes() }
+            val reminderInMinutes = runBlocking { remindersRepository.getTripNotificationReminderMinutes() }
 
             trip.segments?.minByOrNull { it.startTimeInSecs }?.let { startSegment ->
                 startSegmentStartTimeInSecs = startSegment.startTimeInSecs
@@ -217,11 +224,23 @@ class TripSegmentGetOffAlertsViewModel @Inject internal constructor(
                 _getOffAlertStateOn.postValue(false)
                 alarmManager.cancel(pendingIntent)
             } else {
-                alarmManager.set(
-                    AlarmManager.RTC_WAKEUP,
-                    (TimeUnit.SECONDS.toMillis(startSegmentStartTimeInSecs) - TimeUnit.MINUTES.toMillis(reminderInMinute)),
-                    pendingIntent
+
+                val reminder = TimeUnit.MINUTES.toSeconds(reminderInMinutes)
+
+                val currentDateTimeInSeconds = TimeUnit.MILLISECONDS.toSeconds(
+                    DateTime(System.currentTimeMillis(), trip.from.dateTimeZone).millis
                 )
+
+                if(startSegmentStartTimeInSecs > currentDateTimeInSeconds &&
+                    (startSegmentStartTimeInSecs - currentDateTimeInSeconds) <= reminder) {
+                    alarmManager.set(
+                        AlarmManager.RTC_WAKEUP,
+                        TimeUnit.SECONDS.toMillis(startSegmentStartTimeInSecs) - TimeUnit.MINUTES.toMillis(
+                            reminderInMinutes
+                        ),
+                        pendingIntent
+                    )
+                }
                 trip.segments?.mapNotNull { it.geofences }?.flatten()?.let { geofences ->
                     GeoLocation.createGeoFences(
                         trip,
@@ -246,6 +265,16 @@ class TripSegmentGetOffAlertsViewModel @Inject internal constructor(
         } catch (e: Exception) {
             e.printStackTrace()
         }
+    }
+
+    private fun cancelNotifications(context: Context) {
+        context.cancelChannelNotifications(
+            TripAlarmBroadcastReceiver.NOTIFICATION_TRIP_START_NOTIFICATION_ID
+        )
+        context.cancelChannelNotifications(
+            GeofenceBroadcastReceiver.NOTIFICATION_VEHICLE_APPROACHING_NOTIFICATION_ID
+        )
+        context.cancelChannelNotifications(11111)
     }
 
     override fun onCleared() {
