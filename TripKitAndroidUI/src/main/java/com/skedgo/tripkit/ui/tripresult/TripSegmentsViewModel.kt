@@ -551,7 +551,7 @@ class TripSegmentsViewModel @Inject internal constructor(
             )
 
             val isAboutToStart = if(startSegmentStartTimeInSecs > currentDateTimeInSeconds) {
-                (startSegmentStartTimeInSecs - currentDateTimeInSeconds) <= reminder
+                (startSegmentStartTimeInSecs - currentDateTimeInSeconds) >= reminder
             } else {
                 false
             }

@@ -232,7 +232,7 @@ class TripSegmentGetOffAlertsViewModel @Inject internal constructor(
                 )
 
                 if(startSegmentStartTimeInSecs > currentDateTimeInSeconds &&
-                    (startSegmentStartTimeInSecs - currentDateTimeInSeconds) <= reminder) {
+                    (startSegmentStartTimeInSecs - currentDateTimeInSeconds) >= reminder) {
                     alarmManager.set(
                         AlarmManager.RTC_WAKEUP,
                         TimeUnit.SECONDS.toMillis(startSegmentStartTimeInSecs) - TimeUnit.MINUTES.toMillis(
