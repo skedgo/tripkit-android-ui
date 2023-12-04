@@ -330,28 +330,6 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
     var pinForType = 1
 
     override fun onMapLongClick(latLng: LatLng) {
-        /*
-        longPressMarker?.let { marker ->
-            marker.title = "${point.latitude}, ${point.longitude}"
-            marker.position = point
-            marker.isVisible = true
-            marker.tag = LongPressIMapPoiLocation(point, ViewableInfoWindowAdapter(layoutInflater))
-            geocoder.getAddress(point.latitude, point.longitude)
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .take(1)
-                    .subscribe({
-                        marker.title = it
-                        (marker.tag as LongPressIMapPoiLocation).setName(it)
-                        marker.showInfoWindow()
-                    }, { })
-                    .addTo(autoDisposable)
-
-            if (markerManager != null) {
-                marker.showInfoWindow()
-            }
-        }
-        */
-
         if (enablePinLocationOnClick) {
 
             geocoder.getAddress(latLng.latitude, latLng.longitude)
@@ -374,24 +352,6 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
                                 )
                     }, { it.printStackTrace() })
                     .addTo(autoDisposable)
-
-            /*
-            if (hasOriginMarker) {
-                pinnedDepartureLocationOnClickMarker = map?.addMarker(
-                        MarkerOptions()
-                                .position(latLng)
-                                .icon(BitmapDescriptorFactory.fromBitmap(getMarkerBitmap(1)))
-                )
-            } else {
-                pinnedOriginLocationOnClickMarker = map?.addMarker(
-                        MarkerOptions()
-                                .position(latLng)
-                                .icon(BitmapDescriptorFactory.fromBitmap(getMarkerBitmap(0)))
-                )
-            }
-            */
-
-
         }
     }
 
@@ -472,24 +432,8 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
         markerManager!!.onInfoWindowClick(marker)
     }
 
-
-    //  @Subscribe public void onEvent(CurrentLocationSelectedEvent e) {
-//    goToMyLocation();
-//  }
-//  @Subscribe public void onEvent(DropPinSelectedEvent e) {
-//    if (map != null) {
-//      onMapLongClick(map.getCameraPosition().target);
-//    }
-//  }
-//
-//  @Subscribe public void onEvent(final ImmutableCitySelectedEvent e) {
-//    whenSafeToUseMap(map -> map.moveCamera(CameraUpdateFactory.newLatLngBounds(e.bounds(), 0)));
-//  }
     override fun onCameraChange(position: CameraPosition) {
         if (!isAdded) { // To investigate further this scenario.
-//      Crashlytics.logException(new IllegalStateException(
-//          "onCameraChange() when !isAdded()"
-//      ));
             return
         }
         //    boolean tipZoomToSeeTimetable = mPrefUtils.get(TooltipFragment.PREF_ZOOM_TO_SEE_TIMETABLE, false);
@@ -537,47 +481,11 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
         }
     }
 
-//    fun onLocationSelected(locationTag: LocationTag?) {
-//        if (locationTag != null) {
-//            val selectionType = locationTag.type
-//            val location = locationTag.location
-//            whenSafeToUseMap(Consumer { map: GoogleMap? ->
-//                tripLocationMarkers!!.clear()
-//                val marker = tripLocationMarkers!!.addMarker(
-//                        tripLocationMarkerCreator!!.call(location)
-//                                .icon(asMarkerIcon(selectionType))
-//                )
-//                marker.tag = locationTag
-//                marker.showInfoWindow()
-//            })
-//        }
-//    }
-
-    //  @Subscribe
-//  public void onEvent(LocationSelectedEvent event) {
-//    whenSafeToUseMap(map -> cameraController.moveToLatLng(map, toLatLng(event.getLocation())));
-//  }
-
     fun moveToLatLng(latLng: com.skedgo.geocoding.LatLng) {
         whenSafeToUseMap(Consumer { map ->
             cameraController.moveToLatLng(map, LatLng(latLng.lat, latLng.lng))
         })
     }
-
-//
-//    fun onLocationAddressDecoded(locationTag: LocationTag) {
-//        val selectionType = locationTag.type
-//        val location = locationTag.location
-//        whenSafeToUseMap(Consumer { map: GoogleMap? ->
-//            tripLocationMarkers!!.clear()
-//            val marker = tripLocationMarkers!!.addMarker(
-//                    tripLocationMarkerCreator!!.call(location)
-//                            .icon(asMarkerIcon(selectionType))
-//            )
-//            marker.tag = locationTag
-//            marker.showInfoWindow()
-//        })
-//    }
 
     override fun animateToMyLocation() {
         goToMyLocation()

@@ -10,6 +10,7 @@ import com.skedgo.tripkit.routing.TripGroup
 import com.skedgo.tripkit.ui.map.home.TripKitMapContributor
 import com.skedgo.tripkit.ui.tripresult.TripSegmentListFragment.OnTripSegmentClickListener
 import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButtonHandlerFactory
+import io.reactivex.subjects.PublishSubject
 
 class TripGroupsPagerAdapter(
     private val fragmentManager: FragmentManager,
@@ -35,6 +36,8 @@ class TripGroupsPagerAdapter(
 
     @JvmField
     var segmentClickListener: OnTripSegmentClickListener? = null
+
+    private val updateStream = PublishSubject.create<Unit>()
 
     /*
         This horrific workaround is necessary because the Material library's BottomSheetBehavior only looks for the
@@ -73,6 +76,7 @@ class TripGroupsPagerAdapter(
             .withActionButtonHandlerFactory(actionButtonHandlerFactory)
             .withMapContributor(tripResultMapContributor)
             .showCloseButton(showCloseButton)
+            .withUpdateStream(updateStream)
             .build()
         fragment.setOnTripKitButtonClickListener(listener!!)
         fragment.onCloseButtonListener = closeListener

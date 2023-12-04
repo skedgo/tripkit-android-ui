@@ -68,6 +68,8 @@ class TripResultPagerViewModel @Inject internal constructor(
 
     val isLoading = ObservableField<Boolean>()
 
+    var defaultTrip: Trip? = null
+
     fun onCreate(savedInstanceState: Bundle?) {
         savedInstanceState?.getString(ARG_TRIP_GROUP_ID)?.let {
             setInitialSelectedTripGroupId(it)
@@ -104,8 +106,14 @@ class TripResultPagerViewModel @Inject internal constructor(
             is SingleTrip -> {
                 selectedTripGroupRepository.setSelectedTripGroupId(args.tripGroupId)
                 return selectedTripGroupRepository.getSelectedTripGroup().map { listOf(it) }
-                        .doOnNext {
-                            tripGroups.accept(it)
+                        .doOnNext { groups ->
+                            args.tripId?.let { tripId ->
+                                groups.firstOrNull { it.trips?.any { it.id == tripId } == true }
+                                    ?.let { group ->
+                                        defaultTrip = group.trips?.firstOrNull { it.id == tripId }
+                                    }
+                            }
+                            tripGroups.accept(groups)
                             isLoading.set(false)
                         }
                         .map { Unit }
@@ -141,16 +149,11 @@ class TripResultPagerViewModel @Inject internal constructor(
 
     fun observeInitialPage(): Observable<Unit> {
         return Observables.combineLatest(
-                tripGroups.firstOrError().toObservable(),
-                selectedTripGroup.hide().firstOrError().toObservable()
+            tripGroups.firstOrError().toObservable(),
+            selectedTripGroup.hide().firstOrError().toObservable()
         )
         { tripGroups: List<TripGroup>, id: TripGroup ->
-            /*
-            viewModelScope.launch {
-
-            }
-            */
-            currentTrip.postValue(tripGroups.firstOrNull()?.trips?.first())
+            currentTrip.postValue(defaultTrip ?: tripGroups.firstOrNull()?.trips?.first())
             tripGroups.indexOfFirst { id.uuid() == it.uuid() }
         }.doOnNext {
             currentPage.set(it)
