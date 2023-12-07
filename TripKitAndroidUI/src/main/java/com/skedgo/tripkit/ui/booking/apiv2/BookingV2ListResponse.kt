@@ -1,6 +1,8 @@
 package com.skedgo.tripkit.ui.booking.apiv2
 
 import com.google.gson.annotations.SerializedName
+import com.skedgo.tripkit.booking.quickbooking.Ticket
+import com.skedgo.tripkit.common.model.BookingConfirmationAction
 import com.skedgo.tripkit.common.model.BookingConfirmationNotes
 import com.skedgo.tripkit.routing.ModeInfo
 
@@ -31,8 +33,18 @@ data class BookingV2ListResponse(
             val tripsInfo: List<TripsInfo?>? = null,
             // This does NOT come from the API, but is used later
             @SerializedName("tripGroup")
-            var tripGroup: String? = null
+            var tripGroup: String? = null,
+            val relatedBookings: List<RelatedBooking>? = null,
+            var isReturnTrip: Boolean = false
     ) {
+        fun getPrimaryModeInfo(): ModeInfo? =
+            tripsInfo?.firstOrNull()?.legs?.firstOrNull { it.modeInfo.id == mode }?.modeInfo
+
+        data class RelatedBooking(
+            val bookingId: String,
+            val type: String,
+            val confirmedBookingData: Booking? = null
+        )
         data class Confirmation(
                 @SerializedName("purchase")
                 val purchase: Purchase? = null,
@@ -41,8 +53,10 @@ data class BookingV2ListResponse(
                 @SerializedName("status")
                 val status: Status? = null,
                 @SerializedName("notes")
-                val notes: List<BookingConfirmationNotes>? = null
-                ) {
+                val notes: List<BookingConfirmationNotes>? = null,
+                val actions: List<BookingConfirmationAction>? = null,
+                val tickets: List<Ticket>? = null
+        ) {
             data class Purchase(
                     @SerializedName("budgetPoints")
                     val budgetPoints: Int? = null,
