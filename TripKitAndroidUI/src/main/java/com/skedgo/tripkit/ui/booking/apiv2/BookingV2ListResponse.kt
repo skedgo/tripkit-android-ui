@@ -1,10 +1,15 @@
 package com.skedgo.tripkit.ui.booking.apiv2
 
+import androidx.annotation.StringDef
 import com.google.gson.annotations.SerializedName
 import com.skedgo.tripkit.booking.quickbooking.Ticket
 import com.skedgo.tripkit.common.model.BookingConfirmationAction
 import com.skedgo.tripkit.common.model.BookingConfirmationNotes
+import com.skedgo.tripkit.common.model.BookingConfirmationStatusValue
+import com.skedgo.tripkit.common.model.BookingConfirmationStatusValue.Companion.isStatus
+import com.skedgo.tripkit.common.model.BookingConfirmationStatusValue.Companion.isStatusAccepted
 import com.skedgo.tripkit.routing.ModeInfo
+import com.skedgo.tripkit.ui.R
 
 data class BookingV2ListResponse(
         @SerializedName("bookings")
@@ -44,7 +49,19 @@ data class BookingV2ListResponse(
             val bookingId: String,
             val type: String,
             val confirmedBookingData: Booking? = null
-        )
+        ) {
+            @Retention(AnnotationRetention.RUNTIME)
+            @StringDef(
+                RelatedBookingType.RETURN,
+                RelatedBookingType.OUTBOUND,
+            )
+            annotation class RelatedBookingType {
+                companion object {
+                    const val RETURN = "RETURN"
+                    const val OUTBOUND = "OUTBOUND"
+                }
+            }
+        }
         data class Confirmation(
                 @SerializedName("purchase")
                 val purchase: Purchase? = null,
@@ -92,7 +109,27 @@ data class BookingV2ListResponse(
                     val imageURL: String? = null,
                     @SerializedName("value")
                     val value: String? = null
-            )
+            ) {
+                fun getBackgroundColor(): Int {
+                    return value?.let {
+                        when {
+                            it.isStatusAccepted() ||
+                                    it.isStatus(BookingConfirmationStatusValue.SCHEDULED) -> {
+                                R.color.tripKitSuccess
+                            }
+
+                            it.isStatus(BookingConfirmationStatusValue.PROCESSING) ||
+                                    it.isStatus(BookingConfirmationStatusValue.STANDBY) -> {
+                                R.color.tripKitWarning
+                            }
+
+                            else -> {
+                                R.color.tripKitError
+                            }
+                        }
+                    } ?: R.color.colorPrimaryDark
+                }
+            }
         }
 
         data class TripsInfo(
@@ -101,7 +138,9 @@ data class BookingV2ListResponse(
                 @SerializedName("legs")
                 val legs: List<Leg>? = null,
                 @SerializedName("origin")
-                val origin: Origin? = null
+                val origin: Origin? = null,
+                val depart: String? = null,
+                val arrive: String? = null,
         ) {
             data class Destination(
                     @SerializedName("address")

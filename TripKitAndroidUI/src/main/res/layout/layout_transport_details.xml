@@ -45,23 +45,6 @@
             app:layout_constraintTop_toTopOf="@+id/ivPickUpIcon" />
 
         <TextView
-            android:id="@+id/tvPickUp"
-            style="@style/TextAppearance.MaterialComponents.Body2"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/spacing_normal"
-            android:layout_marginTop="@dimen/spacing_small"
-            android:layout_marginEnd="@dimen/shadow_height"
-            android:focusable="false"
-            android:text="@{details.pickUpAddress}"
-            android:visibility="@{!TextUtils.isEmpty(details.pickUpAddress)}"
-            android:textSize="@dimen/font_size_normal"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/ivPickUpIcon"
-            app:layout_constraintTop_toBottomOf="@+id/tvPickUpLabel"
-            tools:text="Near Scott Street" />
-
-        <TextView
             android:id="@+id/tvRequestedPickUp"
             style="@style/TextAppearance.MaterialComponents.Body2"
             android:layout_width="0dp"
@@ -75,8 +58,25 @@
             android:textSize="@dimen/font_size_normal"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/ivPickUpIcon"
-            app:layout_constraintTop_toBottomOf="@+id/tvPickUp"
+            app:layout_constraintTop_toBottomOf="@+id/tvPickUpLabel"
             tools:text="Requested time {queryTime}" />
+
+        <TextView
+            android:id="@+id/tvPickUp"
+            style="@style/TextAppearance.MaterialComponents.Body2"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/spacing_normal"
+            android:layout_marginTop="@dimen/spacing_small"
+            android:layout_marginEnd="@dimen/shadow_height"
+            android:focusable="false"
+            android:text="@{details.pickUpAddress}"
+            android:visibility="@{!TextUtils.isEmpty(details.pickUpAddress)}"
+            android:textSize="@dimen/font_size_normal"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/ivPickUpIcon"
+            app:layout_constraintTop_toBottomOf="@+id/tvRequestedPickUp"
+            tools:text="Near Scott Street" />
 
         <ImageView
             android:id="@+id/ivDropOffIcon"
@@ -88,7 +88,7 @@
             android:focusable="false"
             android:src="@drawable/small_circle"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tvRequestedPickUp"
+            app:layout_constraintTop_toBottomOf="@+id/tvPickUp"
             app:tint="@color/colorPrimary" />
 
         <TextView

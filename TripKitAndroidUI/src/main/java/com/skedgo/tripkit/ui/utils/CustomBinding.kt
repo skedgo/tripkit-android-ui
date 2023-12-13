@@ -173,3 +173,10 @@ fun setAlertIcon(view: ImageView, @AlertSeverity severity: String) {
         e.printStackTrace()
     }
 }
+
+@BindingAdapter("android:backgroundTint")
+fun setBackgroundTint(view: View, color: Int?) {
+    view.backgroundTintList = color?.let {
+        ContextCompat.getColorStateList(view.context, it)
+    }
+}
