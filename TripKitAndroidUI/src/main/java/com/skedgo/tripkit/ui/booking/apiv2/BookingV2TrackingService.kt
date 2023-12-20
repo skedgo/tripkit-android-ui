@@ -21,6 +21,14 @@ class BookingV2TrackingService(private var trackingApi: BookingV2TrackingApi) {
         return trackingApi.getBookings()
     }
 
+    suspend fun getBookingsPaginated(
+        first: Long,
+        max: Int,
+        valid: Boolean
+    ): NetworkResponse<BookingV2ListResponse, Unit> {
+        return trackingApi.getBookings(first, max, if(valid) "true" else "false")
+    }
+
     suspend fun deleteBooking(bookingId: String): NetworkResponse<Unit, Unit> {
         return trackingApi.deleteBooking(bookingId)
     }

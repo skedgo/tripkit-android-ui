@@ -2,6 +2,7 @@ package com.skedgo.tripkit.ui.core.binding;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.graphics.PorterDuff;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageView;
@@ -111,6 +112,15 @@ public final class ImageViewBindingAdapters {
             } else {
                 view.setImageResource(R.drawable.ic_car_ride_share);
             }
+        }
+    }
+
+    @BindingAdapter("app:tint")
+    public static void setTint(ImageView view, Integer color) {
+        if (color != null) {
+            view.setColorFilter(color, PorterDuff.Mode.SRC_IN);
+        } else {
+            view.clearColorFilter();
         }
     }
 

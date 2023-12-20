@@ -18,6 +18,13 @@ interface BookingV2TrackingApi {
     @GET("booking")
     suspend fun getBookings(): NetworkResponse<BookingV2ListResponse, Unit>
 
+    @GET("booking")
+    suspend fun getBookings(
+        @Query("first") first: Long,
+        @Query("max") max: Int,
+        @Query("valid") valid: String
+    ): NetworkResponse<BookingV2ListResponse, Unit>
+
     @GET("booking/v2/active")
     suspend fun getActiveBooking(@Query("mode") mode: String?): NetworkResponse<BookingV2ListResponse.Booking, Unit>
 
