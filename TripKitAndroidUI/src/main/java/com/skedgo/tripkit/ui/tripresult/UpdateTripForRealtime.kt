@@ -24,19 +24,19 @@ open class UpdateTripForRealtime @Inject internal constructor(
     private val subscriptions: CompositeDisposable = CompositeDisposable()
 
     fun start(getTripGroup: Observable<TripGroup>) {
-        Observable.interval(0, 10, TimeUnit.SECONDS, Schedulers.computation())
+        Observable.interval(INITIAL_DELAY_SECONDS, INTERVAL_SECONDS, TimeUnit.SECONDS, Schedulers.computation())
             .withLatestFrom(
                 getTripGroup,
                 BiFunction<Long, TripGroup, TripGroup> { _, tripGroup -> tripGroup })
-            .filter { it.displayTrip!!.hasQuickBooking().not() }
-            .filter { it.displayTrip!!.updateURL != null }
+            .filter { it.displayTrip?.hasQuickBooking()?.not() == true }
+            .filter { it.displayTrip?.updateURL != null }
             .flatMap {
                 startAsync(it)
             }
             .subscribe({
                 tripGroupRepository.updateTrip(
                     it.second.uuid(),
-                    it.second.displayTrip!!.uuid(),
+                    it.second.displayTrip?.uuid() ?: "",
                     it.first
                 )
                     .subscribe({}, errorLogger::trackError)
@@ -55,7 +55,7 @@ open class UpdateTripForRealtime @Inject internal constructor(
             .subscribe({
                 tripGroupRepository.updateTrip(
                     it.second.uuid(),
-                    it.second.displayTrip!!.uuid(),
+                    it.second.displayTrip?.uuid() ?: "",
                     it.first
                 )
                     .subscribe({}, errorLogger::trackError)
@@ -68,8 +68,8 @@ open class UpdateTripForRealtime @Inject internal constructor(
     private fun startAsync(group: TripGroup): Observable<Pair<Trip, TripGroup>> {
         return Observable.just(group)
             .observeOn(Schedulers.io())
-            .filter { !group.displayTrip!!.hasQuickBooking() }
-            .map { group.displayTrip!!.updateURL }
+            .filter { group.displayTrip?.hasQuickBooking() != true }
+            .map { group.displayTrip?.updateURL }
             .compose { updateUrlStream ->
                 val nextUrlToFetch = AtomicReference<String>()
                 updateUrlStream
@@ -96,5 +96,10 @@ open class UpdateTripForRealtime @Inject internal constructor(
 
     fun stop() {
         subscriptions.clear()
+    }
+
+    companion object {
+        const val INITIAL_DELAY_SECONDS = 0L
+        const val INTERVAL_SECONDS = 10L
     }
 }
