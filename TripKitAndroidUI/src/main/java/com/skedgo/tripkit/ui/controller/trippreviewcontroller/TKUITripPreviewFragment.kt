@@ -6,7 +6,6 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.view.View
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager.widget.ViewPager
 import com.haroldadmin.cnradapter.NetworkResponse
@@ -14,7 +13,6 @@ import com.skedgo.tripkit.routing.SegmentType
 import com.skedgo.tripkit.routing.Trip
 import com.skedgo.tripkit.routing.TripGroup
 import com.skedgo.tripkit.routing.TripSegment
-import com.skedgo.tripkit.routing.getBookingSegment
 import com.skedgo.tripkit.routing.getSummarySegments
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.TripKitUI
@@ -25,23 +23,19 @@ import com.skedgo.tripkit.ui.core.addTo
 import com.skedgo.tripkit.ui.core.logError
 import com.skedgo.tripkit.ui.databinding.FragmentTkuiTripPreviewBinding
 import com.skedgo.tripkit.ui.payment.PaymentData
-import com.skedgo.tripkit.ui.routingresults.TripGroupRepository
 import com.skedgo.tripkit.ui.timetables.TimetableFragment
 import com.skedgo.tripkit.ui.trippreview.Action
-import com.skedgo.tripkit.ui.trippreview.TripPreviewHeader
+import com.skedgo.tripkit.ui.trippreview.segment.TripSegmentSummary
 import com.skedgo.tripkit.ui.trippreview.TripPreviewPagerListener
 import com.skedgo.tripkit.ui.trippreview.TripPreviewPagerViewModel
 import com.skedgo.tripkit.ui.tripresults.GetTransportIconTintStrategy
 import com.skedgo.tripkit.ui.utils.ITEM_SERVICE
 import com.skedgo.tripkit.ui.utils.correctItemType
 import com.skedgo.tripkit.ui.utils.observe
-import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.rxkotlin.subscribeBy
-import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.PublishSubject
 import kotlinx.coroutines.launch
-import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 class TKUITripPreviewFragment : BaseFragment<FragmentTkuiTripPreviewBinding>() {
@@ -58,7 +52,7 @@ class TKUITripPreviewFragment : BaseFragment<FragmentTkuiTripPreviewBinding>() {
     lateinit var adapter: TripPreviewPagerAdapter
 
     private var currentPagerIndex = 0
-    private var previewHeadersCallback: ((List<TripPreviewHeader>) -> Unit)? = null
+    private var previewHeadersCallback: ((List<TripSegmentSummary>) -> Unit)? = null
     private var pageIndexStream: PublishSubject<Pair<Long, String>>? = null
     private var paymentDataStream: PublishSubject<PaymentData>? = null
     private var ticketActionStream: PublishSubject<String>? = null
@@ -359,7 +353,7 @@ class TKUITripPreviewFragment : BaseFragment<FragmentTkuiTripPreviewBinding>() {
             pageIndexStream: PublishSubject<Pair<Long, String>>? = null,
             paymentDataStream: PublishSubject<PaymentData>? = null,
             ticketActionStream: PublishSubject<String>? = null,
-            previewHeadersCallback: ((List<TripPreviewHeader>) -> Unit)? = null
+            previewHeadersCallback: ((List<TripSegmentSummary>) -> Unit)? = null
         ) = TKUITripPreviewFragment().apply {
             this.tripGroupId = tripGroupId
             this.tripId = tripId

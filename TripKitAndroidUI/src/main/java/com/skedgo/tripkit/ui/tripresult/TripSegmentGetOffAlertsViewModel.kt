@@ -81,7 +81,9 @@ class TripSegmentGetOffAlertsViewModel @Inject internal constructor(
 
     fun onAlertChange(context: Context, isOn: Boolean) {
         trip.let {
-            GetOffAlertCache.setTripAlertOnState(it.tripUuid, isOn)
+            GetOffAlertCache.setTripAlertOnState(
+                it.tripUuid, it.group.uuid(), isOn
+            )
         }
 
         cancelStartTripAlarms(context) //this will cancel previous alarm that was setup

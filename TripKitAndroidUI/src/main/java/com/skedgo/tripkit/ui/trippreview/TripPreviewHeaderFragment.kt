@@ -6,14 +6,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.viewModels
-import com.skedgo.tripkit.ui.core.addTo
 import com.skedgo.tripkit.ui.databinding.FragmentTripPreviewHeaderBinding
+import com.skedgo.tripkit.ui.trippreview.segment.TripSegmentSummary
 import com.skedgo.tripkit.ui.utils.observe
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.addTo
 import io.reactivex.subjects.PublishSubject
-import javax.inject.Inject
 
 
 class TripPreviewHeaderFragment : Fragment() {
@@ -55,7 +54,7 @@ class TripPreviewHeaderFragment : Fragment() {
         }
     }
 
-    fun setHeaderItems(items: List<TripPreviewHeader>) {
+    fun setHeaderItems(items: List<TripSegmentSummary>) {
         if (!this@TripPreviewHeaderFragment.isDetached) {
             viewModel.setup(requireContext(), items)
         }
