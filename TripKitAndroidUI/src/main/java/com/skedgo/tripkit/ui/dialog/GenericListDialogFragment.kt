@@ -12,11 +12,9 @@ import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.DividerItemDecoration
 import com.google.gson.Gson
 import com.skedgo.tripkit.ui.databinding.DialogGenericListBinding
-import com.skedgo.tripkit.ui.dialog.GenericListDialogFragment.*
 import com.skedgo.tripkit.ui.utils.AccessibilityDefaultViewManager
 import com.skedgo.tripkit.ui.utils.fromJson
 import com.skedgo.tripkit.ui.utils.observe
-import kotlinx.android.synthetic.main.item_trip_preview_header.view.*
 
 class GenericListDialogFragment : DialogFragment(), GenericListDialogFragmentHandler {
 

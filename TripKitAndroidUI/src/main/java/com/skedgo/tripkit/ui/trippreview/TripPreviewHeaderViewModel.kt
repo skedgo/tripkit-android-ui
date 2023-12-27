@@ -1,42 +1,25 @@
 package com.skedgo.tripkit.ui.trippreview
 
 import android.content.Context
-import android.graphics.drawable.Drawable
 import androidx.databinding.ObservableArrayList
-import androidx.databinding.ObservableBoolean
-import androidx.databinding.ObservableField
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.skedgo.tripkit.common.model.TransportMode
 import com.skedgo.tripkit.ui.BR
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.core.RxViewModel
-import com.skedgo.tripkit.ui.utils.TapStateFlow
+import com.skedgo.tripkit.ui.trippreview.segment.TripSegmentSummary
+import com.skedgo.tripkit.ui.trippreview.segment.TripSegmentSummaryItemViewModel
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import me.tatarka.bindingcollectionadapter2.ItemBinding
 import javax.inject.Inject
-import kotlin.math.abs
-
-class TripPreviewHeaderItemViewModel : ViewModel() {
-    val id = ObservableField<Long>()
-    val title = ObservableField<String>()
-    val subTitle = ObservableField<String>()
-    val icon = ObservableField<Drawable>()
-    val selected = ObservableBoolean(false)
-    val description = ObservableField<String>()
-    val modeId = ObservableField<String>()
-    val isMirrored = ObservableBoolean(false)
-
-    val itemClick = TapStateFlow.create { this }
-}
 
 class TripPreviewHeaderViewModel @Inject constructor() : RxViewModel() {
 
-    val items: ObservableArrayList<TripPreviewHeaderItemViewModel> = ObservableArrayList()
-    val itemBinding = ItemBinding.of<TripPreviewHeaderItemViewModel>(BR.viewModel, R.layout.item_trip_preview_header)
+    val items: ObservableArrayList<TripSegmentSummaryItemViewModel> = ObservableArrayList()
+    val itemBinding = ItemBinding.of<TripSegmentSummaryItemViewModel>(BR.viewModel, R.layout.item_trip_segment_summary)
 
     private val _description = MutableLiveData<String>()
     val description: LiveData<String> = _description
@@ -54,31 +37,19 @@ class TripPreviewHeaderViewModel @Inject constructor() : RxViewModel() {
         _isHideExactTimes.value = value
     }
 
-    fun setup(context: Context, headerItems: List<TripPreviewHeader>) {
+    fun setup(context: Context, segmentSummaryItems: List<TripSegmentSummary>) {
 
         val isRightToLeft = context.resources.getBoolean(R.bool.is_right_to_left)
 
         items.clear()
         items.addAll(
-                headerItems.mapIndexed { index, previewHeader ->
-                    TripPreviewHeaderItemViewModel().apply {
-                        title.set(previewHeader.title)
-                        subTitle.set(previewHeader.subTitle)
-                        icon.set(previewHeader.icon)
-                        id.set(previewHeader.id)
-                        description.set(previewHeader.description)
-                        modeId.set(previewHeader.modeId)
-                        //_isHideExactTimes.value = previewHeader.isHideExactTimes //checking should not be per item
-
-                        if (previewHeader.modeId != TransportMode.ID_TAXI &&
-                                TransportMode.getLocalIconResId(previewHeader.modeId) != 0 ||
-                                previewHeader.modeId == "me_car-r") {
-                            isMirrored.set(isRightToLeft)
-                        }
-
+                segmentSummaryItems.mapIndexed { index, segmentSummary ->
+                    TripSegmentSummaryItemViewModel.parseFromTripSegmentSummary(
+                        segmentSummary, isRightToLeft
+                    ).apply {
                         if (index == 0) {
                             selected.set(true)
-                            previewHeader.description?.let { desc ->
+                            segmentSummary.description?.let { desc ->
                                 _description.value = desc
                                 _showDescription.value = true
                             }
@@ -144,7 +115,7 @@ class TripPreviewHeaderViewModel @Inject constructor() : RxViewModel() {
         }
     }
 
-    private fun setSelected(item: TripPreviewHeaderItemViewModel) {
+    private fun setSelected(item: TripSegmentSummaryItemViewModel) {
         with(item) {
             selected.set(true)
 
@@ -177,7 +148,7 @@ class TripPreviewHeaderViewModel @Inject constructor() : RxViewModel() {
     }
 
 
-    private fun checkNearestSegment(segmentId: Long): TripPreviewHeaderItemViewModel? {
+    private fun checkNearestSegment(segmentId: Long): TripSegmentSummaryItemViewModel? {
         val segmentGreater = items.filter {
             it.id.get() != null && it.id.get()!! > segmentId
         }.minByOrNull { it.id.get()!! }
