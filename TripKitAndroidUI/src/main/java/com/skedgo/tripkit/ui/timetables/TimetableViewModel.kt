@@ -4,6 +4,8 @@ import android.content.Context
 import android.content.res.Resources
 import androidx.databinding.ObservableBoolean
 import androidx.databinding.ObservableField
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.DiffUtil
 import com.jakewharton.rxrelay2.BehaviorRelay
@@ -12,7 +14,8 @@ import com.skedgo.tripkit.common.model.RealtimeAlert
 import com.skedgo.tripkit.common.model.Region
 import com.skedgo.tripkit.common.model.ScheduledStop
 import com.skedgo.tripkit.data.regions.RegionService
-import com.skedgo.tripkit.routing.RealTimeVehicle
+import com.skedgo.tripkit.routing.Trip
+import com.skedgo.tripkit.routing.TripGroup
 import com.skedgo.tripkit.routing.TripSegment
 import com.skedgo.tripkit.time.GetNow
 import com.skedgo.tripkit.ui.BR
@@ -34,23 +37,30 @@ import me.tatarka.bindingcollectionadapter2.ItemBinding
 import org.joda.time.DateTimeZone
 import com.skedgo.tripkit.routing.toSeconds
 import com.skedgo.tripkit.ui.BuildConfig
-import com.skedgo.tripkit.ui.core.addTo
+import com.skedgo.tripkit.ui.favorites.GetTripFromWaypoints
 import com.skedgo.tripkit.ui.favorites.trips.Waypoint
-import com.skedgo.tripkit.ui.favorites.trips.getModeForWayPoint
+import com.skedgo.tripkit.ui.routing.GetRoutingConfig
+import com.skedgo.tripkit.ui.routingresults.TripGroupRepository
 import com.skedgo.tripkit.ui.views.MultiStateView
 import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.functions.Function3
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.rx2.await
+import kotlinx.coroutines.rx2.awaitFirstOrNull
 import kotlinx.coroutines.withContext
 import me.tatarka.bindingcollectionadapter2.collections.DiffObservableList
 import timber.log.Timber
-import java.util.concurrent.TimeUnit
+import java.lang.Exception
 import java.util.concurrent.atomic.AtomicLong
 import javax.inject.Inject
 import javax.inject.Provider
 import kotlin.math.max
+
+data class ShowTimetableEntry(
+    val tripGroup: TripGroup,
+    val trip: Trip,
+    val tripSegment: TripSegment
+)
 
 class TimetableViewModel @Inject constructor(
         private val realTimeChoreographer: RealTimeChoreographer,
@@ -59,7 +69,10 @@ class TimetableViewModel @Inject constructor(
         private val regionService: RegionService,
         private val createShareContent: CreateShareContent,
         private val getNow: GetNow,
-        private val resources: Resources
+        private val resources: Resources,
+        private val getRoutingConfig: GetRoutingConfig,
+        private val getTripFromWaypoints: GetTripFromWaypoints,
+        private val tripGroupRepository: TripGroupRepository
 ) : RxViewModel() {
     var stop: BehaviorRelay<ScheduledStop> = BehaviorRelay.create()
     var serviceTripId: BehaviorRelay<String> = BehaviorRelay.create()
@@ -70,6 +83,12 @@ class TimetableViewModel @Inject constructor(
             ItemBinding.of<ServiceViewModel>(BR.viewModel, R.layout.timetable_fragment_list_item)
     val serviceItemBinding =
             ItemBinding.of<TimetableHeaderLineItem>(BR.data, R.layout.timetable_header_line_item)
+
+    private val _showTimetableEntry = MutableLiveData<ShowTimetableEntry>()
+    val showTimeTableEntry: LiveData<ShowTimetableEntry> = _showTimetableEntry
+
+    private val _showUpdateLoader = MutableLiveData<Boolean>()
+    val showUpdateLoader: LiveData<Boolean> = _showUpdateLoader
 
     object ServicesDiffCallback : DiffUtil.ItemCallback<ServiceViewModel>() {
         override fun areItemsTheSame(
@@ -268,8 +287,8 @@ class TimetableViewModel @Inject constructor(
 
     init {
 
-        parentStop.subscribe(stopRelay::accept) { onError.accept(it.message) }
-        minStartTime.subscribe(startTimeRelay::accept) { onError.accept(it.message) }
+        parentStop.subscribe(stopRelay::accept) { onError.accept(it.message) }.autoClear()
+        minStartTime.subscribe(startTimeRelay::accept) { onError.accept(it.message) }.autoClear()
         servicesVMs
                 .ignoreNetworkErrors()
                 .subscribe({
@@ -370,4 +389,74 @@ class TimetableViewModel @Inject constructor(
 
     fun getShareUrl(shareUrl: String, stop: ScheduledStop) =
             createShareContent.execute(shareUrl, stop, services.map { it.service })
+
+    /**
+     * Handles [TimetableEntry] item click
+     * @param entry the selected [TimetableEntry] item
+     * @param tripSegment the [TripSegment] where [TimetableEntry] was selected
+     */
+    // This is added to move the logic for getting the trip and tripGroup using waypoints
+    // instead of calling [TripPreviewPagerListener.onTimetableEntryClicked] and have the logic
+    // on the listening Activity/Fragment and passing this ViewModels' scope
+    fun onTimetableEntryClicked(entry: TimetableEntry, tripSegment: TripSegment?) {
+        val waypoints = mutableListOf<Waypoint>()
+        var segmentToShowIndex = 0
+
+        tripSegment?.trip?.segments?.filter {
+            !it.isContinuation && !it.isStationary
+        }?.mapIndexed { index, segment ->
+            if(segment == tripSegment) {
+                segmentToShowIndex = index
+                waypoints.add(Waypoint.parseFromTimetableEntryAndSegment(segment, entry))
+            } else {
+                Waypoint.parseFromSegment(segment)?.let { waypoints.add(it) }
+            }
+        }
+
+        getTripFromWaypoints(waypoints, segmentToShowIndex)
+    }
+
+    /**
+     * Getting the trip using waypoints
+     *
+     * @param waypoints list of waypoints from the [Trip.getSegments]
+     * @param segmentToShowIndex index of the segment where the [TimetableEntry] was selected
+     */
+    private fun getTripFromWaypoints(waypoints: List<Waypoint>, segmentToShowIndex: Int = 0) {
+        viewModelScope.launch {
+            try {
+                _showUpdateLoader.postValue(true)
+                val config = getRoutingConfig.execute()
+                getTripFromWaypoints.execute(config, waypoints).awaitFirstOrNull()
+                    ?.let { response ->
+                        _showUpdateLoader.postValue(false)
+                        processWaypointsResponse(response, segmentToShowIndex)
+                    }
+            } catch (e: Exception) {
+                Timber.e(e)
+                _showUpdateLoader.postValue(false)
+            }
+        }
+    }
+
+    /**
+     * Getting the [TripGroup] and [Trip] from the [GetTripFromWaypoints.WaypointResponse]
+     *
+     * @param waypoints [GetTripFromWaypoints.WaypointResponse] from [GetTripFromWaypoints.execute]
+     * @param segmentToShowIndex index of the segment where the [TimetableEntry] was selected
+     */
+    private suspend fun processWaypointsResponse(
+        waypoints: GetTripFromWaypoints.WaypointResponse,
+        segmentToShowIndex: Int = 0
+    ) {
+        waypoints.tripGroup?.let { tripGroup ->
+            tripGroupRepository.addTripGroups(tripGroup.uuid(), listOf(tripGroup)).await()
+            val trip = tripGroup.displayTrip ?: tripGroup.trips?.first()
+            if (trip != null) {
+                _showTimetableEntry.postValue(
+                    ShowTimetableEntry(tripGroup, trip, trip.segments[segmentToShowIndex])
+                )
+            }
+        }
+    }
 }

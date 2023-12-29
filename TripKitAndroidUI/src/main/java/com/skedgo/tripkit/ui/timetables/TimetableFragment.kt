@@ -23,6 +23,7 @@ import com.google.android.flexbox.FlexboxLayoutManager
 import com.skedgo.tripkit.common.model.ScheduledStop
 import com.skedgo.tripkit.common.util.TimeUtils
 import com.skedgo.tripkit.routing.TripSegment
+import com.skedgo.tripkit.ui.BuildConfig
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.TripKitUI
 import com.skedgo.tripkit.ui.core.BaseTripKitPagerFragment
@@ -34,6 +35,7 @@ import com.skedgo.tripkit.ui.model.TimetableEntry
 import com.skedgo.tripkit.ui.model.TripKitButton
 import com.skedgo.tripkit.ui.search.ARG_SHOW_SEARCH_FIELD
 import com.skedgo.tripkit.ui.utils.OnSwipeTouchListener
+import com.skedgo.tripkit.ui.utils.observe
 import com.skedgo.tripkit.ui.views.MultiStateView
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -167,6 +169,20 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
 
     override fun onResume() {
         super.onResume()
+
+        setObservers()
+
+        binding.recyclerView.scrollToPosition(0)
+
+        if (stop == null) {
+            stop = cachedStop
+        }
+
+        tripSegment = _tripSegment
+    }
+
+    // TODO code moved from [onResume], breakdown result handling into specific functions
+    private fun setObservers() {
         filterThrottle
             .debounce(500, TimeUnit.MILLISECONDS)
             .observeOn(AndroidSchedulers.mainThread())
@@ -250,11 +266,18 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
         viewModel.timetableEntryChosen.observeOn(AndroidSchedulers.mainThread()).subscribe {
             if (viewModel.action.isNotEmpty() || fromPreview) {
                 tripSegment?.let { segmentActionStream?.onNext(it) }
-                tripPreviewPagerListener?.onTimetableEntryClicked(
-                    tripSegment,
-                    viewModel.viewModelScope,
-                    it
-                )
+                if (BuildConfig.TRIPKIT_UI_VERSION < 2) {
+                    // FIXME processing data, e.g. getting waypoints and updated data, showing dialog updating should be moved on this class' ViewModel
+                    //  and only have the listener trigger the additional actions from the class using TimetableFragment for the result.
+                    //  More importantly, viewModelScope instance should not be passed and used outside its ViewModel
+                    tripPreviewPagerListener?.onTimetableEntryClicked(
+                        tripSegment,
+                        viewModel.viewModelScope,
+                        it
+                    )
+                } else {
+                    viewModel.onTimetableEntryClicked(it, tripSegment)
+                }
             } else {
                 Observable.combineLatest(
                     viewModel.stopRelay,
@@ -273,13 +296,22 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
             }
         }.addTo(autoDisposable)
 
-        binding.recyclerView.scrollToPosition(0)
-
-        if (stop == null) {
-            stop = cachedStop
+        observe(viewModel.showTimeTableEntry) {
+            it?.let {
+                tripPreviewPagerListener?.viewTimetableEntry(
+                    it.tripGroup,
+                    it.trip,
+                    it.tripSegment
+                )
+            }
         }
 
-        tripSegment = _tripSegment
+        observe(viewModel.showUpdateLoader) {
+            it?.let {
+                tripPreviewPagerListener
+                    ?.showUpdateLoader(it, getString(R.string.str_updating))
+            }
+        }
     }
 
     fun setBookingActions(bookingActions: List<String>?) {
