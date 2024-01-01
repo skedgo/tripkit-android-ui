@@ -11,6 +11,7 @@ import androidx.lifecycle.viewModelScope
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
 import com.jakewharton.rxrelay2.PublishRelay
+import com.skedgo.tripkit.analytics.SearchResultItemSource
 import com.skedgo.tripkit.common.model.Location
 import com.skedgo.tripkit.common.model.Region
 import com.skedgo.tripkit.data.regions.RegionService
@@ -316,7 +317,7 @@ class LocationSearchViewModel @Inject constructor(
 
         onQueryTextChangeEventThrottle.debounce(500, TimeUnit.MILLISECONDS)
             .subscribe({
-                searchResults(if (it == "Current Location") it else "")
+                searchResults(if (it == SearchResultItemSource.CurrentLocation.value) it else "")
             }, { errorLogger.trackError(it) })
             .autoClear()
 
