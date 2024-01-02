@@ -33,7 +33,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             tools:itemCount="3"
-            tools:listitem="@layout/item_trip_preview_header" />
+            tools:listitem="@layout/item_trip_segment_summary" />
 
         <TextView
             android:id="@+id/tvTime"

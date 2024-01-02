@@ -1,5 +1,6 @@
 package com.skedgo.tripkit.ui.search
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
 import android.util.Log
@@ -20,6 +21,7 @@ import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.core.RxViewModel
 import com.skedgo.tripkit.ui.core.SchedulerFactory
 import com.skedgo.tripkit.ui.core.UnableToFindPlaceCoordinatesError
+import com.skedgo.tripkit.ui.core.addTo
 import com.skedgo.tripkit.ui.core.isExecuting
 import com.skedgo.tripkit.ui.core.rxproperty.asObservable
 import com.skedgo.tripkit.ui.data.places.Place
@@ -31,7 +33,6 @@ import com.skedgo.tripkit.ui.geocoding.NoConnection
 import com.skedgo.tripkit.ui.geocoding.NoResult
 import com.squareup.picasso.Picasso
 import io.reactivex.Observable
-import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
 import io.reactivex.rxkotlin.Observables
 import io.reactivex.schedulers.Schedulers
@@ -48,6 +49,7 @@ import javax.inject.Inject
 const val KEY_BOUNDS = "bounds"
 const val KEY_CENTER = "center"
 
+@SuppressLint("StaticFieldLeak")
 class LocationSearchViewModel @Inject constructor(
     private val context: Context,
     private val regionService: RegionService,
@@ -330,7 +332,7 @@ class LocationSearchViewModel @Inject constructor(
             .subscribe({
                 fixedSuggestionsProvider().locationsToSuggestion(
                     context,
-                    it.reversed(),
+                    it.toSet().reversed(),
                     legacyIconProvider()
                 ).forEach { suggestion ->
                     historySuggestions.add(SearchProviderSuggestionViewModel(context, suggestion))
@@ -526,6 +528,22 @@ class LocationSearchViewModel @Inject constructor(
     fun bounds(): LatLngBounds = bounds
 
     fun center(): LatLng = center
+
+    fun saveLocationToHistory(location: Location) {
+        if (location.name != context.getString(R.string.home) && location.name != context.getString(
+                R.string.work
+            ) && !location.isFavourite
+        ) {
+            locationHistoryRepository.saveLocationsToHistory(
+                listOf(location)
+            ).subscribeOn(io())
+                .subscribe({
+                    //Do nothing
+                }, {
+                    it.printStackTrace()
+                }).autoClear()
+        }
+    }
 
 }
 

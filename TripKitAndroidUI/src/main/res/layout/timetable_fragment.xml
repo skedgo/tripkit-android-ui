@@ -17,7 +17,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#ffffff"
+        android:background="@android:color/white"
         tools:context=".timetables.TimetableFragment">
 
         <TextView
@@ -46,18 +46,6 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@+id/nameOfStation" />
 
-
-        <!-- Commenting out until the backend supports giving us the names of stations -->
-        <!--        <TextView-->
-        <!--                tools:text="Train Station"-->
-        <!--                style="@style/TextAppearance.MaterialComponents.Subtitle1"-->
-        <!--                android:layout_width="wrap_content"-->
-        <!--                android:layout_height="wrap_content"-->
-        <!--                android:text="@{viewModel.stationType}"-->
-        <!--                android:id="@+id/description"-->
-        <!--                app:layout_constraintTop_toBottomOf="@+id/nameOfStation"-->
-        <!--                app:layout_constraintStart_toStartOf="@+id/nameOfStation"-->
-        <!--        />-->
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/serviceLineRecyclerView"
             android:layout_width="match_parent"

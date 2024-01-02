@@ -1,9 +1,7 @@
 package com.skedgo.tripkit.ui.utils
 
-import android.content.res.Resources
+import android.content.res.Resources.NotFoundException
 import android.graphics.drawable.Drawable
-import android.os.Handler
-import android.os.Looper
 import android.os.SystemClock
 import android.view.View
 import android.view.accessibility.AccessibilityEvent
@@ -14,6 +12,8 @@ import androidx.cardview.widget.CardView
 import androidx.core.content.ContextCompat
 import androidx.databinding.BindingAdapter
 import com.bumptech.glide.Glide
+import com.skedgo.tripkit.common.model.AlertSeverity
+import com.skedgo.tripkit.common.model.RealtimeAlert
 import com.skedgo.tripkit.ui.R
 
 //To databind resource id(int) on image views
@@ -155,5 +155,28 @@ fun setCardBackgroundColor(view: CardView, color: Int?) {
 fun setTextViewTextColor(view: TextView, color: Int?) {
     color?.let {
         view.setTextColor(it)
+    }
+}
+
+@BindingAdapter("android:src")
+fun setAlertIcon(view: ImageView, @AlertSeverity severity: String) {
+    try {
+        val iconResource = if (severity == RealtimeAlert.SEVERITY_ALERT) {
+            R.drawable.ic_alert_red_overlay
+        } else {
+            R.drawable.ic_alert_yellow_overlay
+        }
+        ContextCompat.getDrawable(view.context, iconResource)?.let {
+            view.setImageDrawable(it)
+        }
+    } catch (e: NotFoundException) {
+        e.printStackTrace()
+    }
+}
+
+@BindingAdapter("android:backgroundTint")
+fun setBackgroundTint(view: View, color: Int?) {
+    view.backgroundTintList = color?.let {
+        ContextCompat.getColorStateList(view.context, it)
     }
 }

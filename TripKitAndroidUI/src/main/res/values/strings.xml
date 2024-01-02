@@ -71,4 +71,9 @@
     <string name="get_off_alerts_getting_within_disembarkation_point">Getting within 500m of the disembarkation point</string>
     <string name="get_off_alerts_passed_by_the_previous_stop">Passed by the previous stop</string>
     <string name="get_off_alerts_about_to_arrive_final_destination">About to arrive the final destination</string>
+    <string name="get_off_alerts_vehicle_is_approaching_your_boarding_stop">Vehicle is approaching your boarding stop</string>
+    <string name="permission_request_title">Permission Request</string>
+    <string name="permission_request_notificaiton">Allow %s to send you notifications?</string>
+    <string name="permission_request_notificaiton_explanation">This permission is needed for you to receive notifications regarding your trips</string>
+    <string name="permission_request_notificaiton_open_settings_explanation">This permission is needed for you to receive notifications regarding your trips</string>
 </resources>

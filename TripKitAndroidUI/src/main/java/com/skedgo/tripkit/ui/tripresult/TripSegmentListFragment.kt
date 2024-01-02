@@ -23,8 +23,8 @@ import com.skedgo.tripkit.ui.databinding.TripSegmentListFragmentBinding
 import com.skedgo.tripkit.ui.model.TripKitButton
 import com.skedgo.tripkit.ui.model.TripKitButtonConfigurator
 import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButtonHandlerFactory
-import com.skedgo.tripkit.ui.utils.observe
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.subjects.PublishSubject
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -92,6 +92,7 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
     private var tripId: Long? = null
     var actionButtonHandlerFactory: ActionButtonHandlerFactory? = null
     private var tripResultMapContributor: TripResultMapContributor? = null
+    private var updateStream: PublishSubject<Unit>? = null
 
     override fun onAttach(context: Context) {
         TripKitUI.getInstance().tripDetailsComponent().inject(this)
@@ -131,7 +132,6 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
         tripGroupId?.let {
             viewModel.loadTripGroup(it, tripId ?: -1L, savedInstanceState)
         }
-
 
         accessibilityDefaultViewManager.setDefaultViewForAccessibility(binding.duration)
 
@@ -186,6 +186,14 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
                     )
                 }
             }
+        viewModel.updatedState
+            .observe(viewLifecycleOwner) {
+                updateStream?.onNext(Unit)
+            }
+
+        updateStream?.subscribe {
+            viewModel.validateGetOffAlerts()
+        }?.addTo(autoDisposable)
     }
 
     private fun startAndLogActivity(tripSegment: TripSegment, intent: Intent) {
@@ -368,6 +376,7 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
         private var showCloseButton = false
         private var actionButtonHandlerFactory: ActionButtonHandlerFactory? = null
         private var tripResultMapContributor: TripResultMapContributor? = null
+        private var updateStream: PublishSubject<Unit>? = null
         fun withTripGroupId(tripGroupId: String): Builder {
             this.tripGroupId = tripGroupId
             return this
@@ -396,6 +405,11 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
             return this
         }
 
+        fun withUpdateStream(updateStream: PublishSubject<Unit>): Builder {
+            this.updateStream = updateStream
+            return this
+        }
+
         fun build(): TripSegmentListFragment {
             assert(tripGroupId != null)
 
@@ -409,6 +423,7 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
             fragment.tripId = tripId ?: -1
             fragment.actionButtonHandlerFactory = actionButtonHandlerFactory
             fragment.tripResultMapContributor = tripResultMapContributor
+            fragment.updateStream = updateStream
             return fragment
 
         }

@@ -200,16 +200,20 @@ class TripResultListViewModel @Inject constructor(
             .map {
                 it.clicked
                     .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe {
+                    .subscribe { type ->
                         // The transportVisibilityFilter will save walking vs wheelchair automatically,
                         // but we need to manually fix the display, as walking and wheelchair are mutually exclusive.
-                        if (it.first == TransportMode.ID_WALK) {
+                        if (type.first == TransportMode.ID_WALK) {
                             toggleTransportModeChecked(TransportMode.ID_WHEEL_CHAIR, false)
-                        } else if (it.first == TransportMode.ID_WHEEL_CHAIR) {
+                        } else if (type.first == TransportMode.ID_WHEEL_CHAIR) {
                             toggleTransportModeChecked(TransportMode.ID_WALK, false)
+                            if (!type.second) {
+                                toggleTransportModeChecked(TransportMode.ID_BICYCLE, true)
+                                toggleTransportModeChecked(TransportMode.ID_MOTORBIKE, true)
+                            }
                         }
 
-                        transportVisibilityFilter!!.setSelected(it.first, it.second)
+                        transportVisibilityFilter!!.setSelected(type.first, type.second)
                         reload()
                     }.autoClear()
                 it

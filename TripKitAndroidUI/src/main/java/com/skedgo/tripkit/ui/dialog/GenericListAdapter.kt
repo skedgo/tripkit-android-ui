@@ -1,5 +1,6 @@
 package com.skedgo.tripkit.ui.dialog
 
+import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -38,6 +39,7 @@ class GenericListAdapter @Inject constructor() :
 
     override fun getItemCount() = collection.size
 
+    @SuppressLint("RecyclerView")
     override fun onBindViewHolder(holder: Holder, position: Int) {
         holder.binding.apply {
             val listItem = collection[position]
@@ -58,8 +60,8 @@ class GenericListAdapter @Inject constructor() :
             }
             clParent.accessibilityDelegate = object: View.AccessibilityDelegate(){
                 override fun onInitializeAccessibilityNodeInfo(
-                    host: View?,
-                    info: AccessibilityNodeInfo?
+                    host: View,
+                    info: AccessibilityNodeInfo
                 ) {
 
                     super.onInitializeAccessibilityNodeInfo(host, info)
@@ -73,11 +75,11 @@ class GenericListAdapter @Inject constructor() :
                             AccessibilityNodeInfoCompat.ACTION_CLICK, description
                         )
 
-                        info?.addAction(customClick)
+                        info.addAction(customClick)
                     }
                 }
 
-                override fun sendAccessibilityEvent(host: View?, eventType: Int) {
+                override fun sendAccessibilityEvent(host: View, eventType: Int) {
 
                     val currentContentDescription = genericListItemTvLabel.text
 

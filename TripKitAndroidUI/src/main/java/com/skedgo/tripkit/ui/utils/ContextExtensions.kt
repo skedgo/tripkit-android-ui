@@ -1,6 +1,5 @@
 package com.skedgo.tripkit.ui.utils
 
-import android.Manifest
 import android.accessibilityservice.AccessibilityServiceInfo
 import android.content.Context
 import android.content.Intent
@@ -16,6 +15,8 @@ import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.list.listItems
+import com.araujo.jordan.excuseme.ExcuseMe
+import com.araujo.jordan.excuseme.model.PermissionStatus
 import java.lang.Exception
 
 fun Context.viewAppDetailsSettingsIntent(): Intent = Intent(
@@ -131,4 +132,44 @@ fun Context.openAppInPlayStore() {
         webIntent.data = Uri.parse("https://play.google.com/store/apps/details?id=$packageName")
         startActivity(webIntent)
     }
+}
+
+fun Context.openAppNotificationSettings() {
+    val intent = Intent()
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        // For Android 8.0 and above, open the app's notification settings.
+        intent.action = Settings.ACTION_APP_NOTIFICATION_SETTINGS
+        intent.putExtra(Settings.EXTRA_APP_PACKAGE, packageName)
+    } else {
+        // For Android 7.0 and below, open the app's application details settings.
+        intent.action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
+        intent.data = Uri.fromParts("package", packageName, null)
+    }
+
+    startActivity(intent)
+}
+
+fun Context.requestPermissionGently(
+    permissions: List<String>,
+    callback: (PermissionStatus?) -> Unit,
+    title: String,
+    description: String,
+    openSettingsTitle: String,
+    openSettingsExplanation: String,
+    versionChecker: Int? = null
+) {
+
+    if (versionChecker != null && Build.VERSION.SDK_INT < versionChecker) {
+        callback.invoke(null)
+        return
+    }
+
+    ExcuseMe.couldYouGive(this)
+        .please(
+            explainAgainTitle = title,
+            explainAgainExplanation = description,
+            showSettingsTitle = openSettingsTitle,
+            showSettingsExplanation = openSettingsExplanation
+        )
+        .permissionFor(*permissions.toTypedArray()) { callback.invoke(it) }
 }

@@ -6,7 +6,6 @@ import android.content.Context
 import android.graphics.drawable.InsetDrawable
 import android.os.Bundle
 import android.text.TextUtils
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -29,12 +28,7 @@ import com.skedgo.tripkit.ui.databinding.LocationSearchBinding
 import com.skedgo.tripkit.ui.utils.defocusAndHideKeyboard
 import com.skedgo.tripkit.ui.utils.isTalkBackOn
 import com.skedgo.tripkit.ui.utils.showKeyboard
-import io.reactivex.Completable
-import io.reactivex.Observable
-import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
-import io.reactivex.schedulers.Schedulers
-import timber.log.Timber
 import javax.inject.Inject
 
 
@@ -56,9 +50,6 @@ import javax.inject.Inject
  */
 class LocationSearchFragment : BaseTripKitFragment() {
 
-    @Inject
-    lateinit var locationHistoryRepository: LocationHistoryRepository
-
     lateinit var binding: LocationSearchBinding
 
     /**
@@ -76,7 +67,7 @@ class LocationSearchFragment : BaseTripKitFragment() {
     fun setOnLocationSelectedListener(listener: (Location) -> Unit) {
         this.locationSelectedListener = object : OnLocationSelectedListener {
             override fun onLocationSelected(location: Location) {
-                saveLocationToHistory(location)
+                viewModel.saveLocationToHistory(location)
                 listener(location)
             }
 
@@ -101,18 +92,6 @@ class LocationSearchFragment : BaseTripKitFragment() {
                 listener(id)
             }
 
-        }
-    }
-
-    private fun saveLocationToHistory(location: Location) {
-        if (location.name != getString(R.string.home) && location.name != getString(R.string.work) && !location.isFavourite) {
-            locationHistoryRepository.saveLocationsToHistory(
-                listOf(location)
-            ).observeOn(Schedulers.io())
-                .subscribeOn(Schedulers.io())
-                .subscribe({}, {
-                    it.printStackTrace()
-                }).addTo(autoDisposable)
         }
     }
 
@@ -310,7 +289,7 @@ class LocationSearchFragment : BaseTripKitFragment() {
             .observeOn(mainThread())
             .subscribe({
                 Toast.makeText(
-                    activity!!,
+                    requireActivity(),
                     R.string.failed_to_resolve_location,
                     Toast.LENGTH_SHORT
                 ).show()

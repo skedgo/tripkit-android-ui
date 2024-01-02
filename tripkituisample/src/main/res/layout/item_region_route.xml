@@ -24,11 +24,19 @@
             tools:text="Short Name" />
 
         <TextView
+            android:id="@+id/tvRouteName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@{`Route Name: ` + item.routeName}"
+            app:layout_constraintTop_toBottomOf="@+id/tvShortName"
+            tools:text="Operator" />
+
+        <TextView
             android:id="@+id/tvOperator"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@{`Operator Name: ` + item.operatorName}"
-            app:layout_constraintTop_toBottomOf="@+id/tvShortName"
+            app:layout_constraintTop_toBottomOf="@+id/tvRouteName"
             tools:text="Operator" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>

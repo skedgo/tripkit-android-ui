@@ -1514,5 +1514,8 @@ Note, your iCloud data will not be deleted by this, but you can delete this in t
 	<string name="deactivated">Deactivated</string>
 	<string name="deactivated_message">This app has been deactivated. Please check if there\'s a new version in the App Store.</string>
 	<string name="open_play_store">Open Playstore</string>
+	<string name="bookings">Bookings</string>
+	<string name="impaired">Impaired</string>
+	<string name="next_up">Next Up</string>
 </resources>
 	<!-- This is an auto generated file (Mon Jan 20 14:50:01 CET 2020) -->
