@@ -9,10 +9,18 @@ import kotlinx.coroutines.CoroutineScope
 
 interface TripPreviewPagerListener {
     fun onServiceActionButtonClicked(_tripSegment: TripSegment?, action: String?)
+
+    @Deprecated("Keep the logic on the [TimetableFragment] and use [viewTimetableEntry] instead")
     fun onTimetableEntryClicked(
         segment: TripSegment?,
         scope: CoroutineScope,
         entry: TimetableEntry
+    )
+
+    fun viewTimetableEntry(
+        tripGroup: TripGroup,
+        trip: Trip,
+        segment: TripSegment
     )
 
     fun reportPlannedTrip(trip: Trip?, tripGroups: List<TripGroup>)
@@ -25,4 +33,5 @@ interface TripPreviewPagerListener {
     fun onToggleBottomSheetDrag(isDraggable: Boolean)
     fun getCurrentPagerItemType(): Int
     fun getLatestTrip(): Trip?
+    fun showUpdateLoader(show: Boolean, message: String)
 }

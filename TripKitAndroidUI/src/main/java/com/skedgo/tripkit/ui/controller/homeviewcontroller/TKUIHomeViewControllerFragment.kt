@@ -29,12 +29,8 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.skedgo.geocoding.LatLng
 import com.skedgo.rxtry.Failure
 import com.skedgo.rxtry.Success
-import com.skedgo.rxtry.Try
-import com.skedgo.rxtry.toTry
 import com.skedgo.tripkit.common.model.Location
 import com.skedgo.tripkit.common.model.ScheduledStop
-import com.skedgo.tripkit.location.GeoPoint
-import com.skedgo.tripkit.location.UserGeoPointRepository
 import com.skedgo.tripkit.model.ViewTrip
 import com.skedgo.tripkit.routing.Trip
 import com.skedgo.tripkit.routing.TripGroup
@@ -57,6 +53,7 @@ import com.skedgo.tripkit.ui.controller.utils.actionhandler.TKUIActionButtonHand
 import com.skedgo.tripkit.ui.controller.utils.actionhandler.TKUIActionButtonHandlerFactory
 import com.skedgo.tripkit.ui.core.BaseFragment
 import com.skedgo.tripkit.ui.core.addTo
+import com.skedgo.tripkit.ui.core.module.ViewModelFactory
 import com.skedgo.tripkit.ui.databinding.FragmentTkuiHomeViewControllerBinding
 import com.skedgo.tripkit.ui.dialog.UpdateModalDialog
 import com.skedgo.tripkit.ui.favorites.GetTripFromWaypoints
@@ -96,21 +93,12 @@ class TKUIHomeViewControllerFragment :
     BaseFragment<FragmentTkuiHomeViewControllerBinding>() {
 
     @Inject
-    lateinit var userGeoPointRepository: UserGeoPointRepository
+    lateinit var viewModelFactory: ViewModelFactory
 
     @Inject
     lateinit var eventBus: ViewControllerEventBus
 
-    @Inject
-    lateinit var getRoutingConfig: GetRoutingConfig
-
-    @Inject
-    lateinit var getTripFromWaypoints: GetTripFromWaypoints
-
-    @Inject
-    lateinit var tripGroupRepository: TripGroupRepository
-
-    private val viewModel: TKUIHomeViewControllerViewModel by viewModels()
+    private val viewModel: TKUIHomeViewControllerViewModel by viewModels { viewModelFactory }
 
     lateinit var mapFragment: TripKitMapFragment
     lateinit var map: GoogleMap
@@ -154,27 +142,6 @@ class TKUIHomeViewControllerFragment :
                 loadPoiDetails(location)
             }
         }
-
-    /**
-     * To fetch user location asynchronously from @see com.skedgo.tripkit.location.UserGeoPointRepository
-     */
-    private var currentGeoPointAsLocation = lazy {
-        userGeoPointRepository.getFirstCurrentGeoPoint()
-            .toTry()
-            .map<Try<Location>> { tried: Try<GeoPoint> ->
-                when (tried) {
-                    is Success -> {
-                        val l = Location(tried.invoke().latitude, tried.invoke().longitude).also {
-                            it.name = resources.getString(R.string.current_location)
-                        }
-                        Success(l)
-                    }
-
-                    is Failure -> Failure<Location>(tried())
-                }
-            }
-            .subscribeOn(Schedulers.io())
-    }
 
     override val layoutRes: Int
         get() = R.layout.fragment_tkui_home_view_controller
@@ -276,21 +243,19 @@ class TKUIHomeViewControllerFragment :
             if (mapFragment.pinnedOriginLocation == null) {
                 getCurrentLocation { granted ->
                     if (granted) {
-                        currentGeoPointAsLocation.value
-                            .subscribe({
-                                when (it) {
-                                    is Success -> {
-                                        val currentLocation = it.invoke()
-                                        mapFragment.addOriginDestinationMarker(0, currentLocation)
-                                        mapFragment.addOriginDestinationMarker(1, pinnedLocation)
-                                        routeLocation(currentLocation, pinnedLocation)
-                                    }
-                                    is Failure -> routeLocation(
-                                        pinnedLocation
-                                    )
+                        viewModel.getUserGeoPoint {
+                            when (it) {
+                                is Success -> {
+                                    val currentLocation = it.invoke()
+                                    mapFragment.addOriginDestinationMarker(0, currentLocation)
+                                    mapFragment.addOriginDestinationMarker(1, pinnedLocation)
+                                    routeLocation(currentLocation, pinnedLocation)
                                 }
-                            }, { e -> Timber.e(e) })
-                            .addTo(autoDisposable)
+                                is Failure -> routeLocation(
+                                    pinnedLocation
+                                )
+                            }
+                        }
                     } else {
                         routeLocation(pinnedLocation)
                     }
@@ -699,14 +664,12 @@ class TKUIHomeViewControllerFragment :
 
         getCurrentLocation { granted ->
             if (granted) {
-                currentGeoPointAsLocation.value
-                    .subscribe({
-                        when (it) {
-                            is Success -> getRouteTrips(it.invoke(), destination, false)
-                            is Failure -> Timber.d("Could not get location")
-                        }
-                    }, { e -> Timber.e(e) })
-                    .addTo(autoDisposable)
+                viewModel.getUserGeoPoint {
+                    when (it) {
+                        is Success -> getRouteTrips(it.invoke(), destination, false)
+                        is Failure -> Timber.d(getString(R.string.could_not_get_location))
+                    }
+                }
             }
         }
     }
@@ -880,7 +843,7 @@ class TKUIHomeViewControllerFragment :
         }
     }
 
-    //TODO breakdown the function and remove all the logic on the viewmodel
+    //TODO breakdown the function and move all the logic to the viewmodel
     private fun initTripPreviewPagerFragmentListener(tripSegment: TripSegment): TripPreviewPagerListener {
         return object : TripPreviewPagerListener {
             override fun onServiceActionButtonClicked(
@@ -894,116 +857,22 @@ class TKUIHomeViewControllerFragment :
                 scope: CoroutineScope,
                 entry: TimetableEntry
             ) {
-                var index = 0
-                val mTripGroup = MutableLiveData<TripGroup>()
-                val errorMsg = MutableLiveData<String?>()
+                // Replaced by [viewTimetableEntry] and [showUpdateLoader]
+            }
 
-                mTripGroup.observe(requireActivity()) {
-                    val trip = it.displayTrip ?: it.trips?.first()
-                    if (trip != null) {
-                        eventBus.publish(
-                            ViewControllerEvent.OnTripSegmentDataSetChange(
-                                trip,
-                                trip.segments[index]
-                            )
-                        )
-                        tripGroupOnPreview = it
-                        reloadTrip(it)
-                    }
-                }
-
-                errorMsg.observe(requireActivity()) {
-                    if (!it.isNullOrEmpty()) {
-                        Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show()
-                    }
-                }
-
-                entry.let {
-                    val relevantSegments = tripSegment?.trip?.segments?.filter {
-                        !it.isContinuation && !it.isStationary
-                    }
-                    val waypoints = ArrayList<Waypoint>()
-                    relevantSegments?.map { segment ->
-                        if (segment == tripSegment) {
-                            index = relevantSegments.indexOf(segment)
-
-                            var endTime = entry.endTimeInSecs
-                            if (endTime <= 0) {
-
-                                val toAdd = segment.endTimeInSecs - segment.startTimeInSecs
-                                endTime = entry.serviceTime + toAdd
-                            }
-
-                            waypoints.add(
-                                Waypoint(
-                                    mode = entry.modeInfo?.id,
-                                    start = entry.stopCode ?: segment.startStopCode,
-                                    end = entry.endStopCode ?: segment.endStopCode,
-                                    startTime = entry.serviceTime.toString(),
-                                    endTime = endTime.toString(),
-                                    serviceTripId = entry.serviceTripId,
-                                    operator = entry.operator,
-                                    region = segment.from.region,
-                                    disembarkationRegion = segment.to.region
-                                )
-                            )
-                        } else {
-                            try {
-
-                                val mode = segment.getModeForWayPoint()
-                                var vehicleUUID: String? = null
-                                segment.realTimeVehicle?.id?.let {
-                                    vehicleUUID = it.toString()
-                                }
-
-                                mode.first?.let {
-                                    waypoints.add(
-                                        Waypoint(
-                                            start = segment.from.coordinateString,
-                                            end = segment.to.coordinateString,
-                                            mode = it,
-                                            vehicleUUID = vehicleUUID
-                                        )
-                                    )
-                                }
-                            } catch (e: Exception) {
-                                Timber.e(e)
-                            }
-                        }
-                    }
-                    updateModalDialog =
-                        UpdateModalDialog.newInstance(getString(R.string.str_updating))
-                    updateModalDialog?.show(childFragmentManager, null)
-                    scope.launch {
-                        try {
-                            val config = getRoutingConfig.execute()
-                            val waypointResponse =
-                                getTripFromWaypoints.execute(config, waypoints).awaitFirstOrNull()
-                            waypointResponse?.let { response ->
-                                response.tripGroup?.let { tg ->
-                                    tripGroupRepository.addTripGroups(tg.uuid(), listOf(tg)).await()
-                                    val cachedTripGroup =
-                                        tripGroupRepository.getTripGroup(tg.uuid())
-                                            .awaitFirstOrNull()
-                                    cachedTripGroup?.let {
-                                        lifecycleScope.launch {
-                                            mTripGroup.value = it
-                                        }
-                                    }
-                                }
-                                errorMsg.value = response.error
-                            }
-                            updateModalDialog?.dismissAllowingStateLoss()
-                        } catch (e: Exception) {
-                            e.printStackTrace()
-                            updateModalDialog?.dismissAllowingStateLoss()
-                            Toast.makeText(
-                                requireContext(), "An error occurred. Please try again later.",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
-                    }
-                }
+            override fun viewTimetableEntry(
+                tripGroup: TripGroup,
+                trip: Trip,
+                segment: TripSegment
+            ) {
+                eventBus.publish(
+                    ViewControllerEvent.OnTripSegmentDataSetChange(
+                        trip,
+                        segment
+                    )
+                )
+                tripGroupOnPreview = tripGroup
+                reloadTrip(tripGroup)
             }
 
             override fun reportPlannedTrip(trip: Trip?, tripGroups: List<TripGroup>) {
@@ -1041,6 +910,17 @@ class TKUIHomeViewControllerFragment :
                     return (fragment as TKUITripPreviewFragment).latestTrip
                 }
                 return null
+            }
+
+            override fun showUpdateLoader(show: Boolean, message: String) {
+                if (updateModalDialog != null) {
+                    updateModalDialog?.dismissAllowingStateLoss()
+                    updateModalDialog = null
+                }
+                if(show) {
+                    updateModalDialog = UpdateModalDialog.newInstance(message)
+                    updateModalDialog?.show(childFragmentManager, null)
+                }
             }
         }
     }
@@ -1116,6 +996,7 @@ class TKUIHomeViewControllerFragment :
          * can be handled on the parent activity/fragment. Including [OnBackPressedCallback] in the callback
          * for the parent to remove([OnBackPressedCallback.remove] or not (i.e. you want to close parent activity
          * on backpress when [TKUIHomeBottomSheetFragment] is empty)
+         * @return [TKUIHomeViewControllerFragment] new instance
          */
         fun newInstance(
             defaultLocation: LatLng? = null,

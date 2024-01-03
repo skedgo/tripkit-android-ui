@@ -10,6 +10,11 @@ repositories {
 }
 android {
     compileSdkVersion versions.compileSdkVersion
+
+    androidExtensions {
+        experimental = true
+    }
+
     defaultConfig {
         minSdkVersion versions.proMinSdkVersion
         targetSdkVersion versions.targetSdkVersion
@@ -21,6 +26,11 @@ android {
                 arguments += ["room.schemaLocation": "$projectDir/schemas".toString()]
             }
         }
+
+        // This flag is implemented to maintain backwards compatibility following code cleanup.
+        // It should be utilized in validation processes to support both new and old coding approaches,
+        // ensuring that SDK users employing older methodologies will continue to experience seamless functionality.
+        buildConfigField 'int', 'TRIPKIT_UI_VERSION', "${tripkitUiVersion}"
     }
 
     packagingOptions {
