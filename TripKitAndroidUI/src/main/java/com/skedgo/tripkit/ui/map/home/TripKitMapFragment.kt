@@ -53,8 +53,6 @@ import dagger.Lazy
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.functions.Consumer
 import io.reactivex.schedulers.Schedulers
-import kotlinx.android.synthetic.main.qr_scan_activity.*
-import retrofit2.HttpException
 import java.util.*
 import javax.inject.Inject
 
@@ -620,6 +618,7 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
         return marker
     }
 
+    @SuppressLint("MissingPermission")
     private fun goToMyLocation() {
         ExcuseMe.couldYouGive(this).permissionFor(android.Manifest.permission.ACCESS_FINE_LOCATION) {
             if (it.granted.contains(android.Manifest.permission.ACCESS_FINE_LOCATION)) {

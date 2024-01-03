@@ -1,15 +1,10 @@
 package com.skedgo.tripkit.ui.dialog
 
 import android.annotation.SuppressLint
-import android.app.AlertDialog
 import android.app.Dialog
 import android.content.DialogInterface
 import android.os.Bundle
-import android.util.Log
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
-import android.view.accessibility.AccessibilityEvent
 import android.widget.*
 import androidx.core.view.allViews
 import androidx.databinding.DataBindingUtil
@@ -23,10 +18,6 @@ import com.skedgo.tripkit.ui.TripKitUI
 import com.skedgo.tripkit.ui.databinding.DialogDateTimePickerBinding
 import com.skedgo.tripkit.ui.trip.details.viewmodel.ITimePickerViewModel
 import com.skedgo.tripkit.ui.trip.options.InterCityTimePickerViewModel
-import kotlinx.android.synthetic.main.dialog_date_time_picker.view.*
-import kotlinx.android.synthetic.main.dialog_time_date_picker.view.*
-import kotlinx.android.synthetic.main.trip_segment.*
-import kotlinx.android.synthetic.main.v4_view_wheel_time.view.*
 import java.lang.Exception
 import java.lang.reflect.Field
 import java.util.*

@@ -124,6 +124,7 @@ class MapViewModel @Inject internal constructor(
                     when (result) {
                         is Success -> Success(createMyLocationViewModel(result))
                         is Failure -> Failure<Location>(result())
+                        else -> null
                     }
                 }
                 .subscribeOn(Schedulers.io())

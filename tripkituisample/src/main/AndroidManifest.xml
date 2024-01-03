@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.technologies.tripkituisample">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
@@ -22,14 +21,15 @@
         <!-- replace with ${google_map_key} to get key from local.properties -->
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="GOOGLE_MAP_API_KEY_HERE" />
+            android:value="AIzaSyDDG_4m7xVSCA4gZj-RlgBVFCnhoPMh7oo" />
 
         <activity
             android:name=".map.MapActivity"
             android:exported="false" />
         <activity android:name=".location_search.LocationSearchActivity" />
         <activity android:name=".autocompleter.AutocompleterActivity" />
-        <activity android:name=".MainActivity">
+        <activity android:name=".MainActivity"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

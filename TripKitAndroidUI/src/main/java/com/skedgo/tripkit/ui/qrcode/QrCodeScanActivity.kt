@@ -8,9 +8,10 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.*
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
+import androidx.databinding.DataBindingUtil
 import com.araujo.jordan.excuseme.ExcuseMe
 import com.skedgo.tripkit.ui.R
-import kotlinx.android.synthetic.main.qr_scan_activity.*
+import com.skedgo.tripkit.ui.databinding.QrScanActivityBinding
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
@@ -18,6 +19,9 @@ const val INTENT_KEY_BARCODES = "barcodes"
 const val INTENT_KEY_INTERNAL_URL = "internal_url"
 const val INTENT_KEY_BUTTON_ID = "button_id"
 class QrCodeScanActivity : AppCompatActivity() {
+
+    lateinit var binding: QrScanActivityBinding
+
     private lateinit var cameraExecutor: ExecutorService
     private var preview: Preview? = null
     private var imageCapture: ImageCapture? = null
@@ -27,7 +31,8 @@ class QrCodeScanActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.qr_scan_activity)
+        binding = DataBindingUtil.setContentView(this, R.layout.qr_scan_activity)
+
         cameraExecutor = Executors.newSingleThreadExecutor()
         internalUrl = intent.getStringExtra(INTENT_KEY_INTERNAL_URL) ?: ""
     }
@@ -36,7 +41,7 @@ class QrCodeScanActivity : AppCompatActivity() {
         super.onStart()
         ExcuseMe.couldYouGive(this).permissionFor(android.Manifest.permission.CAMERA) {
             if(it.granted.contains(android.Manifest.permission.CAMERA)) {
-                viewFinder.post { runCamera() }
+                binding.viewFinder.post { runCamera() }
             }
         }
     }
@@ -68,7 +73,7 @@ class QrCodeScanActivity : AppCompatActivity() {
             try {
                 cameraProvider.unbindAll()
                 camera = cameraProvider.bindToLifecycle(this, cameraSelector, preview, imageAnalyzer)
-                preview?.setSurfaceProvider(viewFinder.createSurfaceProvider())
+                preview?.setSurfaceProvider(binding.viewFinder.createSurfaceProvider())
             } catch(exc: Exception) {
                 Log.e("TripKit","Use case binding failed", exc)
             }

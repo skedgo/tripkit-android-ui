@@ -148,6 +148,7 @@ class TKUIRouteFragment : BaseFragment<FragmentTkuiRouteBinding>() {
                     }
 
                     is Failure -> Failure<Location>(tried())
+                    else -> null
                 }
             }
             .subscribeOn(Schedulers.io())
