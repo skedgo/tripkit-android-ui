@@ -36,8 +36,8 @@ class HomeViewControllerActivity : AppCompatActivity() {
                 containerId = R.id.homeFragment,
                 defaultLocation = LatLng(-27.470125, 153.021072),
                 actionButtonHandlerFactory = actionButtonHandlerFactory,
-                favoriteSuggestionProvider = null,
-                showMyLocationButtonWithoutPermission = false,
+                favoriteSuggestionProvider = favoriteProvider,
+                showMyLocationButtonWithoutPermission = true,
                 bottomSheetVisibilityCallback = {
                     if (it == 0) {
                         binding.etSearch.visibility = View.VISIBLE
