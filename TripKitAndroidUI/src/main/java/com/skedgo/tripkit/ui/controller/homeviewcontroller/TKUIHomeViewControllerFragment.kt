@@ -8,7 +8,6 @@ import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
-import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.coordinatorlayout.widget.CoordinatorLayout
@@ -19,7 +18,6 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.lifecycleScope
 import com.araujo.jordan.excuseme.ExcuseMe
-import com.araujo.jordan.excuseme.model.PermissionStatus
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.CircleCrop
 import com.bumptech.glide.request.RequestOptions
@@ -49,40 +47,29 @@ import com.skedgo.tripkit.ui.controller.tripdetailsviewcontroller.TKUITripDetail
 import com.skedgo.tripkit.ui.controller.trippreviewcontroller.TKUITripPreviewFragment
 import com.skedgo.tripkit.ui.controller.tripresultcontroller.TKUITripResultsFragment
 import com.skedgo.tripkit.ui.controller.utils.LocationField
-import com.skedgo.tripkit.ui.controller.utils.actionhandler.TKUIActionButtonHandler
 import com.skedgo.tripkit.ui.controller.utils.actionhandler.TKUIActionButtonHandlerFactory
 import com.skedgo.tripkit.ui.core.BaseFragment
 import com.skedgo.tripkit.ui.core.addTo
 import com.skedgo.tripkit.ui.core.module.ViewModelFactory
 import com.skedgo.tripkit.ui.databinding.FragmentTkuiHomeViewControllerBinding
 import com.skedgo.tripkit.ui.dialog.UpdateModalDialog
-import com.skedgo.tripkit.ui.favorites.GetTripFromWaypoints
-import com.skedgo.tripkit.ui.favorites.trips.Waypoint
-import com.skedgo.tripkit.ui.favorites.trips.getModeForWayPoint
 import com.skedgo.tripkit.ui.locationpointer.LocationPointerFragment
 import com.skedgo.tripkit.ui.map.home.TripKitMapFragment
 import com.skedgo.tripkit.ui.model.TimetableEntry
 import com.skedgo.tripkit.ui.payment.PaymentData
-import com.skedgo.tripkit.ui.routing.GetRoutingConfig
-import com.skedgo.tripkit.ui.routingresults.TripGroupRepository
 import com.skedgo.tripkit.ui.search.FixedSuggestions
 import com.skedgo.tripkit.ui.trippreview.TripPreviewHeaderFragment
 import com.skedgo.tripkit.ui.trippreview.TripPreviewPagerListener
 import com.skedgo.tripkit.ui.utils.deFocusAndHideKeyboard
-import com.skedgo.tripkit.ui.utils.defocusAndHideKeyboard
 import com.skedgo.tripkit.ui.utils.hideKeyboard
 import com.skedgo.tripkit.ui.utils.isPermissionGranted
-import com.skedgo.tripkit.ui.utils.isTalkBackOn
 import com.skedgo.tripkit.ui.utils.replaceFragment
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.PublishSubject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.rx2.await
-import kotlinx.coroutines.rx2.awaitFirstOrNull
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -131,7 +118,7 @@ class TKUIHomeViewControllerFragment :
             }
 
             override fun onFixedSuggestionSelected(any: Any) {
-                handleFixedSuggestionAction(any)
+                handleSuggestionAction(any)
             }
 
             override fun onCitySelected(location: Location) {
@@ -241,7 +228,7 @@ class TKUIHomeViewControllerFragment :
     private fun setupPinLocationListener() {
         mapFragment.pinLocationSelectedListener = { pinnedLocation, type ->
             if (mapFragment.pinnedOriginLocation == null) {
-                getCurrentLocation { granted ->
+                checkLocationPermission { granted ->
                     if (granted) {
                         viewModel.getUserGeoPoint {
                             when (it) {
@@ -490,6 +477,10 @@ class TKUIHomeViewControllerFragment :
 
         binding.standardBottomSheet.visibility = View.GONE
 
+        addBottomSheetCallback()
+    }
+
+    private fun addBottomSheetCallback() {
         bottomSheetBehavior.addBottomSheetCallback(object :
             BottomSheetBehavior.BottomSheetCallback() {
             override fun onStateChanged(bottomSheet: View, newState: Int) {
@@ -527,7 +518,7 @@ class TKUIHomeViewControllerFragment :
             listen(
                 ViewControllerEvent.OnLocationSuggestionSelected::class.java
             ).subscribe {
-                handleFixedSuggestionAction(it.suggestion)
+                handleSuggestionAction(it.suggestion)
             }.addTo(autoDisposable)
 
             listen(
@@ -662,7 +653,7 @@ class TKUIHomeViewControllerFragment :
             return
         }
 
-        getCurrentLocation { granted ->
+        checkLocationPermission { granted ->
             if (granted) {
                 viewModel.getUserGeoPoint {
                     when (it) {
@@ -674,10 +665,10 @@ class TKUIHomeViewControllerFragment :
         }
     }
 
-    private fun getCurrentLocation(callback: (Boolean) -> Unit) {
+    private fun checkLocationPermission(callback: (Boolean) -> Unit) {
         ExcuseMe.couldYouGive(this)
-            .permissionFor(android.Manifest.permission.ACCESS_FINE_LOCATION) {
-                callback.invoke(it.granted.contains(android.Manifest.permission.ACCESS_FINE_LOCATION))
+            .permissionFor(Manifest.permission.ACCESS_FINE_LOCATION) {
+                callback.invoke(it.granted.contains(Manifest.permission.ACCESS_FINE_LOCATION))
             }
     }
 
@@ -700,35 +691,9 @@ class TKUIHomeViewControllerFragment :
         )
     }
 
-    private fun handleFixedSuggestionAction(it: Any) {
-        if (it is FixedSuggestions) {
-            when (it) {
-                FixedSuggestions.CURRENT_LOCATION -> {}
-                FixedSuggestions.CHOOSE_ON_MAP ->
-                    eventBus.publish(ViewControllerEvent.OnChooseOnMap(LocationField.NONE))
-
-                FixedSuggestions.HOME -> {
-                    ControllerDataProvider.favoriteProvider?.getHome()?.let {
-                        eventBus.publish(
-                            ViewControllerEvent.OnLocationChosen(
-                                it,
-                                LocationField.NONE
-                            )
-                        )
-                    }
-                }
-
-                FixedSuggestions.WORK -> {
-                    ControllerDataProvider.favoriteProvider?.getWork()?.let {
-                        eventBus.publish(
-                            ViewControllerEvent.OnLocationChosen(
-                                it,
-                                LocationField.NONE
-                            )
-                        )
-                    }
-                }
-            }
+    private fun handleSuggestionAction(action: Any) {
+        if (action is FixedSuggestions) {
+            viewModel.handleFixedSuggestionAction(action)
         }
     }
 
@@ -779,10 +744,8 @@ class TKUIHomeViewControllerFragment :
         if (bottomSheetBehavior.state == BottomSheetBehavior.STATE_HALF_EXPANDED) {
             fragment.initializationRelay.observeOn(AndroidSchedulers.mainThread())
                 .subscribe {
-                    Log.i("MapFragment", "Settled From Init")
                     fragment.settled()
-                }
-                .addTo(autoDisposable)
+                }.addTo(autoDisposable)
         }
 
         // We only want to set the map contributor after the fragment has settled into the half-expanded state, otherwise it messes
@@ -985,13 +948,13 @@ class TKUIHomeViewControllerFragment :
         /**
          * Create [TKUIHomeViewControllerFragment] instance
          *
-         * @param defaultLocation - to set map default location after it loads
-         * @param bottomSheetVisibilityCallback - Callback to detect if [TKUIHomeViewControllerFragment]
+         * @param defaultLocation to set map default location after it loads
+         * @param bottomSheetVisibilityCallback Callback to detect if [TKUIHomeViewControllerFragment]
          * bottom sheet is hidden (0) or visible (1)
-         * @param showMyLocationButtonWithoutPermission - when true, show my location button even if
+         * @param showMyLocationButtonWithoutPermission when true, show my location button even if
          * [Manifest.permission.ACCESS_FINE_LOCATION] is not yet granted and permission request will be asked
          * once the button is clicked.Will hide the button if false.
-         * @param onBackPressOnEmptyBottomSheetCallback - callback to be triggered when user clicked
+         * @param onBackPressOnEmptyBottomSheetCallback callback to be triggered when user clicked
          * back button and [TKUIHomeViewControllerFragment]'s [TKUIHomeBottomSheetFragment] is empty so the action
          * can be handled on the parent activity/fragment. Including [OnBackPressedCallback] in the callback
          * for the parent to remove([OnBackPressedCallback.remove] or not (i.e. you want to close parent activity

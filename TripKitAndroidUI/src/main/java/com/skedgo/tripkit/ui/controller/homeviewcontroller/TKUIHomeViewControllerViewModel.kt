@@ -2,6 +2,7 @@ package com.skedgo.tripkit.ui.controller.homeviewcontroller
 
 import android.annotation.SuppressLint
 import android.content.Context
+import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.skedgo.rxtry.Failure
@@ -12,7 +13,13 @@ import com.skedgo.tripkit.common.model.Location
 import com.skedgo.tripkit.location.GeoPoint
 import com.skedgo.tripkit.location.UserGeoPointRepository
 import com.skedgo.tripkit.ui.R
+import com.skedgo.tripkit.ui.controller.ControllerDataProvider
+import com.skedgo.tripkit.ui.controller.ViewControllerEvent
+import com.skedgo.tripkit.ui.controller.ViewControllerEventBus
+import com.skedgo.tripkit.ui.controller.utils.LocationField
 import com.skedgo.tripkit.ui.core.RxViewModel
+import com.skedgo.tripkit.ui.search.FixedSuggestions
+import io.reactivex.Observable
 import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
 import javax.inject.Inject
@@ -20,7 +27,8 @@ import javax.inject.Inject
 @SuppressLint("StaticFieldLeak")
 class TKUIHomeViewControllerViewModel @Inject constructor(
     private val context: Context,
-    userGeoPointRepository: UserGeoPointRepository
+    private val eventBus: ViewControllerEventBus,
+    private val userGeoPointRepository: UserGeoPointRepository
 ) : RxViewModel() {
 
     private val _state = MutableLiveData(TKUIHomeViewControllerUIState())
@@ -29,7 +37,8 @@ class TKUIHomeViewControllerViewModel @Inject constructor(
     private val _myLocationButtonVisible = MutableLiveData(false)
     val myLocationButtonVisible: LiveData<Boolean> = _myLocationButtonVisible
 
-    private val userGeoPointObservable =
+    @VisibleForTesting
+    fun getUserGeoPointObservable() : Observable<Try<Location>> =
         userGeoPointRepository.getFirstCurrentGeoPoint()
             .toTry()
             .map<Try<Location>> { tried: Try<GeoPoint> ->
@@ -43,11 +52,12 @@ class TKUIHomeViewControllerViewModel @Inject constructor(
                     }
 
                     is Failure -> Failure<Location>(tried())
+                    else -> null
                 }
-            }.subscribeOn(Schedulers.io())
+            }
 
     fun getUserGeoPoint(location: (Try<Location>) -> Unit) {
-        userGeoPointObservable.subscribe(
+        getUserGeoPointObservable().subscribe(
             {
                 location.invoke(it)
             }, {
@@ -64,5 +74,35 @@ class TKUIHomeViewControllerViewModel @Inject constructor(
         _state.postValue(
             _state.value?.copy(isChooseOnMap = isShow)
         )
+    }
+
+    fun handleFixedSuggestionAction(action: FixedSuggestions) {
+        when (action) {
+            FixedSuggestions.CURRENT_LOCATION -> {}
+            FixedSuggestions.CHOOSE_ON_MAP ->
+                eventBus.publish(ViewControllerEvent.OnChooseOnMap(LocationField.NONE))
+
+            FixedSuggestions.HOME -> {
+                ControllerDataProvider.getFavoritesHome()?.let {
+                    eventBus.publish(
+                        ViewControllerEvent.OnLocationChosen(
+                            it,
+                            LocationField.NONE
+                        )
+                    )
+                }
+            }
+
+            FixedSuggestions.WORK -> {
+                ControllerDataProvider.getFavoritesWork()?.let {
+                    eventBus.publish(
+                        ViewControllerEvent.OnLocationChosen(
+                            it,
+                            LocationField.NONE
+                        )
+                    )
+                }
+            }
+        }
     }
 }

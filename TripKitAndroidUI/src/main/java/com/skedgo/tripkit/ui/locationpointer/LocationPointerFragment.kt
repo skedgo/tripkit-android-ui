@@ -18,8 +18,6 @@ import com.skedgo.tripkit.ui.controller.utils.LocationField
 import com.skedgo.tripkit.ui.core.BaseTripKitFragment
 import com.skedgo.tripkit.ui.core.addTo
 import com.skedgo.tripkit.ui.databinding.FragmentLocationPointerBinding
-import kotlinx.android.synthetic.main.poi_details_fragment.address
-import timber.log.Timber
 import javax.inject.Inject
 
 class LocationPointerFragment() : BaseTripKitFragment() {

@@ -12,7 +12,7 @@ fun Context.getLocationName(latLng: LatLng): String? {
 
     try {
         val addresses: List<Address> =
-            geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1)
+            geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1) ?: emptyList()
 
         if (addresses.isNotEmpty()) {
             val address = addresses[0]
