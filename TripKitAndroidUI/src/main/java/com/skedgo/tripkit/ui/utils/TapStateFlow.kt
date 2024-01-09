@@ -19,6 +19,6 @@ class TapStateFlow<TSender> internal constructor(
     val observable = onTap.receiveAsFlow()
 
     fun perform() {
-        onTap.trySend(getSender())
+        onTap.trySend(getSender()).isSuccess
     }
 }

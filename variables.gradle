@@ -5,4 +5,5 @@ ext {
     publishMavenUrl = "https://www.myget.org/F/skedgo/maven"
     publishMavenUsername = "skedgo"
     publishMavenToken = "9b1742e0-6370-45bc-b0b5-0348b01031c2"
+    tripkitUiVersion = 2
 }

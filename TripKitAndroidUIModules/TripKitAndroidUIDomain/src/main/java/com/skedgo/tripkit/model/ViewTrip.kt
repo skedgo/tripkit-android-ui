@@ -2,7 +2,7 @@ package com.skedgo.tripkit.model
 
 import android.os.Parcelable
 import com.skedgo.tripkit.common.model.Query
-import kotlinx.android.parcel.Parcelize
+import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class ViewTrip (

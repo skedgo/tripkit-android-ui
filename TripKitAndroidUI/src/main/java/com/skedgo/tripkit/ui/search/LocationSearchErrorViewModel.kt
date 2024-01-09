@@ -52,6 +52,9 @@ class LocationSearchErrorViewModel @Inject constructor(
                 actionText.set(context.getString(R.string.retry))
                 iconSrc.set(ContextCompat.getDrawable(context, R.drawable.ic_empty_result))
             }
+            else -> {
+                // Do nothing
+            }
         }
     }
 }

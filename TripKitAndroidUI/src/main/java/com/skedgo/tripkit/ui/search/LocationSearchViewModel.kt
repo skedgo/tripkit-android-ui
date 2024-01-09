@@ -3,7 +3,6 @@ package com.skedgo.tripkit.ui.search
 import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import androidx.databinding.ObservableArrayList
 import androidx.databinding.ObservableBoolean
 import androidx.databinding.ObservableField
@@ -12,6 +11,7 @@ import androidx.lifecycle.viewModelScope
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
 import com.jakewharton.rxrelay2.PublishRelay
+import com.skedgo.tripkit.analytics.SearchResultItemSource
 import com.skedgo.tripkit.common.model.Location
 import com.skedgo.tripkit.common.model.Region
 import com.skedgo.tripkit.data.regions.RegionService
@@ -21,7 +21,6 @@ import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.core.RxViewModel
 import com.skedgo.tripkit.ui.core.SchedulerFactory
 import com.skedgo.tripkit.ui.core.UnableToFindPlaceCoordinatesError
-import com.skedgo.tripkit.ui.core.addTo
 import com.skedgo.tripkit.ui.core.isExecuting
 import com.skedgo.tripkit.ui.core.rxproperty.asObservable
 import com.skedgo.tripkit.ui.data.places.Place
@@ -136,14 +135,17 @@ class LocationSearchViewModel @Inject constructor(
                     is SearchProviderSuggestionViewModel -> onSuggestionItemClick(
                         SearchSuggestionChoice.SearchProviderChoice((it.first as SearchProviderSuggestionViewModel).suggestion.location())
                     )
+
                     is CityProviderSuggestionViewModel -> onSuggestionItemClick(
                         SearchSuggestionChoice.CityProviderChoice((it.first as CityProviderSuggestionViewModel).suggestion.location())
                     )
+
                     is FixedSuggestionViewModel -> onSuggestionItemClick(
                         SearchSuggestionChoice.FixedChoice(
                             (it.first as FixedSuggestionViewModel).id
                         )
                     )
+
                     is GoogleAndTripGoSuggestionViewModel -> onSuggestionItemClick(
                         SearchSuggestionChoice.PlaceChoice(
                             (it.first as GoogleAndTripGoSuggestionViewModel).place
@@ -172,12 +174,15 @@ class LocationSearchViewModel @Inject constructor(
                     is SearchProviderSuggestionViewModel -> onInfoClicked(
                         (it.first as SearchProviderSuggestionViewModel).suggestion.location()
                     )
+
                     is CityProviderSuggestionViewModel -> onInfoClicked(
                         (it.first as SearchProviderSuggestionViewModel).suggestion.location()
                     )
+
                     is FixedSuggestionViewModel -> onInfoClicked(
                         (it.first as FixedSuggestionViewModel).suggestion.location()
                     )
+
                     is GoogleAndTripGoSuggestionViewModel -> onInfoClicked(
                         (it.first as GoogleAndTripGoSuggestionViewModel).location
                     )
@@ -216,7 +221,7 @@ class LocationSearchViewModel @Inject constructor(
                 }
                 if (!isRouting && params.term().isNotEmpty()) {
                     loadFromRegions(params.term())
-                } else if(params.term().isEmpty()) {
+                } else if (params.term().isEmpty()) {
                     citiesSuggestions.clear()
                 }
                 providedSuggestions.clear()
@@ -287,6 +292,7 @@ class LocationSearchViewModel @Inject constructor(
                         googleAndTripGoSuggestions.clear()
                         errorViewModel.updateError(SearchErrorType.NoConnection)
                     }
+
                     is HasResults -> {
                         googleAndTripGoSuggestions.clear()
                         googleAndTripGoSuggestions.addAll(result.suggestions.map { place ->
@@ -301,6 +307,7 @@ class LocationSearchViewModel @Inject constructor(
                         })
                         errorViewModel.updateError(null)
                     }
+
                     is NoResult -> {
                         errorViewModel.updateError(SearchErrorType.NoResults(result.query))
                     }
@@ -310,7 +317,7 @@ class LocationSearchViewModel @Inject constructor(
 
         onQueryTextChangeEventThrottle.debounce(500, TimeUnit.MILLISECONDS)
             .subscribe({
-                this.searchResults(it)
+                searchResults(if (it == SearchResultItemSource.CurrentLocation.value) it else "")
             }, { errorLogger.trackError(it) })
             .autoClear()
 
@@ -434,6 +441,7 @@ class LocationSearchViewModel @Inject constructor(
             onSuggestionItemClick(SearchSuggestionChoice.PlaceChoice(googleAndTripGoSuggestions.first().place))
             true
         }
+
         else -> false
     }
 
@@ -470,10 +478,13 @@ class LocationSearchViewModel @Inject constructor(
         when (choice) {
             is SearchSuggestionChoice.SearchProviderChoice ->
                 choice.location?.let { locationChosen.accept(it) }
+
             is SearchSuggestionChoice.CityProviderChoice ->
                 choice.location?.let { cityLocationChosen.accept(it) }
+
             is SearchSuggestionChoice.FixedChoice ->
                 onFixedLocationSuggestionItemClick(choice.id)
+
             is SearchSuggestionChoice.PlaceChoice -> {
                 val (place) = choice
                 onPlaceClicked(place)

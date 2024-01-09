@@ -2,14 +2,18 @@ apply plugin: 'com.android.library'
 apply plugin: 'maven-publish'
 apply plugin: "kotlin-android"
 apply plugin: "kotlin-kapt"
-apply plugin: 'kotlin-android-extensions'
 apply plugin: 'org.jetbrains.dokka'
+apply plugin: 'kotlin-parcelize'
 
 repositories {
     maven { url "https://raw.github.com/laenger/maven-releases/master/releases" }
 }
 android {
+
+    namespace 'com.skedgo.tripkit.ui'
+
     compileSdkVersion versions.compileSdkVersion
+
     defaultConfig {
         minSdkVersion versions.proMinSdkVersion
         targetSdkVersion versions.targetSdkVersion
@@ -21,6 +25,11 @@ android {
                 arguments += ["room.schemaLocation": "$projectDir/schemas".toString()]
             }
         }
+
+        // This flag is implemented to maintain backwards compatibility following code cleanup.
+        // It should be utilized in validation processes to support both new and old coding approaches,
+        // ensuring that SDK users employing older methodologies will continue to experience seamless functionality.
+        buildConfigField 'int', 'TRIPKIT_UI_VERSION', "${tripkitUiVersion}"
     }
 
     packagingOptions {
@@ -31,11 +40,11 @@ android {
 
     compileOptions {
         coreLibraryDesugaringEnabled true
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
     kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_1_8.toString()
+        jvmTarget = JavaVersion.VERSION_17.toString()
     }
 
     testOptions {
@@ -45,6 +54,7 @@ android {
     }
 
     buildFeatures {
+        viewBinding true
         dataBinding true
     }
 
@@ -58,21 +68,6 @@ android {
     packagingOptions {
         exclude '/META-INF/kotlin-stdlib.kotlin_module'
         exclude '/META-INF/room-ktx_release.kotlin_module'
-    }
-
-    configurations.all {
-        resolutionStrategy {
-            //force 'androidx.room:room-ktx:2.2.4'
-            force("org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion")
-            force("org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlinVersion")
-            force("org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion")
-            force("org.jetbrains.kotlin:kotlin-stdlib-common:$kotlinVersion")
-            /*eachDependency { DependencyResolveDetails details ->
-                if (details.requested.name == 'room-ktx') {
-                    details.useVersion '1.5.21'
-                }
-            }*/
-        }
     }
 
     publishing {
@@ -194,6 +189,14 @@ dependencies {
     compileOnly 'com.github.pengrad:jdk9-deps:1.0'
 
     implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0'
+
+    testImplementation libs.mockk
+    testImplementation libs.junit
+    testImplementation libs.androidxJUnitExtTesting
+    testImplementation libs.archCoreTesting
+    testImplementation libs.kluent
+    testImplementation libs.androidxTesting
+    testImplementation libs.assertjCore
 }
 
 group = tripkitGroup

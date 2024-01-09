@@ -1,7 +1,7 @@
 package com.skedgo.tripkit.ui.data.places
 
 import android.os.Parcelable
-import kotlinx.android.parcel.Parcelize
+import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class LatLngBounds (
