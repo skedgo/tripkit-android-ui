@@ -317,7 +317,7 @@ class LocationSearchViewModel @Inject constructor(
 
         onQueryTextChangeEventThrottle.debounce(500, TimeUnit.MILLISECONDS)
             .subscribe({
-                searchResults(if (it == SearchResultItemSource.CurrentLocation.value) it else "")
+                searchResults(if (it == SearchResultItemSource.CurrentLocation.value) "" else it)
             }, { errorLogger.trackError(it) })
             .autoClear()
 
