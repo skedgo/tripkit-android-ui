@@ -18,6 +18,7 @@ import com.google.android.gms.maps.model.*
 import com.google.maps.android.collections.MarkerManager
 import com.skedgo.tripkit.AndroidGeocoder
 import com.skedgo.tripkit.TripKitConstants.Companion.PREF_NAME_APP
+import com.skedgo.tripkit.account.data.Polygon
 import com.skedgo.tripkit.common.model.Location
 import com.skedgo.tripkit.common.model.Region
 import com.skedgo.tripkit.common.model.Region.City
@@ -872,6 +873,10 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
 
     fun moveToCameraPosition(cameraPosition: CameraPosition) {
         map?.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition))
+    }
+
+    fun moveCameraToPolygonBounds(polygon: Polygon) {
+        map?.let { cameraController.moveToPolygonBounds(it, polygon) }
     }
 
     companion object {
