@@ -13,6 +13,7 @@ import android.text.style.ForegroundColorSpan
 import android.text.style.StrikethroughSpan
 import android.text.style.StyleSpan
 import android.view.View
+import androidx.annotation.VisibleForTesting
 import androidx.core.content.ContextCompat
 import androidx.databinding.ObservableBoolean
 import androidx.databinding.ObservableField
@@ -33,6 +34,7 @@ import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.TripKitUI
 import com.skedgo.tripkit.ui.core.RxViewModel
 import com.skedgo.tripkit.ui.core.fetchAsync
+import com.skedgo.tripkit.ui.trip.details.viewmodel.OccupancyViewModel
 import com.skedgo.tripkit.ui.tripresults.GetTransportIconTintStrategy
 import com.skedgo.tripkit.ui.tripresults.TripSegmentHelper
 import com.skedgo.tripkit.ui.utils.*
@@ -47,7 +49,8 @@ class TripSegmentItemViewModel @Inject internal constructor(
     private val context: Context,
     private val getTransportIconTintStrategy: GetTransportIconTintStrategy,
     private val tripSegmentHelper: TripSegmentHelper,
-    private val printTime: PrintTime
+    private val printTime: PrintTime,
+    val occupancyViewModel: OccupancyViewModel
 ) : RxViewModel() {
     enum class SegmentViewType {
         TERMINAL,
@@ -62,7 +65,6 @@ class TripSegmentItemViewModel @Inject internal constructor(
     val showStartTime = ObservableBoolean(false)
     val endTime = ObservableField<SpannableString>()
     val showEndTime = ObservableBoolean(false)
-    val startTimeColor = ObservableField<Int>(ContextCompat.getColor(context, R.color.black1))
 
     val description = ObservableField<String>()
     val showDescription = ObservableBoolean(false)
@@ -273,7 +275,13 @@ class TripSegmentItemViewModel @Inject internal constructor(
             }
 
             _isHideExactTimes.value = it.isHideExactTimes //it.trip.isHideExactTimes
+            initOccupancy(it)
         }
+    }
+
+    @VisibleForTesting
+    fun initOccupancy(tripSegment: TripSegment) {
+        tripSegment.realTimeVehicle?.let { occupancyViewModel.setOccupancy(it, false) }
     }
 
     fun generateRoadTags() {
