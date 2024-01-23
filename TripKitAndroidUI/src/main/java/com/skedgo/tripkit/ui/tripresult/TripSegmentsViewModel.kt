@@ -5,6 +5,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
+import androidx.annotation.VisibleForTesting
 import androidx.core.content.ContextCompat
 import androidx.databinding.ObservableArrayList
 import androidx.databinding.ObservableBoolean
@@ -83,24 +84,35 @@ class TripSegmentsViewModel @Inject internal constructor(
 
     private val segmentViewModels: MutableList<TripSegmentItemViewModel> = ArrayList()
     val buttons = ObservableArrayList<ActionButtonViewModel>()
-    val buttonsBinding =
+    val buttonsBinding: ItemBinding<ActionButtonViewModel> by lazy {
         ItemBinding.of<ActionButtonViewModel>(BR.viewModel, R.layout.trip_segment_action_button)
             .bindExtra(BR.listener, this)
+    }
+
     val itemViewModels = ObservableField(emptyList<Any>())
-    val itemBinding = ItemBinding.of(
-        OnItemBindClass<Any>()
-            .map(
-                CreditSourcesOfDataViewModel::class.java,
-                BR.viewModel,
-                R.layout.credit_sources_of_data
-            )
-            .map(TripSegmentItemViewModel::class.java, BR.viewModel, R.layout.trip_segment)
-            .map(
-                TripSegmentGetOffAlertsViewModel::class.java,
-                BR.viewModel,
-                R.layout.trip_segment_get_off_alert
-            )
-    )
+
+    /**
+     * Getting error on unit test when initializing viewModel class with BR for
+     * me.tatarka.bindingcollectionadapter2.ItemBinding, so updated the implementation to
+     * use lazy to not execute me.tatarka.bindingcollectionadapter2.ItemBinding on viewModel
+     * initialization
+     */
+    val itemBinding: ItemBinding<Any> by lazy {
+        ItemBinding.of(
+            OnItemBindClass<Any>()
+                .map(
+                    CreditSourcesOfDataViewModel::class.java,
+                    BR.viewModel,
+                    R.layout.credit_sources_of_data
+                )
+                .map(TripSegmentItemViewModel::class.java, BR.viewModel, R.layout.trip_segment)
+                .map(
+                    TripSegmentGetOffAlertsViewModel::class.java,
+                    BR.viewModel,
+                    R.layout.trip_segment_get_off_alert
+                )
+        )
+    }
     val showCloseButton = ObservableBoolean(false)
     val isHideExactTimes = ObservableBoolean(false)
 
@@ -151,10 +163,12 @@ class TripSegmentsViewModel @Inject internal constructor(
     private val tripSummaryStream = MutableSharedFlow<List<TripSegmentSummaryItemViewModel>>()
 
     val summaryItems: ObservableArrayList<TripSegmentSummaryItemViewModel> = ObservableArrayList()
-    val summaryItemsBinding = ItemBinding.of<TripSegmentSummaryItemViewModel>(
-        BR.viewModel,
-        R.layout.item_trip_segment_summary
-    )
+    val summaryItemsBinding: ItemBinding<TripSegmentSummaryItemViewModel> by lazy {
+        ItemBinding.of<TripSegmentSummaryItemViewModel>(
+            BR.viewModel,
+            R.layout.item_trip_segment_summary
+        )
+    }
 
     init {
         tripSummaryStream
@@ -571,7 +585,8 @@ class TripSegmentsViewModel @Inject internal constructor(
         itemViewModels.set(newItems)
     }
 
-    private fun generateSummaryItems(segments: List<TripSegment>) {
+    @VisibleForTesting
+    fun generateSummaryItems(segments: List<TripSegment>) {
         val tripSegmentSummaryItem =
             mutableListOf<TripSegmentSummaryItemViewModel>()
         segments.forEach { segment ->
