@@ -97,6 +97,8 @@ class TripSegmentItemViewModel @Inject internal constructor(
     private val _roadTagsCharItems = MutableLiveData<List<RoadTagChartItem>>()
     val roadTagChartItems: LiveData<List<RoadTagChartItem>> = _roadTagsCharItems
 
+    private var isStationaryItem = false
+
     //TODO break this big function into small functions
     fun setupSegment(
         viewType: SegmentViewType,
@@ -108,9 +110,11 @@ class TripSegmentItemViewModel @Inject internal constructor(
         hasRealtime: Boolean = false,
         lineColor: Int = Color.TRANSPARENT,
         topConnectionColor: Int = lineColor,
-        bottomConnectionColor: Int = lineColor
+        bottomConnectionColor: Int = lineColor,
+        isStationaryItem: Boolean = false
     ) {
         var tintWhite = false
+        this.isStationaryItem = isStationaryItem
         tripSegment?.let {
             this.title.set(title)
 
@@ -275,7 +279,9 @@ class TripSegmentItemViewModel @Inject internal constructor(
             }
 
             _isHideExactTimes.value = it.isHideExactTimes //it.trip.isHideExactTimes
-            initOccupancy(it)
+            if(!isStationaryItem) {
+                initOccupancy(it)
+            }
         }
     }
 
@@ -285,6 +291,7 @@ class TripSegmentItemViewModel @Inject internal constructor(
     }
 
     fun generateRoadTags() {
+        if(isStationaryItem) return
         val roadTagChartItems = mutableListOf<RoadTagChartItem>()
         tripSegment?.streets?.filter { !it.roadTags().isNullOrEmpty() }
             ?.flatMap { street ->
