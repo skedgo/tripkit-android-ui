@@ -197,6 +197,8 @@ dependencies {
     testImplementation libs.kluent
     testImplementation libs.androidxTesting
     testImplementation libs.assertjCore
+    testImplementation libs.coroutinesTest
+    testImplementation libs.bindingCollectionAdapter
 }
 
 group = tripkitGroup

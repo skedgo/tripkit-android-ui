@@ -5,6 +5,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
+import androidx.annotation.VisibleForTesting
 import androidx.core.content.ContextCompat
 import androidx.databinding.ObservableArrayList
 import androidx.databinding.ObservableBoolean
@@ -28,20 +29,33 @@ import com.skedgo.tripkit.ui.core.RxViewModel
 import com.skedgo.tripkit.ui.creditsources.CreditSourcesOfDataViewModel
 import com.skedgo.tripkit.ui.routing.settings.RemindersRepository
 import com.skedgo.tripkit.ui.routingresults.TripGroupRepository
+import com.skedgo.tripkit.ui.trippreview.segment.TripSegmentSummaryItemViewModel
+import com.skedgo.tripkit.ui.tripresults.GetTransportIconTintStrategy
 import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButtonContainer
 import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButtonHandler
 import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButtonHandlerFactory
 import com.skedgo.tripkit.ui.utils.TripSegmentActionProcessor
+import com.skedgo.tripkit.ui.utils.createSummaryIcon
+import com.skedgo.tripkit.ui.utils.generateTripPreviewHeader
+import com.skedgo.tripkit.ui.utils.getSegmentIconObservable
 import com.squareup.otto.Bus
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
 import io.reactivex.subjects.PublishSubject
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import me.tatarka.bindingcollectionadapter2.ItemBinding
 import me.tatarka.bindingcollectionadapter2.itembindings.OnItemBindClass
 import org.joda.time.DateTime
+import timber.log.Timber
 import java.lang.Exception
 import java.util.*
 import java.util.Collections.emptyList
@@ -60,29 +74,45 @@ class TripSegmentsViewModel @Inject internal constructor(
     private val tripSegmentActionProcessor: TripSegmentActionProcessor,
     private val getAlternativeTripForAlternativeService: GetAlternativeTripForAlternativeService,
     private val tripUpdater: TripUpdater,
-    private val remindersRepository: RemindersRepository
+    private val remindersRepository: RemindersRepository,
+    private val getTransportIconTintStrategy: GetTransportIconTintStrategy
 ) : RxViewModel(), ActionButtonContainer, ActionButtonClickListener {
+
+    companion object {
+        const val TRIP_SUMMARY_DEBOUNCE = 500L
+    }
 
     private val segmentViewModels: MutableList<TripSegmentItemViewModel> = ArrayList()
     val buttons = ObservableArrayList<ActionButtonViewModel>()
-    val buttonsBinding =
+    val buttonsBinding: ItemBinding<ActionButtonViewModel> by lazy {
         ItemBinding.of<ActionButtonViewModel>(BR.viewModel, R.layout.trip_segment_action_button)
             .bindExtra(BR.listener, this)
+    }
+
     val itemViewModels = ObservableField(emptyList<Any>())
-    val itemBinding = ItemBinding.of(
-        OnItemBindClass<Any>()
-            .map(
-                CreditSourcesOfDataViewModel::class.java,
-                BR.viewModel,
-                R.layout.credit_sources_of_data
-            )
-            .map(TripSegmentItemViewModel::class.java, BR.viewModel, R.layout.trip_segment)
-            .map(
-                TripSegmentGetOffAlertsViewModel::class.java,
-                BR.viewModel,
-                R.layout.trip_segment_get_off_alert
-            )
-    )
+
+    /**
+     * Getting error on unit test when initializing viewModel class with BR for
+     * me.tatarka.bindingcollectionadapter2.ItemBinding, so updated the implementation to
+     * use lazy to not execute me.tatarka.bindingcollectionadapter2.ItemBinding on viewModel
+     * initialization
+     */
+    val itemBinding: ItemBinding<Any> by lazy {
+        ItemBinding.of(
+            OnItemBindClass<Any>()
+                .map(
+                    CreditSourcesOfDataViewModel::class.java,
+                    BR.viewModel,
+                    R.layout.credit_sources_of_data
+                )
+                .map(TripSegmentItemViewModel::class.java, BR.viewModel, R.layout.trip_segment)
+                .map(
+                    TripSegmentGetOffAlertsViewModel::class.java,
+                    BR.viewModel,
+                    R.layout.trip_segment_get_off_alert
+                )
+        )
+    }
     val showCloseButton = ObservableBoolean(false)
     val isHideExactTimes = ObservableBoolean(false)
 
@@ -129,6 +159,31 @@ class TripSegmentsViewModel @Inject internal constructor(
     val userLocation: LiveData<android.location.Location> = _userLocation
 
     private var tripSegmentGetOffAlertsViewModel: TripSegmentGetOffAlertsViewModel? = null
+
+    private val tripSummaryStream = MutableSharedFlow<List<TripSegmentSummaryItemViewModel>>()
+
+    val summaryItems: ObservableArrayList<TripSegmentSummaryItemViewModel> = ObservableArrayList()
+    val summaryItemsBinding: ItemBinding<TripSegmentSummaryItemViewModel> by lazy {
+        ItemBinding.of<TripSegmentSummaryItemViewModel>(
+            BR.viewModel,
+            R.layout.item_trip_segment_summary
+        )
+    }
+
+    init {
+        tripSummaryStream
+            .debounce(TRIP_SUMMARY_DEBOUNCE)
+            .flowOn(Dispatchers.IO)
+            .onEach { tripSummaryItems ->
+                summaryItems.clear()
+                summaryItems.addAll(tripSummaryItems.sortedBy { it.id.get() })
+            }
+            .catch { exception ->
+                Timber.e(exception)
+            }
+            .flowOn(Dispatchers.Main)
+            .launchIn(viewModelScope)
+    }
 
     fun setActionButtonHandlerFactory(actionButtonHandlerFactory: ActionButtonHandlerFactory?) {
         actionButtonHandler = actionButtonHandlerFactory?.createHandler(this)
@@ -433,7 +488,8 @@ class TripSegmentsViewModel @Inject internal constructor(
             delay = delay,
             hasRealtime = (realtimeTripSegment != null),
             topConnectionColor = tripSegment.lineColor(),
-            bottomConnectionColor = nextSegment?.lineColor() ?: Color.TRANSPARENT
+            bottomConnectionColor = nextSegment?.lineColor() ?: Color.TRANSPARENT,
+            isStationaryItem = true
         )
     }
 
@@ -460,6 +516,10 @@ class TripSegmentsViewModel @Inject internal constructor(
             segmentViewModels.clear()
 
             _mapTiles.postValue(tripSegments.firstOrNull { it.mapTiles != null }?.mapTiles)
+
+            generateSummaryItems(
+                tripSegments.filter { it.visibility == Visibilities.VISIBILITY_IN_SUMMARY }
+            )
 
             tripSegments.forEachIndexed { index, segment ->
                 val previousSegment = tripSegments.elementAtOrNull(index - 1)
@@ -523,6 +583,31 @@ class TripSegmentsViewModel @Inject internal constructor(
         }
 
         itemViewModels.set(newItems)
+    }
+
+    @VisibleForTesting
+    fun generateSummaryItems(segments: List<TripSegment>) {
+        val tripSegmentSummaryItem =
+            mutableListOf<TripSegmentSummaryItemViewModel>()
+        segments.forEach { segment ->
+            segment.getSegmentIconObservable(
+                context, getTransportIconTintStrategy
+            ).map { bitmapDrawable ->
+                segment.createSummaryIcon(context, bitmapDrawable)
+            }.subscribe({ drawable ->
+                if (tripSegmentSummaryItem.none { it.id.get() == segment.id }) {
+                    tripSegmentSummaryItem.add(
+                        segment.generateTripPreviewHeader(context, drawable, printTime).getSummaryItem()
+                    )
+                }
+
+                viewModelScope.launch {
+                    tripSummaryStream.emit(tripSegmentSummaryItem)
+                }
+            }, {
+                Timber.e(it)
+            }).autoClear()
+        }
     }
 
     private fun setupGetOffAlert(tripGroup: TripGroup, trip: Trip): TripSegmentGetOffAlertsViewModel? {
