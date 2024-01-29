@@ -1,18 +1,11 @@
 package com.skedgo.tripkit.ui.tripresult
 
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import android.view.accessibility.AccessibilityNodeInfo
-import androidx.core.view.accessibility.AccessibilityNodeInfoCompat
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.RecyclerView
-import com.skedgo.tripkit.routing.RoadTag
-import com.skedgo.tripkit.routing.getRoadTagLabel
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.databinding.ItemFakeGraphBinding
-import com.skedgo.tripkit.ui.databinding.ItemRoadTagLabelBinding
-import com.skedgo.tripkit.ui.databinding.ViewGenericListItemBinding
 import com.skedgo.tripkit.ui.utils.AutoUpdatableAdapter
 import javax.inject.Inject
 import kotlin.properties.Delegates
@@ -40,7 +33,12 @@ class RoadTagChartAdapter @Inject constructor() :
 
             RoadTagChartItemAdapter().let { adapter ->
                 rvRoadTags.adapter = adapter
-                adapter.collection = roadTagChart.items
+                adapter.collection = roadTagChart.items.groupBy { it.label }
+                    .map { (_, groupedItems) ->
+                        groupedItems.reduce { acc, roadTagChartItem ->
+                            acc.apply { length += roadTagChartItem.length }
+                        }
+                    }.toList()
             }
 
             executePendingBindings()
