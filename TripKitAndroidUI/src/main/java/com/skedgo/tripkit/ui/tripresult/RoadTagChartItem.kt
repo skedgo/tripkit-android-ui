@@ -5,7 +5,7 @@ import com.skedgo.tripkit.routing.RoadTag
 
 data class RoadTagChartItem(
     val label: String,
-    val length: Int,
+    var length: Int,
     val color: Int,
     val textColor: Int = Color.WHITE,
     var progress: Int = 0,
