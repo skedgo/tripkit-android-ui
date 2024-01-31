@@ -61,6 +61,10 @@ class LocationSearchViewModel @Inject constructor(
     val errorViewModel: LocationSearchErrorViewModel
 ) : RxViewModel() {
 
+    companion object {
+        const val DEBOUNCE_TEXT_CHANGE_THROTTLE = 500L
+    }
+
     var legacyLocationSearchIconProvider: LegacyLocationSearchIconProvider? = null
     var locationSearchIconProvider: LocationSearchIconProvider? = null
     var fixedSuggestionsProvider: FixedSuggestionsProvider? = null
@@ -72,6 +76,7 @@ class LocationSearchViewModel @Inject constructor(
     val cityLocationChosen: PublishRelay<Location> = PublishRelay.create()
     val fixedLocationChosen: PublishRelay<Any> = PublishRelay.create()
     val infoChosen: PublishRelay<Location?> = PublishRelay.create()
+    val suggestionActionClick: PublishRelay<Location?> = PublishRelay.create()
     val showRefreshing = ObservableBoolean()
     val showList = ObservableBoolean()
     val showGoogleAttribution = ObservableBoolean(false)
@@ -95,8 +100,10 @@ class LocationSearchViewModel @Inject constructor(
         ObservableArrayList()
     val allSuggestions = MergeObservableList<SuggestionViewModel>()
 
-    val itemBinding =
+    val itemBinding: ItemBinding<SuggestionViewModel> by lazy {
         ItemBinding.of<SuggestionViewModel>(BR.viewModel, R.layout.list_item_search_result_item)
+    }
+
     val queries: PublishRelay<FetchLocationsParameters> =
         PublishRelay.create<FetchLocationsParameters>()
 
@@ -118,127 +125,11 @@ class LocationSearchViewModel @Inject constructor(
         allSuggestions.insertList(providedSuggestions)
         allSuggestions.insertList(googleAndTripGoSuggestions)
         allSuggestions.insertList(citiesSuggestions)
-        allSuggestions.asObservable()
-            .map {
-                onFinishLoad.accept(false)
-                it.mapIndexed { index, vm ->
-                    vm.onItemClicked.observable
-                        .map { viewModel -> viewModel to index }
-                }
-            }
-            .switchMap {
-                onFinishLoad.accept(true)
-                Observable.merge(it)
-            }
-            .subscribe({
-                when (it.first) {
-                    is SearchProviderSuggestionViewModel -> onSuggestionItemClick(
-                        SearchSuggestionChoice.SearchProviderChoice((it.first as SearchProviderSuggestionViewModel).suggestion.location())
-                    )
+        handleItemClick()
+        handleItemInfoClick()
+        handleSuggestionActionClick()
 
-                    is CityProviderSuggestionViewModel -> onSuggestionItemClick(
-                        SearchSuggestionChoice.CityProviderChoice((it.first as CityProviderSuggestionViewModel).suggestion.location())
-                    )
-
-                    is FixedSuggestionViewModel -> onSuggestionItemClick(
-                        SearchSuggestionChoice.FixedChoice(
-                            (it.first as FixedSuggestionViewModel).id
-                        )
-                    )
-
-                    is GoogleAndTripGoSuggestionViewModel -> onSuggestionItemClick(
-                        SearchSuggestionChoice.PlaceChoice(
-                            (it.first as GoogleAndTripGoSuggestionViewModel).place
-                        )
-                    )
-                }
-            }, errorLogger::trackError)
-            .autoClear()
-
-        allSuggestions.asObservable()
-            .map {
-                onFinishLoad.accept(false)
-                it.mapIndexed { index, vm ->
-                    vm.onInfoClicked.observable
-                        .map { viewModel ->
-                            viewModel to index
-                        }
-                }
-            }
-            .switchMap {
-                onFinishLoad.accept(true)
-                Observable.merge(it)
-            }
-            .subscribe({
-                when (it.first) {
-                    is SearchProviderSuggestionViewModel -> onInfoClicked(
-                        (it.first as SearchProviderSuggestionViewModel).suggestion.location()
-                    )
-
-                    is CityProviderSuggestionViewModel -> onInfoClicked(
-                        (it.first as SearchProviderSuggestionViewModel).suggestion.location()
-                    )
-
-                    is FixedSuggestionViewModel -> onInfoClicked(
-                        (it.first as FixedSuggestionViewModel).suggestion.location()
-                    )
-
-                    is GoogleAndTripGoSuggestionViewModel -> onInfoClicked(
-                        (it.first as GoogleAndTripGoSuggestionViewModel).location
-                    )
-                }
-            }, errorLogger::trackError)
-            .autoClear()
-
-        queries
-            .observeOn(mainThread())
-            .subscribe({ params ->
-                fixedSuggestions.clear()
-                if (params.term().isEmpty()) {
-                    fixedSuggestionsProvider().fixedSuggestions(context, iconProvider())
-                        .forEach { suggestion ->
-                            fixedSuggestions.add(FixedSuggestionViewModel(context, suggestion))
-
-                            if (scrollResultsOfQuery) {
-                                scrollListToTop.set(true)
-                                scrollResultsOfQuery = false
-                            }
-                        }
-                    loadFromHistory()
-                } else {
-                    historySuggestions.clear()
-
-                    fixedSuggestionsProvider().specificSuggestions(
-                        context,
-                        listOf(
-                            DefaultFixedSuggestionType.CHOOSE_ON_MAP,
-                            DefaultFixedSuggestionType.CURRENT_LOCATION
-                        ),
-                        iconProvider()
-                    ).forEach { suggestion ->
-                        fixedSuggestions.add(FixedSuggestionViewModel(context, suggestion))
-                    }
-                }
-                if (!isRouting && params.term().isNotEmpty()) {
-                    loadFromRegions(params.term())
-                } else if (params.term().isEmpty()) {
-                    citiesSuggestions.clear()
-                }
-                providedSuggestions.clear()
-                viewModelScope.launch {
-                    locationSearchProvider?.query(context, iconProvider(), params.term())
-                        ?.forEach { suggestion ->
-                            providedSuggestions.add(
-                                SearchProviderSuggestionViewModel(
-                                    context,
-                                    suggestion
-                                )
-                            )
-                        }
-                }
-
-            }, errorLogger::trackError)
-            .autoClear()
+        observeQueries()
 
         val suggestionFetcher = queries.hide()
             .switchMap { query ->
@@ -315,17 +206,173 @@ class LocationSearchViewModel @Inject constructor(
             }, errorLogger::trackError)
             .autoClear()
 
-        onQueryTextChangeEventThrottle.debounce(500, TimeUnit.MILLISECONDS)
-            .subscribe({
-                searchResults(if (it == SearchResultItemSource.CurrentLocation.value) "" else it)
-            }, { errorLogger.trackError(it) })
-            .autoClear()
+        setTextChangeThrottle()
+        observeGoogleAttr()
+    }
 
+    private fun observeQueries() {
+        queries
+            .observeOn(mainThread())
+            .subscribe({ params ->
+                fixedSuggestions.clear()
+                if (params.term().isEmpty()) {
+                    fixedSuggestionsProvider().fixedSuggestions(context, iconProvider())
+                        .forEach { suggestion ->
+                            fixedSuggestions.add(FixedSuggestionViewModel(context, suggestion))
+
+                            if (scrollResultsOfQuery) {
+                                scrollListToTop.set(true)
+                                scrollResultsOfQuery = false
+                            }
+                        }
+                    loadFromHistory()
+                } else {
+                    historySuggestions.clear()
+
+                    fixedSuggestionsProvider().specificSuggestions(
+                        context,
+                        listOf(
+                            DefaultFixedSuggestionType.CHOOSE_ON_MAP,
+                            DefaultFixedSuggestionType.CURRENT_LOCATION
+                        ),
+                        iconProvider()
+                    ).forEach { suggestion ->
+                        fixedSuggestions.add(FixedSuggestionViewModel(context, suggestion))
+                    }
+                }
+                if (!isRouting && params.term().isNotEmpty()) {
+                    loadFromRegions(params.term())
+                } else if (params.term().isEmpty()) {
+                    citiesSuggestions.clear()
+                }
+                providedSuggestions.clear()
+                viewModelScope.launch {
+                    locationSearchProvider?.query(context, iconProvider(), params.term())
+                        ?.forEach { suggestion ->
+                            providedSuggestions.add(
+                                SearchProviderSuggestionViewModel(
+                                    context,
+                                    suggestion
+                                )
+                            )
+                        }
+                }
+
+            }, errorLogger::trackError)
+            .autoClear()
+    }
+
+    private fun observeGoogleAttr() {
         observeGoogleAttribution(
             googleAndTripGoSuggestions.asObservable().map { it.map { it.place } })
             .subscribe({}, { errorLogger.trackError(it) })
             .autoClear()
+    }
 
+    private fun handleItemClick() {
+        allSuggestions.asObservable()
+            .map {
+                onFinishLoad.accept(false)
+                it.mapIndexed { index, vm ->
+                    vm.onItemClicked.observable
+                        .map { viewModel -> viewModel to index }
+                }
+            }
+            .switchMap {
+                onFinishLoad.accept(true)
+                Observable.merge(it)
+            }
+            .subscribe({
+                when (it.first) {
+                    is SearchProviderSuggestionViewModel -> onSuggestionItemClick(
+                        SearchSuggestionChoice.SearchProviderChoice((it.first as SearchProviderSuggestionViewModel).suggestion.location())
+                    )
+
+                    is CityProviderSuggestionViewModel -> onSuggestionItemClick(
+                        SearchSuggestionChoice.CityProviderChoice((it.first as CityProviderSuggestionViewModel).suggestion.location())
+                    )
+
+                    is FixedSuggestionViewModel -> onSuggestionItemClick(
+                        SearchSuggestionChoice.FixedChoice(
+                            (it.first as FixedSuggestionViewModel).id
+                        )
+                    )
+
+                    is GoogleAndTripGoSuggestionViewModel -> onSuggestionItemClick(
+                        SearchSuggestionChoice.PlaceChoice(
+                            (it.first as GoogleAndTripGoSuggestionViewModel).place
+                        )
+                    )
+                }
+            }, errorLogger::trackError)
+            .autoClear()
+    }
+
+    private fun handleItemInfoClick() {
+        allSuggestions.asObservable()
+            .map {
+                onFinishLoad.accept(false)
+                it.mapIndexed { index, vm ->
+                    vm.onInfoClicked.observable
+                        .map { viewModel ->
+                            viewModel to index
+                        }
+                }
+            }
+            .switchMap {
+                onFinishLoad.accept(true)
+                Observable.merge(it)
+            }
+            .subscribe({
+                when (val suggestionViewModel = it.first) {
+                    is FixedSuggestionViewModel -> {
+                        onInfoClicked(suggestionViewModel.suggestion.location())
+                    }
+
+                    is GoogleAndTripGoSuggestionViewModel -> {
+                        onInfoClicked(suggestionViewModel.location)
+                    }
+                }
+            }, errorLogger::trackError)
+            .autoClear()
+    }
+
+    private fun handleSuggestionActionClick() {
+        allSuggestions.asObservable()
+            .map {
+                onFinishLoad.accept(false)
+                it.mapIndexed { index, vm ->
+                    vm.onSuggestionActionClicked.observable
+                        .map { viewModel -> viewModel to index }
+                }
+            }
+            .switchMap {
+                onFinishLoad.accept(true)
+                Observable.merge(it)
+            }
+            .subscribe({
+                when (val suggestionViewModel = it.first) {
+                    is FixedSuggestionViewModel -> {
+                        onSuggestionActionClicked(suggestionViewModel.suggestion.location())
+                    }
+
+                    is GoogleAndTripGoSuggestionViewModel -> {
+                        onSuggestionActionClicked(suggestionViewModel.location)
+                    }
+                }
+            }, errorLogger::trackError)
+            .autoClear()
+    }
+
+    private fun setTextChangeThrottle() {
+        onQueryTextChangeEventThrottle.debounce(
+            DEBOUNCE_TEXT_CHANGE_THROTTLE,
+            TimeUnit.MILLISECONDS
+        )
+            .subscribe({
+                searchResults(if (it == SearchResultItemSource.CurrentLocation.value) "" else it)
+            }, { errorLogger.trackError(it) })
+            .autoClear()
     }
 
     private fun loadFromHistory() {
@@ -503,6 +550,10 @@ class LocationSearchViewModel @Inject constructor(
 
     fun onInfoClicked(location: Location?) {
         infoChosen.accept(location)
+    }
+
+    fun onSuggestionActionClicked(location: Location?) {
+        suggestionActionClick.accept(location)
     }
 
     private fun onLocationSearchSuggestionItemClick(id: Any) {
