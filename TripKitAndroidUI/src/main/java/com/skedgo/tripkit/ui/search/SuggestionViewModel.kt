@@ -27,6 +27,8 @@ sealed class SuggestionViewModel(context: Context) {
     abstract val onItemClicked: TapAction<SuggestionViewModel>
 
     abstract val onInfoClicked: TapAction<SuggestionViewModel>
+
+    abstract val onSuggestionActionClicked: TapAction<SuggestionViewModel>
 }
 
 open class FixedSuggestionViewModel(context: Context, suggestion: SearchSuggestion) :
@@ -40,6 +42,7 @@ open class FixedSuggestionViewModel(context: Context, suggestion: SearchSuggesti
     override val onItemClicked: TapAction<SuggestionViewModel> = TapAction.create { this }
     override val showInfoIcon = suggestion.location() != null && suggestion.location() !is ScheduledStop
     override val onInfoClicked: TapAction<SuggestionViewModel> = TapAction.create { this }
+    override val onSuggestionActionClicked: TapAction<SuggestionViewModel> = TapAction.create { this }
     init {
         icon.set(suggestion.icon())
     }
@@ -59,10 +62,12 @@ class GoogleAndTripGoSuggestionViewModel(
     val iconProvider: LocationSearchIconProvider,
     val query: String?
 ) : SuggestionViewModel(context) {
+
     override val titleTextColorRes: Int = R.color.title_text
     override val subtitleTextColorRes: Int = R.color.description_text
     override val onItemClicked: TapAction<SuggestionViewModel> = TapAction.create { this }
     override val onInfoClicked: TapAction<SuggestionViewModel> = TapAction.create { this }
+    override val onSuggestionActionClicked: TapAction<SuggestionViewModel> = TapAction.create { this }
 
     val location: Location by lazy {
         if (place is Place.TripGoPOI) {
