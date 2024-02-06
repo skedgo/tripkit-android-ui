@@ -88,4 +88,5 @@
     <color name="textinputlayout_border_focused">#262626</color>
 
     <color name="disabled">#a6a6a6</color>
+    <color name="red20">#33ff0000</color>
 </resources>

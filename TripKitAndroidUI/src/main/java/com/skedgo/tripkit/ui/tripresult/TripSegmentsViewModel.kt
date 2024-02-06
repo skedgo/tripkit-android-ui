@@ -13,6 +13,9 @@ import androidx.databinding.ObservableField
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import com.google.android.gms.maps.model.Circle
+import com.google.android.gms.maps.model.CircleOptions
+import com.google.android.gms.maps.model.LatLng
 import com.jakewharton.rxrelay2.BehaviorRelay
 import com.jakewharton.rxrelay2.PublishRelay
 import com.skedgo.tripkit.TripUpdater
@@ -27,6 +30,7 @@ import com.skedgo.tripkit.ui.BuildConfig
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.core.RxViewModel
 import com.skedgo.tripkit.ui.creditsources.CreditSourcesOfDataViewModel
+import com.skedgo.tripkit.ui.map.getGeofenceZone
 import com.skedgo.tripkit.ui.routing.settings.RemindersRepository
 import com.skedgo.tripkit.ui.routingresults.TripGroupRepository
 import com.skedgo.tripkit.ui.trippreview.segment.TripSegmentSummaryItemViewModel
@@ -40,7 +44,9 @@ import com.skedgo.tripkit.ui.utils.generateTripPreviewHeader
 import com.skedgo.tripkit.ui.utils.getSegmentIconObservable
 import com.squareup.otto.Bus
 import io.reactivex.Observable
+import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
+import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.PublishSubject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -142,6 +148,9 @@ class TripSegmentsViewModel @Inject internal constructor(
 
     val tripGroupObservable: Observable<TripGroup>
         get() = tripGroupRelay.hide()
+
+    private val _geofenceCircles = MutableLiveData<List<Pair<LatLng, Double>>>()
+    val geofenceCircles: LiveData<List<Pair<LatLng, Double>>> = _geofenceCircles
 
     val timeZoneId: String
         get() {
@@ -615,6 +624,8 @@ class TripSegmentsViewModel @Inject internal constructor(
             val isOn = GetOffAlertCache.isTripAlertStateOn(trip.tripUuid)
 
             val getOffAlertsViewModel = TripSegmentGetOffAlertsViewModel(trip, isOn, tripUpdater, remindersRepository)
+
+            getOffAlertsViewModel.showGeofencesOnMap = { _geofenceCircles.postValue(it) }
 
             getOffAlertsViewModel.alertStateListener = {
                 setupButtons(tripGroup)
