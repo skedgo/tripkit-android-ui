@@ -11,9 +11,11 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.recyclerview.widget.DiffUtil
 import com.araujo.jordan.excuseme.ExcuseMe
+import com.google.android.gms.maps.model.LatLng
 import com.google.gson.Gson
 import com.skedgo.TripKit
 import com.skedgo.tripkit.TripUpdater
+import com.skedgo.tripkit.checkIfLocationProviderIsEnabled
 import com.skedgo.tripkit.notification.cancelChannelNotifications
 import com.skedgo.tripkit.routing.*
 import com.skedgo.tripkit.ui.BuildConfig
@@ -57,6 +59,8 @@ class TripSegmentGetOffAlertsViewModel @Inject internal constructor(
 
     private val disposable = CompositeDisposable()
 
+    internal var showGeofencesOnMap: (List<Pair<LatLng, Double>>) -> Unit = { _ -> }
+
     init {
         val isOn = GetOffAlertCache.isTripAlertStateOn(trip.tripUuid)
         _getOffAlertStateOn.postValue(isOn)
@@ -89,10 +93,21 @@ class TripSegmentGetOffAlertsViewModel @Inject internal constructor(
         cancelStartTripAlarms(context) //this will cancel previous alarm that was setup
         cancelNotifications(context) //will cancel trip start and geofence notifications
         GeoLocation.clearGeofences()
+        showGeofencesOnMap.invoke(emptyList())
+        val isLocationProviderEnabled = context.checkIfLocationProviderIsEnabled()
 
-        if (isOn) {
+        if (isOn && !isLocationProviderEnabled) {
+            context.showConfirmationPopUpDialog(
+                title = context.getString(R.string.location_provider_disabled),
+                message = context.getString(R.string.device_location_is_turned_off),
+                positiveLabel = context.getString(R.string.close),
+                positiveCallback = {
+                    _getOffAlertStateOn.postValue(false)
+                }
+            )
+        } else if (isOn) {
             checkPermissionAndShowProminentDisclosure(context) { isAccepted ->
-                if(isAccepted) {
+                if (isAccepted) {
                     checkAccessFineLocationPermission(context)
                 } else {
                     _getOffAlertStateOn.postValue(false)
@@ -250,7 +265,15 @@ class TripSegmentGetOffAlertsViewModel @Inject internal constructor(
                             geofence.computeAndSetTimeline(trip.endDateTime.millis)
                             geofence
                         }
-                    )
+                    ) { added ->
+                        if (added && configs.showGeofences()) {
+                            showGeofencesOnMap.invoke(
+                                geofences.map {
+                                    LatLng(it.center.lat, it.center.lng) to it.radius
+                                }
+                            )
+                        }
+                    }
                 }
             }
         }
