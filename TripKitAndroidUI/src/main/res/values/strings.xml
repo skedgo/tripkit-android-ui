@@ -76,4 +76,6 @@
     <string name="permission_request_notificaiton">Allow %s to send you notifications?</string>
     <string name="permission_request_notificaiton_explanation">This permission is needed for you to receive notifications regarding your trips</string>
     <string name="permission_request_notificaiton_open_settings_explanation">This permission is needed for you to receive notifications regarding your trips</string>
+    <string name="location_provider_disabled">Location provider disabled</string>
+    <string name="device_location_is_turned_off">Your device location is turned off, kindly enable it and try again</string>
 </resources>
