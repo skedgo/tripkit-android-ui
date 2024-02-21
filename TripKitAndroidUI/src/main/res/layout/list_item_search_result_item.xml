@@ -43,6 +43,7 @@
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toEndOf="@+id/icon"
             app:layout_constraintTop_toTopOf="parent"
+            app:matcher="@{viewModel.term}"
             tools:text="Awesome train station" />
 
         <TextView
@@ -60,6 +61,7 @@
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="@+id/v4_item_content"
             app:layout_constraintTop_toBottomOf="@+id/v4_item_content"
+            app:matcher="@{viewModel.term}"
             tools:text="12 Vale street"
             tools:visibility="visible" />
 

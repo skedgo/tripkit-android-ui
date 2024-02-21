@@ -11,7 +11,10 @@ import com.skedgo.tripkit.ui.data.places.Place
 import com.skedgo.tripkit.ui.utils.TapAction
 import com.squareup.picasso.Picasso
 
-sealed class SuggestionViewModel(context: Context) {
+sealed class SuggestionViewModel(
+    context: Context,
+    val term: String? = null
+) {
     val icon: ObservableField<Drawable?> = ObservableField()
     open val showTimetableIcon: Boolean = false
     open val showInfoIcon: Boolean = false
@@ -31,8 +34,8 @@ sealed class SuggestionViewModel(context: Context) {
     abstract val onSuggestionActionClicked: TapAction<SuggestionViewModel>
 }
 
-open class FixedSuggestionViewModel(context: Context, suggestion: SearchSuggestion) :
-    SuggestionViewModel(context) {
+open class FixedSuggestionViewModel(context: Context, suggestion: SearchSuggestion, term: String? = null) :
+    SuggestionViewModel(context, term) {
     val suggestion = suggestion
     val id = suggestion.id()
     override val title = suggestion.title()
@@ -48,11 +51,11 @@ open class FixedSuggestionViewModel(context: Context, suggestion: SearchSuggesti
     }
 }
 
-class SearchProviderSuggestionViewModel(context: Context, suggestion: SearchSuggestion) :
-    FixedSuggestionViewModel(context, suggestion)
+class SearchProviderSuggestionViewModel(context: Context, suggestion: SearchSuggestion, term: String? = null) :
+    FixedSuggestionViewModel(context, suggestion, term)
 
-class CityProviderSuggestionViewModel(context: Context, suggestion: SearchSuggestion) :
-    FixedSuggestionViewModel(context, suggestion)
+class CityProviderSuggestionViewModel(context: Context, suggestion: SearchSuggestion, term: String? = null) :
+    FixedSuggestionViewModel(context, suggestion, term)
 
 class GoogleAndTripGoSuggestionViewModel(
     context: Context,
@@ -61,7 +64,7 @@ class GoogleAndTripGoSuggestionViewModel(
     val canOpenTimetable: Boolean,
     val iconProvider: LocationSearchIconProvider,
     val query: String?
-) : SuggestionViewModel(context) {
+) : SuggestionViewModel(context, query) {
 
     override val titleTextColorRes: Int = R.color.title_text
     override val subtitleTextColorRes: Int = R.color.description_text

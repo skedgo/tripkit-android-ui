@@ -218,7 +218,9 @@ class LocationSearchViewModel @Inject constructor(
                 if (params.term().isEmpty()) {
                     fixedSuggestionsProvider().fixedSuggestions(context, iconProvider())
                         .forEach { suggestion ->
-                            fixedSuggestions.add(FixedSuggestionViewModel(context, suggestion))
+                            fixedSuggestions.add(
+                                FixedSuggestionViewModel(context, suggestion)
+                            )
 
                             if (scrollResultsOfQuery) {
                                 scrollListToTop.set(true)
@@ -237,7 +239,9 @@ class LocationSearchViewModel @Inject constructor(
                         ),
                         iconProvider()
                     ).forEach { suggestion ->
-                        fixedSuggestions.add(FixedSuggestionViewModel(context, suggestion))
+                        fixedSuggestions.add(
+                            FixedSuggestionViewModel(context, suggestion)
+                        )
                     }
                 }
                 if (!isRouting && params.term().isNotEmpty()) {
@@ -252,7 +256,8 @@ class LocationSearchViewModel @Inject constructor(
                             providedSuggestions.add(
                                 SearchProviderSuggestionViewModel(
                                     context,
-                                    suggestion
+                                    suggestion,
+                                    params.term()
                                 )
                             )
                         }
@@ -417,7 +422,7 @@ class LocationSearchViewModel @Inject constructor(
                     newList,
                     legacyIconProvider()
                 ).forEach { suggestion ->
-                    citiesSuggestions.add(CityProviderSuggestionViewModel(context, suggestion))
+                    citiesSuggestions.add(CityProviderSuggestionViewModel(context, suggestion, query))
                 }
             }, { Timber.e(it) }).autoClear()
     }
@@ -518,6 +523,7 @@ class LocationSearchViewModel @Inject constructor(
             .nearbyLon(center.longitude)
             .term(term.toString())
             .build()
+
         queries.accept(fetchLocationsParameters)
     }
 
