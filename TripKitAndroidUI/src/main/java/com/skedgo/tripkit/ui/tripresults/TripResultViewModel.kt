@@ -8,27 +8,21 @@ import androidx.databinding.ObservableArrayList
 import androidx.databinding.ObservableBoolean
 import androidx.databinding.ObservableField
 import androidx.databinding.ObservableInt
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.skedgo.TripKit
-import com.skedgo.tripkit.common.model.TransportMode
 import com.skedgo.tripkit.common.util.TimeUtils
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.core.RxViewModel
-import io.reactivex.Observable
-import io.reactivex.functions.BiFunction
 import org.joda.time.DateTime
 import com.skedgo.tripkit.datetime.PrintTime
 import com.skedgo.tripkit.routing.*
-import com.skedgo.tripkit.ui.core.addTo
-import com.skedgo.tripkit.ui.core.rxproperty.asObservable
 import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButtonHandler
 import com.skedgo.tripkit.ui.utils.*
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.schedulers.Schedulers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
-import timber.log.Timber
 import javax.inject.Inject
 
 class TripResultTripViewModel : ViewModel() {
@@ -83,6 +77,18 @@ class TripResultViewModel @Inject constructor(private val context: Context,
     var accessibilityLabel = ObservableField<String>()
     var otherTripGroups: List<Trip>? = null
     var classification = TripGroupClassifier.Classification.NONE
+
+    private val _moneyCost = MutableLiveData<String>()
+    val moneyCost: LiveData<String> = _moneyCost
+
+    private val _isMoneyCostVisible = MutableLiveData<Boolean>()
+    val isMoneyCostVisible: LiveData<Boolean> = _isMoneyCostVisible
+
+    private val _availabilityInfo = MutableLiveData<String>()
+    val availabilityInfo: LiveData<String> = _availabilityInfo
+
+    private val _isActionEnabled = MutableLiveData<Boolean>()
+    val isActionEnabled: LiveData<Boolean> = _isActionEnabled
 
     fun toggleShowMore() {
         showMoreTrips.set(!showMoreTrips.get())
@@ -140,6 +146,7 @@ class TripResultViewModel @Inject constructor(private val context: Context,
         }
 
         setCost()
+        setMoneyCost()
 
         if (otherTripGroups.isNullOrEmpty()) {
             val actionButtonText = actionButtonHandler?.getPrimaryAction(context, trip)
@@ -152,6 +159,9 @@ class TripResultViewModel @Inject constructor(private val context: Context,
             moreButtonText.set(context.resources.getString(R.string.more))
             moreButtonVisible.set(true)
         }
+
+        trip.availabilityInfo?.let { _availabilityInfo.postValue(it) }
+        _isActionEnabled.postValue(trip.availability == Availability.Available)
     }
 
     private fun addTripToList(trip: Trip) {
@@ -302,5 +312,17 @@ class TripResultViewModel @Inject constructor(private val context: Context,
         val globalConfigs = TripKit.getInstance().configs()
         costVisible.set(!globalConfigs.hideTripMetrics())
         hasTripLabels.set(globalConfigs.hasTripLabels())
+    }
+
+    private fun setMoneyCost() {
+        if(trip.moneyCost == 0f  && trip.moneyUsdCost == 0f) {
+            _isMoneyCostVisible.postValue(false)
+            return
+        }
+
+        trip.displayCostUsd?.let {
+            _isMoneyCostVisible.postValue(true)
+            _moneyCost.postValue(it)
+        }
     }
 }
