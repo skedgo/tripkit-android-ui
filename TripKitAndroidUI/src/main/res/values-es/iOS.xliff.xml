@@ -893,6 +893,10 @@
     <string name="sign_out">Cerrar sesión</string>
     <!-- Title of page or button to sign up -->
     <string name="sign_up">Únete</string>
+    <!--Prompt for empty start location-->
+    <string name="specify_start_location">Por favor especifique una ubicación de inicio.</string>
+    <!--Prompt for empty destination location-->
+    <string name="specify_destination_location">Por favor especifica una ubicación de destino.</string>
     <!-- Starting %date. (old key: DateFromFormat) -->
     <string name="starting__pattern">Desde %s</string>
     <!-- Accessibility hint for routing results screen. -->

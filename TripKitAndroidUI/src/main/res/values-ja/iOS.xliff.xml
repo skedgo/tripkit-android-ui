@@ -852,6 +852,10 @@
     <string name="sign_out">サインアウト</string>
     <!-- Title of page or button to sign up -->
     <string name="sign_up">新規登録</string>
+    <!--Prompt for empty start location-->
+    <string name="specify_start_location">開始場所を指定してください</string>
+    <!--Prompt for empty destination location-->
+    <string name="specify_destination_location">目的地の場所を指定してください</string>
     <!-- Starting %date. (old key: DateFromFormat) -->
     <string name="starting__pattern">%s日から開始</string>
     <!-- Accessibility hint for routing results screen. -->

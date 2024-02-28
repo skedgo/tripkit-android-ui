@@ -1033,6 +1033,10 @@
     <string name="sign_out">تسجيل الخروج</string>
     <!-- Title of page or button to sign up -->
     <string name="sign_up">تسجيل الدخول</string>
+    <!--Prompt for empty start location-->
+    <string name="specify_start_location">يرجى تحديد موقع البداية</string>
+    <!--Prompt for empty destination location-->
+    <string name="specify_destination_location">يرجى تحديد موقع الوجهة</string>
     <!-- Starting %date. (old key: DateFromFormat) -->
     <string name="starting__pattern">بدء %s</string>
     <!-- Accessibility hint for routing results screen. -->

@@ -1133,6 +1133,10 @@ Note, your iCloud data will not be deleted by this, but you can delete this in t
 	<string name="sign_out">Sign out</string>
 	<!--Title of page or button to sign up-->
 	<string name="sign_up">Sign up</string>
+	<!--Prompt for empty start location-->
+	<string name="specify_start_location">Please specify a starting location.</string>
+	<!--Prompt for empty destination location-->
+	<string name="specify_destination_location">Please specify a destination location.</string>
 	<!--Starting %date. (old key: DateFromFormat)-->
 	<string name="starting__pattern">Starting %1$s</string>
 	<!--Tap to set location. (old key: SetLocation)-->
