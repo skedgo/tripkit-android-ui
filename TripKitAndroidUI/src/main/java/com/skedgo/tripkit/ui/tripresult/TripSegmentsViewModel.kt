@@ -20,6 +20,7 @@ import com.jakewharton.rxrelay2.BehaviorRelay
 import com.jakewharton.rxrelay2.PublishRelay
 import com.skedgo.tripkit.TripUpdater
 import com.skedgo.tripkit.booking.BookingForm
+import com.skedgo.tripkit.booking.quickbooking.QuickBookingRepository
 import com.skedgo.tripkit.common.model.Location
 import com.skedgo.tripkit.common.model.RealtimeAlert
 import com.skedgo.tripkit.common.util.TimeUtils
@@ -52,12 +53,15 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import me.tatarka.bindingcollectionadapter2.ItemBinding
 import me.tatarka.bindingcollectionadapter2.itembindings.OnItemBindClass
 import org.joda.time.DateTime
@@ -81,7 +85,8 @@ class TripSegmentsViewModel @Inject internal constructor(
     private val getAlternativeTripForAlternativeService: GetAlternativeTripForAlternativeService,
     private val tripUpdater: TripUpdater,
     private val remindersRepository: RemindersRepository,
-    private val getTransportIconTintStrategy: GetTransportIconTintStrategy
+    private val getTransportIconTintStrategy: GetTransportIconTintStrategy,
+    private val quickBookingRepository: QuickBookingRepository
 ) : RxViewModel(), ActionButtonContainer, ActionButtonClickListener {
 
     companion object {
@@ -707,14 +712,51 @@ class TripSegmentsViewModel @Inject internal constructor(
     }
 
     override fun onItemClick(tag: String, viewModel: ActionButtonViewModel) {
-        if(tag == ActionButtonHandler.ACTION_TAG_ALERT) {
+        if (tag == ActionButtonHandler.ACTION_TAG_ALERT) {
             tripSegmentGetOffAlertsViewModel?.apply {
                 setAlertState(getOffAlertStateOn.value?.not() ?: false)
             }
+        } else if (tag == ActionButtonHandler.ACTION_EXTERNAL_SHOW_TICKET) {
+            getTicket()
         } else {
             actionButtonHandler?.actionClicked(
                 context, tag, this.trip ?: tripGroup.displayTrip!!, viewModel
             )
+        }
+    }
+
+    private fun getTicket() {
+        viewModelScope.launch {
+            quickBookingRepository.getTickets().collectLatest { result ->
+                when (result) {
+                    is com.skedgo.tripkit.utils.async.Result.Loading -> {
+                        withContext(Dispatchers.Main) {
+                            buttons.firstOrNull { it.tag == ActionButtonHandler.ACTION_EXTERNAL_SHOW_TICKET }
+                                ?.showSpinner(true)
+                        }
+                    }
+
+                    is com.skedgo.tripkit.utils.async.Result.Success -> {
+                        withContext(Dispatchers.Main) {
+                            buttons.firstOrNull { it.tag == ActionButtonHandler.ACTION_EXTERNAL_SHOW_TICKET }
+                                ?.showSpinner(false)
+                            val tickets = result.data
+
+                            actionButtonHandler?.handleCustomAction(
+                                ActionButtonHandler.ACTION_EXTERNAL_SHOW_TICKET,
+                                tickets.first()
+                            )
+                        }
+                    }
+
+                    is com.skedgo.tripkit.utils.async.Result.Error -> {
+                        withContext(Dispatchers.Main) {
+                            buttons.firstOrNull { it.tag == ActionButtonHandler.ACTION_EXTERNAL_SHOW_TICKET }
+                                ?.showSpinner(false)
+                        }
+                    }
+                }
+            }
         }
     }
 

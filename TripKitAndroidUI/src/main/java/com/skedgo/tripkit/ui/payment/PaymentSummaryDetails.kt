@@ -1,6 +1,6 @@
 package com.skedgo.tripkit.ui.payment
 
-import com.skedgo.tripkit.booking.quickbooking.Ticket
+import com.skedgo.tripkit.booking.quickbooking.Fare
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.utils.getCurrencySymbol
 
@@ -36,14 +36,14 @@ data class PaymentSummaryDetails(
     }
 
     companion object {
-        fun parseTicket(ticket: Ticket): PaymentSummaryDetails {
+        fun parseTicket(fare: Fare): PaymentSummaryDetails {
             return PaymentSummaryDetails(
-                ticket.id,
+                fare.id,
                 R.drawable.ic_person,
-                ticket.name,
-                ticket.value,
-                ticket.price,
-                ticket.currency
+                fare.name,
+                fare.value,
+                fare.price,
+                fare.currency
             )
         }
     }

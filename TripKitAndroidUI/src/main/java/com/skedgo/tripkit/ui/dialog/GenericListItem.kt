@@ -2,9 +2,8 @@ package com.skedgo.tripkit.ui.dialog
 
 import com.skedgo.tripkit.booking.quickbooking.Option
 import com.skedgo.tripkit.booking.quickbooking.Rider
-import com.skedgo.tripkit.booking.quickbooking.Ticket
+import com.skedgo.tripkit.booking.quickbooking.Fare
 import org.joda.time.format.ISODateTimeFormat
-import java.lang.Exception
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -56,9 +55,9 @@ data class GenericListItem(
             }
         }
 
-        fun parseFares(tickets: List<Ticket>, rider: Rider?): List<GenericListItem> {
+        fun parseFares(fares: List<Fare>, rider: Rider?): List<GenericListItem> {
             rider?.let {
-                val filteredTickets = tickets.filter { ticket ->
+                val filteredTickets = fares.filter { ticket ->
                     ticket.riders.contains(it)
                 }
 

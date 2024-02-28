@@ -2,7 +2,7 @@ package com.skedgo.tripkit.ui.booking.apiv2
 
 import androidx.annotation.StringDef
 import com.google.gson.annotations.SerializedName
-import com.skedgo.tripkit.booking.quickbooking.Ticket
+import com.skedgo.tripkit.booking.quickbooking.Fare
 import com.skedgo.tripkit.common.model.BookingConfirmationAction
 import com.skedgo.tripkit.common.model.BookingConfirmationNotes
 import com.skedgo.tripkit.common.model.BookingConfirmationStatusValue
@@ -72,7 +72,7 @@ data class BookingV2ListResponse(
                 @SerializedName("notes")
                 val notes: List<BookingConfirmationNotes>? = null,
                 val actions: List<BookingConfirmationAction>? = null,
-                val tickets: List<Ticket>? = null
+                val fares: List<Fare>? = null
         ) {
             data class Purchase(
                     @SerializedName("budgetPoints")

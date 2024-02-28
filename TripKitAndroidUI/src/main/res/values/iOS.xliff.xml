@@ -1518,5 +1518,6 @@ Note, your iCloud data will not be deleted by this, but you can delete this in t
 	<string name="impaired">Impaired</string>
 	<string name="next_up">Next Up</string>
 	<string name="could_not_get_location">Could not get location</string>
+	<string name="show_ticket">Show ticket</string>
 </resources>
 	<!-- This is an auto generated file (Mon Jan 20 14:50:01 CET 2020) -->
