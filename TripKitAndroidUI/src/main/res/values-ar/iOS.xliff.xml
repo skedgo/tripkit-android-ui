@@ -959,6 +959,8 @@
     <string name="location">الموقع</string>
     <!-- Location iOS authorisation needed text -->
     <string name="location_services_are_required_to_use_this_feature_dot_please_go_to_the_settings_app__moret_privacy__moret_location_services_coma_make_sure_they_are_turned_on_and_authorise_this_app_dot">خدمات الموقع مطلوبة لاستخدام هذه الميزة. يرجى الانتقال إلى إعدادات التطبيق &gt; الخصوصية &gt; خدمات الموقع، وتأكد من تشغيلها والسماح لهذا التطبيق.</string>
+    <!--Location authorization-->
+    <string name="location_services_required_desc">خدمات الموقع مطلوبة لاستخدام هذه الميزة. يرجى الانتقال إلى إعدادات التطبيق ومنح حق الوصول إلى هذا التطبيق.</string>
     <!-- Reminder to leave preference -->
     <string name="minutes_before_trip">دقائق قبل الرحلة</string>
     <!-- More results proposal -->

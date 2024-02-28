@@ -778,6 +778,8 @@
     <string name="location">場所</string>
     <!-- Location iOS authorisation needed text -->
     <string name="location_services_are_required_to_use_this_feature_dot_please_go_to_the_settings_app__moret_privacy__moret_location_services_coma_make_sure_they_are_turned_on_and_authorise_this_app_dot">位置情報サービスは、この機能を使用する必要があります。設定アプリにアクセスしてください &gt; プライバシー &gt; ロケーション サービスをオンにし、このアプリを承認確認します。</string>
+    <!--Location authorization-->
+    <string name="location_services_required_desc">この機能を使用するには位置情報サービスが必要です。アプリの設定に移動し、このアプリへのアクセスを許可してください。</string>
     <!-- Reminder to leave preference -->
     <string name="minutes_before_trip">トリップの数分前</string>
     <!-- Title for name of something (or someone) -->
