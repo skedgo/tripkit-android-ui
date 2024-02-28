@@ -742,10 +742,12 @@ class TripSegmentsViewModel @Inject internal constructor(
                                 ?.showSpinner(false)
                             val tickets = result.data
 
-                            actionButtonHandler?.handleCustomAction(
-                                ActionButtonHandler.ACTION_EXTERNAL_SHOW_TICKET,
-                                tickets.first()
-                            )
+                            tickets.firstOrNull()?.let {
+                                actionButtonHandler?.handleCustomAction(
+                                    ActionButtonHandler.ACTION_EXTERNAL_SHOW_TICKET,
+                                    it
+                                )
+                            }
                         }
                     }
 
