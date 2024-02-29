@@ -7,17 +7,17 @@ import androidx.annotation.NonNull;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.Marker;
 import com.skedgo.tripkit.common.model.Location;
+import com.skedgo.tripkit.configuration.ServerManager;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 import dagger.Lazy;
-import com.skedgo.tripkit.configuration.Server;
 import com.skedgo.tripkit.routing.RealTimeVehicle;
 
 import javax.inject.Inject;
 import java.lang.ref.WeakReference;
 
 public class VehicleMarkerIconFetcher {
-  private static final String URL_TEMPLATE = Server.ApiTripGo.getValue() + "modeicons/android/%s/ic_vehicle_%s.png";
+  private static final String URL_TEMPLATE = ServerManager.INSTANCE.getConfiguration().getApiTripGoUrl() + "modeicons/android/%s/ic_vehicle_%s.png";
   private final Resources resources;
   private final Lazy<Picasso> picassoLazy;
 

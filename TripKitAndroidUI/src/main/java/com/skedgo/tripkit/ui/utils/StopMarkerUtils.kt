@@ -3,14 +3,14 @@ package com.skedgo.tripkit.ui.utils
 import android.content.res.Resources
 
 import com.skedgo.tripkit.common.util.TransportModeUtils
+import com.skedgo.tripkit.configuration.ServerManager
 
-import com.skedgo.tripkit.configuration.Server
 import com.skedgo.tripkit.routing.ModeInfo
 
 object StopMarkerUtils {
-  private val MAP_ICON_URL_TEMPLATE_PRODUCTION = Server.ApiTripGo.value + "modeicons/android/%s/ic_map_%s.png"
-  private val MAP_ICON_URL_TEMPLATE_PRODUCTION2 = Server.ApiTripGo.value + "modeicons/android/%s/ic_map_marker_%s.png"
-  private val MAP_ICON_URL_TEMPLATE_BETA = Server.BigBang.value + "modeicons/android/%s/ic_map_%s.png"
+  private val MAP_ICON_URL_TEMPLATE_PRODUCTION = ServerManager.configuration.apiTripGoUrl + "modeicons/android/%s/ic_map_%s.png"
+  private val MAP_ICON_URL_TEMPLATE_PRODUCTION2 = ServerManager.configuration.apiTripGoUrl + "modeicons/android/%s/ic_map_marker_%s.png"
+  private val MAP_ICON_URL_TEMPLATE_BETA = ServerManager.configuration.bigBangUrl + "modeicons/android/%s/ic_map_%s.png"
 
   fun getMapIconUrlForModeInfo(resources: Resources, modeInfo: ModeInfo?): String? {
     if (modeInfo == null || modeInfo.remoteIconName == null) {

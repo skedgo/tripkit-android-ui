@@ -21,6 +21,9 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
+        staging {
+            debuggable true
+        }
     }
 
     compileOptions {
@@ -67,10 +70,15 @@ dependencies {
     implementation libs.places
 
     debugImplementation project(':TripKitAndroid')
+    stagingImplementation project(':TripKitAndroid')
     releaseImplementation project(':TripKitAndroid')
+
     debugImplementation project(':TripKitAndroidUIModules:TripKitAndroidUIDomain')
+    stagingImplementation project(':TripKitAndroidUIModules:TripKitAndroidUIDomain')
     releaseImplementation project(':TripKitAndroidUIModules:TripKitAndroidUIDomain')
+
     debugImplementation project(':sqliteutils')
+    stagingImplementation project(':sqliteutils')
     releaseImplementation project(':sqliteutils')
 
     implementation libs.javaxAnnotation

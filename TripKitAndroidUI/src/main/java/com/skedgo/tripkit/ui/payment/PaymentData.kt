@@ -1,7 +1,6 @@
 package com.skedgo.tripkit.ui.payment
 
 import com.skedgo.tripkit.booking.quickbooking.EphemeralKey
-import com.skedgo.tripkit.booking.quickbooking.Input
 import com.skedgo.tripkit.booking.quickbooking.PaymentOption
 import com.skedgo.tripkit.booking.quickbooking.Review
 import com.skedgo.tripkit.common.util.decimalFormatWithCurrencySymbol
@@ -42,4 +41,16 @@ data class PaymentData(
         }
 
     }
+
+    fun getTotalPrice() = if (paymentSummaryDetails.isNotEmpty()) {
+        paymentSummaryDetails.sumOf { it.getConvertedPrice() * (it.breakdown?.toDouble() ?: 0.0) }
+    } else {
+        0.0
+    }
+
+    fun getTotalTickets() = (if (paymentSummaryDetails.isNotEmpty()) {
+        paymentSummaryDetails.sumOf { it.breakdown ?: 0 }
+    } else {
+        0.0
+    }).toInt()
 }

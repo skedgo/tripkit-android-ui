@@ -9,7 +9,7 @@ import com.skedgo.tripkit.ServiceApi
 import com.skedgo.tripkit.bookingproviders.BookingResolver
 import com.skedgo.tripkit.bookingproviders.BookingResolverImpl
 import com.skedgo.tripkit.common.util.Gsons
-import com.skedgo.tripkit.configuration.Server
+import com.skedgo.tripkit.configuration.ServerManager
 import com.skedgo.tripkit.data.database.TripKitDatabase
 import com.skedgo.tripkit.data.database.locations.bikepods.BikePodRepository
 import com.skedgo.tripkit.data.database.locations.bikepods.BikePodRepositoryImpl
@@ -92,7 +92,7 @@ class TripKitUIModule {
     internal fun locationsApi(httpClient: OkHttpClient, gson: Gson): LocationsApi {
         return Retrofit.Builder()
                 /* This base url is ignored as the api relies on @Url. */
-                .baseUrl(Server.ApiTripGo.value)
+                .baseUrl(ServerManager.configuration.apiTripGoUrl)
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.createWithScheduler(Schedulers.io()))
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .client(httpClient)
@@ -105,7 +105,7 @@ class TripKitUIModule {
     @Provides
     fun getServiceApi(httpClient: OkHttpClient, gson: Gson): ServiceApi {
         return Retrofit.Builder()
-                .baseUrl(Server.ApiTripGo.value)
+                .baseUrl(ServerManager.configuration.apiTripGoUrl)
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.createWithScheduler(Schedulers.io()))
                 .client(httpClient)
