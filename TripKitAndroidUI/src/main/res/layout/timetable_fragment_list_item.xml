@@ -12,7 +12,9 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:background="?android:attr/selectableItemBackground"
+        android:onClick="@{() -> viewModel.onItemClick.perform()}">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -149,14 +151,12 @@
             <ImageView
                 android:layout_width="@dimen/icon_medium"
                 android:layout_height="@dimen/icon_medium"
-                android:onClick="@{() -> viewModel.onItemClick.perform()}"
                 android:padding="@dimen/spacing_small"
                 android:src="@drawable/chevron_right"
-                app:tint="@color/colorPrimary"
                 app:addRtlSupport="@{true}"
-                android:background="?android:attr/selectableItemBackground"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent" />
+                app:layout_constraintEnd_toEndOf="parent"
+                app:tint="@color/colorPrimary" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <View
