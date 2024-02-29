@@ -32,6 +32,12 @@ android {
         buildConfigField 'int', 'TRIPKIT_UI_VERSION', "${tripkitUiVersion}"
     }
 
+    buildTypes {
+        staging {
+            debuggable true
+        }
+    }
+
     packagingOptions {
         // To avoid conflicts with ASL.
         // We don't utilize ServiceLoader, so this is unneeded.
@@ -174,12 +180,19 @@ dependencies {
     implementation libs.fragmentKtx
 
     debugApi project(':trip-kit-booking')
+    stagingApi project(':trip-kit-booking')
     releaseApi project(':trip-kit-booking')
+
     debugApi project(':TripKitAndroid')
+    stagingApi project(':TripKitAndroid')
     releaseApi project(':TripKitAndroid')
+
     debugApi project(':TripKitAndroidUIModules:TripKitAndroidUIData')
+    stagingApi project(':TripKitAndroidUIModules:TripKitAndroidUIData')
     releaseApi project(':TripKitAndroidUIModules:TripKitAndroidUIData')
+
     debugApi project(':TripKitAndroidUIModules:TripKitAndroidUIDomain')
+    stagingApi project(':TripKitAndroidUIModules:TripKitAndroidUIDomain')
     releaseApi project(':TripKitAndroidUIModules:TripKitAndroidUIDomain')
 
     implementation 'com.afollestad.material-dialogs:core:3.3.0'

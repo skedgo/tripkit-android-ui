@@ -6,7 +6,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.skedgo.tripkit.common.model.RealtimeAlert;
 import com.squareup.picasso.Picasso;
 import dagger.Lazy;
-import com.skedgo.tripkit.configuration.Server;
+import com.skedgo.tripkit.configuration.ServerManager;
 
 import javax.inject.Inject;
 import java.lang.ref.WeakReference;
@@ -15,7 +15,7 @@ import static com.skedgo.tripkit.ui.map.IconUtils.asUrl;
 
 
 public class AlertMarkerIconFetcher {
-  private static final String URL_TEMPLATE = Server.ApiTripGo.getValue() + "modeicons/android/%s/ic_alert_%s.png";
+  private static final String URL_TEMPLATE = ServerManager.INSTANCE.getConfiguration().getApiTripGoUrl() + "modeicons/android/%s/ic_alert_%s.png";
   private final Resources resources;
   private final Lazy<Picasso> picassoLazy;
 
