@@ -3,7 +3,9 @@ package com.skedgo.tripkit.ui.core.module;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.skedgo.tripkit.booking.*;
+import com.skedgo.tripkit.booking.quickbooking.QuickBookingRepository;
 import com.skedgo.tripkit.configuration.ServerManager;
+import com.skedgo.tripkit.data.database.TripKitDatabase;
 import com.skedgo.tripkit.ui.booking.apiv2.BookingV2TrackingApi;
 import com.skedgo.tripkit.ui.booking.apiv2.BookingV2TrackingService;
 import com.skedgo.tripkit.ui.booking.apiv2.GsonAdaptersBookingV2LogTripResponse;
@@ -147,5 +149,13 @@ public class BookingModule {
         return new com.skedgo.tripkit.booking.quickbooking.QuickBookingService.QuickBookingServiceImpl(
                 quickBookingApi
         );
+    }
+
+    @Provides
+    QuickBookingRepository getQuickBookingRepository(
+            com.skedgo.tripkit.booking.quickbooking.QuickBookingService service,
+            TripKitDatabase database
+    ) {
+        return new QuickBookingRepository(service, database);
     }
 }
