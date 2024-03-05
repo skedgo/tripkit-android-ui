@@ -3,7 +3,9 @@ package com.skedgo.tripkit.ui.utils
 import android.content.res.Resources.NotFoundException
 import android.graphics.drawable.Drawable
 import android.os.SystemClock
+import android.util.TypedValue
 import android.view.View
+import android.view.ViewGroup
 import android.view.accessibility.AccessibilityEvent
 import android.widget.ImageView
 import android.widget.TextView
@@ -179,4 +181,15 @@ fun setBackgroundTint(view: View, color: Int?) {
     view.backgroundTintList = color?.let {
         ContextCompat.getColorStateList(view.context, it)
     }
+}
+
+@BindingAdapter("visibilityByHeight")
+fun setLayoutHeight(view: View, show: Boolean) {
+    val layoutParams = view.layoutParams
+    layoutParams.height = if (show) {
+        ViewGroup.LayoutParams.WRAP_CONTENT
+    } else {
+        TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 0f, view.resources.displayMetrics).toInt()
+    }
+    view.layoutParams = layoutParams
 }
