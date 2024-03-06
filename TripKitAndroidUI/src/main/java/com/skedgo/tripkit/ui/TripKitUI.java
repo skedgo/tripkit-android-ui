@@ -130,12 +130,9 @@ public abstract class TripKitUI {
                         return repository.getServer();
                     }
                 })
-                .userTokenProvider(new Callable<String>() {
-                    @Override
-                    public String call() throws Exception {
-                        SharedPreferences prefs = context.getSharedPreferences("UserTokenPreferences", Context.MODE_PRIVATE);
-                        return prefs.getString("userToken", "");
-                    }
+                .userTokenProvider(() -> {
+                    SharedPreferences prefs = context.getSharedPreferences("UserTokenPreferences", Context.MODE_PRIVATE);
+                    return prefs.getString("userToken", "");
                 })
                 .key(() -> key).build();
     }
@@ -157,12 +154,9 @@ public abstract class TripKitUI {
                                 (Callable<String>) repository::getServer
 
                 )
-                .userTokenProvider(new Callable<String>() {
-                    @Override
-                    public String call() throws Exception {
-                        SharedPreferences prefs = context.getSharedPreferences("UserTokenPreferences", Context.MODE_PRIVATE);
-                        return prefs.getString("userToken", "");
-                    }
+                .userTokenProvider(() -> {
+                    SharedPreferences prefs = context.getSharedPreferences("UserTokenPreferences", Context.MODE_PRIVATE);
+                    return prefs.getString("userToken", "");
                 })
                 .key(() -> key).build();
     }
