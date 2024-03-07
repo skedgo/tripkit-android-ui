@@ -23,7 +23,8 @@ data class PaymentData(
     val publishableApiKey: String?,
     val ephemeralKey: EphemeralKey?,
     val areInputsValid: Boolean,
-    val billingEnabled: Boolean
+    val billingEnabled: Boolean,
+    val hasTickets: Boolean
 ) {
     fun getTotalValue(): String {
         var total = 0.0
