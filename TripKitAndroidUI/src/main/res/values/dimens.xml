@@ -6,6 +6,8 @@
     <dimen name="spacing_normal">16dp</dimen>
     <dimen name="spacing_medium">24dp</dimen>
     <dimen name="spacing_large">32dp</dimen>
+    <dimen name="spacing_x_large">48dp</dimen>
+    <dimen name="spacing_xx_large">64dp</dimen>
     <dimen name="divider_size">1dp</dimen>
     <dimen name="shadow_height">4dp</dimen>
     <dimen name="half_content_padding">6dp</dimen>
@@ -44,7 +46,9 @@
     <dimen name="font_size_normal">12sp</dimen>
     <dimen name="font_size_medium">16sp</dimen>
     <dimen name="font_size_large">20sp</dimen>
+    <dimen name="font_size_huge">24sp</dimen>
     <dimen name="font_size_xlarge">28sp</dimen>
+    <dimen name="font_size_guide_subtitle">14sp</dimen>
 
     <dimen name="bottom_sheet_peek_height">120dp</dimen>
 
@@ -61,4 +65,8 @@
 
     <dimen name="cardview_corner_radius">12dp</dimen>
     <dimen name="cardview_corner_radius_small">4dp</dimen>
+
+    <dimen name="guide_detail_icon_size">40dp</dimen>
+    <dimen name="guide_action_margin_bottom">40dp</dimen>
+    <dimen name="guide_action_height">40dp</dimen>
 </resources>

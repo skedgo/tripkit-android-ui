@@ -2,6 +2,7 @@ package com.skedgo.tripkit.ui.utils
 
 import android.content.res.Resources.NotFoundException
 import android.graphics.drawable.Drawable
+import android.graphics.drawable.StateListDrawable
 import android.os.SystemClock
 import android.util.TypedValue
 import android.view.View
@@ -20,10 +21,12 @@ import com.skedgo.tripkit.ui.R
 
 //To databind resource id(int) on image views
 @BindingAdapter("android:src")
-fun setIcon(view: ImageView, iconResource: Int) {
+fun setIcon(view: ImageView, iconResource: Int?) {
     try {
-        ContextCompat.getDrawable(view.context, iconResource)?.let {
-            view.setImageDrawable(it)
+        iconResource?.let {
+            ContextCompat.getDrawable(view.context, iconResource)?.let {
+                view.setImageDrawable(it)
+            }
         }
     } catch (e: Exception) {
         e.printStackTrace()
@@ -192,4 +195,34 @@ fun setLayoutHeight(view: View, show: Boolean) {
         TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 0f, view.resources.displayMetrics).toInt()
     }
     view.layoutParams = layoutParams
+}
+
+@BindingAdapter("imageViewSize")
+fun setImageViewSize(view: ImageView, size: Float) {
+    val layoutParams = view.layoutParams
+    layoutParams.height =
+        TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, size, view.resources.displayMetrics)
+            .toInt()
+    layoutParams.width =
+        TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, size, view.resources.displayMetrics)
+            .toInt()
+    view.layoutParams = layoutParams
+}
+
+@BindingAdapter("android:background")
+fun setBackground(view: View, iconResource: Int?) {
+    try {
+        iconResource?.let { view.setBackgroundResource(iconResource) }
+    } catch (e: Exception) {
+        e.printStackTrace()
+    }
+}
+
+@BindingAdapter("android:background")
+fun setBackground(view: View, drawable: StateListDrawable?) {
+    try {
+        drawable?.let { view.background = it }
+    } catch (e: Exception) {
+        e.printStackTrace()
+    }
 }
