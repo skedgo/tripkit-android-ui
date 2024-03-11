@@ -90,5 +90,5 @@
     <color name="disabled">#a6a6a6</color>
     <color name="red20">#33ff0000</color>
 
-    <color name="guide_detail_description">#993C3C43</color>
+    <color name="induction_detail_description">#993C3C43</color>
 </resources>
