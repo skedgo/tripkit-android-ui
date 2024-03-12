@@ -1,0 +1,7 @@
+preserve_hierarchy: true
+base_url: "https://api.crowdin.com"
+
+files:
+  - source: "app/src/main/res/values/strings.xml"
+    translation: "src/main/res/values-%two_letters_code%/strings.xml"
+    dest: "strings.xml"
