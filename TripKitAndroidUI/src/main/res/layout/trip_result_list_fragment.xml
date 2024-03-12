@@ -14,14 +14,15 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:importantForAccessibility="no"
-        android:background="#ffffff">
+        android:background="@color/grey2">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/clLocations"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing_small"
+            android:paddingTop="@dimen/spacing_small"
             android:focusable="true"
+            android:background="@android:color/white"
             android:importantForAccessibility="yes"
             android:contentDescription="@{viewModel.toContentDescription + viewModel.fromContentDescription}"
             app:layout_constraintStart_toStartOf="parent"
@@ -110,9 +111,9 @@
             android:id="@+id/leaveNowAndTransportsHeader"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing_normal"
-            android:paddingHorizontal="@dimen/spacing_small"
+            android:paddingTop="@dimen/spacing_large"
             android:paddingBottom="@dimen/spacing_small"
+            android:background="@android:color/white"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/clLocations">
@@ -188,7 +189,7 @@
             android:id="@+id/transportItemsView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="#f5f6f7"
+            android:background="@android:color/white"
             android:nestedScrollingEnabled="false"
             android:overScrollMode="never"
             android:paddingStart="16dp"
@@ -201,13 +202,61 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/leaveNowAndTransportsHeader" />
 
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/layoutHelpInfo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/content_padding"
+            android:background="@android:color/white"
+            android:layout_marginTop="@dimen/spacing_extra_small"
+            android:focusable="true"
+            android:clickable="true"
+            android:visibility="@{viewModel.helpInfoVisible}"
+            clickWithDebounce="@{() -> viewModel.onShowBookARideInduction(true)}"
+            app:layout_constraintTop_toBottomOf="@+id/transportItemsView">
+
+            <ImageView
+                android:id="@+id/ivHelpIcon"
+                android:layout_width="@dimen/icon_small"
+                android:layout_height="@dimen/icon_small"
+                android:src="@drawable/ic_icon_info"
+                app:tint="@color/black"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                android:importantForAccessibility="no" />
+
+            <TextView
+                android:id="@+id/tvLabel"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:paddingStart="@dimen/spacing_small"
+                android:paddingEnd="@dimen/spacing_small"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/ivHelpIcon"
+                app:layout_constraintTop_toTopOf="parent"
+                android:text="How to book transportation"
+                android:textColor="@color/black"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/spacing_normal"
+                android:text="@string/learn_more"
+                android:textColor="@color/colorAccent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
         <com.skedgo.tripkit.ui.views.MultiStateView
             android:id="@+id/multiStateView"
             android:layout_width="match_parent"
             android:layout_height="0dp"
+            android:layout_marginTop="@dimen/spacing_extra_small"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/transportItemsView">
+            app:layout_constraintTop_toBottomOf="@+id/brResult">
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recyclerView"
@@ -219,5 +268,15 @@
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 
         </com.skedgo.tripkit.ui.views.MultiStateView>
+
+        <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/brResult"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:elevation="0dp"
+            app:barrierDirection="bottom"
+            app:constraint_referenced_ids="transportItemsView, layoutHelpInfo" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

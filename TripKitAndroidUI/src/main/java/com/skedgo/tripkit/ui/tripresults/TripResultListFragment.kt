@@ -101,6 +101,8 @@ class TripResultListFragment : BaseTripKitFragment() {
     lateinit var regionService: RegionService
     private var region: Region? = null
 
+    private var bookRideHelpCallback: () -> Unit = {}
+
     fun query(): Query {
         return viewModel.query
     }
@@ -254,6 +256,13 @@ class TripResultListFragment : BaseTripKitFragment() {
                 }
             }
         }.addTo(autoDisposable)
+
+        viewModel.showHelpInfo.observe(viewLifecycleOwner) { show ->
+            if (show) {
+                bookRideHelpCallback.invoke()
+                viewModel.onShowBookARideInduction(false)
+            }
+        }
     }
 
     private fun showDateTimePicker(isCancelable: Boolean = true) {
@@ -371,6 +380,7 @@ class TripResultListFragment : BaseTripKitFragment() {
         private var showCloseButton = false
         private var actionButtonHandlerFactory: ActionButtonHandlerFactory? = null
         private var userModes: List<UserMode>? = null
+        private var bookRideHelpCallback: () -> Unit = {}
 
         fun withQuery(query: Query): Builder {
             this.query = query
@@ -402,6 +412,11 @@ class TripResultListFragment : BaseTripKitFragment() {
             return this
         }
 
+        fun withBookRideHelpCallback(bookRideHelpCallback: () -> Unit): Builder {
+            this.bookRideHelpCallback = bookRideHelpCallback
+            return this
+        }
+
         fun build(): TripResultListFragment {
             val args = Bundle()
             val fragment = TripResultListFragment()
@@ -412,6 +427,7 @@ class TripResultListFragment : BaseTripKitFragment() {
             fragment.arguments = args
             fragment.userModes = userModes
             fragment.actionButtonHandlerFactory = actionButtonHandlerFactory
+            fragment.bookRideHelpCallback = bookRideHelpCallback
             return fragment
         }
     }
