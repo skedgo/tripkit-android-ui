@@ -6,5 +6,5 @@ preserve_hierarchy: true
 
 files:
   - source: "app/src/main/res/values/strings.xml"
-    translation: "src/main/res/values-%two_letters_code%/strings.xml"
+    translation: "src/main/res/values-%locale%/strings.xml"
     dest: "strings.xml"
