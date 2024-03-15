@@ -1,8 +1,7 @@
 name: Crowdin Action
 
 on:
-  push:
-    branches: feature/16908-crowdin
+  workflow_dispatch:
 
 permissions: write-all
 
