@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="skedgo_api_key">SKEDGO_API_KEY</string>
+    <string name="google_places_api_key">GOOGLE_PLACES_API_KEY</string>
+    <string name="stripe_api_key">STRIPE_API_KEY</string>
+    <string name="stripe_api_key_sandbox">STRIPE_API_KEY_SANDBOX</string>
+    <string name="stationName">Station name</string>
+    <string name="no_realtime_available">No realtime available</string>
+    <string name="more">More</string>
+    <string name="connect_to_internet_to_get_trips">Connect to the internet to get trips</string>
+    <string name="pref_transfer_time">transfer_time</string>
+    <string name="pref_cycling_speed">cycling_speed</string>
+    <string name="pref_walking_speed">walking_speed</string>
+    <string name="pref_budget">budget</string>
+    <string name="pref_time">time</string>
+    <string name="pref_carbon">carbon</string>
+    <string name="pref_hassle">hassle</string>
+    <string name="pref_exercise">exercise</string>
+    <string name="less">Less</string>
+    <!--Format for a service's real-time indicator for a service which is early, e.g., 'Arriving 1 min early'. This means #1 is replaced with something like '1 min'.-->
+    <!--<string name="realtime_early">Arriving %1$s early</string>-->
+    <string name="realtime_early">%1$s early</string>
+    <!--Format for a service's real-time indicator for a service which is late, e.g., 'Delayed 1 min late'. This means #1 is replaced with something like '1 min'.-->
+    <!--<string name="realtime_late">Delayed %1$s late</string>-->
+    <string name="realtime_late">%1$s late</string>
+    <string name="unknown_error">An unknown error has occurred</string>
+    <string name="no_results">No results</string>
+    <string name="platform">Platform %s</string>
+    <string name="share">Share</string>
+    <string name="kickscooter">Kick Scooter</string>
+    <string name="scan_qr_code">Scan QR Code</string>
+    <string name="scan">Scan</string>
+    <string name="open_in">Open in...</string>
+    <!--This is to indicate a mobility plan is the user's either future or current plan-->
+    <string name="subscribed">Subscribed</string>
+    <string name="accept">Accept</string>
+    <string name="str_opening">Opening...</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="str_updating">Updating...</string>
+    <string name="lbl_required">required</string>
+    <string name="lbl_processing">Processing</string>
+    <string name="lbl_processing_desc">Your request is matching to the most efficient available driver.</string>
+    <string name="cancel_ride">Cancel Ride</string>
+    <string name="desc_close">Закрыть</string>
+    <string name="desc_close_button">Close Button</string>
+    <string name="desc_tap_to_close">Tap to close</string>
+    <string name="desc_tap_to_close_or_go_back">Tap to close or go back</string>
+    <string name="desc_change_button">Change Button</string>
+    <string name="desc_done_button">Done Button</string>
+    <string name="action_call_taxis">Call Taxis Combined</string>
+    <string name="action_get_ingogo">Get ingogo</string>
+    <string name="one_way_only">One-way only</string>
+    <string name="str_minutes">minutes</string>
+    <string name="pick_up_window">Pick up window</string>
+    <string name="str_return_trip_voice_over">Select One-way only to decline a round trip, or select a date and time for your return trip.</string>
+    <string name="str_select">Select</string>
+    <string name="str_select_tickets">Select tickets</string>
+    <string name="lbl_total">Total</string>
+    <string name="action_continue_to_payment">Continue to Payment</string>
+    <string name="talkback_decrement">Decrement</string>
+    <string name="talkback_increment">Increment</string>
+    <string name="notes_from_operator">Notes from operator</string>
+    <string name="lbl_alert_when_get_off">Trip Notifications</string>
+    <string name="lbl_get_notifications_when">Get notifications when:</string>
+    <string name="msg_prominent_disclosure">This app collects location data to enable alerts feature to notify users when their trip is starting, is near the stops when trip is on going and when arriving at their destination even when the app is on the background.</string>
+    <string name="lbl_go_to_current_location">Go to current location</string>
+    <string name="get_off_alerts_trip_about_to_start">The trip is about to start</string>
+    <string name="get_off_alerts_getting_within_disembarkation_point">Getting within 500m of the disembarkation point</string>
+    <string name="get_off_alerts_passed_by_the_previous_stop">Passed by the previous stop</string>
+    <string name="get_off_alerts_about_to_arrive_final_destination">About to arrive the final destination</string>
+    <string name="get_off_alerts_vehicle_is_approaching_your_boarding_stop">Vehicle is approaching your boarding stop</string>
+    <string name="permission_request_title">Permission Request</string>
+    <string name="permission_request_notificaiton">Allow %s to send you notifications?</string>
+    <string name="permission_request_notificaiton_explanation">This permission is needed for you to receive notifications regarding your trips</string>
+    <string name="permission_request_notificaiton_open_settings_explanation">This permission is needed for you to receive notifications regarding your trips</string>
+    <string name="location_provider_disabled">Location provider disabled</string>
+    <string name="device_location_is_turned_off">Your device location is turned off, kindly enable it and try again</string>
+</resources>
