@@ -22,7 +22,7 @@ fun setMatcher(textView: TextView, matcher: String?) {
                 var spanStartPosition = 0
 
                 // Find the position of the word in the text
-                while (spanStartPosition != -1) {
+                while (spanStartPosition != -1 && word.isNotEmpty()) {
                     spanStartPosition = spannableString.indexOf(word, spanStartPosition, ignoreCase = true)
 
                     // If the word is found, bold it

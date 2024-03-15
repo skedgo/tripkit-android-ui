@@ -414,6 +414,10 @@ class TripResultListViewModel @Inject constructor(
         }
     }
 
+    fun setHelpInfoVisibility(show: Boolean) {
+        _helpInfoVisible.postValue(show)
+    }
+
     fun onShowBookARideInduction(show: Boolean) {
         _showHelpInfo.postValue(show)
     }

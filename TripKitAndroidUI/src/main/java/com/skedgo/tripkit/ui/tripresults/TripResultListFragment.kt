@@ -12,6 +12,7 @@ import androidx.lifecycle.ViewModelProviders
 import com.google.android.flexbox.FlexDirection
 import com.google.android.flexbox.FlexboxLayoutManager
 import com.skedgo.TripKit
+import com.skedgo.tripkit.Configs
 import com.skedgo.tripkit.TransportModeFilter
 import com.skedgo.tripkit.common.model.Query
 import com.skedgo.tripkit.common.model.Region
@@ -141,6 +142,7 @@ class TripResultListFragment : BaseTripKitFragment() {
         previouslyInitialized = ::binding.isInitialized
 
         binding = TripResultListFragmentBinding.inflate(layoutInflater)
+        binding.lifecycleOwner = this
         binding.viewModel = viewModel
 
         userModes?.let {
@@ -371,6 +373,8 @@ class TripResultListFragment : BaseTripKitFragment() {
         if (!previouslyInitialized && showDateTimePopUpOnOpen) {
             showDateTimePicker(showDateTimePopUpOnOpen)
         }
+
+        viewModel.setHelpInfoVisibility(globalConfigs.hasInductionCards())
     }
 
     class Builder {
