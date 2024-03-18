@@ -5,7 +5,8 @@ import android.view.View
 import androidx.databinding.ObservableArrayList
 import androidx.databinding.ObservableBoolean
 import androidx.databinding.ObservableField
-import androidx.databinding.ObservableList
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.jakewharton.rxrelay2.PublishRelay
 import com.skedgo.tripkit.common.model.Query
@@ -32,8 +33,6 @@ import me.tatarka.bindingcollectionadapter2.collections.DiffObservableList
 import com.skedgo.tripkit.logging.ErrorLogger
 import com.skedgo.tripkit.routing.Trip
 import com.skedgo.tripkit.routing.TripGroup
-import com.skedgo.tripkit.routing.dateTimeZone
-import com.skedgo.tripkit.routing.getSummarySegments
 import com.skedgo.tripkit.routingstatus.RoutingStatus
 import com.skedgo.tripkit.routingstatus.RoutingStatusRepository
 import com.skedgo.tripkit.routingstatus.Status
@@ -45,7 +44,6 @@ import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButtonHandlerFactory
 import com.skedgo.tripkit.ui.views.MultiStateView
 import io.reactivex.disposables.CompositeDisposable
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import me.tatarka.bindingcollectionadapter2.collections.MergeObservableList
@@ -109,6 +107,11 @@ class TripResultListViewModel @Inject constructor(
     private var actionButtonHandlerFactory: ActionButtonHandlerFactory? = null
     private val networkRequests = CompositeDisposable()
     private var replaceModes: List<UserMode>? = null
+
+    private val _helpInfoVisible = MutableLiveData<Boolean>(true)
+    val helpInfoVisible: LiveData<Boolean> = _helpInfoVisible
+    private val _showHelpInfo = MutableLiveData<Boolean>()
+    val showHelpInfo: LiveData<Boolean> = _showHelpInfo
 
     init {
         transportModeChangeThrottle.debounce(500, TimeUnit.MILLISECONDS)
@@ -411,5 +414,12 @@ class TripResultListViewModel @Inject constructor(
         }
     }
 
+    fun setHelpInfoVisibility(show: Boolean) {
+        _helpInfoVisible.postValue(show)
+    }
+
+    fun onShowBookARideInduction(show: Boolean) {
+        _showHelpInfo.postValue(show)
+    }
 
 }
