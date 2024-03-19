@@ -1065,6 +1065,8 @@ Note, your iCloud data will not be deleted by this, but you can delete this in t
 	<string name="location">Location</string>
 	<!--Location iOS authorisation needed text-->
 	<string name="location_services_are_required_to_use_this_feature_dot_please_go_to_the_settings_app__moret_privacy__moret_location_services_coma_make_sure_they_are_turned_on_and_authorise_this_app_dot">Location services are required to use this feature. Please go to the Settings app > Privacy > Location Services, make sure they are turned on and authorise this app.</string>
+	<!--Location authorization-->
+	<string name="location_services_required_desc">Location services are required to use this feature. Please go to app\'s setting and grant access to this app.</string>
 	<!--Reminder to leave preference-->
 	<string name="minutes_before_trip">Minutes before trip</string>
 	<!--More results proposal-->
@@ -1133,6 +1135,10 @@ Note, your iCloud data will not be deleted by this, but you can delete this in t
 	<string name="sign_out">Sign out</string>
 	<!--Title of page or button to sign up-->
 	<string name="sign_up">Sign up</string>
+	<!--Prompt for empty start location-->
+	<string name="specify_start_location">Please specify a starting location.</string>
+	<!--Prompt for empty destination location-->
+	<string name="specify_destination_location">Please specify a destination location.</string>
 	<!--Starting %date. (old key: DateFromFormat)-->
 	<string name="starting__pattern">Starting %1$s</string>
 	<!--Tap to set location. (old key: SetLocation)-->

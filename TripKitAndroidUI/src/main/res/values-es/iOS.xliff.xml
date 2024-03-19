@@ -817,6 +817,8 @@
     <string name="location">Ubicación</string>
     <!-- Location iOS authorisation needed text -->
     <string name="location_services_are_required_to_use_this_feature_dot_please_go_to_the_settings_app__moret_privacy__moret_location_services_coma_make_sure_they_are_turned_on_and_authorise_this_app_dot">Servicios de localización son requeridos para esta funcionalidad. Por favor, vaya a Ajustes &gt; Privacidad &gt; Localización, asegúrese de que estén habilitados y autorize esta aplicación.</string>
+    <!--Location authorization-->
+    <string name="location_services_required_desc">Se requieren servicios de ubicación para utilizar esta función. Vaya a la configuración de la aplicación y otorgue acceso a esta aplicación.</string>
     <!-- Reminder to leave preference -->
     <string name="minutes_before_trip">Minutos antes del viaje</string>
     <!-- Title for name of something (or someone) -->
@@ -893,6 +895,10 @@
     <string name="sign_out">Cerrar sesión</string>
     <!-- Title of page or button to sign up -->
     <string name="sign_up">Únete</string>
+    <!--Prompt for empty start location-->
+    <string name="specify_start_location">Por favor especifique una ubicación de inicio.</string>
+    <!--Prompt for empty destination location-->
+    <string name="specify_destination_location">Por favor especifica una ubicación de destino.</string>
     <!-- Starting %date. (old key: DateFromFormat) -->
     <string name="starting__pattern">Desde %s</string>
     <!-- Accessibility hint for routing results screen. -->
