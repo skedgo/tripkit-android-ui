@@ -18,6 +18,7 @@ import com.skedgo.tripkit.ui.*
 import com.skedgo.tripkit.bookingproviders.BookingResolver
 import com.skedgo.tripkit.ui.core.BaseTripKitFragment
 import com.skedgo.tripkit.ExternalActionParams
+import com.skedgo.tripkit.model.ViewTrip
 import com.skedgo.tripkit.ui.booking.apiv2.BookingV2TrackingService
 import com.skedgo.tripkit.ui.core.addTo
 import com.skedgo.tripkit.ui.databinding.TripSegmentListFragmentBinding
@@ -103,6 +104,7 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
     var actionButtonHandlerFactory: ActionButtonHandlerFactory? = null
     private var tripResultMapContributor: TripResultMapContributor? = null
     private var updateStream: PublishSubject<Unit>? = null
+    private var viewTrip: ViewTrip? = null
 
     override fun onAttach(context: Context) {
         TripKitUI.getInstance().tripDetailsComponent().inject(this)
@@ -132,6 +134,7 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
 
         binding = TripSegmentListFragmentBinding.inflate(inflater)
         binding.viewModel = viewModel
+        viewModel.setViewTrip(viewTrip)
         viewModel.setActionButtonHandlerFactory(actionButtonHandlerFactory)
         val showCloseButton = arguments?.getBoolean(ARG_SHOW_CLOSE_BUTTON, false) ?: false
         viewModel.showCloseButton.set(showCloseButton)
@@ -413,6 +416,8 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
         private var actionButtonHandlerFactory: ActionButtonHandlerFactory? = null
         private var tripResultMapContributor: TripResultMapContributor? = null
         private var updateStream: PublishSubject<Unit>? = null
+        private var viewTrip: ViewTrip? = null
+
         fun withTripGroupId(tripGroupId: String): Builder {
             this.tripGroupId = tripGroupId
             return this
@@ -446,6 +451,11 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
             return this
         }
 
+        fun withViewTrip(viewTrip: ViewTrip?): Builder {
+            this.viewTrip = viewTrip
+            return this
+        }
+
         fun build(): TripSegmentListFragment {
             assert(tripGroupId != null)
 
@@ -460,6 +470,7 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
             fragment.actionButtonHandlerFactory = actionButtonHandlerFactory
             fragment.tripResultMapContributor = tripResultMapContributor
             fragment.updateStream = updateStream
+            fragment.viewTrip = viewTrip
             return fragment
 
         }

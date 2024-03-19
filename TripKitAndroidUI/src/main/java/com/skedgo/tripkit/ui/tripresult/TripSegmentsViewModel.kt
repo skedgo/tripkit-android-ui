@@ -24,6 +24,7 @@ import com.skedgo.tripkit.common.model.Location
 import com.skedgo.tripkit.common.model.RealtimeAlert
 import com.skedgo.tripkit.common.util.TimeUtils
 import com.skedgo.tripkit.datetime.PrintTime
+import com.skedgo.tripkit.model.ViewTrip
 import com.skedgo.tripkit.routing.*
 import com.skedgo.tripkit.ui.BR
 import com.skedgo.tripkit.ui.BuildConfig
@@ -179,6 +180,8 @@ class TripSegmentsViewModel @Inject internal constructor(
         )
     }
 
+    private var viewTrip: ViewTrip? = null
+
     init {
         tripSummaryStream
             .debounce(TRIP_SUMMARY_DEBOUNCE)
@@ -305,6 +308,10 @@ class TripSegmentsViewModel @Inject internal constructor(
             }
         }
         return -1
+    }
+
+    fun setViewTrip(viewTrip: ViewTrip?){
+        this.viewTrip = viewTrip
     }
 
     fun onStart() {

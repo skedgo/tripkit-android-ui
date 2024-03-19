@@ -72,6 +72,8 @@ public class TripResultPagerFragment extends BaseTripKitFragment implements View
     private ActionButtonHandlerFactory actionButtonHandlerFactory = null;
     private List<TripGroup> initialTripGroupList = null;
 
+    private ViewTrip viewTrip = null;
+
     public void setActionButtonHandlerFactory(ActionButtonHandlerFactory actionButtonHandlerFactory) {
         this.actionButtonHandlerFactory = actionButtonHandlerFactory;
     }
@@ -225,7 +227,7 @@ public class TripResultPagerFragment extends BaseTripKitFragment implements View
         viewModel.onCreate(savedInstanceState);
         Long tripId = null;
         String groupId = null;
-        tripGroupsPagerAdapter = new TripGroupsPagerAdapter(getChildFragmentManager(), mapContributor);
+        tripGroupsPagerAdapter = new TripGroupsPagerAdapter(getChildFragmentManager(), mapContributor, viewTrip);
 
         if (savedInstanceState == null) {
             if (args instanceof HasInitialTripGroupId) {
@@ -324,12 +326,15 @@ public class TripResultPagerFragment extends BaseTripKitFragment implements View
         private List<TripGroup> initialTripGroupList = null;
         private ActionButtonHandlerFactory actionButtonHandlerFactory = null;
 
+        private ViewTrip viewTrip = null;
+
         public Builder withActionButtonHandlerFactory(ActionButtonHandlerFactory factory) {
             this.actionButtonHandlerFactory = factory;
             return this;
         }
 
         public Builder withViewTrip(ViewTrip trip) {
+            this.viewTrip = trip;
             this.tripGroupId = trip.tripGroupUUID();
             this.tripId = trip.getDisplayTripID();
             this.sortOrder = trip.getSortOrder();
@@ -401,6 +406,7 @@ public class TripResultPagerFragment extends BaseTripKitFragment implements View
             Bundle b = new Bundle();
             b.putBoolean(KEY_SHOW_CLOSE_BUTTON, showCloseButton);
             fragment.initialTripGroupList = initialTripGroupList;
+            fragment.viewTrip = viewTrip;
             fragment.setArguments(b);
             return fragment;
         }
