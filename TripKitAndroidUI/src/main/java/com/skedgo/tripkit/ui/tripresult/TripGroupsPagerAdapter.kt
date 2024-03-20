@@ -6,15 +6,16 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentStatePagerAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.skedgo.tripkit.model.ViewTrip
 import com.skedgo.tripkit.routing.TripGroup
-import com.skedgo.tripkit.ui.map.home.TripKitMapContributor
 import com.skedgo.tripkit.ui.tripresult.TripSegmentListFragment.OnTripSegmentClickListener
 import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButtonHandlerFactory
 import io.reactivex.subjects.PublishSubject
 
 class TripGroupsPagerAdapter(
     private val fragmentManager: FragmentManager,
-    private val tripResultMapContributor: TripResultMapContributor
+    private val tripResultMapContributor: TripResultMapContributor,
+    private val viewTrip: ViewTrip?
 ) :
     FragmentStatePagerAdapter(fragmentManager, BEHAVIOR_SET_USER_VISIBLE_HINT) {
     var tripGroups: List<TripGroup>? = null
@@ -76,7 +77,9 @@ class TripGroupsPagerAdapter(
             .withActionButtonHandlerFactory(actionButtonHandlerFactory)
             .withMapContributor(tripResultMapContributor)
             .showCloseButton(showCloseButton)
+            .withViewTrip(viewTrip)
             .withUpdateStream(updateStream)
+
             .build()
         fragment.setOnTripKitButtonClickListener(listener!!)
         fragment.onCloseButtonListener = closeListener
