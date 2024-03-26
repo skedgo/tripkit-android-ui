@@ -12,31 +12,32 @@
     </Transition>
 
     <ConstraintSet android:id="@+id/start">
-        <Constraint
-            android:id="@+id/occupancyView"
+        <Constraint android:id="@+id/wheelchairLabel">
+            <PropertySet android:alpha="0" />
+        </Constraint>
+        <Constraint android:id="@+id/occupancyLabel">
+            <PropertySet android:alpha="0" />
+        </Constraint>
+        <Constraint android:id="@+id/tvBicycleLabel">
+            <PropertySet android:alpha="0"
+                app:visibilityMode="ignore"/>
+        </Constraint>
+        <Constraint android:id="@+id/occupancyView"
             app:visibilityMode="ignore">
             <Layout
                 android:layout_width="@dimen/service_detail_icon_size"
                 android:layout_height="@dimen/service_detail_icon_size"
                 android:layout_marginStart="@dimen/spacing_extra_small"
                 app:layout_constraintStart_toEndOf="@id/ivBicycle"
-                app:layout_constraintTop_toTopOf="@id/ivBicycle"
-                app:visibilityMode="ignore" />
+                app:layout_constraintTop_toTopOf="@id/ivBicycle" />
         </Constraint>
-        <Constraint android:id="@+id/wheelchairLabel">
-            <PropertySet
-                android:alpha="0"
-                android:visibility="gone" />
-        </Constraint>
-        <Constraint android:id="@+id/occupancyLabel">
-            <PropertySet
-                android:alpha="0"
-                android:visibility="gone" />
-        </Constraint>
-        <Constraint android:id="@+id/tvBicycleLabel">
-            <PropertySet
-                android:alpha="0"
-                android:visibility="gone" />
+        <Constraint android:id="@+id/ivBicycle"
+            app:visibilityMode="ignore">
+            <Layout
+                android:layout_width="@dimen/service_detail_icon_size"
+                android:layout_height="@dimen/service_detail_icon_size"
+                app:layout_constraintStart_toEndOf="@id/wheelchair"
+                app:layout_constraintTop_toTopOf="@id/wheelchair" />
         </Constraint>
         <Constraint
             android:id="@+id/occupancyList"
@@ -52,16 +53,6 @@
                 app:layout_constraintTop_toBottomOf="@+id/occupancyView" />
 
         </Constraint>
-        <Constraint
-            android:id="@+id/ivBicycle"
-            app:visibilityMode="ignore">
-            <Layout
-                android:layout_width="@dimen/service_detail_icon_size"
-                android:layout_height="@dimen/service_detail_icon_size"
-                app:layout_constraintStart_toEndOf="@id/wheelchairLabel"
-                app:layout_constraintTop_toTopOf="@id/wheelchairLabel"
-                app:visibilityMode="ignore" />
-        </Constraint>
 
     </ConstraintSet>
 
@@ -70,54 +61,39 @@
             <Transform android:rotation="180" />
         </Constraint>
         <Constraint android:id="@+id/wheelchairLabel">
-            <PropertySet
-                android:alpha="1"
-                android:visibility="visible" />
+            <PropertySet android:alpha="1" />
         </Constraint>
         <Constraint android:id="@+id/tvBicycleLabel">
-            <PropertySet
-                android:alpha="1"
-                android:visibility="visible" />
+            <PropertySet android:alpha="1" />
         </Constraint>
-        <Constraint
-            android:id="@+id/occupancyView"
-            app:visibilityMode="ignore">
+        <Constraint android:id="@+id/occupancyLabel">
+            <PropertySet android:alpha="1" />
+        </Constraint>
+        <Constraint android:id="@+id/occupancyView">
             <Layout
                 android:layout_width="@dimen/service_detail_icon_size"
                 android:layout_height="@dimen/service_detail_icon_size"
-                android:layout_marginTop="@dimen/spacing_small"
                 app:layout_constraintStart_toStartOf="@id/ivBicycle"
-                app:layout_constraintTop_toBottomOf="@+id/ivBicycle"
-                app:visibilityMode="ignore" />
+                app:layout_constraintTop_toBottomOf="@+id/ivBicycle" />
         </Constraint>
-        <Constraint android:id="@+id/occupancyLabel">
-            <PropertySet
-                android:alpha="1"
-                android:visibility="visible" />
-        </Constraint>
-        <Constraint
-            android:id="@+id/occupancyList"
-            app:visibilityMode="ignore">
+        <Constraint android:id="@+id/occupancyList">
             <PropertySet android:alpha="1" />
             <Layout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_marginStart="@dimen/spacing_small"
+                app:layout_constraintBottom_toBottomOf="@id/occupancyView"
                 app:layout_constraintHorizontal_chainStyle="packed"
                 app:layout_constraintStart_toStartOf="@+id/occupancyLabel"
-                app:layout_constraintTop_toBottomOf="@+id/occupancyView"
-                app:layout_constraintBottom_toBottomOf="@id/occupancyView"/>
+                app:layout_constraintTop_toBottomOf="@+id/occupancyView" />
         </Constraint>
-        <Constraint
-            android:id="@+id/ivBicycle"
-            app:visibilityMode="ignore">
+        <Constraint android:id="@+id/ivBicycle">
             <Layout
                 android:layout_width="@dimen/service_detail_icon_size"
                 android:layout_height="@dimen/service_detail_icon_size"
                 app:layout_constraintStart_toStartOf="@id/wheelchair"
-                app:layout_constraintTop_toBottomOf="@+id/wheelchair"
-                app:visibilityMode="ignore" />
+                app:layout_constraintTop_toBottomOf="@+id/wheelchair" />
         </Constraint>
     </ConstraintSet>
 

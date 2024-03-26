@@ -383,14 +383,14 @@ public class TimetableEntry implements Parcelable, IRealTimeElement, ITimeRange,
         return wheelchairAccessible;
     }
 
+    public void setWheelchairAccessible(@Nullable Boolean wheelchairAccessible) {
+        this.wheelchairAccessible = wheelchairAccessible;
+    }
+
     @Nullable
     @Override
     public Boolean getBicycleAccessible() {
         return bicycleAccessible;
-    }
-
-    public void setWheelchairAccessible(@Nullable Boolean wheelchairAccessible) {
-        this.wheelchairAccessible = wheelchairAccessible;
     }
 
     public void setBicycleAccessible(@Nullable Boolean bicycleAccessible) {

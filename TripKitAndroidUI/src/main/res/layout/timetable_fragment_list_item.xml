@@ -93,7 +93,7 @@
                     android:id="@+id/ivBicycle"
                     android:layout_width="@dimen/icon_small"
                     android:layout_height="@dimen/icon_small"
-                    android:visibility="@{viewModel.showOccupancyInfo}"
+                    android:visibility="@{viewModel.showBicycleAccessible}"
                     android:layout_marginStart="@dimen/spacing_extra_small"
                     android:layout_marginEnd="@dimen/spacing_xx_small"
                     android:src="@drawable/ic_bike_accessible"

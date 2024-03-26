@@ -32,6 +32,7 @@
     <dimen name="close_button_size">32dp</dimen>
     <dimen name="toolbar_buttonTextSize">18sp</dimen>
 
+    <dimen name="icon_x_small">12dp</dimen>
     <dimen name="icon_small">16dp</dimen>
     <dimen name="icon_regular">24dp</dimen>
     <dimen name="icon_medium">32dp</dimen>

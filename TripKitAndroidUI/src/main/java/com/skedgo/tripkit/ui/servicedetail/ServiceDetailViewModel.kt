@@ -57,7 +57,7 @@ class ServiceDetailViewModel @Inject constructor(
     val secondaryTextColor: ObservableInt = ObservableInt()
     val tertiaryText = ObservableField<String>()
     val showWheelchairAccessible = ObservableBoolean(false)
-    val showBicycleAccessible = ObservableBoolean(false)
+
     val wheelchairAccessibleText = ObservableField<String>()
     val showExpandableMenu = ObservableBoolean(false)
     val modeInfo = ObservableField<ModeInfo>()
@@ -78,6 +78,9 @@ class ServiceDetailViewModel @Inject constructor(
     val alerts: LiveData<List<RealtimeAlert>> = _alerts
 
     var alertClickListener: AlertClickListener? = null
+
+    private val _showBicycleAccessible = MutableLiveData(false)
+    val showBicycleAccessible: LiveData<Boolean> = _showBicycleAccessible
 
     fun setAlerts(alerts: List<RealtimeAlert>?) {
         _alerts.postValue(alerts.orEmpty())
@@ -134,10 +137,10 @@ class ServiceDetailViewModel @Inject constructor(
             }
         }
 
-        showBicycleAccessible.set(bicycleAccessible == true)
+        _showBicycleAccessible.postValue(bicycleAccessible ?: false)
 
         showExpandableMenu.set(
-            showOccupancyInfo.get() || showWheelchairAccessible.get() || showBicycleAccessible.get()
+            showOccupancyInfo.get() || showWheelchairAccessible.get() || (showBicycleAccessible.value ?: false)
         )
 
         serviceColor?.let {
