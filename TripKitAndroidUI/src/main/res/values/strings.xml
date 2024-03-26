@@ -65,7 +65,7 @@
     <string name="notes_from_operator">Notes from operator</string>
     <string name="lbl_alert_when_get_off">Trip Notifications</string>
     <string name="lbl_get_notifications_when">Get notifications when:</string>
-    <string name="msg_prominent_disclosure">This app collects location data to enable alerts feature to notify users when their trip is starting, is near the stops when trip is on going and when arriving at their destination even when the app is on the background.</string>
+    <string name="msg_prominent_disclosure">This app collects location data to enable trip alerts to notify you when your trip is starting, alert you about nearby stops during an ongoing trip, and inform you upon arriving at your destination, even when the app is closed or not in use. This ensures you receive timely updates and have a smoother travel experience. We prioritize your privacy and use this data solely for enhancing your travel with us.</string>
     <string name="lbl_go_to_current_location">Go to current location</string>
     <string name="get_off_alerts_trip_about_to_start">The trip is about to start</string>
     <string name="get_off_alerts_getting_within_disembarkation_point">Getting within 500m of the disembarkation point</string>

@@ -226,3 +226,10 @@ fun setBackground(view: View, drawable: StateListDrawable?) {
         e.printStackTrace()
     }
 }
+
+@BindingAdapter("clearTag")
+fun clearTag(view: View, clear: Boolean) {
+    if (clear) {
+        view.tag = ""
+    }
+}
