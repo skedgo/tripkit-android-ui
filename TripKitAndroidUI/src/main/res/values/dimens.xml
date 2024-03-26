@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <dimen name="spacing_xx_small">4dp</dimen>
+    <dimen name="spacing_xx_small">2dp</dimen>
     <dimen name="spacing_extra_small">4dp</dimen>
     <dimen name="spacing_small">8dp</dimen>
     <dimen name="spacing_normal">16dp</dimen>
@@ -69,4 +69,6 @@
     <dimen name="induction_detail_icon_size">40dp</dimen>
     <dimen name="induction_action_margin_bottom">40dp</dimen>
     <dimen name="induction_action_height">35dp</dimen>
+
+    <dimen name="service_detail_icon_size">24dp</dimen>
 </resources>

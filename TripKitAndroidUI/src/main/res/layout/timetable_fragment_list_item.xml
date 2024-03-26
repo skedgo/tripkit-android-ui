@@ -81,18 +81,29 @@
 
                 <ImageView
                     android:id="@+id/wheelchair"
-                    android:layout_width="16dp"
-                    android:layout_height="16dp"
-                    android:layout_marginStart="4dp"
-                    android:layout_marginEnd="2dp"
+                    android:layout_width="@dimen/icon_small"
+                    android:layout_height="@dimen/icon_small"
+                    android:layout_marginStart="@dimen/spacing_extra_small"
+                    android:layout_marginEnd="@dimen/spacing_xx_small"
                     android:src="@{viewModel.wheelchairIcon}"
                     android:tint="@{viewModel.wheelchairTint}"
                     app:addRtlSupport="@{true}" />
 
                 <ImageView
+                    android:id="@+id/ivBicycle"
+                    android:layout_width="@dimen/icon_small"
+                    android:layout_height="@dimen/icon_small"
+                    android:visibility="@{viewModel.showOccupancyInfo}"
+                    android:layout_marginStart="@dimen/spacing_extra_small"
+                    android:layout_marginEnd="@dimen/spacing_xx_small"
+                    android:src="@drawable/ic_bike_accessible"
+                    app:addRtlSupport="@{true}" />
+
+                <ImageView
                     android:id="@+id/occupancyView"
-                    android:layout_width="16dp"
-                    android:layout_height="16dp"
+                    android:layout_width="@dimen/icon_small"
+                    android:layout_height="@dimen/icon_small"
+                    android:layout_marginStart="@dimen/spacing_extra_small"
                     android:src="@{viewModel.occupancyViewModel.drawableLeft}"
                     android:visibility="@{viewModel.showOccupancyInfo}"
                     app:layout_constraintStart_toEndOf="@id/wheelchair"

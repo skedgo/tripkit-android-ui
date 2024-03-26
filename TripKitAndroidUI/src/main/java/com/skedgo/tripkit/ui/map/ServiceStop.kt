@@ -10,5 +10,6 @@ data class ServiceStop(
         val platform: String? = null,
         val departureDateTime: DateTime? = null,
         val arrivalDateTime: DateTime? = null,
-        val isWheelchairAccessible: Boolean? = null
+        val isWheelchairAccessible: Boolean? = null,
+        val isBicycleAccessible: Boolean? = null
 )

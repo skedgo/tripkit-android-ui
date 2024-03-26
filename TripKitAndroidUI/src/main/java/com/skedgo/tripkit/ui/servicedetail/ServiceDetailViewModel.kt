@@ -57,6 +57,7 @@ class ServiceDetailViewModel @Inject constructor(
     val secondaryTextColor: ObservableInt = ObservableInt()
     val tertiaryText = ObservableField<String>()
     val showWheelchairAccessible = ObservableBoolean(false)
+    val showBicycleAccessible = ObservableBoolean(false)
     val wheelchairAccessibleText = ObservableField<String>()
     val showExpandableMenu = ObservableBoolean(false)
     val modeInfo = ObservableField<ModeInfo>()
@@ -94,6 +95,7 @@ class ServiceDetailViewModel @Inject constructor(
         embarkation: Long,
         realTimeVehicle: RealTimeVehicle?,
         wheelchairAccessible: Boolean?,
+        bicycleAccessible: Boolean?,
         schedule: Pair<String, Int>? = null,
         modeInfo: ModeInfo? = null
     ) {
@@ -132,7 +134,11 @@ class ServiceDetailViewModel @Inject constructor(
             }
         }
 
-        showExpandableMenu.set(showOccupancyInfo.get() && showWheelchairAccessible.get())
+        showBicycleAccessible.set(bicycleAccessible == true)
+
+        showExpandableMenu.set(
+            showOccupancyInfo.get() || showWheelchairAccessible.get() || showBicycleAccessible.get()
+        )
 
         serviceColor?.let {
             when (it.color) {
@@ -169,7 +175,8 @@ class ServiceDetailViewModel @Inject constructor(
                     segment.endStopCode,
                     segment.timetableStartTime,
                     segment.realTimeVehicle,
-                    segment.wheelchairAccessible
+                    segment.wheelchairAccessible,
+                    segment.bicycleAccessible
                 )
             }, {
                 Timber.e(it)
@@ -198,6 +205,7 @@ class ServiceDetailViewModel @Inject constructor(
                     _entry.startTimeInSecs,
                     _entry.realtimeVehicle,
                     _entry.wheelchairAccessible,
+                    _entry.bicycleAccessible,
                     getRealtimeText.execute(_stop.dateTimeZone, _entry, _entry.realtimeVehicle),
                     _entry.modeInfo
                 )
