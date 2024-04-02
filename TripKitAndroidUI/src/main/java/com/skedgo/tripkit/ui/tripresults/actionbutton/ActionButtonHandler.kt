@@ -44,7 +44,7 @@ open class ActionButtonHandler {
     protected fun segmentSearch(trip: Trip): TripSegment? {
         return trip.segments.find {
             val itemType = it.correctItemType()
-            (itemType == ITEM_QUICK_BOOKING || itemType == ITEM_SERVICE || itemType == ITEM_EXTERNAL_BOOKING)
+            (itemType == ITEM_QUICK_BOOKING || itemType == ITEM_EXTERNAL_BOOKING)
         }
     }
 
