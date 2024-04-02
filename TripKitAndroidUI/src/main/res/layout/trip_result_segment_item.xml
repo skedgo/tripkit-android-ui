@@ -64,14 +64,25 @@
             tools:text="2:30 PM"/>
 
         <ImageView
-            android:layout_width="12dp"
-            android:layout_height="12dp"
+            android:id="@+id/ivWifi"
+            android:layout_width="@dimen/icon_x_small"
+            android:layout_height="@dimen/icon_x_small"
             android:layoutDirection="locale"
             android:rotation="45"
             android:src="@drawable/ic_wifi"
             android:visibility="@{viewModel.isRealtime()}"
             app:layout_constraintBottom_toBottomOf="@+id/secondary"
             app:layout_constraintStart_toEndOf="@+id/secondary"/>
+
+        <ImageView
+            android:layout_width="@dimen/icon_x_small"
+            android:layout_height="@dimen/icon_x_small"
+            android:layoutDirection="locale"
+            android:layout_marginStart="@dimen/spacing_extra_small"
+            android:src="@drawable/ic_bike"
+            android:visibility="@{viewModel.isBicycleAccessible()}"
+            app:layout_constraintBottom_toBottomOf="@+id/secondary"
+            app:layout_constraintStart_toEndOf="@+id/ivWifi"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

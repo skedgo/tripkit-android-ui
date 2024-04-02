@@ -27,6 +27,7 @@ abstract class ServiceViewModel() : RxViewModel() {
     abstract val countDownTimeTextBack: ObservableField<Drawable>
     abstract val serviceColor: ObservableInt
     abstract val showOccupancyInfo: ObservableBoolean
+    abstract val showBicycleAccessible: ObservableBoolean
     abstract val isCurrentTrip: ObservableBoolean
 
 //    abstract val wheelchairAccessible: ObservableBoolean

@@ -22,7 +22,7 @@ import java.util.List;
 /**
  * (Aka Service)
  */
-public class TimetableEntry implements Parcelable, IRealTimeElement, ITimeRange, WheelchairAccessible {
+public class TimetableEntry implements Parcelable, IRealTimeElement, ITimeRange, WheelchairAccessible, BicycleAccessible {
     public static final Creator<TimetableEntry> CREATOR = new Creator<TimetableEntry>() {
         public TimetableEntry createFromParcel(Parcel in) {
             TimetableEntry service = new TimetableEntry();
@@ -51,6 +51,7 @@ public class TimetableEntry implements Parcelable, IRealTimeElement, ITimeRange,
             service.modeInfo = in.readParcelable(ModeInfo.class.getClassLoader());
             service.serviceDirection = in.readString();
             service.wheelchairAccessible = (Boolean) in.readValue(Boolean.class.getClassLoader());
+            service.bicycleAccessible = (Boolean) in.readValue(Boolean.class.getClassLoader());
             service.startStopShortName = in.readString();
             service.alertHashCodes = in.readArrayList(Long.class.getClassLoader());
             service.serviceColor = in.readParcelable(ServiceColor.class.getClassLoader());
@@ -96,6 +97,7 @@ public class TimetableEntry implements Parcelable, IRealTimeElement, ITimeRange,
     @SerializedName("searchString") private String searchString;
     @SerializedName("alertHashCodes") private @Nullable ArrayList<Long> alertHashCodes;
     @SerializedName("wheelchairAccessible") private @Nullable Boolean wheelchairAccessible;
+    @SerializedName("bicycleAccessible") private @Nullable Boolean bicycleAccessible;
     @SerializedName("start_stop_short_name") private String startStopShortName;
     @SerializedName("startPlatform") private String startPlatform;
     /**
@@ -324,6 +326,7 @@ public class TimetableEntry implements Parcelable, IRealTimeElement, ITimeRange,
         out.writeParcelable(modeInfo, 0);
         out.writeString(serviceDirection);
         out.writeValue(wheelchairAccessible);
+        out.writeValue(bicycleAccessible);
         out.writeValue(startStopShortName);
         out.writeList(alertHashCodes);
         out.writeString(startPlatform);
@@ -382,6 +385,16 @@ public class TimetableEntry implements Parcelable, IRealTimeElement, ITimeRange,
 
     public void setWheelchairAccessible(@Nullable Boolean wheelchairAccessible) {
         this.wheelchairAccessible = wheelchairAccessible;
+    }
+
+    @Nullable
+    @Override
+    public Boolean getBicycleAccessible() {
+        return bicycleAccessible;
+    }
+
+    public void setBicycleAccessible(@Nullable Boolean bicycleAccessible) {
+        this.bicycleAccessible = bicycleAccessible;
     }
 
     public String getStartStopShortName() { return startStopShortName; }
