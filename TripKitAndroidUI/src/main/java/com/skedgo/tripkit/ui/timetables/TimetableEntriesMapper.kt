@@ -6,14 +6,13 @@ import com.skedgo.tripkit.common.util.TimeUtils
 import com.skedgo.tripkit.data.database.DbFields
 import com.skedgo.tripkit.ui.model.TimetableEntry
 import com.skedgo.tripkit.ui.realtime.RealtimeAlertRepository
-import timber.log.Timber
 import java.util.*
 import javax.inject.Inject
 
 class TimetableEntriesMapper @Inject constructor(
-        private val getWheelchairAccessible: GetWheelchairAccessible,
-        private val gson: Gson,
-        private val realtimeAlertRepository: RealtimeAlertRepository
+    private val getModeAccessibility: GetModeAccessibility,
+    private val gson: Gson,
+    private val realtimeAlertRepository: RealtimeAlertRepository
 ) {
 
     fun toContentValues(services: List<TimetableEntry>): Array<ContentValues> {
@@ -39,7 +38,8 @@ class TimetableEntriesMapper @Inject constructor(
                 serviceValuesList[i].put(DbFields.SEARCH_STRING.name, service.searchString)
                 serviceValuesList[i].put(DbFields.SERVICE_TIME.name, service.serviceTime)
                 serviceValuesList[i].put(DbFields.SERVICE_DIRECTION.name, service.serviceDirection)
-                serviceValuesList[i].put(DbFields.WHEELCHAIR_ACCESSIBLE.name, getWheelchairAccessible.invoke(service))
+                serviceValuesList[i].put(DbFields.WHEELCHAIR_ACCESSIBLE.name, getModeAccessibility.wheelchair(service))
+                serviceValuesList[i].put(DbFields.BICYCLE_ACCESSIBLE.name, getModeAccessibility.bicycle(service))
                 service.startStop?.let {
                     serviceValuesList[i].put(DbFields.START_STOP_SHORT_NAME.name, it.shortName)
                 }

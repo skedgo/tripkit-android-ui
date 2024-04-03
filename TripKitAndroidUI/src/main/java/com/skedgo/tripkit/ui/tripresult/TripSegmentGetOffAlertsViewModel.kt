@@ -94,21 +94,11 @@ class TripSegmentGetOffAlertsViewModel @Inject internal constructor(
         cancelNotifications(context) //will cancel trip start and geofence notifications
         GeoLocation.clearGeofences()
         showGeofencesOnMap.invoke(emptyList())
-        val isLocationProviderEnabled = context.checkIfLocationProviderIsEnabled()
 
-        if (isOn && !isLocationProviderEnabled) {
-            context.showConfirmationPopUpDialog(
-                title = context.getString(R.string.location_provider_disabled),
-                message = context.getString(R.string.device_location_is_turned_off),
-                positiveLabel = context.getString(R.string.close),
-                positiveCallback = {
-                    _getOffAlertStateOn.postValue(false)
-                }
-            )
-        } else if (isOn) {
-            checkPermissionAndShowProminentDisclosure(context) { isAccepted ->
+        if (isOn) {
+            showProminentDisclosure(context) { isAccepted ->
                 if (isAccepted) {
-                    checkAccessFineLocationPermission(context)
+                    checkPermissions(context)
                 } else {
                     _getOffAlertStateOn.postValue(false)
                 }
@@ -128,6 +118,45 @@ class TripSegmentGetOffAlertsViewModel @Inject internal constructor(
 
         alertStateListener.invoke(isOn)
         _getOffAlertStateOn.postValue(isOn)
+    }
+
+    private fun checkPermissions(context: Context) {
+        checkNotificationPermission(context) { isAccepted ->
+            val isLocationProviderEnabled = context.checkIfLocationProviderIsEnabled()
+            if (!isLocationProviderEnabled) {
+                context.showConfirmationPopUpDialog(
+                    title = context.getString(R.string.location_provider_disabled),
+                    message = context.getString(R.string.device_location_is_turned_off),
+                    positiveLabel = context.getString(R.string.close),
+                    positiveCallback = {
+                        _getOffAlertStateOn.postValue(false)
+                    }
+                )
+            } else {
+                checkAccessFineLocationPermission(context)
+            }
+        }
+    }
+
+    @SuppressLint("InlinedApi")
+    private fun checkNotificationPermission(context: Context, isAccepted: (Boolean) -> Unit) {
+        context.requestPermissionGently(
+            listOf(android.Manifest.permission.POST_NOTIFICATIONS),
+            { permissionStatus ->
+                isAccepted.invoke(permissionStatus?.granted?.isNotEmpty() == true)
+            },
+            title = context.getString(R.string.permission_request_title),
+            description = context.getString(
+                R.string.permission_request_notificaiton,
+                context.getString(R.string.app_name)
+            ),
+            openSettingsTitle = context.getString(
+                R.string.permission_request_notificaiton,
+                context.getString(R.string.app_name)
+            ),
+            openSettingsExplanation = context.getString(R.string.permission_request_notificaiton_open_settings_explanation),
+            Build.VERSION_CODES.TIRAMISU
+        )
     }
 
     @SuppressLint("InlinedApi")

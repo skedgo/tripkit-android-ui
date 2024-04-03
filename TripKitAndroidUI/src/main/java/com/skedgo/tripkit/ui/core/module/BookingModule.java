@@ -3,7 +3,9 @@ package com.skedgo.tripkit.ui.core.module;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.skedgo.tripkit.booking.*;
-import com.skedgo.tripkit.configuration.Server;
+import com.skedgo.tripkit.booking.quickbooking.QuickBookingRepository;
+import com.skedgo.tripkit.configuration.ServerManager;
+import com.skedgo.tripkit.data.database.TripKitDatabase;
 import com.skedgo.tripkit.ui.booking.apiv2.BookingV2TrackingApi;
 import com.skedgo.tripkit.ui.booking.apiv2.BookingV2TrackingService;
 import com.skedgo.tripkit.ui.booking.apiv2.GsonAdaptersBookingV2LogTripResponse;
@@ -24,7 +26,7 @@ public class BookingModule {
                 .create();
         return new Retrofit.Builder()
                 /* This base url is ignored as the api relies on @Url. */
-                .baseUrl(Server.ApiTripGo.getValue())
+                .baseUrl(ServerManager.INSTANCE.getConfiguration().getApiTripGoUrl())
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.createWithScheduler(Schedulers.io()))
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .client(httpClient)
@@ -39,7 +41,7 @@ public class BookingModule {
                 .create();
         return new Retrofit.Builder()
                 /* This base url is ignored as the api relies on @Url. */
-                .baseUrl(Server.ApiTripGo.getValue())
+                .baseUrl(ServerManager.INSTANCE.getConfiguration().getApiTripGoUrl())
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.createWithScheduler(Schedulers.io()))
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .client(httpClient)
@@ -53,7 +55,7 @@ public class BookingModule {
     ) {
         return new Retrofit.Builder()
                 /* This base url is ignored as the api relies on @Url. */
-                .baseUrl(Server.ApiTripGo.getValue())
+                .baseUrl(ServerManager.INSTANCE.getConfiguration().getApiTripGoUrl())
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.createWithScheduler(Schedulers.io()))
                 .addConverterFactory(GsonConverterFactory.create())
                 .client(httpClient)
@@ -70,7 +72,7 @@ public class BookingModule {
                 .create();
         return new Retrofit.Builder()
                 /* This base url is ignored as the api relies on @Url. */
-                .baseUrl(Server.ApiTripGo.getValue())
+                .baseUrl(ServerManager.INSTANCE.getConfiguration().getApiTripGoUrl())
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.createWithScheduler(Schedulers.io()))
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .client(httpClient)
@@ -147,5 +149,13 @@ public class BookingModule {
         return new com.skedgo.tripkit.booking.quickbooking.QuickBookingService.QuickBookingServiceImpl(
                 quickBookingApi
         );
+    }
+
+    @Provides
+    QuickBookingRepository getQuickBookingRepository(
+            com.skedgo.tripkit.booking.quickbooking.QuickBookingService service,
+            TripKitDatabase database
+    ) {
+        return new QuickBookingRepository(service, database);
     }
 }

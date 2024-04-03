@@ -97,6 +97,9 @@ class TripSegmentItemViewModel @Inject internal constructor(
     private val _roadTagsCharItems = MutableLiveData<List<RoadTagChartItem>>()
     val roadTagChartItems: LiveData<List<RoadTagChartItem>> = _roadTagsCharItems
 
+    private val _showBicycleAccessible = MutableLiveData(false)
+    val showBicycleAccessible: LiveData<Boolean> = _showBicycleAccessible
+
     private var isStationaryItem = false
 
     //TODO break this big function into small functions
@@ -282,6 +285,7 @@ class TripSegmentItemViewModel @Inject internal constructor(
             if(!isStationaryItem) {
                 initOccupancy(it)
             }
+            _showBicycleAccessible.postValue(it.bicycleAccessible)
         }
     }
 

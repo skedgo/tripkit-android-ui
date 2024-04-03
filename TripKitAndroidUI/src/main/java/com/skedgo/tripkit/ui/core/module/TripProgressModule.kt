@@ -8,7 +8,7 @@ import dagger.Provides
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import com.skedgo.tripkit.configuration.Server
+import com.skedgo.tripkit.configuration.ServerManager
 
 @Module
 class TripProgressModule {
@@ -24,7 +24,7 @@ class TripProgressModule {
   private fun updateProgressApi(gson: Gson, httpClient: OkHttpClient): UpdateProgressApi
       = Retrofit.Builder()
       /* This base url is ignored as the api relies on @Url. */
-      .baseUrl(Server.ApiTripGo.value)
+      .baseUrl(ServerManager.configuration.apiTripGoUrl)
       .addConverterFactory(GsonConverterFactory.create(gson))
       .client(httpClient)
       .build()

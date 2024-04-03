@@ -353,8 +353,8 @@ class TripResultMapContributor : TripKitMapContributor {
         map.animateCamera(cameraUpdate)
     }
 
+    /* Removed temporarily as still needs optimization, causes the app to lag.
     fun focusTripLine(segment: TripSegment) {
-
         val segmentPolyLines = segment.getPolyLines()
 
         updateTravelledPolyLinesHighlight(segmentPolyLines)
@@ -378,6 +378,7 @@ class TripResultMapContributor : TripKitMapContributor {
             map.animateCamera(cameraUpdate)
         }
     }
+    */
 
     private fun updateTravelledPolyLinesHighlight(segmentPolyLines: List<Polyline>) {
         tripLinesTravelled.forEach { polyLine ->

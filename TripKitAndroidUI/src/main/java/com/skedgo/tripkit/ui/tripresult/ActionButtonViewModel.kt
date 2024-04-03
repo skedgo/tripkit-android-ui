@@ -51,4 +51,8 @@ class ActionButtonViewModel constructor(context: Context, button: ActionButton) 
             this.background.set(ContextCompat.getDrawable(context, R.drawable.bg_circle_transparent_black_border))
         }
     }
+
+    fun showSpinner(show: Boolean) {
+        showSpinner.set(show)
+    }
 }
