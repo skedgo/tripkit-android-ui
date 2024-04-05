@@ -28,6 +28,7 @@ import com.skedgo.tripkit.ui.core.settings.DeveloperPreferenceRepositoryImpl;
 import com.skedgo.tripkit.ui.data.places.PlaceSearchRepository;
 import com.skedgo.tripkit.ui.data.waypoints.WaypointsModule;
 import com.skedgo.tripkit.ui.locationpointer.LocationPointerComponent;
+import com.skedgo.tripkit.ui.map.MarkerIconManager;
 import com.skedgo.tripkit.ui.poidetails.PoiDetailsFragment;
 import com.skedgo.tripkit.ui.routingresults.TripGroupRepository;
 import com.skedgo.tripkit.ui.search.FetchSuggestions;
@@ -179,7 +180,7 @@ public abstract class TripKitUI {
                                   @Nullable Configs configs,
                                   @Nullable HttpClientModule httpClientModule) {
         RxDogTag.install();
-
+        MarkerIconManager.INSTANCE.init(context);
         if (!TripKit.isInitialized()) {
             if ("SKEDGO_API_KEY".equals(key.getValue())) {
                 throw new IllegalStateException("Invalid SkedGo API Key.");
