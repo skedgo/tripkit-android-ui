@@ -14,7 +14,6 @@
         android:id="@+id/layoutDetails"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        tools:layout_height="match_parent"
         android:background="@android:color/white"
         android:onClick="@{() -> viewModel.onClick.perform()}"
         android:paddingStart="16dp"
@@ -38,7 +37,7 @@
             android:id="@+id/topLine"
             android:layout_width="@dimen/segment_item_line_width"
             android:layout_height="0dp"
-            android:background="@{viewModel.topLineTint}"
+            app:backgroundColor="@{viewModel.topLineTint}"
             android:visibility="@{viewModel.showTopLine}"
             app:layout_constraintBottom_toTopOf="@+id/centerHorizontalGuide"
             app:layout_constraintEnd_toEndOf="@+id/iconBackground"
@@ -50,7 +49,7 @@
             android:id="@+id/bottomLine"
             android:layout_width="@dimen/segment_item_line_width"
             android:layout_height="0dp"
-            android:background="@{viewModel.bottomLineTint}"
+            app:backgroundColor="@{viewModel.bottomLineTint}"
             android:visibility="@{viewModel.showBottomLine}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="@+id/iconBackground"
@@ -115,27 +114,67 @@
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:visibility="@{viewModel.occupancyViewModel.hasInformation()}">
+                android:paddingEnd="@dimen/spacing_extra_small"
+                android:paddingVertical="@dimen/spacing_extra_small">
 
-                <ImageView
-                    android:id="@+id/occupancyView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="@dimen/icon_regular"
-                    android:src="@{viewModel.occupancyViewModel.drawableLeft}"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    tools:src="@drawable/ic_occupancy_50" />
-
-                <TextView
-                    style="@style/TextAppearance.MaterialComponents.Caption"
-                    android:layout_width="wrap_content"
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/layoutBicycleAccessible"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/spacing_small"
-                    android:text="@{viewModel.occupancyViewModel.occupancyText}"
-                    app:layout_constraintBottom_toBottomOf="@id/occupancyView"
-                    app:layout_constraintStart_toEndOf="@+id/occupancyView"
-                    app:layout_constraintTop_toTopOf="@id/occupancyView"
-                    tools:text="Empty"/>
+                    android:visibility="@{viewModel.showBicycleAccessible}"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent">
+
+                    <ImageView
+                        android:id="@+id/ivBicycleAccessible"
+                        android:layout_width="@dimen/service_detail_icon_size"
+                        android:layout_height="@dimen/service_detail_icon_size"
+                        android:importantForAccessibility="no"
+                        android:src="@drawable/ic_bike_accessible"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <TextView
+                        style="@style/TextAppearance.MaterialComponents.Caption"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/spacing_small"
+                        android:text="@string/bicycle_accessible"
+                        app:layout_constraintBottom_toBottomOf="@id/ivBicycleAccessible"
+                        app:layout_constraintStart_toEndOf="@+id/ivBicycleAccessible"
+                        app:layout_constraintTop_toTopOf="@id/ivBicycleAccessible" />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/spacing_extra_small"
+                    android:visibility="@{viewModel.occupancyViewModel.hasInformation()}"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/layoutBicycleAccessible">
+
+                    <ImageView
+                        android:id="@+id/occupancyView"
+                        android:layout_width="wrap_content"
+                        android:layout_height="@dimen/icon_regular"
+                        android:src="@{viewModel.occupancyViewModel.drawableLeft}"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        tools:src="@drawable/ic_occupancy_50" />
+
+                    <TextView
+                        style="@style/TextAppearance.MaterialComponents.Caption"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/spacing_small"
+                        android:text="@{viewModel.occupancyViewModel.occupancyText}"
+                        app:layout_constraintBottom_toBottomOf="@id/occupancyView"
+                        app:layout_constraintStart_toEndOf="@+id/occupancyView"
+                        app:layout_constraintTop_toTopOf="@id/occupancyView"
+                        tools:text="Empty" />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 

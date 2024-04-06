@@ -210,15 +210,6 @@ fun setImageViewSize(view: ImageView, size: Float) {
 }
 
 @BindingAdapter("android:background")
-fun setBackground(view: View, iconResource: Int?) {
-    try {
-        iconResource?.let { view.setBackgroundResource(iconResource) }
-    } catch (e: Exception) {
-        e.printStackTrace()
-    }
-}
-
-@BindingAdapter("android:background")
 fun setBackground(view: View, drawable: StateListDrawable?) {
     try {
         drawable?.let { view.background = it }

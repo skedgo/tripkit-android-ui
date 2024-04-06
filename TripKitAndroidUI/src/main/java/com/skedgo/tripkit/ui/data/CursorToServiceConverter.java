@@ -59,6 +59,7 @@ public class CursorToServiceConverter implements CursorToEntityConverter<Timetab
     service.setSearchString(getSearchString());
     service.setServiceTime(getServiceTime());
     service.setWheelchairAccessible(getWheelchairAccessible());
+    service.setBicycleAccessible(getBicycleAccessible());
     service.setStartStopShortName(getStartStopShortName());
     final String modeInfoJson = cursor.getString(cursor.getColumnIndex(DbFields.MODE_INFO.getName()));
     if (modeInfoJson != null) {
@@ -167,6 +168,18 @@ public class CursorToServiceConverter implements CursorToEntityConverter<Timetab
     }
   }
 
+  public Boolean getBicycleAccessible() {
+    int bicycleAccessible = mCursor.getInt(mServiceColumnIndices.bicycleAccessible);
+    switch (bicycleAccessible) {
+      case 0:
+        return false;
+      case 1:
+        return true;
+      default:
+        return null;
+    }
+  }
+
   public String getStartStopShortName() {
     return mCursor.getString(mServiceColumnIndices.startStopShortName);
   }
@@ -196,6 +209,7 @@ public class CursorToServiceConverter implements CursorToEntityConverter<Timetab
     public int serviceTimeIndex = -1;
     public int serviceOperator = -1;
     public int wheelchairAccessible = -1;
+    public int bicycleAccessible = -1;
     public int startStopShortName = -1;
     public int startPlatform = -1;
 
@@ -230,6 +244,7 @@ public class CursorToServiceConverter implements CursorToEntityConverter<Timetab
       serviceTimeIndex = cursor.getColumnIndex(SERVICE_TIME.getName());
       serviceOperator = cursor.getColumnIndex(SERVICE_OPERATOR.getName());
       wheelchairAccessible = cursor.getColumnIndex(WHEELCHAIR_ACCESSIBLE.getName());
+      bicycleAccessible = cursor.getColumnIndex(BICYCLE_ACCESSIBLE.getName());
       startStopShortName = cursor.getColumnIndex(START_STOP_SHORT_NAME.getName());
       startPlatform = cursor.getColumnIndex(START_PLATFORM.getName());
     }
