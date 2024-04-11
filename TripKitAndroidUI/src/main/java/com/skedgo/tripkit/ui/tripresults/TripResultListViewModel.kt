@@ -170,7 +170,7 @@ class TripResultListViewModel @Inject constructor(
         if (transportModeFilter == null) {
             val filter = SimpleTransportModeFilter()
             replaceModes?.let {
-                filter.replaceTransportModes(it)
+                filter.replaceTransportModesWithUserModes(it)
             }
 
             this.transportModeFilter = filter

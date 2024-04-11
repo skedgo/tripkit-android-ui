@@ -25,7 +25,8 @@ interface LocationSearchIconProvider {
         GOOGLE,
         FAVORITE,
         HISTORY,
-        REGION
+        REGION,
+        SCHOOL
     }
 
     /**
@@ -55,6 +56,7 @@ class LegacyLocationSearchIconProvider : LocationSearchIconProvider {
             LocationSearchIconProvider.SearchResultType.FAVORITE -> R.drawable.ic_favorite
             LocationSearchIconProvider.SearchResultType.HISTORY -> R.drawable.ic_timetable_search
             LocationSearchIconProvider.SearchResultType.REGION -> R.drawable.ic_city
+            LocationSearchIconProvider.SearchResultType.SCHOOL -> R.drawable.ic_search_school
             else -> R.drawable.ic_pin
         }
     }

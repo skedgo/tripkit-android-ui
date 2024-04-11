@@ -65,6 +65,7 @@ import static com.skedgo.tripkit.routing.TripAlarmBroadcastReceiver.NOTIFICATION
 @Singleton
 @Component(modules = {
         AutoCompleteTaskModule.class,
+        AutoCompleteTaskProvidesModule.class,
         SchedulerFactoryModule.class,
         GooglePlacesModule.class,
         ConnectivityServiceModule.class,
@@ -100,7 +101,8 @@ import static com.skedgo.tripkit.routing.TripAlarmBroadcastReceiver.NOTIFICATION
         ViewModelModule.class,
         ControllerModule.class,
         DeveloperOptionModule.class,
-        RemindersRepositoryModule.class
+        RemindersRepositoryModule.class,
+        TripKitPreferenceModule.class
 })
 public abstract class TripKitUI {
     private static TripKitUI instance;

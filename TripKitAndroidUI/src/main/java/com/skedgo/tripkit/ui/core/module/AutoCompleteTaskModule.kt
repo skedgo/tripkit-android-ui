@@ -4,7 +4,6 @@ import com.skedgo.tripkit.ui.geocoding.*
 import com.skedgo.tripkit.ui.search.FetchFoursquareLocations
 import com.skedgo.tripkit.ui.search.FetchGoogleLocations
 import com.skedgo.tripkit.ui.search.FetchLocalLocations
-import com.skedgo.tripkit.ui.search.FetchTripGoLocations
 import dagger.Binds
 import dagger.Module
 
@@ -17,11 +16,6 @@ abstract class AutoCompleteTaskModule {
   abstract fun filterSupportedLocations(
       impl: FilterSupportedLocationsImpl
   ): FilterSupportedLocations
-
-  @Binds
-  abstract fun fetchTripGoLocations(
-      impl: FetchTripGoLocationsImpl
-  ): FetchTripGoLocations
 
   @Binds
   abstract fun fetchFoursquareLocations(

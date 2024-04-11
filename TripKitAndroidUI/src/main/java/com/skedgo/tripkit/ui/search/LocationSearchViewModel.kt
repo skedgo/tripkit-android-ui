@@ -30,6 +30,7 @@ import com.skedgo.tripkit.ui.geocoding.AutoCompleteResult
 import com.skedgo.tripkit.ui.geocoding.HasResults
 import com.skedgo.tripkit.ui.geocoding.NoConnection
 import com.skedgo.tripkit.ui.geocoding.NoResult
+import com.skedgo.tripkit.ui.utils.TransportModeSharedPreference
 import com.squareup.picasso.Picasso
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
@@ -58,11 +59,12 @@ class LocationSearchViewModel @Inject constructor(
     private val picasso: Picasso,
     private val schedulerFactory: SchedulerFactory,
     private val locationHistoryRepository: LocationHistoryRepository,
-    val errorViewModel: LocationSearchErrorViewModel
+    val errorViewModel: LocationSearchErrorViewModel,
+    private val transportModeSharedPreference: TransportModeSharedPreference
 ) : RxViewModel() {
 
     companion object {
-        const val DEBOUNCE_TEXT_CHANGE_THROTTLE = 500L
+        const val DEBOUNCE_TEXT_CHANGE_THROTTLE = 800L
     }
 
     var legacyLocationSearchIconProvider: LegacyLocationSearchIconProvider? = null
