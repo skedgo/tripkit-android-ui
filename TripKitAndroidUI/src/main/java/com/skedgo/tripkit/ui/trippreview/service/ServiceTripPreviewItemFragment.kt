@@ -101,13 +101,6 @@ class ServiceTripPreviewItemFragment : BaseTripKitPagerFragment() {
 
         binding.recyclerView.setOnTouchListener(swipeListener)
 
-        tripPreviewPagerListener?.onBottomSheetResize()?.observe(requireActivity()) {
-            val titleHeight = binding.secondDividingLine.bottom - binding.stopName.top
-            val params = binding.recyclerView.layoutParams as ConstraintLayout.LayoutParams
-            params.height = it - (titleHeight + 250)
-            binding.recyclerView.layoutParams = params
-        }
-
         binding.closeButton.setOnClickListener(onCloseButtonListener)
 
         handleSegment()

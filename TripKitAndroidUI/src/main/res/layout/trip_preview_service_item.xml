@@ -112,7 +112,7 @@
             android:layout_marginTop="@dimen/spacing_small"
             android:id="@+id/motionLayout"
             android:visibility="@{viewModel.showExpandableMenu}"
-            app:layoutDescription="@xml/service_detail_motion"
+            app:layoutDescription="@xml/trip_preview_service_detail_motion"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/firstDividingLine">
 
@@ -212,16 +212,24 @@
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerView"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="0dp"
             android:focusableInTouchMode="true"
             android:nestedScrollingEnabled="true"
-            android:requiresFadingEdge="vertical|horizontal"
             app:itemBinding="@{viewModel.itemBinding}"
             app:items="@{viewModel.items}"
+            android:layout_marginBottom="@dimen/trip_preview_service_item_margin_bottom"
             android:layout_marginTop="@dimen/spacing_small"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/rvAlerts" />
+            app:layout_constraintTop_toBottomOf="@id/bottomBarrier"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+
+        <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/bottomBarrier"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:barrierDirection="bottom"
+            app:constraint_referenced_ids="secondDividingLine, rvAlerts" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
