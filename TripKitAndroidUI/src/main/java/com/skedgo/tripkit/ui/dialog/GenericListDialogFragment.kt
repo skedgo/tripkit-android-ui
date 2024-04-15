@@ -1,14 +1,11 @@
 package com.skedgo.tripkit.ui.dialog
 
-import android.annotation.SuppressLint
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
-import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.webkit.WebViewClient
 import androidx.core.os.bundleOf
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.viewModels
@@ -48,18 +45,13 @@ class GenericListDialogFragment : DialogFragment(), GenericListDialogFragmentHan
         super.onStart()
 
         dialog?.apply {
-            window?.setLayout(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT
-            )
+            window?.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
             window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         }
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
+                              savedInstanceState: Bundle?): View {
         binding = DialogGenericListBinding.inflate(inflater, container, false)
 
         return binding.root
@@ -113,12 +105,6 @@ class GenericListDialogFragment : DialogFragment(), GenericListDialogFragmentHan
                 viewModel.setViewModeOnly(it.getBoolean(ARGS_VIEW_ONLY_MODE, false))
             }
 
-            if (it.containsKey(ARGS_ACCEPT_SHOWN)) {
-                viewModel.setAcceptShown(it.getBoolean(ARGS_ACCEPT_SHOWN, false))
-                if (it.containsKey(ARGS_TERMS_LINK))
-                    loadTermsView(it.getString(ARGS_TERMS_LINK))
-            }
-
             if (it.containsKey(ARGS_TITLE)) {
                 viewModel.setTitle(it.getString(ARGS_TITLE, ""))
             }
@@ -134,24 +120,10 @@ class GenericListDialogFragment : DialogFragment(), GenericListDialogFragmentHan
             }
 
             if (it.containsKey(ARGS_PREVIOUSLY_SELECTED) &&
-                !it.getString(ARGS_PREVIOUSLY_SELECTED).isNullOrEmpty()
-            ) {
+                !it.getString(ARGS_PREVIOUSLY_SELECTED).isNullOrEmpty()) {
                 viewModel.setSelectedItems(
                     Gson().fromJson(it.getString(ARGS_PREVIOUSLY_SELECTED, ""))
                 )
-            }
-        }
-    }
-
-    @SuppressLint("SetJavaScriptEnabled")
-    private fun loadTermsView(url: String?) {
-        url?.let {
-            binding.genericListWvTerms.apply {
-                webViewClient = WebViewClient()
-                settings.javaScriptEnabled = true
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
-                    settings.safeBrowsingEnabled = true
-                loadUrl(it)
             }
         }
     }
@@ -171,8 +143,6 @@ class GenericListDialogFragment : DialogFragment(), GenericListDialogFragmentHan
         private const val ARGS_IS_SINGLE_SELECTION = "_is_single_selection"
         private const val ARGS_PREVIOUSLY_SELECTED = "_previously_seleted"
         private const val ARGS_VIEW_ONLY_MODE = "_view_only_mode"
-        private const val ARGS_ACCEPT_SHOWN = "_accept_shown"
-        private const val ARGS_TERMS_LINK = "_terms_link"
 
         fun newInstance(
             selection: List<GenericListItem>,
@@ -181,22 +151,16 @@ class GenericListDialogFragment : DialogFragment(), GenericListDialogFragmentHan
             previousSelectedValues: List<String>? = null,
             onConfirmCallback: ((List<GenericListItem>) -> Unit)? = null,
             onCloseCallback: (() -> Unit)? = null,
-            viewOnlyMode: Boolean = false,
-            acceptShown: Boolean = false,
-            termsLink: String? = null,
+            viewOnlyMode: Boolean = false
         ): GenericListDialogFragment {
             return GenericListDialogFragment().apply {
                 arguments = bundleOf(
                     ARGS_TITLE to title,
                     ARGS_LIST_SELECTION to Gson().toJson(selection),
                     ARGS_IS_SINGLE_SELECTION to isSingleSelection,
-                    ARGS_PREVIOUSLY_SELECTED to Gson().toJson(
-                        previousSelectedValues
-                            ?: emptyList<String>()
-                    ),
+                    ARGS_PREVIOUSLY_SELECTED to Gson().toJson(previousSelectedValues
+                        ?: emptyList<String>()),
                     ARGS_VIEW_ONLY_MODE to viewOnlyMode,
-                    ARGS_ACCEPT_SHOWN to acceptShown,
-                    ARGS_TERMS_LINK to termsLink
                 )
                 this.onConfirm = onConfirmCallback
                 this.onClose = onCloseCallback
