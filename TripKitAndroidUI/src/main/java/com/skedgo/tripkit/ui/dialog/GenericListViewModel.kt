@@ -22,6 +22,12 @@ class GenericListViewModel @Inject constructor() : RxViewModel() {
     private val _viewModeOnly = MutableLiveData<Boolean>()
     val viewModeOnly: LiveData<Boolean> = _viewModeOnly
 
+    private val _acceptShown = MutableLiveData<Boolean>()
+    val acceptShown: LiveData<Boolean> = _acceptShown
+    fun setAcceptShown(value: Boolean) {
+        _acceptShown.value = value
+    }
+
     fun setViewModeOnly(value: Boolean) {
         _viewModeOnly.value = value
     }
