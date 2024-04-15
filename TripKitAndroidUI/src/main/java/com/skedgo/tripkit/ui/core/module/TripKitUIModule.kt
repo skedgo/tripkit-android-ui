@@ -13,6 +13,8 @@ import com.skedgo.tripkit.configuration.ServerManager
 import com.skedgo.tripkit.data.database.TripKitDatabase
 import com.skedgo.tripkit.data.database.locations.bikepods.BikePodRepository
 import com.skedgo.tripkit.data.database.locations.bikepods.BikePodRepositoryImpl
+import com.skedgo.tripkit.data.database.locations.facility.FacilityRepository
+import com.skedgo.tripkit.data.database.locations.facility.FacilityRepositoryImpl
 import com.skedgo.tripkit.data.database.locations.freefloating.FreeFloatingRepository
 import com.skedgo.tripkit.data.database.locations.freefloating.FreeFloatingRepositoryImpl
 import com.skedgo.tripkit.data.locations.LocationsApi
@@ -83,6 +85,12 @@ class TripKitUIModule {
     @Provides
     internal fun provideCellsLoader(context: Context): StopsFetcher.ICellsLoader {
         return CellsLoader(context)
+    }
+
+    @Provides
+    @Singleton
+    internal fun provideFacilityRepositoryImpl(tripGoDatabase2: TripKitDatabase): FacilityRepository {
+        return FacilityRepositoryImpl(tripGoDatabase2)
     }
 
     @Provides

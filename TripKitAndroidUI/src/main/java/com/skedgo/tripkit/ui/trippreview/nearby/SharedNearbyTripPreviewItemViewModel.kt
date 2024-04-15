@@ -124,6 +124,18 @@ class SharedNearbyTripPreviewItemViewModel @Inject constructor(private val regio
                                                     modeInfo = it.modeInfo()))
 
                                         }
+                                        it.facilities?.forEach {
+                                            newList.add(
+                                                NearbyLocation(
+                                                    lat = it.lat,
+                                                    lng = it.lng,
+                                                    title = it.name,
+                                                    address = it.address,
+                                                    website = null,
+                                                    modeInfo = null
+                                                )
+                                            )
+                                        }
                                     }
                                     val compareLat = segment.singleLocation.lat
                                     val compareLng = segment.singleLocation.lon
