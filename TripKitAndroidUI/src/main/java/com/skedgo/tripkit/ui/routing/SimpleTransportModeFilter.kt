@@ -10,7 +10,7 @@ import com.skedgo.tripkit.ui.model.UserMode
 class SimpleTransportModeFilter() : TransportModeFilter {
     private var transportModes: Set<String> = setOf()
     private var avoidTransportModes: Set<String> = setOf()
-    private var replacementModes: List<UserMode> = listOf()
+    private var replacementUserModes: List<UserMode> = listOf()
 
     fun setTransportModes(transportModes: Set<String>) {
         this.transportModes = transportModes
@@ -41,13 +41,13 @@ class SimpleTransportModeFilter() : TransportModeFilter {
         }
     }
 
-    fun replaceTransportModes(mode: List<UserMode>) {
-        replacementModes = mode
+    fun replaceTransportModesWithUserModes(mode: List<UserMode>) {
+        replacementUserModes = mode
     }
 
     override fun getFilteredMode(originalModes: List<String>): List<String> {
         val modeArray = ArrayList(originalModes)
-        replacementModes.forEach {
+        replacementUserModes.forEach {
             if (modeArray.contains(it.mode)) {
                 modeArray.remove(it.mode)
                 it.rules?.replaceWith?.let { list ->

@@ -153,6 +153,9 @@ class GoogleAndTripGoSuggestionViewModel(
                     if (default <= 0) iconProvider.iconForSearchResult(LocationSearchIconProvider.SearchResultType.GOOGLE)
                     else default
                 }
+                Location.TYPE_SCHOOL -> {
+                    iconProvider.iconForSearchResult(LocationSearchIconProvider.SearchResultType.SCHOOL)
+                }
                 else -> {
                     val source = location.source
                     when {
