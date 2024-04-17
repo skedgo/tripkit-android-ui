@@ -15,4 +15,10 @@ data class TripSegmentSummary(
     val description: String? = null,
     val modeId: String? = null,
     val isHideExactTimes: Boolean = false
-)
+) {
+    fun getSummaryItem(): TripSegmentSummaryItemViewModel {
+        return TripSegmentSummaryItemViewModel.parseFromTripSegmentSummary(
+            this, false
+        )
+    }
+}

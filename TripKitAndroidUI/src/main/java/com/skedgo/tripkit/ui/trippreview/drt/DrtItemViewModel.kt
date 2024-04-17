@@ -64,6 +64,9 @@ class DrtItemViewModel : ViewModel() {
     private val _defaultValue = MutableLiveData<String>()
     val defaultValue: LiveData<String> = _defaultValue
 
+    private val _urlValue = MutableLiveData<String?>()
+    val urlValue: LiveData<String?> = _urlValue
+
     private val valuesObserver = Observer<List<String>> { values ->
         if (type.value == QuickBookingType.NUMBER) {
             val currentValue = (values.firstOrNull() ?: "").toInt()
@@ -172,6 +175,10 @@ class DrtItemViewModel : ViewModel() {
 
     fun setDefaultValue(value: String) {
         _defaultValue.postValue(value)
+    }
+
+    fun setUrlValue(value: String?){
+        _urlValue.postValue(value)
     }
 
     @Deprecated("Will be replaced by parsing details from Review")

@@ -23,7 +23,6 @@ import com.skedgo.tripkit.ui.TripKitUI
 import com.skedgo.tripkit.ui.core.BaseTripKitFragment
 import com.skedgo.tripkit.ui.core.addTo
 import com.skedgo.tripkit.ui.core.rxproperty.asObservable
-import com.skedgo.tripkit.ui.database.location_history.LocationHistoryRepository
 import com.skedgo.tripkit.ui.databinding.LocationSearchBinding
 import com.skedgo.tripkit.ui.utils.defocusAndHideKeyboard
 import com.skedgo.tripkit.ui.utils.isTalkBackOn
@@ -130,21 +129,14 @@ class LocationSearchFragment : BaseTripKitFragment() {
     /**
      * This callback will be invoked when info icon is clicked.
      */
-    interface OnInfoSelectedListener {
-        fun onInfoSelectedListener(location: Location)
+    interface OnItemActionClickListener {
+        fun onInfoClick(location: Location)
+        fun onSuggestionActionClick(location: Location)
     }
 
-    private var onInfoSelectedListener: OnInfoSelectedListener? = null
-    fun setOnInfoSelectedListener(callback: OnInfoSelectedListener) {
-        this.onInfoSelectedListener = callback
-    }
-
-    fun setOnInfoSelectedListener(listener: (Location) -> Unit) {
-        this.onInfoSelectedListener = object : OnInfoSelectedListener {
-            override fun onInfoSelectedListener(location: Location) {
-                listener(location)
-            }
-        }
+    private var onItemActionClickListener: OnItemActionClickListener? = null
+    fun setOnItemActionClickListener(callback: OnItemActionClickListener) {
+        this.onItemActionClickListener = callback
     }
 
     /**
@@ -319,7 +311,15 @@ class LocationSearchFragment : BaseTripKitFragment() {
             .observeOn(mainThread())
             .subscribe({
                 it?.let {
-                    onInfoSelectedListener?.onInfoSelectedListener(it)
+                    onItemActionClickListener?.onInfoClick(it)
+                }
+            }, errorLogger::trackError).addTo(autoDisposable)
+
+        viewModel.suggestionActionClick
+            .observeOn(mainThread())
+            .subscribe({
+                it?.let {
+                    onItemActionClickListener?.onSuggestionActionClick(it)
                 }
             }, errorLogger::trackError).addTo(autoDisposable)
 
@@ -400,7 +400,7 @@ class LocationSearchFragment : BaseTripKitFragment() {
         citySuggestionSelectedListener = null
         onAttachFragmentListener = null
         fixedSuggestionSelectedListener = null
-        onInfoSelectedListener = null
+        onItemActionClickListener = null
     }
 
     /**
@@ -411,7 +411,7 @@ class LocationSearchFragment : BaseTripKitFragment() {
         private var near: LatLng? = null
         private var initialQuery: String? = null
         private var hint: String? = null
-        private var canOpenTimetable: Boolean = false
+        private var canOpenTimetable: Boolean = true
         private var withCurrentLocation: Boolean = false
         private var withDropPin: Boolean = false
         private var showBackButton: Boolean = true

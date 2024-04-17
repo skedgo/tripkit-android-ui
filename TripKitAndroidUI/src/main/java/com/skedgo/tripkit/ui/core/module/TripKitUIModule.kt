@@ -9,10 +9,12 @@ import com.skedgo.tripkit.ServiceApi
 import com.skedgo.tripkit.bookingproviders.BookingResolver
 import com.skedgo.tripkit.bookingproviders.BookingResolverImpl
 import com.skedgo.tripkit.common.util.Gsons
-import com.skedgo.tripkit.configuration.Server
+import com.skedgo.tripkit.configuration.ServerManager
 import com.skedgo.tripkit.data.database.TripKitDatabase
 import com.skedgo.tripkit.data.database.locations.bikepods.BikePodRepository
 import com.skedgo.tripkit.data.database.locations.bikepods.BikePodRepositoryImpl
+import com.skedgo.tripkit.data.database.locations.facility.FacilityRepository
+import com.skedgo.tripkit.data.database.locations.facility.FacilityRepositoryImpl
 import com.skedgo.tripkit.data.database.locations.freefloating.FreeFloatingRepository
 import com.skedgo.tripkit.data.database.locations.freefloating.FreeFloatingRepositoryImpl
 import com.skedgo.tripkit.data.locations.LocationsApi
@@ -86,13 +88,19 @@ class TripKitUIModule {
     }
 
     @Provides
+    @Singleton
+    internal fun provideFacilityRepositoryImpl(tripGoDatabase2: TripKitDatabase): FacilityRepository {
+        return FacilityRepositoryImpl(tripGoDatabase2)
+    }
+
+    @Provides
     internal fun gson(): Gson = Gsons.createForLowercaseEnum()
     @Provides
     @Singleton
     internal fun locationsApi(httpClient: OkHttpClient, gson: Gson): LocationsApi {
         return Retrofit.Builder()
                 /* This base url is ignored as the api relies on @Url. */
-                .baseUrl(Server.ApiTripGo.value)
+                .baseUrl(ServerManager.configuration.apiTripGoUrl)
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.createWithScheduler(Schedulers.io()))
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .client(httpClient)
@@ -105,7 +113,7 @@ class TripKitUIModule {
     @Provides
     fun getServiceApi(httpClient: OkHttpClient, gson: Gson): ServiceApi {
         return Retrofit.Builder()
-                .baseUrl(Server.ApiTripGo.value)
+                .baseUrl(ServerManager.configuration.apiTripGoUrl)
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.createWithScheduler(Schedulers.io()))
                 .client(httpClient)

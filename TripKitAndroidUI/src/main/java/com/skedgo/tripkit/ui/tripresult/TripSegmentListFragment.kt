@@ -9,6 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.lifecycleScope
+import com.google.android.gms.maps.model.LatLng
 import com.skedgo.tripkit.logging.ErrorLogger
 import com.skedgo.tripkit.routing.TripGroup
 import com.skedgo.tripkit.routing.TripSegment
@@ -20,12 +21,21 @@ import com.skedgo.tripkit.ExternalActionParams
 import com.skedgo.tripkit.ui.booking.apiv2.BookingV2TrackingService
 import com.skedgo.tripkit.ui.core.addTo
 import com.skedgo.tripkit.ui.databinding.TripSegmentListFragmentBinding
+import com.skedgo.tripkit.ui.map.getGeofenceZone
 import com.skedgo.tripkit.ui.model.TripKitButton
 import com.skedgo.tripkit.ui.model.TripKitButtonConfigurator
 import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButtonHandlerFactory
+import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.PublishSubject
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import timber.log.Timber
 import javax.inject.Inject
 
 
@@ -194,6 +204,32 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
         updateStream?.subscribe {
             viewModel.validateGetOffAlerts()
         }?.addTo(autoDisposable)
+
+        viewModel.geofenceCircles.observe(viewLifecycleOwner) {
+            tripResultMapContributor?.clearMapCircles()
+            showGeofences(it)
+        }
+    }
+
+    private fun showGeofences(geofenceCoordinateList: List<Pair<LatLng, Double>>) {
+        lifecycleScope.launch(Dispatchers.IO) {
+            flow {
+                geofenceCoordinateList.forEach {
+                    emit(
+                        requireContext().getGeofenceZone(
+                            it.first.latitude,
+                            it.first.longitude,
+                            it.second
+                        )
+                    )
+                }
+            }.flowOn(Dispatchers.Main)
+                .collect { circleOption ->
+                    withContext(Dispatchers.Main) {
+                        tripResultMapContributor?.addCircleToMap(circleOption)
+                    }
+                }
+        }
     }
 
     private fun startAndLogActivity(tripSegment: TripSegment, intent: Intent) {

@@ -5,6 +5,8 @@
 
     <data>
 
+        <import type="android.text.TextUtils"/>
+
         <variable
             name="viewModel"
             type="com.skedgo.tripkit.ui.tripresults.TripResultViewModel" />
@@ -178,6 +180,57 @@
                 app:layout_constraintTop_toBottomOf="@+id/footerLine"
                 tools:text="0kg CO2" />
 
+            <TextView
+                android:id="@+id/moneyCost"
+                style="@style/TextAppearance.MaterialComponents.Caption"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/spacing_small"
+                android:layout_marginVertical="@dimen/content_padding"
+                android:ellipsize="end"
+                android:maxLines="2"
+                android:paddingHorizontal="@dimen/spacing_small"
+                android:text="@{viewModel.moneyCost}"
+                android:visibility="@{viewModel.isMoneyCostVisible()}"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintHorizontal_weight="1.5"
+                app:layout_constraintStart_toEndOf="@+id/cost"
+                app:layout_constraintTop_toBottomOf="@+id/footerLine"
+                tools:text="10 USD" />
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="@dimen/spacing_small"
+                android:layout_marginVertical="@dimen/content_padding"
+                android:visibility="@{!TextUtils.isEmpty(viewModel.availabilityInfo)}"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/tvActionButtonCenter"
+                app:layout_constraintStart_toEndOf="@+id/moneyCost"
+                app:layout_constraintTop_toBottomOf="@+id/footerLine">
+
+                <ImageView
+                    android:id="@+id/ivInfoIcon"
+                    android:layout_width="@dimen/icon_small"
+                    android:layout_height="@dimen/icon_small"
+                    android:src="@drawable/ic_action_warning"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:tint="@color/tripKitError" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/spacing_extra_small"
+                    android:text="@{viewModel.availabilityInfo}"
+                    android:textColor="@color/tripKitError"
+                    app:layout_constraintStart_toEndOf="@+id/ivInfoIcon"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:text="Rides cannot be requested less than 24 hours in advance. Please call for assistance." />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
             <Button
                 android:id="@+id/moreButton"
                 style="@style/Widget.AppCompat.Button.Borderless"
@@ -186,19 +239,37 @@
                 android:layout_marginTop="2dp"
                 android:layout_marginEnd="2dp"
                 android:background="@null"
+                android:enabled="@{viewModel.isActionEnabled()}"
                 android:backgroundTint="@android:color/transparent"
                 android:ellipsize="middle"
                 android:gravity="end|center_vertical"
                 android:onClick="@{() -> viewModel.onMoreButtonClicked.perform()}"
                 android:singleLine="true"
                 android:text="@{viewModel.moreButtonText}"
-                android:textColor="@color/colorPrimary"
+                android:textColor="@color/bg_button_color_primary"
                 android:visibility="@{viewModel.moreButtonVisible}"
                 android:contentDescription="@{viewModel.accessibilityLabel}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_weight="1"
                 app:layout_constraintTop_toBottomOf="@+id/footerLine"
                 tools:text="ButtonText" />
+
+            <!--
+                Might not look good, but this is to constraint the
+                availability info layout to the 0.25 start of the button.
+                Since the button's touch target is quite large, there's
+                a lot of extra space between availability info and the
+                button, so constraining it to 1/4 of the button is to
+                lessen those space.
+            -->
+            <TextView
+                android:id="@+id/tvActionButtonCenter"
+                android:layout_width="1dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toTopOf="@+id/moreButton"
+                app:layout_constraintEnd_toEndOf="@+id/moreButton"
+                app:layout_constraintStart_toStartOf="@+id/moreButton"
+                app:layout_constraintHorizontal_bias="0.25"/>
 
 
         </androidx.constraintlayout.widget.ConstraintLayout>

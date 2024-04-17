@@ -11,9 +11,11 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.recyclerview.widget.DiffUtil
 import com.araujo.jordan.excuseme.ExcuseMe
+import com.google.android.gms.maps.model.LatLng
 import com.google.gson.Gson
 import com.skedgo.TripKit
 import com.skedgo.tripkit.TripUpdater
+import com.skedgo.tripkit.checkIfLocationProviderIsEnabled
 import com.skedgo.tripkit.notification.cancelChannelNotifications
 import com.skedgo.tripkit.routing.*
 import com.skedgo.tripkit.ui.BuildConfig
@@ -57,6 +59,8 @@ class TripSegmentGetOffAlertsViewModel @Inject internal constructor(
 
     private val disposable = CompositeDisposable()
 
+    internal var showGeofencesOnMap: (List<Pair<LatLng, Double>>) -> Unit = { _ -> }
+
     init {
         val isOn = GetOffAlertCache.isTripAlertStateOn(trip.tripUuid)
         _getOffAlertStateOn.postValue(isOn)
@@ -89,11 +93,12 @@ class TripSegmentGetOffAlertsViewModel @Inject internal constructor(
         cancelStartTripAlarms(context) //this will cancel previous alarm that was setup
         cancelNotifications(context) //will cancel trip start and geofence notifications
         GeoLocation.clearGeofences()
+        showGeofencesOnMap.invoke(emptyList())
 
         if (isOn) {
-            checkPermissionAndShowProminentDisclosure(context) { isAccepted ->
-                if(isAccepted) {
-                    checkAccessFineLocationPermission(context)
+            showProminentDisclosure(context) { isAccepted ->
+                if (isAccepted) {
+                    checkPermissions(context)
                 } else {
                     _getOffAlertStateOn.postValue(false)
                 }
@@ -113,6 +118,45 @@ class TripSegmentGetOffAlertsViewModel @Inject internal constructor(
 
         alertStateListener.invoke(isOn)
         _getOffAlertStateOn.postValue(isOn)
+    }
+
+    private fun checkPermissions(context: Context) {
+        checkNotificationPermission(context) { isAccepted ->
+            val isLocationProviderEnabled = context.checkIfLocationProviderIsEnabled()
+            if (!isLocationProviderEnabled) {
+                context.showConfirmationPopUpDialog(
+                    title = context.getString(R.string.location_provider_disabled),
+                    message = context.getString(R.string.device_location_is_turned_off),
+                    positiveLabel = context.getString(R.string.close),
+                    positiveCallback = {
+                        _getOffAlertStateOn.postValue(false)
+                    }
+                )
+            } else {
+                checkAccessFineLocationPermission(context)
+            }
+        }
+    }
+
+    @SuppressLint("InlinedApi")
+    private fun checkNotificationPermission(context: Context, isAccepted: (Boolean) -> Unit) {
+        context.requestPermissionGently(
+            listOf(android.Manifest.permission.POST_NOTIFICATIONS),
+            { permissionStatus ->
+                isAccepted.invoke(permissionStatus?.granted?.isNotEmpty() == true)
+            },
+            title = context.getString(R.string.permission_request_title),
+            description = context.getString(
+                R.string.permission_request_notificaiton,
+                context.getString(R.string.app_name)
+            ),
+            openSettingsTitle = context.getString(
+                R.string.permission_request_notificaiton,
+                context.getString(R.string.app_name)
+            ),
+            openSettingsExplanation = context.getString(R.string.permission_request_notificaiton_open_settings_explanation),
+            Build.VERSION_CODES.TIRAMISU
+        )
     }
 
     @SuppressLint("InlinedApi")
@@ -250,7 +294,15 @@ class TripSegmentGetOffAlertsViewModel @Inject internal constructor(
                             geofence.computeAndSetTimeline(trip.endDateTime.millis)
                             geofence
                         }
-                    )
+                    ) { added ->
+                        if (added && configs.showGeofences()) {
+                            showGeofencesOnMap.invoke(
+                                geofences.map {
+                                    LatLng(it.center.lat, it.center.lng) to it.radius
+                                }
+                            )
+                        }
+                    }
                 }
             }
         }

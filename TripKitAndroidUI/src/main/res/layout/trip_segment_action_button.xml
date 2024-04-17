@@ -19,7 +19,12 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:orientation="vertical"
-        android:padding="8dp">
+        android:contentDescription="@{viewModel.title}"
+        android:focusable="true"
+        android:clickable="@{!viewModel.showSpinner}"
+        android:onClick="@{() -> listener.onItemClick(viewModel.tag, viewModel)}"
+        android:importantForAccessibility="yes"
+        android:padding="@dimen/spacing_small">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="48dp"
@@ -29,7 +34,9 @@
             android:foreground="?selectableItemBackground"
             android:visibility="@{!viewModel.showSpinner}"
             android:onClick="@{() -> listener.onItemClick(viewModel.tag, viewModel)}"
-            android:background="@{viewModel.background}">
+            android:background="@{viewModel.background}"
+            android:importantForAccessibility="no"
+            tools:visibility="visible">
 
             <ImageView
                 android:layout_width="24dp"
@@ -37,38 +44,21 @@
                 android:src="@{viewModel.icon}"
                 android:layoutDirection="ltr"
                 android:adjustViewBounds="true"
+                android:importantForAccessibility="no"
                 app:customImageTint="@{viewModel.iconTint}"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent"
+                tools:src="@drawable/ic_add"/>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
-
-        <!--
-        <com.google.android.material.button.MaterialButton
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton.Icon"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:insetLeft="0dp"
-            android:insetTop="0dp"
-            android:insetRight="0dp"
-            android:insetBottom="0dp"
-            android:layoutDirection="ltr"
-            android:onClick="@{() -> listener.onItemClick(viewModel.tag, viewModel)}"
-            android:visibility="@{!viewModel.showSpinner}"
-            app:backgroundTintBinding="@{viewModel.backgroundTint}"
-            app:cornerRadius="30dp"
-            app:icon="@{viewModel.icon}"
-            app:iconTint="@{viewModel.iconTint}"
-            app:strokeColor="@{viewModel.outlineTint}"
-            app:strokeWidth="2dp" />
-        -->
 
         <ProgressBar
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:progressTint="@color/colorPrimary"
+            android:importantForAccessibility="no"
             android:visibility="@{viewModel.showSpinner}" />
 
         <TextView
@@ -79,6 +69,7 @@
             android:text="@{viewModel.title}"
             android:textAlignment="center"
             android:textColor="@color/black1"
+            android:importantForAccessibility="no"
             tools:text="An action" />
     </LinearLayout>
 

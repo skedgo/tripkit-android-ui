@@ -42,6 +42,7 @@ internal class ServiceViewModelImpl @Inject constructor(
     override val secondaryText = ObservableField<String>()
     override val secondaryTextColor: ObservableInt = ObservableInt()
     override val showOccupancyInfo = ObservableBoolean(false)
+    override val showBicycleAccessible = ObservableBoolean(false)
 
     override val tertiaryText = ObservableField<String>()
     override val quaternaryText = ObservableField<String>()
@@ -89,10 +90,15 @@ internal class ServiceViewModelImpl @Inject constructor(
             quaternaryText.set(service.operator)
         }
 
+        setBicycleAccessible()
         presentOccupancy()
         presentCountDownTimeForFrequency()
         presentServiceColor(service)
         initHelpersVMs(service)
+    }
+
+    private fun setBicycleAccessible() {
+        showBicycleAccessible.set(service.bicycleAccessible == true)
     }
 
     private fun presentOccupancy() {
@@ -149,5 +155,4 @@ internal class ServiceViewModelImpl @Inject constructor(
                 .subscribe { onAlertsClick.perform() }
                 .autoClear()
     }
-
 }

@@ -8,6 +8,7 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
 import com.skedgo.TripKit
 import com.skedgo.tripkit.common.model.Location
+import com.skedgo.tripkit.common.model.ScheduledStop
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.TripKitUI
 import com.skedgo.tripkit.ui.controller.ControllerDataProvider
@@ -18,7 +19,6 @@ import com.skedgo.tripkit.ui.core.BaseFragment
 import com.skedgo.tripkit.ui.databinding.FragmentTkuiLocationSearchViewControllerBinding
 import com.skedgo.tripkit.ui.search.FixedSuggestionsProvider
 import com.skedgo.tripkit.ui.search.LocationSearchFragment
-import timber.log.Timber
 import javax.inject.Inject
 
 class TKUILocationSearchViewControllerFragment :
@@ -126,9 +126,16 @@ class TKUILocationSearchViewControllerFragment :
                     LocationSearchFragment.OnAttachFragmentListener {
                     override fun onAttachFragment() {}
                 })
-                setOnInfoSelectedListener(object : LocationSearchFragment.OnInfoSelectedListener {
-                    override fun onInfoSelectedListener(location: Location) {
+                setOnItemActionClickListener(object : LocationSearchFragment.OnItemActionClickListener {
+                    override fun onInfoClick(location: Location) {
                         listener?.onInfoSelected(location)
+                    }
+                    override fun onSuggestionActionClick(location: Location) {
+                        // Right now, we only have scenario for Timetable entry so adding this validation
+                        // to check if the location is a ScheduledStop
+                        if(location is ScheduledStop) {
+                            //TODO update to handle timetable click on controller
+                        }
                     }
                 })
             }

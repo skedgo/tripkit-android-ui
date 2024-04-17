@@ -6,9 +6,13 @@ import android.graphics.Color
 import android.graphics.drawable.BitmapDrawable
 import android.util.Log
 import android.view.View
+import androidx.core.content.ContextCompat
 import androidx.core.graphics.ColorUtils
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.model.Circle
+import com.google.android.gms.maps.model.CircleOptions
+import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
@@ -24,6 +28,7 @@ import com.skedgo.tripkit.common.util.PolyUtil
 import com.skedgo.tripkit.common.util.TransportModeUtils
 import com.skedgo.tripkit.logging.ErrorLogger
 import com.skedgo.tripkit.routing.TripSegment
+import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.TripKitUI
 import com.skedgo.tripkit.ui.core.UnableToFetchBitmapError
 import com.skedgo.tripkit.ui.core.fetchAsync
@@ -106,6 +111,8 @@ class TripResultMapContributor : TripKitMapContributor {
     private lateinit var map: GoogleMap
     private var tileProvider: TileProvider? = null
     private var tileOverlays = mutableListOf<TileOverlay>()
+
+    private val geoFenceCircleMarkers = mutableListOf<Circle>()
 
     fun setTileProvide(url: String) {
         tileProvider = object : UrlTileProvider(256, 256) {
@@ -346,8 +353,8 @@ class TripResultMapContributor : TripKitMapContributor {
         map.animateCamera(cameraUpdate)
     }
 
+    /* Removed temporarily as still needs optimization, causes the app to lag.
     fun focusTripLine(segment: TripSegment) {
-
         val segmentPolyLines = segment.getPolyLines()
 
         updateTravelledPolyLinesHighlight(segmentPolyLines)
@@ -371,6 +378,7 @@ class TripResultMapContributor : TripKitMapContributor {
             map.animateCamera(cameraUpdate)
         }
     }
+    */
 
     private fun updateTravelledPolyLinesHighlight(segmentPolyLines: List<Polyline>) {
         tripLinesTravelled.forEach { polyLine ->
@@ -514,6 +522,22 @@ class TripResultMapContributor : TripKitMapContributor {
                 map.animateCamera(CameraUpdateFactory.newLatLngZoom(marker.position, 15.0f))
             }
         }
+    }
+
+    /**
+     * Added for for showing and debugging geofences in map.
+     */
+    fun addCircleToMap(circle: CircleOptions) {
+        if (!this::map.isInitialized) {
+            return
+        }
+        map.addCircle(circle)?.apply {
+            geoFenceCircleMarkers.add(this)
+        }
+    }
+
+    fun clearMapCircles() {
+        geoFenceCircleMarkers.forEach { it.remove() }
     }
 
 }

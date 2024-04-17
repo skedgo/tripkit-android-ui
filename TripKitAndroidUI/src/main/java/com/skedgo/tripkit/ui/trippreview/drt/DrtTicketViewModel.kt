@@ -5,7 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.DiffUtil
-import com.skedgo.tripkit.booking.quickbooking.Ticket
+import com.skedgo.tripkit.booking.quickbooking.Fare
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.payment.PaymentSummaryDetails
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -45,8 +45,8 @@ class DrtTicketViewModel : ViewModel() {
     private val _enableDecrement = MutableLiveData(false)
     val enableDecrement: LiveData<Boolean> = _enableDecrement
 
-    private val _ticket = MutableLiveData<Ticket>()
-    val ticket: LiveData<Ticket> = _ticket
+    private val _fare = MutableLiveData<Fare>()
+    val fare: LiveData<Fare> = _fare
 
     private val _itemId = MutableLiveData<String>()
     val itemId: LiveData<String> = _itemId
@@ -85,8 +85,8 @@ class DrtTicketViewModel : ViewModel() {
         _price.value = value
     }
 
-    fun setTicket(value: Ticket) {
-        _ticket.value = value
+    fun setTicket(value: Fare) {
+        _fare.value = value
     }
 
     fun setValue(value: Long) {
@@ -105,7 +105,7 @@ class DrtTicketViewModel : ViewModel() {
         _accessibilityFocusIncrementAction.postValue(false)
         var result = ((value.value)?.toLong() ?: 0) + 1
 
-        _ticket.value?.max?.let {
+        _fare.value?.max?.let {
             if (result > it) result = it.toLong()
         }
 
@@ -127,10 +127,10 @@ class DrtTicketViewModel : ViewModel() {
     }
 
     private fun updateTicket(value: Long) {
-        val ticket = ticket.value
+        val ticket = fare.value
         ticket?.value = value
         ticket?.let {
-            _ticket.value = it
+            _fare.value = it
         }
     }
 

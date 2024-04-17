@@ -17,6 +17,7 @@ import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.list.listItems
 import com.araujo.jordan.excuseme.ExcuseMe
 import com.araujo.jordan.excuseme.model.PermissionStatus
+import com.skedgo.tripkit.ui.R
 import java.lang.Exception
 
 fun Context.viewAppDetailsSettingsIntent(): Intent = Intent(
@@ -172,4 +173,18 @@ fun Context.requestPermissionGently(
             showSettingsExplanation = openSettingsExplanation
         )
         .permissionFor(*permissions.toTypedArray()) { callback.invoke(it) }
+}
+
+fun Context.showProminentDisclosure(onActionClicked: (Boolean) -> Unit) {
+    showConfirmationPopUpDialog(
+        message = getString(R.string.msg_prominent_disclosure),
+        positiveLabel = getString(R.string.continue_),
+        positiveCallback = {
+            onActionClicked.invoke(true)
+        },
+        negativeLabel = getString(R.string.cancel),
+        negativeCallback = {
+            onActionClicked.invoke(false)
+        }
+    )
 }

@@ -28,6 +28,7 @@ import com.skedgo.tripkit.ui.core.settings.DeveloperPreferenceRepositoryImpl;
 import com.skedgo.tripkit.ui.data.places.PlaceSearchRepository;
 import com.skedgo.tripkit.ui.data.waypoints.WaypointsModule;
 import com.skedgo.tripkit.ui.locationpointer.LocationPointerComponent;
+import com.skedgo.tripkit.ui.map.MarkerIconManager;
 import com.skedgo.tripkit.ui.poidetails.PoiDetailsFragment;
 import com.skedgo.tripkit.ui.routingresults.TripGroupRepository;
 import com.skedgo.tripkit.ui.search.FetchSuggestions;
@@ -65,6 +66,7 @@ import static com.skedgo.tripkit.routing.TripAlarmBroadcastReceiver.NOTIFICATION
 @Singleton
 @Component(modules = {
         AutoCompleteTaskModule.class,
+        AutoCompleteTaskProvidesModule.class,
         SchedulerFactoryModule.class,
         GooglePlacesModule.class,
         ConnectivityServiceModule.class,
@@ -100,7 +102,8 @@ import static com.skedgo.tripkit.routing.TripAlarmBroadcastReceiver.NOTIFICATION
         ViewModelModule.class,
         ControllerModule.class,
         DeveloperOptionModule.class,
-        RemindersRepositoryModule.class
+        RemindersRepositoryModule.class,
+        TripKitPreferenceModule.class
 })
 public abstract class TripKitUI {
     private static TripKitUI instance;
@@ -130,12 +133,9 @@ public abstract class TripKitUI {
                         return repository.getServer();
                     }
                 })
-                .userTokenProvider(new Callable<String>() {
-                    @Override
-                    public String call() throws Exception {
-                        SharedPreferences prefs = context.getSharedPreferences("UserTokenPreferences", Context.MODE_PRIVATE);
-                        return prefs.getString("userToken", "");
-                    }
+                .userTokenProvider(() -> {
+                    SharedPreferences prefs = context.getSharedPreferences("UserTokenPreferences", Context.MODE_PRIVATE);
+                    return prefs.getString("userToken", "");
                 })
                 .key(() -> key).build();
     }
@@ -157,12 +157,9 @@ public abstract class TripKitUI {
                                 (Callable<String>) repository::getServer
 
                 )
-                .userTokenProvider(new Callable<String>() {
-                    @Override
-                    public String call() throws Exception {
-                        SharedPreferences prefs = context.getSharedPreferences("UserTokenPreferences", Context.MODE_PRIVATE);
-                        return prefs.getString("userToken", "");
-                    }
+                .userTokenProvider(() -> {
+                    SharedPreferences prefs = context.getSharedPreferences("UserTokenPreferences", Context.MODE_PRIVATE);
+                    return prefs.getString("userToken", "");
                 })
                 .key(() -> key).build();
     }
@@ -185,7 +182,7 @@ public abstract class TripKitUI {
                                   @Nullable Configs configs,
                                   @Nullable HttpClientModule httpClientModule) {
         RxDogTag.install();
-
+        MarkerIconManager.INSTANCE.init(context);
         if (!TripKit.isInitialized()) {
             if ("SKEDGO_API_KEY".equals(key.getValue())) {
                 throw new IllegalStateException("Invalid SkedGo API Key.");

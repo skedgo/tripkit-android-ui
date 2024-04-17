@@ -26,7 +26,7 @@ import javax.inject.Inject
 
 class FetchService @Inject constructor(
     private val context: Context,
-    private val getWheelchairAccessible: GetWheelchairAccessible
+    private val getModeAccessibility: GetModeAccessibility
 ) {
     fun execute(service: TimetableEntry, stop: Location): Completable {
         return Completable
@@ -79,7 +79,11 @@ class FetchService @Inject constructor(
                             )
                             stopValues.put(
                                 DbFields.WHEELCHAIR_ACCESSIBLE.name,
-                                getWheelchairAccessible.invoke(serviceStop)
+                                getModeAccessibility.wheelchair(serviceStop)
+                            )
+                            stopValues.put(
+                                DbFields.BICYCLE_ACCESSIBLE.name,
+                                getModeAccessibility.bicycle(serviceStop)
                             )
 
                             var timeToUse = serviceStop.departureSecs()

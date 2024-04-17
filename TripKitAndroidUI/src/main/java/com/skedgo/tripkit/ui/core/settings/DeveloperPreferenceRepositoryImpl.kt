@@ -3,7 +3,7 @@ package com.skedgo.tripkit.ui.core.settings
 import android.content.Context
 import android.content.SharedPreferences
 import android.util.Log
-import com.skedgo.tripkit.configuration.Server
+import com.skedgo.tripkit.configuration.ServerManager
 import com.skedgo.tripkit.ui.R
 import io.reactivex.Observable
 
@@ -18,7 +18,7 @@ class DeveloperPreferenceRepositoryImpl constructor(
   private val serverTypeKey by lazy { context.getString(R.string.pref_server_type) }
   private val customServerKey by lazy { context.getString(R.string.pref_custom_server) }
   private val productionServer by lazy { "" }
-  private val betaServer by lazy { Server.BigBang.value }
+  private val betaServer by lazy { ServerManager.configuration.bigBangUrl }
 
   override val onIsEnabledChange: Observable<Boolean> by lazy {
     preferences.onChange(isEnabledKey)

@@ -57,6 +57,7 @@ class ServiceDetailViewModel @Inject constructor(
     val secondaryTextColor: ObservableInt = ObservableInt()
     val tertiaryText = ObservableField<String>()
     val showWheelchairAccessible = ObservableBoolean(false)
+
     val wheelchairAccessibleText = ObservableField<String>()
     val showExpandableMenu = ObservableBoolean(false)
     val modeInfo = ObservableField<ModeInfo>()
@@ -78,6 +79,9 @@ class ServiceDetailViewModel @Inject constructor(
 
     var alertClickListener: AlertClickListener? = null
 
+    private val _showBicycleAccessible = MutableLiveData(false)
+    val showBicycleAccessible: LiveData<Boolean> = _showBicycleAccessible
+
     fun setAlerts(alerts: List<RealtimeAlert>?) {
         _alerts.postValue(alerts.orEmpty())
     }
@@ -94,6 +98,7 @@ class ServiceDetailViewModel @Inject constructor(
         embarkation: Long,
         realTimeVehicle: RealTimeVehicle?,
         wheelchairAccessible: Boolean?,
+        bicycleAccessible: Boolean?,
         schedule: Pair<String, Int>? = null,
         modeInfo: ModeInfo? = null
     ) {
@@ -132,7 +137,11 @@ class ServiceDetailViewModel @Inject constructor(
             }
         }
 
-        showExpandableMenu.set(showOccupancyInfo.get() && showWheelchairAccessible.get())
+        _showBicycleAccessible.postValue(bicycleAccessible ?: false)
+
+        showExpandableMenu.set(
+            showOccupancyInfo.get() || showWheelchairAccessible.get() || (showBicycleAccessible.value ?: false)
+        )
 
         serviceColor?.let {
             when (it.color) {
@@ -169,7 +178,8 @@ class ServiceDetailViewModel @Inject constructor(
                     segment.endStopCode,
                     segment.timetableStartTime,
                     segment.realTimeVehicle,
-                    segment.wheelchairAccessible
+                    segment.wheelchairAccessible,
+                    segment.bicycleAccessible
                 )
             }, {
                 Timber.e(it)
@@ -198,6 +208,7 @@ class ServiceDetailViewModel @Inject constructor(
                     _entry.startTimeInSecs,
                     _entry.realtimeVehicle,
                     _entry.wheelchairAccessible,
+                    _entry.bicycleAccessible,
                     getRealtimeText.execute(_stop.dateTimeZone, _entry, _entry.realtimeVehicle),
                     _entry.modeInfo
                 )

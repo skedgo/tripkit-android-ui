@@ -47,12 +47,14 @@ class TripSegmentViewModel @Inject constructor(private val context: Context, pri
     val secondaryText = ObservableField<CharSequence>()
     val isHideExactTimes = ObservableBoolean(false)
     val isRealtime = ObservableBoolean(false)
+    val isBicycleAccessible = ObservableBoolean(false)
 
     fun setSegment(trip: Trip, segment: TripSegment) {
         showTitle(segment)
 
         isHideExactTimes.set(segment.isHideExactTimes)
         isRealtime.set(segment.isRealTime)
+        isBicycleAccessible.set(segment.bicycleAccessible)
 
         buildSubtitle(trip, segment)
 

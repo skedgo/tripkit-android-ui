@@ -1,15 +1,11 @@
 package com.skedgo.tripkit.ui.tripresults.actionbutton
 
 import android.content.Context
-import android.util.Log
-import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
 import androidx.databinding.ObservableField
-import androidx.lifecycle.ViewModel
 import com.skedgo.tripkit.routing.Trip
 import com.skedgo.tripkit.routing.TripSegment
 import com.skedgo.tripkit.routing.getMainTripSegment
-import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.tripresult.ActionButtonViewModel
 import com.skedgo.tripkit.ui.utils.ITEM_EXTERNAL_BOOKING
 import com.skedgo.tripkit.ui.utils.ITEM_QUICK_BOOKING
@@ -41,13 +37,14 @@ open class ActionButtonHandler {
         const val ACTION_TAG_FAVORITE = "favorite"
         const val ACTION_TAG_REPORT = "report"
         const val ACTION_TAG_ALERT = "alert"
+        const val ACTION_EXTERNAL_SHOW_TICKET = "showTicket"
     }
 
     var container: ActionButtonContainer? = null
     protected fun segmentSearch(trip: Trip): TripSegment? {
         return trip.segments.find {
             val itemType = it.correctItemType()
-            (itemType == ITEM_QUICK_BOOKING || itemType == ITEM_SERVICE || itemType == ITEM_EXTERNAL_BOOKING)
+            (itemType == ITEM_QUICK_BOOKING || itemType == ITEM_EXTERNAL_BOOKING)
         }
     }
 
@@ -65,14 +62,6 @@ open class ActionButtonHandler {
         } else if (type == ITEM_QUICK_BOOKING
             || type == ITEM_EXTERNAL_BOOKING
         ) {
-
-            /*
-           if (!foundSegment.booking?.accessibilityLabel.isNullOrEmpty()) {
-               result.set(foundSegment.booking?.accessibilityLabel)
-           } else {
-               result.set(foundSegment.booking?.title)
-           }
-           */
             result.set(foundSegment.booking?.title)
             return result
         } else {
@@ -105,4 +94,6 @@ open class ActionButtonHandler {
     ) {
     }
 
+    // Interim solution, should find a better workaround for this one
+    open fun handleCustomAction(tag: String, data: Any) {}
 }

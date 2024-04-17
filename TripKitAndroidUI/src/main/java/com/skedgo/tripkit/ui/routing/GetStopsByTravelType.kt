@@ -26,7 +26,8 @@ open class GetStopsByTravelType @Inject internal constructor() {
                       arrivalDateTime = it.relativeDeparture?.let {
                         segment.startDateTime.plusSeconds(it.toInt())
                       },
-                      isWheelchairAccessible = it.wheelchairAccessible
+                      isWheelchairAccessible = it.wheelchairAccessible,
+                      isBicycleAccessible = it.bicycleAccessible
                   )
                 }
           }
