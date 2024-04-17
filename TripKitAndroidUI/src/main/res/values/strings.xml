@@ -98,6 +98,7 @@
     <string name="lbl_drop_off">Drop off</string>
     <string name="i_want_to_delete_my_account">I want to delete my account</string>
     <string name="lbl_manage">Manage</string>
+    <string name="bicycle_accessible">Bicycle accessible</string>
 
 
     <!--Class = "UISearchBar"; placeholder = "Search"; ObjectID = "GjR-iv-Ew6";-->
@@ -586,4 +587,9 @@ We aggregate the anonymised data and provide it to researchers, regulators, and 
     <string name="next_up">Next Up</string>
     <string name="could_not_get_location">Could not get location</string>
     <string name="show_ticket">Show ticket</string>
+
+    <plurals name="ambulatory_riders">
+        <item quantity="one">1 ambulatory rider</item>
+        <item quantity="other">%d ambulatory riders</item>
+    </plurals>
 </resources>

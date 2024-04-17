@@ -106,28 +106,18 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent">
 
-                <!-- TODO replace with plain imageview/button-->
-                <FrameLayout
+                <ImageButton
                     android:id="@+id/itemDrt_ibDecrement"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_width="@dimen/drt_ticket_action_icon_size"
+                    android:layout_height="@dimen/drt_ticket_action_icon_size"
+                    android:src="@drawable/ic_minus_small"
+                    android:padding="@dimen/spacing_small"
                     android:background="@drawable/bg_round_rect_primary_dark"
-                    android:contentDescription="@string/talkback_decrement"
-                    android:onClick="@{() -> viewModel.onDecrementValue()}"
                     android:visibility="@{!viewModel.viewMode &amp; viewModel.value > 0}"
+                    android:contentDescription="@string/talkback_decrement"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent">
-
-                    <ImageView
-                        android:layout_width="@dimen/icon_increment_action"
-                        android:layout_height="@dimen/icon_increment_action"
-                        android:background="?attr/selectableItemBackground"
-                        android:padding="@dimen/map_icon_padding"
-                        android:src="@drawable/ic_minus_n"
-                        app:tint="@android:color/white" />
-
-                </FrameLayout>
+                    app:layout_constraintTop_toTopOf="parent"/>
 
                 <TextView
                     android:id="@+id/itemDrt_tvQuantity"
@@ -144,29 +134,20 @@
                     app:layout_constraintTop_toTopOf="parent"
                     tools:text="x10" />
 
-                <!-- TODO replace with plain imageview/button-->
-                <FrameLayout
+                <ImageButton
                     android:id="@+id/itemDrt_ibIncrement"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_width="@dimen/drt_ticket_action_icon_size"
+                    android:layout_height="@dimen/drt_ticket_action_icon_size"
+                    android:src="@drawable/ic_add_small"
+                    android:padding="@dimen/spacing_small"
                     android:background="@drawable/bg_round_rect_primary_dark"
                     android:contentDescription="@string/talkback_increment"
-                    android:onClick="@{() -> viewModel.onIncrementValue()}"
                     android:visibility="@{!viewModel.viewMode &amp; viewModel.value > 0}"
                     app:accessibilityViewFocus="@{viewModel.accessibilityFocusIncrementAction}"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toEndOf="@id/itemDrt_tvQuantity"
-                    app:layout_constraintTop_toTopOf="parent">
+                    app:layout_constraintTop_toTopOf="parent"/>
 
-                    <ImageView
-                        android:layout_width="@dimen/icon_increment_action"
-                        android:layout_height="@dimen/icon_increment_action"
-                        android:background="?attr/selectableItemBackground"
-                        android:padding="@dimen/map_icon_padding"
-                        android:src="@drawable/ic_add"
-                        app:tint="@android:color/white" />
-
-                </FrameLayout>
             </androidx.constraintlayout.widget.ConstraintLayout>
 
             <TextView
