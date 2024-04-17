@@ -1,0 +1,569 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="skedgo_api_key">SKEDGO_API_KEY</string>
+    <string name="google_places_api_key">GOOGLE_PLACES_API_KEY</string>
+    <string name="stripe_api_key">STRIPE_API_KEY</string>
+    <string name="stripe_api_key_sandbox">STRIPE_API_KEY_SANDBOX</string>
+    <string name="stationName">Stationsname</string>
+    <string name="no_realtime_available">Keine Echtzeitdaten</string>
+    <string name="more">Mehr</string>
+    <string name="pref_transfer_time">transfer_time</string>
+    <string name="pref_cycling_speed">cycling_speed</string>
+    <string name="pref_walking_speed">walking_speed</string>
+    <string name="pref_budget">budget</string>
+    <string name="pref_time">time</string>
+    <string name="pref_carbon">carbon</string>
+    <string name="pref_hassle">hassle</string>
+    <string name="pref_exercise">exercise</string>
+    <string name="less">Weniger</string>
+    <!--Format for a service's real-time indicator for a service which is early, e.g., 'Arriving 1 min early'. This means #1 is replaced with something like '1 min'.-->
+    <!--<string name="realtime_early">Arriving %1$s early</string>-->
+    <string name="realtime_early">%1$s früh</string>
+    <!--Format for a service's real-time indicator for a service which is late, e.g., 'Delayed 1 min late'. This means #1 is replaced with something like '1 min'.-->
+    <!--<string name="realtime_late">Delayed %1$s late</string>-->
+    <string name="realtime_late">%1$s spät</string>
+    <string name="unknown_error">Ein unbekannter Fehler ist aufgetreten</string>
+    <string name="no_results">Keine Ergebnisse</string>
+    <string name="platform">Gleis %s</string>
+    <string name="share">Teilen</string>
+    <string name="kickscooter">Scooter</string>
+    <string name="scan_qr_code">QR-Code Scannen</string>
+    <string name="scan">Scannen</string>
+    <string name="open_in">Öffnen mit...</string>
+    <!--This is to indicate a mobility plan is the user's either future or current plan-->
+    <string name="subscribed">Abonniert</string>
+    <string name="accept">Akzeptieren</string>
+    <string name="str_updating">Wird aktualisiert...</string>
+    <string name="lbl_required">erforderlich</string>
+    <string name="desc_close">Schließen</string>
+    <string name="desc_close_button">Schaltfläche „Schließen“</string>
+    <string name="desc_change_button">Schaltfläche „Ändern“</string>
+    <string name="desc_done_button">Schaltfläche „Fertig“</string>
+    <string name="action_call_taxis">Taxis Combined anrufen</string>
+    <string name="action_get_ingogo">ingogo herunterladen</string>
+    <string name="one_way_only">Nur Hin</string>
+    <string name="str_minutes">Minuten</string>
+    <string name="pick_up_window">Abholungszeitraum</string>
+    <string name="str_return_trip_voice_over">Select One-way only to decline a round trip, or select a date and time for your return trip.</string>
+    <string name="str_select">Auswählen</string>
+    <string name="str_select_tickets">Tickets auswählen</string>
+    <string name="action_continue_to_payment">Weiter zur Bezahlung</string>
+    <string name="talkback_decrement">Reduzieren</string>
+    <string name="talkback_increment">Erhöhen</string>
+    <string name="notes_from_operator">Hinweise vom Betreiber</string>
+    <string name="lbl_alert_when_get_off">Trip Benachrichtigungen</string>
+    <string name="lbl_get_notifications_when">Bekomme Benachrichtigungen wenn:</string>
+    <string name="msg_prominent_disclosure">This app collects location data to enable trip alerts to notify you when your trip is starting, alert you about nearby stops during an ongoing trip, and inform you upon arriving at your destination, even when the app is closed or not in use. This ensures you receive timely updates and have a smoother travel experience. We prioritize your privacy and use this data solely for enhancing your travel with us.</string>
+    <string name="lbl_go_to_current_location">Go to current location</string>
+    <string name="get_off_alerts_trip_about_to_start">Der Trip beginnt gleich</string>
+    <string name="get_off_alerts_getting_within_disembarkation_point">Getting within 500m of the disembarkation point</string>
+    <string name="get_off_alerts_passed_by_the_previous_stop">An der vorherigen Haltestelle vorbeigefahren</string>
+    <string name="get_off_alerts_about_to_arrive_final_destination">About to arrive the final destination</string>
+    <string name="get_off_alerts_vehicle_is_approaching_your_boarding_stop">Das Fahrzeug nähert sich der Einstiegshaltestelle</string>
+    <string name="permission_request_title">Berechtigungsanfrage</string>
+    <string name="permission_request_notificaiton">%s erlauben, dir Benachrichtigungen zu schicken?</string>
+    <string name="permission_request_notificaiton_open_settings_explanation">Diese Berechtigung wird benötigt, um Benachrichtigungen über deine Trips zu erhalten.</string>
+    <string name="location_provider_disabled">Ortungsdienste deaktiviert</string>
+    <string name="device_location_is_turned_off">Deine Geräteposition ist ausgeschaltet, bitte aktiviere sie und versuche es erneut</string>
+    <string name="learn_more">Mehr erfahren</string>
+    <!--From android_localizable_strings.xliff.xml-->
+    <string name="an_unexpected_network_error_has_occurred_dot_please_retry_dot">Unerwarteter Netzwerkfehler. Bitte versuche es noch einmal.</string>
+    <string name="failed_to_resolve_location">Ort nicht gefunden</string>
+    <string name="information_on_concession_pricing_is_subject_to_availability_dot">Informationen über Ermässigungen wenn verfügbar.</string>
+    <string name="go_to_now">Gehe zu Jetzt</string>
+    <string name="events_from_those_calendars_will_be_used_in_planning_your_day">Ereignisse aus diesen Kalendern werden genutzt um deinen Tag zu planen</string>
+    <string name="_1_minute">1 Minute</string>
+    <string name="set_end_time">Endzeit einstellen</string>
+    <string name="select_calendars">Kalendar auswählen</string>
+    <string name="save">Speichern</string>
+    <string name="about">Über</string>
+    <string name="set_start_time">Anfangszeit einstellen</string>
+    <string name="server">Server</string>
+    <string name="version">Version</string>
+    <string name="cycling_speed">Radfahrgeschwindigkeit</string>
+    <string name="unknown_location">Unbekannter Ort</string>
+    <string name="tomorrow">Morgen</string>
+    <string name="today">Heute</string>
+    <string name="yesterday">Gestern</string>
+    <string name="include_in_trips">Für Routen verwenden</string>
+    <!--Occupancy almost full-->
+    <string name="almost_full">Fast voll</string>
+    <string name="str_mins">Min</string>
+    <string name="lbl_search_for_destination">Suche nach Reiseziel</string>
+    <string name="lbl_pickup">Abholung</string>
+    <string name="lbl_drop_off">Drop-off</string>
+    <string name="i_want_to_delete_my_account">Meinen Account löschen</string>
+    <string name="lbl_manage">Verwalten</string>
+    <!--Class = "UISearchBar"; placeholder = "Search"; ObjectID = "GjR-iv-Ew6";-->
+    <string name="search">Suche</string>
+    <!--Class = "UILabel"; text = "Save time"; ObjectID = "KSL-Sc-UHU";-->
+    <string name="save_time">Zeit</string>
+    <!--Class = "UILabel"; text = "Reduce carbon"; ObjectID = "RKH-vV-EU9";-->
+    <string name="reduce_carbon">Umweltfreundlich</string>
+    <!--Class = "UILabel"; text = "Convenience"; ObjectID = "brC-tq-EEG";-->
+    <string name="convenience">Bequem</string>
+    <!--Class = "UILabel"; text = "Less hassle"; ObjectID = "g7e-OY-rPw";-->
+    <string name="exercise">Fitness</string>
+    <!--Class = "UIButton"; normalTitle = "Reset"; ObjectID = "vhz-Cp-aY4";-->
+    <string name="reset">Zurücksetzen</string>
+    <!--Class = "UILabel"; text = "Save money"; ObjectID = "yuP-f9-IR1";-->
+    <string name="save_money">Kosten</string>
+    <!--Header for accessing my account-->
+    <string name="my_account">Mein Account</string>
+    <!--Every weekday in context of repetitions (especially recurring events)-->
+    <string name="weekdays">Wochentags</string>
+    <!--to %date. (old key: DateToFormat)-->
+    <string name="to__pattern">bis %1$s</string>
+    <!--Minutes format (used for transfer times). (old key: Minutes)-->
+    <string name="_perc_dot0f_minutes">%.0f Minuten</string>
+    <!--Title for linked third-party account, eg, Uber Account-->
+    <string name="_pattern_account">%1$s Konto</string>
+    <!--Filler for a specific service running at a time, e.g., '396 at 11:56am'-->
+    <string name="_pattern_at__pattern">%1$s um %2$s</string>
+    <!--Filler for a specific frequency-based service indicating its frequency, e.g., 'M10 every 10 minutes'-->
+    <string name="_pattern_every__pattern">%1$s alle %2$s</string>
+    <!--About for a provider, usually takes users to view a web page, eg, About PayiQ-->
+    <string name="about__pattern">Über %1$s</string>
+    <!--Arrive before button-->
+    <string name="arrive_by">Ankunft</string>
+    <!--Distance automatic-->
+    <string name="auto">autom.</string>
+    <!--Available number of shared bicycles.-->
+    <string name="available_bikes">Verfügbare Fahrräder</string>
+    <!--Title for showing the battery charge level of a vehicle-->
+    <string name="battery">Batterie</string>
+    <!--No comment provided by engineer.-->
+    <string name="calendars">Kalender</string>
+    <!--School pricing preference-->
+    <string name="concession_pricing">Ermäßigter Preis</string>
+    <!--Text for attributing data sources. The list of providers will be used instead of '%@'-->
+    <string name="data_provided_by__pattern">Daten von %1$s</string>
+    <!--Distances preference-->
+    <string name="distances">Entfernungen</string>
+    <!--Empty docks that are available to return a shared bicycle.-->
+    <string name="empty_docks">Anzahl freie Plätze</string>
+    <!--Title for the time an event ends (without date information)-->
+    <string name="end">Ankunft</string>
+    <!--No comment provided by engineer.-->
+    <string name="error_encountered">Fehler aufgetreten</string>
+    <!--Title for list of expired tickets-->
+    <string name="expired">Abgelaufen</string>
+    <!--Speed preference 'fast'-->
+    <string name="fast">Schnell</string>
+    <!--No comment provided by engineer.-->
+    <string name="favourite">Favorit</string>
+    <!--Help title-->
+    <string name="feedback__ampersand_support">Ideen &amp; Support</string>
+    <!--Placeholder text for search bar that is used for filtering-->
+    <string name="filter">Filter</string>
+    <!--Typical name that you'd give your home location-->
+    <string name="home">Zuhause</string>
+    <!--Map mode streets + satellite-->
+    <string name="hybrid">Hybrid</string>
+    <!--Distance kilometers-->
+    <string name="km">KM</string>
+    <!--Leave after button-->
+    <string name="leave_at">Abfahrt</string>
+    <!--Speed preference 'medium'-->
+    <string name="medium">Mittel</string>
+    <!--Distance miles-->
+    <string name="mi">Meilen</string>
+    <!--Minimum transfer time preference-->
+    <string name="min_transfer_time">Umstiegszeit (mind.)</string>
+    <!--No comment provided by engineer.-->
+    <string name="minimise_results_for_this_mode_on_the_routes_screen_dot_great_for_transport_options_you_only_use_occasionally_dot">Um Ergebnisse für dieses Transportmittel auf der Routen-Seite zu minimieren. Praktisch für welche die du nur ab und an nimmst.</string>
+    <!--Header for list of how to get more information (eg, by opening a website)-->
+    <string name="more_information">More Informationen</string>
+    <!--Title for profile item that loads a list of user's bookings-->
+    <string name="my_bookings">Buchungen</string>
+    <!--No comment provided by engineer.-->
+    <string name="my_transport">Transport</string>
+    <!--No comment provided by engineer.-->
+    <string name="ok">OK</string>
+    <!--No comment provided by engineer.-->
+    <string name="open_website">Webseite öffnen</string>
+    <!--Title for preferred public transport modes-->
+    <string name="preferred_transport">Bevorzugte ÖPNV-Verkehrsmittel</string>
+    <!--Label for Price button to sort trips by their total cost (old key: ViewPriceButton)-->
+    <string name="price">Preis</string>
+    <!--No comment provided by engineer.-->
+    <string name="priorities">Prioritäten</string>
+    <!--Reminders title-->
+    <string name="reminders">Erinnerungen</string>
+    <!--Remove favourite activity title-->
+    <string name="remove_favourite">Favorit löschen</string>
+    <!--Report problem-->
+    <string name="report_problem">Problem \n melden</string>
+    <!--Title for action to perform by the user if an event is outside TripGos range The action will display a feedback form to request the region of that event-->
+    <string name="request">Anfragen</string>
+    <!--Header for section to configure return trip-->
+    <string name="return_trip">Rückweg</string>
+    <!--No comment provided by engineer.-->
+    <string name="route">Route</string>
+    <!--Map mode satellite-->
+    <string name="satellite">Satellit</string>
+    <!--Action button title for sharing when you arrive-->
+    <string name="share_arrival">Ankunft senden</string>
+    <!--Action button title to show the trip of a logged entry-->
+    <string name="show_trip">Trip anzeigen</string>
+    <!--Button title to skip a certain step-->
+    <string name="skip">Überspringen</string>
+    <!--Speed preference 'slow'-->
+    <string name="slow">Langsam</string>
+    <!--Title for the time an event starts (without date information)-->
+    <string name="start">Abfahrt</string>
+    <!--Map mode streets-->
+    <string name="streets">Straße</string>
+    <string name="tickets">Tickets</string>
+    <!--Title for list of valid tickets-->
+    <string name="valid">Gültig</string>
+    <!--Walking speed preference-->
+    <string name="walk_speed">Laufgeschwindigkeit</string>
+    <!--No comment provided by engineer.-->
+    <string name="week_starts">Wochenbeginn</string>
+    <!--Preference to highlight wheelchair information-->
+    <string name="wheelchair_information">Rollstuhl-Informationen</string>
+    <!--Where do you want to go?-->
+    <string name="where_do_you_want_to_go_question">Wohin?</string>
+    <!--Typical name that you'd give your work location-->
+    <string name="work">Arbeit</string>
+    <!--goCatch action-->
+    <string name="gocatch_a_taxi">goCatch nehmen</string>
+    <!--Title for button to access agenda-->
+    <string name="agenda">Agenda</string>
+    <!--No comment provided by engineer.-->
+    <string name="app_usage_and_analytics">App-Nutzung</string>
+    <!--Button to apply some settings, e.g., apply filter settings-->
+    <string name="apply">Bestätigen</string>
+    <!--No comment provided by engineer.-->
+    <string name="calendars_on_your_agenda">Kalender auf deiner Agenda</string>
+    <!--Title for the button that allows users to change his/her mobility plan for the next month-->
+    <string name="change_to_this_plan">Zu diesem Paket wechseln</string>
+    <!--Title for an alert that asks users for confirmation.-->
+    <string name="confirmation_is_required">Bestätigung erforderlich</string>
+    <!--This is to indicate a mobility plan is the user's current plan-->
+    <string name="current">Ausgewählt</string>
+    <!--Title for a cell that shows the description for a mobility plan-->
+    <string name="description">Beschreibung</string>
+    <!--No comment provided by engineer.-->
+    <string name="device_data">Gerätedaten</string>
+    <!--No comment provided by engineer.-->
+    <string name="edit_calendars">Kalender bearbeiten</string>
+    <!--No comment provided by engineer.-->
+    <string name="edit_transport_modes">Verkehrsmittel auswählen</string>
+    <!--This usually means some service is free of charge, for instance, public transport may be free inside a mobility bundle-->
+    <string name="free">Kostenlos</string>
+    <!--This usually means that there's no discount for some service. For instance, a user may need to pay full fare for a transport mode not included in his/her mobility bundle.-->
+    <string name="full_fare">Voller Preis</string>
+    <!--No comment provided by engineer.-->
+    <string name="get_updated_etas_while_you_apostre_on_a_trip_by_reporting_you_current_location_back_to_our_servers_dot_this_also_helps_improve_our_travel_time_prediction_dot_we_may_share_this_data_with_our_partners_who_help_us_make_those_predictions_dot">Erhalte aktuelle Schätzungen deiner Ankunftszeit, während du unterwegs bist. Dein aktueller Standort wird dazu an unsere Server übermittelt. Dies hilft auch die Reisezeit-Vorhersagen zu verbessern.
+Wir können diese Daten mit unseren Partnern teilen, die uns dabei helfen, diese Vorhersagen zu machen.</string>
+    <!--No comment provided by engineer.-->
+    <string name="help_improve_transport_services_in_your_area_by_allowing_us_to_collect_information_about_which_trips_you_select_in_the_app_dot_we_aggregate_the_anonymised_data_and_provide_it_to_researchers_coma_regulators_coma_and_transport_providers_dot">Hilf mit, Verkehrsdienste in deiner Region zu verbessern, indem du uns erlaubst aufzuzeichnen, welche Trips du in der App auswählst.
+Diese Daten werden anonymisiert und wir stellen sie Forschern, Behörden und Transportdienstleistern zur Verfügung.</string>
+    <!--No comment provided by engineer.-->
+    <string name="help_us_improve_flavor_by_allowing_us_to_collect_data_about_which_features_you_use_in_the_app_coma_and_how_often_dot">Hilf mit, %1$s zu verbessern, indem du uns erlaubst aufzuzeichnen, welche Funktionen du wie oft in der App verwendest.</string>
+    <!--No comment provided by engineer.-->
+    <string name="if_you_have_granted_flavor_access_to_your_current_location_coma_contacts_coma_calendar_coma_and_more_coma_you_can_withdraw_access_to_that_data_by_going_to_the_settings_app_dot">Wenn du %1$s Zugriff auf deinen aktuellen Standort, deine Kontakte, Kalender usw. gewährt hast, kannst du diesen über die App \"Einstellungen\" widerrufen.</string>
+    <!--Title-->
+    <string name="managing_your_personal_data">Persönliche Daten verwalten</string>
+    <!--Button to show a map or to modify the map's settings-->
+    <string name="map">Karte</string>
+    <!--Indicator that a transport mode will appear minimised on the routes screen.-->
+    <string name="minimised">Minimiert</string>
+    <!--This is a type of mobility bundle. It usually means users have to pay the amount specified to access the benefits included in the bundle. The difference between this and the Subscription type is the fees paid can be used on travel.-->
+    <string name="minimum_purchase">Mindestabnahme</string>
+    <!--Title for screen that shows a list of mobility plans currently offered.-->
+    <string name="mobility_plans">Mobilitätspaket</string>
+    <!--Title-->
+    <string name="my_personal_data">Persönliche Daten</string>
+    <!--Title for screen that shows the user's current and upcoming (if applicable) plans-->
+    <string name="my_mobility_plan">Mein Mobilitätspaket</string>
+    <!--Title for a cell that shows the name of a mobility plan-->
+    <string name="name">Name</string>
+    <!--No comment provided by engineer.-->
+    <string name="open_settings_app">Einstellungen öffnen</string>
+    <!--Profile tab bar name-->
+    <string name="profile">Profil</string>
+    <!--Title-->
+    <string name="read_to_learn_more_about_how_and_why_flavor_uses_your_personal_data_coma_and_control_what_you_want_to_share_dot">Hier erfährst du, wie und warum %1$s deine persönlichen Daten verwendet, und kannst einstellen welche Daten du teilen möchtest.</string>
+    <!--No comment provided by engineer.-->
+    <string name="real_minustime_information_for_transport_options">Echtzeitinformationen für Transportoptionen</string>
+    <!--No comment provided by engineer.-->
+    <string name="routing_coma_etas_and_traffic">Routenplanung, ETAs und Verkehr</string>
+    <!--For WLs that have their own Profile view, this becomes the title for TripGo's Profile screen-->
+    <string name="settings">Einstellungen</string>
+    <!--No comment provided by engineer.-->
+    <string name="show_our_privacy_policy">Unsere Datenschutzerklärung</string>
+    <!--This is a type of mobility bundle. It usually means users have to pay some fees per month to access the benefits included in the bundle. The difference between this and the minimum purchase type is the fees paid cannot be used on any travel.-->
+    <string name="subscription">Abonnement</string>
+    <!--Format string for displaying the discount user received for a trip. The discount is specified in the dollar term or a percentage. Examples: 'Take $5 off every trip' or 'Take 5% off every trip'-->
+    <string name="take__pattern_off_every_trip">%1$s von jedem Trip abziehen</string>
+    <!--No comment provided by engineer.-->
+    <string name="this_month">Dieser Monat</string>
+    <!--No comment provided by engineer.-->
+    <string name="to_calculate_trips_between_calendar_events_coma_flavor_will_send_your_calendar_information_to_our_server_and_use_that_data_to_do_the_planning_for_you_dot_you_can_disable_each_calendar_individually_coma_where_you_don_apostt_want_to_share_this_data_dot">Um Trips zwischen Kalenderterminen berechnen zu können, sendet %1$s deine Kalenderinformationen an unseren Server um deinen Tag zu planen. Du kannst einzelne Kalender deaktivieren, deren Daten du nicht teilen möchtest.</string>
+    <!--No comment provided by engineer.-->
+    <string name="to_show_transport_options_coma_we_may_share_per_minusquery_information_of_start_location_coma_end_location_coma_and_query_time_with_transport_providers_dot_you_can_disable_each_mode_individually_coma_where_you_don_apostt_want_to_share_this_data_dot">Um die Transportoptionen anzuzeigen, teilen wir ggf. Informationen über Startpunkt, Endpunkt und Abfragezeit mit Transportdienstleistern. Du kannst jeden Modus einzeln deaktivieren, für welchen du die Daten nicht mit den entsprechenden Transportdienstleistern teilen möchtest.</string>
+    <!--Title for button to access transport modes-->
+    <string name="transport">Transport</string>
+    <!--No comment provided by engineer.-->
+    <string name="trip_selections">Trip-Auswahl</string>
+    <!--This is to indicate a mobility plan is the user's future, usually next month, plan-->
+    <string name="upcoming">Bevorstehende</string>
+    <!--Button to view something, e.g., a notification content or the EULA-->
+    <string name="view">Anzeigen</string>
+    <!--Title for a button that when tapped, takes users to view his/her current and upcoming (if applicable) plans-->
+    <string name="view_my_plans">Meine Pakete anzeigen</string>
+    <!--Title for a button that when tapped, takes users to view details for a mobility plan-->
+    <string name="view_plan">Paket anzeigen</string>
+    <!--Title of notification showing a non-critical issue-->
+    <string name="warning">Warnung</string>
+    <!--'This data' refers to data about how a user users the app, which transport options they choose, etc.-->
+    <string name="we_keep_this_data_on_servers_in_australia_coma_europe_coma_or_the_us_dot_we_retain_this_data_forever_to_be_able_to_create_long_minusterm_trends_dot_for_more_details_coma_see_our_privacy_policy_dot">Wir speichern diese Daten auf Servern in Australien, Europa oder den USA. Diese Daten werden verwendet um langfristige Trends zu analysieren. Weitere Informationen findest du in unserer Datenschutzerklärung.</string>
+    <!--Explanation for transport modes included in a mobility plan-->
+    <string name="you_will_receive_discounted_rates_if_the_above_transport_modes_are_used_dot_for_transport_modes_not_shown_coma_full_fares_apply">Sie erhalten ermäßigte Tarife, wenn die oben genannten Beförderungsarten benutzt werden. Für nicht angezeigte Beförderungsarten gelten die vollen Tarife.</string>
+    <!--Class = "UINavigationItem"; title = "Service"; ObjectID = "JMk-5m-B22";-->
+    <string name="service">Service</string>
+    <!--Class = "UINavigationItem"; title = "Trip"; ObjectID = "QTR-Ae-g7f";-->
+    <string name="alerts">Warnungen</string>
+    <string name="continue_">Weiter</string>
+    <string name="set_time">Zeit einstellen</string>
+    <!--Error when location search for %input was not successful. (old key: RequestErrorFormat)-->
+    <string name="_apost_pattern_apost_not_found_dot">‘%1$s\' nicht gefunden.</string>
+    <!--Type of vehicle : bicycle-->
+    <string name="bicycle">Fahrrad</string>
+    <!--Cancel action-->
+    <string name="cancel">Abbrechen</string>
+    <!--Type of vehicle : car-->
+    <string name="car">Auto</string>
+    <!--Instruction for changing password-->
+    <string name="change">Ändern</string>
+    <!--Close action-->
+    <string name="close">Schließen</string>
+    <!--Title on the button that asks users to confirm if they want to proceed with booking-->
+    <string name="confirm">Bestätigen</string>
+    <!--Title for button that allows users to contact our support team to help resolve some error in the app.-->
+    <string name="contact_support">Support kontaktieren</string>
+    <!--Error title when GPS failed.-->
+    <string name="could_not_determine_your_current_location_dot">Ortung fehlgeschlagen.</string>
+    <!--Title for user's current location-->
+    <string name="current_location">Mein Standort</string>
+    <!--Done action-->
+    <string name="done">Fertig</string>
+    <!--Drop new pin-->
+    <string name="drop_new_pin">Stecknadel</string>
+    <!--For email address-->
+    <string name="email">E-Mail</string>
+    <!--Title on the button that indicates to the user that booking is in progressing-->
+    <string name="loading">Laden</string>
+    <!--Title for unnamed location-->
+    <string name="location">Ort</string>
+    <!--Location authorization-->
+    <string name="location_services_required_desc">Location services are required to use this feature. Please go to app\'s setting and grant access to this app.</string>
+    <!--Next action-->
+    <string name="next">Weiter</string>
+    <!--No comment provided by engineer.-->
+    <string name="no_co_2">Kein CO₂</string>
+    <!--Indicator for wheelchair not accessible services-->
+    <string name="not_wheelchair_accessible">Nicht rollstuhlgerecht</string>
+    <!--Indicator for real-time information-->
+    <string name="real_minustime">Echtzeit</string>
+    <!--Title for a button which, when tapped, confirms the reset of password.-->
+    <string name="reset_password">Passwort zurücksetzen</string>
+    <!--Retry action, e.g., in case something didn't load-->
+    <string name="retry">Erneut versuchen</string>
+    <!--No comment provided by engineer.-->
+    <string name="search_for_a_city">Stadt suchen</string>
+    <!--Instruction for signing out user account-->
+    <string name="sign_out">Abmelden</string>
+    <!--Prompt for empty start location-->
+    <string name="specify_start_location">Bitte gib einen Startort an.</string>
+    <!--Prompt for empty destination location-->
+    <string name="specify_destination_location">Bitte gib einen Zielort an.</string>
+    <!--Indicator for wheelchair accessible services-->
+    <string name="wheelchair_accessible">Rollstuhlgerecht</string>
+    <!--Estimated time of arrival; parameter is time, e.g., 'arrives 15:30'-->
+    <string name="arrives__pattern">kommt um %1$s</string>
+    <!--Estimated time of departure; parameter is time, e.g., 'departs 15:30'-->
+    <string name="departs__pattern">fährt ab um %1$s</string>
+    <!--Indicator for how cycle-friendly a cycling route is. Placeholder will get replaced with '75%'.-->
+    <string name="_pattern_cycle_friendly">%1$s fahrradfreundlich</string>
+    <!--Duration without traffic-->
+    <string name="_pattern_w_slasho_traffic">%1$s ohne Verkehr</string>
+    <!--Indicator for how wheelchair-friendly a wheeelchair route is. Placeholder will get replaced with '75%'.-->
+    <string name="_pattern_wheelchair_friendly">%1$s Rollstuhlgerecht</string>
+    <!--Instruction to follow street of the provided name-->
+    <string name="along__pattern">Entlang %1$s</string>
+    <!--Instruction to follow unnamed street-->
+    <string name="along_unnamed_street">Entlang unbenannter Straße</string>
+    <!--Single line instruction to arrive-->
+    <string name="arrive">Ankunft</string>
+    <!--Action title to make a booking-->
+    <string name="book">Buchen</string>
+    <!--Trip badge: Cheapest-->
+    <string name="cheapest">Günstig</string>
+    <!--Destination of the bus-->
+    <string name="direction">Richtung</string>
+    <!--Text for vehicle of type: E-Bike-->
+    <string name="e_minusbike">E-Bike</string>
+    <!--Trip badge: Easiest-->
+    <string name="easiest">Einfach</string>
+    <!--Trip badge: Fastest-->
+    <string name="fastest">Schnell</string>
+    <!--As in 'this bus/train has few seats available'-->
+    <string name="few_seats_available">Wenige Plätze verfügbar</string>
+    <!--Departure location. (old key: PrimaryLocationStart)-->
+    <string name="from__pattern">Von: %1$s</string>
+    <!--As in 'this bus/train is full and likely can't accept further passengers'-->
+    <string name="full">Voll</string>
+    <!--Title for button to get/download an external app.-->
+    <string name="get_app">App holen</string>
+    <!--Title of button to start a trip-->
+    <string name="go">Los</string>
+    <!--Trip badge: Greenest-->
+    <string name="greenest">Grün</string>
+    <!--Trip badge: Healthiest-->
+    <string name="healthiest">Healthiest</string>
+    <!--Text for vehicle of type: Kick Scooter-->
+    <string name="kick_scooter">Scooter</string>
+    <!--Single line instruction to leave-->
+    <string name="leave">Abfahrt</string>
+    <!--No comment provided by engineer.-->
+    <string name="leave_now">Jetzt</string>
+    <!--No comment provided by engineer.-->
+    <string name="live_traffic">Live-Verkehr</string>
+    <!--Indicating when something is loading-->
+    <string name="loading_dot_dot_dot">Wird geladen…</string>
+    <!--As in 'this bus/train has many seats available'-->
+    <string name="many_seats_available">Viele Plätze verfügbar</string>
+    <!--Text for vehicle of type: Moto Scooter-->
+    <string name="moto_scooter">Roller</string>
+    <!--Indicator to show when a service is on time according to real-time data.-->
+    <string name="on_time">Pünktlich</string>
+    <!--Title for button that opens an external app.-->
+    <string name="open_app">App öffnen</string>
+    <!--Trip badge: Recommended-->
+    <string name="recommended">Empfohlen</string>
+    <!--Label to indicate that the time for a service is the scheduled time, i.e., displayed as on the timetable with no real-time data available.-->
+    <string name="scheduled">Geplant</string>
+    <!--Show website action button-->
+    <string name="show_website">Webseite öffnen</string>
+    <!--As in 'this bus/train is fairly full and has standing room only'-->
+    <string name="standing_room_only">Nur noch Stehplätze</string>
+    <!--Placeholder name for origin (then replaced with address or name)-->
+    <string name="start_location">Startort</string>
+    <!--Text indiction for how long a segment might take, where '%@' will be replaced with a duration. E.g., the instruction 'Take bus' might have this next to it as 'for 10 minutes'.-->
+    <string name="for__pattern">für %1$s</string>
+    <!-- Additional Strings -->
+    <string name="current_billing_cycle">Aktueller Abrechnungszyklus</string>
+    <string name="str_effective_from">Gültig ab</string>
+    <string name="effective_from_pattern">Gültig ab %1$s</string>
+    <string name="a_subscription_provides_access">Ein Abonnement bietet Zugriff auf zahlreiche Privilegien.</string>
+    <string name="str_expires_on">Gültig bis</string>
+    <string name="expiry_date_pattern">Gültig bis %1$s</string>
+    <string name="str_last_payment">Letzte Zahlung</string>
+    <string name="next_billing_cycle">Nächster Abrechnungszyklus</string>
+    <string name="pick_a_subscription">Abonnement auswählen</string>
+    <string name="str_plan_status">Pass Status</string>
+    <string name="renew_plan">Plan erneuern</string>
+    <string name="renew_plan_for_next">Renew pass for next %s</string>
+    <string name="format_discount">Take %s</string>
+    <string name="this_is_your_current_plan">This is your current pass</string>
+    <string name="unlimited">Unbegrenzt</string>
+    <string name="you_are_continuing_with_this_pass">You are continuing with this pass</string>
+    <string name="lbl_empty_pass">Kein Paket ausgewählt.</string>
+    <string name="lbl_empty_pass_message">You can get started by using the Available Passes option below. Your passes and payment history will be visible here</string>
+    <string name="retrieving_subscription">Abonnement wird geladen</string>
+    <string name="retrieving_subscription_message">Please wait while your subscription is accessed. This may take a few
+        moments.
+    </string>
+    <!-- MaaS.xliff -->
+    <string name="approved">Genehmigt</string>
+    <string name="available">Verfügbar</string>
+    <string name="str_my_bookings">Buchungen</string>
+    <string name="active_trip">Aktiver Trip</string>
+    <string name="my_rewards">Meine Belohnungen</string>
+    <string name="str_by_transaction_dates">Nach Transaktionsdaten</string>
+    <string name="str_by_transaction_status">Nach Transaktionsstatus</string>
+    <string name="str_cashback">Cashback</string>
+    <string name="date_requested">Datum der Anfrage</string>
+    <string name="reward_label_message_format">Verdiene %s Punkte pro ausgegebenem Dollar</string>
+    <string name="str_earnings">Verdienste</string>
+    <string name="estimated_time_to_approval">Geschätzte Zeit bis zur Genehmigung</string>
+    <string name="str_featured_rewards">Featured rewards</string>
+    <string name="full_price">Voller Preis</string>
+    <string name="str_getting_active_trip">Aktiver Trip wird geladen...</string>
+    <string name="str_no_featured_rewards">Keine empfohlenen Belohnungen</string>
+    <string name="str_no_recent_earnings">No recent earnings</string>
+    <string name="str_no_recent_redemptions">Keine kürzlichen Einlösungen</string>
+    <string name="str_payment_history">Zahlungsverlauf</string>
+    <string name="pending">In Arbeit</string>
+    <string name="str_getting_active_trip_msg">Please wait while we look for your active trip.</string>
+    <string name="points_deducted">Punkte abgezogen</string>
+    <string name="points_required">Erforderliche Punkte</string>
+    <string name="redeem">Einlösen</string>
+    <string name="str_redemptions">Einlösungen</string>
+    <string name="reference_number">Referenznummer</string>
+    <string name="str_refunded">Erstattet</string>
+    <string name="rejected">Abgelehnt</string>
+    <string name="str_reverted">Zurückgesetzt</string>
+    <string name="rewards">Belohnungen</string>
+    <string name="select_an_option">Wähle eine Option</string>
+    <string name="redemption_warning">Selecting proceed means you have read and accepted the terms and conditions for redeeming this reward.</string>
+    <string name="str_featured_rewards_message">Tap \"View all\" to see a full list of available rewards.</string>
+    <string name="tap_here_to_start_rewarding_yourself">Tippe hier, um dich zu belohnen</string>
+    <string name="my_trip_logs">Trip Logs</string>
+    <string name="str_filter_date_msg">Up to 180 days of history is available. Please contact us for longer periods.</string>
+    <string name="str_view_all">Alle anzeigen</string>
+    <string name="str_no_active_trip_msg">Keine aktive Trips</string>
+    <string name="you_have_no_redemptions">You haven\'t made any redemption yet</string>
+    <string name="str_no_active_trip">Aktive Trips werden hier angezeigt</string>
+    <string name="str_recent_earnings_message">Deine letzten Einnahmen werden hier angezeigt.</string>
+    <string name="str_recent_redemption_message">Deine letzten Einlösungen werden hier angezeigt.</string>
+    <string name="proceed">Fortfahren</string>
+    <string name="rewards_balance">Prämienguthaben</string>
+    <string name="pts">Pkte.</string>
+    <plurals name="estimated_time_to_approval_days">
+        <item quantity="one">%d day</item>
+        <item quantity="other">%d Tage</item>
+    </plurals>
+    <string name="choose_on_map">Auf der Karte auswählen</string>
+    <string name="subscriber_only">Ein %s-Konto schaltet zusätzliche Funktionen frei.</string>
+    <string name="choose_location">Ort auswählen</string>
+    <string name="favorites">Favoriten</string>
+    <string name="add_home">Zuhause hinzufügen</string>
+    <string name="add_work">Arbeit hinzufügen</string>
+    <string name="see_all">Alle anzeigen</string>
+    <string name="from_with_colon">Von:</string>
+    <string name="sign_in_to_your_account">Mit deinem %s-Profil einloggen</string>
+    <string name="edit_your_flavor_account">%s-Profil bearbeiten</string>
+    <string name="click_to_change_profile_picture">Profilbild ändern</string>
+    <string name="review_booking">Buchung überprüfen</string>
+    <string name="confirm_booking">Buchung bestätigen</string>
+    <string name="continue_to_payment">Weiter zum Bezahlen</string>
+    <!--For phone number-->
+    <string name="phone">Telefon</string>
+    <string name="warn_phone">To update your phone number, please call 1–833–653–6544 and request technical support. A live agent will be able to assist you. The ability to reach you regarding your trip plans is of utmost importance and we appreciate your support with this matter.</string>
+    <string name="yes">Ja</string>
+    <string name="no">Nein</string>
+    <string name="notes">Hinweise</string>
+    <string name="use_the_sliders_to_tell_us_what_most_important_to_you">Use the sliders to choose your highest and lowest priorities when travelling. Only one priority can be maximised. %s will display search results according to these preferences.</string>
+    <string name="sign_in_to_continue">Anmelden um fortzufahren</string>
+    <string name="requested_time">Requested time %s at %s</string>
+    <string name="start_here">Startort</string>
+    <string name="end_here">Zielort</string>
+    <string name="select_payment_method">Zahlungsmethode auswählen</string>
+    <string name="discount">Rabatt</string>
+    <string name="balance">Guthaben</string>
+    <string name="current_balance">Aktuelles Guthaben</string>
+    <string name="new_balance">Neu</string>
+    <string name="purchase">Kaufen</string>
+    <string name="deactivated">Deaktiviert</string>
+    <string name="deactivated_message">This app has been deactivated. Please check if there\'s a new version in the App Store.</string>
+    <string name="open_play_store">Playstore öffnen</string>
+    <string name="impaired">Beeinträchtigt</string>
+    <string name="next_up">Als Nächstes</string>
+    <string name="could_not_get_location">Standort konnte nicht ermittelt werden</string>
+    <string name="show_ticket">Ticket anzeigen</string>
+</resources>
