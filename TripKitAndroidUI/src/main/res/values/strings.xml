@@ -586,4 +586,5 @@ We aggregate the anonymised data and provide it to researchers, regulators, and 
     <string name="next_up">Next Up</string>
     <string name="could_not_get_location">Could not get location</string>
     <string name="show_ticket">Show ticket</string>
+    <string name="bicycle_accessible">Bicycle Accessible</string>
 </resources>
