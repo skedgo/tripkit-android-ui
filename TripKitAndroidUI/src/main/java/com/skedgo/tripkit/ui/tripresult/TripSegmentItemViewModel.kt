@@ -285,7 +285,7 @@ class TripSegmentItemViewModel @Inject internal constructor(
             if(!isStationaryItem) {
                 initOccupancy(it)
             }
-            _showBicycleAccessible.postValue(it.bicycleAccessible)
+            _showBicycleAccessible.postValue(it.bicycleAccessible && !isStationaryItem)
         }
     }
 

@@ -84,7 +84,7 @@
                 style="@style/TextAppearance.MaterialComponents.Body1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/spacing_medium"
+                android:layout_marginStart="@dimen/spacing_normal"
                 android:text="@string/bicycle_accessible"
                 android:visibility="@{viewModel.showBicycleAccessible}"
                 app:layout_constraintStart_toEndOf="@id/ivBicycle"
