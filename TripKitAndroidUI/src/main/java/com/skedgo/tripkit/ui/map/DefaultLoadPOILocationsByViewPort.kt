@@ -12,6 +12,7 @@ class DefaultLoadPOILocationsByViewPort @Inject constructor(
     private val loadFreeFloatingVehiclesByViewPort: LoadFreeFloatingVehiclesByViewPort,
     private val loadCarPodByViewPort: LoadCarPodByViewPort,
     private val loadFacilitiesByViewPort: LoadFacilitiesByViewPort,
+    private val loadCarParksByViewPort: LoadCarParksByViewPort
 ) : LoadPOILocationsByViewPort {
 
     override fun execute(viewPort: ViewPort): Observable<List<IMapPoiLocation>> {
@@ -23,20 +24,24 @@ class DefaultLoadPOILocationsByViewPort @Inject constructor(
                     .map { it.map { FreeFloatingVehiclePOILocation(it) } },
                 loadStopsByViewPort.execute(viewPort)
                     .map { it.map { StopPOILocation(it, stopInfoWindowAdapter) } },
-                loadCarPodByViewPort.execute(viewPort).map { it.map { CarPodPOILocation(it) } },
+                loadCarPodByViewPort.execute(viewPort)
+                    .map { it.map { CarPodPOILocation(it) } },
                 loadFacilitiesByViewPort.execute(viewPort)
-                    .map { it.map { FacilityPOILocation(it) } }
+                    .map { it.map { FacilityPOILocation(it) } },
+                loadCarParksByViewPort.execute(viewPort)
+                    .map { it.map { CarParkPOILocation(it) } },
             )
             .toList()
             .toObservable()
-            .flatMap {
-                Observable.combineLatest(it)
-                { (bikePods, freeFloatingVehicles, stops, carPods, facilities) ->
-                    bikePods as List<IMapPoiLocation> +
-                            freeFloatingVehicles as List<IMapPoiLocation> +
-                            stops as List<IMapPoiLocation> +
-                            carPods as List<IMapPoiLocation> +
-                            facilities as List<IMapPoiLocation>
+            .flatMap { items ->
+                Observable.combineLatest(items) { results ->
+                    val bikePods = results[0] as List<IMapPoiLocation>
+                    val freeFloatingVehicles = results[1] as List<IMapPoiLocation>
+                    val stops = results[2] as List<IMapPoiLocation>
+                    val carPods = results[3] as List<IMapPoiLocation>
+                    val facilities = results[4] as List<IMapPoiLocation>
+                    val carParks = results[5] as List<IMapPoiLocation>
+                    bikePods + freeFloatingVehicles + stops + carPods + facilities + carParks
                 }
             }
             .defaultIfEmpty(emptyList())
