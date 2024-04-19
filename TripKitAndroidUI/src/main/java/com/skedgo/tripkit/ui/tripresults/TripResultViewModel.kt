@@ -44,11 +44,13 @@ class TripResultTripViewModel : ViewModel() {
 
 }
 
-class TripResultViewModel @Inject constructor(private val context: Context,
-                                              private val tripSegmentHelper: TripSegmentHelper,
-                                              private val printTime: PrintTime,
-                                              private val resources: Resources)
-    : RxViewModel() {
+class TripResultViewModel @Inject constructor(
+    private val context: Context,
+    private val tripSegmentHelper: TripSegmentHelper,
+    private val printTime: PrintTime,
+    private val resources: Resources,
+    private val transportModeSharedPreference: TransportModeSharedPreference
+) : RxViewModel() {
     val onItemClicked: TapAction<TripResultViewModel> = TapAction.create { this }
     val onMoreButtonClicked: TapAction<TripResultViewModel> = TapAction.create { this }
     var clickFlow: MutableSharedFlow<Trip>? = null
@@ -279,7 +281,7 @@ class TripResultViewModel @Inject constructor(private val context: Context,
     private fun setSegments(_segments: ArrayList<TripSegmentViewModel>, _trip: Trip) {
         _segments.clear()
         _trip.getSummarySegments().forEach { segment ->
-            val newModel = TripSegmentViewModel(context, printTime)
+            val newModel = TripSegmentViewModel(context, printTime, transportModeSharedPreference)
             newModel.setSegment(_trip, segment)
             _segments.add(newModel)
         }

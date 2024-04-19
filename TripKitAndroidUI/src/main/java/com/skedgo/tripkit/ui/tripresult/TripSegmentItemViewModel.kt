@@ -22,6 +22,7 @@ import androidx.lifecycle.MutableLiveData
 import com.jakewharton.rxrelay2.BehaviorRelay
 import com.skedgo.tripkit.common.model.ImmutableStreet
 import com.skedgo.tripkit.common.model.RealtimeAlert
+import com.skedgo.tripkit.common.model.TransportMode
 import com.skedgo.tripkit.datetime.PrintTime
 import com.skedgo.tripkit.routing.SegmentType
 import com.skedgo.tripkit.routing.TripSegment
@@ -50,7 +51,8 @@ class TripSegmentItemViewModel @Inject internal constructor(
     private val getTransportIconTintStrategy: GetTransportIconTintStrategy,
     private val tripSegmentHelper: TripSegmentHelper,
     private val printTime: PrintTime,
-    val occupancyViewModel: OccupancyViewModel
+    val occupancyViewModel: OccupancyViewModel,
+    private val transportModeSharedPreference: TransportModeSharedPreference
 ) : RxViewModel() {
     enum class SegmentViewType {
         TERMINAL,
@@ -81,10 +83,6 @@ class TripSegmentItemViewModel @Inject internal constructor(
     val alerts = ObservableField<ArrayList<RealtimeAlert>>()
 
     val alertsClicked = BehaviorRelay.create<ArrayList<RealtimeAlert>>()
-    //var tripSegment: TripSegment? = null
-
-//    private val _wikiWayFinderRoutes = MutableLiveData(listOf<Point>())
-//    val wikiWayFinderRoutes: LiveData<List<Point>> = _wikiWayFinderRoutes
 
     private val _isHideExactTimes = MutableLiveData(false)
     val isHideExactTimes: LiveData<Boolean> = _isHideExactTimes
@@ -285,7 +283,13 @@ class TripSegmentItemViewModel @Inject internal constructor(
             if(!isStationaryItem) {
                 initOccupancy(it)
             }
-            _showBicycleAccessible.postValue(it.bicycleAccessible && !isStationaryItem)
+            val isBicycleEnabled =
+                transportModeSharedPreference.isTransportModeEnabled(TransportMode.ID_BICYCLE)
+            _showBicycleAccessible.postValue(
+                isBicycleEnabled &&
+                        it.bicycleAccessible &&
+                        !isStationaryItem
+            )
         }
     }
 
