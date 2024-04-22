@@ -39,15 +39,15 @@ class DrtTicketCustomRecyclerViewAdapter<T> : BindingRecyclerViewAdapter<T>() {
 
         if (item is DrtTicketViewModel) {
             with(binding as ItemDrtTicketBinding) {
-                // this will change accessibility read out from "Increment, Button, Double Tap to Activate"
-                // to "Increment, Button, Double Tap to increment"
+                // this will change accessibility read out from "Increase, Button, Double Tap to Activate"
+                // to "Increase, Button, Double Tap to increase"
                 itemDrtIbIncrement.updateClickActionAccessibilityLabel(context.getString(R.string.talkback_increment))
                 itemDrtIbIncrement.setOnClickListener {
                     item.onIncrementValue()
                     readOutTicketCount((item.value.value ?: 0).toInt())
                 }
-                // this will change accessibility read out from "Decrement, Button, Double Tap to Activate"
-                // to "Decrement, Button, Double Tap to decrement
+                // this will change accessibility read out from "Decrease, Button, Double Tap to Activate"
+                // to "Decrease, Button, Double Tap to decrease
                 itemDrtIbDecrement.updateClickActionAccessibilityLabel(context.getString(R.string.talkback_decrement))
                 itemDrtIbDecrement.setOnClickListener {
                     item.onDecrementValue()
