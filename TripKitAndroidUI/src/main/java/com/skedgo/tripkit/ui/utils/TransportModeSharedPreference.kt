@@ -15,4 +15,6 @@ class TransportModeSharedPreference @Inject constructor(private val context: Con
     }
 
     fun isSchoolBusModeEnabled() = sharedPreferences.getBoolean(TransportMode.ID_SCHOOL_BUS, false)
+
+    fun isTransportModeEnabled(modeId: String) = sharedPreferences.getBoolean(modeId, false)
 }

@@ -1,5 +1,6 @@
 package com.skedgo.tripkit.ui.tripresults
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
@@ -15,6 +16,7 @@ import androidx.databinding.ObservableBoolean
 import androidx.databinding.ObservableField
 import com.google.android.gms.common.util.CollectionUtils
 import com.skedgo.tripkit.common.model.RealtimeAlert
+import com.skedgo.tripkit.common.model.TransportMode
 import com.skedgo.tripkit.common.util.TimeUtils
 import com.skedgo.tripkit.common.util.TransportModeUtils
 import com.skedgo.tripkit.datetime.PrintTime
@@ -25,13 +27,19 @@ import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.TripKitUI
 import com.skedgo.tripkit.ui.core.RxViewModel
 import com.skedgo.tripkit.ui.core.fetchAsync
+import com.skedgo.tripkit.ui.utils.TransportModeSharedPreference
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import timber.log.Timber
 import javax.inject.Inject
 
 
-class TripSegmentViewModel @Inject constructor(private val context: Context, private val printTime: PrintTime) : RxViewModel() {
+@SuppressLint("StaticFieldLeak")
+class TripSegmentViewModel @Inject constructor(
+    private val context: Context,
+    private val printTime: PrintTime,
+    private val transportModeSharedPreference: TransportModeSharedPreference
+) : RxViewModel() {
     @Inject
     lateinit var getTransportIconTintStrategy: GetTransportIconTintStrategy
 
@@ -54,7 +62,10 @@ class TripSegmentViewModel @Inject constructor(private val context: Context, pri
 
         isHideExactTimes.set(segment.isHideExactTimes)
         isRealtime.set(segment.isRealTime)
-        isBicycleAccessible.set(segment.bicycleAccessible)
+        isBicycleAccessible.set(
+            transportModeSharedPreference.isTransportModeEnabled(TransportMode.ID_BICYCLE) &&
+            segment.bicycleAccessible
+        )
 
         buildSubtitle(trip, segment)
 

@@ -38,7 +38,7 @@ object CreateMarkerFoFacility {
         val contentPadding = resources.getDimensionPixelSize(R.dimen.map_icon_padding).toFloat()
         TripGoStyleKit.drawIconcarshare(canvas, RectF(contentPadding, contentPadding,
             iconSize - contentPadding, iconSize - contentPadding), TripGoStyleKit.ResizingBehavior.AspectFit)
-        //Coles Kaleen
+
         return MarkerOptions()
             .title(facilityLocation.name)
             .position(LatLng(facilityLocation.lat, facilityLocation.lng))
