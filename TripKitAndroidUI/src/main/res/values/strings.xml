@@ -68,7 +68,6 @@
     <string name="location_provider_disabled">Location provider disabled</string>
     <string name="device_location_is_turned_off">Your device location is turned off, kindly enable it and try again</string>
     <string name="learn_more">Learn More</string>
-    <string name="bicycle_accessible">Bicycle Accessible</string>
 
     <!--From android_localizable_strings.xliff.xml-->
     <string name="an_unexpected_network_error_has_occurred_dot_please_retry_dot">An unexpected network error has occurred. Please retry.</string>
