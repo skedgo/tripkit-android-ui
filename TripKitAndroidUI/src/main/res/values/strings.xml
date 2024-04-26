@@ -58,7 +58,7 @@
     <string name="msg_prominent_disclosure">This app collects location data to enable trip alerts to notify you when your trip is starting, alert you about nearby stops during an ongoing trip, and inform you upon arriving at your destination, even when the app is closed or not in use. This ensures you receive timely updates and have a smoother travel experience. We prioritize your privacy and use this data solely for enhancing your travel with us.</string>
     <string name="lbl_go_to_current_location">Go to current location</string>
     <string name="get_off_alerts_trip_about_to_start">The trip is about to start</string>
-    <string name="get_off_alerts_getting_within_disembarkation_point">Getting within 500m of the disembarkation point</string>
+    <string name="get_off_alerts_getting_within_disembarkation_point">Getting within 500m of the disembarkation stop</string>
     <string name="get_off_alerts_passed_by_the_previous_stop">Passed by the previous stop</string>
     <string name="get_off_alerts_about_to_arrive_final_destination">About to arrive the final destination</string>
     <string name="get_off_alerts_vehicle_is_approaching_your_boarding_stop">Vehicle is approaching your boarding stop</string>
@@ -473,15 +473,15 @@ We aggregate the anonymised data and provide it to researchers, regulators, and 
     <string name="str_last_payment">Last Payment</string>
     <string name="next_billing_cycle">Next Billing Cycle</string>
     <string name="pick_a_subscription">Pick a subscription</string>
-    <string name="str_plan_status">Pass Status</string>
+    <string name="str_plan_status">Plan Status</string>
     <string name="renew_plan">Renew plan</string>
-    <string name="renew_plan_for_next">Renew pass for next %s</string>
+    <string name="renew_plan_for_next">Renew plan for next %s</string>
     <string name="format_discount">Take %s</string>
-    <string name="this_is_your_current_plan">This is your current pass</string>
+    <string name="this_is_your_current_plan">This is your current plan</string>
     <string name="unlimited">Unlimited</string>
-    <string name="you_are_continuing_with_this_pass">You are continuing with this pass</string>
-    <string name="lbl_empty_pass">You haven\'t selected any pass yet!</string>
-    <string name="lbl_empty_pass_message">You can get started by using the Available Passes option below. Your passes and payment history will be visible here</string>
+    <string name="you_are_continuing_with_this_pass">You are continuing with this plan</string>
+    <string name="lbl_empty_pass">You haven\'t selected any plan yet!</string>
+    <string name="lbl_empty_pass_message">You can get started by using the Available Plans option below. Your plans and payment history will be visible here</string>
     <string name="retrieving_subscription">Retrieving subscription</string>
     <string name="retrieving_subscription_message">Please wait while your subscription is accessed. This may take a few
         moments.
@@ -526,7 +526,7 @@ We aggregate the anonymised data and provide it to researchers, regulators, and 
     <string name="str_filter_date_msg">Up to 180 days of history is available. Please contact us for longer periods.</string>
     <string name="str_view_all">View all</string>
     <string name="str_no_active_trip_msg">You currently have no active trip.</string>
-    <string name="you_have_no_redemptions">You haven\'t made any redemption yet</string>
+    <string name="you_have_no_redemptions">You haven\'t made any redemptions.</string>
     <string name="str_no_active_trip">Your active trip will be shown here.</string>
     <string name="str_recent_earnings_message">Your most recent earnings will appear here.</string>
     <string name="str_recent_redemption_message">Your most recent redemptions will appear here.</string>
@@ -580,7 +580,7 @@ We aggregate the anonymised data and provide it to researchers, regulators, and 
     <string name="purchase">Purchase</string>
 
     <string name="deactivated">Deactivated</string>
-    <string name="deactivated_message">This app has been deactivated. Please check if there\'s a new version in the App Store.</string>
+    <string name="deactivated_message">This app has been deactivated. Please check if there\'s a new version on the Playstore.</string>
     <string name="open_play_store">Open Playstore</string>
     <string name="impaired">Impaired</string>
     <string name="next_up">Next Up</string>
