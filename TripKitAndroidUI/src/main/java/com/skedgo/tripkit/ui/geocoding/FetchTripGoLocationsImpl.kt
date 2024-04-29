@@ -62,7 +62,8 @@ class FetchTripGoLocationsImpl @Inject internal constructor(
                                     location.lat,
                                     location.lon,
                                     location.locationClass ?: "",
-                                    location.popularity
+                                    location.popularity,
+                                    location.modeIdentifiers
                                 )
                             )
                         )
