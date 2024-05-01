@@ -70,69 +70,6 @@ class TripSegmentCustomRecyclerViewAdapter<T> : BindingRecyclerViewAdapter<T>() 
                             )
                         )
                     }
-
-                    /*
-                    val layoutParams = binding.layoutRoadTags.parent.layoutParams
-                    layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT
-                    binding.layoutRoadTags.parent.layoutParams = layoutParams
-
-                    this.layoutRoadTags.chartRoadTags.let { horizontalBarChart ->
-
-                        //val labels = mutableListOf<String>()
-                        //labels.addAll(listOf("One", "", "Two", "", "Three", "", "Four"))
-
-                        *//*
-                        val entries = ArrayList<BarEntry>()
-                        entries.add(BarEntry(0f, 4f))
-                        entries.add(BarEntry(2f, 7f))
-                        val entries2 = ArrayList<BarEntry>()
-                        entries2.add(BarEntry(4f, 2f)) // Bar 3
-                        entries2.add(BarEntry(6f, 3f)) // Bar 3
-
-                        val dataSet = BarDataSet(entries, "")
-                        dataSet.color = Color.BLUE
-
-                        val dataSet2 = BarDataSet(entries2, "")
-                        dataSet.color = Color.RED
-
-                        val dataSets = ArrayList<IBarDataSet>()
-                        dataSets.add(dataSet)
-                        dataSets.add(dataSet2)
-
-                        val data = BarData(dataSets)
-                        *//*
-                        *//*
-                        val labels = chartItems.generateLabels()
-                        val axisLeftGranularity = chartItems.maxOf {
-                            it.length
-                        }.roundToNearestHundred() / 2
-
-                        horizontalBarChart.configureForSegments(
-                            labels,
-                            (axisLeftGranularity).toFloat()
-                        )
-
-                        val data = BarData(chartItems.generateDataSets())
-                        data.barWidth = 1f
-
-                        horizontalBarChart.data = data
-                        horizontalBarChart.data.barWidth = 1f
-                        horizontalBarChart.setFitBars(true)
-
-                        // Customize the chart appearance
-                        horizontalBarChart.description.isEnabled = false
-                        horizontalBarChart.setDrawGridBackground(false)
-
-                        // Set chart title
-                        val description = Description()
-                        description.text = ""
-                        horizontalBarChart.description = description
-                        horizontalBarChart.legend.isEnabled = false
-                        horizontalBarChart.zoomOut()
-                        horizontalBarChart.zoomOut()
-                        *//*
-                    }
-                    */
                 }
             }
         }

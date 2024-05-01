@@ -118,71 +118,100 @@
 
             <ImageView
                 android:id="@+id/wheelchair"
-                android:layout_width="@dimen/icon_regular"
-                android:layout_height="@dimen/icon_regular"
-                android:layout_marginStart="@dimen/spacing_normal"
-                android:layout_marginEnd="@dimen/spacing_small"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="8dp"
                 android:src="@{viewModel.wheelchairIcon}"
                 android:tint="@color/black2"
                 android:visibility="@{viewModel.showWheelchairAccessible}"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent"
+                tools:src="@drawable/ic_wheelchair"/>
 
             <TextView
                 android:id="@+id/wheelchairLabel"
                 style="@style/TextAppearance.MaterialComponents.Body1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/spacing_large"
+                android:layout_marginStart="@dimen/spacing_normal"
                 android:text="@{viewModel.wheelchairAccessibleText}"
                 android:visibility="@{viewModel.showWheelchairAccessible}"
                 app:layout_constraintStart_toEndOf="@id/wheelchair"
-                app:layout_constraintTop_toTopOf="@+id/wheelchair" />
+                app:layout_constraintTop_toTopOf="@+id/wheelchair"
+                tools:text="Label w"/>
+
+            <ImageView
+                android:id="@+id/ivBicycle"
+                android:layout_width="@dimen/service_detail_icon_size"
+                android:layout_height="@dimen/service_detail_icon_size"
+                android:layout_marginStart="@dimen/spacing_small"
+                android:src="@drawable/ic_bike"
+                android:visibility="@{viewModel.showBicycleAccessible}"
+                app:layout_constraintStart_toEndOf="@id/wheelchair"
+                app:layout_constraintTop_toTopOf="@id/wheelchair" />
+
+            <TextView
+                android:id="@+id/tvBicycleLabel"
+                style="@style/TextAppearance.MaterialComponents.Body1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/spacing_normal"
+                android:text="@string/bicycle_accessible"
+                android:visibility="@{viewModel.showBicycleAccessible}"
+                app:layout_constraintStart_toEndOf="@id/ivBicycle"
+                app:layout_constraintTop_toTopOf="@+id/ivBicycle"
+                app:layout_constraintBottom_toBottomOf="@+id/ivBicycle"
+                tools:text="Label B"/>
 
             <ImageView
                 android:id="@+id/occupancyView"
-                android:layout_width="@dimen/icon_regular"
-                android:layout_height="@dimen/icon_regular"
+                android:layout_width="@dimen/service_detail_icon_size"
+                android:layout_height="@dimen/service_detail_icon_size"
+                android:layout_marginStart="@dimen/spacing_small"
                 android:src="@{viewModel.occupancyViewModel.drawableLeft}"
                 android:visibility="@{viewModel.showOccupancyInfo}"
-                app:layout_constraintTop_toTopOf="@id/wheelchair"
-                app:layout_constraintStart_toEndOf="@id/wheelchair"/>
+                app:layout_constraintStart_toEndOf="@id/ivBicycle"
+                app:layout_constraintTop_toTopOf="@id/ivBicycle"
+                tools:src="@drawable/ic_occupancy_25"/>
 
             <TextView
                 android:id="@+id/occupancyLabel"
                 style="@style/TextAppearance.MaterialComponents.Body1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/spacing_large"
+                android:layout_marginStart="@dimen/spacing_normal"
                 android:text="@{viewModel.occupancyViewModel.occupancyText}"
                 android:visibility="@{viewModel.showOccupancyInfo}"
                 app:layout_constraintStart_toEndOf="@id/occupancyView"
-                app:layout_constraintTop_toTopOf="@+id/occupancyView" />
+                app:layout_constraintTop_toTopOf="@+id/occupancyView"
+                tools:text="Label O"/>
 
             <ImageView
-                android:src="@drawable/chevron_down"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:id="@+id/expandButton"
+                android:layout_width="@dimen/icon_medium"
+                android:layout_height="@dimen/icon_medium"
+                android:padding="@dimen/spacing_small"
+                android:layout_marginEnd="@dimen/spacing_normal"
                 android:clickable="true"
                 android:focusable="true"
-                android:id="@+id/expandButton"
-                android:layout_marginEnd="@dimen/spacing_normal"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"/>
+                android:src="@drawable/chevron_down"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/occupancyList"
                 android:layout_width="wrap_content"
                 android:layout_height="0dp"
-                android:nestedScrollingEnabled="false"
-                android:layout_marginTop="@dimen/spacing_small"
                 android:layout_gravity="center"
+                android:layout_marginTop="10dp"
+                android:nestedScrollingEnabled="false"
                 android:visibility="@{viewModel.showOccupancyInfo}"
                 app:itemBinding="@{viewModel.occupancyViewModel.itemBinding}"
                 app:items="@{viewModel.occupancyViewModel.items}"
-                app:layout_constraintTop_toBottomOf="@+id/occupancyView"
+                app:layout_constraintHorizontal_chainStyle="packed"
                 app:layout_constraintStart_toStartOf="@+id/occupancyLabel"
-                app:layout_constraintHorizontal_chainStyle="packed"/>
+                app:layout_constraintTop_toBottomOf="@+id/occupancyView" />
 
         </androidx.constraintlayout.motion.widget.MotionLayout>
 
@@ -212,16 +241,24 @@
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerView"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="0dp"
             android:focusableInTouchMode="true"
             android:nestedScrollingEnabled="true"
-            android:requiresFadingEdge="vertical|horizontal"
             app:itemBinding="@{viewModel.itemBinding}"
             app:items="@{viewModel.items}"
+            android:layout_marginBottom="@dimen/trip_preview_service_item_margin_bottom"
             android:layout_marginTop="@dimen/spacing_small"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/rvAlerts" />
+            app:layout_constraintTop_toBottomOf="@id/bottomBarrier"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+
+        <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/bottomBarrier"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:barrierDirection="bottom"
+            app:constraint_referenced_ids="secondDividingLine, rvAlerts" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

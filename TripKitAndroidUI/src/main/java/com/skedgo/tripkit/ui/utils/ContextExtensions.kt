@@ -188,3 +188,13 @@ fun Context.showProminentDisclosure(onActionClicked: (Boolean) -> Unit) {
         }
     )
 }
+
+fun Context.talkBackSpeak(message: String) {
+    val accessibilityManager = getAccessibilityManager()
+    val event = android.view.accessibility.AccessibilityEvent.obtain()
+    event.eventType = android.view.accessibility.AccessibilityEvent.TYPE_ANNOUNCEMENT
+    event.className = javaClass.name
+    event.packageName = packageName
+    event.text.add(message)
+    accessibilityManager.sendAccessibilityEvent(event)
+}
