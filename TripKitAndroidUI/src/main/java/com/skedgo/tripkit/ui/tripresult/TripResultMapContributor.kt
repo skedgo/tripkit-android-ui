@@ -4,15 +4,12 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.drawable.BitmapDrawable
-import android.util.Log
 import android.view.View
-import androidx.core.content.ContextCompat
 import androidx.core.graphics.ColorUtils
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.Circle
 import com.google.android.gms.maps.model.CircleOptions
-import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
@@ -28,7 +25,6 @@ import com.skedgo.tripkit.common.util.PolyUtil
 import com.skedgo.tripkit.common.util.TransportModeUtils
 import com.skedgo.tripkit.logging.ErrorLogger
 import com.skedgo.tripkit.routing.TripSegment
-import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.TripKitUI
 import com.skedgo.tripkit.ui.core.UnableToFetchBitmapError
 import com.skedgo.tripkit.ui.core.fetchAsync
@@ -37,7 +33,6 @@ import com.skedgo.tripkit.ui.map.*
 import com.skedgo.tripkit.ui.map.adapter.SegmentInfoWindowAdapter
 import com.skedgo.tripkit.ui.map.adapter.ServiceStopInfoWindowAdapter
 import com.skedgo.tripkit.ui.map.home.TripKitMapContributor
-import com.skedgo.tripkit.ui.utils.correctItemType
 import com.squareup.picasso.Picasso
 import dagger.Lazy
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -353,7 +348,6 @@ class TripResultMapContributor : TripKitMapContributor {
         map.animateCamera(cameraUpdate)
     }
 
-    /* Removed temporarily as still needs optimization, causes the app to lag.
     fun focusTripLine(segment: TripSegment) {
         val segmentPolyLines = segment.getPolyLines()
 
@@ -378,7 +372,6 @@ class TripResultMapContributor : TripKitMapContributor {
             map.animateCamera(cameraUpdate)
         }
     }
-    */
 
     private fun updateTravelledPolyLinesHighlight(segmentPolyLines: List<Polyline>) {
         tripLinesTravelled.forEach { polyLine ->

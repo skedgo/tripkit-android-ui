@@ -35,7 +35,7 @@ open class GetTripLine @Inject internal constructor(
 
     private fun createPolylineListForNonTravelledLines(nonTravelledLinesToDraw: List<List<LineSegment>>?): List<SegmentsPolyLineOptions> {
         val polylineOptionsList = mutableListOf<PolylineOptions>()
-        if (nonTravelledLinesToDraw != null && !nonTravelledLinesToDraw.isEmpty()) {
+        if (!nonTravelledLinesToDraw.isNullOrEmpty()) {
             val lines = mutableListOf<LatLng>()
             for (list in nonTravelledLinesToDraw) {
                 lines.clear()
