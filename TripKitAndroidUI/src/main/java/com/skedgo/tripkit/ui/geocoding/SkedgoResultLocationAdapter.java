@@ -1,9 +1,13 @@
 package com.skedgo.tripkit.ui.geocoding;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.skedgo.tripkit.common.model.Location;
 import com.skedgo.geocoding.agregator.GCSkedGoResultInterface;
 import com.skedgo.tripkit.ui.data.places.Place;
+
+import java.util.List;
 
 public final class SkedgoResultLocationAdapter implements GCSkedGoResultInterface, ResultLocationAdapter<Place.TripGoPOI> {
   private final Location location;
@@ -37,5 +41,11 @@ public final class SkedgoResultLocationAdapter implements GCSkedGoResultInterfac
 
   @Override public int getPopularity() {
     return resultInterface.getPopularity();
+  }
+
+  @Nullable
+  @Override
+  public List<String> getModeIdentifiers() {
+    return resultInterface.getModeIdentifiers();
   }
 }
