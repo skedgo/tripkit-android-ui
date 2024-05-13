@@ -102,12 +102,13 @@ class TripResultMapContributor : TripKitMapContributor {
         CompositeDisposable()
     }
 
-
+    private var context: Context? = null
     private lateinit var map: GoogleMap
     private var tileProvider: TileProvider? = null
     private var tileOverlays = mutableListOf<TileOverlay>()
 
     private val geoFenceCircleMarkers = mutableListOf<Circle>()
+    private var isSafeToUse = false
 
     fun setTileProvide(url: String) {
         tileProvider = object : UrlTileProvider(256, 256) {
@@ -132,7 +133,7 @@ class TripResultMapContributor : TripKitMapContributor {
         }
     }
 
-    fun setTileProvider(context: Context, urls: List<String>) {
+    private fun setTileProvider(urls: List<String>) {
 
         tileProvider = CustomUrlTileProvider(urls).apply {
             mapLoaded = {
@@ -163,11 +164,22 @@ class TripResultMapContributor : TripKitMapContributor {
     }
 
     override fun setup() {
-
+        if (isSafeToUse) {
+            context?.let {
+                setupManagers(it)
+                setupObservers(it)
+            }
+        }
     }
 
     override fun safeToUseMap(context: Context, map: GoogleMap) {
+        this.context = context
         this.map = map
+        isSafeToUse = true
+        setup()
+    }
+
+    private fun setupManagers(context: Context) {
         markerManager = MarkerManager(map).apply {
             travelledStopMarkers = newCollection("travelledStopMarkers")
             vehicleMarkers = newCollection("vehicleMarkers")
@@ -186,72 +198,88 @@ class TripResultMapContributor : TripKitMapContributor {
             map.uiSettings.isRotateGesturesEnabled = true
 
             drawSegmentMarkers(context)
+        }
+    }
 
-            autoDisposable.add(viewModel!!.vehicleMarkerViewModels
-                    .subscribe(
-                            { it: List<VehicleMarkerViewModel> ->
-                                showVehicleMarkers(context, it, vehicleMarkers!!)
-                            }
-                    ) { error: Throwable? ->
-                        errorLogger!!.trackError(error!!)
-                    }
-            )
-            autoDisposable.add(viewModel!!.alertMarkerViewModels
-                    .subscribe(
-                            { it: List<AlertMarkerViewModel> ->
-                                showAlertMarkers(it, alertMarkers!!)
-                            }
-                    ) { error: Throwable? ->
-                        errorLogger!!.trackError(error!!)
-                    }
-            )
-            autoDisposable.add(viewModel!!.travelledStopMarkerViewModels
-                    .subscribe(
-                            { it: List<StopMarkerViewModel> ->
-                                showStopMarkers(it, travelledStopMarkers!!)
-                            }
-                    ) { error: Throwable? ->
-                        errorLogger!!.trackError(error!!)
-                    }
-            )
-            autoDisposable.add(viewModel!!.nonTravelledStopMarkerViewModels
-                    .subscribe(
-                            { it: List<StopMarkerViewModel> ->
-                                showStopMarkers(it, nonTravelledStopMarkers!!)
-                            }
-                    ) { error: Throwable? ->
-                        errorLogger!!.trackError(error!!)
-                    }
-            )
-            autoDisposable.add(viewModel!!.segments
-                    .flatMap { segments: List<TripSegment> -> getTripLineLazy!!.get().execute(segments) }
-                    .subscribeOn(Schedulers.computation())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(
-                            { polylineOptionsList: List<SegmentsPolyLineOptions> ->
-                                showTripLinesWithTravelledChecking(map, polylineOptionsList)
-                            }
-                    ) { error: Throwable? ->
-                        errorLogger!!.trackError(error!!)
-                    }
-            )
-            autoDisposable.add(viewModel!!.onTripSegmentTapped()
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe({ (first, second) ->
-                        map.animateCamera(first)
-                        showMarkerForSegment(map, second)
-                    }) { error: Throwable? -> errorLogger!!.trackError(error!!) })
+    private fun setupObservers(context: Context) {
+        autoDisposable.add(viewModel.vehicleMarkerViewModelsStream
+            .subscribe(
+                { it: List<VehicleMarkerViewModel> ->
+                    showVehicleMarkers(context, it, vehicleMarkers!!)
+                }
+            ) { error: Throwable? ->
+                errorLogger!!.trackError(error!!)
+            }
+        )
+        autoDisposable.add(viewModel.alertMarkerViewModelsStream
+            .subscribe(
+                { it: List<AlertMarkerViewModel> ->
+                    showAlertMarkers(it, alertMarkers!!)
+                }
+            ) { error: Throwable? ->
+                errorLogger!!.trackError(error!!)
+            }
+        )
+        autoDisposable.add(viewModel.travelledStopMarkerViewModelsStream
+            .subscribe(
+                { it: List<StopMarkerViewModel> ->
+                    showStopMarkers(it, travelledStopMarkers!!)
+                }
+            ) { error: Throwable? ->
+                errorLogger!!.trackError(error!!)
+            }
+        )
+        autoDisposable.add(viewModel.nonTravelledStopMarkerViewModelsStream
+            .subscribe(
+                { it: List<StopMarkerViewModel> ->
+                    showStopMarkers(it, nonTravelledStopMarkers!!)
+                }
+            ) { error: Throwable? ->
+                errorLogger!!.trackError(error!!)
+            }
+        )
+        autoDisposable.add(viewModel.segmentsStream
+            .flatMap { segments: List<TripSegment> -> getTripLineLazy!!.get().execute(segments) }
+            .subscribeOn(Schedulers.computation())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(
+                { polylineOptionsList: List<SegmentsPolyLineOptions> ->
+                    showTripLinesWithTravelledChecking(map, polylineOptionsList)
+                }
+            ) { error: Throwable? ->
+                errorLogger!!.trackError(error!!)
+            }
+        )
+        autoDisposable.add(viewModel.onTripSegmentTapped()
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({ (first, second) ->
+                map.animateCamera(first)
+                showMarkerForSegment(map, second)
+            }) { error: Throwable? -> errorLogger!!.trackError(error!!) })
 
-            autoDisposable.add(viewModel.tripCameraUpdate
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe({ cameraUpdate ->
-                        map.animateCamera(cameraUpdate)
-                    }, { Timber.e(it) }))
+        autoDisposable.add(viewModel.tripCameraUpdateStream
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({ cameraUpdate ->
+                map.animateCamera(cameraUpdate)
+            }, { Timber.e(it) }))
+        autoDisposable.add(viewModel.mapTilesStream
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({
+                processMapTiles(it)
+            }, { Timber.e(it) })
+        )
+    }
+
+    private fun processMapTiles(tripKitMapTiles: List<String>) {
+        if(tripKitMapTiles.isNotEmpty()) {
+            setTileProvider(tripKitMapTiles)
+        } else {
+            removeTileOverlay()
         }
     }
 
     private fun drawSegmentMarkers(context: Context) {
-        autoDisposable.add(viewModel.segments
+        autoDisposable.add(viewModel.segmentsStream
             .flatMap { it: List<TripSegment> -> createSegmentMarkers!!.execute(it) }
             .subscribeOn(Schedulers.computation())
             .observeOn(AndroidSchedulers.mainThread())
@@ -287,10 +315,14 @@ class TripResultMapContributor : TripKitMapContributor {
                 it.clear()
             }
         }
+        context = null
     }
 
     fun setTripGroupId(tripGroupId: String?, tripId: Long? = null) {
-        viewModel!!.setTripGroupId(tripGroupId!!, tripId)
+        tripGroupId?.let {
+            removeTileOverlay()
+            viewModel.setTripGroupId(it, tripId)
+        }
     }
 
     @Synchronized
