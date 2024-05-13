@@ -187,15 +187,6 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
                     val dialog = TripSegmentAlertsSheet.newInstance(list)
                     dialog.show(requireFragmentManager(), "alerts_sheet")
                 }.addTo(autoDisposable)
-        viewModel.mapTiles
-            .observe(viewLifecycleOwner) {
-                if(it != null && it.urlTemplates.isNotEmpty()) {
-                    tripResultMapContributor?.setTileProvider(
-                        requireContext(),
-                        it.urlTemplates
-                    )
-                }
-            }
         viewModel.updatedState
             .observe(viewLifecycleOwner) {
                 updateStream?.onNext(Unit)

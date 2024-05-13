@@ -25,6 +25,16 @@
             app:layout_constraintTop_toTopOf="parent"
             tools:text="100" />
 
+        <View
+            android:layout_width="1dp"
+            android:layout_height="0dp"
+            android:background="@color/black4"
+            android:layout_marginTop="@dimen/spacing_extra_small"
+            app:layout_constraintStart_toStartOf="@+id/tvMax"
+            app:layout_constraintEnd_toEndOf="@id/tvMax"
+            app:layout_constraintTop_toBottomOf="@+id/vTopDivider"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+
         <TextView
             android:id="@+id/tvMiddle"
             android:layout_width="wrap_content"
@@ -35,6 +45,16 @@
             app:layout_constraintStart_toEndOf="@+id/tvStart"
             app:layout_constraintTop_toTopOf="parent"
             tools:text="50" />
+
+        <View
+            android:layout_width="1dp"
+            android:layout_height="0dp"
+            android:background="@color/black4"
+            android:layout_marginTop="@dimen/spacing_extra_small"
+            app:layout_constraintStart_toStartOf="@+id/tvMiddle"
+            app:layout_constraintEnd_toEndOf="@id/tvMiddle"
+            app:layout_constraintTop_toBottomOf="@+id/vTopDivider"
+            app:layout_constraintBottom_toBottomOf="parent" />
 
         <TextView
             android:id="@+id/tvStart"
@@ -62,6 +82,7 @@
             android:layout_marginHorizontal="@dimen/spacing_small"
             android:layout_marginVertical="@dimen/spacing_medium"
             android:layout_marginTop="@dimen/spacing_small"
+            android:background="@android:color/transparent"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/vTopDivider"

@@ -15,8 +15,7 @@ import io.reactivex.subjects.PublishSubject
 class TripGroupsPagerAdapter(
     private val fragmentManager: FragmentManager,
     private val tripResultMapContributor: TripResultMapContributor
-) :
-    FragmentStatePagerAdapter(fragmentManager, BEHAVIOR_SET_USER_VISIBLE_HINT) {
+) : FragmentStatePagerAdapter(fragmentManager, BEHAVIOR_SET_USER_VISIBLE_HINT) {
     var tripGroups: List<TripGroup>? = null
         set(value) {
             field = value
