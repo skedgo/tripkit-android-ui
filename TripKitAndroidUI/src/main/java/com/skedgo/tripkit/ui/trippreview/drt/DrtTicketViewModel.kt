@@ -21,6 +21,9 @@ class DrtTicketViewModel : ViewModel() {
     private val _currency = MutableLiveData<String>()
     val currency: LiveData<String> = _currency
 
+    private val _name = MutableLiveData<String?>()
+    val name: LiveData<String?> = _name
+
     private val _description = MutableLiveData<String?>()
     val description: LiveData<String?> = _description
 
@@ -74,6 +77,10 @@ class DrtTicketViewModel : ViewModel() {
     fun setDescription(value: String?) {
         // Removed due to new design no longer showing this
 //        _description.value = value
+    }
+
+    fun setName(value: String?) {
+        _name.postValue(value)
     }
 
     fun setPrice(value: Double, currency: String) {
