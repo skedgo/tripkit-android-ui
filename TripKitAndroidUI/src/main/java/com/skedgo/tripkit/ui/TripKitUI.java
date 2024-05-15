@@ -22,7 +22,6 @@ import com.skedgo.tripkit.routing.GeoLocation;
 import com.skedgo.tripkit.routing.GetOffAlertCache;
 import com.skedgo.tripkit.ui.controller.ControllerComponent;
 import com.skedgo.tripkit.ui.controller.ControllerModule;
-import com.skedgo.tripkit.ui.controller.homeviewcontroller.TKUIHomeViewControllerFragment;
 import com.skedgo.tripkit.ui.core.module.*;
 import com.skedgo.tripkit.ui.core.settings.DeveloperPreferenceRepositoryImpl;
 import com.skedgo.tripkit.ui.data.places.PlaceSearchRepository;
