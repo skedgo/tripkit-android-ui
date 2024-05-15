@@ -96,7 +96,7 @@ class TripResultPagerViewModel @Inject internal constructor(
                     getSortedTripGroups.execute(args.requestId, args.arriveBy, args.sortOrder, tripResultTransportViewFilter)
                             .subscribeOn(Schedulers.io())
                             .doOnNext {
-                                tripGroups.accept(initialList)
+                                tripGroups.accept(it)
                                 isLoading.set(false)
                             }
                             .map { Unit }
