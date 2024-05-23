@@ -4,5 +4,7 @@ data class GooglePlacePrediction(
     val primaryText: String,
     val secondaryText: String,
     val fullText: String,
-    val placeId: String
+    val placeId: String,
+    val latitude: Double,
+    val longitude: Double
 )

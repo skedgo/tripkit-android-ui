@@ -12,6 +12,7 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
 import com.jakewharton.rxrelay2.PublishRelay
 import com.skedgo.tripkit.analytics.SearchResultItemSource
+import com.skedgo.tripkit.common.model.LOCATION_CLASS_SCHOOL
 import com.skedgo.tripkit.common.model.Location
 import com.skedgo.tripkit.common.model.Region
 import com.skedgo.tripkit.data.regions.RegionService
@@ -30,6 +31,7 @@ import com.skedgo.tripkit.ui.geocoding.AutoCompleteResult
 import com.skedgo.tripkit.ui.geocoding.HasResults
 import com.skedgo.tripkit.ui.geocoding.NoConnection
 import com.skedgo.tripkit.ui.geocoding.NoResult
+import com.skedgo.tripkit.ui.utils.LocationUtil
 import com.skedgo.tripkit.ui.utils.TransportModeSharedPreference
 import com.squareup.picasso.Picasso
 import io.reactivex.Observable
@@ -198,6 +200,46 @@ class LocationSearchViewModel @Inject constructor(
                                 result.query
                             )
                         })
+
+                        val schoolItems =
+                            googleAndTripGoSuggestions.filter { it.location.locationClass == LOCATION_CLASS_SCHOOL }
+                        schoolItems.forEach { refItem ->
+                            val itemsToRemove = googleAndTripGoSuggestions.filter { item ->
+                                if (item.location.locationClass != "SchoolLocation") {
+                                    val mutualRelevance = LocationUtil.getRelevancePoint(
+                                        refItem.location.name,
+                                        item.location.name
+                                    )
+                                    val distanceInMeters = LocationUtil.distanceInMeters(
+                                        refItem.location.lat,
+                                        refItem.location.lon,
+                                        when (item.place) {
+                                            is Place.WithoutLocation -> {
+                                                item.place.prediction.latitude
+                                            }
+
+                                            else -> {
+                                                item.location.lat
+                                            }
+                                        },
+                                        when (item.place) {
+                                            is Place.WithoutLocation -> {
+                                                item.place.prediction.longitude
+                                            }
+
+                                            else -> {
+                                                item.location.lon
+                                            }
+                                        }
+                                    )
+                                    (mutualRelevance > 0.8 && distanceInMeters < 100) || (mutualRelevance > 0.6 && distanceInMeters < 300) || (mutualRelevance > 0.5 && distanceInMeters < 70)
+                                } else {
+                                    false
+                                }
+                            }
+                            googleAndTripGoSuggestions.removeAll(itemsToRemove)
+                        }
+
                         errorViewModel.updateError(null)
                     }
 
@@ -424,7 +466,13 @@ class LocationSearchViewModel @Inject constructor(
                     newList,
                     legacyIconProvider()
                 ).forEach { suggestion ->
-                    citiesSuggestions.add(CityProviderSuggestionViewModel(context, suggestion, query))
+                    citiesSuggestions.add(
+                        CityProviderSuggestionViewModel(
+                            context,
+                            suggestion,
+                            query
+                        )
+                    )
                 }
             }, { Timber.e(it) }).autoClear()
     }
