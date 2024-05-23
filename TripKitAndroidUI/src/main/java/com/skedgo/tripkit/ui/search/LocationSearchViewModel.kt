@@ -190,7 +190,7 @@ class LocationSearchViewModel @Inject constructor(
 
                     is HasResults -> {
                         googleAndTripGoSuggestions.clear()
-                        googleAndTripGoSuggestions.addAll(result.suggestions.map { place ->
+                        val initialSuggestions = result.suggestions.map { place ->
                             GoogleAndTripGoSuggestionViewModel(
                                 context,
                                 picasso,
@@ -199,46 +199,43 @@ class LocationSearchViewModel @Inject constructor(
                                 iconProvider(),
                                 result.query
                             )
-                        })
+                        }
 
-                        val schoolItems =
-                            googleAndTripGoSuggestions.filter { it.location.locationClass == LOCATION_CLASS_SCHOOL }
-                        schoolItems.forEach { refItem ->
-                            val itemsToRemove = googleAndTripGoSuggestions.filter { item ->
-                                if (item.location.locationClass != "SchoolLocation") {
-                                    val mutualRelevance = LocationUtil.getRelevancePoint(
-                                        refItem.location.name,
-                                        item.location.name
-                                    )
+                        // Filter to identify all school items
+                        val schoolItems = initialSuggestions.filter { it.location.locationClass == LOCATION_CLASS_SCHOOL }
+
+                        // Using a set to avoid duplicates
+                        val uniqueItemsToAdd = mutableSetOf<GoogleAndTripGoSuggestionViewModel>()
+
+                        // Add school items directly since they should always be included
+                        uniqueItemsToAdd.addAll(schoolItems)
+
+                        // Filter and add other items based on their distance and relevance to any school item
+                        initialSuggestions.forEach { item ->
+                            if (item.location.locationClass != "SchoolLocation" && schoolItems.none { school ->
+                                    val mutualRelevance = LocationUtil.getRelevancePoint(school.location.name, item.location.name)
                                     val distanceInMeters = LocationUtil.distanceInMeters(
-                                        refItem.location.lat,
-                                        refItem.location.lon,
+                                        school.location.lat,
+                                        school.location.lon,
                                         when (item.place) {
-                                            is Place.WithoutLocation -> {
-                                                item.place.prediction.latitude
-                                            }
-
-                                            else -> {
-                                                item.location.lat
-                                            }
+                                            is Place.WithoutLocation -> item.place.prediction.latitude
+                                            else -> item.location.lat
                                         },
                                         when (item.place) {
-                                            is Place.WithoutLocation -> {
-                                                item.place.prediction.longitude
-                                            }
-
-                                            else -> {
-                                                item.location.lon
-                                            }
+                                            is Place.WithoutLocation -> item.place.prediction.longitude
+                                            else -> item.location.lon
                                         }
                                     )
-                                    (mutualRelevance > 0.8 && distanceInMeters < 100) || (mutualRelevance > 0.6 && distanceInMeters < 300) || (mutualRelevance > 0.5 && distanceInMeters < 70)
-                                } else {
-                                    false
-                                }
+                                    (mutualRelevance > 0.8 && distanceInMeters < 100) ||
+                                            (mutualRelevance > 0.6 && distanceInMeters < 300) ||
+                                            (mutualRelevance > 0.5 && distanceInMeters < 70)
+                                }) {
+                                uniqueItemsToAdd.add(item)
                             }
-                            googleAndTripGoSuggestions.removeAll(itemsToRemove)
                         }
+
+                        // Add all unique filtered items to the main suggestions list
+                        googleAndTripGoSuggestions.addAll(uniqueItemsToAdd)
 
                         errorViewModel.updateError(null)
                     }
