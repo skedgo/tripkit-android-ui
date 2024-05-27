@@ -99,19 +99,4 @@ object LocationUtil {
         )
     }
 
-
-    /**
-     * Calculates the distance between two points on Earth (specified in decimal degrees) and checks if it is less than 100 meters.
-     *
-     * @param lat1 Latitude of the first location.
-     * @param lon1 Longitude of the first location.
-     * @param lat2 Latitude of the second location.
-     * @param lon2 Longitude of the second location.
-     * @return True if the distance is less than 100 meters, false otherwise.
-     */
-    fun distanceInMeters(lat1: Double, lon1: Double, lat2: Double, lon2: Double): Float {
-        val results = FloatArray(1)
-        Location.distanceBetween(lat1, lon1, lat2, lon2, results)
-        return results[0]
-    }
 }

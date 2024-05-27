@@ -53,17 +53,13 @@ class PlaceSearchRepositoryImpl
                     }
             }
             .flatMap { Observable.fromIterable(it) }
-            .flatMap {
-                getPlaceDetails(it.placeId).map { details ->
-                    GooglePlacePrediction(
-                        primaryText = it.getPrimaryText(null).toString(),
-                        secondaryText = it.getSecondaryText(null).toString(),
-                        fullText = it.getFullText(null).toString(),
-                        placeId = it.placeId,
-                        latitude = details.lat,
-                        longitude = details.lng
-                    )
-                }
+            .map {
+                GooglePlacePrediction(
+                    it.getPrimaryText(null).toString(),
+                    it.getSecondaryText(null).toString(),
+                    it.getFullText(null).toString(),
+                    it.placeId
+                )
             }
             .subscribeOn(io())
     }

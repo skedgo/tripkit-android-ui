@@ -213,22 +213,7 @@ class LocationSearchViewModel @Inject constructor(
                         // Filter and add other items based on their distance and relevance to any school item
                         initialSuggestions.forEach { item ->
                             if (item.location.locationClass != "SchoolLocation" && schoolItems.none { school ->
-                                    val mutualRelevance = LocationUtil.getRelevancePoint(school.location.name, item.location.name)
-                                    val distanceInMeters = LocationUtil.distanceInMeters(
-                                        school.location.lat,
-                                        school.location.lon,
-                                        when (item.place) {
-                                            is Place.WithoutLocation -> item.place.prediction.latitude
-                                            else -> item.location.lat
-                                        },
-                                        when (item.place) {
-                                            is Place.WithoutLocation -> item.place.prediction.longitude
-                                            else -> item.location.lon
-                                        }
-                                    )
-                                    (mutualRelevance > 0.8 && distanceInMeters < 100) ||
-                                            (mutualRelevance > 0.6 && distanceInMeters < 300) ||
-                                            (mutualRelevance > 0.5 && distanceInMeters < 70)
+                                    LocationUtil.getRelevancePoint(school.location.name, item.location.name) > 0.7
                                 }) {
                                 uniqueItemsToAdd.add(item)
                             }
