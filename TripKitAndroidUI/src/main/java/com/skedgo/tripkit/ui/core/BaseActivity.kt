@@ -4,9 +4,13 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
+import android.widget.ImageButton
+import android.widget.TextView
 import androidx.annotation.LayoutRes
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
+import androidx.core.view.children
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
 import com.google.gson.Gson
@@ -102,5 +106,23 @@ abstract class BaseActivity<V : ViewDataBinding> : AppCompatActivity() {
             } else
                 hide()
         }
+    }
+
+    protected fun Toolbar.findHomeButtonView(): View? {
+        this.children.forEach {
+            if (it is ImageButton && it.drawable == this.navigationIcon) {
+                return it
+            }
+        }
+        return null
+    }
+
+    protected fun Toolbar.findAppBarTitleView(): View? {
+        this.children.forEach {
+            if (it is TextView && it.text == this.title) {
+                return it
+            }
+        }
+        return null
     }
 }
