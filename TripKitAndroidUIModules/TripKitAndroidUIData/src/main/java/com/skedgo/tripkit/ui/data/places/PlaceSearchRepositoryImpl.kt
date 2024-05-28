@@ -42,8 +42,17 @@ class PlaceSearchRepositoryImpl
                     .addOnCompleteListener { task ->
                         if (task.isSuccessful) {
                             val result = task.result
-                            val list = result?.autocompletePredictions.orEmpty()
-                            it.onNext(list)
+                            val predictions = result?.autocompletePredictions.orEmpty().toCollection(ArrayList())
+                            val itemsToRemove = predictions.filter { prediction ->
+                                prediction.placeTypes.any {
+                                    it.name in listOf(
+                                        "SCHOOL",
+                                        "SECONDARY_SCHOOL"
+                                    )
+                                }
+                            }
+                            predictions.removeAll(itemsToRemove.toSet())
+                            it.onNext(predictions)
                             it.onComplete()
                         } else {
                             Timber.e(task.exception)
