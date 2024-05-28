@@ -593,5 +593,10 @@ We aggregate the anonymised data and provide it to researchers, regulators, and 
         <item quantity="other">%d ambulatory riders</item>
     </plurals>
 
+    <plurals name="riders">
+        <item quantity="one">%s rider</item>
+        <item quantity="other">%s riders</item>
+    </plurals>
+
     <string name="earn_rewards">Earn Rewards</string>
 </resources>
