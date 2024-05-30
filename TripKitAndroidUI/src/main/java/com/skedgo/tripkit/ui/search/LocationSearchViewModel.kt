@@ -12,6 +12,7 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
 import com.jakewharton.rxrelay2.PublishRelay
 import com.skedgo.tripkit.analytics.SearchResultItemSource
+import com.skedgo.tripkit.common.model.LOCATION_CLASS_SCHOOL
 import com.skedgo.tripkit.common.model.Location
 import com.skedgo.tripkit.common.model.Region
 import com.skedgo.tripkit.data.regions.RegionService
@@ -30,6 +31,7 @@ import com.skedgo.tripkit.ui.geocoding.AutoCompleteResult
 import com.skedgo.tripkit.ui.geocoding.HasResults
 import com.skedgo.tripkit.ui.geocoding.NoConnection
 import com.skedgo.tripkit.ui.geocoding.NoResult
+import com.skedgo.tripkit.ui.utils.LocationUtil
 import com.skedgo.tripkit.ui.utils.TransportModeSharedPreference
 import com.squareup.picasso.Picasso
 import io.reactivex.Observable
@@ -188,7 +190,7 @@ class LocationSearchViewModel @Inject constructor(
 
                     is HasResults -> {
                         googleAndTripGoSuggestions.clear()
-                        googleAndTripGoSuggestions.addAll(result.suggestions.map { place ->
+                        val initialSuggestions = result.suggestions.map { place ->
                             GoogleAndTripGoSuggestionViewModel(
                                 context,
                                 picasso,
@@ -197,7 +199,29 @@ class LocationSearchViewModel @Inject constructor(
                                 iconProvider(),
                                 result.query
                             )
-                        })
+                        }
+
+                        // Filter to identify all school items
+                        val schoolItems = initialSuggestions.filter { it.location.locationClass == LOCATION_CLASS_SCHOOL }
+
+                        // Using a set to avoid duplicates
+                        val uniqueItemsToAdd = mutableSetOf<GoogleAndTripGoSuggestionViewModel>()
+
+                        // Add school items directly since they should always be included
+                        uniqueItemsToAdd.addAll(schoolItems)
+
+                        // Filter and add other items based on their distance and relevance to any school item
+                        initialSuggestions.forEach { item ->
+                            if (item.location.locationClass != "SchoolLocation" && schoolItems.none { school ->
+                                    LocationUtil.getRelevancePoint(school.location.name, item.location.name) > 0.7
+                                }) {
+                                uniqueItemsToAdd.add(item)
+                            }
+                        }
+
+                        // Add all unique filtered items to the main suggestions list
+                        googleAndTripGoSuggestions.addAll(uniqueItemsToAdd)
+
                         errorViewModel.updateError(null)
                     }
 
@@ -424,7 +448,13 @@ class LocationSearchViewModel @Inject constructor(
                     newList,
                     legacyIconProvider()
                 ).forEach { suggestion ->
-                    citiesSuggestions.add(CityProviderSuggestionViewModel(context, suggestion, query))
+                    citiesSuggestions.add(
+                        CityProviderSuggestionViewModel(
+                            context,
+                            suggestion,
+                            query
+                        )
+                    )
                 }
             }, { Timber.e(it) }).autoClear()
     }
