@@ -1,10 +1,14 @@
 package com.skedgo.tripkit.ui.data.routingresults
 
-import android.util.Log
 import com.jakewharton.rxrelay2.PublishRelay
 import com.skedgo.routepersistence.GroupQueries
 import com.skedgo.routepersistence.RouteStore
-import com.skedgo.routepersistence.WhereClauses
+import com.skedgo.routepersistence.WhereClauses.getSegmentsTable
+import com.skedgo.routepersistence.WhereClauses.getTripGroupsTable
+import com.skedgo.routepersistence.WhereClauses.getTripsTable
+import com.skedgo.routepersistence.WhereClauses.removeSegmentsWithNoTrip
+import com.skedgo.routepersistence.WhereClauses.removeTripGroupsHappenedBefore
+import com.skedgo.routepersistence.WhereClauses.removeTripsWithNoTripGroup
 import com.skedgo.tripkit.routing.Trip
 import com.skedgo.tripkit.routing.TripGroup
 import com.skedgo.tripkit.routing.TripSegment
@@ -17,6 +21,7 @@ import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers.io
 import io.reactivex.subjects.PublishSubject
 import org.joda.time.Days
+import org.joda.time.Hours
 import java.util.concurrent.ConcurrentHashMap
 
 typealias A2bRoutingRequestId = String
@@ -110,11 +115,24 @@ class TripGroupRepositoryImpl(
                 .subscribeOn(io())
     }
 
-    override fun deletePastRoutesAsync(): Observable<Int> = routeStore.deleteAsync(
-            WhereClauses.happenedBefore(
-                    Days.days(30).toPeriod().toStandardHours().hours.toLong(), /* months */
-                    getNow.execute().millis
-            ))
+    // Remove tripGroups, trips and segments in cache that was not saved on the current day
+    // TODO this should be executed somewhere when TripKitUI or TripKit is initialized,
+    //  to clean up routes db for the SDK users.
+    override fun deletePastRoutesAsync(): Observable<Int> = routeStore.deleteByTableAsync(
+        listOf(
+            getTripGroupsTable(),
+            getTripsTable(),
+            getSegmentsTable(),
+        ),
+        listOf(
+            removeTripGroupsHappenedBefore(
+                Days.days(1).toPeriod().toStandardHours().hours.toLong(),
+                getNow.execute().millis
+            ),
+            removeTripsWithNoTripGroup(),
+            removeSegmentsWithNoTrip()
+        )
+    )
 
     override fun addTripGroups(requestId: String?, groups: List<TripGroup>): Completable {
         return routeStore.saveAsync(requestId, groups)

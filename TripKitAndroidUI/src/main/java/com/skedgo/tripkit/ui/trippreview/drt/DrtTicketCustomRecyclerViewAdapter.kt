@@ -44,26 +44,31 @@ class DrtTicketCustomRecyclerViewAdapter<T> : BindingRecyclerViewAdapter<T>() {
                 itemDrtIbIncrement.updateClickActionAccessibilityLabel(context.getString(R.string.talkback_increment))
                 itemDrtIbIncrement.setOnClickListener {
                     item.onIncrementValue()
-                    readOutTicketCount((item.value.value ?: 0).toInt())
+                    readOutTicketCount(item.name.value.orEmpty(), (item.value.value ?: 0).toInt())
                 }
                 // this will change accessibility read out from "Decrease, Button, Double Tap to Activate"
                 // to "Decrease, Button, Double Tap to decrease
                 itemDrtIbDecrement.updateClickActionAccessibilityLabel(context.getString(R.string.talkback_decrement))
                 itemDrtIbDecrement.setOnClickListener {
                     item.onDecrementValue()
-                    readOutTicketCount((item.value.value ?: 0).toInt())
+                    readOutTicketCount(item.name.value.orEmpty(), (item.value.value ?: 0).toInt())
+                }
+                itemDrtSelectLayout.setOnClickListener {
+                    item.onSelect()
+                    readOutTicketCount(item.name.value.orEmpty(), (item.value.value ?: 0).toInt())
                 }
             }
         }
     }
 
-    private fun readOutTicketCount(count: Int) {
+    private fun readOutTicketCount(name: String, count: Int) {
         if (context.isTalkBackOn()) {
+            val description = "$count $name "
             context.talkBackSpeak(
                 context.resources.getQuantityString(
-                    R.plurals.ambulatory_riders,
+                    R.plurals.riders,
                     count,
-                    count
+                    description
                 )
             )
         }

@@ -4,12 +4,17 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
+import android.widget.ImageButton
+import android.widget.TextView
 import androidx.annotation.LayoutRes
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
+import androidx.core.view.children
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
 import com.google.gson.Gson
+import com.skedgo.tripkit.ui.dialog.GenericLoadingDialog
 
 /**
  * To act as a super class for all other activities.
@@ -24,6 +29,10 @@ abstract class BaseActivity<V : ViewDataBinding> : AppCompatActivity() {
     protected abstract val layoutRes: Int
 
     protected lateinit var binding: V
+
+    private val loadingDialog: GenericLoadingDialog by lazy(mode = LazyThreadSafetyMode.NONE) {
+        GenericLoadingDialog(this@BaseActivity)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,6 +52,21 @@ abstract class BaseActivity<V : ViewDataBinding> : AppCompatActivity() {
             }
             else -> super.onOptionsItemSelected(menuItem)
         }
+    }
+
+    protected fun showLoading(isLoading: Boolean) {
+        loadingDialog.let {
+            if (isLoading && !loadingDialog.isShowing)
+                loadingDialog.show()
+            else if (!isLoading && loadingDialog.isShowing) {
+                loadingDialog.dismiss()
+            }
+        }
+    }
+
+    override fun onDestroy() {
+        showLoading(false)
+        super.onDestroy()
     }
 
     //For simple yet dynamic control (basic control) of toolbar
@@ -82,5 +106,23 @@ abstract class BaseActivity<V : ViewDataBinding> : AppCompatActivity() {
             } else
                 hide()
         }
+    }
+
+    protected fun Toolbar.findHomeButtonView(): View? {
+        this.children.forEach {
+            if (it is ImageButton && it.drawable == this.navigationIcon) {
+                return it
+            }
+        }
+        return null
+    }
+
+    protected fun Toolbar.findAppBarTitleView(): View? {
+        this.children.forEach {
+            if (it is TextView && it.text == this.title) {
+                return it
+            }
+        }
+        return null
     }
 }
