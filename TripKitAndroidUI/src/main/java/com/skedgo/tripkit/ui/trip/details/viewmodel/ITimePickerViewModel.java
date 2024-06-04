@@ -12,6 +12,7 @@ import com.skedgo.tripkit.common.model.TimeTag;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
+import java.util.TimeZone;
 
 public interface ITimePickerViewModel {
 
@@ -58,4 +59,7 @@ public interface ITimePickerViewModel {
 
     @Nullable
     GregorianCalendar getSelectedDate();
+
+    @Nullable
+    TimeZone getTimezone();
 }

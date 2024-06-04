@@ -529,5 +529,10 @@ public class InterCityTimePickerViewModel implements ITimePickerViewModel {
         return null;
     }
 
+    @Nullable
+    @Override
+    public TimeZone getTimezone() {
+        return departureTimezone != null ? departureTimezone : arrivalTimezone;
+    }
 }
 

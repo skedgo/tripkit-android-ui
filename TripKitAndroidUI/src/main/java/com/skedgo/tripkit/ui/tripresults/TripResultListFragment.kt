@@ -322,6 +322,8 @@ class TripResultListFragment : BaseTripKitFragment() {
             }
         }
 
+        val currentDate = Calendar.getInstance(TimeZone.getTimeZone(departureTimezone)).time
+
         try {
 
             val globalConfigs = TripKit.getInstance().configs()
@@ -332,11 +334,11 @@ class TripResultListFragment : BaseTripKitFragment() {
                 .withTimeType(timeTag.type)
                 .timeMillis(timeMillis)
                 .withPositiveAction(R.string.done)
-                /*.withNegativeAction(R.string.leave_now)*/
                 .setTimePickerMinutesInterval(
                     globalConfigs.dateTimePickerConfig()?.dateTimePickerMinuteInterval ?: 1)
                 .setLeaveAtLabel(globalConfigs.dateTimePickerConfig()?.dateTimePickerLeaveAtLabel)
                 .setArriveByLabel(globalConfigs.dateTimePickerConfig()?.dateTimePickerArriveByLabel)
+                .withDateTimeMinLimit(currentDate)
 
             if (globalConfigs.dateTimePickerConfig()?.isWithLeaveNow == true) {
                 builder.withNegativeAction(R.string.leave_now)

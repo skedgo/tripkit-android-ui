@@ -159,22 +159,35 @@ class TripKitDateTimePickerDialogFragment : DialogFragment(), TimePicker.OnTimeC
         if (isTimeValid(hour, convertedMinute)) {
             timePickerViewModel.updateTime(hour, convertedMinute)
         } else {
-            updateTimePicker(
-                    timePickerViewModel.dateTimeMinLimit()?.hours,
-                    timePickerViewModel.dateTimeMinLimit()?.minutes
-            )
+            var hours = timePickerViewModel.dateTimeMinLimit()?.hours
+            var minutes = timePickerViewModel.dateTimeMinLimit()?.minutes
+            timePickerViewModel.dateTimeMinLimit()?.let {
+                val calendar = getCalendarFromDateWithTimezone(it, timePickerViewModel.timezone)
+                hours = calendar.get(Calendar.HOUR_OF_DAY)
+                minutes = calendar.get(Calendar.MINUTE)
+            }
+            updateTimePicker(hours, minutes)
         }
+    }
+
+    private fun getCalendarFromDateWithTimezone(date: Date, timezone: TimeZone?): Calendar {
+        val calendar = timezone?.let { Calendar.getInstance(timezone) } ?: Calendar.getInstance()
+        calendar.time = date
+        return calendar
     }
 
     private fun isTimeValid(hour: Int, minute: Int): Boolean {
         val selectedDateCalendar = timePickerViewModel.selectedDate
         selectedDateCalendar?.let { sDateCal ->
             return timePickerViewModel.dateTimeMinLimit()?.let { minDateTime ->
-                val selectedDate = Date(sDateCal.timeInMillis)
-                selectedDate.hours = hour
-                selectedDate.minutes = minute
+                val minDateTimeCalendar = getCalendarFromDateWithTimezone(
+                    minDateTime, timePickerViewModel.timezone
+                )
 
-                minDateTime.time < selectedDate.time
+                selectedDateCalendar.set(Calendar.HOUR_OF_DAY, hour)
+                selectedDateCalendar.set(Calendar.MINUTE, minute)
+
+                minDateTimeCalendar.timeInMillis < selectedDateCalendar.timeInMillis
             } ?: true
         }
 
