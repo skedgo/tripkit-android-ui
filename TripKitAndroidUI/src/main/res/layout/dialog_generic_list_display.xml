@@ -3,17 +3,6 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <data>
-
-        <variable
-            name="handler"
-            type="com.skedgo.tripkit.ui.dialog.GenericListDisplayDialogFragmentHandler" />
-
-        <variable
-            name="viewModel"
-            type="com.skedgo.tripkit.ui.dialog.GenericListViewModel" />
-    </data>
-
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -24,7 +13,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@color/colorPrimary"
-            android:padding="@dimen/spacing_small"
             app:layout_constraintTop_toTopOf="parent">
 
             <TextView
@@ -33,8 +21,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:paddingStart="@dimen/spacing_normal"
+                android:minHeight="@dimen/accessibility_min_clickable_size"
                 android:paddingEnd="@dimen/spacing_normal"
+                android:paddingStart="@dimen/spacing_normal"
                 android:text="@{viewModel.title}"
                 android:textColor="@android:color/white"
                 app:layout_constraintBottom_toBottomOf="parent"
@@ -49,9 +38,11 @@
                 style="@style/TextAppearance.MaterialComponents.Body1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:contentDescription="@string/desc_close_button"
                 android:gravity="center_vertical|end"
-                android:paddingStart="@dimen/spacing_normal"
+                android:minHeight="@dimen/accessibility_min_clickable_size"
                 android:paddingEnd="@dimen/spacing_normal"
+                android:paddingStart="@dimen/spacing_normal"
                 android:text="@string/close"
                 android:textColor="@android:color/white"
                 app:clickWithDebounce="@{() -> handler.onClose()}"
@@ -65,11 +56,22 @@
             android:id="@+id/genericList_rv_selection"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_marginTop="@dimen/spacing_small"
             android:layout_marginBottom="@dimen/spacing_small"
+            android:layout_marginTop="@dimen/spacing_small"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            app:layout_constraintBottom_toTopOf="@+id/genericList_b_confirm"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/genericList_cl_header" />
     </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <data>
+
+        <variable
+            name="handler"
+            type="com.skedgo.tripkit.ui.dialog.GenericListDisplayDialogFragmentHandler" />
+
+        <variable
+            name="viewModel"
+            type="com.skedgo.tripkit.ui.dialog.GenericListViewModel" />
+    </data>
 
 </layout>

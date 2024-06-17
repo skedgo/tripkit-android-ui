@@ -3,31 +3,22 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <data>
-
-        <import type="com.skedgo.tripkit.booking.quickbooking.QuickBookingType" />
-
-        <variable
-            name="viewModel"
-            type="com.skedgo.tripkit.ui.trippreview.drt.DrtTicketViewModel" />
-    </data>
-
-
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:focusable="true"
         android:importantForAccessibility="yes"
-        android:screenReaderFocusable="true">
+        android:screenReaderFocusable="true"
+        tools:targetApi="p">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/itemDrt_mainLayout"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:padding="@dimen/spacing_small"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/itemDrt_actionLayout"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
             <TextView
@@ -49,11 +40,12 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/spacing_small"
                 android:layout_marginTop="@dimen/shadow_height"
+                android:accessibilityLiveRegion="polite"
                 android:background="@drawable/bg_round_rect_red"
                 android:focusable="false"
                 android:gravity="center"
-                android:paddingVertical="@dimen/spacing_extra_small"
                 android:paddingHorizontal="@dimen/spacing_small"
+                android:paddingVertical="@dimen/spacing_extra_small"
                 android:text="@string/lbl_required"
                 android:textAlignment="center"
                 android:textColor="@color/grey3"
@@ -68,8 +60,9 @@
                 style="@style/TextAppearance.MaterialComponents.Body2"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/spacing_small"
                 android:layout_marginEnd="@dimen/spacing_small"
+                android:layout_marginTop="@dimen/spacing_small"
+                android:accessibilityLiveRegion="polite"
                 android:focusable="false"
                 android:text="@{viewModel.description}"
                 android:textColor="@color/black1"
@@ -79,7 +72,7 @@
                 app:layout_constraintTop_toBottomOf="@+id/itemDrt_tvLabel"
                 tools:text="Tap to make selections" />
 
-<!--            android:visibility="@{viewModel.description.length() > 0}"-->
+            <!--            android:visibility="@{viewModel.description.length() > 0}"-->
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -87,16 +80,33 @@
             android:id="@+id/itemDrt_actionLayout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/shadow_height"
             android:layout_marginBottom="@dimen/shadow_height"
+            android:layout_marginEnd="@dimen/shadow_height"
             android:clickable="false"
+            android:paddingBottom="@dimen/shadow_height"
+            android:paddingEnd="@dimen/spacing_small"
             android:paddingStart="@dimen/spacing_small"
             android:paddingTop="@dimen/shadow_height"
-            android:paddingEnd="@dimen/spacing_small"
-            android:paddingBottom="@dimen/shadow_height"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             tools:visibility="visible">
+
+            <TextView
+                android:id="@+id/itemDrt_selectLayout"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:accessibilityLiveRegion="polite"
+                android:background="@drawable/bg_round_rect_primary_dark"
+                android:clickable="false"
+                android:padding="@dimen/spacing_small"
+                android:text="@string/str_select"
+                android:textColor="@android:color/white"
+                android:visibility="@{!viewModel.viewMode &amp; viewModel.value == 0}"
+                app:accessibilityViewFocus="@{viewModel.accessibilityFocusSelectAction}"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                tools:visibility="visible" />
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="wrap_content"
@@ -110,14 +120,31 @@
                     android:id="@+id/itemDrt_ibDecrement"
                     android:layout_width="@dimen/drt_ticket_action_icon_size"
                     android:layout_height="@dimen/drt_ticket_action_icon_size"
-                    android:src="@drawable/ic_minus_small"
-                    android:padding="@dimen/spacing_small"
+                    android:accessibilityLiveRegion="polite"
                     android:background="@drawable/bg_round_rect_primary_dark"
+                    android:contentDescription="@string/desc_decrement_button"
+                    android:padding="@dimen/spacing_small"
+                    android:src="@drawable/ic_minus_small"
                     android:visibility="@{!viewModel.viewMode &amp; viewModel.value > 0}"
-                    android:contentDescription="@string/talkback_decrement"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"/>
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintVertical_bias="0.0" />
+
+                <ImageButton
+                    android:id="@+id/itemDrt_ibIncrement"
+                    android:layout_width="@dimen/drt_ticket_action_icon_size"
+                    android:layout_height="@dimen/drt_ticket_action_icon_size"
+                    android:accessibilityLiveRegion="polite"
+                    android:background="@drawable/bg_round_rect_primary_dark"
+                    android:contentDescription="@string/desc_increment_button"
+                    android:padding="@dimen/spacing_small"
+                    android:src="@drawable/ic_add_small"
+                    android:visibility="@{!viewModel.viewMode &amp; viewModel.value > 0}"
+                    app:accessibilityViewFocus="@{viewModel.accessibilityFocusIncrementAction}"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/itemDrt_tvQuantity"
+                    app:layout_constraintTop_toTopOf="parent" />
 
                 <TextView
                     android:id="@+id/itemDrt_tvQuantity"
@@ -125,48 +152,30 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="@dimen/spacing_small"
+                    android:accessibilityLiveRegion="polite"
+                    android:contentDescription="@{viewModel.value.toString() + ` selected`}"
                     android:paddingEnd="@dimen/spacing_small"
                     android:text="@{'x' + viewModel.value.toString()}"
                     android:textColor="@color/black"
-                    android:contentDescription="@{viewModel.value.toString() + ` selected`}"
                     android:visibility="@{viewModel.value > 0}"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toEndOf="@id/itemDrt_ibDecrement"
                     app:layout_constraintTop_toTopOf="parent"
+                    tools:ignore="RtlSymmetry"
                     tools:text="x10" />
 
-                <ImageButton
-                    android:id="@+id/itemDrt_ibIncrement"
-                    android:layout_width="@dimen/drt_ticket_action_icon_size"
-                    android:layout_height="@dimen/drt_ticket_action_icon_size"
-                    android:src="@drawable/ic_add_small"
-                    android:padding="@dimen/spacing_small"
-                    android:background="@drawable/bg_round_rect_primary_dark"
-                    android:contentDescription="@string/talkback_increment"
-                    android:visibility="@{!viewModel.viewMode &amp; viewModel.value > 0}"
-                    app:accessibilityViewFocus="@{viewModel.accessibilityFocusIncrementAction}"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toEndOf="@id/itemDrt_tvQuantity"
-                    app:layout_constraintTop_toTopOf="parent"/>
-
             </androidx.constraintlayout.widget.ConstraintLayout>
-
-            <TextView
-                android:id="@+id/itemDrt_selectLayout"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@drawable/bg_round_rect_primary_dark"
-                android:clickable="false"
-                android:padding="@dimen/spacing_small"
-                android:text="@string/str_select"
-                android:textColor="@android:color/white"
-                android:visibility="@{!viewModel.viewMode &amp; viewModel.value == 0}"
-                app:accessibilityViewFocus="@{viewModel.accessibilityFocusSelectAction}"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                tools:visibility="visible" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+    <data>
+
+        <import type="com.skedgo.tripkit.booking.quickbooking.QuickBookingType" />
+
+        <variable
+            name="viewModel"
+            type="com.skedgo.tripkit.ui.trippreview.drt.DrtTicketViewModel" />
+    </data>
 </layout>

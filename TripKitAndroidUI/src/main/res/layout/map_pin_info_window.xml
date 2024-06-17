@@ -5,22 +5,27 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:background="@android:color/white"
+    android:contentDescription="@string/desc_map_info_window"
     android:foreground="?selectableItemBackground"
     android:padding="8dp">
 
-    <TextView
-        android:id="@+id/txtTitle"
+    <ImageView
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:text="Sydney Bike Share" />
+        android:layout_height="0dp"
+        android:layout_centerVertical="true"
+        android:layout_marginStart="8dp"
+        android:contentDescription="@string/desc_info_icon"
+        android:src="@drawable/ic_icon_info"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/txtTitle"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/txtSubtitle"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:contentDescription="@string/desc_map_info_window_description"
         android:text="@string/available_bikes"
         android:textAppearance="@style/TextAppearance.AppCompat.Caption"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -28,14 +33,13 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/txtTitle" />
 
-    <ImageView
+    <TextView
+        android:id="@+id/txtTitle"
         android:layout_width="wrap_content"
-        android:layout_height="0dp"
-        android:layout_centerVertical="true"
-        android:src="@drawable/ic_icon_info"
-        android:layout_marginStart="8dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/txtTitle"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:layout_height="wrap_content"
+        android:contentDescription="@string/desc_map_info_window_title"
+        android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="Sydney Bike Share" />
 </androidx.constraintlayout.widget.ConstraintLayout>

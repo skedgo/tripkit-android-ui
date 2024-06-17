@@ -12,34 +12,38 @@
 
     <merge>
 
+        <ImageButton
+            android:id="@+id/closeButton"
+            android:layout_width="@dimen/close_button_size"
+            android:layout_height="@dimen/close_button_size"
+            android:layout_marginEnd="@dimen/spacing_normal"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/desc_close_button"
+            android:onClick="@{() -> viewModel.closeClicked.perform()}"
+            android:src="@drawable/close"
+            app:layout_constraintBottom_toBottomOf="@+id/actionText"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/actionText" />
+
         <ImageView
             android:id="@+id/icon"
             android:layout_width="24dp"
             android:layout_height="24dp"
-            android:layout_marginTop="@dimen/spacing_normal"
             android:layout_marginStart="16dp"
+            android:layout_marginTop="@dimen/spacing_normal"
+            android:contentDescription="@string/desc_transporation_type_icon"
             android:src="@{viewModel.icon}"
             app:layout_constraintBottom_toBottomOf="@+id/textBarrier"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
-            android:id="@+id/actionText"
-            style="@style/TextAppearance.MaterialComponents.Headline6"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_margin="@dimen/spacing_normal"
-            android:text="@{viewModel.title}"
-            app:layout_constraintEnd_toStartOf="@+id/closeButton"
-            app:layout_constraintStart_toEndOf="@+id/icon"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:text="Walk Somewhere" />
-
-        <TextView
             android:id="@+id/descriptionText"
             style="@style/TextAppearance.MaterialComponents.Subtitle1"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:accessibilityLiveRegion="polite"
+            android:contentDescription="@{viewModel.description}"
             android:text="@{viewModel.description}"
             android:visibility="@{viewModel.showDescription}"
             app:layout_constraintEnd_toStartOf="@+id/closeButton"
@@ -47,32 +51,18 @@
             app:layout_constraintTop_toBottomOf="@+id/actionText"
             tools:text="Soem city" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/openInButton"
-            style="?attr/materialButtonOutlinedStyle"
-            android:layout_width="wrap_content"
+        <TextView
+            android:id="@+id/actionText"
+            style="@style/TextAppearance.MaterialComponents.Headline6"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing_small"
-            android:layout_marginStart="@dimen/spacing_normal"
-            android:onClick="@{() -> viewModel.showLaunchInMapsClicked.perform()}"
-            android:text="@string/open_in"
-            android:visibility="@{viewModel.showLaunchInMaps}"
-            app:icon="@drawable/ic_go"
+            android:layout_margin="@dimen/spacing_normal"
+            android:contentDescription="@{viewModel.title}"
+            android:text="@{viewModel.title}"
+            app:layout_constraintEnd_toStartOf="@+id/closeButton"
             app:layout_constraintStart_toEndOf="@+id/icon"
-            app:layout_constraintTop_toBottomOf="@+id/descriptionText" />
-
-        <ImageButton
-            android:id="@+id/closeButton"
-            android:layout_width="@dimen/close_button_size"
-            android:layout_height="@dimen/close_button_size"
-            android:layout_marginEnd="@dimen/spacing_normal"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:onClick="@{() -> viewModel.closeClicked.perform()}"
-            android:src="@drawable/close"
-            android:contentDescription="@string/desc_close"
-            app:layout_constraintBottom_toBottomOf="@+id/actionText"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/actionText" />
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="Walk Somewhere" />
 
         <androidx.constraintlayout.widget.Barrier
             android:id="@+id/textBarrier"
@@ -80,5 +70,21 @@
             android:layout_height="wrap_content"
             app:barrierDirection="bottom"
             app:constraint_referenced_ids="actionText,descriptionText, openInButton" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/openInButton"
+            style="?attr/materialButtonOutlinedStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/spacing_normal"
+            android:layout_marginTop="@dimen/spacing_small"
+            android:accessibilityLiveRegion="polite"
+            android:contentDescription="@{`Open in: ` + @string/open_in}"
+            android:onClick="@{() -> viewModel.showLaunchInMapsClicked.perform()}"
+            android:text="@string/open_in"
+            android:visibility="@{viewModel.showLaunchInMaps}"
+            app:icon="@drawable/ic_go"
+            app:layout_constraintStart_toEndOf="@+id/icon"
+            app:layout_constraintTop_toBottomOf="@+id/descriptionText" />
     </merge>
 </layout>

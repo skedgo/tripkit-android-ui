@@ -16,7 +16,7 @@ class BikePodInfoWindowAdapter(private val context: Context) : StopInfoWindowAda
     val bikePodLocationEntity = (marker.tag as BikePodPOILocation).bikePodEntity
     view.findViewById<TextView>(R.id.operatorName).text = bikePodLocationEntity.bikePod.operator.name
     view.findViewById<TextView>(R.id.availableBikes).text = bikePodLocationEntity.bikePod.availableBikes.toString()
-    view.findViewById<TextView>(R.id.batteryLevel).text = (bikePodLocationEntity.bikePod.totalSpaces!! - bikePodLocationEntity.bikePod.availableBikes!!).toString()
+    view.findViewById<TextView>(R.id.emptyDocks).text = (bikePodLocationEntity.bikePod.totalSpaces!! - bikePodLocationEntity.bikePod.availableBikes!!).toString()
     return view
   }
 

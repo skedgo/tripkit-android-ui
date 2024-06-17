@@ -18,8 +18,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:gravity="center"
-                android:paddingStart="16dp"
                 android:paddingEnd="16dp"
+                android:paddingStart="16dp"
                 android:textColor="@android:color/white" />
 
             <TextView
@@ -27,34 +27,36 @@
                 style="@style/TextAppearance.MaterialComponents.Body1"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:contentDescription="@string/desc_close_button"
                 android:gravity="center_vertical|end"
-                android:paddingStart="16dp"
                 android:paddingEnd="16dp"
+                android:paddingStart="16dp"
                 android:text="@string/close"
                 android:textColor="@android:color/white" />
 
         </FrameLayout>
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btnConfirm"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginBottom="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/bg_app_button_primary"
+            android:contentDescription="@string/desc_confirm_selection"
+            android:paddingBottom="0dp"
+            android:paddingTop="0dp"
+            android:text="@string/confirm"
+            android:textColor="@android:color/white"
+            android:theme="@style/Theme.MaterialComponents" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvSelection"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1" />
-
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/btnConfirm"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="16dp"
-            android:layout_marginBottom="16dp"
-            android:background="@drawable/bg_app_button_primary"
-            android:paddingTop="0dp"
-            android:paddingBottom="0dp"
-            android:text="@string/confirm"
-            android:textColor="@android:color/white"
-            android:theme="@style/Theme.MaterialComponents" />
 
     </LinearLayout>
 </layout>

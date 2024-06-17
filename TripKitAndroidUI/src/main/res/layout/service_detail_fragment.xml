@@ -4,35 +4,11 @@
     xmlns:bind="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <data>
-
-        <variable
-            name="viewModel"
-            type="com.skedgo.tripkit.ui.servicedetail.ServiceDetailViewModel" />
-
-        <import type="androidx.recyclerview.widget.LinearLayoutManager" />
-
-    </data>
-
-
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:accessibilityLiveRegion="polite"
         android:background="#ffffff">
-
-        <TextView
-            android:id="@+id/stopName"
-            style="@style/TextAppearance.MaterialComponents.Headline6"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="16dp"
-            android:layout_marginBottom="8dp"
-            android:text="@{viewModel.stationName}"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:text="Stop Name" />
 
         <ImageButton
             android:id="@+id/closeButton"
@@ -40,7 +16,7 @@
             android:layout_height="@dimen/close_button_size"
             android:layout_marginEnd="16dp"
             android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="@string/desc_close"
+            android:contentDescription="@string/desc_close_button"
             android:src="@drawable/close"
             android:visibility="@{viewModel.showCloseButton}"
             app:layout_constraintBottom_toBottomOf="@+id/stopName"
@@ -59,16 +35,28 @@
                 android:id="@+id/serviceType"
                 android:layout_width="16dp"
                 android:layout_height="16dp"
-                android:tint="@color/black2"
+                android:contentDescription="@{`Service type: ` + viewModel.modeInfo}"
                 android:visibility="@{viewModel.modeInfo != null}"
-                app:srcCompat="@{viewModel.modeInfo}" />
+                app:srcCompat="@{viewModel.modeInfo}"
+                app:tint="@color/black2" />
+
+            <TextView
+                android:id="@+id/status"
+                style="@style/TextAppearance.MaterialComponents.Body2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:contentDescription="@{`Status: ` + viewModel.secondaryText}"
+                android:text="@{viewModel.secondaryText}"
+                android:textColor="@{viewModel.secondaryTextColor}"
+                tools:text="Scheduled" />
 
             <androidx.cardview.widget.CardView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
-                android:paddingLeft="4dp"
                 android:layout_marginStart="4dp"
+                android:paddingLeft="4dp"
                 android:paddingRight="4dp"
                 bind:cardBackgroundColor="@{viewModel.serviceColor}"
                 bind:cardCornerRadius="4dp"
@@ -79,23 +67,29 @@
                     style="@style/TextAppearance.MaterialComponents.Caption"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:contentDescription="@{`Service line: ` + viewModel.serviceNumber}"
                     android:paddingLeft="4dp"
                     android:paddingRight="4dp"
                     android:text="@{viewModel.serviceNumber}"
                     android:textColor="@android:color/white"
                     tools:text="U1" />
             </androidx.cardview.widget.CardView>
-
-            <TextView
-                android:id="@+id/status"
-                style="@style/TextAppearance.MaterialComponents.Body2"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="4dp"
-                android:text="@{viewModel.secondaryText}"
-                android:textColor="@{viewModel.secondaryTextColor}"
-                tools:text="Scheduled" />
         </LinearLayout>
+
+        <TextView
+            android:id="@+id/stopName"
+            style="@style/TextAppearance.MaterialComponents.Headline6"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="8dp"
+            android:contentDescription="@{`Stop name: ` + viewModel.stationName}"
+            android:text="@{viewModel.stationName}"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="Stop Name" />
 
         <include
             android:id="@+id/content"
@@ -103,5 +97,16 @@
             bind:viewModel="@{viewModel}" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+    <data>
+
+        <import type="androidx.recyclerview.widget.LinearLayoutManager" />
+
+        <variable
+            name="viewModel"
+            type="com.skedgo.tripkit.ui.servicedetail.ServiceDetailViewModel" />
+
+    </data>
 
 </layout>

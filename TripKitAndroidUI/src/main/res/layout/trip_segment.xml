@@ -3,72 +3,43 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <data>
-
-        <variable
-            name="viewModel"
-            type="com.skedgo.tripkit.ui.tripresult.TripSegmentItemViewModel" />
-    </data>
-
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/layoutDetails"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:accessibilityLiveRegion="polite"
         android:background="@android:color/white"
         android:onClick="@{() -> viewModel.onClick.perform()}"
         android:paddingStart="16dp"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="RtlSymmetry">
 
-        <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/leftGuide"
+        <Button
+            android:id="@+id/externalActionButton"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            app:layout_constraintGuide_begin="@dimen/segment_item_spacing_start" />
-
-        <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/centerHorizontalGuide"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            app:layout_constraintGuide_begin="@dimen/segment_item_spacing_top" />
-
-        <View
-            android:id="@+id/topLine"
-            android:layout_width="@dimen/segment_item_line_width"
-            android:layout_height="0dp"
-            app:backgroundColor="@{viewModel.topLineTint}"
-            android:visibility="@{viewModel.showTopLine}"
-            app:layout_constraintBottom_toTopOf="@+id/centerHorizontalGuide"
-            app:layout_constraintEnd_toEndOf="@+id/iconBackground"
-            app:layout_constraintStart_toStartOf="@+id/iconBackground"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:background="@android:color/holo_green_dark"/>
-
-        <View
-            android:id="@+id/bottomLine"
-            android:layout_width="@dimen/segment_item_line_width"
-            android:layout_height="0dp"
-            app:backgroundColor="@{viewModel.bottomLineTint}"
-            android:visibility="@{viewModel.showBottomLine}"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="@+id/iconBackground"
-            app:layout_constraintStart_toStartOf="@+id/iconBackground"
-            app:layout_constraintTop_toBottomOf="@+id/centerHorizontalGuide"
-            tools:background="@android:color/holo_red_light"/>
+            android:onClick="@{viewModel::onExternalActionClicked}"
+            android:text="@{viewModel.externalAction}"
+            android:visibility="gone"
+            app:layout_constraintStart_toStartOf="@+id/content"
+            app:layout_constraintTop_toBottomOf="@+id/alertsView"
+            tools:text="External Action"
+            tools:visibility="visible" />
 
         <ImageView
             android:id="@+id/iconBackground"
             android:layout_width="@dimen/segment_item_icon_background_size"
             android:layout_height="@dimen/segment_item_icon_background_size"
+            android:importantForAccessibility="no"
             android:src="@drawable/black_circle"
-            android:tint="@{viewModel.backgroundCircleTint}"
             android:visibility="@{viewModel.showBackgroundCircle}"
             app:layout_constraintBottom_toBottomOf="@+id/line"
             app:layout_constraintEnd_toStartOf="@+id/leftGuide"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            tools:tint="@android:color/holo_red_light"/>
+            app:tint="@{viewModel.backgroundCircleTint}"
+            tools:tint="@android:color/holo_red_light" />
 
         <LinearLayout
             android:id="@+id/iconContent"
@@ -83,6 +54,7 @@
                 android:id="@+id/icon"
                 android:layout_width="@dimen/segment_item_icon_size"
                 android:layout_height="@dimen/segment_item_icon_size"
+                android:contentDescription="@string/desc_terminal_segment_icon"
                 android:layoutDirection="ltr"
                 android:src="@{viewModel.icon}"
                 tools:src="@drawable/ic_train"
@@ -110,6 +82,22 @@
                 android:text="@{viewModel.title}"
                 android:textDirection="locale"
                 tools:text="Some Direction" />
+
+            <TextView
+                android:id="@+id/description"
+                style="@style/TextAppearance.MaterialComponents.Caption"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/spacing_normal"
+                android:gravity="start"
+                android:text="@{viewModel.description}"
+                android:textColor="@color/black1"
+                android:textDirection="locale"
+                android:visibility="@{viewModel.showDescription}"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="@+id/title"
+                app:layout_constraintTop_toBottomOf="@+id/title"
+                tools:text="Do something" />
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
@@ -158,6 +146,7 @@
                         android:id="@+id/occupancyView"
                         android:layout_width="wrap_content"
                         android:layout_height="@dimen/icon_regular"
+                        android:contentDescription="@string/desc_occupancy_state_icon"
                         android:src="@{viewModel.occupancyViewModel.drawableLeft}"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent"
@@ -177,73 +166,7 @@
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
             </androidx.constraintlayout.widget.ConstraintLayout>
-
-            <TextView
-                android:id="@+id/description"
-                style="@style/TextAppearance.MaterialComponents.Caption"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="@dimen/spacing_normal"
-                android:gravity="start"
-                android:text="@{viewModel.description}"
-                android:textColor="@color/black1"
-                android:textDirection="locale"
-                android:visibility="@{viewModel.showDescription}"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="@+id/title"
-                app:layout_constraintTop_toBottomOf="@+id/title"
-                tools:text="Do something" />
         </LinearLayout>
-
-        <com.skedgo.tripkit.ui.views.TripSegmentAlertView
-            android:id="@+id/alertsView"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing_small"
-            android:layout_marginEnd="@dimen/spacing_normal"
-            android:background="@drawable/trip_segment_alert_background"
-            android:clickable="true"
-            android:divider="?android:dividerHorizontal"
-            android:onClick="@{viewModel::onAlertClick}"
-            android:paddingStart="@dimen/content_padding"
-            android:paddingEnd="@dimen/content_padding"
-            android:showDividers="middle"
-            android:visibility="@{viewModel.showAlerts}"
-            app:alerts="@{viewModel.alerts}"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="@+id/content"
-            app:layout_constraintTop_toBottomOf="@+id/content" />
-
-
-        <Button
-            android:id="@+id/externalActionButton"
-            style="@style/Widget.MaterialComponents.Button.TextButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:onClick="@{viewModel::onExternalActionClicked}"
-            android:text="@{viewModel.externalAction}"
-            android:visibility="gone"
-            app:layout_constraintStart_toStartOf="@+id/content"
-            app:layout_constraintTop_toBottomOf="@+id/alertsView"
-            tools:text="External Action"
-            tools:visibility="visible"/>
-
-        <androidx.constraintlayout.widget.Barrier
-            android:id="@+id/bottomBarrier"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:barrierDirection="bottom"
-            app:constraint_referenced_ids="content,alertsView, externalActionButton" />
-
-        <View
-            android:id="@+id/line"
-            android:layout_width="0dp"
-            android:layout_height="1dp"
-            android:layout_marginTop="@dimen/spacing_normal"
-            android:background="@color/black4"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/leftGuide"
-            app:layout_constraintTop_toBottomOf="@+id/bottomBarrier" />
 
         <TextView
             android:id="@+id/time"
@@ -272,6 +195,82 @@
             app:layout_constraintTop_toBottomOf="@+id/time"
             tools:text="12:50" />
 
+        <View
+            android:id="@+id/topLine"
+            android:layout_width="@dimen/segment_item_line_width"
+            android:layout_height="0dp"
+            android:visibility="@{viewModel.showTopLine}"
+            app:backgroundColor="@{viewModel.topLineTint}"
+            app:layout_constraintBottom_toTopOf="@+id/centerHorizontalGuide"
+            app:layout_constraintEnd_toEndOf="@+id/iconBackground"
+            app:layout_constraintStart_toStartOf="@+id/iconBackground"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:background="@android:color/holo_green_dark" />
+
+        <View
+            android:id="@+id/bottomLine"
+            android:layout_width="@dimen/segment_item_line_width"
+            android:layout_height="0dp"
+            android:visibility="@{viewModel.showBottomLine}"
+            app:backgroundColor="@{viewModel.bottomLineTint}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="@+id/iconBackground"
+            app:layout_constraintStart_toStartOf="@+id/iconBackground"
+            app:layout_constraintTop_toBottomOf="@+id/centerHorizontalGuide"
+            tools:background="@android:color/holo_red_light" />
+
+
+        <View
+            android:id="@+id/line"
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_marginTop="@dimen/spacing_normal"
+            android:background="@color/black4"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/leftGuide"
+            app:layout_constraintTop_toBottomOf="@+id/bottomBarrier" />
+
+        <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/bottomBarrier"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:barrierDirection="bottom"
+            app:constraint_referenced_ids="content,alertsView, externalActionButton" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/leftGuide"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_begin="@dimen/segment_item_spacing_start" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/centerHorizontalGuide"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_begin="@dimen/segment_item_spacing_top" />
+
+        <com.skedgo.tripkit.ui.views.TripSegmentAlertView
+            android:id="@+id/alertsView"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/spacing_normal"
+            android:layout_marginTop="@dimen/spacing_small"
+            android:background="@drawable/trip_segment_alert_background"
+            android:clickable="true"
+            android:divider="?android:dividerHorizontal"
+            android:focusable="true"
+            android:onClick="@{viewModel::onAlertClick}"
+            android:paddingEnd="@dimen/content_padding"
+            android:paddingStart="@dimen/content_padding"
+            android:showDividers="middle"
+            android:visibility="@{viewModel.showAlerts}"
+            app:alerts="@{viewModel.alerts}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@+id/content"
+            app:layout_constraintTop_toBottomOf="@+id/content" />
+
         <include
             android:id="@+id/layoutRoadTags"
             layout="@layout/layout_road_tags"
@@ -283,4 +282,11 @@
             app:layout_constraintTop_toBottomOf="@+id/line" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <data>
+
+        <variable
+            name="viewModel"
+            type="com.skedgo.tripkit.ui.tripresult.TripSegmentItemViewModel" />
+    </data>
 </layout>

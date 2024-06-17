@@ -1,44 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:bind="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
-
-    <data>
-
-        <import type="android.view.View" />
-
-        <variable
-            name="parentViewModel"
-            type="com.skedgo.tripkit.ui.trippreview.TripPreviewPagerItemViewModel" />
-
-        <variable
-            name="viewModel"
-            type="com.skedgo.tripkit.ui.trippreview.external.ExternalActionViewModel" />
-    </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/time_label_height"
         android:layout_marginStart="@dimen/time_label_height"
         android:layout_marginTop="@dimen/spacing_normal"
-        android:layout_marginEnd="@dimen/time_label_height"
+        android:accessibilityLiveRegion="polite"
         android:background="@drawable/trip_preview_external_action_pager_list_item"
+        android:contentDescription="@{viewModel.title}"
         android:enabled="@{parentViewModel.enableActionButtons}"
         android:padding="8dp"
         app:clickWithDebounce="@{() -> parentViewModel.externalActionChosen.accept(viewModel.externalAction)}">
-
-        <ProgressBar
-            android:id="@+id/pbLoading"
-            android:layout_width="@dimen/map_icon_size"
-            android:layout_height="@dimen/map_icon_size"
-            android:layout_marginStart="@dimen/spacing_small"
-            android:elevation="@dimen/spacing_small"
-            android:visibility="@{!parentViewModel.enableActionButtons}"
-            app:layout_constraintBottom_toBottomOf="@+id/tvAction"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/tvAction"
-            tools:elevation="0dp" />
 
         <ImageView
             android:id="@+id/ivAction"
@@ -56,20 +32,47 @@
             tools:ignore="ContentDescription,UseAppTint"
             tools:src="@drawable/ic_go" />
 
+        <ProgressBar
+            android:id="@+id/pbLoading"
+            android:layout_width="@dimen/map_icon_size"
+            android:layout_height="@dimen/map_icon_size"
+            android:layout_marginStart="@dimen/spacing_small"
+            android:contentDescription="@string/desc_loading"
+            android:elevation="@dimen/spacing_small"
+            android:visibility="@{!parentViewModel.enableActionButtons}"
+            app:layout_constraintBottom_toBottomOf="@+id/tvAction"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/tvAction"
+            tools:elevation="0dp" />
+
         <TextView
             android:id="@+id/tvAction"
             style="@style/TextAppearance.MaterialComponents.Body1"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/half_content_padding"
             android:layout_marginEnd="@dimen/spacing_small"
+            android:layout_marginStart="@dimen/half_content_padding"
             android:gravity="center"
             android:paddingEnd="@dimen/spacing_normal"
             android:text="@{viewModel.title}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/ivAction"
             app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="RtlSymmetry"
             tools:text="Action" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <data>
+
+        <import type="android.view.View" />
+
+        <variable
+            name="parentViewModel"
+            type="com.skedgo.tripkit.ui.trippreview.TripPreviewPagerItemViewModel" />
+
+        <variable
+            name="viewModel"
+            type="com.skedgo.tripkit.ui.trippreview.external.ExternalActionViewModel" />
+    </data>
 </layout>

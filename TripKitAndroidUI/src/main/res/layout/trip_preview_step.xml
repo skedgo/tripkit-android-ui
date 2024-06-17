@@ -3,30 +3,22 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <data>
-
-        <import type="android.view.View" />
-
-        <import type="android.text.TextUtils" />
-
-        <variable
-            name="viewModel"
-            type="com.skedgo.tripkit.ui.trippreview.directions.DirectionsTripPreviewItemStepViewModel" />
-    </data>
-
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:accessibilityLiveRegion="polite"
         android:background="?selectableItemBackground"
-        android:paddingStart="@dimen/spacing_medium"
-        android:paddingTop="@dimen/content_padding"
+        android:contentDescription="@{`Step: ` + viewModel.title + `, ` + viewModel.description}"
+        android:paddingBottom="@dimen/content_padding"
         android:paddingEnd="@dimen/content_padding"
-        android:paddingBottom="@dimen/content_padding">
+        android:paddingStart="@dimen/spacing_medium"
+        android:paddingTop="@dimen/content_padding">
 
         <ImageView
             android:id="@+id/icon"
             android:layout_width="@dimen/tripkit_trip_preview_icon_size"
             android:layout_height="@dimen/tripkit_trip_preview_icon_size"
+            android:contentDescription="@{`Icon for step: ` + viewModel.title}"
             android:src="@{viewModel.icon}"
             app:layout_constraintBottom_toBottomOf="@+id/description"
             app:layout_constraintStart_toStartOf="parent"
@@ -39,6 +31,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
+            android:contentDescription="@{`Step title: ` + viewModel.title}"
             android:paddingEnd="@dimen/content_padding"
             android:text="@{viewModel.title}"
             android:visibility="@{TextUtils.isEmpty(viewModel.title)? View.GONE: View.VISIBLE}"
@@ -46,6 +39,7 @@
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toEndOf="@+id/icon"
             app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="RtlSymmetry"
             tools:text="An example step" />
 
         <TextView
@@ -54,12 +48,14 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
+            android:contentDescription="@{`Step description: ` + viewModel.description}"
             android:paddingEnd="@dimen/content_padding"
             android:text="@{viewModel.description}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toEndOf="@+id/icon"
             app:layout_constraintTop_toBottomOf="@id/title"
+            tools:ignore="RtlSymmetry"
             tools:text="Along some road" />
 
         <androidx.recyclerview.widget.RecyclerView
@@ -67,10 +63,22 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/spacing_normal"
+            android:contentDescription="@string/desc_step_tags"
             android:orientation="horizontal"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             app:layout_constraintTop_toBottomOf="@+id/description"
             app:spanCount="2" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <data>
+
+        <import type="android.view.View" />
+
+        <import type="android.text.TextUtils" />
+
+        <variable
+            name="viewModel"
+            type="com.skedgo.tripkit.ui.trippreview.directions.DirectionsTripPreviewItemStepViewModel" />
+    </data>
 </layout>

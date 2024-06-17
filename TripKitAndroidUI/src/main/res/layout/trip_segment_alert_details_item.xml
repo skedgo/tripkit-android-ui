@@ -3,26 +3,21 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <data>
-
-        <variable
-            name="viewModel"
-            type="com.skedgo.tripkit.ui.tripresult.TripSegmentAlertsItemViewModel" />
-    </data>
-
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:accessibilityLiveRegion="polite"
         android:padding="16dp">
 
         <ImageView
             android:id="@+id/warningIcon"
             android:layout_width="24dp"
             android:layout_height="24dp"
+            android:contentDescription="@string/desc_warning_icon"
             android:src="@drawable/ic_action_warning"
-            android:tint="@color/tripKitWarning"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:tint="@color/tripKitWarning" />
 
         <TextView
             android:id="@+id/title"
@@ -53,4 +48,11 @@
             tools:text="Some ipso text here" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <data>
+
+        <variable
+            name="viewModel"
+            type="com.skedgo.tripkit.ui.tripresult.TripSegmentAlertsItemViewModel" />
+    </data>
 </layout>

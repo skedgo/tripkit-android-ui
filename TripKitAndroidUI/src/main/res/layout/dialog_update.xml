@@ -23,7 +23,8 @@
                 <ProgressBar
                     android:layout_width="50dp"
                     android:layout_height="50dp"
-                    android:layout_gravity="top|center_horizontal" />
+                    android:layout_gravity="top|center_horizontal"
+                    android:contentDescription="@string/desc_progress_bar_updating_content" />
 
                 <TextView
                     android:id="@+id/txtUpdate"
@@ -31,6 +32,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="5dp"
+                    android:accessibilityLiveRegion="polite"
                     android:enabled="false"
                     android:gravity="center"
                     android:text="@string/str_updating"

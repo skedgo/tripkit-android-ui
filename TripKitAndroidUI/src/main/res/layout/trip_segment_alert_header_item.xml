@@ -8,15 +8,26 @@
         android:layout_height="wrap_content"
 
         android:orientation="horizontal"
-        android:paddingTop="8dp"
-        android:paddingBottom="8dp">
+        android:paddingBottom="8dp"
+        android:paddingTop="8dp">
 
         <ImageView
             android:layout_width="24dp"
             android:layout_height="24dp"
+            android:contentDescription="@string/desc_warning_icon"
             android:src="@drawable/ic_action_warning"
             app:tint="@color/tripKitWarning"
             tools:tint="@color/tripKitWarning" />
+
+        <ImageView
+            android:id="@+id/chevron"
+            android:layout_width="20dp"
+            android:layout_height="26dp"
+            android:importantForAccessibility="no"
+            android:layoutDirection="locale"
+            app:srcCompat="@drawable/chevron_right"
+            app:tint="@color/black"
+            tools:tint="@color/black" />
 
         <TextView
             android:id="@+id/header_text"
@@ -26,19 +37,10 @@
             android:layout_marginStart="12dp"
             tools:text="2 alerts" />
 
-        <Space
+        <androidx.legacy.widget.Space
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_weight="1" />
-
-        <ImageView
-            android:id="@+id/chevron"
-            android:layout_width="20dp"
-            android:layout_height="26dp"
-            android:layoutDirection="locale"
-            app:srcCompat="@drawable/chevron_right"
-            app:tint="@color/black"
-            tools:tint="@color/black" />
 
 
     </LinearLayout>

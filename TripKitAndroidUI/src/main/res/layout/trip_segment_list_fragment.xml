@@ -3,35 +3,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <data>
-
-        <variable
-            name="viewModel"
-            type="com.skedgo.tripkit.ui.tripresult.TripSegmentsViewModel" />
-    </data>
-
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="#ffffff"
         android:focusable="false"
         android:importantForAccessibility="no">
-
-        <TextView
-            android:id="@+id/duration"
-            style="@style/TextAppearance.MaterialComponents.Headline6"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="16dp"
-            android:layout_marginEnd="16dp"
-            android:contentDescription="@{`Duration` + viewModel.durationTitle}"
-            android:focusable="true"
-            android:importantForAccessibility="yes"
-            android:text="@{viewModel.durationTitle}"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:text="30 Minutes" />
 
         <ImageButton
             android:id="@+id/closeButton"
@@ -48,50 +25,33 @@
             app:layout_constraintTop_toTopOf="@+id/duration" />
 
         <TextView
+            android:id="@+id/duration"
+            style="@style/TextAppearance.MaterialComponents.Headline6"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:contentDescription="@{`Duration ` + viewModel.durationTitle}"
+            android:focusable="true"
+            android:importantForAccessibility="yes"
+            android:text="@{viewModel.durationTitle}"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="30 Minutes" />
+
+        <TextView
             android:id="@+id/arrive"
             style="@style/TextAppearance.MaterialComponents.Body2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginEnd="16dp"
             android:layout_marginBottom="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginStart="16dp"
             android:text="@{viewModel.arriveAtTitle}"
             android:visibility="@{!viewModel.isHideExactTimes}"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/duration" />
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/layoutTripSummary"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:visibility="visible"
-            android:nestedScrollingEnabled="false"
-            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/arrive"
-            app:itemBinding="@{viewModel.summaryItemsBinding}"
-            app:items="@{viewModel.summaryItems}"
-            tools:itemCount="2"
-            tools:layout="@layout/fragment_trip_preview_header"
-            tools:listitem="@layout/item_trip_segment_summary"
-            tools:visibility="visible" />
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/buttonLayout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:nestedScrollingEnabled="false"
-            android:orientation="horizontal"
-            app:itemBinding="@{viewModel.buttonsBinding}"
-            app:items="@{viewModel.buttons}"
-            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/layoutTripSummary"
-            tools:listitem="@layout/trip_segment_action_button"
-            tools:itemCount="2"/>
 
         <View
             android:id="@+id/divider"
@@ -101,6 +61,41 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/buttonLayout" />
 
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/buttonLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:nestedScrollingEnabled="false"
+            android:orientation="horizontal"
+            android:accessibilityLiveRegion="polite"
+            app:itemBinding="@{viewModel.buttonsBinding}"
+            app:items="@{viewModel.buttons}"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/layoutTripSummary"
+            tools:itemCount="2"
+            tools:listitem="@layout/trip_segment_action_button" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/layoutTripSummary"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:accessibilityLiveRegion="polite"
+            android:nestedScrollingEnabled="false"
+            android:orientation="horizontal"
+            android:visibility="visible"
+            app:itemBinding="@{viewModel.summaryItemsBinding}"
+            app:items="@{viewModel.summaryItems}"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/arrive"
+            tools:itemCount="2"
+            tools:layout="@layout/fragment_trip_preview_header"
+            tools:listitem="@layout/item_trip_segment_summary"
+            tools:visibility="visible" />
+
         <!-- NOTE: This view MUST have a tag called "segmentList". For more information, see the TripGroupPagerAdapter's setPrimaryItem function -->
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/itemsView"
@@ -109,6 +104,7 @@
             android:tag="segmentList"
             app:adapter="@{viewModel.customAdapter}"
             app:itemBinding="@{viewModel.itemBinding}"
+            android:accessibilityLiveRegion="polite"
             app:items="@{viewModel.itemViewModels}"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             app:layout_behavior="@string/bottom_sheet_behavior"
@@ -118,4 +114,11 @@
             app:layout_constraintTop_toBottomOf="@+id/divider" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <data>
+
+        <variable
+            name="viewModel"
+            type="com.skedgo.tripkit.ui.tripresult.TripSegmentsViewModel" />
+    </data>
 </layout>

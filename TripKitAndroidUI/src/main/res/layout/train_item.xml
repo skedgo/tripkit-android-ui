@@ -1,20 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <ImageView
+        android:layout_width="20dp"
+        android:layout_height="12dp"
+        android:layout_gravity="start"
+        android:contentDescription="@string/desc_transporation_type_icon"
+        android:paddingEnd="2dp"
+        android:scaleType="fitXY"
+        android:src="@{occupancy.imageDrawable}"
+        app:tint="@{occupancy.imageTintColor}"
+        tools:ignore="RtlSymmetry" />
 
     <data>
 
         <variable
-                name="occupancy"
-                type="com.skedgo.tripkit.ui.trip.details.viewmodel.TrainOccupancyItemViewModel" />
+            name="occupancy"
+            type="com.skedgo.tripkit.ui.trip.details.viewmodel.TrainOccupancyItemViewModel" />
     </data>
-
-    <ImageView
-            android:layout_width="20dp"
-            android:layout_height="12dp"
-            android:layout_gravity="left"
-            android:scaleType="fitXY"
-            android:paddingRight="2dp"
-            android:src="@{occupancy.imageDrawable}"
-            android:tint="@{occupancy.imageTintColor}" />
 
 </layout>

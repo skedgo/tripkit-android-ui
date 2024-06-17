@@ -3,47 +3,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <data>
-
-        <variable
-            name="viewModel"
-            type="com.skedgo.tripkit.ui.controller.locationsearchcontroller.TKUILocationSearchViewControllerViewModel" />
-    </data>
-
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@android:color/white"
         android:clickable="true"
-        android:focusable="true"
-        android:paddingTop="@dimen/content_padding">
-
-        <TextView
-            android:id="@+id/tvSearch"
-            style="@style/TextAppearance.MaterialComponents.Headline6"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/spacing_normal"
-            android:text="@string/search"
-            android:visibility="@{viewModel.withHeaders}"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:text="Search" />
-
-        <ImageButton
-            android:id="@+id/bClose"
-            android:layout_width="@dimen/close_button_size"
-            android:layout_height="@dimen/close_button_size"
-            android:layout_marginEnd="@dimen/spacing_normal"
-            android:accessibilityTraversalBefore="@id/tvSearch"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="@string/desc_close"
-            android:src="@drawable/close"
-            android:visibility="@{viewModel.withHeaders}"
-            app:layout_constraintBottom_toBottomOf="@+id/tvSearch"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/tvSearch"
-            tools:targetApi="lollipop_mr1" />
+        android:focusable="true">
 
         <FrameLayout
             android:id="@+id/content"
@@ -55,5 +20,42 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tvSearch" />
 
+        <ImageButton
+            android:id="@+id/bClose"
+            android:layout_width="@dimen/accessibility_button_size"
+            android:layout_height="@dimen/accessibility_button_size"
+            android:layout_marginTop="@dimen/spacing_extra_small"
+            android:accessibilityTraversalBefore="@id/tvSearch"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/desc_close_button"
+            android:src="@drawable/close"
+            android:visibility="@{viewModel.withHeaders}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:targetApi="lollipop_mr1" />
+
+        <TextView
+            android:id="@+id/tvSearch"
+            style="@style/TextAppearance.MaterialComponents.Headline6"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:accessibilityLiveRegion="polite"
+            android:gravity="center_vertical"
+            android:minHeight="@dimen/accessibility_min_clickable_size"
+            android:paddingEnd="@dimen/spacing_normal"
+            android:paddingStart="@dimen/spacing_normal"
+            android:text="@string/search"
+            android:visibility="@{viewModel.withHeaders}"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/bClose"
+            tools:text="Search" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <data>
+
+        <variable
+            name="viewModel"
+            type="com.skedgo.tripkit.ui.controller.locationsearchcontroller.TKUILocationSearchViewControllerViewModel" />
+    </data>
 </layout>

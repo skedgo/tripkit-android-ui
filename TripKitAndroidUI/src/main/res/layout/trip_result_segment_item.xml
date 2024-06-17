@@ -3,37 +3,33 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <data>
-
-        <variable
-            name="viewModel"
-            type="com.skedgo.tripkit.ui.tripresults.TripSegmentViewModel" />
-    </data>
-
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="4dp">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/iconContent"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+        <ImageView
+            android:id="@+id/ivWifi"
+            android:layout_width="@dimen/icon_x_small"
+            android:layout_height="@dimen/icon_x_small"
+            android:contentDescription="@string/desc_wifi_icon"
+            android:layoutDirection="locale"
+            android:rotation="45"
+            android:src="@drawable/ic_wifi"
+            android:visibility="@{viewModel.isRealtime()}"
+            app:layout_constraintBottom_toBottomOf="@+id/secondary"
+            app:layout_constraintStart_toEndOf="@+id/secondary" />
 
-            <ImageView
-                android:id="@+id/icon"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:layoutDirection="locale"
-                android:src="@{viewModel.icon}"
-                tools:src="@drawable/ic_bus"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"/>
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
+        <ImageView
+            android:layout_width="@dimen/icon_x_small"
+            android:layout_height="@dimen/icon_x_small"
+            android:layout_marginStart="@dimen/spacing_extra_small"
+            android:contentDescription="@string/desc_bike_icon"
+            android:layoutDirection="locale"
+            android:src="@drawable/ic_bike"
+            android:visibility="@{viewModel.isBicycleAccessible()}"
+            app:layout_constraintBottom_toBottomOf="@+id/secondary"
+            app:layout_constraintStart_toEndOf="@+id/ivWifi" />
 
         <TextView
             android:id="@+id/primary"
@@ -61,28 +57,35 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toEndOf="@+id/iconContent"
             app:layout_constraintTop_toBottomOf="@+id/primary"
-            tools:text="2:30 PM"/>
+            tools:text="2:30 PM" />
 
-        <ImageView
-            android:id="@+id/ivWifi"
-            android:layout_width="@dimen/icon_x_small"
-            android:layout_height="@dimen/icon_x_small"
-            android:layoutDirection="locale"
-            android:rotation="45"
-            android:src="@drawable/ic_wifi"
-            android:visibility="@{viewModel.isRealtime()}"
-            app:layout_constraintBottom_toBottomOf="@+id/secondary"
-            app:layout_constraintStart_toEndOf="@+id/secondary"/>
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/iconContent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
 
-        <ImageView
-            android:layout_width="@dimen/icon_x_small"
-            android:layout_height="@dimen/icon_x_small"
-            android:layoutDirection="locale"
-            android:layout_marginStart="@dimen/spacing_extra_small"
-            android:src="@drawable/ic_bike"
-            android:visibility="@{viewModel.isBicycleAccessible()}"
-            app:layout_constraintBottom_toBottomOf="@+id/secondary"
-            app:layout_constraintStart_toEndOf="@+id/ivWifi"/>
+            <ImageView
+                android:id="@+id/icon"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:contentDescription="@string/desc_transporation_type_icon"
+                android:layoutDirection="locale"
+                android:src="@{viewModel.icon}"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:src="@drawable/ic_bus" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <data>
+
+        <variable
+            name="viewModel"
+            type="com.skedgo.tripkit.ui.tripresults.TripSegmentViewModel" />
+    </data>
 </layout>

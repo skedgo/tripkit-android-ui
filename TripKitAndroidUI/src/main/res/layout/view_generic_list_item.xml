@@ -3,6 +3,43 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/clParent"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:accessibilityLiveRegion="polite"
+        android:padding="@dimen/content_padding">
+
+        <ImageView
+            android:id="@+id/genericListItem_iv_selected"
+            android:layout_width="@dimen/icon_medium"
+            android:layout_height="@dimen/icon_medium"
+            android:contentDescription="@string/desc_selected_indicator"
+            android:padding="10dp"
+            android:src="@drawable/ic_plain_check"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:visibilityInv="@{item.selected}" />
+
+        <TextView
+            android:id="@+id/genericListItem_tv_label"
+            style="@style/TextAppearance.MaterialComponents.Body1"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginEnd="@dimen/spacing_small"
+            android:paddingEnd="@dimen/spacing_normal"
+            android:paddingStart="@dimen/spacing_normal"
+            android:text="@{item.label}"
+            android:textColor="@color/black"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/genericListItem_iv_selected"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="Label" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
     <data>
 
         <variable
@@ -13,40 +50,5 @@
             name="viewMode"
             type="Boolean" />
     </data>
-
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/clParent"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="@dimen/content_padding">
-
-        <TextView
-            android:id="@+id/genericListItem_tv_label"
-            style="@style/TextAppearance.MaterialComponents.Body1"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_marginEnd="@dimen/spacing_small"
-            android:paddingStart="@dimen/spacing_normal"
-            android:paddingEnd="@dimen/spacing_normal"
-            android:text="@{item.label}"
-            android:textColor="@color/black"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/genericListItem_iv_selected"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:text="Label" />
-
-        <ImageView
-            android:id="@+id/genericListItem_iv_selected"
-            android:layout_width="@dimen/icon_medium"
-            android:layout_height="@dimen/icon_medium"
-            android:padding="10dp"
-            android:src="@drawable/ic_plain_check"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:visibilityInv="@{item.selected}" />
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </layout>

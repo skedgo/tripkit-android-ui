@@ -3,31 +3,57 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <data>
-
-        <variable
-            name="viewModel"
-            type="com.skedgo.tripkit.ui.search.SuggestionViewModel" />
-    </data>
-
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="?selectableItemBackground"
+        android:contentDescription="@string/desc_choose_location"
         android:onClick="@{() -> viewModel.onItemClicked.perform()}"
-        android:paddingStart="24dp"
-        android:paddingTop="12dp"
+        android:paddingBottom="12dp"
         android:paddingEnd="12dp"
-        android:paddingBottom="12dp">
+        android:paddingStart="24dp"
+        android:paddingTop="12dp">
 
         <ImageView
             android:id="@+id/icon"
             android:layout_width="@dimen/tripkit_search_result_icon_size"
             android:layout_height="@dimen/tripkit_search_result_icon_size"
+            android:contentDescription="@string/desc_location_type"
             android:src="@{viewModel.icon}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:id="@+id/suggestionActionIconView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:accessibilityLiveRegion="polite"
+            android:contentDescription="@string/desc_choose_location"
+            android:onClick="@{() -> viewModel.onSuggestionActionClicked.perform()}"
+            android:padding="@dimen/content_padding"
+            android:src="@drawable/ic_timetable_search"
+            android:visibility="@{viewModel.showTimetableIcon}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:visibility="visible" />
+
+        <ImageView
+            android:id="@+id/iconInfo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:accessibilityLiveRegion="polite"
+            android:contentDescription="@string/desc_info_more_details"
+            android:onClick="@{() -> viewModel.onInfoClicked.perform()}"
+            android:padding="@dimen/content_padding"
+            android:src="@drawable/ic_icon_info"
+            android:visibility="@{viewModel.showInfoIcon}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:tint="@color/colorPrimary"
+            tools:visibility="visible" />
 
         <TextView
             android:id="@+id/v4_item_content"
@@ -44,6 +70,7 @@
             app:layout_constraintStart_toEndOf="@+id/icon"
             app:layout_constraintTop_toTopOf="parent"
             app:matcher="@{viewModel.term}"
+            tools:ignore="RtlSymmetry"
             tools:text="Awesome train station" />
 
         <TextView
@@ -51,6 +78,7 @@
             style="@style/tripkit_search_result_title"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:accessibilityLiveRegion="polite"
             android:paddingEnd="@dimen/content_padding"
             android:text="@{viewModel.subtitle}"
             android:textColor="@{viewModel.subtitleTextColor}"
@@ -62,35 +90,16 @@
             app:layout_constraintStart_toStartOf="@+id/v4_item_content"
             app:layout_constraintTop_toBottomOf="@+id/v4_item_content"
             app:matcher="@{viewModel.term}"
+            tools:ignore="RtlSymmetry"
             tools:text="12 Vale street"
             tools:visibility="visible" />
 
-        <ImageView
-            android:id="@+id/suggestionActionIconView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:padding="@dimen/content_padding"
-            android:src="@drawable/ic_timetable_search"
-            android:visibility="@{viewModel.showTimetableIcon}"
-            android:onClick="@{() -> viewModel.onSuggestionActionClicked.perform()}"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:visibility="visible" />
-
-        <ImageView
-            android:id="@+id/iconInfo"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:onClick="@{() -> viewModel.onInfoClicked.perform()}"
-            android:padding="@dimen/content_padding"
-            app:tint="@color/colorPrimary"
-            android:src="@drawable/ic_icon_info"
-            android:visibility="@{viewModel.showInfoIcon}"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:visibility="visible" />
-
     </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <data>
+
+        <variable
+            name="viewModel"
+            type="com.skedgo.tripkit.ui.search.SuggestionViewModel" />
+    </data>
 </layout>

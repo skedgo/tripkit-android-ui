@@ -3,13 +3,6 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <data>
-
-        <variable
-            name="viewModel"
-            type="com.skedgo.tripkit.ui.trippreview.TripPreviewHeaderViewModel" />
-    </data>
-
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -18,22 +11,8 @@
         android:focusable="true"
         android:focusableInTouchMode="true"
         android:importantForAccessibility="noHideDescendants"
-        android:paddingTop="@dimen/spacing_small"
-        android:paddingBottom="@dimen/spacing_small">
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rvHeaders"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            app:itemBinding="@{viewModel.itemBinding}"
-            app:items="@{viewModel.items}"
-            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:itemCount="3"
-            tools:listitem="@layout/item_trip_segment_summary" />
+        android:paddingBottom="@dimen/spacing_small"
+        android:paddingTop="@dimen/spacing_small">
 
         <TextView
             android:id="@+id/tvTime"
@@ -50,5 +29,26 @@
             tools:text="8:00pm - 9:30pm"
             tools:visibility="visible" />
 
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvHeaders"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:itemBinding="@{viewModel.itemBinding}"
+            app:items="@{viewModel.items}"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:itemCount="3"
+            tools:listitem="@layout/item_trip_segment_summary" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <data>
+
+        <variable
+            name="viewModel"
+            type="com.skedgo.tripkit.ui.trippreview.TripPreviewHeaderViewModel" />
+    </data>
 </layout>

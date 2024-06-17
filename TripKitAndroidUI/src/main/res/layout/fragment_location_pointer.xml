@@ -3,19 +3,74 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <data>
-
-        <variable
-            name="viewModel"
-            type="com.skedgo.tripkit.ui.locationpointer.LocationPointerViewModel" />
-    </data>
-
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@android:color/white"
-        android:paddingTop="12dp"
         tools:context=".chooser.LocationChooserFragment">
+
+        <ImageButton
+            android:id="@+id/closeButton"
+            android:layout_width="@dimen/accessibility_button_size"
+            android:layout_height="@dimen/accessibility_button_size"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/desc_close_button"
+            android:src="@drawable/close"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:contentDescription="@string/desc_search_icon"
+            android:visibility="@{!viewModel.showSpinner}"
+            app:layout_constraintBottom_toBottomOf="@id/locationTextView"
+            app:layout_constraintStart_toStartOf="@id/chooseText"
+            app:layout_constraintTop_toTopOf="@id/locationTextView"
+            app:srcCompat="@drawable/ic_search" />
+
+        <ImageView
+            android:id="@+id/iconInfo"
+            android:layout_width="@dimen/accessibility_smaller_button_size"
+            android:layout_height="@dimen/accessibility_smaller_button_size"
+            android:accessibilityLiveRegion="polite"
+            android:contentDescription="@string/desc_info_icon"
+            android:padding="8dp"
+            android:visibility="@{viewModel.showInfo}"
+            app:layout_constraintEnd_toEndOf="@id/closeButton"
+            app:layout_constraintTop_toBottomOf="@id/closeButton"
+            app:srcCompat="@drawable/ic_icon_info" />
+
+        <ProgressBar
+            style="@style/Base.Widget.AppCompat.ProgressBar"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:accessibilityLiveRegion="polite"
+            android:contentDescription="@string/desc_progress_bar_loading_result"
+            android:visibility="@{viewModel.showSpinner}"
+            app:layout_constraintBottom_toBottomOf="@id/locationTextView"
+            app:layout_constraintStart_toStartOf="@id/chooseText"
+            app:layout_constraintTop_toBottomOf="@id/chooseText"
+            app:layout_constraintTop_toTopOf="@id/locationTextView" />
+
+        <TextView
+            android:id="@+id/locationTextView"
+            style="@style/TextAppearance.MaterialComponents.Subtitle1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            android:layout_marginStart="48dp"
+            android:contentDescription="@string/desc_location_address"
+            android:ellipsize="end"
+            android:focusable="true"
+            android:importantForAccessibility="yes"
+            android:singleLine="true"
+            android:text="@{viewModel.locationText}"
+            app:layout_constraintBottom_toBottomOf="@id/iconInfo"
+            app:layout_constraintEnd_toStartOf="@id/iconInfo"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/iconInfo"
+            tools:text="Location" />
 
         <TextView
             android:id="@+id/chooseText"
@@ -24,69 +79,10 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:text="@string/choose_location"
+            app:layout_constraintBottom_toBottomOf="@id/closeButton"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintTop_toTopOf="@id/closeButton"
             tools:text="Choose location" />
-
-        <ImageButton
-            android:id="@+id/closeButton"
-            android:layout_width="@dimen/close_button_size"
-            android:layout_height="@dimen/close_button_size"
-            android:layout_marginEnd="16dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="@string/desc_close"
-            android:src="@drawable/close"
-            app:layout_constraintBottom_toBottomOf="@+id/chooseText"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/chooseText" />
-
-        <ProgressBar
-            style="@style/Base.Widget.AppCompat.ProgressBar"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:layout_marginTop="12dp"
-            android:visibility="@{viewModel.showSpinner}"
-            app:layout_constraintStart_toStartOf="@id/chooseText"
-            app:layout_constraintTop_toBottomOf="@id/chooseText" />
-
-        <ImageView
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:layout_marginTop="12dp"
-            android:visibility="@{!viewModel.showSpinner}"
-            app:layout_constraintStart_toStartOf="@id/chooseText"
-            app:layout_constraintTop_toBottomOf="@id/chooseText"
-            app:srcCompat="@drawable/ic_search" />
-
-        <TextView
-            android:id="@+id/locationTextView"
-            style="@style/TextAppearance.MaterialComponents.Subtitle1"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="48dp"
-            android:layout_marginTop="12dp"
-            android:layout_marginEnd="16dp"
-            android:ellipsize="end"
-            android:focusable="true"
-            android:importantForAccessibility="yes"
-            android:singleLine="true"
-            android:text="@{viewModel.locationText}"
-            app:layout_constraintEnd_toStartOf="@id/iconInfo"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/chooseText"
-            tools:text="Location" />
-
-        <ImageView
-            android:id="@+id/iconInfo"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:layout_marginTop="12dp"
-            android:layout_marginEnd="16dp"
-            android:visibility="@{viewModel.showInfo}"
-            app:layout_constraintBottom_toBottomOf="@id/locationTextView"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/chooseText"
-            app:srcCompat="@drawable/ic_icon_info" />
 
         <View
             android:id="@+id/divider"
@@ -103,9 +99,11 @@
             style="@style/Widget.MaterialComponents.Button"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
             android:layout_marginStart="16dp"
             android:layout_marginTop="16dp"
-            android:layout_marginEnd="16dp"
+            android:accessibilityLiveRegion="polite"
+            android:contentDescription="@string/desc_done_button"
             android:enabled="@{viewModel.canChoose}"
             android:onClick="@{() -> viewModel.doneClicked.perform()}"
             android:text="@string/done"
@@ -117,4 +115,11 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/divider" />
     </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <data>
+
+        <variable
+            name="viewModel"
+            type="com.skedgo.tripkit.ui.locationpointer.LocationPointerViewModel" />
+    </data>
 </layout>

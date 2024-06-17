@@ -3,28 +3,30 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <data>
-
-        <variable
-            name="viewModel"
-            type="com.skedgo.tripkit.ui.timetables.ServiceViewModel" />
-    </data>
-
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="?android:attr/selectableItemBackground"
         android:onClick="@{() -> viewModel.onItemClick.perform()}">
 
+        <View
+            android:layout_width="3dp"
+            android:layout_height="0dp"
+            android:background="@color/colorAccent"
+            android:visibility="@{viewModel.isCurrentTrip}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:alpha="@{viewModel.alpha}"
             android:descendantFocusability="blocksDescendants"
+            android:paddingBottom="12dp"
+            android:paddingEnd="16dp"
             android:paddingStart="16dp"
             android:paddingTop="12dp"
-            android:paddingEnd="16dp"
-            android:paddingBottom="12dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -32,6 +34,17 @@
 
 
             <!-- android:onClick="@{() -> viewModel.onItemClick.perform()}" -->
+
+            <ImageView
+                android:layout_width="@dimen/icon_medium"
+                android:layout_height="@dimen/icon_medium"
+                android:contentDescription="@string/desc_next_icon"
+                android:padding="@dimen/spacing_small"
+                android:src="@drawable/chevron_right"
+                app:addRtlSupport="@{true}"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:tint="@color/colorPrimary" />
 
             <LinearLayout
                 android:id="@+id/iconLayout"
@@ -45,8 +58,52 @@
                     android:id="@+id/serviceType"
                     android:layout_width="16dp"
                     android:layout_height="16dp"
-                    android:tint="@color/black2"
-                    app:srcCompat="@{viewModel.modeInfo}" />
+                    android:contentDescription="@{`Service type: ` + viewModel.modeInfo}"
+                    app:srcCompat="@{viewModel.modeInfo}"
+                    app:tint="@color/black2" />
+
+                <ImageView
+                    android:id="@+id/warning"
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:layout_marginStart="4dp"
+                    android:contentDescription="@string/desc_warning_icon"
+                    android:visibility="@{viewModel.serviceAlertViewModel.hasAlerts}"
+                    app:srcCompat="@drawable/ic_action_warning"
+                    app:tint="@color/tripKitWarning" />
+
+                <ImageView
+                    android:id="@+id/wheelchair"
+                    android:layout_width="@dimen/icon_small"
+                    android:layout_height="@dimen/icon_small"
+                    android:layout_marginEnd="@dimen/spacing_xx_small"
+                    android:layout_marginStart="@dimen/spacing_extra_small"
+                    android:contentDescription="@string/desc_wheelchair_icon"
+                    android:src="@{viewModel.wheelchairIcon}"
+                    app:addRtlSupport="@{true}"
+                    app:tint="@{viewModel.wheelchairTint}" />
+
+                <ImageView
+                    android:id="@+id/ivBicycle"
+                    android:layout_width="@dimen/icon_small"
+                    android:layout_height="@dimen/icon_small"
+                    android:layout_marginEnd="@dimen/spacing_xx_small"
+                    android:layout_marginStart="@dimen/spacing_extra_small"
+                    android:contentDescription="@string/desc_bicycle_icon"
+                    android:src="@drawable/ic_bike_accessible"
+                    android:visibility="@{viewModel.showBicycleAccessible}"
+                    app:addRtlSupport="@{true}" />
+
+                <ImageView
+                    android:id="@+id/occupancyView"
+                    android:layout_width="@dimen/icon_small"
+                    android:layout_height="@dimen/icon_small"
+                    android:layout_marginStart="@dimen/spacing_extra_small"
+                    android:contentDescription="@string/desc_occupancy_info_icon"
+                    android:src="@{viewModel.occupancyViewModel.drawableLeft}"
+                    android:visibility="@{viewModel.showOccupancyInfo}"
+                    app:layout_constraintStart_toEndOf="@id/wheelchair"
+                    app:layout_constraintTop_toTopOf="@id/wheelchair" />
 
                 <androidx.cardview.widget.CardView
                     android:layout_width="wrap_content"
@@ -63,6 +120,7 @@
                         style="@style/TextAppearance.MaterialComponents.Caption"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
+                        android:contentDescription="@{`Service line: ` + viewModel.serviceNumber}"
                         android:paddingLeft="4dp"
                         android:paddingRight="4dp"
                         android:text="@{viewModel.serviceNumber}"
@@ -70,57 +128,7 @@
                         tools:text="U1" />
                 </androidx.cardview.widget.CardView>
 
-                <ImageView
-                    android:id="@+id/warning"
-                    android:layout_width="16dp"
-                    android:layout_height="16dp"
-                    android:layout_marginStart="4dp"
-                    android:tint="@color/tripKitWarning"
-                    android:visibility="@{viewModel.serviceAlertViewModel.hasAlerts}"
-                    app:srcCompat="@drawable/ic_action_warning" />
-
-                <ImageView
-                    android:id="@+id/wheelchair"
-                    android:layout_width="@dimen/icon_small"
-                    android:layout_height="@dimen/icon_small"
-                    android:layout_marginStart="@dimen/spacing_extra_small"
-                    android:layout_marginEnd="@dimen/spacing_xx_small"
-                    android:src="@{viewModel.wheelchairIcon}"
-                    android:tint="@{viewModel.wheelchairTint}"
-                    app:addRtlSupport="@{true}" />
-
-                <ImageView
-                    android:id="@+id/ivBicycle"
-                    android:layout_width="@dimen/icon_small"
-                    android:layout_height="@dimen/icon_small"
-                    android:visibility="@{viewModel.showBicycleAccessible}"
-                    android:layout_marginStart="@dimen/spacing_extra_small"
-                    android:layout_marginEnd="@dimen/spacing_xx_small"
-                    android:src="@drawable/ic_bike_accessible"
-                    app:addRtlSupport="@{true}" />
-
-                <ImageView
-                    android:id="@+id/occupancyView"
-                    android:layout_width="@dimen/icon_small"
-                    android:layout_height="@dimen/icon_small"
-                    android:layout_marginStart="@dimen/spacing_extra_small"
-                    android:src="@{viewModel.occupancyViewModel.drawableLeft}"
-                    android:visibility="@{viewModel.showOccupancyInfo}"
-                    app:layout_constraintStart_toEndOf="@id/wheelchair"
-                    app:layout_constraintTop_toTopOf="@id/wheelchair" />
-
             </LinearLayout>
-
-            <TextView
-                android:id="@+id/timeToDeparture"
-                style="@style/TextAppearance.MaterialComponents.Body1"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@{viewModel.countDownTimeText}"
-                android:textColor="@color/tripKitPrimary"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                tools:text="Now" />
 
             <TextView
                 android:id="@+id/status"
@@ -128,6 +136,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
+                android:contentDescription="@{`Status: ` + viewModel.secondaryText}"
                 android:text="@{viewModel.secondaryText}"
                 android:textColor="@{viewModel.secondaryTextColor}"
                 app:layout_constraintStart_toStartOf="@+id/iconLayout"
@@ -140,6 +149,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
+                android:contentDescription="@{`Details: ` + viewModel.tertiaryText}"
                 android:text="@{viewModel.tertiaryText}"
                 android:textColor="@color/black1"
                 app:layout_constraintStart_toStartOf="@+id/status"
@@ -152,6 +162,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
+                android:contentDescription="@{`Footer: ` + viewModel.quaternaryText}"
                 android:text="@{viewModel.quaternaryText}"
                 android:textColor="@color/black1"
                 android:visibility="@{!viewModel.quaternaryText.empty}"
@@ -159,24 +170,24 @@
                 app:layout_constraintTop_toBottomOf="@+id/details"
                 tools:text="Footer" />
 
-            <ImageView
-                android:layout_width="@dimen/icon_medium"
-                android:layout_height="@dimen/icon_medium"
-                android:padding="@dimen/spacing_small"
-                android:src="@drawable/chevron_right"
-                app:addRtlSupport="@{true}"
-                app:layout_constraintBottom_toBottomOf="parent"
+            <TextView
+                android:id="@+id/timeToDeparture"
+                style="@style/TextAppearance.MaterialComponents.Body1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="@{`Time to departure: ` + viewModel.countDownTimeText}"
+                android:text="@{viewModel.countDownTimeText}"
+                android:textColor="@color/tripKitPrimary"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:tint="@color/colorPrimary" />
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="Now" />
         </androidx.constraintlayout.widget.ConstraintLayout>
-
-        <View
-            android:layout_width="3dp"
-            android:layout_height="0dp"
-            android:background="@color/colorAccent"
-            android:visibility="@{viewModel.isCurrentTrip}"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <data>
+
+        <variable
+            name="viewModel"
+            type="com.skedgo.tripkit.ui.timetables.ServiceViewModel" />
+    </data>
 </layout>

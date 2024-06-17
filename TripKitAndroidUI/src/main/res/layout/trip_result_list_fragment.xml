@@ -13,18 +13,18 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:importantForAccessibility="no"
-        android:background="@color/grey2">
+        android:background="@color/grey2"
+        android:importantForAccessibility="no">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/clLocations"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingTop="@dimen/spacing_small"
-            android:focusable="true"
             android:background="@android:color/white"
-            android:importantForAccessibility="yes"
             android:contentDescription="@{viewModel.toContentDescription + viewModel.fromContentDescription}"
+            android:focusable="true"
+            android:importantForAccessibility="yes"
+            android:paddingTop="@dimen/spacing_small"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
@@ -37,8 +37,8 @@
                 android:layout_marginEnd="@dimen/spacing_small"
                 android:ellipsize="end"
                 android:focusable="false"
-                android:singleLine="true"
                 android:importantForAccessibility="no"
+                android:singleLine="true"
                 android:text="@{viewModel.toName}"
                 android:textDirection="locale"
                 app:layout_constraintEnd_toStartOf="@+id/closeButton"
@@ -83,10 +83,10 @@
                 android:layout_marginEnd="@dimen/spacing_small"
                 android:ellipsize="end"
                 android:focusable="false"
+                android:importantForAccessibility="no"
                 android:singleLine="true"
                 android:text="@{viewModel.fromName}"
                 android:textColor="@color/colorPrimary"
-                android:importantForAccessibility="no"
                 android:textDirection="locale"
                 app:layout_constraintEnd_toStartOf="@+id/fromAction"
                 app:layout_constraintStart_toEndOf="@+id/fromLabel"
@@ -99,11 +99,12 @@
                 android:layout_width="16dp"
                 android:layout_height="16dp"
                 android:layout_marginEnd="20dp"
-                android:tint="@color/colorPrimary"
+                android:importantForAccessibility="no"
                 app:layout_constraintBottom_toBottomOf="@id/from"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="@+id/from"
-                app:srcCompat="@drawable/chevron_right" />
+                app:srcCompat="@drawable/chevron_right"
+                app:tint="@color/colorPrimary" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <!-- Leave Now & Transports header -->
@@ -111,10 +112,11 @@
             android:id="@+id/leaveNowAndTransportsHeader"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:accessibilityLiveRegion="polite"
+            android:background="@android:color/white"
+            android:paddingHorizontal="@dimen/spacing_small"
             android:paddingTop="@dimen/spacing_large"
             android:paddingBottom="@dimen/spacing_small"
-            android:paddingHorizontal="@dimen/spacing_small"
-            android:background="@android:color/white"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/clLocations">
@@ -124,6 +126,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@drawable/bg_round_rect_primary_alpha"
+                android:contentDescription="@string/desc_departure_schedule_button"
                 android:orientation="horizontal"
                 android:paddingHorizontal="@dimen/spacing_small"
                 android:paddingVertical="@dimen/spacing_small"
@@ -143,6 +146,7 @@
                     android:layout_width="16dp"
                     android:layout_height="16dp"
                     android:layout_gravity="center_vertical"
+                    android:contentDescription="@string/desc_departure_schedule_icon"
                     app:srcCompat="@drawable/chevron_down"
                     app:tint="@color/colorPrimary"
                     tools:tint="@color/colorPrimary" />
@@ -178,10 +182,11 @@
                     android:layout_width="@dimen/icon_small"
                     android:layout_height="@dimen/icon_small"
                     android:layout_gravity="center_vertical"
+                    android:contentDescription="@string/desc_transport_mode_selector_icon"
                     android:src="@{viewModel.showTransport ? @drawable/chevron_up : @drawable/chevron_down}"
                     app:tint="@color/colorPrimary"
-                    tools:tint="@color/colorPrimary"
-                    tools:src="@drawable/chevron_down"/>
+                    tools:src="@drawable/chevron_down"
+                    tools:tint="@color/colorPrimary" />
             </LinearLayout>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
@@ -190,6 +195,7 @@
             android:id="@+id/transportItemsView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:accessibilityLiveRegion="polite"
             android:background="@android:color/white"
             android:nestedScrollingEnabled="false"
             android:overScrollMode="never"
@@ -201,31 +207,33 @@
             app:items="@{viewModel.transportModes}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/leaveNowAndTransportsHeader" />
+            app:layout_constraintTop_toBottomOf="@id/leaveNowAndTransportsHeader"
+            tools:ignore="RtlSymmetry" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/layoutHelpInfo"
+            clickWithDebounce="@{() -> viewModel.onShowBookARideInduction(true)}"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="@dimen/content_padding"
-            android:background="@android:color/white"
             android:layout_marginTop="@dimen/spacing_extra_small"
-            android:focusable="true"
+            android:accessibilityLiveRegion="polite"
+            android:background="@android:color/white"
             android:clickable="true"
+            android:focusable="true"
+            android:padding="@dimen/content_padding"
             android:visibility="@{viewModel.helpInfoVisible}"
-            clickWithDebounce="@{() -> viewModel.onShowBookARideInduction(true)}"
             app:layout_constraintTop_toBottomOf="@+id/transportItemsView">
 
             <ImageView
                 android:id="@+id/ivHelpIcon"
                 android:layout_width="@dimen/icon_small"
                 android:layout_height="@dimen/icon_small"
+                android:importantForAccessibility="no"
                 android:src="@drawable/ic_icon_info"
-                app:tint="@color/black"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                android:importantForAccessibility="no" />
+                app:tint="@color/black" />
 
             <TextView
                 android:id="@+id/tvLabel"
@@ -233,11 +241,11 @@
                 android:layout_height="wrap_content"
                 android:paddingStart="@dimen/spacing_small"
                 android:paddingEnd="@dimen/spacing_small"
+                android:text="@string/label_how_to_book_transporation"
+                android:textColor="@color/black"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/ivHelpIcon"
-                app:layout_constraintTop_toTopOf="parent"
-                android:text="How to book transportation"
-                android:textColor="@color/black"/>
+                app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -255,6 +263,7 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_marginTop="@dimen/spacing_extra_small"
+            android:accessibilityLiveRegion="polite"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/brResult">

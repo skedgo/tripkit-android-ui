@@ -1,14 +1,108 @@
 <?xml version="1.0" encoding="utf-8"?>
 <merge xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:accessibilityLiveRegion="polite"
         android:focusableInTouchMode="true"
-        android:paddingLeft="16dp"
-        android:paddingRight="16dp"
         android:paddingBottom="16dp">
+
+        <EditText
+            android:id="@+id/startEdit"
+            style="@style/TextAppearance.MaterialComponents.Body2"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="4dp"
+            android:layout_marginEnd="4dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="0dp"
+            android:background="@drawable/route_input_edit_text_background"
+            android:cursorVisible="false"
+            android:focusable="false"
+            android:hint="@string/start_location"
+            android:importantForAutofill="no"
+            android:minWidth="100dp"
+            android:paddingBottom="10dp"
+            android:paddingLeft="12dp"
+            android:paddingRight="12dp"
+            android:paddingTop="10dp"
+            app:layout_constraintBottom_toBottomOf="@+id/centerGuideline"
+            app:layout_constraintEnd_toStartOf="@+id/swap"
+            app:layout_constraintStart_toEndOf="@+id/navigationIcon"
+            tools:ignore="TextFields" />
+
+        <EditText
+            android:id="@+id/destEdit"
+            style="@style/TextAppearance.MaterialComponents.Body2"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="4dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="4dp"
+            android:background="@drawable/route_input_edit_text_background"
+            android:cursorVisible="false"
+            android:focusable="false"
+            android:hint="@string/where_do_you_want_to_go_question"
+            android:importantForAutofill="no"
+            android:minWidth="100dp"
+            android:paddingBottom="10dp"
+            android:paddingLeft="12dp"
+            android:paddingRight="12dp"
+            android:paddingTop="10dp"
+            app:layout_constraintEnd_toStartOf="@+id/swap"
+            app:layout_constraintStart_toEndOf="@+id/navigationIcon"
+            app:layout_constraintTop_toBottomOf="@+id/centerGuideline"
+            tools:ignore="TextFields" />
+
+        <ImageButton
+            android:id="@+id/swap"
+            android:layout_width="@dimen/accessibility_min_clickable_size"
+            android:layout_height="@dimen/accessibility_min_clickable_size"
+            android:layout_marginEnd="4dp"
+            android:background="?android:selectableItemBackground"
+            android:contentDescription="@string/desc_swap_locations"
+            android:src="@drawable/swap_vertical"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:layout_width="10dp"
+            android:layout_height="10dp"
+            android:contentDescription="@string/desc_destination_location"
+            android:src="@drawable/small_circle"
+            app:layout_constraintBottom_toBottomOf="@+id/destEdit"
+            app:layout_constraintEnd_toEndOf="@+id/dots"
+            app:layout_constraintStart_toStartOf="@+id/dots"
+            app:layout_constraintTop_toTopOf="@id/destEdit"
+            app:tint="@color/black4" />
+
+        <ImageView
+            android:id="@+id/navigationIcon"
+            android:layout_width="14dp"
+            android:layout_height="14dp"
+            android:layout_marginStart="16dp"
+            android:contentDescription="@string/desc_location_start"
+            android:src="@drawable/ic_navigation_45"
+            app:layout_constraintBottom_toBottomOf="@+id/startEdit"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/startEdit"
+            app:tint="@color/tripKitPrimary" />
+
+        <ImageView
+            android:id="@+id/dots"
+            android:layout_width="14dp"
+            android:layout_height="14dp"
+            android:importantForAccessibility="no"
+            android:src="@drawable/dots_vertical"
+            app:layout_constraintBottom_toBottomOf="@+id/swap"
+            app:layout_constraintEnd_toEndOf="@+id/navigationIcon"
+            app:layout_constraintStart_toStartOf="@+id/navigationIcon"
+            app:layout_constraintTop_toTopOf="@id/swap"
+            app:tint="@color/black4" />
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/centerGuideline"
@@ -17,95 +111,13 @@
             android:orientation="horizontal"
             app:layout_constraintGuide_begin="91dp" />
 
-        <ImageButton
-            android:id="@+id/swap"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:background="?android:selectableItemBackground"
-            android:src="@drawable/swap_vertical"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <ImageView
-            android:id="@+id/navigationIcon"
-            android:layout_width="14dp"
-            android:layout_height="14dp"
-            android:src="@drawable/ic_navigation_45"
-            android:tint="@color/tripKitPrimary"
-            app:layout_constraintBottom_toBottomOf="@+id/startEdit"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@id/startEdit" />
-
-        <ImageView
-            android:id="@+id/dots"
-            android:layout_width="14dp"
-            android:layout_height="14dp"
-            android:src="@drawable/dots_vertical"
-            android:tint="@color/black4"
-            app:layout_constraintBottom_toBottomOf="@+id/swap"
-            app:layout_constraintEnd_toEndOf="@+id/navigationIcon"
-            app:layout_constraintStart_toStartOf="@+id/navigationIcon"
-            app:layout_constraintTop_toTopOf="@id/swap" />
-
-        <ImageView
-            android:layout_width="10dp"
-            android:layout_height="10dp"
-            android:src="@drawable/small_circle"
-            android:tint="@color/black4"
-            app:layout_constraintBottom_toBottomOf="@+id/destEdit"
-            app:layout_constraintEnd_toEndOf="@+id/dots"
-            app:layout_constraintStart_toStartOf="@+id/dots"
-            app:layout_constraintTop_toTopOf="@id/destEdit" />
-
-        <EditText
-            android:id="@+id/startEdit"
-            style="@style/TextAppearance.MaterialComponents.Body2"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="0dp"
-            android:layout_marginEnd="16dp"
-            android:layout_marginBottom="4dp"
-            android:background="@drawable/route_input_edit_text_background"
-            android:cursorVisible="false"
-            android:focusable="false"
-            android:hint="@string/start_location"
-            android:minWidth="100dp"
-            android:paddingLeft="12dp"
-            android:paddingTop="10dp"
-            android:paddingRight="12dp"
-            android:paddingBottom="10dp"
-            app:layout_constraintBottom_toBottomOf="@+id/centerGuideline"
-            app:layout_constraintEnd_toStartOf="@+id/swap"
-            app:layout_constraintStart_toEndOf="@+id/navigationIcon" />
-
-        <EditText
-            android:id="@+id/destEdit"
-            style="@style/TextAppearance.MaterialComponents.Body2"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="4dp"
-            android:layout_marginEnd="16dp"
-            android:background="@drawable/route_input_edit_text_background"
-            android:cursorVisible="false"
-            android:focusable="false"
-            android:hint="@string/where_do_you_want_to_go_question"
-            android:minWidth="100dp"
-            android:paddingLeft="12dp"
-            android:paddingTop="10dp"
-            android:paddingRight="12dp"
-            android:paddingBottom="10dp"
-            app:layout_constraintEnd_toStartOf="@+id/swap"
-            app:layout_constraintStart_toEndOf="@+id/navigationIcon"
-            app:layout_constraintTop_toBottomOf="@+id/centerGuideline" />
-
         <com.google.android.material.button.MaterialButton
             android:id="@+id/routeButton"
             style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:contentDescription="@string/desc_route_button"
+            android:minHeight="@dimen/accessibility_min_clickable_size"
             android:text="@string/route"
             android:theme="@style/Theme.MaterialComponents"
             app:backgroundTint="@color/tripKitPrimary"
@@ -118,6 +130,8 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginEnd="16dp"
+            android:contentDescription="@string/desc_departure_schedule_button"
+            android:minHeight="@dimen/accessibility_min_clickable_size"
             android:text="@string/leave_now"
             android:textColor="@color/black1"
             android:theme="@style/Theme.MaterialComponents"

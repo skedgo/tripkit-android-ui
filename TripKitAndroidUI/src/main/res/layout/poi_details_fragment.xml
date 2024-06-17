@@ -3,48 +3,127 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <data>
-
-        <import type="android.view.View" />
-
-        <import type="com.skedgo.tripkit.common.model.Location" />
-
-        <variable
-            name="viewModel"
-            type="com.skedgo.tripkit.ui.poidetails.PoiDetailsViewModel" />
-    </data>
-
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:accessibilityLiveRegion="polite"
         android:background="#ffffff">
+
+        <ImageButton
+            android:id="@+id/closeButton"
+            android:layout_width="@dimen/accessibility_min_clickable_size"
+            android:layout_height="@dimen/accessibility_min_clickable_size"
+            android:layout_marginEnd="16dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/desc_close_button"
+            android:src="@drawable/close"
+            android:visibility="@{viewModel.showCloseButton}"
+            app:layout_constraintBottom_toBottomOf="@+id/title"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/title" />
+
+        <ImageView
+            android:id="@+id/addressIcon"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginStart="16dp"
+            android:contentDescription="@string/desc_address_icon"
+            android:visibility="@{viewModel.showAddress}"
+            app:layout_constraintBottom_toBottomOf="@+id/address"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/address"
+            app:srcCompat="@drawable/ic_pin" />
+
+        <ImageView
+            android:id="@+id/websiteIcon"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginStart="16dp"
+            android:contentDescription="@string/desc_website_icon"
+            android:visibility="@{viewModel.showWebsite}"
+            app:layout_constraintBottom_toBottomOf="@+id/website"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/website"
+            app:srcCompat="@drawable/ic_globe"
+            app:tint="@color/tripKitSuccess" />
+
+        <ImageView
+            android:id="@+id/what3wordIcon"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginStart="16dp"
+            android:contentDescription="@string/desc_what3word_icon"
+            android:visibility="@{viewModel.showWhat3words}"
+            app:layout_constraintBottom_toBottomOf="@+id/what3word"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/what3word"
+            app:srcCompat="@drawable/ic_what3word"
+            app:tint="@color/tripKitSuccess" />
 
         <TextView
             android:id="@+id/title"
             style="@style/TextAppearance.MaterialComponents.Headline6"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
             android:layout_marginStart="16dp"
             android:layout_marginTop="16dp"
-            android:layout_marginEnd="16dp"
+            android:contentDescription="@{`Title: ` + viewModel.locationTitle}"
             android:text="@{viewModel.locationTitle}"
+            app:layout_constraintEnd_toStartOf="@id/closeButton"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/closeButton"
             tools:text="Some POI" />
 
-        <ImageButton
-            android:id="@+id/closeButton"
-            android:layout_width="@dimen/close_button_size"
-            android:layout_height="@dimen/close_button_size"
+        <TextView
+            android:id="@+id/address"
+            style="@style/TextAppearance.MaterialComponents.Subtitle1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
             android:layout_marginEnd="16dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@drawable/close"
-            android:contentDescription="@string/desc_close"
-            android:visibility="@{viewModel.showCloseButton}"
-            app:layout_constraintBottom_toBottomOf="@+id/title"
+            android:layout_marginStart="48dp"
+            android:layout_marginTop="24dp"
+            android:contentDescription="@{`Address: ` + viewModel.address}"
+            android:text="@{viewModel.address}"
+            android:textAlignment="viewStart"
+            android:visibility="@{viewModel.showAddress}"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/title" />
+            app:layout_constraintStart_toEndOf="@+id/addressIcon"
+            app:layout_constraintTop_toBottomOf="@+id/secondDividingLine"
+            tools:text="Address Address Address Address Address Address Address" />
+
+        <TextView
+            android:id="@+id/website"
+            style="@style/TextAppearance.MaterialComponents.Subtitle1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            android:layout_marginStart="48dp"
+            android:layout_marginTop="24dp"
+            android:autoLink="web"
+            android:contentDescription="@{`Website: ` + viewModel.website}"
+            android:text="@{viewModel.website}"
+            android:textAlignment="viewStart"
+            android:textColor="@color/tripKitSuccess"
+            android:visibility="@{viewModel.showWebsite}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/websiteIcon"
+            app:layout_constraintTop_toBottomOf="@+id/address"
+            tools:text="www.somesite" />
+
+        <TextView
+            android:id="@+id/what3word"
+            style="@style/TextAppearance.MaterialComponents.Subtitle1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="48dp"
+            android:layout_marginTop="24dp"
+            android:contentDescription="@{`Website: ` + viewModel.website}"
+            android:text="@{viewModel.what3words}"
+            android:visibility="@{viewModel.showWhat3words}"
+            app:layout_constraintStart_toEndOf="@+id/what3wordIcon"
+            app:layout_constraintTop_toBottomOf="@+id/website"
+            tools:text="something.something.something" />
 
         <View
             android:id="@+id/firstDividingLine"
@@ -56,12 +135,24 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/title" />
 
+        <View
+            android:id="@+id/secondDividingLine"
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_marginTop="16dp"
+            android:background="@color/black3"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/goButton" />
+
         <com.google.android.material.button.MaterialButton
             android:id="@+id/openAppButton"
             style="@style/Widget.MaterialComponents.Button.Icon"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
+            android:contentDescription="@{`Button: ` + viewModel.openAppButtonText}"
+            android:minHeight="@dimen/accessibility_min_clickable_size"
             android:text="@{viewModel.openAppButtonText}"
             android:textColor="@android:color/white"
             android:theme="@style/Theme.MaterialComponents"
@@ -80,6 +171,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/spacing_small"
+            android:contentDescription="@{`Button: ` + viewModel.goButtonText}"
+            android:minHeight="@dimen/accessibility_min_clickable_size"
             android:text="@{viewModel.goButtonText}"
             android:textColor="@android:color/white"
             android:theme="@style/Theme.MaterialComponents"
@@ -97,109 +190,30 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/spacing_small"
+            android:contentDescription="@{`Button: ` + viewModel.favoriteText}"
+            android:minHeight="@dimen/accessibility_min_clickable_size"
             android:text="@{viewModel.favoriteText}"
             android:textColor="@color/black"
             android:theme="@style/Theme.MaterialComponents"
             app:icon="@drawable/ic_favorite"
-            app:visibilityInv="@{viewModel.favoriteVisible}"
             app:iconTint="@color/black"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toEndOf="@+id/goButton"
             app:layout_constraintTop_toBottomOf="@+id/openAppButton"
-            app:strokeColor="@color/black4" />
-
-        <View
-            android:id="@+id/secondDividingLine"
-            android:layout_width="0dp"
-            android:layout_height="1dp"
-            android:layout_marginTop="16dp"
-            android:background="@color/black3"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/goButton" />
-
-        <ImageView
-            android:id="@+id/addressIcon"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:layout_marginStart="16dp"
-            android:visibility="@{viewModel.showAddress}"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/address"
-            app:layout_constraintBottom_toBottomOf="@+id/address"
-            app:srcCompat="@drawable/ic_pin" />
-
-        <TextView
-            android:id="@+id/address"
-            style="@style/TextAppearance.MaterialComponents.Subtitle1"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="48dp"
-            android:layout_marginEnd="16dp"
-            android:layout_marginTop="24dp"
-            android:text="@{viewModel.address}"
-            android:textAlignment="viewStart"
-            android:visibility="@{viewModel.showAddress}"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/addressIcon"
-            app:layout_constraintTop_toBottomOf="@+id/secondDividingLine"
-            tools:text="Address Address Address Address Address Address Address" />
-
-        <ImageView
-            android:id="@+id/websiteIcon"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:layout_marginStart="16dp"
-            android:tint="@color/tripKitSuccess"
-            android:visibility="@{viewModel.showWebsite}"
-            app:layout_constraintBottom_toBottomOf="@+id/website"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/website"
-            app:srcCompat="@drawable/ic_globe" />
-
-        <TextView
-            android:id="@+id/website"
-            style="@style/TextAppearance.MaterialComponents.Subtitle1"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="48dp"
-            android:layout_marginTop="24dp"
-            android:layout_marginEnd="16dp"
-            android:autoLink="web"
-            android:text="@{viewModel.website}"
-            android:textAlignment="viewStart"
-            android:textColor="@color/tripKitSuccess"
-            android:visibility="@{viewModel.showWebsite}"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/websiteIcon"
-            app:layout_constraintTop_toBottomOf="@+id/address"
-            tools:text="www.somesite" />
-
-        <ImageView
-            android:id="@+id/what3wordIcon"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:layout_marginStart="16dp"
-            android:tint="@color/tripKitSuccess"
-            android:visibility="@{viewModel.showWhat3words}"
-            app:layout_constraintBottom_toBottomOf="@+id/what3word"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/what3word"
-            app:srcCompat="@drawable/ic_what3word" />
-
-        <TextView
-            android:id="@+id/what3word"
-            style="@style/TextAppearance.MaterialComponents.Subtitle1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="48dp"
-            android:layout_marginTop="24dp"
-            android:text="@{viewModel.what3words}"
-            android:visibility="@{viewModel.showWhat3words}"
-            app:layout_constraintStart_toEndOf="@+id/what3wordIcon"
-            app:layout_constraintTop_toBottomOf="@+id/website"
-            tools:text="something.something.something" />
+            app:strokeColor="@color/black4"
+            app:visibilityInv="@{viewModel.favoriteVisible}" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <data>
+
+        <import type="android.view.View" />
+
+        <import type="com.skedgo.tripkit.common.model.Location" />
+
+        <variable
+            name="viewModel"
+            type="com.skedgo.tripkit.ui.poidetails.PoiDetailsViewModel" />
+    </data>
 </layout>

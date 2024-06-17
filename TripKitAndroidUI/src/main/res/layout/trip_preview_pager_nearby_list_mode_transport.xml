@@ -1,19 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
-    <data>
-        <variable
-                name="viewModel"
-                type="com.skedgo.tripkit.ui.trippreview.nearby.NearbyTripPreviewModeItemViewModel" />
-    </data>
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <com.skedgo.tripkit.ui.views.CheckableImageButton android:layout_width="wrap_content"
-                                                      android:layout_height="wrap_content"
-                                                      android:padding="4dp"
-                                                      android:layout_marginEnd="16dp"
-                                                      android:layout_marginBottom="8dp"
-                                                      android:background="@drawable/trip_result_transport_mode_selector_background"
-                                                      android:src="@{viewModel.modeIconId}"
-                                                      android:onClick="@{viewModel::onItemClick}"
-                                                      android:checked="@{viewModel.checked}"/>
+    <com.skedgo.tripkit.ui.views.CheckableImageButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="16dp"
+        android:background="@drawable/trip_result_transport_mode_selector_background"
+        android:checked="@{viewModel.checked}"
+        android:contentDescription="@string/desc_transport_mode_selector_button"
+        android:onClick="@{viewModel::onItemClick}"
+        android:padding="4dp"
+        android:src="@{viewModel.modeIconId}" />
+
+    <data>
+
+        <variable
+            name="viewModel"
+            type="com.skedgo.tripkit.ui.trippreview.nearby.NearbyTripPreviewModeItemViewModel" />
+    </data>
 
 </layout>

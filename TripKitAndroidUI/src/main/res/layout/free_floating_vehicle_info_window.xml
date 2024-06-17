@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -8,15 +7,14 @@
     android:padding="8dp"
     tools:ignore="UnusedAttribute">
 
-    <TextView
-        android:id="@+id/operatorName"
+    <ImageView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:text="Neuron" />
+        android:src="@drawable/ic_arrow_forward"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/name"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/type"
@@ -33,22 +31,18 @@
         android:id="@+id/name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignBaseline="@id/type"
-        android:layout_marginStart="8dp"
+        android:accessibilityLiveRegion="polite"
         android:gravity="center"
-        android:paddingLeft="8dp"
-        android:paddingRight="8dp"
+        android:padding="8dp"
         android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-        app:layout_constraintBottom_toBottomOf="@+id/type"
-        app:layout_constraintStart_toEndOf="@+id/type"
-        app:layout_constraintTop_toTopOf="@+id/type"
+        app:layout_constraintBaseline_toBaselineOf="@id/type"
+        app:layout_constraintStart_toEndOf="@id/type"
         tools:text="24" />
 
     <TextView
         android:id="@+id/batteryLevelText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/type"
         android:drawablePadding="@dimen/spacing_small"
         android:padding="8dp"
         android:text="@string/battery"
@@ -60,26 +54,21 @@
         android:id="@+id/batteryLevel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignBaseline="@id/batteryLevelText"
-        android:layout_marginStart="8dp"
+        android:accessibilityLiveRegion="polite"
         android:gravity="center"
-        android:paddingLeft="8dp"
-        android:paddingRight="8dp"
+        android:padding="8dp"
         android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-        app:layout_constraintBottom_toBottomOf="@+id/batteryLevelText"
-        app:layout_constraintStart_toEndOf="@+id/batteryLevelText"
-        app:layout_constraintTop_toTopOf="@+id/batteryLevelText"
+        app:layout_constraintBaseline_toBaselineOf="@id/batteryLevelText"
+        app:layout_constraintStart_toEndOf="@id/batteryLevelText"
         tools:text="15" />
 
-    <ImageView
+    <TextView
+        android:id="@+id/operatorName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerVertical="true"
-        android:layout_marginStart="16dp"
-        android:visibility="gone"
-        android:src="@drawable/ic_arrow_forward"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/name"
-        app:layout_constraintTop_toTopOf="parent" />
-
+        android:layout_marginBottom="8dp"
+        android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="Neuron" />
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -9,14 +9,16 @@
     <Button
         android:id="@+id/v4_btn_negative"
         style="@style/FlatDialogButtonStyle"
-        android:layout_marginStart="8dp"
         android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:contentDescription="@string/desc_cancel_button"
         tools:text="@string/cancel" />
 
     <Button
         android:id="@+id/v4_btn_positive"
+        android:contentDescription="@string/desc_done_button"
         style="@style/FlatDialogButtonStyle"
-        android:layout_marginStart="8dp"
         android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
         tools:text="@string/done" />
 </LinearLayout>

@@ -8,33 +8,36 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <com.github.mikephil.charting.charts.HorizontalBarChart
-            android:id="@+id/chartRoadTags"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@android:color/white"
-            android:minHeight="300dp"
-            android:visibility="gone"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rvRoadTagsChart"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:listitem="@layout/item_fake_graph"
-            tools:itemCount="1"/>
-
         <View
             android:id="@+id/divider"
             android:layout_width="0dp"
             android:layout_height="@dimen/divider_size"
             android:layout_marginTop="@dimen/spacing_small"
             android:background="@color/black4"
-            app:layout_constraintTop_toBottomOf="@+id/rvRoadTagsChart"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/rvRoadTagsChart" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvRoadTagsChart"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/desc_road_tags_list"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:itemCount="1"
+            tools:listitem="@layout/item_fake_graph" />
+
+        <com.github.mikephil.charting.charts.HorizontalBarChart
+            android:id="@+id/chartRoadTags"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:accessibilityLiveRegion="polite"
+            android:background="@android:color/white"
+            android:contentDescription="@string/desc_road_tags_chart"
+            android:minHeight="300dp"
+            android:visibility="gone"
+            app:layout_constraintTop_toTopOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

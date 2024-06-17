@@ -3,56 +3,33 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <data>
-
-        <variable
-            name="viewModel"
-            type="com.skedgo.tripkit.ui.controller.routeviewcontroller.TKUIRouteViewModel" />
-    </data>
-
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="@android:color/white"
         android:focusable="false"
         android:importantForAccessibility="no"
-        android:paddingTop="12dp"
-        android:background="@android:color/white"
         tools:context=".routing.RouteCardFragment">
 
-        <TextView
-            android:id="@+id/tvRouteLabel"
-            style="@style/TextAppearance.MaterialComponents.Headline6"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="16dp"
-            android:text="@string/route"
-            android:textColor="@color/colorPrimary"
+        <FrameLayout
+            android:id="@+id/content"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginTop="8dp"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:text="Route" />
-
-        <ImageView
-            android:id="@+id/bClose"
-            android:layout_width="@dimen/close_button_size"
-            android:layout_height="@dimen/close_button_size"
-            android:layout_marginStart="16dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="@string/desc_close"
-            android:focusableInTouchMode="false"
-            android:padding="4dp"
-            android:src="@drawable/close"
-            app:layout_constraintBottom_toBottomOf="@+id/tvRouteLabel"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/tvRouteLabel" />
+            app:layout_constraintTop_toBottomOf="@+id/tilDestinationEdit" />
 
         <ImageView
             android:id="@+id/ivSwap"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:layout_marginEnd="19dp"
+            android:layout_width="@dimen/accessibility_min_clickable_size"
+            android:layout_height="@dimen/accessibility_min_clickable_size"
+            android:layout_marginEnd="@dimen/spacing_small"
             android:background="?android:selectableItemBackground"
-            android:contentDescription="Swap locations"
+            android:contentDescription="@string/desc_swap_locations"
             android:onClick="@{() -> viewModel.swap()}"
+            android:padding="12dp"
             app:layout_constraintBottom_toTopOf="@+id/ivDestEditIcon"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/ivStartEdit"
@@ -63,6 +40,7 @@
             android:layout_width="10dp"
             android:layout_height="10dp"
             android:layout_marginStart="23dp"
+            android:contentDescription="@string/desc_location_start"
             app:layout_constraintBottom_toBottomOf="@+id/tilStartEdit"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@+id/tilStartEdit"
@@ -73,6 +51,7 @@
             android:id="@+id/ivDots"
             android:layout_width="14dp"
             android:layout_height="14dp"
+            android:importantForAccessibility="no"
             app:layout_constraintBottom_toTopOf="@+id/ivDestEditIcon"
             app:layout_constraintEnd_toEndOf="@+id/ivStartEdit"
             app:layout_constraintStart_toStartOf="@+id/ivStartEdit"
@@ -84,6 +63,7 @@
             android:id="@+id/ivDestEditIcon"
             android:layout_width="10dp"
             android:layout_height="10dp"
+            android:contentDescription="@string/desc_destination_location"
             app:layout_constraintBottom_toBottomOf="@+id/tilDestinationEdit"
             app:layout_constraintEnd_toEndOf="@+id/ivDots"
             app:layout_constraintStart_toStartOf="@+id/ivDots"
@@ -91,44 +71,45 @@
             app:srcCompat="@drawable/small_circle"
             app:tint="@color/black4" />
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/tilStartEdit"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="16dp"
-            android:layout_marginEnd="16dp"
-            android:layout_marginBottom="4dp"
-            android:clipToPadding="true"
-            app:boxStrokeColor="@color/bg_search_textinputlayout_box_color"
-            app:endIconDrawable="@drawable/close"
-            app:endIconMode="clear_text"
-            app:hintEnabled="false"
-            app:layout_constraintEnd_toStartOf="@+id/ivSwap"
-            app:layout_constraintStart_toEndOf="@+id/ivStartEdit"
-            app:layout_constraintTop_toBottomOf="@+id/tvRouteLabel">
+        <ImageView
+            android:id="@+id/bClose"
+            android:layout_width="@dimen/accessibility_button_size"
+            android:layout_height="@dimen/accessibility_button_size"
+            android:layout_marginStart="@dimen/spacing_small"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/desc_close_button"
+            android:focusableInTouchMode="false"
+            android:padding="12dp"
+            android:src="@drawable/close"
+            app:layout_constraintBottom_toBottomOf="@+id/tvRouteLabel"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/tvRouteLabel" />
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/tieStartEdit"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="@string/start_location"
-                android:imeOptions="actionDone"
-                android:inputType="text"
-                android:maxLines="1"
-                android:text="@={viewModel.start}"
-                android:textAppearance="?attr/textAppearanceBody2" />
-        </com.google.android.material.textfield.TextInputLayout>
+        <TextView
+            android:id="@+id/tvRouteLabel"
+            style="@style/TextAppearance.MaterialComponents.Headline6"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_extra_small"
+            android:gravity="center_vertical"
+            android:minHeight="@dimen/accessibility_min_clickable_size"
+            android:paddingEnd="@dimen/spacing_normal"
+            android:paddingStart="@dimen/spacing_normal"
+            android:text="@string/route"
+            android:textColor="@color/colorPrimary"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="Route" />
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/tilDestinationEdit"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
             android:layout_marginStart="16dp"
             android:layout_marginTop="4dp"
-            android:layout_marginEnd="16dp"
+            android:accessibilityLiveRegion="polite"
             android:clipToPadding="true"
             app:boxStrokeColor="@color/bg_search_textinputlayout_box_color"
             app:endIconDrawable="@drawable/close"
@@ -154,14 +135,42 @@
 
         </com.google.android.material.textfield.TextInputLayout>
 
-        <FrameLayout
-            android:id="@+id/content"
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/tilStartEdit"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
             android:layout_width="0dp"
-            android:layout_height="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="4dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginStart="16dp"
             android:layout_marginTop="8dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tilDestinationEdit" />
+            android:accessibilityLiveRegion="polite"
+            android:clipToPadding="true"
+            app:boxStrokeColor="@color/bg_search_textinputlayout_box_color"
+            app:endIconDrawable="@drawable/close"
+            app:endIconMode="clear_text"
+            app:hintEnabled="false"
+            app:layout_constraintEnd_toStartOf="@+id/ivSwap"
+            app:layout_constraintStart_toEndOf="@+id/ivStartEdit"
+            app:layout_constraintTop_toBottomOf="@+id/tvRouteLabel">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/tieStartEdit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/start_location"
+                android:imeOptions="actionDone"
+                android:inputType="text"
+                android:maxLines="1"
+                android:text="@={viewModel.start}"
+                android:textAppearance="?attr/textAppearanceBody2" />
+        </com.google.android.material.textfield.TextInputLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <data>
+
+        <variable
+            name="viewModel"
+            type="com.skedgo.tripkit.ui.controller.routeviewcontroller.TKUIRouteViewModel" />
+    </data>
 </layout>

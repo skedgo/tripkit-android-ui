@@ -2,16 +2,10 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <data>
-
-        <variable
-            name="viewModel"
-            type="com.skedgo.tripkit.ui.search.LocationSearchViewModel" />
-    </data>
-
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:accessibilityLiveRegion="polite"
         android:visibility="@{viewModel.showSearchBox}">
 
         <!--
@@ -32,11 +26,11 @@
 
                 <ImageView
                     android:id="@+id/back"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
+                    android:layout_width="@dimen/accessibility_min_clickable_size"
+                    android:layout_height="@dimen/accessibility_min_clickable_size"
                     android:layout_alignParentStart="true"
-                    android:layout_alignParentLeft="true"
                     android:layout_alignParentTop="true"
+                    android:contentDescription="@string/desc_back_button"
                     android:onClick="@{() -> viewModel.goBack()}"
                     android:scaleType="center"
                     android:visibility="@{viewModel.showBackButton}"
@@ -46,7 +40,8 @@
                     android:id="@+id/searchView"
                     android:layout_width="match_parent"
                     android:layout_height="48dp"
-                    android:layout_toRightOf="@id/back"
+                    android:layout_toEndOf="@id/back"
+                    android:contentDescription="@string/desc_search_box"
                     app:iconifiedByDefault="false"
                     app:queryBackground="@null"
                     app:searchIcon="@null"
@@ -54,4 +49,11 @@
             </RelativeLayout>
         </androidx.cardview.widget.CardView>
     </FrameLayout>
+
+    <data>
+
+        <variable
+            name="viewModel"
+            type="com.skedgo.tripkit.ui.search.LocationSearchViewModel" />
+    </data>
 </layout>

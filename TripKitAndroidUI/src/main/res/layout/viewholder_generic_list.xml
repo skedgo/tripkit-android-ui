@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <FrameLayout
         android:layout_width="match_parent"
@@ -7,7 +8,16 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            tools:ignore="UseCompoundDrawables">
+
+            <ImageView
+                android:layout_width="40dp"
+                android:layout_height="match_parent"
+                android:contentDescription="@string/desc_selected_indicator"
+                android:padding="10dp"
+                android:src="@drawable/ic_plain_check"
+                android:visibility="@{isChecked}" />
 
             <TextView
                 android:id="@+id/txtLabel"
@@ -16,16 +26,9 @@
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:gravity="center_vertical"
-                android:paddingStart="16dp"
                 android:paddingEnd="16dp"
+                android:paddingStart="16dp"
                 android:textColor="@color/black" />
-
-            <ImageView
-                android:layout_width="40dp"
-                android:layout_height="match_parent"
-                android:padding="10dp"
-                android:src="@drawable/ic_plain_check"
-                android:visibility="@{isChecked}" />
         </LinearLayout>
 
         <View

@@ -3,20 +3,14 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <data>
-
-        <variable
-            name="viewModel"
-            type="com.skedgo.tripkit.ui.tripresult.TripSegmentGetOffAlertsViewModel" />
-    </data>
-
     <androidx.cardview.widget.CardView
         android:id="@+id/cvGetOffAlerts"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/spacing_small"
-        android:layout_marginHorizontal="@dimen/spacing_medium"
         android:layout_marginBottom="@dimen/spacing_normal"
+        android:layout_marginHorizontal="@dimen/spacing_medium"
+        android:layout_marginTop="@dimen/spacing_small"
+        android:accessibilityLiveRegion="polite"
         android:clipToPadding="true"
         android:visibility="@{viewModel.isVisible()}"
         app:cardBackgroundColor="@color/grey2"
@@ -32,13 +26,13 @@
                 android:id="@+id/ivNotification"
                 android:layout_width="@dimen/icon_regular"
                 android:layout_height="@dimen/icon_regular"
+                android:contentDescription="@string/desc_notification_icon"
                 android:src="@drawable/ic_notifications"
                 app:layout_constraintBottom_toBottomOf="@+id/tvAlertsLabel"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="@+id/tvAlertsLabel"
                 app:tint="@color/colorPrimary"
                 tools:tint="@color/colorPrimary" />
-
 
             <TextView
                 android:id="@+id/tvAlertsLabel"
@@ -54,24 +48,6 @@
                 app:layout_constraintStart_toEndOf="@+id/ivNotification"
                 app:layout_constraintTop_toTopOf="@+id/sAlertState" />
 
-            <androidx.appcompat.widget.SwitchCompat
-                android:id="@+id/sAlertState"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/spacing_small"
-                android:checked="@{viewModel.getOffAlertStateOn}"
-                android:onCheckedChanged="@{(switch, checked) -> viewModel.onAlertChange(context, checked)}"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <View
-                android:id="@+id/vAlertLabelDivider"
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginTop="@dimen/spacing_small"
-                android:background="@color/black2"
-                app:layout_constraintTop_toBottomOf="@+id/sAlertState" />
-
             <TextView
                 android:id="@+id/tvGetNotificationsWhen"
                 android:layout_width="match_parent"
@@ -82,10 +58,29 @@
                 android:textSize="@dimen/font_size_normal"
                 app:layout_constraintTop_toBottomOf="@+id/vAlertLabelDivider" />
 
+            <View
+                android:id="@+id/vAlertLabelDivider"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="@dimen/spacing_small"
+                android:background="@color/black2"
+                app:layout_constraintTop_toBottomOf="@+id/sAlertState" />
+
+            <androidx.appcompat.widget.SwitchCompat
+                android:id="@+id/sAlertState"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_small"
+                android:checked="@{viewModel.getOffAlertStateOn}"
+                android:onCheckedChanged="@{(switch, checked) -> viewModel.onAlertChange(context, checked)}"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
             <androidx.recyclerview.widget.RecyclerView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/spacing_small"
+                android:accessibilityLiveRegion="polite"
                 app:itemBinding="@{viewModel.itemBinding}"
                 app:items="@{viewModel.items}"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
@@ -96,4 +91,11 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.cardview.widget.CardView>
+
+    <data>
+
+        <variable
+            name="viewModel"
+            type="com.skedgo.tripkit.ui.tripresult.TripSegmentGetOffAlertsViewModel" />
+    </data>
 </layout>

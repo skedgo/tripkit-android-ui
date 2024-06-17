@@ -3,16 +3,6 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <data>
-
-        <import type="com.skedgo.tripkit.booking.quickbooking.QuickBookingType" />
-
-        <variable
-            name="viewModel"
-            type="com.skedgo.tripkit.ui.trippreview.drt.DrtItemViewModel" />
-    </data>
-
-
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
@@ -23,17 +13,19 @@
             android:layout_height="wrap_content"
             android:contentDescription="@{viewModel.contentDescription}"
             android:importantForAccessibility="yes"
-            android:screenReaderFocusable="true"
             android:padding="@dimen/spacing_small"
+            android:screenReaderFocusable="true"
             app:clickWithDebounce="@{() -> viewModel.onChange()}"
             app:layout_constraintEnd_toStartOf="@+id/itemDrt_actionLayout"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            app:layout_constraintTop_toTopOf="parent"
+            tools:targetApi="p">
 
             <ImageView
                 android:id="@+id/itemDrt_ivIcon"
                 android:layout_width="@dimen/icon_medium"
                 android:layout_height="@dimen/icon_medium"
+                android:contentDescription="@string/desc_mobility_options"
                 android:src="@{viewModel.icon}"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -61,10 +53,11 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/spacing_small"
                 android:layout_marginTop="@dimen/shadow_height"
+                android:accessibilityLiveRegion="polite"
                 android:background="@drawable/bg_round_rect_red"
                 android:gravity="center"
-                android:paddingVertical="@dimen/spacing_extra_small"
                 android:paddingHorizontal="@dimen/spacing_small"
+                android:paddingVertical="@dimen/spacing_extra_small"
                 android:text="@string/lbl_required"
                 android:textAlignment="center"
                 android:textColor="@color/grey3"
@@ -79,9 +72,10 @@
                 style="@style/TextAppearance.MaterialComponents.Body2"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/spacing_small"
                 android:layout_marginStart="@dimen/spacing_normal"
                 android:layout_marginTop="@dimen/spacing_small"
-                android:layout_marginEnd="@dimen/spacing_small"
+                android:accessibilityLiveRegion="polite"
                 android:text="@{viewModel.values}"
                 android:textColor="@color/black"
                 app:layout_constraintEnd_toStartOf="@+id/itemDrt_tvChange"
@@ -94,6 +88,7 @@
                 style="@style/TextAppearance.MaterialComponents.Body1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:accessibilityLiveRegion="polite"
                 android:contentDescription="@string/desc_change_button"
                 android:text="@{viewModel.viewMode? @string/view: @string/change}"
                 android:textColor="@color/colorPrimary"
@@ -113,12 +108,9 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="@dimen/shadow_height"
             android:layout_marginEnd="@dimen/shadow_height"
+            android:accessibilityLiveRegion="polite"
             android:background="@drawable/bg_round_rect_primary_dark"
             android:clickable="false"
-            android:paddingStart="@dimen/spacing_small"
-            android:paddingTop="@dimen/shadow_height"
-            android:paddingEnd="@dimen/spacing_small"
-            android:paddingBottom="@dimen/shadow_height"
             android:visibility="@{viewModel.type.equals(QuickBookingType.NUMBER) &amp;&amp; !viewModel.viewMode}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -126,17 +118,35 @@
 
             <ImageView
                 android:id="@+id/itemDrt_ibDecrement"
-                android:layout_width="@dimen/icon_increment_action"
-                android:layout_height="@dimen/icon_increment_action"
+                android:layout_width="@dimen/icon_increment_width"
+                android:layout_height="@dimen/icon_increment_height"
                 android:layout_marginEnd="@dimen/shadow_height"
                 android:background="?attr/selectableItemBackground"
                 android:clickable="@{viewModel.enableDecrement}"
+                android:contentDescription="@string/desc_decrement_button"
                 android:onClick="@{() -> viewModel.onDecrementValue()}"
                 android:padding="@dimen/map_icon_padding"
                 android:src="@drawable/ic_minus_n"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/itemDrt_ibIncrement"
                 app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:tint="@android:color/white" />
+
+            <ImageView
+                android:id="@+id/itemDrt_ibIncrement"
+                android:layout_width="@dimen/icon_increment_width"
+                android:layout_height="@dimen/icon_increment_height"
+                android:layout_marginStart="@dimen/shadow_height"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="@{viewModel.enableIncrement}"
+                android:contentDescription="@string/desc_increment_button"
+                android:onClick="@{() -> viewModel.onIncrementValue()}"
+                android:padding="@dimen/map_icon_padding"
+                android:src="@drawable/ic_add"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/itemDrt_ibDecrement"
                 app:layout_constraintTop_toTopOf="parent"
                 app:tint="@android:color/white" />
 
@@ -150,24 +160,18 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
-            <ImageView
-                android:id="@+id/itemDrt_ibIncrement"
-                android:layout_width="@dimen/icon_increment_action"
-                android:layout_height="@dimen/icon_increment_action"
-                android:layout_marginStart="@dimen/shadow_height"
-                android:background="?attr/selectableItemBackground"
-                android:clickable="@{viewModel.enableIncrement}"
-                android:onClick="@{() -> viewModel.onIncrementValue()}"
-                android:padding="@dimen/map_icon_padding"
-                android:src="@drawable/ic_add"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/itemDrt_ibDecrement"
-                app:layout_constraintTop_toTopOf="parent"
-                app:tint="@android:color/white" />
-
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+    <data>
+
+        <import type="com.skedgo.tripkit.booking.quickbooking.QuickBookingType" />
+
+        <variable
+            name="viewModel"
+            type="com.skedgo.tripkit.ui.trippreview.drt.DrtItemViewModel" />
+    </data>
 
 </layout>
