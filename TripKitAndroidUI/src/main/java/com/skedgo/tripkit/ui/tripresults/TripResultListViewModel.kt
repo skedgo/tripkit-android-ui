@@ -100,6 +100,7 @@ class TripResultListViewModel @Inject constructor(
     private val transportModeChangeThrottle = PublishSubject.create<Unit>()
 
     val tripGroupList = ObservableArrayList<TripGroup>()
+    var tripGroupWithUrlList = arrayListOf<TripGroup>()
 
     lateinit var query: Query
     private var transportModeFilter: TransportModeFilter? = null
@@ -289,6 +290,7 @@ class TripResultListViewModel @Inject constructor(
 
             routeService.routeAsync(query = query, transportModeFilter = filter)
                 .flatMap {
+                    tripGroupWithUrlList.addAll(it)
                     tripGroupRepository.addTripGroups(query.uuid(), it)
                         .toObservable<List<TripGroup>>()
                 }
@@ -356,6 +358,15 @@ class TripResultListViewModel @Inject constructor(
                 var list = it.first
 
                 tripGroupList.clear()
+
+                // Compare with tempTripGroupList and add fullUrl if it matches
+                list.forEach { group ->
+                    val matchingGroup = tripGroupWithUrlList.find { tempGroup -> tempGroup.uuid() == group.uuid() }
+                    if (matchingGroup != null) {
+                        group.fullUrl = matchingGroup.fullUrl
+                    }
+                }
+
                 tripGroupList.addAll(list)
                 val classifier = TripGroupClassifier(list)
                 list.map { group ->
