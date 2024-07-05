@@ -165,8 +165,8 @@ public class TripResultPagerFragment extends BaseTripKitFragment implements View
 
     @Override
     public void onDestroy() {
-        super.onDestroy();
         mapContributor.cleanup();
+        super.onDestroy();
     }
 
     @Override
