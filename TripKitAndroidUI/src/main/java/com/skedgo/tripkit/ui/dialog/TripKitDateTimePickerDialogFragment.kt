@@ -93,19 +93,22 @@ class TripKitDateTimePickerDialogFragment : DialogFragment(), TimePicker.OnTimeC
         val dialogBuilder = FlatAlertDialogBuilder(requireActivity())
 
         if (timePickerViewModel.showPositiveAction().get()) {
-            dialogBuilder.setPositiveButton(timePickerViewModel.positiveActionLabel().get(), onPositiveClickListener())
+            dialogBuilder.setPositiveButton(
+                timePickerViewModel.positiveActionLabel().get(),
+                onPositiveClickListener()
+            )
         }
 
         if (timePickerViewModel.showNegativeAction().get()) {
             dialogBuilder.setNegativeButton(
                 timePickerViewModel.negativeActionLabel().get(),
                 onNegativeClickListener(),
-                object: View.AccessibilityDelegate() {
+                object : View.AccessibilityDelegate() {
                     override fun sendAccessibilityEvent(host: View, eventType: Int) {
 
                         var hostText: String = ""
 
-                        if(host is Button) {
+                        if (host is Button) {
                             hostText = host.text.toString()
                         }
 
@@ -121,8 +124,8 @@ class TripKitDateTimePickerDialogFragment : DialogFragment(), TimePicker.OnTimeC
         }
 
         val dialog = dialogBuilder.setContentView(R.layout.dialog_date_time_picker)
-                .setTitle(timePickerViewModel.dialogTitle().get())
-                .create()
+            .setTitle(timePickerViewModel.dialogTitle().get())
+            .create()
 
         val contentView = dialogBuilder.contentView
         binding = DataBindingUtil.bind(contentView)
@@ -216,7 +219,7 @@ class TripKitDateTimePickerDialogFragment : DialogFragment(), TimePicker.OnTimeC
 
         timePicker.currentHour = hour ?: timePickerViewModel.hour
         timePicker.currentMinute = (minute ?: timePickerViewModel.minute) /
-                timePickerViewModel.timePickerMinuteInterval.get()
+            timePickerViewModel.timePickerMinuteInterval.get()
 
         timePicker.setOnTimeChangedListener(this)
 
@@ -236,17 +239,19 @@ class TripKitDateTimePickerDialogFragment : DialogFragment(), TimePicker.OnTimeC
     }
 
     private fun getDateTimeForContentDescription(timePicker: TimePicker): String {
-        val currentMinute = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
-            timePicker.minute
-        } else {
-            timePicker.currentMinute
-        }
+        val currentMinute =
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+                timePicker.minute
+            } else {
+                timePicker.currentMinute
+            }
 
-        var currentHour = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
-            timePicker.hour
-        } else {
-            timePicker.currentHour
-        }
+        var currentHour =
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+                timePicker.hour
+            } else {
+                timePicker.currentHour
+            }
 
         var amPm = "AM"
 
@@ -298,25 +303,31 @@ class TripKitDateTimePickerDialogFragment : DialogFragment(), TimePicker.OnTimeC
 
     private fun initDateSpinner() {
         val adapter = DateSpinnerAdapter(
-                activity,
-                android.R.layout.simple_spinner_item,
-                timePickerViewModel.dates().get()
+            activity,
+            android.R.layout.simple_spinner_item,
+            timePickerViewModel.dates().get()
         )
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         val dateSpinner = binding!!.dateSpinner
         dateSpinner.adapter = adapter
         dateSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+            override fun onItemSelected(
+                parent: AdapterView<*>?,
+                view: View?,
+                position: Int,
+                id: Long
+            ) {
                 timePickerViewModel.selectedPosition().set(position)
             }
 
             override fun onNothingSelected(parent: AdapterView<*>) {}
         }
-        timePickerViewModel.dates().addOnPropertyChangedCallback(object : Observable.OnPropertyChangedCallback() {
-            override fun onPropertyChanged(sender: Observable, propertyId: Int) {
-                adapter.setDates(timePickerViewModel.dates().get())
-            }
-        })
+        timePickerViewModel.dates()
+            .addOnPropertyChangedCallback(object : Observable.OnPropertyChangedCallback() {
+                override fun onPropertyChanged(sender: Observable, propertyId: Int) {
+                    adapter.setDates(timePickerViewModel.dates().get())
+                }
+            })
     }
 
     /**
@@ -463,9 +474,15 @@ class TripKitDateTimePickerDialogFragment : DialogFragment(), TimePicker.OnTimeC
             val fragment = TripKitDateTimePickerDialogFragment()
             val args = Bundle()
             args.putString(InterCityTimePickerViewModel.ARG_TITLE, title)
-            args.putBoolean(InterCityTimePickerViewModel.ARG_SHOW_POSITIVE_ACTION, showPositiveAction)
+            args.putBoolean(
+                InterCityTimePickerViewModel.ARG_SHOW_POSITIVE_ACTION,
+                showPositiveAction
+            )
             args.putInt(InterCityTimePickerViewModel.ARG_POSITIVE_ACTION, positiveActionLabel)
-            args.putBoolean(InterCityTimePickerViewModel.ARG_SHOW_NEGATIVE_ACTION, showNegativeAction)
+            args.putBoolean(
+                InterCityTimePickerViewModel.ARG_SHOW_NEGATIVE_ACTION,
+                showNegativeAction
+            )
             args.putInt(InterCityTimePickerViewModel.ARG_NEGATIVE_ACTION, negativeActionLabel)
             args.putString(InterCityTimePickerViewModel.ARG_LEAVE_AT_LABEL, leaveAtLabel)
             args.putString(InterCityTimePickerViewModel.ARG_ARRIVE_BY_LABEL, arriveByLabel)
@@ -475,7 +492,10 @@ class TripKitDateTimePickerDialogFragment : DialogFragment(), TimePicker.OnTimeC
             args.putString(InterCityTimePickerViewModel.ARG_ARRIVAL_TIMEZONE, arrivalTimezone)
             args.putInt(InterCityTimePickerViewModel.ARG_TIME_TYPE, timeType)
             args.putLong(InterCityTimePickerViewModel.ARG_TIME_IN_MILLIS, timeMillis)
-            args.putInt(InterCityTimePickerViewModel.ARG_TIME_PICKER_MINUTES_INTERVAL, timePickerMinutesInterval)
+            args.putInt(
+                InterCityTimePickerViewModel.ARG_TIME_PICKER_MINUTES_INTERVAL,
+                timePickerMinutesInterval
+            )
             dateTimeMinLimit?.let {
                 args.putLong(InterCityTimePickerViewModel.ARG_DATE_TIME_PICKER_MIN_LIMIT, it.time)
             }
