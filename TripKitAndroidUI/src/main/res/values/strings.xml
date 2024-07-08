@@ -600,4 +600,11 @@ We aggregate the anonymised data and provide it to researchers, regulators, and 
 
     <string name="earn_rewards">Earn Rewards</string>
     <string name="back">Back</string>
+    <string name="agree">Agree</string>
+
+    <string name="show_customer_portal">Show Customer Portal</string>
+    <string name="settings_show_customer_portal" translatable="false">show_customer_portal</string>
+
+    <string name="login">Log in</string>
+    <string name="logout">Log out</string>
 </resources>
