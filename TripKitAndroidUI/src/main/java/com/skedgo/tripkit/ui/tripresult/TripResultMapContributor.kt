@@ -45,7 +45,6 @@ import java.net.URL
 import java.util.*
 import javax.inject.Inject
 
-
 class TripResultMapContributor : TripKitMapContributor {
     private var travelledStopMarkers: MarkerManager.Collection? = null
     private var vehicleMarkers: MarkerManager.Collection? = null
@@ -128,7 +127,7 @@ class TripResultMapContributor : TripKitMapContributor {
         }
 
 
-        if(this::map.isInitialized) {
+        if (this::map.isInitialized) {
             tileOverlays
         }
     }
@@ -141,7 +140,7 @@ class TripResultMapContributor : TripKitMapContributor {
             }
         }
 
-        if(this::map.isInitialized && tileOverlays.isEmpty()) {
+        if (this::map.isInitialized && tileOverlays.isEmpty()) {
             tileProvider?.let {
                 tileOverlays.add(
                     map.addTileOverlay(
@@ -181,18 +180,24 @@ class TripResultMapContributor : TripKitMapContributor {
 
     private fun setupManagers(context: Context) {
         markerManager = MarkerManager(map).apply {
-            travelledStopMarkers = newCollection("travelledStopMarkers")
-            vehicleMarkers = newCollection("vehicleMarkers")
-            segmentMarkers = newCollection("segmentMarkers")
-            nonTravelledStopMarkers = newCollection("nonTravelledStopMarkers")
-            alertMarkers = newCollection("alertMarkers")
+            // Added null checker to ensure that it'll not create a newCollection instance
+            // if there's already an existing one to avoid markers being left behind
+            // and unable to remove
+            travelledStopMarkers = travelledStopMarkers ?: newCollection("travelledStopMarkers")
+            vehicleMarkers = vehicleMarkers ?: newCollection("vehicleMarkers")
+            segmentMarkers = segmentMarkers ?: newCollection("segmentMarkers")
+            nonTravelledStopMarkers =
+                nonTravelledStopMarkers ?: newCollection("nonTravelledStopMarkers")
+            alertMarkers = alertMarkers ?: newCollection("alertMarkers")
 
-            travelledStopMarkers!!.setInfoWindowAdapter(serviceStopCalloutAdapter)
-            nonTravelledStopMarkers!!.setInfoWindowAdapter(serviceStopCalloutAdapter)
-            segmentMarkers!!.setInfoWindowAdapter(segmentCalloutAdapter)
-            val listener = GoogleMap.OnInfoWindowClickListener { marker: Marker -> val segment = marker.tag as TripSegment? }
-            segmentMarkers!!.setOnInfoWindowClickListener(listener)
-            alertMarkers!!.setOnInfoWindowClickListener(listener)
+            travelledStopMarkers?.setInfoWindowAdapter(serviceStopCalloutAdapter)
+            nonTravelledStopMarkers?.setInfoWindowAdapter(serviceStopCalloutAdapter)
+            segmentMarkers?.setInfoWindowAdapter(segmentCalloutAdapter)
+            val listener = GoogleMap.OnInfoWindowClickListener { marker: Marker ->
+                val segment = marker.tag as TripSegment?
+            }
+            segmentMarkers?.setOnInfoWindowClickListener(listener)
+            alertMarkers?.setOnInfoWindowClickListener(listener)
             map.setOnInfoWindowClickListener(markerManager)
             map.isIndoorEnabled = false
             map.uiSettings.isRotateGesturesEnabled = true
@@ -205,10 +210,10 @@ class TripResultMapContributor : TripKitMapContributor {
         autoDisposable.add(viewModel.vehicleMarkerViewModelsStream
             .subscribe(
                 { it: List<VehicleMarkerViewModel> ->
-                    showVehicleMarkers(context, it, vehicleMarkers!!)
+                    showVehicleMarkers(context, it)
                 }
             ) { error: Throwable? ->
-                errorLogger!!.trackError(error!!)
+                errorLogger.trackError(error!!)
             }
         )
         autoDisposable.add(viewModel.alertMarkerViewModelsStream
@@ -217,7 +222,7 @@ class TripResultMapContributor : TripKitMapContributor {
                     showAlertMarkers(it, alertMarkers!!)
                 }
             ) { error: Throwable? ->
-                errorLogger!!.trackError(error!!)
+                errorLogger.trackError(error!!)
             }
         )
         autoDisposable.add(viewModel.travelledStopMarkerViewModelsStream
@@ -226,7 +231,7 @@ class TripResultMapContributor : TripKitMapContributor {
                     showStopMarkers(it, travelledStopMarkers!!)
                 }
             ) { error: Throwable? ->
-                errorLogger!!.trackError(error!!)
+                errorLogger.trackError(error!!)
             }
         )
         autoDisposable.add(viewModel.nonTravelledStopMarkerViewModelsStream
@@ -235,11 +240,13 @@ class TripResultMapContributor : TripKitMapContributor {
                     showStopMarkers(it, nonTravelledStopMarkers!!)
                 }
             ) { error: Throwable? ->
-                errorLogger!!.trackError(error!!)
+                errorLogger.trackError(error!!)
             }
         )
         autoDisposable.add(viewModel.segmentsStream
-            .flatMap { segments: List<TripSegment> -> getTripLineLazy!!.get().execute(segments) }
+            .flatMap { segments: List<TripSegment> ->
+                getTripLineLazy!!.get().execute(segments)
+            }
             .subscribeOn(Schedulers.computation())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(
@@ -247,7 +254,7 @@ class TripResultMapContributor : TripKitMapContributor {
                     showTripLinesWithTravelledChecking(map, polylineOptionsList)
                 }
             ) { error: Throwable? ->
-                errorLogger!!.trackError(error!!)
+                errorLogger.trackError(error!!)
             }
         )
         autoDisposable.add(viewModel.onTripSegmentTapped()
@@ -255,23 +262,26 @@ class TripResultMapContributor : TripKitMapContributor {
             .subscribe({ (first, second) ->
                 map.animateCamera(first)
                 showMarkerForSegment(map, second)
-            }) { error: Throwable? -> errorLogger!!.trackError(error!!) })
+            }) { error: Throwable? -> errorLogger.trackError(error!!) })
 
-        autoDisposable.add(viewModel.tripCameraUpdateStream
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe({ cameraUpdate ->
-                map.animateCamera(cameraUpdate)
-            }, { Timber.e(it) }))
-        autoDisposable.add(viewModel.mapTilesStream
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe({
-                processMapTiles(it)
-            }, { Timber.e(it) })
+        autoDisposable.add(
+            viewModel.tripCameraUpdateStream
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe({ cameraUpdate ->
+                    map.animateCamera(cameraUpdate)
+                }, { Timber.e(it) })
+        )
+        autoDisposable.add(
+            viewModel.mapTilesStream
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe({
+                    processMapTiles(it)
+                }, { Timber.e(it) })
         )
     }
 
     private fun processMapTiles(tripKitMapTiles: List<String>) {
-        if(tripKitMapTiles.isNotEmpty()) {
+        if (tripKitMapTiles.isNotEmpty()) {
             setTileProvider(tripKitMapTiles)
         } else {
             removeTileOverlay()
@@ -280,12 +290,12 @@ class TripResultMapContributor : TripKitMapContributor {
 
     private fun drawSegmentMarkers(context: Context) {
         autoDisposable.add(viewModel.segmentsStream
-            .flatMap { it: List<TripSegment> -> createSegmentMarkers!!.execute(it) }
+            .flatMap { it: List<TripSegment> -> createSegmentMarkers.execute(it) }
             .subscribeOn(Schedulers.computation())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(
                 { it: List<Pair<TripSegment, MarkerOptions>> ->
-                    showSegmentMarkers(context, it, segmentMarkers!!)
+                    showSegmentMarkers(context, it)
                 }
             ) { error: Throwable? ->
                 errorLogger.trackError(error!!)
@@ -311,7 +321,7 @@ class TripResultMapContributor : TripKitMapContributor {
         tripLinesTravelled.clear()
         removeTileOverlay()
         tileProvider?.let {
-            if(it is CustomUrlTileProvider) {
+            if (it is CustomUrlTileProvider) {
                 it.clear()
             }
         }
@@ -424,7 +434,7 @@ class TripResultMapContributor : TripKitMapContributor {
                             .zipWithNext()
                             .any { (start, end) ->
                                 (point.latitude == start.latitude && point.longitude == start.longitude) ||
-                                        (point.latitude == end.latitude && point.longitude == end.longitude)
+                                    (point.latitude == end.latitude && point.longitude == end.longitude)
                             }
                     } ?: false
                 }
@@ -437,7 +447,7 @@ class TripResultMapContributor : TripKitMapContributor {
                             .orEmpty().zipWithNext()
                             .any { (start, end) ->
                                 (point.latitude == start.latitude && point.longitude == start.longitude) ||
-                                        (point.latitude == end.latitude && point.longitude == end.longitude)
+                                    (point.latitude == end.latitude && point.longitude == end.longitude)
                             }
                     } ?: false
                 }
@@ -461,22 +471,25 @@ class TripResultMapContributor : TripKitMapContributor {
 
     @Synchronized
     private fun showVehicleMarkers(
-            context: Context,
-            vehicleMarkerViewModels: List<VehicleMarkerViewModel>,
-            vehicleMarkers: MarkerManager.Collection) {
-        vehicleMarkers.clear()
+        context: Context,
+        vehicleMarkerViewModels: List<VehicleMarkerViewModel>
+    ) {
+        vehicleMarkers?.clear()
         for ((segment) in vehicleMarkerViewModels) {
-            createVehicleMarker(context, segment, vehicleMarkers)
+            createVehicleMarker(context, segment)
         }
     }
 
-    private fun createVehicleMarker(context: Context, segment: TripSegment, vehicleMarkers: MarkerManager.Collection) {
-        val vehicleMarkerOptions = vehicleMarkerCreatorLazy!!.get().call(context.resources, segment)
-        val marker = vehicleMarkers.addMarker(vehicleMarkerOptions)
-        vehicleMarkerIconFetcherLazy!!.get().call(marker, segment.realTimeVehicle)
+    private fun createVehicleMarker(context: Context, segment: TripSegment) {
+        val vehicleMarkerOptions = vehicleMarkerCreatorLazy.get()?.call(context.resources, segment)
+        val marker = vehicleMarkers?.addMarker(vehicleMarkerOptions)
+        vehicleMarkerIconFetcherLazy.get()?.call(marker, segment.realTimeVehicle)
     }
 
-    private fun showAlertMarkers(alertMarkerViewModels: List<AlertMarkerViewModel>, alertMarkers: MarkerManager.Collection) {
+    private fun showAlertMarkers(
+        alertMarkerViewModels: List<AlertMarkerViewModel>,
+        alertMarkers: MarkerManager.Collection
+    ) {
         alertMarkers.clear()
         alertIdToMarkerCache.clear()
         for ((alert, segment) in alertMarkerViewModels) {
@@ -497,38 +510,45 @@ class TripResultMapContributor : TripKitMapContributor {
 
     @Synchronized
     private fun showSegmentMarkers(
-            context: Context,
-            segmentMarkerViewModels: List<Pair<TripSegment, MarkerOptions>>,
-            segmentMarkers: MarkerManager.Collection) {
-        segmentMarkers.clear()
+        context: Context,
+        segmentMarkerViewModels: List<Pair<TripSegment, MarkerOptions>>
+    ) {
+        segmentMarkers?.clear()
         for (viewModel in segmentMarkerViewModels) {
-            showSegmentMarker(context, viewModel, segmentMarkers)
+            showSegmentMarker(context, viewModel)
         }
     }
 
     private fun showSegmentMarker(
-            context: Context,
-            segmentMarkerViewModel: Pair<TripSegment, MarkerOptions>,
-            segmentMarkers: MarkerManager.Collection) {
+        context: Context,
+        segmentMarkerViewModel: Pair<TripSegment, MarkerOptions>
+    ) {
         val segment = segmentMarkerViewModel.first
-        val marker = segmentMarkers.addMarker(segmentMarkerViewModel.second)
-        marker.tag = segment
+        val marker = segmentMarkers?.addMarker(segmentMarkerViewModel.second)
+        marker?.tag = segment
         val url = TransportModeUtils.getIconUrlForModeInfo(context.resources, segment.modeInfo)
         if (url != null) {
             autoDisposable.add(picasso.fetchAsync(url)
-                    .map { it: Bitmap? -> BitmapDrawable(context.resources, it) }
-                    .map { it: BitmapDrawable? -> segmentMarkerIconMaker!!.make(segment, it) }
-                    .compose(toTrySingle { error: Throwable? -> error is UnableToFetchBitmapError })
-                    .toObservable()
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(SetSegmentMarkerIcon(marker), Consumer { error: Throwable? -> errorLogger!!.trackError(error!!) }))
+                .map { it: Bitmap? -> BitmapDrawable(context.resources, it) }
+                .map { it: BitmapDrawable? -> segmentMarkerIconMaker.make(segment, it) }
+                .compose(toTrySingle { error: Throwable? -> error is UnableToFetchBitmapError })
+                .toObservable()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe({
+                    marker?.let { SetSegmentMarkerIcon(marker) }
+                }, { error ->
+                    errorLogger.trackError(error)
+                })
+
+            )
         }
     }
 
     private fun showStopMarkers(
-            stopMarkerViewModels: List<StopMarkerViewModel>,
-            stopMarkers: MarkerManager.Collection) {
+        stopMarkerViewModels: List<StopMarkerViewModel>,
+        stopMarkers: MarkerManager.Collection
+    ) {
         // To clear old stop markers before adding new ones.
         stopMarkers.clear()
 
