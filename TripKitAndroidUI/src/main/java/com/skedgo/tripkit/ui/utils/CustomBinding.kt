@@ -14,9 +14,12 @@ import androidx.annotation.ColorInt
 import androidx.cardview.widget.CardView
 import androidx.core.content.ContextCompat
 import androidx.databinding.BindingAdapter
-import com.bumptech.glide.Glide
+import com.bumptech.glide.load.model.GlideUrl
+import com.bumptech.glide.load.model.LazyHeaders
+import com.bumptech.glide.request.RequestOptions
 import com.skedgo.tripkit.common.model.AlertSeverity
 import com.skedgo.tripkit.common.model.RealtimeAlert
+import com.skedgo.tripkit.ui.GlideApp
 import com.skedgo.tripkit.ui.R
 
 //To databind resource id(int) on image views
@@ -103,9 +106,44 @@ fun setListValuesToText(textView: TextView, values: List<String>?) {
 fun setImageFromUrl(imageView: ImageView, source: String?) {
     source?.let {
         if (it.isNotBlank()) {
-            Glide.with(imageView.context)
-                    .load(it)
-                    .into(imageView)
+            val glideUrl = GlideUrl(
+                it,
+                LazyHeaders.Builder()
+                    .addHeader("X-TripGo-Key", "c61e6c3e4b9f1af4797f9a0974022b1f")
+                    .addHeader("Accept", "image/jpeg")
+                    .build()
+            )
+            GlideApp.with(imageView.context)
+                .load(glideUrl)
+                .into(imageView)
+        }
+    }
+}
+
+@BindingAdapter("sourceUrl", "placeholder", "tripGoKey", "userToken")
+fun setImageFromUrlWithPlaceholder(
+    imageView: ImageView,
+    source: String?,
+    placeholder: Int,
+    tripGoKey: String,
+    userToken: String?
+) {
+    source?.let {
+        if (it.isNotBlank()) {
+            val headersBuilder = LazyHeaders.Builder()
+                .addHeader("X-TripGo-Key", tripGoKey)
+                .addHeader("Accept", "image/*")
+            userToken?.let {
+                headersBuilder.addHeader("userToken", userToken)
+            }
+            val glideUrl = GlideUrl(it, headersBuilder.build())
+            GlideApp.with(imageView.context)
+                .load(glideUrl)
+                .apply(
+                    RequestOptions()
+                        .placeholder(placeholder)
+                )
+                .into(imageView)
         }
     }
 }
@@ -192,7 +230,8 @@ fun setLayoutHeight(view: View, show: Boolean) {
     layoutParams.height = if (show) {
         ViewGroup.LayoutParams.WRAP_CONTENT
     } else {
-        TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 0f, view.resources.displayMetrics).toInt()
+        TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 0f, view.resources.displayMetrics)
+            .toInt()
     }
     view.layoutParams = layoutParams
 }

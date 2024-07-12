@@ -168,6 +168,8 @@ dependencies {
     implementation libs.cameraxLifecycle
 
     implementation libs.glide
+    annotationProcessor libs.glideCompiler
+    kapt libs.glideCompiler
 
     implementation libs.timber
     kapt libs.daggerCompiler
