@@ -4,8 +4,6 @@ import android.content.Context;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.text.format.DateFormat;
-import android.text.format.DateUtils;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
@@ -13,21 +11,15 @@ import androidx.databinding.Observable;
 import androidx.databinding.ObservableBoolean;
 import androidx.databinding.ObservableField;
 import androidx.databinding.ObservableInt;
-
 import com.skedgo.tripkit.common.model.TimeTag;
 import com.skedgo.tripkit.time.GetNow;
 import com.skedgo.tripkit.ui.R;
 import com.skedgo.tripkit.ui.trip.details.viewmodel.ITimePickerViewModel;
 import com.squareup.otto.Bus;
-
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
-
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
-
-import static java.util.concurrent.TimeUnit.SECONDS;
 
 public class InterCityTimePickerViewModel implements ITimePickerViewModel {
     public static final String ARG_TITLE = "title";
@@ -77,10 +69,10 @@ public class InterCityTimePickerViewModel implements ITimePickerViewModel {
     private Integer extraSelectionCount = 0;
 
     public InterCityTimePickerViewModel(
-            @NonNull Context context,
-            @NonNull Bus bus,
-            @NonNull GetNow getNow,
-            String defaultTimezone) {
+        @NonNull Context context,
+        @NonNull Bus bus,
+        @NonNull GetNow getNow,
+        String defaultTimezone) {
         this.context = context;
         this.eventBus = bus;
         this.getNow = getNow;
@@ -268,9 +260,9 @@ public class InterCityTimePickerViewModel implements ITimePickerViewModel {
     public TimeTag done() {
         int position = selectedPosition.get();
         GregorianCalendar dateCalendar = this.isSingleSelection.get() ?
-                singleSelectionCalendars.get(position) :
-                this.isLeaveAfter.get() ? departureCalendars.get(position) :
-                        arrivalCalendars.get(position);
+            singleSelectionCalendars.get(position) :
+            this.isLeaveAfter.get() ? departureCalendars.get(position) :
+                arrivalCalendars.get(position);
         dateCalendar.setTimeZone(departureTimezone);
         return getTimeTagFromDateTime(dateCalendar, timeCalendar);
     }
@@ -337,26 +329,43 @@ public class InterCityTimePickerViewModel implements ITimePickerViewModel {
             dateRange.add(newDate);
             date.add(Calendar.DAY_OF_MONTH, 1);
         }
-        return dateRange;
+        return getFilteredDateRange(dateRange);
+    }
+
+    private List<GregorianCalendar> getFilteredDateRange(@NonNull List<GregorianCalendar> dateRange) {
+        Date minLimit = dateTimeMinLimit();
+        if (minLimit != null) {
+            List<GregorianCalendar> result = new ArrayList<>();
+            for (GregorianCalendar calendar : dateRange) {
+                if (!calendar.getTime().before(minLimit)) {
+                    result.add(calendar);
+                }
+            }
+
+            return result;
+
+        } else {
+            return dateRange;
+        }
     }
 
     private TimeTag getTimeTagFromDateTime(@NonNull GregorianCalendar date,
                                            @NonNull GregorianCalendar time) {
         TimeZone timeZone = this.isSingleSelection.get() ? arrivalTimezone :
-                this.isLeaveAfter.get() ? departureTimezone : arrivalTimezone;
+            this.isLeaveAfter.get() ? departureTimezone : arrivalTimezone;
         int timeType = this.isSingleSelection.get() ? TimeTag.TIME_TYPE_SINGLE_SELECTION :
-                this.isLeaveAfter.get() ? defaultTimeType : TimeTag.TIME_TYPE_ARRIVE_BY;
+            this.isLeaveAfter.get() ? defaultTimeType : TimeTag.TIME_TYPE_ARRIVE_BY;
         GregorianCalendar newTime = combineDateTime(time, date, timeZone);
         return TimeTag.createForTimeType(
-                timeType,
-                TimeUnit.MILLISECONDS.toSeconds(newTime.getTimeInMillis())
+            timeType,
+            TimeUnit.MILLISECONDS.toSeconds(newTime.getTimeInMillis())
         );
     }
 
     private void moveToLastSelectedTime() {
         List<GregorianCalendar> selectedCalendars = this.isSingleSelection.get() ?
-                singleSelectionCalendars : this.isLeaveAfter.get()
-                ? departureCalendars : arrivalCalendars;
+            singleSelectionCalendars : this.isLeaveAfter.get()
+            ? departureCalendars : arrivalCalendars;
         //Set last selected time
         TimeZone tz = selectedCalendars.get(0).getTimeZone();
         this.timeCalendar = new GregorianCalendar(selectedCalendars.get(0).getTimeZone());
@@ -369,7 +378,7 @@ public class InterCityTimePickerViewModel implements ITimePickerViewModel {
         //Set last selected position
         int date = this.timeCalendar.get(Calendar.DATE);
         GregorianCalendar temp;
-        for (int i = 0; i < MAX_DATE_COUNT; ++i) {
+        for (int i = 0; i < selectedCalendars.size(); ++i) {
             temp = selectedCalendars.get(i);
             if (temp.get(Calendar.DATE) == date) {
                 //this.selectedPosition.set(i - 1);
@@ -406,14 +415,14 @@ public class InterCityTimePickerViewModel implements ITimePickerViewModel {
             }
         }
         GregorianCalendar dateTimeCalendar = combineDateTime(
-                timeCalendar,
-                dateCalendar,
-                fromTimeZone
+            timeCalendar,
+            dateCalendar,
+            fromTimeZone
         );
         this.timeCalendar = (GregorianCalendar) offsetTimeZone(
-                dateTimeCalendar.getTime(),
-                fromTimeZone,
-                toTimeZone
+            dateTimeCalendar.getTime(),
+            fromTimeZone,
+            toTimeZone
         );
 
         refreshDateTime();
@@ -436,8 +445,8 @@ public class InterCityTimePickerViewModel implements ITimePickerViewModel {
 
     private void refreshDateTime() {
         List<GregorianCalendar> selectedCalendars = this.isSingleSelection.get() ?
-                singleSelectionCalendars : this.isLeaveAfter.get()
-                ? departureCalendars : arrivalCalendars;
+            singleSelectionCalendars : this.isLeaveAfter.get()
+            ? departureCalendars : arrivalCalendars;
         int startIndex;
         int position = selectedPosition.get();
         if (position == 0) {
@@ -447,7 +456,7 @@ public class InterCityTimePickerViewModel implements ITimePickerViewModel {
         }
         int date = timeCalendar.get(Calendar.DATE);
         GregorianCalendar tempCalendar;
-        for (int i = startIndex; i <= startIndex + extraSelectionCount && i < MAX_DATE_COUNT; ++i) {
+        for (int i = startIndex; i <= startIndex + extraSelectionCount && i < selectedCalendars.size(); ++i) {
             tempCalendar = selectedCalendars.get(i);
             if (tempCalendar.get(Calendar.DATE) == date) {
                 selectedPosition.set(i);
@@ -459,7 +468,7 @@ public class InterCityTimePickerViewModel implements ITimePickerViewModel {
     }
 
     private List<String> formatDateTime(@NonNull List<GregorianCalendar> dateRange) {
-        List<String> formatDates = new ArrayList<>(MAX_DATE_COUNT);
+        List<String> formatDates = new ArrayList<>(dateRange.size());
         extraSelectionCount = 0;
         boolean skip = false;
         while (!skip) {
@@ -478,7 +487,7 @@ public class InterCityTimePickerViewModel implements ITimePickerViewModel {
         formatDates.add(context.getString(R.string.tomorrow));
         */
         String dateString;
-        for (int i = extraSelectionCount - 1; i < MAX_DATE_COUNT; ++i) {
+        for (int i = extraSelectionCount - 1; i < dateRange.size(); ++i) {
             dateString = DateFormat.format(DATE_FORMAT, dateRange.get(i)).toString();
             formatDates.add(dateString);
         }
@@ -529,5 +538,10 @@ public class InterCityTimePickerViewModel implements ITimePickerViewModel {
         return null;
     }
 
+    @Nullable
+    @Override
+    public TimeZone getTimezone() {
+        return departureTimezone != null ? departureTimezone : arrivalTimezone;
+    }
 }
 
