@@ -6,4 +6,5 @@ data class FavoriteTrip(
     val toAddress: String?,
     val waypoints: List<Waypoint>,
     var order: Int = 0,
-    val tripGroupId: String? = null)
+    val tripGroupId: String? = null
+)

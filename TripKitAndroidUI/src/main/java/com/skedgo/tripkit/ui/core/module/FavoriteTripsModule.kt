@@ -9,6 +9,7 @@ import dagger.Provides
 import javax.inject.Singleton
 
 
+@Deprecated("Replaced by [FavoritesModule]")
 @Module
 class FavoriteTripsModule {
     @Provides

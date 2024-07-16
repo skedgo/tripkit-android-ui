@@ -8,14 +8,16 @@ import android.content.Context
 @Database(entities = [(FavoriteTripEntity::class), (WaypointEntity::class)], version = 1)
 abstract class FavoriteTripsDataBase : RoomDatabase() {
 
-  abstract fun favoriteTripsDao(): FavoriteTripsDao
-  abstract fun waypointsDao(): WaypointsDao
+    abstract fun favoriteTripsDao(): FavoriteTripsDao
+    abstract fun waypointsDao(): WaypointsDao
 
-  companion object {
-    fun getInstance(context: Context): FavoriteTripsDataBase {
-      return Room.databaseBuilder(context.applicationContext,
-          FavoriteTripsDataBase::class.java, "favorite-trips.db")
-          .build()
+    companion object {
+        fun getInstance(context: Context): FavoriteTripsDataBase {
+            return Room.databaseBuilder(
+                context.applicationContext,
+                FavoriteTripsDataBase::class.java, "favorite-trips.db"
+            )
+                .build()
+        }
     }
-  }
 }
