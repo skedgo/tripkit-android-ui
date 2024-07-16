@@ -13,7 +13,9 @@ fun SharedPreferences.onChange(observedKey: String): Observable<Pair<SharedPrefe
   return Flowable
       .create<String>({
         val listener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
-          it.onNext(key)
+            if (key != null) {
+                it.onNext(key)
+            }
         }
         registerOnSharedPreferenceChangeListener(listener)
         it.setCancellable { unregisterOnSharedPreferenceChangeListener(listener) }
