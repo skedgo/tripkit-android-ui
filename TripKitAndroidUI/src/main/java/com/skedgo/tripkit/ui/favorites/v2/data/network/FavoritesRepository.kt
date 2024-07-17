@@ -20,7 +20,7 @@ interface FavoritesRepository {
 
     fun getFavorites(): Flow<Resource<FavoriteResponse>>
     fun addFavorite(favoriteDto: FavoriteV2): Flow<Resource<FavoriteV2>>
-    fun deleteFavorite(favoriteId: String): Flow<Resource<ResponseBody>>
+    fun deleteFavorite(favoriteId: String): Flow<Resource<Unit>>
 
     class FavoritesRepositoryImpl @Inject constructor(
         private val api: FavoritesApi,
@@ -33,12 +33,14 @@ interface FavoritesRepository {
             flow {
                 safeCall<FavoriteResponse> {
                     val response = api.getFavorites()
-                    favoriteDao.insertAllFavorites(response.favorites)
+                    response.result?.let {
+                        favoriteDao.insertAllFavorites(response.result)
+                    }
 
                     // Check for local favorites not present in API response and upload them
                     val localFavorites = favoriteDao.getAllFavorites()
                     val localFavoritesToUpload = localFavorites.filterNot { localFavorite ->
-                        response.favorites.any { it.id == localFavorite.id }
+                        response.result?.any { it.uuid == localFavorite.uuid } == true
                     }
                     localFavoritesToUpload.forEach { favorite -> api.addFavorite(favorite) }
 
@@ -55,9 +57,9 @@ interface FavoritesRepository {
                 }
             }.flowOn(Dispatchers.IO)
 
-        override fun deleteFavorite(favoriteId: String): Flow<Resource<ResponseBody>> =
+        override fun deleteFavorite(favoriteId: String): Flow<Resource<Unit>> =
             flow {
-                safeCall<ResponseBody> {
+                safeCall<Unit> {
                     favoriteDao.deleteFavoriteByObjectId(favoriteId)
                     emit(Resource.success(data = api.deleteFavorite(favoriteId)))
                 }

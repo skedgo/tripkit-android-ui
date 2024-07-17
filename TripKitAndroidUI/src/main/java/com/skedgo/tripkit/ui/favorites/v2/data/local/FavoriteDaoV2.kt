@@ -17,7 +17,7 @@ interface FavoriteDaoV2 {
         workType: FavoriteType = work
     ): FavoriteV2
 
-    @Query("SELECT * FROM favorites_v2 WHERE type != :homeType AND type != :workType ORDER BY id")
+    @Query("SELECT * FROM favorites_v2 WHERE type != :homeType AND type != :workType ORDER BY uuid")
     suspend fun getFavoritesExcludingWorkAndHome(
         homeType: FavoriteType = home,
         workType: FavoriteType = work
@@ -26,7 +26,7 @@ interface FavoriteDaoV2 {
     @Query("SELECT * FROM favorites_v2 WHERE type = :type")
     suspend fun getFavoriteOfType(type: FavoriteType): FavoriteV2?
 
-    @Query("DELETE FROM favorites_v2 WHERE id = :id")
+    @Query("DELETE FROM favorites_v2 WHERE uuid = :id")
     suspend fun deleteFavoriteByObjectId(id: String)
 
     @Query("DELETE FROM favorites_v2 WHERE type = :type")
@@ -38,15 +38,15 @@ interface FavoriteDaoV2 {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAllFavorites(favorites: List<FavoriteV2>)
 
-    @Query("SELECT * FROM favorites_v2 WHERE id = :id")
+    @Query("SELECT * FROM favorites_v2 WHERE uuid = :id")
     suspend fun getFavoriteById(id: String): FavoriteV2
 
     @Query("SELECT * from favorites_v2")
     suspend fun getAllFavorites(): List<FavoriteV2>
 
     @Query(
-        "SELECT * from favorites_v2 WHERE name LIKE :query OR location_address LIKE :query OR " +
-            "start_address LIKE :query OR end_address LIKE :query"
+        "SELECT * from favorites_v2 WHERE name LIKE :query OR location LIKE :query OR " +
+            "start LIKE :query OR `end` LIKE :query"
     )
     suspend fun getFavoritesByTerm(query: String): List<FavoriteV2>
 

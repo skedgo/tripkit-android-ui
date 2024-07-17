@@ -15,7 +15,7 @@ interface FavoritesApi {
     suspend fun getFavorites(): FavoriteResponse
 
     @POST("data/user/favorite")
-    suspend fun addFavorite(favoriteDto: FavoriteV2): FavoriteV2
+    suspend fun addFavorite(@Body favorite: FavoriteV2): FavoriteV2
 
     @PUT("data/user/favorite/{uuid}")
     fun updateFavorite(
@@ -23,8 +23,8 @@ interface FavoritesApi {
         @Body favorite: FavoriteV2
     ): FavoriteV2
 
-    @DELETE("v1/data/user/favorite/{uuid}")
-    fun deleteFavorite(
+    @DELETE("data/user/favorite/{uuid}")
+    suspend fun deleteFavorite(
         @Path("uuid") uuid: String
-    ): ResponseBody
+    )
 }
