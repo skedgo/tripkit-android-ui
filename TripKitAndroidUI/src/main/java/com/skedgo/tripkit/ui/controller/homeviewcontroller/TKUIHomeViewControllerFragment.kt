@@ -33,6 +33,7 @@ import com.skedgo.tripkit.model.ViewTrip
 import com.skedgo.tripkit.routing.Trip
 import com.skedgo.tripkit.routing.TripGroup
 import com.skedgo.tripkit.routing.TripSegment
+import com.skedgo.tripkit.ui.GlideApp
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.TripKitUI
 import com.skedgo.tripkit.ui.controller.ControllerDataProvider
@@ -373,7 +374,7 @@ class TKUIHomeViewControllerFragment :
         }
 
         val requestOptions = RequestOptions().transform(CircleCrop())
-        Glide.with(requireContext())
+        GlideApp.with(requireContext())
             .load(R.drawable.ic_my_location)
             .apply(requestOptions)
             .into(binding.ivMyLocation)
