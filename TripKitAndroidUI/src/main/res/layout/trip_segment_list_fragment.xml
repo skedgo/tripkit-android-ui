@@ -35,9 +35,9 @@
 
         <ImageButton
             android:id="@+id/closeButton"
-            android:layout_width="@dimen/close_button_size"
-            android:layout_height="@dimen/close_button_size"
-            android:layout_marginEnd="16dp"
+            android:layout_width="@dimen/accessibility_size"
+            android:layout_height="@dimen/accessibility_size"
+            android:layout_marginEnd="@dimen/spacing_small"
             android:accessibilityTraversalBefore="@id/duration"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="@string/desc_close"
@@ -45,7 +45,8 @@
             android:visibility="@{viewModel.showCloseButton}"
             app:layout_constraintBottom_toBottomOf="@+id/duration"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/duration" />
+            app:layout_constraintTop_toTopOf="@+id/duration"
+            tools:targetApi="lollipop_mr1" />
 
         <TextView
             android:id="@+id/arrive"
@@ -64,15 +65,15 @@
             android:id="@+id/layoutTripSummary"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:nestedScrollingEnabled="false"
             android:orientation="horizontal"
             android:visibility="visible"
-            android:nestedScrollingEnabled="false"
+            app:itemBinding="@{viewModel.summaryItemsBinding}"
+            app:items="@{viewModel.summaryItems}"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/arrive"
-            app:itemBinding="@{viewModel.summaryItemsBinding}"
-            app:items="@{viewModel.summaryItems}"
             tools:itemCount="2"
             tools:layout="@layout/fragment_trip_preview_header"
             tools:listitem="@layout/item_trip_segment_summary"
@@ -90,8 +91,8 @@
             app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/layoutTripSummary"
-            tools:listitem="@layout/trip_segment_action_button"
-            tools:itemCount="2"/>
+            tools:itemCount="2"
+            tools:listitem="@layout/trip_segment_action_button" />
 
         <View
             android:id="@+id/divider"
@@ -118,4 +119,5 @@
             app:layout_constraintTop_toBottomOf="@+id/divider" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+
 </layout>

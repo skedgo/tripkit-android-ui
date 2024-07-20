@@ -14,8 +14,8 @@
         android:id="@+id/cvGetOffAlerts"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/spacing_small"
         android:layout_marginHorizontal="@dimen/spacing_medium"
+        android:layout_marginTop="@dimen/spacing_small"
         android:layout_marginBottom="@dimen/spacing_normal"
         android:clipToPadding="true"
         android:visibility="@{viewModel.isVisible()}"
@@ -26,12 +26,16 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="@dimen/spacing_small">
+            android:importantForAccessibility="yes"
+            android:padding="@dimen/spacing_small"
+            android:screenReaderFocusable="true"
+            tools:ignore="UnusedAttribute">
 
             <ImageView
                 android:id="@+id/ivNotification"
                 android:layout_width="@dimen/icon_regular"
                 android:layout_height="@dimen/icon_regular"
+                android:importantForAccessibility="no"
                 android:src="@drawable/ic_notifications"
                 app:layout_constraintBottom_toBottomOf="@+id/tvAlertsLabel"
                 app:layout_constraintStart_toStartOf="parent"
@@ -39,12 +43,13 @@
                 app:tint="@color/colorPrimary"
                 tools:tint="@color/colorPrimary" />
 
-
             <TextView
                 android:id="@+id/tvAlertsLabel"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/spacing_small"
+                android:focusable="false"
+                android:labelFor="@id/ivNotification"
                 android:text="@string/lbl_alert_when_get_off"
                 android:textColor="@color/black"
                 android:textSize="@dimen/font_size_medium"
@@ -77,12 +82,15 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/spacing_small"
+                android:focusable="false"
+                android:labelFor="@id/rvGetNotificationsWhen"
                 android:text="@string/lbl_get_notifications_when"
                 android:textColor="@color/black"
                 android:textSize="@dimen/font_size_normal"
                 app:layout_constraintTop_toBottomOf="@+id/vAlertLabelDivider" />
 
             <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvGetNotificationsWhen"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/spacing_small"
@@ -96,4 +104,5 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.cardview.widget.CardView>
+
 </layout>

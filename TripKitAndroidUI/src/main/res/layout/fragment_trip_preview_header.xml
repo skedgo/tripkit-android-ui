@@ -17,7 +17,6 @@
         android:clickable="true"
         android:focusable="true"
         android:focusableInTouchMode="true"
-        android:importantForAccessibility="noHideDescendants"
         android:paddingTop="@dimen/spacing_small"
         android:paddingBottom="@dimen/spacing_small">
 

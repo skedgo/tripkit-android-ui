@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
+
         <variable
             name="item"
             type="com.skedgo.tripkit.common.model.RealtimeAlert" />
@@ -12,18 +13,23 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/bg_round_corner_warning"
         android:layout_marginTop="@dimen/spacing_small"
-        android:padding="@dimen/spacing_small">
+        android:background="@drawable/bg_round_corner_warning"
+        android:importantForAccessibility="yes"
+        android:padding="@dimen/spacing_small"
+        android:screenReaderFocusable="true"
+        tools:ignore="UnusedAttribute">
 
         <ImageView
             android:id="@+id/ivWarning"
             android:layout_width="@dimen/icon_regular"
             android:layout_height="@dimen/icon_regular"
+            android:focusable="false"
+            android:importantForAccessibility="no"
             android:src="@{item.severity()}"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            tools:src="@drawable/ic_action_warning"/>
+            tools:src="@drawable/ic_action_warning" />
 
         <TextView
             android:id="@+id/tvTitle"
@@ -31,10 +37,11 @@
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="@dimen/spacing_small"
             android:ellipsize="end"
+            android:focusable="false"
             android:maxLines="2"
+            android:text="@{item.title()}"
             android:textColor="@color/black"
             android:textSize="@dimen/font_size_medium"
-            android:text="@{item.title()}"
             app:layout_constraintEnd_toStartOf="@+id/ivAction"
             app:layout_constraintStart_toEndOf="@+id/ivWarning"
             app:layout_constraintTop_toTopOf="@+id/ivWarning"
@@ -44,6 +51,8 @@
             android:id="@+id/ivAction"
             android:layout_width="@dimen/icon_medium"
             android:layout_height="@dimen/icon_medium"
+            android:focusable="false"
+            android:importantForAccessibility="no"
             android:padding="@dimen/spacing_small"
             android:src="@drawable/chevron_right"
             app:layout_constraintEnd_toEndOf="parent"
@@ -52,11 +61,12 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="@dimen/font_size_normal"
             android:layout_marginTop="@dimen/spacing_small"
+            android:focusable="false"
             android:text="@{item.text()}"
+            android:textSize="@dimen/font_size_normal"
             app:layout_constraintTop_toBottomOf="@+id/tvTitle"
-            tools:text="Description here"/>
+            tools:text="Description here" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

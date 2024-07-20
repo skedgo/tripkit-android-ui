@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:bind="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
@@ -25,6 +24,7 @@
         android:layout_marginEnd="@dimen/time_label_height"
         android:background="@drawable/trip_preview_external_action_pager_list_item"
         android:enabled="@{parentViewModel.enableActionButtons}"
+        android:minHeight="@dimen/accessibility_size"
         android:padding="8dp"
         app:clickWithDebounce="@{() -> parentViewModel.externalActionChosen.accept(viewModel.externalAction)}">
 
@@ -66,10 +66,13 @@
             android:gravity="center"
             android:paddingEnd="@dimen/spacing_normal"
             android:text="@{viewModel.title}"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/ivAction"
             app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="RtlSymmetry"
             tools:text="Action" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+
 </layout>

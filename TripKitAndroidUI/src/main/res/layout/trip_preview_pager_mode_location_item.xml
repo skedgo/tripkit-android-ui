@@ -99,7 +99,6 @@
             android:background="@color/tripKitDivider"
             app:layout_constraintTop_toBottomOf="@+id/buttonLayout" />
 
-
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/infoGroupRecyclerView"
             android:layout_width="match_parent"
@@ -120,6 +119,7 @@
             android:layout_height="24dp"
             android:layout_marginStart="16dp"
             android:layout_marginTop="40dp"
+            android:importantForAccessibility="no"
             android:visibility="@{viewModel.showAddress}"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/infoGroupRecyclerView"
@@ -147,11 +147,13 @@
             android:layout_height="24dp"
             android:layout_marginStart="16dp"
             android:layout_marginTop="24dp"
+            android:importantForAccessibility="no"
             android:tint="@color/tripKitSuccess"
             android:visibility="@{viewModel.showWebsite}"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/addressIcon"
-            app:srcCompat="@drawable/ic_globe" />
+            app:srcCompat="@drawable/ic_globe"
+            tools:ignore="UseAppTint" />
 
         <TextView
             android:id="@+id/website"
@@ -177,11 +179,13 @@
             android:layout_height="24dp"
             android:layout_marginStart="16dp"
             android:layout_marginTop="24dp"
+            android:importantForAccessibility="no"
             android:tint="@color/tripKitSuccess"
             android:visibility="@{viewModel.showWhat3words}"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/websiteIcon"
-            app:srcCompat="@drawable/ic_what3word" />
+            app:srcCompat="@drawable/ic_what3word"
+            tools:ignore="UseAppTint" />
 
         <TextView
             android:id="@+id/what3word"
@@ -197,4 +201,5 @@
             tools:text="something.something.something" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+
 </layout>

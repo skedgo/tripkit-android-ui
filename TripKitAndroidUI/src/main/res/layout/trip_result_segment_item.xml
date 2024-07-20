@@ -13,7 +13,10 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="4dp">
+        android:layout_marginEnd="4dp"
+        android:importantForAccessibility="yes"
+        android:screenReaderFocusable="true"
+        tools:ignore="UnusedAttribute">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/iconContent"
@@ -27,11 +30,12 @@
                 android:id="@+id/icon"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
+                android:importantForAccessibility="no"
                 android:layoutDirection="locale"
                 android:src="@{viewModel.icon}"
-                tools:src="@drawable/ic_bus"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"/>
+                app:layout_constraintTop_toTopOf="parent"
+                tools:src="@drawable/ic_bus" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -41,6 +45,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="4dp"
+            android:focusable="false"
             android:text="@{viewModel.primaryText}"
             android:textColor="@color/black"
             android:visibility="@{viewModel.showPrimary}"
@@ -55,34 +60,38 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="4dp"
+            android:focusable="false"
             android:text="@{viewModel.secondaryText}"
             android:textColor="@color/black1"
             android:visibility="@{!viewModel.isHideExactTimes() &amp;&amp; viewModel.secondaryText.length() > 0}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toEndOf="@+id/iconContent"
             app:layout_constraintTop_toBottomOf="@+id/primary"
-            tools:text="2:30 PM"/>
+            tools:text="2:30 PM" />
 
         <ImageView
             android:id="@+id/ivWifi"
             android:layout_width="@dimen/icon_x_small"
             android:layout_height="@dimen/icon_x_small"
+            android:importantForAccessibility="no"
             android:layoutDirection="locale"
             android:rotation="45"
             android:src="@drawable/ic_wifi"
             android:visibility="@{viewModel.isRealtime()}"
             app:layout_constraintBottom_toBottomOf="@+id/secondary"
-            app:layout_constraintStart_toEndOf="@+id/secondary"/>
+            app:layout_constraintStart_toEndOf="@+id/secondary" />
 
         <ImageView
             android:layout_width="@dimen/icon_x_small"
             android:layout_height="@dimen/icon_x_small"
-            android:layoutDirection="locale"
             android:layout_marginStart="@dimen/spacing_extra_small"
+            android:importantForAccessibility="no"
+            android:layoutDirection="locale"
             android:src="@drawable/ic_bike"
             android:visibility="@{viewModel.isBicycleAccessible()}"
             app:layout_constraintBottom_toBottomOf="@+id/secondary"
-            app:layout_constraintStart_toEndOf="@+id/ivWifi"/>
+            app:layout_constraintStart_toEndOf="@+id/ivWifi" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+
 </layout>

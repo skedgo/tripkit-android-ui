@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/goButton"
     android:layout_width="0dp"
     android:layout_height="wrap_content"
@@ -9,18 +9,23 @@
     android:clickable="true"
     android:focusable="true"
     android:gravity="center"
+    android:importantForAccessibility="yes"
     android:orientation="vertical"
-    android:padding="8dp">
+    android:padding="8dp"
+    android:screenReaderFocusable="true"
+    tools:ignore="UnusedAttribute">
 
     <ImageButton
+        android:id="@+id/ib_go"
         android:layout_width="45dp"
         android:layout_height="45dp"
-        android:adjustViewBounds="true"
-        android:scaleType="centerInside"
         android:layout_gravity="center"
+        android:adjustViewBounds="true"
         android:background="@drawable/bg_circle_primary"
         android:clickable="false"
         android:focusable="false"
+        android:importantForAccessibility="no"
+        android:scaleType="centerInside"
         android:src="@drawable/ic_directions"
         android:tint="@android:color/white" />
 
@@ -29,5 +34,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
+        android:focusable="true"
+        android:labelFor="@id/ib_go"
         android:text="@string/go" />
+
 </LinearLayout>

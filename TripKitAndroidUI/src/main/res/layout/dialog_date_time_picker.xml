@@ -3,17 +3,6 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <data>
-
-        <variable
-            name="viewModel"
-            type="com.skedgo.tripkit.ui.trip.options.InterCityTimePickerViewModel" />
-
-        <variable
-            name="handlers"
-            type="com.skedgo.tripkit.ui.dialog.TripKitDateTimePickerDialogFragment" />
-    </data>
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -23,8 +12,8 @@
             android:id="@+id/time_options"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:visibility="@{!viewModel.isSingleSelection()}"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:visibility="@{!viewModel.isSingleSelection()}">
 
             <RadioButton
                 android:id="@+id/radio_leave_after"
@@ -43,20 +32,31 @@
                 tools:text="@string/arrive_by" />
         </RadioGroup>
 
-        <TextView
-            style="@style/FlatRadioButtonStyle"
+        <Spinner
+            android:id="@+id/date_spinner"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="@dimen/spacing_small"
-            android:gravity="start"
-            android:text="@{viewModel.singleSelectionLabel()}"
-            android:visibility="@{viewModel.isSingleSelection()}"
-            tools:text="Single Label" />
+            android:layout_marginBottom="24dp"
+            android:layout_marginLeft="24dp"
+            android:layout_marginRight="24dp"
+            android:minHeight="@dimen/accessibility_size"
+            android:spinnerMode="dropdown"
+            app:selection="@{viewModel.selectedPosition}" />
 
 
         <!-- Why specify 'timePickerMode'? See https://redmine.buzzhives.com/issues/4328. -->
         <!-- Credit to http://stackoverflow.com/a/26961308/2563009. -->
         <!-- See https://code.google.com/p/android/issues/detail?id=81360. -->
+        <TextView
+            style="@style/FlatRadioButtonStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="start"
+            android:padding="@dimen/spacing_small"
+            android:text="@{viewModel.singleSelectionLabel()}"
+            android:visibility="@{viewModel.isSingleSelection()}"
+            tools:text="Single Label" />
+
         <TimePicker
             android:id="@+id/time_picker"
             android:layout_width="wrap_content"
@@ -65,15 +65,17 @@
             android:layout_marginLeft="24dp"
             android:layout_marginRight="24dp"
             android:timePickerMode="spinner" />
-
-        <Spinner
-            android:id="@+id/date_spinner"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="24dp"
-            android:layout_marginRight="24dp"
-            android:layout_marginBottom="24dp"
-            android:spinnerMode="dropdown"
-            app:selection="@{viewModel.selectedPosition}" />
     </LinearLayout>
+
+    <data>
+
+        <variable
+            name="viewModel"
+            type="com.skedgo.tripkit.ui.trip.options.InterCityTimePickerViewModel" />
+
+        <variable
+            name="handlers"
+            type="com.skedgo.tripkit.ui.dialog.TripKitDateTimePickerDialogFragment" />
+    </data>
+
 </layout>

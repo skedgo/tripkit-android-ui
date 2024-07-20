@@ -33,6 +33,8 @@ class TripSegmentSummaryItemViewModel : ViewModel() {
                 ) {
                     isMirrored.set(isRightToLeft)
                 }
+
+                contentDescription.set("Title: ${summary.title ?: "N/A"}, Subtitle: ${summary.subTitle ?: "N/A"}, Description: ${summary.description ?: "N/A"}")
             }
     }
 
@@ -44,6 +46,7 @@ class TripSegmentSummaryItemViewModel : ViewModel() {
     val description = ObservableField<String>()
     val modeId = ObservableField<String>()
     val isMirrored = ObservableBoolean(false)
+    val contentDescription = ObservableField<String>()
 
     val itemClick = TapStateFlow.create { this }
 }

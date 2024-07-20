@@ -77,4 +77,9 @@
     <dimen name="trip_preview_service_item_margin_bottom">150dp</dimen>
 
     <dimen name="drt_ticket_action_icon_size">24dp</dimen>
+    <dimen name="drt_ticket_action_icon_size_medium">30dp</dimen>
+    <dimen name="drt_ticket_action_icon_size_x_large">42dp</dimen>
+
+    <dimen name="accessibility_size">48dp</dimen>
+    <dimen name="accessibility_item_size">36dp</dimen>
 </resources>

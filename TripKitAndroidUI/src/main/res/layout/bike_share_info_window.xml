@@ -1,86 +1,95 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                xmlns:tools="http://schemas.android.com/tools"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@android:color/white"
-                android:foreground="?selectableItemBackground"
-                android:padding="8dp">
-
-    <TextView
-            android:id="@+id/operatorName"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentTop="true"
-            android:layout_marginBottom="8dp"
-            android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
-            tools:text="Sydney Bike Share" />
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@android:color/white"
+    android:foreground="?selectableItemBackground"
+    android:padding="8dp"
+    android:importantForAccessibility="yes"
+    android:screenReaderFocusable="true"
+    tools:ignore="UnusedAttribute">
 
     <ImageView
-            android:id="@+id/bikeShareIcon"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:layout_below="@id/operatorName"
-            android:layout_marginRight="8dp"
-            android:layout_marginTop="16dp"
-            android:src="@drawable/ic_bicycle_share" />
+        android:id="@+id/bikeShareIcon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/operatorName"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="8dp"
+        android:importantForAccessibility="no"
+        android:src="@drawable/ic_bicycle_share" />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_marginStart="16dp"
+        android:layout_toEndOf="@id/availableBikes"
+        android:importantForAccessibility="no"
+        android:src="@drawable/ic_arrow_forward" />
 
     <TextView
         android:id="@+id/availableBikesText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/operatorName"
-        android:layout_toRightOf="@id/bikeShareIcon"
+        android:layout_toEndOf="@id/bikeShareIcon"
+        android:focusable="false"
         android:padding="8dp"
         android:text="@string/available_bikes"
         android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
 
     <TextView
-            android:id="@+id/availableBikes"
-            android:layout_width="48dp"
-            android:layout_height="wrap_content"
-            android:layout_alignBottom="@id/availableBikesText"
-            android:layout_marginLeft="8dp"
-            android:layout_toRightOf="@id/availableBikesText"
-            android:background="?colorPrimary"
-            android:gravity="center_horizontal"
-            android:paddingLeft="8dp"
-            android:paddingRight="8dp"
-            android:textAppearance="@style/TextAppearance.AppCompat.Medium.Inverse"
-            tools:text="24" />
+        android:id="@+id/availableBikes"
+        android:layout_width="48dp"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@id/availableBikesText"
+        android:layout_marginStart="8dp"
+        android:layout_toEndOf="@id/availableBikesText"
+        android:background="?colorPrimary"
+        android:focusable="false"
+        android:gravity="center_horizontal"
+        android:paddingLeft="8dp"
+        android:paddingRight="8dp"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium.Inverse"
+        tools:text="24" />
 
     <TextView
-            android:id="@+id/batteryLevelText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/availableBikesText"
-            android:layout_toRightOf="@id/bikeShareIcon"
-            android:padding="8dp"
-            android:text="@string/empty_docks"
-            android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
+        android:id="@+id/batteryLevelText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/availableBikesText"
+        android:layout_toEndOf="@id/bikeShareIcon"
+        android:focusable="false"
+        android:padding="8dp"
+        android:text="@string/empty_docks"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
 
     <TextView
-            android:id="@+id/batteryLevel"
-            android:layout_width="48dp"
-            android:layout_height="wrap_content"
-            android:layout_alignBottom="@id/batteryLevelText"
-            android:layout_alignRight="@id/availableBikes"
-            android:layout_marginLeft="8dp"
-            android:background="?colorPrimary"
-            android:gravity="center_horizontal"
-            android:paddingLeft="8dp"
-            android:paddingRight="8dp"
-            android:textAppearance="@style/TextAppearance.AppCompat.Medium.Inverse"
-            tools:text="15" />
+        android:id="@+id/batteryLevel"
+        android:layout_width="48dp"
+        android:layout_height="wrap_content"
+        android:layout_alignEnd="@id/availableBikes"
+        android:layout_alignBottom="@id/batteryLevelText"
+        android:layout_marginStart="8dp"
+        android:background="?colorPrimary"
+        android:focusable="false"
+        android:gravity="center_horizontal"
+        android:paddingLeft="8dp"
+        android:paddingRight="8dp"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium.Inverse"
+        tools:text="15" />
 
-    <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:layout_marginLeft="16dp"
+    <TextView
+        android:id="@+id/operatorName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginBottom="8dp"
+        android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+        tools:text="Sydney Bike Share" />
 
-            android:layout_toRightOf="@id/availableBikes"
-            android:src="@drawable/ic_arrow_forward" />
 </RelativeLayout>

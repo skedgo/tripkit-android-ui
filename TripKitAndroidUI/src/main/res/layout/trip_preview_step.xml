@@ -18,15 +18,20 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="?selectableItemBackground"
+        android:descendantFocusability="blocksDescendants"
+        android:importantForAccessibility="yes"
         android:paddingStart="@dimen/spacing_medium"
         android:paddingTop="@dimen/content_padding"
         android:paddingEnd="@dimen/content_padding"
-        android:paddingBottom="@dimen/content_padding">
+        android:paddingBottom="@dimen/content_padding"
+        android:screenReaderFocusable="true"
+        tools:ignore="UnusedAttribute">
 
         <ImageView
             android:id="@+id/icon"
             android:layout_width="@dimen/tripkit_trip_preview_icon_size"
             android:layout_height="@dimen/tripkit_trip_preview_icon_size"
+            android:importantForAccessibility="no"
             android:src="@{viewModel.icon}"
             app:layout_constraintBottom_toBottomOf="@+id/description"
             app:layout_constraintStart_toStartOf="parent"
@@ -46,6 +51,7 @@
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toEndOf="@+id/icon"
             app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="RtlSymmetry"
             tools:text="An example step" />
 
         <TextView
@@ -60,6 +66,7 @@
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toEndOf="@+id/icon"
             app:layout_constraintTop_toBottomOf="@id/title"
+            tools:ignore="RtlSymmetry"
             tools:text="Along some road" />
 
         <androidx.recyclerview.widget.RecyclerView
@@ -73,4 +80,5 @@
             app:spanCount="2" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+
 </layout>

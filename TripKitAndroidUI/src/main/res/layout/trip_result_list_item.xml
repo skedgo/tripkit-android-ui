@@ -5,7 +5,7 @@
 
     <data>
 
-        <import type="android.text.TextUtils"/>
+        <import type="android.text.TextUtils" />
 
         <variable
             name="viewModel"
@@ -28,7 +28,8 @@
                 android:layout_height="wrap_content"
                 android:visibility="@{viewModel.hasTripLabels}"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent">
+                app:layout_constraintTop_toTopOf="parent"
+                tools:ignore="UseCompoundDrawables">
 
                 <ImageView
                     android:id="@+id/badgeIcon"
@@ -38,6 +39,7 @@
                     android:layout_marginTop="16dp"
                     android:layout_marginEnd="8dp"
                     android:layout_marginBottom="10dp"
+                    android:importantForAccessibility="no"
                     android:layoutDirection="ltr"
                     android:src="@{viewModel.badgeDrawable}"
                     android:visibility="@{viewModel.badgeVisible}"
@@ -50,12 +52,15 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
+                    android:layout_marginEnd="16dp"
                     android:layout_marginBottom="10dp"
+                    android:labelFor="@id/badgeIcon"
                     android:text="@{viewModel.badgeText}"
-                    app:layout_constraintHorizontal_chainStyle="packed"
                     android:textColor="@{viewModel.badgeTextColor}"
                     android:visibility="@{viewModel.badgeVisible}"
+                    app:layout_constraintHorizontal_chainStyle="packed"
                     tools:text="FASTEST" />
+
             </LinearLayout>
 
             <LinearLayout
@@ -185,8 +190,8 @@
                 style="@style/TextAppearance.MaterialComponents.Caption"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/spacing_small"
                 android:layout_marginVertical="@dimen/content_padding"
+                android:layout_marginStart="@dimen/spacing_small"
                 android:ellipsize="end"
                 android:maxLines="2"
                 android:paddingHorizontal="@dimen/spacing_small"
@@ -216,7 +221,8 @@
                     android:src="@drawable/ic_action_warning"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:tint="@color/tripKitError" />
+                    app:tint="@color/tripKitError"
+                    android:importantForAccessibility="no" />
 
                 <TextView
                     android:layout_width="0dp"
@@ -224,8 +230,8 @@
                     android:layout_marginStart="@dimen/spacing_extra_small"
                     android:text="@{viewModel.availabilityInfo}"
                     android:textColor="@color/tripKitError"
-                    app:layout_constraintStart_toEndOf="@+id/ivInfoIcon"
                     app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/ivInfoIcon"
                     app:layout_constraintTop_toTopOf="parent"
                     tools:text="Rides cannot be requested less than 24 hours in advance. Please call for assistance." />
 
@@ -239,16 +245,16 @@
                 android:layout_marginTop="2dp"
                 android:layout_marginEnd="2dp"
                 android:background="@null"
-                android:enabled="@{viewModel.isActionEnabled()}"
                 android:backgroundTint="@android:color/transparent"
+                android:contentDescription="@{viewModel.accessibilityLabel}"
                 android:ellipsize="middle"
+                android:enabled="@{viewModel.isActionEnabled()}"
                 android:gravity="end|center_vertical"
                 android:onClick="@{() -> viewModel.onMoreButtonClicked.perform()}"
                 android:singleLine="true"
                 android:text="@{viewModel.moreButtonText}"
                 android:textColor="@color/bg_button_color_primary"
                 android:visibility="@{viewModel.moreButtonVisible}"
-                android:contentDescription="@{viewModel.accessibilityLabel}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_weight="1"
                 app:layout_constraintTop_toBottomOf="@+id/footerLine"
@@ -266,14 +272,13 @@
                 android:id="@+id/tvActionButtonCenter"
                 android:layout_width="1dp"
                 android:layout_height="wrap_content"
-                app:layout_constraintTop_toTopOf="@+id/moreButton"
                 app:layout_constraintEnd_toEndOf="@+id/moreButton"
+                app:layout_constraintHorizontal_bias="0.25"
                 app:layout_constraintStart_toStartOf="@+id/moreButton"
-                app:layout_constraintHorizontal_bias="0.25"/>
-
+                app:layout_constraintTop_toTopOf="@+id/moreButton" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
-    </androidx.cardview.widget.CardView>
 
+    </androidx.cardview.widget.CardView>
 
 </layout>

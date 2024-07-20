@@ -13,10 +13,9 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="@android:color/white"
         android:focusable="false"
         android:importantForAccessibility="no"
-        android:paddingTop="12dp"
-        android:background="@android:color/white"
         tools:context=".routing.RouteCardFragment">
 
         <TextView
@@ -24,7 +23,10 @@
             style="@style/TextAppearance.MaterialComponents.Headline6"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="16dp"
+            android:gravity="center"
+            android:minHeight="@dimen/accessibility_size"
+            android:paddingStart="@dimen/spacing_normal"
+            android:paddingEnd="@dimen/spacing_normal"
             android:text="@string/route"
             android:textColor="@color/colorPrimary"
             app:layout_constraintEnd_toEndOf="parent"
@@ -33,17 +35,15 @@
 
         <ImageView
             android:id="@+id/bClose"
-            android:layout_width="@dimen/close_button_size"
-            android:layout_height="@dimen/close_button_size"
-            android:layout_marginStart="16dp"
+            android:layout_width="@dimen/spacing_xx_large"
+            android:layout_height="@dimen/accessibility_size"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="@string/desc_close"
             android:focusableInTouchMode="false"
-            android:padding="4dp"
+            android:padding="@dimen/content_padding"
             android:src="@drawable/close"
-            app:layout_constraintBottom_toBottomOf="@+id/tvRouteLabel"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/tvRouteLabel" />
+            app:layout_constraintTop_toTopOf="parent" />
 
         <ImageView
             android:id="@+id/ivSwap"
@@ -51,7 +51,7 @@
             android:layout_height="24dp"
             android:layout_marginEnd="19dp"
             android:background="?android:selectableItemBackground"
-            android:contentDescription="Swap locations"
+            android:contentDescription="@string/desc_swap_locations"
             android:onClick="@{() -> viewModel.swap()}"
             app:layout_constraintBottom_toTopOf="@+id/ivDestEditIcon"
             app:layout_constraintEnd_toEndOf="parent"
@@ -63,6 +63,7 @@
             android:layout_width="10dp"
             android:layout_height="10dp"
             android:layout_marginStart="23dp"
+            android:importantForAccessibility="no"
             app:layout_constraintBottom_toBottomOf="@+id/tilStartEdit"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@+id/tilStartEdit"
@@ -73,6 +74,7 @@
             android:id="@+id/ivDots"
             android:layout_width="14dp"
             android:layout_height="14dp"
+            android:importantForAccessibility="no"
             app:layout_constraintBottom_toTopOf="@+id/ivDestEditIcon"
             app:layout_constraintEnd_toEndOf="@+id/ivStartEdit"
             app:layout_constraintStart_toStartOf="@+id/ivStartEdit"
@@ -84,6 +86,7 @@
             android:id="@+id/ivDestEditIcon"
             android:layout_width="10dp"
             android:layout_height="10dp"
+            android:importantForAccessibility="no"
             app:layout_constraintBottom_toBottomOf="@+id/tilDestinationEdit"
             app:layout_constraintEnd_toEndOf="@+id/ivDots"
             app:layout_constraintStart_toStartOf="@+id/ivDots"
@@ -101,6 +104,7 @@
             android:layout_marginEnd="16dp"
             android:layout_marginBottom="4dp"
             android:clipToPadding="true"
+            android:labelFor="@id/tieStartEdit"
             app:boxStrokeColor="@color/bg_search_textinputlayout_box_color"
             app:endIconDrawable="@drawable/close"
             app:endIconMode="clear_text"
@@ -117,8 +121,10 @@
                 android:imeOptions="actionDone"
                 android:inputType="text"
                 android:maxLines="1"
+                android:minHeight="@dimen/accessibility_size"
                 android:text="@={viewModel.start}"
                 android:textAppearance="?attr/textAppearanceBody2" />
+
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -130,6 +136,7 @@
             android:layout_marginTop="4dp"
             android:layout_marginEnd="16dp"
             android:clipToPadding="true"
+            android:labelFor="@id/tieDestinationEdit"
             app:boxStrokeColor="@color/bg_search_textinputlayout_box_color"
             app:endIconDrawable="@drawable/close"
             app:endIconMode="clear_text"
@@ -146,6 +153,7 @@
                 android:imeOptions="actionDone"
                 android:inputType="text"
                 android:maxLines="1"
+                android:minHeight="@dimen/accessibility_size"
                 android:text="@={viewModel.destination}"
                 android:textAppearance="?attr/textAppearanceBody2">
 
@@ -163,5 +171,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tilDestinationEdit" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
+
 </layout>

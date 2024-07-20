@@ -6,12 +6,16 @@
     android:layout_height="wrap_content"
     android:background="@android:color/white"
     android:foreground="?selectableItemBackground"
-    android:padding="8dp">
+    android:importantForAccessibility="yes"
+    android:padding="8dp"
+    android:screenReaderFocusable="true"
+    tools:ignore="UnusedAttribute">
 
     <TextView
         android:id="@+id/txtTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:focusable="false"
         android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -21,6 +25,7 @@
         android:id="@+id/txtSubtitle"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:focusable="false"
         android:text="@string/available_bikes"
         android:textAppearance="@style/TextAppearance.AppCompat.Caption"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -32,10 +37,12 @@
         android:layout_width="wrap_content"
         android:layout_height="0dp"
         android:layout_centerVertical="true"
-        android:src="@drawable/ic_icon_info"
         android:layout_marginStart="8dp"
+        android:importantForAccessibility="no"
+        android:src="@drawable/ic_icon_info"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/txtTitle"
         app:layout_constraintTop_toTopOf="parent" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

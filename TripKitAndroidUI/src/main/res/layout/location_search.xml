@@ -71,19 +71,22 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="0"
-                    android:paddingLeft="@dimen/content_padding"
+                    android:importantForAccessibility="no"
+                    android:paddingStart="@dimen/content_padding"
                     android:paddingTop="@dimen/half_content_padding"
                     android:paddingBottom="@dimen/half_content_padding"
-                    android:src="@drawable/ic_googleresult" />
+                    android:src="@drawable/ic_googleresult"
+                    tools:ignore="RtlSymmetry" />
 
                 <ImageView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="0"
+                    android:importantForAccessibility="no"
                     android:padding="@dimen/half_content_padding"
                     android:src="@drawable/powered_by_google_on_non_white" />
-            </LinearLayout>
 
+            </LinearLayout>
 
             <include
                 layout="@layout/location_search_error"
@@ -97,6 +100,9 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:visibility="@{viewModel.showMiddleProgressBar}" />
+
         </FrameLayout>
+
     </LinearLayout>
+
 </layout>

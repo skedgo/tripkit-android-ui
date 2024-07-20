@@ -35,8 +35,8 @@
                     android:layout_width="48dp"
                     android:layout_height="48dp"
                     android:layout_alignParentStart="true"
-                    android:layout_alignParentLeft="true"
                     android:layout_alignParentTop="true"
+                    android:contentDescription="@string/desc_go_back"
                     android:onClick="@{() -> viewModel.goBack()}"
                     android:scaleType="center"
                     android:visibility="@{viewModel.showBackButton}"
@@ -45,13 +45,18 @@
                 <androidx.appcompat.widget.SearchView
                     android:id="@+id/searchView"
                     android:layout_width="match_parent"
+                    android:contentDescription="@string/desc_search_location"
                     android:layout_height="48dp"
-                    android:layout_toRightOf="@id/back"
+                    android:layout_toEndOf="@id/back"
                     app:iconifiedByDefault="false"
                     app:queryBackground="@null"
                     app:searchIcon="@null"
                     app:submitBackground="@null" />
+
             </RelativeLayout>
+
         </androidx.cardview.widget.CardView>
+
     </FrameLayout>
+
 </layout>

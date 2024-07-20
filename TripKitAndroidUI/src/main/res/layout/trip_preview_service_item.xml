@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:bind="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
@@ -31,12 +30,12 @@
 
         <ImageButton
             android:id="@+id/closeButton"
-            android:layout_width="@dimen/icon_medium"
-            android:layout_height="@dimen/icon_medium"
-            android:layout_marginEnd="@dimen/spacing_normal"
+            android:layout_width="@dimen/accessibility_size"
+            android:layout_height="@dimen/accessibility_size"
+            android:layout_marginEnd="@dimen/spacing_small"
             android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@drawable/close"
             android:contentDescription="@string/desc_close"
+            android:src="@drawable/close"
             android:visibility="@{viewModel.showCloseButton}"
             app:layout_constraintBottom_toBottomOf="@+id/stopName"
             app:layout_constraintEnd_toEndOf="parent"
@@ -46,9 +45,9 @@
             android:id="@+id/iconLayout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
             android:layout_marginTop="@dimen/spacing_normal"
             android:layout_marginBottom="@dimen/spacing_small"
+            android:orientation="horizontal"
             app:layout_constraintStart_toStartOf="@+id/stopName"
             app:layout_constraintTop_toBottomOf="@+id/stopName">
 
@@ -72,6 +71,7 @@
                     android:text="@{viewModel.serviceNumber}"
                     android:textColor="@android:color/white"
                     tools:text="U1" />
+
             </androidx.cardview.widget.CardView>
 
             <TextView
@@ -83,34 +83,36 @@
                 android:text="@{viewModel.secondaryText}"
                 android:textColor="@{viewModel.secondaryTextColor}"
                 tools:text="Scheduled" />
+
         </LinearLayout>
 
         <TextView
-            tools:text="Fürth"
+            android:id="@+id/details"
+            style="@style/TextAppearance.MaterialComponents.Caption"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/details"
-            android:text="@{viewModel.tertiaryText}"
             android:layout_marginTop="@dimen/spacing_small"
+            android:text="@{viewModel.tertiaryText}"
             android:textColor="@color/black1"
-            style="@style/TextAppearance.MaterialComponents.Caption"
             app:layout_constraintStart_toStartOf="@+id/iconLayout"
-            app:layout_constraintTop_toBottomOf="@+id/iconLayout"/>
+            app:layout_constraintTop_toBottomOf="@+id/iconLayout"
+            tools:text="Fürth" />
+
         <View
+            android:id="@+id/firstDividingLine"
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:id="@+id/firstDividingLine"
-            android:background="@color/black4"
             android:layout_marginTop="@dimen/spacing_small"
+            android:background="@color/black4"
             android:visibility="@{viewModel.showExpandableMenu}"
-            app:layout_constraintTop_toBottomOf="@+id/details"
-            app:layout_constraintStart_toStartOf="parent"/>
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/details" />
 
         <androidx.constraintlayout.motion.widget.MotionLayout
+            android:id="@+id/motionLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/spacing_small"
-            android:id="@+id/motionLayout"
             android:visibility="@{viewModel.showExpandableMenu}"
             app:layoutDescription="@xml/service_detail_motion"
             app:layout_constraintStart_toStartOf="parent"
@@ -122,32 +124,38 @@
                 android:layout_height="24dp"
                 android:layout_marginStart="16dp"
                 android:layout_marginEnd="8dp"
+                android:importantForAccessibility="no"
                 android:src="@{viewModel.wheelchairIcon}"
                 android:tint="@color/black2"
                 android:visibility="@{viewModel.showWheelchairAccessible}"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                tools:src="@drawable/ic_wheelchair"/>
+                tools:ignore="UseAppTint"
+                tools:src="@drawable/ic_wheelchair" />
 
             <TextView
                 android:id="@+id/wheelchairLabel"
                 style="@style/TextAppearance.MaterialComponents.Body1"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="0dp"
                 android:layout_marginStart="@dimen/spacing_normal"
                 android:text="@{viewModel.wheelchairAccessibleText}"
                 android:visibility="@{viewModel.showWheelchairAccessible}"
+                app:layout_constraintBottom_toBottomOf="@id/wheelchair"
                 app:layout_constraintStart_toEndOf="@id/wheelchair"
                 app:layout_constraintTop_toTopOf="@+id/wheelchair"
-                tools:text="Label w"/>
+                tools:text="Label w" />
 
             <ImageView
                 android:id="@+id/ivBicycle"
                 android:layout_width="@dimen/service_detail_icon_size"
                 android:layout_height="@dimen/service_detail_icon_size"
                 android:layout_marginStart="@dimen/spacing_small"
+                android:importantForAccessibility="no"
                 android:src="@drawable/ic_bike"
                 android:visibility="@{viewModel.showBicycleAccessible}"
+                app:layout_constraintBottom_toBottomOf="@id/wheelchair"
                 app:layout_constraintStart_toEndOf="@id/wheelchair"
                 app:layout_constraintTop_toTopOf="@id/wheelchair" />
 
@@ -155,46 +163,50 @@
                 android:id="@+id/tvBicycleLabel"
                 style="@style/TextAppearance.MaterialComponents.Body1"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="0dp"
                 android:layout_marginStart="@dimen/spacing_normal"
                 android:text="@string/bicycle_accessible"
                 android:visibility="@{viewModel.showBicycleAccessible}"
+                app:layout_constraintBottom_toBottomOf="@+id/ivBicycle"
                 app:layout_constraintStart_toEndOf="@id/ivBicycle"
                 app:layout_constraintTop_toTopOf="@+id/ivBicycle"
-                app:layout_constraintBottom_toBottomOf="@+id/ivBicycle"
-                tools:text="Label B"/>
+                tools:text="Label B" />
 
             <ImageView
                 android:id="@+id/occupancyView"
                 android:layout_width="@dimen/service_detail_icon_size"
                 android:layout_height="@dimen/service_detail_icon_size"
                 android:layout_marginStart="@dimen/spacing_small"
+                android:importantForAccessibility="no"
                 android:src="@{viewModel.occupancyViewModel.drawableLeft}"
                 android:visibility="@{viewModel.showOccupancyInfo}"
+                app:layout_constraintBottom_toBottomOf="@id/ivBicycle"
                 app:layout_constraintStart_toEndOf="@id/ivBicycle"
                 app:layout_constraintTop_toTopOf="@id/ivBicycle"
-                tools:src="@drawable/ic_occupancy_25"/>
+                tools:src="@drawable/ic_occupancy_25" />
 
             <TextView
                 android:id="@+id/occupancyLabel"
                 style="@style/TextAppearance.MaterialComponents.Body1"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="0dp"
                 android:layout_marginStart="@dimen/spacing_normal"
                 android:text="@{viewModel.occupancyViewModel.occupancyText}"
                 android:visibility="@{viewModel.showOccupancyInfo}"
+                app:layout_constraintBottom_toBottomOf="@id/occupancyView"
                 app:layout_constraintStart_toEndOf="@id/occupancyView"
                 app:layout_constraintTop_toTopOf="@+id/occupancyView"
-                tools:text="Label O"/>
+                tools:text="Label O" />
 
             <ImageView
                 android:id="@+id/expandButton"
                 android:layout_width="@dimen/icon_medium"
                 android:layout_height="@dimen/icon_medium"
-                android:padding="@dimen/spacing_small"
                 android:layout_marginEnd="@dimen/spacing_normal"
                 android:clickable="true"
                 android:focusable="true"
+                android:importantForAccessibility="no"
+                android:padding="@dimen/spacing_xx_small"
                 android:src="@drawable/chevron_down"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -231,10 +243,10 @@
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="@dimen/spacing_extra_small"
             android:visibility="@{viewModel.alerts.size() > 0}"
+            app:alertClickListener="@{viewModel.alertClickListener}"
+            app:alerts="@{viewModel.alerts}"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             app:layout_constraintTop_toBottomOf="@id/secondDividingLine"
-            app:alerts="@{viewModel.alerts}"
-            app:alertClickListener="@{viewModel.alertClickListener}"
             tools:itemCount="2"
             tools:listitem="@layout/item_service_alert" />
 
@@ -242,16 +254,16 @@
             android:id="@+id/recyclerView"
             android:layout_width="match_parent"
             android:layout_height="0dp"
+            android:layout_marginTop="@dimen/spacing_small"
+            android:layout_marginBottom="@dimen/trip_preview_service_item_margin_bottom"
             android:focusableInTouchMode="true"
             android:nestedScrollingEnabled="true"
             app:itemBinding="@{viewModel.itemBinding}"
             app:items="@{viewModel.items}"
-            android:layout_marginBottom="@dimen/trip_preview_service_item_margin_bottom"
-            android:layout_marginTop="@dimen/spacing_small"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/bottomBarrier"
-            app:layout_constraintBottom_toBottomOf="parent"/>
+            app:layout_constraintTop_toBottomOf="@id/bottomBarrier" />
 
         <androidx.constraintlayout.widget.Barrier
             android:id="@+id/bottomBarrier"

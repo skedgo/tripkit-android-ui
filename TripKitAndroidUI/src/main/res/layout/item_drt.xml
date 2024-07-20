@@ -28,7 +28,8 @@
             app:clickWithDebounce="@{() -> viewModel.onChange()}"
             app:layout_constraintEnd_toStartOf="@+id/itemDrt_actionLayout"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="UnusedAttribute">
 
             <ImageView
                 android:id="@+id/itemDrt_ivIcon"
@@ -39,7 +40,8 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:tint="@color/colorPrimary"
-                tools:src="@drawable/ic_car" />
+                tools:src="@drawable/ic_car"
+                android:importantForAccessibility="no" />
 
             <TextView
                 android:id="@+id/itemDrt_tvLabel"
@@ -126,9 +128,10 @@
 
             <ImageView
                 android:id="@+id/itemDrt_ibDecrement"
-                android:layout_width="@dimen/icon_increment_action"
-                android:layout_height="@dimen/icon_increment_action"
+                android:layout_width="@dimen/drt_ticket_action_icon_size"
+                android:layout_height="@dimen/drt_ticket_action_icon_size"
                 android:layout_marginEnd="@dimen/shadow_height"
+                android:contentDescription="@string/desc_decrease_quantity"
                 android:background="?attr/selectableItemBackground"
                 android:clickable="@{viewModel.enableDecrement}"
                 android:onClick="@{() -> viewModel.onDecrementValue()}"
@@ -152,9 +155,10 @@
 
             <ImageView
                 android:id="@+id/itemDrt_ibIncrement"
-                android:layout_width="@dimen/icon_increment_action"
-                android:layout_height="@dimen/icon_increment_action"
+                android:layout_width="@dimen/drt_ticket_action_icon_size"
+                android:layout_height="@dimen/drt_ticket_action_icon_size"
                 android:layout_marginStart="@dimen/shadow_height"
+                android:contentDescription="@string/desc_increase_quantity"
                 android:background="?attr/selectableItemBackground"
                 android:clickable="@{viewModel.enableIncrement}"
                 android:onClick="@{() -> viewModel.onIncrementValue()}"

@@ -15,18 +15,17 @@
         android:layout_height="wrap_content"
         android:padding="@dimen/spacing_small">
 
-
         <ImageView
             android:id="@+id/ivIcon"
             android:layout_width="@dimen/icon_small"
             android:layout_height="@dimen/icon_small"
+            android:importantForAccessibility="no"
             android:src="@{viewModel.icon}"
+            app:customImageTint="@{viewModel.enabled ? @color/black : @color/disabled}"
             app:layout_constraintBottom_toBottomOf="@+id/tvTitle"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@+id/tvTitle"
-            app:customImageTint="@{viewModel.enabled ? @color/black : @color/disabled}"
             tools:src="@drawable/ic_navigation_start" />
-
 
         <TextView
             android:id="@+id/tvTitle"

@@ -50,32 +50,38 @@
                 android:layout_height="24dp"
                 android:layout_marginStart="16dp"
                 android:layout_marginEnd="8dp"
+                android:importantForAccessibility="no"
                 android:src="@{viewModel.wheelchairIcon}"
                 android:tint="@color/black2"
                 android:visibility="@{viewModel.showWheelchairAccessible}"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                tools:src="@drawable/ic_wheelchair"/>
+                tools:ignore="UseAppTint"
+                tools:src="@drawable/ic_wheelchair" />
 
             <TextView
                 android:id="@+id/wheelchairLabel"
                 style="@style/TextAppearance.MaterialComponents.Body1"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="0dp"
                 android:layout_marginStart="@dimen/spacing_normal"
                 android:text="@{viewModel.wheelchairAccessibleText}"
                 android:visibility="@{viewModel.showWheelchairAccessible}"
+                app:layout_constraintBottom_toBottomOf="@id/wheelchair"
                 app:layout_constraintStart_toEndOf="@id/wheelchair"
                 app:layout_constraintTop_toTopOf="@+id/wheelchair"
-                tools:text="Label w"/>
+                tools:text="Label w" />
 
             <ImageView
                 android:id="@+id/ivBicycle"
                 android:layout_width="@dimen/service_detail_icon_size"
                 android:layout_height="@dimen/service_detail_icon_size"
                 android:layout_marginStart="@dimen/spacing_small"
+                android:importantForAccessibility="no"
                 android:src="@drawable/ic_bike"
                 android:visibility="@{viewModel.showBicycleAccessible}"
+                app:layout_constraintBottom_toBottomOf="@id/wheelchair"
                 app:layout_constraintStart_toEndOf="@id/wheelchair"
                 app:layout_constraintTop_toTopOf="@id/wheelchair" />
 
@@ -83,46 +89,50 @@
                 android:id="@+id/tvBicycleLabel"
                 style="@style/TextAppearance.MaterialComponents.Body1"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="0dp"
                 android:layout_marginStart="@dimen/spacing_normal"
                 android:text="@string/bicycle_accessible"
                 android:visibility="@{viewModel.showBicycleAccessible}"
+                app:layout_constraintBottom_toBottomOf="@+id/ivBicycle"
                 app:layout_constraintStart_toEndOf="@id/ivBicycle"
                 app:layout_constraintTop_toTopOf="@+id/ivBicycle"
-                app:layout_constraintBottom_toBottomOf="@+id/ivBicycle"
-                tools:text="Label B"/>
+                tools:text="Label B" />
 
             <ImageView
                 android:id="@+id/occupancyView"
                 android:layout_width="@dimen/service_detail_icon_size"
                 android:layout_height="@dimen/service_detail_icon_size"
                 android:layout_marginStart="@dimen/spacing_small"
+                android:importantForAccessibility="no"
                 android:src="@{viewModel.occupancyViewModel.drawableLeft}"
                 android:visibility="@{viewModel.showOccupancyInfo}"
                 app:layout_constraintStart_toEndOf="@id/ivBicycle"
                 app:layout_constraintTop_toTopOf="@id/ivBicycle"
-                tools:src="@drawable/ic_occupancy_25"/>
+                app:layout_constraintBottom_toBottomOf="@id/ivBicycle"
+                tools:src="@drawable/ic_occupancy_25" />
 
             <TextView
                 android:id="@+id/occupancyLabel"
                 style="@style/TextAppearance.MaterialComponents.Body1"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="0dp"
                 android:layout_marginStart="@dimen/spacing_normal"
                 android:text="@{viewModel.occupancyViewModel.occupancyText}"
                 android:visibility="@{viewModel.showOccupancyInfo}"
                 app:layout_constraintStart_toEndOf="@id/occupancyView"
                 app:layout_constraintTop_toTopOf="@+id/occupancyView"
-                tools:text="Label O"/>
+                app:layout_constraintBottom_toBottomOf="@id/occupancyView"
+                tools:text="Label O" />
 
             <ImageView
                 android:id="@+id/expandButton"
-                android:layout_width="@dimen/icon_medium"
-                android:layout_height="@dimen/icon_medium"
-                android:padding="@dimen/spacing_small"
+                android:layout_width="@dimen/accessibility_item_size"
+                android:layout_height="@dimen/accessibility_item_size"
                 android:layout_marginEnd="@dimen/spacing_normal"
                 android:clickable="true"
                 android:focusable="true"
+                android:importantForAccessibility="no"
+                android:padding="@dimen/spacing_xx_small"
                 android:src="@drawable/chevron_down"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -165,7 +175,7 @@
             app:layout_constraintTop_toBottomOf="@id/secondDividingLine"
             tools:itemCount="2"
             tools:listitem="@layout/item_service_alert"
-            tools:visibility="gone"/>
+            tools:visibility="gone" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerView"
@@ -180,7 +190,8 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/rvAlerts"
-            tools:visibility="gone"/>
+            tools:visibility="gone" />
 
     </merge>
+
 </layout>

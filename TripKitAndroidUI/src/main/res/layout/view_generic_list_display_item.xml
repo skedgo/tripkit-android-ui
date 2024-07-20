@@ -23,6 +23,7 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_marginEnd="@dimen/spacing_small"
+            android:labelFor="@id/ll_genericListItem"
             android:paddingStart="@dimen/spacing_normal"
             android:paddingEnd="@dimen/spacing_normal"
             android:text="@{item.label}"
@@ -35,27 +36,32 @@
             android:id="@+id/divider"
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:background="@color/black4"
             android:layout_marginTop="8dp"
+            android:background="@color/black4"
             app:layout_constraintTop_toBottomOf="@id/genericListItem_tv_label" />
 
         <LinearLayout
+            android:id="@+id/ll_genericListItem"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@id/divider">
+            android:descendantFocusability="blocksDescendants"
+            android:importantForAccessibility="yes"
+            android:screenReaderFocusable="true"
+            app:layout_constraintTop_toBottomOf="@id/divider"
+            tools:ignore="UnusedAttribute">
 
             <TextView
                 android:id="@+id/genericListItem_tv_subLabel"
                 style="@style/TextAppearance.MaterialComponents.Body2"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
+                android:layout_marginTop="8dp"
                 android:layout_marginEnd="@dimen/spacing_small"
+                android:layout_weight="0.5"
                 android:paddingStart="@dimen/spacing_normal"
                 android:paddingEnd="@dimen/spacing_normal"
-                android:layout_marginTop="8dp"
                 android:text="@{item.subLabel}"
                 android:textColor="@color/black1"
-                android:layout_weight="0.5"
                 tools:text="SMARTBus" />
 
             <TextView
@@ -63,14 +69,16 @@
                 style="@style/TextAppearance.MaterialComponents.Body2"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_marginEnd="@dimen/spacing_normal"
-                android:text="@{item.date}"
-                android:gravity="end"
-                android:textColor="@color/black1"
                 android:layout_marginTop="8dp"
+                android:layout_marginEnd="@dimen/spacing_normal"
                 android:layout_weight="0.5"
+                android:gravity="end"
+                android:text="@{item.date}"
+                android:textColor="@color/black1"
                 tools:text="Dec 15, 2021 at 12:04 PM" />
+
         </LinearLayout>
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </layout>

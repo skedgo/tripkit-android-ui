@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:tools="http://schemas.android.com/tools">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <data>
 
@@ -10,12 +11,12 @@
             type="com.skedgo.tripkit.ui.generic.transport.TransportDetails" />
     </data>
 
-    <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
+    <androidx.constraintlayout.widget.ConstraintLayout xmlns:app="http://schemas.android.com/apk/res-auto"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:importantForAccessibility="yes"
-        android:screenReaderFocusable="true">
+        android:screenReaderFocusable="true"
+        tools:ignore="UnusedAttribute">
 
         <ImageView
             android:id="@+id/ivPickUpIcon"
@@ -25,6 +26,7 @@
             android:layout_marginTop="@dimen/spacing_small"
             android:adjustViewBounds="true"
             android:focusable="false"
+            android:importantForAccessibility="no"
             android:src="@drawable/small_circle"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
@@ -54,8 +56,8 @@
             android:layout_marginEnd="@dimen/shadow_height"
             android:focusable="false"
             android:text="@{details.pickUpTime}"
-            android:visibility="@{!TextUtils.isEmpty(details.pickUpTime)}"
             android:textSize="@dimen/font_size_normal"
+            android:visibility="@{!TextUtils.isEmpty(details.pickUpTime)}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/ivPickUpIcon"
             app:layout_constraintTop_toBottomOf="@+id/tvPickUpLabel"
@@ -71,8 +73,8 @@
             android:layout_marginEnd="@dimen/shadow_height"
             android:focusable="false"
             android:text="@{details.pickUpAddress}"
-            android:visibility="@{!TextUtils.isEmpty(details.pickUpAddress)}"
             android:textSize="@dimen/font_size_normal"
+            android:visibility="@{!TextUtils.isEmpty(details.pickUpAddress)}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/ivPickUpIcon"
             app:layout_constraintTop_toBottomOf="@+id/tvRequestedPickUp"
@@ -86,6 +88,7 @@
             android:layout_marginTop="@dimen/spacing_normal"
             android:adjustViewBounds="true"
             android:focusable="false"
+            android:importantForAccessibility="no"
             android:src="@drawable/small_circle"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tvPickUp"
@@ -115,8 +118,8 @@
             android:layout_marginEnd="@dimen/shadow_height"
             android:focusable="false"
             android:text="@{details.dropOffAddress}"
-            android:visibility="@{!TextUtils.isEmpty(details.dropOffAddress)}"
             android:textSize="@dimen/font_size_normal"
+            android:visibility="@{!TextUtils.isEmpty(details.dropOffAddress)}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/ivDropOffIcon"
             app:layout_constraintTop_toBottomOf="@+id/tvDropOffLabel"
@@ -133,8 +136,8 @@
             android:layout_marginBottom="@dimen/spacing_normal"
             android:focusable="false"
             android:text="@{details.dropOffTime}"
-            android:visibility="@{!TextUtils.isEmpty(details.dropOffTime)}"
             android:textSize="@dimen/font_size_normal"
+            android:visibility="@{!TextUtils.isEmpty(details.dropOffTime)}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/ivPickUpIcon"
@@ -151,6 +154,5 @@
             app:layout_constraintTop_toBottomOf="@+id/ivPickUpIcon" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
-
 
 </layout>

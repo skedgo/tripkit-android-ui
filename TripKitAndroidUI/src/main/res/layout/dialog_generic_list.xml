@@ -3,28 +3,66 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <data>
-
-        <variable
-            name="handler"
-            type="com.skedgo.tripkit.ui.dialog.GenericListDialogFragmentHandler" />
-
-        <variable
-            name="viewModel"
-            type="com.skedgo.tripkit.ui.dialog.GenericListViewModel" />
-    </data>
-
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@android:color/white">
+
+        <LinearLayout
+            android:id="@+id/genericList_container_description"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginStart="@dimen/spacing_normal"
+            android:layout_marginEnd="@dimen/spacing_normal"
+            android:layout_marginBottom="@dimen/spacing_normal"
+            android:background="@drawable/bg_round_rect_lt_grey"
+            android:orientation="vertical"
+            android:padding="@dimen/spacing_small"
+            android:visibility="@{viewModel.description.length() > 0}"
+            app:layout_constraintBottom_toTopOf="@id/genericList_b_confirm"
+            tools:ignore="UnusedAttribute">
+
+            <TextView
+                android:id="@+id/genericList_item_description_title"
+                style="@style/TextAppearance.MaterialComponents.Body2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@{viewModel.descriptionTitle}"
+                android:textColor="@android:color/black"
+                android:textStyle="bold"
+                tools:text="Test" />
+
+            <TextView
+                android:id="@+id/genericList_item_description"
+                style="@style/TextAppearance.MaterialComponents.Body2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@{viewModel.description}"
+                android:textColor="@android:color/black"
+                tools:text="Test" />
+
+        </LinearLayout>
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/genericList_b_confirm"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginStart="@dimen/spacing_normal"
+            android:layout_marginEnd="@dimen/spacing_normal"
+            android:layout_marginBottom="@dimen/spacing_normal"
+            android:background="@drawable/bg_app_button_primary"
+            android:text="@string/confirm"
+            android:textColor="@android:color/white"
+            android:theme="@style/Theme.MaterialComponents"
+            android:visibility="@{!viewModel.viewModeOnly}"
+            app:clickWithDebounce="@{() -> handler.onConfirm()}"
+            app:layout_constraintBottom_toBottomOf="parent" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/genericList_cl_header"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@color/colorPrimary"
-            android:padding="@dimen/spacing_small"
             app:layout_constraintTop_toTopOf="parent">
 
             <TextView
@@ -39,11 +77,11 @@
                 android:textColor="@android:color/white"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.35"
+                app:layout_constraintHorizontal_bias="0.32"
                 app:layout_constraintStart_toEndOf="@+id/genericList_b_close"
                 app:layout_constraintTop_toTopOf="parent"
-                tools:text="Title"
-                tools:targetApi="lollipop_mr1" />
+                tools:targetApi="lollipop_mr1"
+                tools:text="Title" />
 
             <TextView
                 android:id="@+id/genericList_b_close"
@@ -51,8 +89,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical|end"
-                android:paddingStart="@dimen/spacing_normal"
-                android:paddingEnd="@dimen/spacing_normal"
+                android:padding="@dimen/spacing_normal"
                 android:text="@string/close"
                 android:textColor="@android:color/white"
                 app:clickWithDebounce="@{() -> handler.onClose()}"
@@ -72,55 +109,17 @@
             app:layout_constraintBottom_toTopOf="@+id/genericList_container_description"
             app:layout_constraintTop_toBottomOf="@+id/genericList_cl_header" />
 
-        <LinearLayout
-            android:id="@+id/genericList_container_description"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:orientation="vertical"
-            android:layout_marginStart="@dimen/spacing_normal"
-            android:layout_marginEnd="@dimen/spacing_normal"
-            android:padding="@dimen/spacing_small"
-            android:layout_marginBottom="@dimen/spacing_normal"
-            android:background="@drawable/bg_round_rect_lt_grey"
-            android:visibility="@{viewModel.description.length() > 0}"
-            app:layout_constraintBottom_toTopOf="@id/genericList_b_confirm">
-
-            <TextView
-                android:id="@+id/genericList_item_description_title"
-                style="@style/TextAppearance.MaterialComponents.Body2"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@{viewModel.descriptionTitle}"
-                android:textStyle="bold"
-                android:textColor="@android:color/black"
-                tools:text="Test"/>
-
-            <TextView
-                android:id="@+id/genericList_item_description"
-                style="@style/TextAppearance.MaterialComponents.Body2"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@{viewModel.description}"
-                android:textColor="@android:color/black"
-                tools:text="Test"/>
-
-        </LinearLayout>
-
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/genericList_b_confirm"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:layout_marginStart="@dimen/spacing_normal"
-            android:layout_marginEnd="@dimen/spacing_normal"
-            android:layout_marginBottom="@dimen/spacing_normal"
-            android:background="@drawable/bg_app_button_primary"
-            android:text="@string/confirm"
-            android:textColor="@android:color/white"
-            android:theme="@style/Theme.MaterialComponents"
-            android:visibility="@{!viewModel.viewModeOnly}"
-            app:clickWithDebounce="@{() -> handler.onConfirm()}"
-            app:layout_constraintBottom_toBottomOf="parent" />
-
     </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <data>
+
+        <variable
+            name="handler"
+            type="com.skedgo.tripkit.ui.dialog.GenericListDialogFragmentHandler" />
+
+        <variable
+            name="viewModel"
+            type="com.skedgo.tripkit.ui.dialog.GenericListViewModel" />
+    </data>
 
 </layout>

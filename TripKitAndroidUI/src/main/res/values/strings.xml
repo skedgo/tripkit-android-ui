@@ -607,4 +607,16 @@ We aggregate the anonymised data and provide it to researchers, regulators, and 
 
     <string name="login">Log in</string>
     <string name="logout">Log out</string>
+    <string name="desc_load_poi_details">Load point of interest details</string>
+    <string name="desc_auto_complete_search">Search field with auto-complete suggestions</string>
+    <string name="desc_swap_locations">Swap locations</string>
+    <string name="desc_decrease_quantity">Decrease quantity</string>
+    <string name="desc_increase_quantity">Increase quantity</string>
+    <string name="desc_max_distance">Max distance</string>
+    <string name="desc_middle_distance">Middle distance</string>
+    <string name="desc_view_suggestion">View suggestion</string>
+    <string name="desc_view_more_information">View more information</string>
+    <string name="desc_go_back">Go back</string>
+    <string name="desc_search_location">Search location</string>
+    <string name="label_how_to_book_transportation">How to book transportation</string>
 </resources>

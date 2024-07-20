@@ -15,8 +15,7 @@
         android:layout_height="match_parent"
         android:background="@android:color/white"
         android:clickable="true"
-        android:focusable="true"
-        android:paddingTop="@dimen/content_padding">
+        android:focusable="true">
 
         <TextView
             android:id="@+id/tvSearch"
@@ -26,34 +25,33 @@
             android:layout_marginStart="@dimen/spacing_normal"
             android:text="@string/search"
             android:visibility="@{viewModel.withHeaders}"
+            app:layout_constraintBottom_toBottomOf="@id/bClose"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintTop_toTopOf="@id/bClose"
             tools:text="Search" />
 
         <ImageButton
             android:id="@+id/bClose"
-            android:layout_width="@dimen/close_button_size"
-            android:layout_height="@dimen/close_button_size"
-            android:layout_marginEnd="@dimen/spacing_normal"
+            android:layout_width="@dimen/accessibility_size"
+            android:layout_height="@dimen/accessibility_size"
+            android:layout_marginEnd="@dimen/spacing_small"
             android:accessibilityTraversalBefore="@id/tvSearch"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="@string/desc_close"
             android:src="@drawable/close"
             android:visibility="@{viewModel.withHeaders}"
-            app:layout_constraintBottom_toBottomOf="@+id/tvSearch"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/tvSearch"
+            app:layout_constraintTop_toTopOf="parent"
             tools:targetApi="lollipop_mr1" />
 
         <FrameLayout
             android:id="@+id/content"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:layout_marginTop="@dimen/spacing_small"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tvSearch" />
+            app:layout_constraintTop_toBottomOf="@+id/bClose" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

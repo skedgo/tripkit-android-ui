@@ -15,6 +15,7 @@
         android:layout_height="wrap_content"
         android:background="?selectableItemBackground"
         android:contentDescription="@{viewModel.contentDescription}"
+        android:importantForAccessibility="yes"
         android:onClick="@{() -> viewModel.onItemClicked()}"
         android:orientation="vertical"
         android:padding="16dp"
@@ -60,5 +61,7 @@
             app:layout_constraintTop_toBottomOf="@+id/title">
 
         </com.google.android.flexbox.FlexboxLayout>
+
     </androidx.constraintlayout.widget.ConstraintLayout>
+
 </layout>

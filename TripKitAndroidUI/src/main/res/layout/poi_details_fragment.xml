@@ -28,19 +28,19 @@
             android:layout_marginTop="16dp"
             android:layout_marginEnd="16dp"
             android:text="@{viewModel.locationTitle}"
+            app:layout_constraintEnd_toStartOf="@id/closeButton"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/closeButton"
             tools:text="Some POI" />
 
         <ImageButton
             android:id="@+id/closeButton"
-            android:layout_width="@dimen/close_button_size"
-            android:layout_height="@dimen/close_button_size"
-            android:layout_marginEnd="16dp"
+            android:layout_width="@dimen/accessibility_size"
+            android:layout_height="@dimen/accessibility_size"
+            android:layout_marginEnd="@dimen/spacing_small"
             android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@drawable/close"
             android:contentDescription="@string/desc_close"
+            android:src="@drawable/close"
             android:visibility="@{viewModel.showCloseButton}"
             app:layout_constraintBottom_toBottomOf="@+id/title"
             app:layout_constraintEnd_toEndOf="parent"
@@ -101,13 +101,13 @@
             android:textColor="@color/black"
             android:theme="@style/Theme.MaterialComponents"
             app:icon="@drawable/ic_favorite"
-            app:visibilityInv="@{viewModel.favoriteVisible}"
             app:iconTint="@color/black"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toEndOf="@+id/goButton"
             app:layout_constraintTop_toBottomOf="@+id/openAppButton"
-            app:strokeColor="@color/black4" />
+            app:strokeColor="@color/black4"
+            app:visibilityInv="@{viewModel.favoriteVisible}" />
 
         <View
             android:id="@+id/secondDividingLine"
@@ -124,10 +124,11 @@
             android:layout_width="24dp"
             android:layout_height="24dp"
             android:layout_marginStart="16dp"
+            android:importantForAccessibility="no"
             android:visibility="@{viewModel.showAddress}"
+            app:layout_constraintBottom_toBottomOf="@+id/address"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@+id/address"
-            app:layout_constraintBottom_toBottomOf="@+id/address"
             app:srcCompat="@drawable/ic_pin" />
 
         <TextView
@@ -136,8 +137,8 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="48dp"
-            android:layout_marginEnd="16dp"
             android:layout_marginTop="24dp"
+            android:layout_marginEnd="16dp"
             android:text="@{viewModel.address}"
             android:textAlignment="viewStart"
             android:visibility="@{viewModel.showAddress}"
@@ -151,12 +152,14 @@
             android:layout_width="24dp"
             android:layout_height="24dp"
             android:layout_marginStart="16dp"
+            android:importantForAccessibility="no"
             android:tint="@color/tripKitSuccess"
             android:visibility="@{viewModel.showWebsite}"
             app:layout_constraintBottom_toBottomOf="@+id/website"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@+id/website"
-            app:srcCompat="@drawable/ic_globe" />
+            app:srcCompat="@drawable/ic_globe"
+            tools:ignore="UseAppTint" />
 
         <TextView
             android:id="@+id/website"
@@ -181,12 +184,14 @@
             android:layout_width="24dp"
             android:layout_height="24dp"
             android:layout_marginStart="16dp"
+            android:importantForAccessibility="no"
             android:tint="@color/tripKitSuccess"
             android:visibility="@{viewModel.showWhat3words}"
             app:layout_constraintBottom_toBottomOf="@+id/what3word"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@+id/what3word"
-            app:srcCompat="@drawable/ic_what3word" />
+            app:srcCompat="@drawable/ic_what3word"
+            tools:ignore="UseAppTint" />
 
         <TextView
             android:id="@+id/what3word"
@@ -202,4 +207,5 @@
             tools:text="something.something.something" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+
 </layout>

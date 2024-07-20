@@ -14,7 +14,6 @@
 
     </data>
 
-
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -23,34 +22,36 @@
         <TextView
             android:id="@+id/stopName"
             style="@style/TextAppearance.MaterialComponents.Headline6"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_marginTop="8dp"
             android:layout_marginEnd="16dp"
             android:layout_marginBottom="8dp"
             android:text="@{viewModel.stationName}"
+            app:layout_constraintBottom_toBottomOf="@id/closeButton"
+            app:layout_constraintEnd_toStartOf="@id/closeButton"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintTop_toTopOf="@id/closeButton"
             tools:text="Stop Name" />
 
         <ImageButton
             android:id="@+id/closeButton"
-            android:layout_width="@dimen/close_button_size"
-            android:layout_height="@dimen/close_button_size"
-            android:layout_marginEnd="16dp"
+            android:layout_width="@dimen/accessibility_size"
+            android:layout_height="@dimen/accessibility_size"
+            android:layout_marginEnd="@dimen/spacing_small"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="@string/desc_close"
             android:src="@drawable/close"
             android:visibility="@{viewModel.showCloseButton}"
-            app:layout_constraintBottom_toBottomOf="@+id/stopName"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/stopName" />
+            app:layout_constraintTop_toTopOf="parent" />
 
         <LinearLayout
             android:id="@+id/iconLayout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:gravity="center_vertical"
             android:orientation="horizontal"
             app:layout_constraintStart_toStartOf="@+id/stopName"
             app:layout_constraintTop_toBottomOf="@+id/stopName">
@@ -59,16 +60,18 @@
                 android:id="@+id/serviceType"
                 android:layout_width="16dp"
                 android:layout_height="16dp"
+                android:importantForAccessibility="no"
                 android:tint="@color/black2"
                 android:visibility="@{viewModel.modeInfo != null}"
-                app:srcCompat="@{viewModel.modeInfo}" />
+                app:srcCompat="@{viewModel.modeInfo}"
+                tools:ignore="UseAppTint" />
 
             <androidx.cardview.widget.CardView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
-                android:paddingLeft="4dp"
                 android:layout_marginStart="4dp"
+                android:paddingLeft="4dp"
                 android:paddingRight="4dp"
                 bind:cardBackgroundColor="@{viewModel.serviceColor}"
                 bind:cardCornerRadius="4dp"
@@ -84,6 +87,7 @@
                     android:text="@{viewModel.serviceNumber}"
                     android:textColor="@android:color/white"
                     tools:text="U1" />
+
             </androidx.cardview.widget.CardView>
 
             <TextView
@@ -95,6 +99,7 @@
                 android:text="@{viewModel.secondaryText}"
                 android:textColor="@{viewModel.secondaryTextColor}"
                 tools:text="Scheduled" />
+
         </LinearLayout>
 
         <include

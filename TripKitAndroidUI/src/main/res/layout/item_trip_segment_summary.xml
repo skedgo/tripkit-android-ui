@@ -13,13 +13,18 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:contentDescription="@{viewModel.contentDescription}"
+        android:importantForAccessibility="yes"
         android:padding="@dimen/spacing_small"
-        app:clickWithDebounce="@{() -> viewModel.itemClick.perform()}">
+        android:screenReaderFocusable="true"
+        app:clickWithDebounce="@{() -> viewModel.itemClick.perform()}"
+        tools:ignore="UnusedAttribute">
 
         <ImageView
             android:id="@+id/ivIcon"
             android:layout_width="@dimen/close_button_size"
             android:layout_height="@dimen/close_button_size"
+            android:importantForAccessibility="no"
             android:src="@{viewModel.icon}"
             app:customImageTint="@{viewModel.selected? @color/colorPrimary : 0}"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -35,6 +40,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/shadow_height"
+            android:focusable="false"
             android:text="@{viewModel.title}"
             android:textColor="@{viewModel.selected? @color/colorPrimary : @color/black1}"
             android:textSize="10sp"
@@ -43,6 +49,7 @@
             app:layout_constraintStart_toEndOf="@+id/ivIcon"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_weight="1"
+            tools:ignore="SmallSp"
             tools:text="Title" />
 
         <TextView
@@ -51,6 +58,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/shadow_height"
+            android:focusable="false"
             android:text="@{viewModel.subTitle}"
             android:textColor="@{viewModel.selected? @color/colorPrimary : @color/black1}"
             android:textSize="10sp"
@@ -59,7 +67,9 @@
             app:layout_constraintStart_toEndOf="@+id/ivIcon"
             app:layout_constraintTop_toBottomOf="@+id/tvTitle"
             app:layout_constraintVertical_weight="1"
+            tools:ignore="SmallSp"
             tools:text="Sub-Title" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+
 </layout>

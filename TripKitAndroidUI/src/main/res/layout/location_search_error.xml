@@ -23,8 +23,10 @@
         android:visibility="@{visibility}">
 
         <ImageView
+            android:id="@+id/iv_no_connection"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:importantForAccessibility="no"
             android:src="@{viewModel.iconSrc}"
             tools:src="@drawable/ic_noconnection_big" />
 
@@ -37,6 +39,7 @@
             android:layout_marginEnd="@dimen/spacing_huge"
             android:layout_marginBottom="@dimen/spacing_normal"
             android:gravity="center"
+            android:labelFor="@id/iv_no_connection"
             android:text="@{viewModel.title}"
             android:textColor="@color/light_grey_2"
             android:textSize="20sp"
@@ -52,7 +55,7 @@
             android:textColor="#23b15e"
             android:visibility="gone"
             tools:text="Action Text" />
-    </LinearLayout>
 
+    </LinearLayout>
 
 </layout>

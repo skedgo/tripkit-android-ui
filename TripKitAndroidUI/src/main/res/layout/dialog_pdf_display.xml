@@ -17,12 +17,10 @@
                 android:id="@+id/btnAccept"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="20dp"
-                android:layout_marginTop="10dp"
-                android:layout_marginEnd="10dp"
-                android:layout_marginBottom="20dp"
+                android:padding="@dimen/spacing_normal"
                 android:enabled="false"
                 android:text="@string/accept"
+                android:accessibilityLiveRegion="polite"
                 android:textColor="@color/terms_of_use_accept_color"
                 android:textSize="@dimen/toolbar_buttonTextSize" />
 
@@ -32,5 +30,7 @@
             android:id="@+id/pdfView"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
+
     </FrameLayout>
+
 </layout>
