@@ -12,7 +12,7 @@ import androidx.room.RoomDatabase
  */
 
 const val DATABASE_TRIPS = "favorites.db"
-const val DATABASE_TRIPS_VERSION = 1
+const val DATABASE_TRIPS_VERSION = 2
 
 @Database(
     entities = [FavoriteV2::class],

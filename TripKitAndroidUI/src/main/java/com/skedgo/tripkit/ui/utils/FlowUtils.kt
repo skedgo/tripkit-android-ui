@@ -2,9 +2,11 @@ package com.skedgo.tripkit.ui.utils
 
 import com.skedgo.network.Resource
 import com.skedgo.tripkit.BuildConfig
+import io.reactivex.Single
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.flow.flattenMerge
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import retrofit2.HttpException
 
@@ -38,6 +40,16 @@ suspend fun <T> FlowCollector<Resource<T>>.safeCall(
                 )
             }
 
+        }
+    }
+}
+
+fun <T> Single<T>.toFlow(): Flow<T> {
+    return flow {
+        try {
+            emit(this@toFlow.blockingGet())
+        } catch (e: Exception) {
+            throw e
         }
     }
 }

@@ -55,7 +55,8 @@ data class FavoriteV2(
     val location: Location? = null,
     val start: Location? = null,
     val end: Location? = null,
-    val patterns: List<Pattern>? = null
+    val patterns: List<Pattern>? = null,
+    var userId: String? = null
 ) {
 
     data class Pattern(

@@ -47,8 +47,14 @@ interface FavoriteDaoV2 {
     @Query("SELECT * from favorites_v2")
     suspend fun getAllFavorites(): List<FavoriteV2>
 
+    @Query("SELECT * from favorites_v2 WHERE userId = :userId")
+    suspend fun getUserFavorites(userId: String): List<FavoriteV2>
+
     @Query("SELECT EXISTS(SELECT 1 FROM favorites_v2 WHERE uuid = :uuid)")
     suspend fun favoriteExists(uuid: String): Boolean
+
+    @Query("SELECT EXISTS(SELECT 1 FROM favorites_v2 WHERE uuid = :uuid AND userId = :userId)")
+    suspend fun favoriteExistsForUser(uuid: String, userId: String): Boolean
 
     @Query("SELECT EXISTS(SELECT 1 FROM favorites_v2 WHERE stopCode = :code)")
     suspend fun favoriteStopExists(code: String): Boolean

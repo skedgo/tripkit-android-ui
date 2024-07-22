@@ -26,7 +26,7 @@ interface FavoritesRepository {
 
     class FavoritesRepositoryImpl @Inject constructor(
         private val api: FavoritesApi,
-        private val favoriteDao: FavoriteDaoV2
+        private val favoriteDao: FavoriteDaoV2,
     ) : FavoritesRepository {
 
         private val configs: Configs = TripKit.getInstance().configs()
@@ -34,23 +34,33 @@ interface FavoritesRepository {
         override fun getFavorites(): Flow<Resource<FavoriteResponse>> =
             flow {
                 safeCall<FavoriteResponse> {
-
+                    val userId = configs.userIdentifier()?.call()
                     if (configs.favoritesServerSyncEnabled()) {
                         val response = api.getFavorites()
                         response.result?.let {
-                            favoriteDao.insertAllFavorites(response.result)
+                            favoriteDao.insertAllFavorites(
+                                it.map { favorite ->
+                                    favorite.userId = userId
+                                    favorite
+                                }
+                            )
                         }
 
                         // Check for local favorites not present in API response and upload them
-                        val localFavorites = favoriteDao.getAllFavorites()
+                        val localFavorites = userId?.let {
+                            favoriteDao.getUserFavorites(userId)
+                        } ?: favoriteDao.getAllFavorites()
+
                         val localFavoritesToUpload = localFavorites.filterNot { localFavorite ->
                             response.result?.any { it.uuid == localFavorite.uuid } == true
                         }
                         localFavoritesToUpload.forEach { favorite -> api.addFavorite(favorite) }
-
                         emit(Resource.success(data = response))
                     } else {
-                        emit(Resource.success(data = FavoriteResponse(result = favoriteDao.getAllFavorites())))
+                        val favorites = userId?.let {
+                            favoriteDao.getUserFavorites(userId)
+                        } ?: favoriteDao.getAllFavorites()
+                        emit(Resource.success(data = FavoriteResponse(result = favorites)))
                     }
                 }
             }.flowOn(Dispatchers.IO)
@@ -58,8 +68,12 @@ interface FavoritesRepository {
         override fun addFavorite(favoriteDto: FavoriteV2): Flow<Resource<FavoriteV2>> =
             flow {
                 safeCall<FavoriteV2> {
+                    val userId = configs.userIdentifier()?.call()
+                    favoriteDto.userId = userId
                     val favorite = if (configs.favoritesServerSyncEnabled()) {
-                        api.addFavorite(favoriteDto)
+                        val result = api.addFavorite(favoriteDto)
+                        result.userId = userId
+                        result
                     } else {
                         favoriteDto
                     }
@@ -91,12 +105,14 @@ interface FavoritesRepository {
                 }
             }.flowOn(Dispatchers.IO)
 
-        override fun isFavorite(favoriteId: String): Flow<Resource<Boolean>> =
-            flow {
-                safeCall<Boolean> {
-                    emit(Resource.success(data = favoriteDao.favoriteExists(favoriteId)))
-                }
-            }.flowOn(Dispatchers.IO)
+        override fun isFavorite(favoriteId: String): Flow<Resource<Boolean>> = flow {
+            safeCall<Boolean> {
+                val userId = configs.userIdentifier()?.call()
+                emit(Resource.success(data = userId?.let {
+                    favoriteDao.favoriteExistsForUser(favoriteId, userId)
+                } ?: kotlin.run { favoriteDao.favoriteExists(favoriteId) }))
+            }
+        }.flowOn(Dispatchers.IO)
 
         override fun isFavoriteByStopCode(stopCode: String): Flow<Resource<Boolean>> =
             flow {
