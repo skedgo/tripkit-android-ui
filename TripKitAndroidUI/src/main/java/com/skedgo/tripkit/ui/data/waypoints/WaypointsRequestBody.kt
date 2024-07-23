@@ -4,7 +4,7 @@ import com.google.gson.TypeAdapter
 import com.google.gson.stream.JsonReader
 import com.google.gson.stream.JsonWriter
 import com.skedgo.tripkit.ui.data.ConfigDto
-import com.skedgo.tripkit.ui.favorites.trips.Waypoint
+import com.skedgo.tripkit.ui.favorites.waypoints.Waypoint
 
 class WaypointsRequestBody(val config: ConfigDto, val waypoints: Array<Waypoint>)
 
