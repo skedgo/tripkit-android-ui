@@ -60,8 +60,8 @@ interface FavoriteDaoV2 {
     suspend fun favoriteStopExists(code: String): Boolean
 
     @Query(
-        "SELECT * from favorites_v2 WHERE name LIKE :query OR location LIKE :query OR " +
-            "start LIKE :query OR `end` LIKE :query"
+        "SELECT * from favorites_v2 WHERE name LIKE :query OR location_address LIKE :query OR " +
+            "start_address LIKE :query OR end_address LIKE :query"
     )
     suspend fun getFavoritesByTerm(query: String): List<FavoriteV2>
 

@@ -1,6 +1,7 @@
-package com.skedgo.tripkit.ui.favorites.trips
+package com.skedgo.tripkit.ui.favorites.waypoints
 
 import com.skedgo.tripkit.routing.TripSegment
+import com.skedgo.tripkit.ui.favorites.trips.getModeForWayPoint
 import com.skedgo.tripkit.ui.model.TimetableEntry
 import timber.log.Timber
 

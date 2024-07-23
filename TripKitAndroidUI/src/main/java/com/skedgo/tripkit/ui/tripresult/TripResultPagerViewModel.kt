@@ -7,16 +7,15 @@ import androidx.databinding.ObservableBoolean
 import androidx.databinding.ObservableField
 import androidx.databinding.ObservableInt
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.viewModelScope
 import com.jakewharton.rxrelay2.BehaviorRelay
-import com.skedgo.tripkit.analytics.*
+import com.skedgo.tripkit.analytics.TripSource
 import com.skedgo.tripkit.logging.ErrorLogger
 import com.skedgo.tripkit.routing.Trip
 import com.skedgo.tripkit.routing.TripGroup
 import com.skedgo.tripkit.ui.core.RxViewModel
 import com.skedgo.tripkit.ui.core.SchedulerFactory
 import com.skedgo.tripkit.ui.core.rxproperty.asObservable
-import com.skedgo.tripkit.ui.favorites.GetTripGroupsFromWayPoints
+import com.skedgo.tripkit.ui.favorites.waypoints.WaypointRepository
 import com.skedgo.tripkit.ui.routing.GetSortedTripGroups
 import com.skedgo.tripkit.ui.routingresults.FetchingRealtimeStatusRepository
 import com.skedgo.tripkit.ui.routingresults.SelectedTripGroupRepository
@@ -29,27 +28,30 @@ import io.reactivex.disposables.Disposable
 import io.reactivex.functions.BiFunction
 import io.reactivex.rxkotlin.Observables
 import io.reactivex.schedulers.Schedulers
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.runBlocking
 import java.util.concurrent.atomic.AtomicReference
 import javax.inject.Inject
 
 const val ARG_TRIP_GROUP_ID = "tripGroupId"
 
 class TripResultPagerViewModel @Inject internal constructor(
-        private val context: Context,
-        private val getSortedTripGroups: GetSortedTripGroups,
+    private val context: Context,
+    private val getSortedTripGroups: GetSortedTripGroups,
 //        private val reportPlannedTrip: ReportPlannedTrip,
-        private val trackViewingTrip: TrackViewingTrip,
-        private val errorLogger: ErrorLogger,
+    private val trackViewingTrip: TrackViewingTrip,
+    private val errorLogger: ErrorLogger,
 //        private val eventTracker: EventTracker,
-        private val selectedTripGroupRepository: SelectedTripGroupRepository,
+    private val selectedTripGroupRepository: SelectedTripGroupRepository,
 //        private val userInfoRepository: UserInfoRepository,
-        private val updateTripProgress: UpdateTripProgressWithUserLocation,
-        private val tripGroupRepository: TripGroupRepository,
-        private val fetchingRealtimeStatusRepository: FetchingRealtimeStatusRepository,
-        private val schedulers: SchedulerFactory,
-        private val getTripGroupsFromWayPoints: GetTripGroupsFromWayPoints
+    private val updateTripProgress: UpdateTripProgressWithUserLocation,
+    private val tripGroupRepository: TripGroupRepository,
+    private val fetchingRealtimeStatusRepository: FetchingRealtimeStatusRepository,
+    private val schedulers: SchedulerFactory,
+    private val waypointsRepository: WaypointRepository
 ) : RxViewModel() {
     val fetchingRealtimeStatus = ObservableBoolean()
     val selectedTripGroup by lazy {
@@ -82,7 +84,11 @@ class TripResultPagerViewModel @Inject internal constructor(
         }
     }
 
-    fun getSortedTripGroups(args: PagerFragmentArguments, initialList: List<TripGroup>): Observable<Unit> {
+    @OptIn(ExperimentalCoroutinesApi::class)
+    fun getSortedTripGroups(
+        args: PagerFragmentArguments,
+        initialList: List<TripGroup>
+    ): Observable<Unit> {
         isLoading.set(true)
         when (args) {
             is FromRoutes -> {
@@ -93,53 +99,62 @@ class TripResultPagerViewModel @Inject internal constructor(
                         Unit
                     }
                 } else {
-                    getSortedTripGroups.execute(args.requestId, args.arriveBy, args.sortOrder, tripResultTransportViewFilter)
-                            .subscribeOn(Schedulers.io())
-                            .doOnNext {
-                                tripGroups.accept(it)
-                                isLoading.set(false)
-                            }
-                            .map { Unit }
+                    getSortedTripGroups.execute(
+                        args.requestId,
+                        args.arriveBy,
+                        args.sortOrder,
+                        tripResultTransportViewFilter
+                    )
+                        .subscribeOn(Schedulers.io())
+                        .doOnNext {
+                            tripGroups.accept(it)
+                            isLoading.set(false)
+                        }
+                        .map { Unit }
                 }
 
             }
             is SingleTrip -> {
                 selectedTripGroupRepository.setSelectedTripGroupId(args.tripGroupId)
                 return selectedTripGroupRepository.getSelectedTripGroup().map { listOf(it) }
-                        .doOnNext { groups ->
-                            args.tripId?.let { tripId ->
-                                groups.firstOrNull { it.trips?.any { it.id == tripId } == true }
-                                    ?.let { group ->
-                                        defaultTrip = group.trips?.firstOrNull { it.id == tripId }
-                                    }
-                            }
-                            tripGroups.accept(groups)
-                            isLoading.set(false)
+                    .doOnNext { groups ->
+                        args.tripId?.let { tripId ->
+                            groups.firstOrNull { it.trips?.any { it.id == tripId } == true }
+                                ?.let { group ->
+                                    defaultTrip = group.trips?.firstOrNull { it.id == tripId }
+                                }
                         }
-                        .map { Unit }
+                        tripGroups.accept(groups)
+                        isLoading.set(false)
+                    }
+                    .map { Unit }
             }
             is FavoriteTrip -> {
                 fetchingRealtimeStatus.set(true)
-                return getTripGroupsFromWayPoints.execute(args.favoriteTripId)
-                        .doOnNext {
-                            it.trips?.firstOrNull { trip -> trip.uuid() == args.favoriteTripId }?.let { trip ->
-                                it.displayTripId = trip.id
-                            }
-                            setInitialSelectedTripGroupId(it.uuid())
-                        }
-                        .map {
-                            listOf(it)
-                        }
-                        .doOnNext {
+                val result = runBlocking {
+                    waypointsRepository.getTripWaypoints(args.favoriteTripId)
+                        .flatMapLatest { waypoints ->
+                            waypointsRepository.getTripGroup(waypoints)
+                        }.onEach {
+                            it?.trips?.firstOrNull { trip -> trip.uuid() == args.favoriteTripId }
+                                ?.let { trip ->
+                                    it.displayTripId = trip.id
+                                }
+                            setInitialSelectedTripGroupId(it!!.uuid())
+                        }.map {
+                           it?.let { listOf(it) } ?: emptyList()
+                        }.onEach {
                             currentTrip.postValue(
-                                    it.firstOrNull {
-                                        it.trips?.isNotEmpty() == true
-                                    }?.trips?.firstOrNull()
+                                it.firstOrNull {
+                                    it.trips?.isNotEmpty() == true
+                                }?.trips?.firstOrNull()
                             )
                             tripGroups.accept(it)
                             isLoading.set(false)
-                        }
-                        .map { Unit }
+                        }.map { Unit }
+                        .collect{}
+                }
+                return Observable.just(result)
             }
             else -> {
                 throw IllegalArgumentException("Unknown Argument: $args")
@@ -162,48 +177,48 @@ class TripResultPagerViewModel @Inject internal constructor(
 
     fun observeTripGroups(): Observable<List<TripGroup>> {
         return tripGroups
-                .doOnNext {
-                    Log.i("viewModel", "tripGroupsBinding set")
-                    tripGroupsBinding.set(it)
-                }
+            .doOnNext {
+                Log.i("viewModel", "tripGroupsBinding set")
+                tripGroupsBinding.set(it)
+            }
     }
 
     fun updateSelectedTripGroup(): Observable<TripGroup> {
         return currentPage
-                .asObservable()
-                .skip(1)
-                .withLatestFrom(tripGroups.hide(), BiFunction<Int, List<TripGroup>, TripGroup>
-                { id, tripGroups -> tripGroups[id] })
-                .observeOn(Schedulers.computation())
-                .doOnNext {
-                    setInitialSelectedTripGroupId(it.uuid())
-                }
-                .map { it }
+            .asObservable()
+            .skip(1)
+            .withLatestFrom(tripGroups.hide(), BiFunction<Int, List<TripGroup>, TripGroup>
+            { id, tripGroups -> tripGroups[id] })
+            .observeOn(Schedulers.computation())
+            .doOnNext {
+                setInitialSelectedTripGroupId(it.uuid())
+            }
+            .map { it }
     }
 
     fun getCurrentDisplayTrip(): Observable<Trip> {
         return currentPage
-                .asObservable()
-                .skip(1)
-                .withLatestFrom(tripGroups.hide(), BiFunction<Int, List<TripGroup>, TripGroup>
-                { id, tripGroups ->
-                    if (id > 0) {
-                        tripGroups[id]
-                    } else {
-                        tripGroups.first()
-                    }
-                })
-                .observeOn(Schedulers.computation())
-                .doOnNext {
-                    setInitialSelectedTripGroupId(it.uuid())
+            .asObservable()
+            .skip(1)
+            .withLatestFrom(tripGroups.hide(), BiFunction<Int, List<TripGroup>, TripGroup>
+            { id, tripGroups ->
+                if (id > 0) {
+                    tripGroups[id]
+                } else {
+                    tripGroups.first()
                 }
-                .map { it.displayTrip }
+            })
+            .observeOn(Schedulers.computation())
+            .doOnNext {
+                setInitialSelectedTripGroupId(it.uuid())
+            }
+            .map { it.displayTrip }
     }
 
     fun loadFetchingRealtimeStatus(): Observable<Boolean> {
         return selectedTripGroup
-                .switchMap { fetchingRealtimeStatusRepository.get(it.uuid()) }
-                .doOnNext { fetchingRealtimeStatus.set(it) }
+            .switchMap { fetchingRealtimeStatusRepository.get(it.uuid()) }
+            .doOnNext { fetchingRealtimeStatus.set(it) }
     }
 
     fun trackViewingTrip() = trackViewingTrip.execute(tripSource.hide())

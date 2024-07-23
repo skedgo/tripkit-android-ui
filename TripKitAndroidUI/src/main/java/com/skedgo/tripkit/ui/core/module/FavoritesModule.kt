@@ -1,10 +1,15 @@
 package com.skedgo.tripkit.ui.core.module
 
 import android.content.Context
+import com.skedgo.tripkit.ui.favorites.GetTripFromWaypoints
 import com.skedgo.tripkit.ui.favorites.v2.data.local.FavoritesDatabase
 import com.skedgo.tripkit.ui.favorites.v2.data.network.FavoritesApi
 import com.skedgo.tripkit.ui.favorites.v2.data.network.FavoritesRepository
 import com.skedgo.tripkit.ui.favorites.v2.data.network.FavoritesRepository.FavoritesRepositoryImpl
+import com.skedgo.tripkit.ui.favorites.waypoints.WaypointRepository
+import com.skedgo.tripkit.ui.favorites.waypoints.WaypointRepository.WaypointRepositoryImpl
+import com.skedgo.tripkit.ui.routing.GetRoutingConfig
+import com.skedgo.tripkit.ui.routingresults.TripGroupRepository
 import dagger.Module
 import dagger.Provides
 import okhttp3.OkHttpClient
@@ -36,4 +41,17 @@ class FavoritesModule {
         FavoritesRepositoryImpl(favoritesApi, db.favoriteDao())
 
 
+    @Provides
+    fun wayPointsRepository(
+        getRoutingConfig: GetRoutingConfig,
+        getTripFromWaypoints: GetTripFromWaypoints,
+        tripGroupRepository: TripGroupRepository,
+        db: FavoritesDatabase
+    ): WaypointRepository =
+        WaypointRepositoryImpl(
+            getRoutingConfig,
+            getTripFromWaypoints,
+            tripGroupRepository,
+            db.waypointDao()
+        )
 }

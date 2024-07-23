@@ -1,7 +1,7 @@
 package com.skedgo.tripkit.ui.booking
 
 import com.skedgo.tripkit.routing.TripGroup
-import com.skedgo.tripkit.ui.favorites.trips.Waypoint
+import com.skedgo.tripkit.ui.favorites.waypoints.Waypoint
 import com.skedgo.tripkit.ui.routing.RoutingConfig
 import io.reactivex.Observable
 

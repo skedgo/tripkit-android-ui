@@ -1,5 +1,7 @@
 package com.skedgo.tripkit.ui.favorites.trips
 
+import com.skedgo.tripkit.ui.favorites.waypoints.Waypoint
+
 data class FavoriteTrip(
     val uuid: String,
     val fromAddress: String?,

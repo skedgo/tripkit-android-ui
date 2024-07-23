@@ -3,6 +3,7 @@ package com.skedgo.tripkit.ui.favorites.trips
 import com.skedgo.tripkit.routing.SegmentType
 import com.skedgo.tripkit.routing.Trip
 import com.skedgo.tripkit.routing.TripSegment
+import com.skedgo.tripkit.ui.favorites.waypoints.Waypoint
 
 fun Trip.toWaypoints(): List<Waypoint> {
   val waypoints = segments

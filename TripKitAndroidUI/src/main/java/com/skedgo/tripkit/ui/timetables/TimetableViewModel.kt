@@ -26,7 +26,7 @@ import com.skedgo.tripkit.ui.core.RxViewModel
 import com.skedgo.tripkit.ui.core.isExecuting
 import com.skedgo.tripkit.ui.core.rxproperty.asObservable
 import com.skedgo.tripkit.ui.favorites.GetTripFromWaypoints
-import com.skedgo.tripkit.ui.favorites.trips.Waypoint
+import com.skedgo.tripkit.ui.favorites.waypoints.Waypoint
 import com.skedgo.tripkit.ui.model.TimetableEntry
 import com.skedgo.tripkit.ui.model.TimetableHeaderLineItem
 import com.skedgo.tripkit.ui.realtime.RealTimeChoreographer
