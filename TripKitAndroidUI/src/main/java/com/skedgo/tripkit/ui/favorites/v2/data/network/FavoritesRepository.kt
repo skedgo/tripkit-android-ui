@@ -5,6 +5,7 @@ import com.skedgo.network.Resource
 import com.skedgo.tripkit.Configs
 import com.skedgo.tripkit.ui.favorites.v2.data.local.FavoriteDaoV2
 import com.skedgo.tripkit.ui.favorites.v2.data.local.FavoriteV2
+import com.skedgo.tripkit.ui.favorites.v2.data.local.FavoriteV2.LocationFavorite
 import com.skedgo.tripkit.ui.utils.safeCall
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -23,6 +24,8 @@ interface FavoritesRepository {
     fun deleteFavoriteWithStopCode(stopCode: String): Flow<Resource<Unit>>
     fun isFavorite(favoriteId: String): Flow<Resource<Boolean>>
     fun isFavoriteByStopCode(stopCode: String): Flow<Resource<Boolean>>
+    fun isFavoriteByLocation(location: LocationFavorite): Flow<Resource<Boolean>>
+    fun deleteFavoriteWithLocationAddress(locationAddress: String): Flow<Resource<Unit>>
 
     class FavoritesRepositoryImpl @Inject constructor(
         private val api: FavoritesApi,
@@ -117,7 +120,32 @@ interface FavoritesRepository {
         override fun isFavoriteByStopCode(stopCode: String): Flow<Resource<Boolean>> =
             flow {
                 safeCall<Boolean> {
-                    emit(Resource.success(data = favoriteDao.favoriteStopExists(stopCode)))
+                    val userId = configs.userIdentifier()?.call()
+                    emit(Resource.success(data = userId?.let {
+                        favoriteDao.favoriteStopExistsForUser(stopCode, userId)
+                    } ?: run { favoriteDao.favoriteStopExists(stopCode) }))
+                }
+            }.flowOn(Dispatchers.IO)
+
+        override fun isFavoriteByLocation(location: LocationFavorite): Flow<Resource<Boolean>> =
+            flow {
+                safeCall<Boolean> {
+                    val userId = configs.userIdentifier()?.call()
+                    emit(Resource.success(data = userId?.let {
+                        favoriteDao.favoriteLocationExistsForUser(location.address, userId)
+                    } ?: run { favoriteDao.favoriteLocationExists(location.address) }))
+                }
+            }.flowOn(Dispatchers.IO)
+
+        override fun deleteFavoriteWithLocationAddress(locationAddress: String): Flow<Resource<Unit>> =
+            flow {
+                safeCall<Unit> {
+                    val location = favoriteDao.getFavoriteByLocationAddress(locationAddress)
+                    favoriteDao.deleteFavoriteByObjectId(location.uuid)
+                    if (configs.favoritesServerSyncEnabled()) {
+                        api.deleteFavorite(location.uuid)
+                    }
+                    emit(Resource.success(data = Unit))
                 }
             }.flowOn(Dispatchers.IO)
     }

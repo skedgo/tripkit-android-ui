@@ -32,6 +32,9 @@ interface FavoriteDaoV2 {
     @Query("DELETE FROM favorites_v2 WHERE type = :type")
     suspend fun deleteFavoriteType(type: FavoriteType)
 
+    @Query("DELETE FROM favorites_v2 WHERE location_address = :address")
+    suspend fun deleteFavoriteByLocationAddress(address: String)
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertFavorite(entity: FavoriteV2)
 
@@ -43,6 +46,9 @@ interface FavoriteDaoV2 {
 
     @Query("SELECT * FROM favorites_v2 WHERE stopCode = :code")
     suspend fun getFavoriteByStopCode(code: String): FavoriteV2
+
+    @Query("SELECT * FROM favorites_v2 WHERE location_address = :locationAddress")
+    suspend fun getFavoriteByLocationAddress(locationAddress: String): FavoriteV2
 
     @Query("SELECT * from favorites_v2")
     suspend fun getAllFavorites(): List<FavoriteV2>
@@ -58,6 +64,15 @@ interface FavoriteDaoV2 {
 
     @Query("SELECT EXISTS(SELECT 1 FROM favorites_v2 WHERE stopCode = :code)")
     suspend fun favoriteStopExists(code: String): Boolean
+
+    @Query("SELECT EXISTS(SELECT 1 FROM favorites_v2 WHERE stopCode = :code AND userId = :userId)")
+    suspend fun favoriteStopExistsForUser(code: String, userId: String): Boolean
+
+    @Query("SELECT EXISTS(SELECT 1 FROM favorites_v2 WHERE location_address = :address)")
+    suspend fun favoriteLocationExists(address: String): Boolean
+
+    @Query("SELECT EXISTS(SELECT 1 FROM favorites_v2 WHERE location_address = :address AND userId = :userId)")
+    suspend fun favoriteLocationExistsForUser(address: String, userId: String): Boolean
 
     @Query(
         "SELECT * from favorites_v2 WHERE name LIKE :query OR location_address LIKE :query OR " +

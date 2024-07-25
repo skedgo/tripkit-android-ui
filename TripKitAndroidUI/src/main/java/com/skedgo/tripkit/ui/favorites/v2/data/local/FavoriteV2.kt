@@ -65,7 +65,16 @@ data class FavoriteV2(
         val lat: Double,
         val lng: Double,
         val name: String?
-    )
+    ) {
+        companion object {
+            fun parseLocation(location: Location): LocationFavorite = LocationFavorite(
+                address = location.address,
+                lat = location.lat,
+                lng = location.lon,
+                name = location.name
+            )
+        }
+    }
 
     data class Pattern(
         val end: String,
