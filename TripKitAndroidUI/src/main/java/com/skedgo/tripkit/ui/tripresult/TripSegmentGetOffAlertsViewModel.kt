@@ -17,7 +17,13 @@ import com.skedgo.TripKit
 import com.skedgo.tripkit.TripUpdater
 import com.skedgo.tripkit.checkIfLocationProviderIsEnabled
 import com.skedgo.tripkit.notification.cancelChannelNotifications
-import com.skedgo.tripkit.routing.*
+import com.skedgo.tripkit.routing.GeoLocation
+import com.skedgo.tripkit.routing.GeofenceBroadcastReceiver
+import com.skedgo.tripkit.routing.GetOffAlertCache
+import com.skedgo.tripkit.routing.Trip
+import com.skedgo.tripkit.routing.TripAlarmBroadcastReceiver
+import com.skedgo.tripkit.routing.dateTimeZone
+import com.skedgo.tripkit.routing.endDateTime
 import com.skedgo.tripkit.ui.BuildConfig
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.core.RxViewModel
@@ -268,7 +274,7 @@ class TripSegmentGetOffAlertsViewModel @Inject internal constructor(
 
             if (it.denied.isNotEmpty()) {
                 _getOffAlertStateOn.postValue(false)
-                alarmManager.cancel(pendingIntent)
+                pendingIntent?.let { intent -> alarmManager.cancel(intent) }
             } else {
 
                 val reminder = TimeUnit.MINUTES.toSeconds(reminderInMinutes)
@@ -279,13 +285,15 @@ class TripSegmentGetOffAlertsViewModel @Inject internal constructor(
 
                 if(startSegmentStartTimeInSecs > currentDateTimeInSeconds &&
                     (startSegmentStartTimeInSecs - currentDateTimeInSeconds) >= reminder) {
-                    alarmManager.set(
-                        AlarmManager.RTC_WAKEUP,
-                        TimeUnit.SECONDS.toMillis(startSegmentStartTimeInSecs) - TimeUnit.MINUTES.toMillis(
-                            reminderInMinutes
-                        ),
-                        pendingIntent
-                    )
+                    pendingIntent?.let { intent ->
+                        alarmManager.set(
+                            AlarmManager.RTC_WAKEUP,
+                            TimeUnit.SECONDS.toMillis(startSegmentStartTimeInSecs) - TimeUnit.MINUTES.toMillis(
+                                reminderInMinutes
+                            ),
+                            intent
+                        )
+                    }
                 }
                 trip.segments?.mapNotNull { it.geofences }?.flatten()?.let { geofences ->
                     GeoLocation.createGeoFences(

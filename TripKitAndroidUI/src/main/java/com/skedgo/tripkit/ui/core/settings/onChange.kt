@@ -11,12 +11,14 @@ import io.reactivex.Observable
  */
 fun SharedPreferences.onChange(observedKey: String): Observable<Pair<SharedPreferences, String>> {
   return Flowable
-      .create<String>({
+      .create<String>({emitter ->
         val listener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
-          it.onNext(key)
+            key?.let {
+                emitter.onNext(it)
+            }
         }
         registerOnSharedPreferenceChangeListener(listener)
-        it.setCancellable { unregisterOnSharedPreferenceChangeListener(listener) }
+        emitter.setCancellable { unregisterOnSharedPreferenceChangeListener(listener) }
       }, BackpressureStrategy.BUFFER)
       .toObservable()
       .filter { it == observedKey }
