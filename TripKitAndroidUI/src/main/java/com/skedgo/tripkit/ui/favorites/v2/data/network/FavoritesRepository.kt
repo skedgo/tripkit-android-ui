@@ -17,7 +17,7 @@ import javax.inject.Inject
  */
 interface FavoritesRepository {
 
-    fun getFavorites(): Flow<Resource<FavoriteResponse>>
+    fun getFavorites(syncFromServer: Boolean = false): Flow<Resource<FavoriteResponse>>
     fun addFavorite(favoriteDto: FavoriteV2): Flow<Resource<FavoriteV2>>
     fun deleteFavorite(favoriteId: String): Flow<Resource<Unit>>
     fun deleteFavoriteWithStopCode(stopCode: String): Flow<Resource<Unit>>
@@ -31,11 +31,11 @@ interface FavoritesRepository {
 
         private val configs: Configs = TripKit.getInstance().configs()
 
-        override fun getFavorites(): Flow<Resource<FavoriteResponse>> =
+        override fun getFavorites(syncFromServer: Boolean): Flow<Resource<FavoriteResponse>> =
             flow {
                 safeCall<FavoriteResponse> {
                     val userId = configs.userIdentifier()?.call()
-                    if (configs.favoritesServerSyncEnabled()) {
+                    if (configs.favoritesServerSyncEnabled() && syncFromServer) {
                         val response = api.getFavorites()
                         response.result?.let {
                             favoriteDao.insertAllFavorites(
