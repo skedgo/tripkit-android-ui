@@ -30,7 +30,13 @@ class OnSwipeTouchListener(context: Context, listener: SwipeGestureListener)
             return true
         }
 
-        override fun onFling(e1: MotionEvent, e2: MotionEvent, velocityX: Float, velocityY: Float): Boolean {
+        override fun onFling(
+            e1: MotionEvent?,
+            e2: MotionEvent,
+            velocityX: Float,
+            velocityY: Float
+        ): Boolean {
+            if (e1 == null) return false
 
             try {
                 val distanceX = e2.x - (e1.x)
