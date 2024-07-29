@@ -8,7 +8,7 @@ import androidx.room.TypeConverters
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.skedgo.tripkit.common.model.Location
-import com.skedgo.tripkit.ui.favorites.v2.data.local.FavoriteV2.Pattern
+import com.skedgo.tripkit.ui.favorites.waypoints.Waypoint
 import java.util.UUID
 
 enum class FavoriteType {
@@ -56,7 +56,7 @@ data class FavoriteV2(
     @Embedded(prefix = "location_") val location: LocationFavorite? = null,
     @Embedded(prefix = "start_") val startLocation: LocationFavorite? = null,
     @Embedded(prefix = "end_") val endLocation: LocationFavorite? = null,
-    val patterns: List<Pattern>? = null,
+    val patterns: List<Waypoint>? = null,
     var userId: String? = null
 ) {
 
@@ -75,12 +75,6 @@ data class FavoriteV2(
             )
         }
     }
-
-    data class Pattern(
-        val end: String,
-        val modes: List<String>,
-        val start: String
-    )
 
     fun getFavoriteLocation(): Location? =
         location?.let {
@@ -124,7 +118,7 @@ data class FavoriteV2(
         private var location: LocationFavorite? = null
         private var start: LocationFavorite? = null
         private var end: LocationFavorite? = null
-        private var patterns: List<Pattern>? = null
+        private var patterns: List<Waypoint>? = null
 
         fun region(region: String?) = apply { this.region = region }
         fun uuid(uuid: String) = apply { this.uuid = uuid }
@@ -164,7 +158,7 @@ data class FavoriteV2(
             }
         }
 
-        fun patterns(patterns: List<Pattern>?) = apply { this.patterns = patterns }
+        fun patterns(patterns: List<Waypoint>?) = apply { this.patterns = patterns }
 
         fun build(): FavoriteV2 {
             return FavoriteV2(
@@ -200,14 +194,14 @@ class FavoriteTypeConverter {
 class PatternConverter {
 
     @TypeConverter
-    fun fromPatternList(patterns: List<Pattern>?): String? {
+    fun fromPatternList(patterns: List<Waypoint>?): String? {
         return if (patterns == null) null else Gson().toJson(patterns)
     }
 
     @TypeConverter
-    fun toPatternList(data: String?): List<Pattern>? {
+    fun toPatternList(data: String?): List<Waypoint>? {
         if (data == null) return null
-        val listType = object : TypeToken<List<Pattern>>() {}.type
+        val listType = object : TypeToken<List<Waypoint>>() {}.type
         return Gson().fromJson(data, listType)
     }
 }
