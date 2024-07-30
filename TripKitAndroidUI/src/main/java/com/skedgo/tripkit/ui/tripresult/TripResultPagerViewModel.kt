@@ -135,7 +135,7 @@ class TripResultPagerViewModel @Inject internal constructor(
                 fetchingRealtimeStatus.set(true)
                 val result = runBlocking {
                     favoritesRepository.getFavoriteById(args.favoriteTripId)
-                        .map { it.pattern.orEmpty() }
+                        .map { it?.pattern.orEmpty() }
                         .flatMapLatest { waypoints ->
                             waypointsRepository.getTripGroup(waypoints)
                         }.onEach {

@@ -4,6 +4,7 @@ import com.skedgo.TripKit
 import com.skedgo.network.Resource
 import com.skedgo.tripkit.Configs
 import com.skedgo.tripkit.ui.favorites.v2.data.local.FavoriteDaoV2
+import com.skedgo.tripkit.ui.favorites.v2.data.local.FavoriteType
 import com.skedgo.tripkit.ui.favorites.v2.data.local.FavoriteV2
 import com.skedgo.tripkit.ui.favorites.v2.data.local.FavoriteV2.LocationFavorite
 import com.skedgo.tripkit.ui.utils.safeCall
@@ -27,7 +28,8 @@ interface FavoritesRepository {
     fun isFavoriteByStopCode(stopCode: String): Flow<Resource<Boolean>>
     fun isFavoriteByLocation(location: LocationFavorite): Flow<Resource<Boolean>>
     fun deleteFavoriteWithLocationAddress(locationAddress: String): Flow<Resource<Unit>>
-    fun getFavoriteById(uuid: String): Flow<FavoriteV2>
+    fun getFavoriteById(uuid: String): Flow<FavoriteV2?>
+    fun getFavoriteByType(type: FavoriteType): Flow<FavoriteV2?>
 
     class FavoritesRepositoryImpl @Inject constructor(
         private val api: FavoritesApi,
@@ -121,9 +123,11 @@ interface FavoritesRepository {
             flow {
                 safeCall<Unit> {
                     val stopFavorite = favoriteDao.getFavoriteByStopCode(stopCode)
-                    favoriteDao.deleteFavoriteByObjectId(stopFavorite.uuid)
+                    stopFavorite?.let {
+                        favoriteDao.deleteFavoriteByObjectId(stopFavorite.uuid)
+                    }
                     if (configs.favoritesServerSyncEnabled()) {
-                        api.deleteFavorite(stopFavorite.uuid)
+                        stopFavorite?.let { api.deleteFavorite(stopFavorite.uuid) }
                     }
                     emit(Resource.success(data = Unit))
                 }
@@ -162,19 +166,23 @@ interface FavoritesRepository {
             flow {
                 safeCall<Unit> {
                     val location = favoriteDao.getFavoriteByLocationAddress(locationAddress)
-                    favoriteDao.deleteFavoriteByObjectId(location.uuid)
+                    location?.let { favoriteDao.deleteFavoriteByObjectId(location.uuid) }
                     if (configs.favoritesServerSyncEnabled()) {
-                        api.deleteFavorite(location.uuid)
+                        location?.let { api.deleteFavorite(location.uuid) }
                     }
                     emit(Resource.success(data = Unit))
                 }
             }.flowOn(Dispatchers.IO)
 
-        override fun getFavoriteById(uuid: String): Flow<FavoriteV2> =
-            flow<FavoriteV2> {
+        override fun getFavoriteById(uuid: String): Flow<FavoriteV2?> =
+            flow<FavoriteV2?> {
                 emit(favoriteDao.getFavoriteById(uuid))
             }.flowOn(Dispatchers.IO)
 
+        override fun getFavoriteByType(type: FavoriteType): Flow<FavoriteV2?> =
+            flow<FavoriteV2?> {
+                emit(favoriteDao.getFavoriteOfType(type))
+            }.flowOn(Dispatchers.IO)
     }
 
 }

@@ -15,7 +15,7 @@ interface FavoriteDaoV2 {
     suspend fun getFavoritesSorted(
         homeType: FavoriteType = home,
         workType: FavoriteType = work
-    ): FavoriteV2
+    ): FavoriteV2?
 
     @Query("SELECT * FROM favorites_v2 WHERE type != :homeType AND type != :workType ORDER BY uuid")
     suspend fun getFavoritesExcludingWorkAndHome(
@@ -42,13 +42,13 @@ interface FavoriteDaoV2 {
     suspend fun insertAllFavorites(favorites: List<FavoriteV2>)
 
     @Query("SELECT * FROM favorites_v2 WHERE uuid = :id")
-    suspend fun getFavoriteById(id: String): FavoriteV2
+    suspend fun getFavoriteById(id: String): FavoriteV2?
 
     @Query("SELECT * FROM favorites_v2 WHERE stopCode = :code")
-    suspend fun getFavoriteByStopCode(code: String): FavoriteV2
+    suspend fun getFavoriteByStopCode(code: String): FavoriteV2?
 
     @Query("SELECT * FROM favorites_v2 WHERE location_address = :locationAddress")
-    suspend fun getFavoriteByLocationAddress(locationAddress: String): FavoriteV2
+    suspend fun getFavoriteByLocationAddress(locationAddress: String): FavoriteV2?
 
     @Query("SELECT * from favorites_v2")
     suspend fun getAllFavorites(): List<FavoriteV2>
