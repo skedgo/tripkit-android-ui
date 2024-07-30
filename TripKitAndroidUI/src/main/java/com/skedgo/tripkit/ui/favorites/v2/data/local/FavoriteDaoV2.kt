@@ -53,6 +53,9 @@ interface FavoriteDaoV2 {
     @Query("SELECT * from favorites_v2")
     suspend fun getAllFavorites(): List<FavoriteV2>
 
+    @Query("SELECT * FROM favorites_v2 WHERE userId IS NULL OR userId = '' OR userId = :userId")
+    suspend fun getAllFavoritesWithEmptyUserId(userId: String): List<FavoriteV2>
+
     @Query("SELECT * from favorites_v2 WHERE userId = :userId")
     suspend fun getUserFavorites(userId: String): List<FavoriteV2>
 

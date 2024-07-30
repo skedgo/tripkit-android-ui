@@ -14,7 +14,7 @@ import retrofit2.HttpException
 fun <T> Flow<T>.merge(vararg flows: Flow<T>): Flow<T> = flowOf(*flows).flattenMerge()
 
 suspend fun <T> FlowCollector<Resource<T>>.safeCall(
-    errorHandlingCall: (suspend () -> Unit)? = null, //In case there's an extra handling when receiving error on call
+    errorHandlingCall: (suspend (Exception) -> Unit)? = null, //In case there's an extra handling when receiving error on call
     call: suspend () -> Unit
 ): FlowCollector<Resource<T>> {
     return this.apply {
@@ -26,7 +26,7 @@ suspend fun <T> FlowCollector<Resource<T>>.safeCall(
                 e.printStackTrace()
             }
 
-            errorHandlingCall?.invoke() ?: kotlin.run {
+            errorHandlingCall?.invoke(e) ?: kotlin.run {
                 var code = -1
                 if (e is HttpException) {
                     code = e.code()

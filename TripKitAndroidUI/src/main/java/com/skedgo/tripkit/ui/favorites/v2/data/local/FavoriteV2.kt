@@ -47,8 +47,8 @@ fun String.toFavoriteType(): FavoriteType {
 @TypeConverters(FavoriteTypeConverter::class, PatternConverter::class)
 data class FavoriteV2(
     @PrimaryKey val uuid: String,
-    var name: String = "",
     val type: FavoriteType,
+    var name: String? = null,
     val order: Int? = null,
     val region: String? = null,
     val stopCode: String? = null,
@@ -56,7 +56,7 @@ data class FavoriteV2(
     @Embedded(prefix = "location_") val location: LocationFavorite? = null,
     @Embedded(prefix = "start_") val startLocation: LocationFavorite? = null,
     @Embedded(prefix = "end_") val endLocation: LocationFavorite? = null,
-    val patterns: List<Waypoint>? = null,
+    val pattern: List<Waypoint>? = null,
     var userId: String? = null
 ) {
 
@@ -107,9 +107,9 @@ data class FavoriteV2(
         }
 
     class Builder(
-        private val name: String,
         private val type: FavoriteType
     ) {
+        private var name: String? = null
         private var uuid: String = UUID.randomUUID().toString()
         private var region: String? = null
         private var stopCode: String? = null
@@ -120,6 +120,7 @@ data class FavoriteV2(
         private var end: LocationFavorite? = null
         private var patterns: List<Waypoint>? = null
 
+        fun name(name: String?) = apply { this.name = name }
         fun region(region: String?) = apply { this.region = region }
         fun uuid(uuid: String) = apply { this.uuid = uuid }
         fun stopCode(stopCode: String?) = apply { this.stopCode = stopCode }
@@ -158,7 +159,8 @@ data class FavoriteV2(
             }
         }
 
-        fun patterns(patterns: List<Waypoint>?) = apply { this.patterns = patterns }
+        fun patterns(patterns: List<Waypoint>?) =
+            apply { this.patterns = patterns?.filter { it.start != null && it.end != null } }
 
         fun build(): FavoriteV2 {
             return FavoriteV2(
@@ -172,7 +174,7 @@ data class FavoriteV2(
                 location = location,
                 startLocation = start,
                 endLocation = end,
-                patterns = patterns
+                pattern = patterns
             )
         }
     }

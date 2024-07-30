@@ -1,12 +1,22 @@
 package com.skedgo.tripkit.ui.data.waypoints
 
 import com.google.gson.TypeAdapter
+import com.google.gson.annotations.SerializedName
 import com.google.gson.stream.JsonReader
 import com.google.gson.stream.JsonWriter
 import com.skedgo.tripkit.ui.data.ConfigDto
 import com.skedgo.tripkit.ui.favorites.waypoints.Waypoint
 
-class WaypointsRequestBody(val config: ConfigDto, val waypoints: Array<Waypoint>)
+class WaypointsRequestBody(
+    val config: ConfigDto,
+    val waypoints: Array<Waypoint>
+)
+
+class WaypointsAdvancedRequestBody(
+    val config: ConfigDto,
+    @SerializedName("segments") val waypoints: Array<Waypoint>,
+    val leaveAt: Long? = null
+)
 
 class WaypointsAdapter : TypeAdapter<Waypoint>() {
     override fun write(out: JsonWriter, value: Waypoint) {
@@ -17,9 +27,19 @@ class WaypointsAdapter : TypeAdapter<Waypoint>() {
 
             out.name("lng")
             out.value(value.lng)
+
             value.mode?.let {
                 out.name("mode")
                 out.value(value.mode)
+            }
+
+            value.modes?.let {
+                out.beginArray()
+                out.name("modes")
+                it.forEach {
+                    out.value(it)
+                }
+                out.endArray()
             }
 
             if (value.time > 0) {
@@ -33,10 +53,12 @@ class WaypointsAdapter : TypeAdapter<Waypoint>() {
             out.name("end")
             out.value(value.end)
 
-            value.mode?.let {
+            value.modes?.let {
                 out.name("modes")
                 out.beginArray()
-                out.value(value.mode)
+                it.forEach {
+                    out.value(it)
+                }
                 out.endArray()
             }
 

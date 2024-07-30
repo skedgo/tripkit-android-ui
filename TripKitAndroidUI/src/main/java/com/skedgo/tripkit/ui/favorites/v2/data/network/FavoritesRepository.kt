@@ -11,6 +11,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
+import retrofit2.HttpException
 import javax.inject.Inject
 
 /**
@@ -26,6 +27,7 @@ interface FavoritesRepository {
     fun isFavoriteByStopCode(stopCode: String): Flow<Resource<Boolean>>
     fun isFavoriteByLocation(location: LocationFavorite): Flow<Resource<Boolean>>
     fun deleteFavoriteWithLocationAddress(locationAddress: String): Flow<Resource<Unit>>
+    fun getFavoriteById(uuid: String): Flow<FavoriteV2>
 
     class FavoritesRepositoryImpl @Inject constructor(
         private val api: FavoritesApi,
@@ -36,9 +38,29 @@ interface FavoritesRepository {
 
         override fun getFavorites(syncFromServer: Boolean): Flow<Resource<FavoriteResponse>> =
             flow {
-                safeCall<FavoriteResponse> {
-                    val userId = configs.userIdentifier()?.call()
-                    if (configs.favoritesServerSyncEnabled() && syncFromServer) {
+                val userId = configs.userIdentifier()?.call()
+                safeCall<FavoriteResponse>(
+                    errorHandlingCall = {
+                        if (it is HttpException && it.code() in 400..499) {
+                            emit(
+                                Resource.success(
+                                    data = FavoriteResponse(
+                                        result = favoriteDao.getAllFavoritesWithEmptyUserId("")
+                                    )
+                                )
+                            )
+                        } else {
+                            emit(
+                                Resource.error(
+                                    data = null,
+                                    message = it.message ?: "Error Occurred!",
+                                    -1
+                                )
+                            )
+                        }
+                    }
+                ) {
+                    if (configs.favoritesServerSyncEnabled() && syncFromServer && !userId.isNullOrEmpty()) {
                         val response = api.getFavorites()
                         response.result?.let {
                             favoriteDao.insertAllFavorites(
@@ -50,9 +72,8 @@ interface FavoritesRepository {
                         }
 
                         // Check for local favorites not present in API response and upload them
-                        val localFavorites = userId?.let {
-                            favoriteDao.getUserFavorites(userId)
-                        } ?: favoriteDao.getAllFavorites()
+                        val localFavorites =
+                            favoriteDao.getAllFavoritesWithEmptyUserId(userId.orEmpty())
 
                         val localFavoritesToUpload = localFavorites.filterNot { localFavorite ->
                             response.result?.any { it.uuid == localFavorite.uuid } == true
@@ -60,9 +81,8 @@ interface FavoritesRepository {
                         localFavoritesToUpload.forEach { favorite -> api.addFavorite(favorite) }
                         emit(Resource.success(data = response))
                     } else {
-                        val favorites = userId?.let {
-                            favoriteDao.getUserFavorites(userId)
-                        } ?: favoriteDao.getAllFavorites()
+                        val favorites =
+                            favoriteDao.getAllFavoritesWithEmptyUserId(userId.orEmpty())
                         emit(Resource.success(data = FavoriteResponse(result = favorites)))
                     }
                 }
@@ -73,13 +93,14 @@ interface FavoritesRepository {
                 safeCall<FavoriteV2> {
                     val userId = configs.userIdentifier()?.call()
                     favoriteDto.userId = userId
-                    val favorite = if (configs.favoritesServerSyncEnabled()) {
-                        val result = api.addFavorite(favoriteDto)
-                        result.userId = userId
-                        result
-                    } else {
-                        favoriteDto
-                    }
+                    val favorite =
+                        if (configs.favoritesServerSyncEnabled() && !userId.isNullOrEmpty()) {
+                            val result = api.addFavorite(favoriteDto)
+                            result.userId = userId
+                            result
+                        } else {
+                            favoriteDto
+                        }
                     favoriteDao.insertFavorite(favorite)
                     emit(Resource.success(data = favorite))
                 }
@@ -148,6 +169,12 @@ interface FavoritesRepository {
                     emit(Resource.success(data = Unit))
                 }
             }.flowOn(Dispatchers.IO)
+
+        override fun getFavoriteById(uuid: String): Flow<FavoriteV2> =
+            flow<FavoriteV2> {
+                emit(favoriteDao.getFavoriteById(uuid))
+            }.flowOn(Dispatchers.IO)
+
     }
 
 }

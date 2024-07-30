@@ -15,6 +15,7 @@ import com.skedgo.tripkit.routing.TripGroup
 import com.skedgo.tripkit.ui.core.RxViewModel
 import com.skedgo.tripkit.ui.core.SchedulerFactory
 import com.skedgo.tripkit.ui.core.rxproperty.asObservable
+import com.skedgo.tripkit.ui.favorites.v2.data.network.FavoritesRepository
 import com.skedgo.tripkit.ui.favorites.waypoints.WaypointRepository
 import com.skedgo.tripkit.ui.routing.GetSortedTripGroups
 import com.skedgo.tripkit.ui.routingresults.FetchingRealtimeStatusRepository
@@ -51,7 +52,8 @@ class TripResultPagerViewModel @Inject internal constructor(
     private val tripGroupRepository: TripGroupRepository,
     private val fetchingRealtimeStatusRepository: FetchingRealtimeStatusRepository,
     private val schedulers: SchedulerFactory,
-    private val waypointsRepository: WaypointRepository
+    private val waypointsRepository: WaypointRepository,
+    private val favoritesRepository: FavoritesRepository
 ) : RxViewModel() {
     val fetchingRealtimeStatus = ObservableBoolean()
     val selectedTripGroup by lazy {
@@ -132,7 +134,8 @@ class TripResultPagerViewModel @Inject internal constructor(
             is FavoriteTrip -> {
                 fetchingRealtimeStatus.set(true)
                 val result = runBlocking {
-                    waypointsRepository.getTripWaypoints(args.favoriteTripId)
+                    favoritesRepository.getFavoriteById(args.favoriteTripId)
+                        .map { it.pattern.orEmpty() }
                         .flatMapLatest { waypoints ->
                             waypointsRepository.getTripGroup(waypoints)
                         }.onEach {
@@ -140,9 +143,9 @@ class TripResultPagerViewModel @Inject internal constructor(
                                 ?.let { trip ->
                                     it.displayTripId = trip.id
                                 }
-                            setInitialSelectedTripGroupId(it!!.uuid())
+                            it?.let { group -> setInitialSelectedTripGroupId(group.uuid()) }
                         }.map {
-                           it?.let { listOf(it) } ?: emptyList()
+                            it?.let { listOf(it) } ?: emptyList()
                         }.onEach {
                             currentTrip.postValue(
                                 it.firstOrNull {
@@ -152,7 +155,7 @@ class TripResultPagerViewModel @Inject internal constructor(
                             tripGroups.accept(it)
                             isLoading.set(false)
                         }.map { Unit }
-                        .collect{}
+                        .collect {}
                 }
                 return Observable.just(result)
             }

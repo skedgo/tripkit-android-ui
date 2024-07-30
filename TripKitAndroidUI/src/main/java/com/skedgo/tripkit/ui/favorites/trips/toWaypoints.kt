@@ -14,15 +14,17 @@ fun Trip.toWaypoints(): List<Waypoint> {
                 SegmentType.ARRIVAL
             ).contains(it.type).not()
         }
-        .map { segment ->
+        .mapIndexed { index, segment ->
             val mode = segment.getModeForWayPoint()
-            Waypoint.parseFromSegment(segment) ?: Waypoint(
+            Waypoint.parseFromSegment(segment, index) ?: Waypoint(
                 lat = segment.from.lat,
                 lng = segment.from.lon,
                 mode = mode.first,
+                modes = mode.first?.run { listOf(this) },
                 modeTitle = mode.second,
                 start = segment.from.coordinateString,
-                end = segment.to.coordinateString
+                end = segment.to.coordinateString,
+                order = index
                 )
         }
     return waypoints.plus(
