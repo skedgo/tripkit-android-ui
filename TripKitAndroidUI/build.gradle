@@ -30,6 +30,7 @@ android {
         // It should be utilized in validation processes to support both new and old coding approaches,
         // ensuring that SDK users employing older methodologies will continue to experience seamless functionality.
         buildConfigField 'int', 'TRIPKIT_UI_VERSION', "${tripkitUiVersion}"
+        buildConfigField "String", "APPLICATION_CLASS_NAME", "\"com.skedgo.tripgo.TripGoApplication\""
     }
 
     buildTypes {

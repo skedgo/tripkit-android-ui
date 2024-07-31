@@ -9,43 +9,44 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.jakewharton.rxrelay2.PublishRelay
-import com.skedgo.tripkit.common.model.Query
-import com.skedgo.tripkit.common.model.TimeTag
 import com.skedgo.tripkit.RoutingError
 import com.skedgo.tripkit.TransportModeFilter
 import com.skedgo.tripkit.a2brouting.RouteService
+import com.skedgo.tripkit.common.model.Query
+import com.skedgo.tripkit.common.model.TimeTag
 import com.skedgo.tripkit.common.model.TransportMode
 import com.skedgo.tripkit.data.regions.RegionService
-import com.skedgo.tripkit.model.ViewTrip
-import com.skedgo.tripkit.ui.BR
-import com.skedgo.tripkit.ui.R
-import com.skedgo.tripkit.ui.core.RxViewModel
-import com.skedgo.tripkit.ui.routing.GetSortedTripGroupsWithRoutingStatus
-import com.skedgo.tripkit.ui.routingresults.TripGroupRepository
-import com.skedgo.tripkit.ui.trip.options.RoutingTimeViewModelMapper
-import com.skedgo.tripkit.ui.trip.toRoutingTime
-import dagger.Lazy
-import io.reactivex.Observable
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.subjects.PublishSubject
-import me.tatarka.bindingcollectionadapter2.ItemBinding
-import me.tatarka.bindingcollectionadapter2.collections.DiffObservableList
 import com.skedgo.tripkit.logging.ErrorLogger
+import com.skedgo.tripkit.model.ViewTrip
 import com.skedgo.tripkit.routing.Trip
 import com.skedgo.tripkit.routing.TripGroup
 import com.skedgo.tripkit.routingstatus.RoutingStatus
 import com.skedgo.tripkit.routingstatus.RoutingStatusRepository
 import com.skedgo.tripkit.routingstatus.Status
+import com.skedgo.tripkit.ui.BR
+import com.skedgo.tripkit.ui.BuildConfig
+import com.skedgo.tripkit.ui.R
+import com.skedgo.tripkit.ui.core.RxViewModel
 import com.skedgo.tripkit.ui.model.UserMode
+import com.skedgo.tripkit.ui.routing.GetSortedTripGroupsWithRoutingStatus
 import com.skedgo.tripkit.ui.routing.SimpleTransportModeFilter
+import com.skedgo.tripkit.ui.routingresults.TripGroupRepository
+import com.skedgo.tripkit.ui.trip.options.RoutingTimeViewModelMapper
+import com.skedgo.tripkit.ui.trip.toRoutingTime
 import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButtonContainer
 import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButtonHandler
 import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButtonHandlerFactory
 import com.skedgo.tripkit.ui.views.MultiStateView
+import dagger.Lazy
+import io.reactivex.Observable
+import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.subjects.PublishSubject
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import me.tatarka.bindingcollectionadapter2.ItemBinding
+import me.tatarka.bindingcollectionadapter2.collections.DiffObservableList
 import me.tatarka.bindingcollectionadapter2.collections.MergeObservableList
 import me.tatarka.bindingcollectionadapter2.itembindings.OnItemBindClass
 import org.joda.time.DateTimeZone
@@ -95,6 +96,7 @@ class TripResultListViewModel @Inject constructor(
     val transportModes: ObservableField<List<TripResultTransportItemViewModel>> = ObservableField(emptyList())
     val showTransport = ObservableBoolean(false)
     val showTransportModeSelection = ObservableBoolean(true)
+    val showServiceProvider = ObservableBoolean(false)
     val isError = ObservableBoolean(false)
     val showCloseButton = ObservableBoolean(false)
     private val transportModeChangeThrottle = PublishSubject.create<Unit>()
@@ -162,6 +164,10 @@ class TripResultListViewModel @Inject constructor(
         }
 
         showTransportModeSelection.set(showTransportSelectionView)
+        showServiceProvider.set(
+                context.applicationContext.applicationInfo.className != BuildConfig.APPLICATION_CLASS_NAME
+        )
+
         transportVisibilityFilter = if (showTransportSelectionView) {
             PrefsBasedTransportViewFilter(context)
         } else {

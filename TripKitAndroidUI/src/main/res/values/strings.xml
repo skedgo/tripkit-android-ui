@@ -607,4 +607,6 @@ We aggregate the anonymised data and provide it to researchers, regulators, and 
 
     <string name="login">Log in</string>
     <string name="logout">Log out</string>
+    <string name="desc_service_provider_tripgo">Service provider: TripGo</string>
+    <string name="label_powered_by">Powered by</string>
 </resources>
