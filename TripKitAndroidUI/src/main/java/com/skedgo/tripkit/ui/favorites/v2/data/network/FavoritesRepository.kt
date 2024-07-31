@@ -64,7 +64,8 @@ interface FavoritesRepository {
                 ) {
                     if (configs.favoritesServerSyncEnabled() && syncFromServer && !userId.isNullOrEmpty()) {
                         val response = api.getFavorites()
-                        response.result?.let {
+                        val favoritesFromResponse = response.result
+                        favoritesFromResponse?.let {
                             favoriteDao.insertAllFavorites(
                                 it.map { favorite ->
                                     favorite.userId = userId
@@ -78,9 +79,12 @@ interface FavoritesRepository {
                             favoriteDao.getAllFavoritesWithEmptyUserId(userId.orEmpty())
 
                         val localFavoritesToUpload = localFavorites.filterNot { localFavorite ->
-                            response.result?.any { it.uuid == localFavorite.uuid } == true
+                            favoritesFromResponse?.any { it.uuid == localFavorite.uuid } == true
                         }
                         localFavoritesToUpload.forEach { favorite -> api.addFavorite(favorite) }
+                        if(localFavoritesToUpload.isNotEmpty()) {
+                            response.result = favoritesFromResponse.orEmpty() + localFavoritesToUpload
+                        }
                         emit(Resource.success(data = response))
                     } else {
                         val favorites =
