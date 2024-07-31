@@ -13,8 +13,6 @@ import androidx.databinding.ObservableField
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-import com.google.android.gms.maps.model.Circle
-import com.google.android.gms.maps.model.CircleOptions
 import com.google.android.gms.maps.model.LatLng
 import com.jakewharton.rxrelay2.BehaviorRelay
 import com.jakewharton.rxrelay2.PublishRelay
@@ -25,13 +23,24 @@ import com.skedgo.tripkit.common.model.Location
 import com.skedgo.tripkit.common.model.RealtimeAlert
 import com.skedgo.tripkit.common.util.TimeUtils
 import com.skedgo.tripkit.datetime.PrintTime
-import com.skedgo.tripkit.routing.*
+import com.skedgo.tripkit.routing.GetOffAlertCache
+import com.skedgo.tripkit.routing.MessageType
+import com.skedgo.tripkit.routing.SegmentType
+import com.skedgo.tripkit.routing.Trip
+import com.skedgo.tripkit.routing.TripGroup
+import com.skedgo.tripkit.routing.TripKitMapTiles
+import com.skedgo.tripkit.routing.TripSegment
+import com.skedgo.tripkit.routing.Visibilities
+import com.skedgo.tripkit.routing.dateTimeZone
+import com.skedgo.tripkit.routing.endDateTime
+import com.skedgo.tripkit.routing.startDateTime
+import com.skedgo.tripkit.routing.timetableEndDateTime
+import com.skedgo.tripkit.routing.timetableStartDateTime
 import com.skedgo.tripkit.ui.BR
 import com.skedgo.tripkit.ui.BuildConfig
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.core.RxViewModel
 import com.skedgo.tripkit.ui.creditsources.CreditSourcesOfDataViewModel
-import com.skedgo.tripkit.ui.map.getGeofenceZone
 import com.skedgo.tripkit.ui.routing.settings.RemindersRepository
 import com.skedgo.tripkit.ui.routingresults.TripGroupRepository
 import com.skedgo.tripkit.ui.trippreview.segment.TripSegmentSummaryItemViewModel
@@ -45,15 +54,12 @@ import com.skedgo.tripkit.ui.utils.generateTripPreviewHeader
 import com.skedgo.tripkit.ui.utils.getSegmentIconObservable
 import com.squareup.otto.Bus
 import io.reactivex.Observable
-import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
-import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.PublishSubject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.flowOn
@@ -66,8 +72,6 @@ import me.tatarka.bindingcollectionadapter2.ItemBinding
 import me.tatarka.bindingcollectionadapter2.itembindings.OnItemBindClass
 import org.joda.time.DateTime
 import timber.log.Timber
-import java.lang.Exception
-import java.util.*
 import java.util.Collections.emptyList
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -137,6 +141,7 @@ class TripSegmentsViewModel @Inject internal constructor(
     val alertsClicked = PublishRelay.create<ArrayList<RealtimeAlert>>()
     val segmentClicked = PublishRelay.create<TripSegment>()
     val externalActionClicked = PublishRelay.create<TripSegment>()
+    val ticketInfoClicked = PublishRelay.create<String>()
     var durationTitle = ObservableField<String>()
     var arriveAtTitle = ObservableField<String>()
     val locationLabel = PublishRelay.create<String>()
@@ -553,6 +558,13 @@ class TripSegmentsViewModel @Inject internal constructor(
                         segmentClicked.accept(segment)
                     }
                 }.autoClear()
+
+                viewModel.onTicketInfoClicked.observable.subscribe {
+                    it.tripSegment?.ticketURL.let { ticketUrl ->
+                        ticketInfoClicked.accept(ticketUrl)
+                    }
+                }.autoClear()
+
                 viewModel.tripSegment = segment
 
                 if (segment.type == SegmentType.ARRIVAL || segment.type == SegmentType.DEPARTURE) {
@@ -567,6 +579,11 @@ class TripSegmentsViewModel @Inject internal constructor(
                         bridgeModel.onClick.observable.subscribe {
                             it.tripSegment?.let { segment ->
                                 segmentClicked.accept(segment)
+                            }
+                        }.autoClear()
+                        bridgeModel.onTicketInfoClicked.observable.subscribe {
+                            it.tripSegment?.ticketURL.let { ticketUrl ->
+                                ticketInfoClicked.accept(ticketUrl)
                             }
                         }.autoClear()
                         segmentViewModels.add(bridgeModel)

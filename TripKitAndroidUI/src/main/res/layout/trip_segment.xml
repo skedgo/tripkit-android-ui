@@ -37,25 +37,25 @@
             android:id="@+id/topLine"
             android:layout_width="@dimen/segment_item_line_width"
             android:layout_height="0dp"
-            app:backgroundColor="@{viewModel.topLineTint}"
             android:visibility="@{viewModel.showTopLine}"
+            app:backgroundColor="@{viewModel.topLineTint}"
             app:layout_constraintBottom_toTopOf="@+id/centerHorizontalGuide"
             app:layout_constraintEnd_toEndOf="@+id/iconBackground"
             app:layout_constraintStart_toStartOf="@+id/iconBackground"
             app:layout_constraintTop_toTopOf="parent"
-            tools:background="@android:color/holo_green_dark"/>
+            tools:background="@android:color/holo_green_dark" />
 
         <View
             android:id="@+id/bottomLine"
             android:layout_width="@dimen/segment_item_line_width"
             android:layout_height="0dp"
-            app:backgroundColor="@{viewModel.bottomLineTint}"
             android:visibility="@{viewModel.showBottomLine}"
+            app:backgroundColor="@{viewModel.bottomLineTint}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="@+id/iconBackground"
             app:layout_constraintStart_toStartOf="@+id/iconBackground"
             app:layout_constraintTop_toBottomOf="@+id/centerHorizontalGuide"
-            tools:background="@android:color/holo_red_light"/>
+            tools:background="@android:color/holo_red_light" />
 
         <ImageView
             android:id="@+id/iconBackground"
@@ -68,7 +68,7 @@
             app:layout_constraintEnd_toStartOf="@+id/leftGuide"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            tools:tint="@android:color/holo_red_light"/>
+            tools:tint="@android:color/holo_red_light" />
 
         <LinearLayout
             android:id="@+id/iconContent"
@@ -114,8 +114,8 @@
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingEnd="@dimen/spacing_extra_small"
-                android:paddingVertical="@dimen/spacing_extra_small">
+                android:paddingVertical="@dimen/spacing_extra_small"
+                android:paddingEnd="@dimen/spacing_extra_small">
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:id="@+id/layoutBicycleAccessible"
@@ -193,6 +193,26 @@
                 app:layout_constraintStart_toStartOf="@+id/title"
                 app:layout_constraintTop_toBottomOf="@+id/title"
                 tools:text="Do something" />
+
+            <TextView
+                android:id="@+id/ticketInfo"
+                style="@style/TextAppearance.MaterialComponents.Caption"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/spacing_normal"
+                android:gravity="start"
+                android:text="@string/label_show_ticket_info"
+                android:textColor="@color/favorite_bus"
+                android:onClick="@{() -> viewModel.onTicketInfoClicked.perform()}"
+                android:textDirection="locale"
+                android:textSize="14sp"
+                android:layout_marginTop="@dimen/spacing_small"
+                android:visibility="@{viewModel.showTicketInfo}"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="@+id/title"
+                app:layout_constraintTop_toBottomOf="@+id/title"
+                tools:text="@string/label_show_ticket_info" />
+
         </LinearLayout>
 
         <com.skedgo.tripkit.ui.views.TripSegmentAlertView
@@ -226,7 +246,7 @@
             app:layout_constraintStart_toStartOf="@+id/content"
             app:layout_constraintTop_toBottomOf="@+id/alertsView"
             tools:text="External Action"
-            tools:visibility="visible"/>
+            tools:visibility="visible" />
 
         <androidx.constraintlayout.widget.Barrier
             android:id="@+id/bottomBarrier"
