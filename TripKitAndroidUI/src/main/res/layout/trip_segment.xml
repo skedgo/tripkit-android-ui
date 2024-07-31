@@ -201,12 +201,13 @@
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="@dimen/spacing_normal"
                 android:gravity="start"
+                android:onClick="@{() -> viewModel.onTicketInfoClicked.perform()}"
+                android:paddingTop="@dimen/spacing_small"
+                android:paddingBottom="@dimen/spacing_small"
                 android:text="@string/label_show_ticket_info"
                 android:textColor="@color/favorite_bus"
-                android:onClick="@{() -> viewModel.onTicketInfoClicked.perform()}"
                 android:textDirection="locale"
                 android:textSize="14sp"
-                android:layout_marginTop="@dimen/spacing_small"
                 android:visibility="@{viewModel.showTicketInfo}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="@+id/title"
@@ -232,7 +233,8 @@
             app:alerts="@{viewModel.alerts}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="@+id/content"
-            app:layout_constraintTop_toBottomOf="@+id/content" />
+            app:layout_constraintTop_toBottomOf="@+id/content"
+            app:layout_goneMarginTop="0dp" />
 
 
         <Button
