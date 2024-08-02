@@ -1,19 +1,15 @@
 package com.skedgo.tripkit.ui.favorites.trips
 
+import com.skedgo.tripkit.ui.favorites.waypoints.toWaypointEntity
+import com.skedgo.tripkit.ui.favorites.waypoints.toWaypoint
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 
 
 class FavoriteTripsRepositoryImpl(private val db: FavoriteTripsDataBase) : FavoriteTripsRepository {
     override suspend fun saveFavoriteTrip(favoriteTrip: FavoriteTrip) {
-        db.runInTransaction {
-            db.favoriteTripsDao().insert(favoriteTrip.toFavoriteTripEntity())
-            favoriteTrip.waypoints.forEachIndexed { index, waypoint ->
-                db.waypointsDao().insert(waypoint.toWaypointEntity(favoriteTrip.uuid, index))
-            }
-
-        }
     }
 
     override suspend fun updateFavoriteTrip(favoriteTrip: FavoriteTrip) {
@@ -25,15 +21,7 @@ class FavoriteTripsRepositoryImpl(private val db: FavoriteTripsDataBase) : Favor
     }
 
     override fun getAllFavoriteTrips(): Flow<List<FavoriteTrip>> {
-        return db.favoriteTripsDao().getAll()
-                .distinctUntilChanged()
-                .map {
-                    it.map {
-                        it.toFavoriteTrip(
-                                db.waypointsDao().getWaypointsByFavoriteTrip(it.uuid)
-                                        .map { it.toWaypoint() })
-                    }
-        }
+        return flow { emit(emptyList()) }
     }
 
     override suspend fun isFavoriteTrip(tripId: String): Boolean {

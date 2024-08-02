@@ -6,6 +6,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentStatePagerAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.skedgo.tripkit.common.model.Location
 import com.skedgo.tripkit.routing.TripGroup
 import com.skedgo.tripkit.ui.map.home.TripKitMapContributor
 import com.skedgo.tripkit.ui.tripresult.TripSegmentListFragment.OnTripSegmentClickListener
@@ -37,6 +38,9 @@ class TripGroupsPagerAdapter(
     var segmentClickListener: OnTripSegmentClickListener? = null
 
     private val updateStream = PublishSubject.create<Unit>()
+
+    private var queryFromLocation: Location? = null
+    private var queryToLocation: Location? = null
 
     /*
         This horrific workaround is necessary because the Material library's BottomSheetBehavior only looks for the
@@ -76,6 +80,7 @@ class TripGroupsPagerAdapter(
             .withMapContributor(tripResultMapContributor)
             .showCloseButton(showCloseButton)
             .withUpdateStream(updateStream)
+            .withQueryLocations(queryFromLocation, queryToLocation)
             .build()
         fragment.setOnTripKitButtonClickListener(listener!!)
         fragment.onCloseButtonListener = closeListener
@@ -89,5 +94,10 @@ class TripGroupsPagerAdapter(
 
     fun setActionButtonHandlerFactory(actionButtonHandlerFactory: ActionButtonHandlerFactory?) {
         this.actionButtonHandlerFactory = actionButtonHandlerFactory
+    }
+
+    fun setQueryLocations(from: Location?, to: Location?) {
+        queryFromLocation = from
+        queryToLocation = to
     }
 }

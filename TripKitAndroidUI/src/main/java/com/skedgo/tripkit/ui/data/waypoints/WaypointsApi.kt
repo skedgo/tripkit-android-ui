@@ -13,5 +13,8 @@ interface WaypointsApi {
   fun request(@Body body: WaypointsRequestBody): Observable<RoutingResponse>
 
   @POST("waypoint.json")
+  fun request(@Body body: WaypointsAdvancedRequestBody): Observable<RoutingResponse>
+
+  @POST("waypoint.json")
   suspend fun requestTripGroup(@Body body: WaypointsRequestBody): NetworkResponse<RoutingResponse, ApiError>
 }

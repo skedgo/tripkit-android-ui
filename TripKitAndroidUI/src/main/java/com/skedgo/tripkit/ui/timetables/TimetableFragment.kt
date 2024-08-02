@@ -568,6 +568,8 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
             }, { Timber.e(it) }).addTo(autoDisposable)
     }
 
+    // TODO check flow for this. I think it'll be better if we create a new instance (kill the prveious one),
+    //  than using the same instance and just updating the stop
     fun updateStop(stop: ScheduledStop) {
         this.stop = stop
         viewModel.setText(requireContext())

@@ -14,23 +14,3 @@ data class FavoriteTripEntity(
     var order: Int,
     var tripGroupId: String?
 )
-
-@Entity(
-    tableName = "waypoints",
-    foreignKeys = arrayOf(ForeignKey(
-        entity = FavoriteTripEntity::class,
-        parentColumns = arrayOf("uuid"),
-        childColumns = arrayOf("tripId"),
-        onDelete = CASCADE,
-        onUpdate = CASCADE
-    )))
-class WaypointEntity(
-    var lat: Double,
-    var lng: Double,
-    var mode: String?,
-    var modeTitle: String?,
-    var order: Int,
-    @ColumnInfo(index = true) var tripId: String) {
-  @PrimaryKey(autoGenerate = true)
-  var id: Int = 0
-}
