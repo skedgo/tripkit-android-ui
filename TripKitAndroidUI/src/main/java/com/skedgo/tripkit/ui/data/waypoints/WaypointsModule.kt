@@ -6,7 +6,7 @@ import com.google.gson.GsonBuilder
 import com.skedgo.tripkit.configuration.ServerManager
 import com.skedgo.tripkit.ui.favorites.GetTripFromWaypoints
 import com.skedgo.tripkit.ui.favorites.GetTripFromWaypointsImpl
-import com.skedgo.tripkit.ui.favorites.trips.Waypoint
+import com.skedgo.tripkit.ui.favorites.waypoints.Waypoint
 import dagger.Module
 import dagger.Provides
 import io.reactivex.schedulers.Schedulers

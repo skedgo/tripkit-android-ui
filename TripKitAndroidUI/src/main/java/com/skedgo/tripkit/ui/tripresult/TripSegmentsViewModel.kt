@@ -204,8 +204,14 @@ class TripSegmentsViewModel @Inject internal constructor(
             .launchIn(viewModelScope)
     }
 
-    fun setActionButtonHandlerFactory(actionButtonHandlerFactory: ActionButtonHandlerFactory?) {
+    fun setActionButtonHandlerFactory(
+        actionButtonHandlerFactory: ActionButtonHandlerFactory?,
+        queryFromLocation: Location?,
+        queryToLocation: Location?
+    ) {
         actionButtonHandler = actionButtonHandlerFactory?.createHandler(this)
+        actionButtonHandler?.queryFromLocation = queryFromLocation
+        actionButtonHandler?.queryToLocation = queryToLocation
     }
 
     fun setInternalBus(bus: Bus) {

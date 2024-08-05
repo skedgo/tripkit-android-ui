@@ -20,6 +20,8 @@ import com.skedgo.tripkit.routing.getBookingSegment
 import com.skedgo.tripkit.ui.ARG_SHOW_CLOSE_BUTTON
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.TripKitUI
+import com.skedgo.tripkit.ui.*
+import com.skedgo.tripkit.common.model.Location
 import com.skedgo.tripkit.ui.booking.apiv2.BookingV2TrackingService
 import com.skedgo.tripkit.ui.core.BaseTripKitFragment
 import com.skedgo.tripkit.ui.core.addTo
@@ -102,6 +104,8 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
     var actionButtonHandlerFactory: ActionButtonHandlerFactory? = null
     private var tripResultMapContributor: TripResultMapContributor? = null
     private var updateStream: PublishSubject<Unit>? = null
+    private var queryFromLocation: Location? = null
+    private var queryToLocation: Location? = null
 
     override fun onAttach(context: Context) {
         TripKitUI.getInstance().tripDetailsComponent().inject(this)
@@ -131,7 +135,11 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
 
         binding = TripSegmentListFragmentBinding.inflate(inflater)
         binding.viewModel = viewModel
-        viewModel.setActionButtonHandlerFactory(actionButtonHandlerFactory)
+        viewModel.setActionButtonHandlerFactory(
+            actionButtonHandlerFactory,
+            queryFromLocation,
+            queryToLocation
+        )
         val showCloseButton = arguments?.getBoolean(ARG_SHOW_CLOSE_BUTTON, false) ?: false
         viewModel.showCloseButton.set(showCloseButton)
         binding.closeButton.setOnClickListener(onCloseButtonListener)
@@ -410,6 +418,9 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
         private var actionButtonHandlerFactory: ActionButtonHandlerFactory? = null
         private var tripResultMapContributor: TripResultMapContributor? = null
         private var updateStream: PublishSubject<Unit>? = null
+        private var queryFromLocation: Location? = null
+        private var queryToLocation: Location? = null
+
         fun withTripGroupId(tripGroupId: String): Builder {
             this.tripGroupId = tripGroupId
             return this
@@ -443,6 +454,12 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
             return this
         }
 
+        fun withQueryLocations(from: Location?, to: Location?): Builder {
+            this.queryFromLocation = from
+            this.queryToLocation = to
+            return this
+        }
+
         fun build(): TripSegmentListFragment {
             assert(tripGroupId != null)
 
@@ -457,6 +474,8 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
             fragment.actionButtonHandlerFactory = actionButtonHandlerFactory
             fragment.tripResultMapContributor = tripResultMapContributor
             fragment.updateStream = updateStream
+            fragment.queryFromLocation = queryFromLocation
+            fragment.queryToLocation = queryToLocation
             return fragment
 
         }

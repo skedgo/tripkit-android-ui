@@ -36,12 +36,3 @@ interface FavoriteTripsDao {
   @Query("SELECT COUNT(*) FROM favoriteTrips WHERE uuid == :tripGroupId")
   suspend fun countFavoriteTripById(tripGroupId: String): Boolean
 }
-
-@Dao
-interface WaypointsDao {
-  @Query("SELECT * from waypoints WHERE tripId == :tripId ORDER BY `order` ASC")
-  suspend fun getWaypointsByFavoriteTrip(tripId: String): List<WaypointEntity>
-
-  @Insert(onConflict = FAIL)
-  fun insert(waypoint: WaypointEntity)
-}

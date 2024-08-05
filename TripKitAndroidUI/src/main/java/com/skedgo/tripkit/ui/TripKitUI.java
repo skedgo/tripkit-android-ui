@@ -97,6 +97,7 @@ import static com.skedgo.tripkit.routing.TripAlarmBroadcastReceiver.NOTIFICATION
         SchedulerFactoryModule.class,
         WaypointsModule.class,
         FavoriteTripsModule.class,
+        FavoritesModule.class,
         UserInfoRepositoryModule.class,
         ViewModelModule.class,
         ControllerModule.class,

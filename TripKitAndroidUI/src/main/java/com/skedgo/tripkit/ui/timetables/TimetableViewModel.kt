@@ -17,40 +17,39 @@ import com.skedgo.tripkit.data.regions.RegionService
 import com.skedgo.tripkit.routing.Trip
 import com.skedgo.tripkit.routing.TripGroup
 import com.skedgo.tripkit.routing.TripSegment
+import com.skedgo.tripkit.routing.toSeconds
 import com.skedgo.tripkit.time.GetNow
 import com.skedgo.tripkit.ui.BR
+import com.skedgo.tripkit.ui.BuildConfig
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.core.RxViewModel
 import com.skedgo.tripkit.ui.core.isExecuting
 import com.skedgo.tripkit.ui.core.rxproperty.asObservable
+import com.skedgo.tripkit.ui.favorites.GetTripFromWaypoints
+import com.skedgo.tripkit.ui.favorites.waypoints.Waypoint
 import com.skedgo.tripkit.ui.model.TimetableEntry
 import com.skedgo.tripkit.ui.model.TimetableHeaderLineItem
 import com.skedgo.tripkit.ui.realtime.RealTimeChoreographer
+import com.skedgo.tripkit.ui.routing.GetRoutingConfig
+import com.skedgo.tripkit.ui.routingresults.TripGroupRepository
 import com.skedgo.tripkit.ui.utils.Optional
 import com.skedgo.tripkit.ui.utils.ignoreNetworkErrors
+import com.skedgo.tripkit.ui.views.MultiStateView
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
 import io.reactivex.Observable
+import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.functions.BiFunction
 import io.reactivex.rxkotlin.Observables
-import me.tatarka.bindingcollectionadapter2.ItemBinding
-import org.joda.time.DateTimeZone
-import com.skedgo.tripkit.routing.toSeconds
-import com.skedgo.tripkit.ui.BuildConfig
-import com.skedgo.tripkit.ui.favorites.GetTripFromWaypoints
-import com.skedgo.tripkit.ui.favorites.trips.Waypoint
-import com.skedgo.tripkit.ui.routing.GetRoutingConfig
-import com.skedgo.tripkit.ui.routingresults.TripGroupRepository
-import com.skedgo.tripkit.ui.views.MultiStateView
-import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.rx2.await
 import kotlinx.coroutines.rx2.awaitFirstOrNull
 import kotlinx.coroutines.withContext
+import me.tatarka.bindingcollectionadapter2.ItemBinding
 import me.tatarka.bindingcollectionadapter2.collections.DiffObservableList
+import org.joda.time.DateTimeZone
 import timber.log.Timber
-import java.lang.Exception
 import java.util.concurrent.atomic.AtomicLong
 import javax.inject.Inject
 import javax.inject.Provider
@@ -63,16 +62,16 @@ data class ShowTimetableEntry(
 )
 
 class TimetableViewModel @Inject constructor(
-        private val realTimeChoreographer: RealTimeChoreographer,
-        private val fetchAndLoadTimetable: FetchAndLoadTimetable,
-        private val serviceViewModelProvider: Provider<ServiceViewModel>,
-        private val regionService: RegionService,
-        private val createShareContent: CreateShareContent,
-        private val getNow: GetNow,
-        private val resources: Resources,
-        private val getRoutingConfig: GetRoutingConfig,
-        private val getTripFromWaypoints: GetTripFromWaypoints,
-        private val tripGroupRepository: TripGroupRepository
+    private val realTimeChoreographer: RealTimeChoreographer,
+    private val fetchAndLoadTimetable: FetchAndLoadTimetable,
+    private val serviceViewModelProvider: Provider<ServiceViewModel>,
+    private val regionService: RegionService,
+    private val createShareContent: CreateShareContent,
+    private val getNow: GetNow,
+    private val resources: Resources,
+    private val getRoutingConfig: GetRoutingConfig,
+    private val getTripFromWaypoints: GetTripFromWaypoints,
+    private val tripGroupRepository: TripGroupRepository
 ) : RxViewModel() {
     var stop: BehaviorRelay<ScheduledStop> = BehaviorRelay.create()
     var serviceTripId: BehaviorRelay<String> = BehaviorRelay.create()
@@ -80,9 +79,9 @@ class TimetableViewModel @Inject constructor(
     val stationName = ObservableField<String>()
     val stationType = ObservableField<String>()
     val itemBinding =
-            ItemBinding.of<ServiceViewModel>(BR.viewModel, R.layout.timetable_fragment_list_item)
+        ItemBinding.of<ServiceViewModel>(BR.viewModel, R.layout.timetable_fragment_list_item)
     val serviceItemBinding =
-            ItemBinding.of<TimetableHeaderLineItem>(BR.data, R.layout.timetable_header_line_item)
+        ItemBinding.of<TimetableHeaderLineItem>(BR.data, R.layout.timetable_header_line_item)
 
     private val _showTimetableEntry = MutableLiveData<ShowTimetableEntry>()
     val showTimeTableEntry: LiveData<ShowTimetableEntry> = _showTimetableEntry
@@ -92,21 +91,21 @@ class TimetableViewModel @Inject constructor(
 
     object ServicesDiffCallback : DiffUtil.ItemCallback<ServiceViewModel>() {
         override fun areItemsTheSame(
-                oldItem: ServiceViewModel,
-                newItem: ServiceViewModel
+            oldItem: ServiceViewModel,
+            newItem: ServiceViewModel
         ): Boolean =
-                oldItem.service.serviceTripId == newItem.service.serviceTripId
-                        && oldItem.service.startTimeInSecs == newItem.service.startTimeInSecs
+            oldItem.service.serviceTripId == newItem.service.serviceTripId
+                && oldItem.service.startTimeInSecs == newItem.service.startTimeInSecs
 
 
         override fun areContentsTheSame(
-                oldItem: ServiceViewModel,
-                newItem: ServiceViewModel
+            oldItem: ServiceViewModel,
+            newItem: ServiceViewModel
         ): Boolean =
-                oldItem.serviceNumber.get() == newItem.serviceNumber.get()
-                        && oldItem.secondaryText.get() == newItem.secondaryText.get()
-                        && oldItem.tertiaryText.get() == newItem.tertiaryText.get()
-                        && oldItem.countDownTimeText.get() == newItem.countDownTimeText.get()
+            oldItem.serviceNumber.get() == newItem.serviceNumber.get()
+                && oldItem.secondaryText.get() == newItem.secondaryText.get()
+                && oldItem.tertiaryText.get() == newItem.tertiaryText.get()
+                && oldItem.countDownTimeText.get() == newItem.countDownTimeText.get()
 
 
     }
@@ -114,7 +113,7 @@ class TimetableViewModel @Inject constructor(
     val services = DiffObservableList<ServiceViewModel>(ServicesDiffCallback)
 
     val serviceNumbers: ObservableField<List<TimetableHeaderLineItem>> =
-            ObservableField(emptyList())
+        ObservableField(emptyList())
     val showLoading = ObservableBoolean(false)
     val showCloseButton = ObservableBoolean(false)
     val showSearch = ObservableBoolean(true)
@@ -141,72 +140,72 @@ class TimetableViewModel @Inject constructor(
     val minStartTime = onDateChanged.mergeWith(downloadTimetable).map { it }
 
     private val servicesAndParentStop = Observables
-            .combineLatest(minStartTime, currentServiceTripId, regionObservable, stop)
-            { sinceTimeInSecs, currentServiceTripId, region, stop ->
-                val time = if (currentServiceTripId.isNullOrEmpty()) {
-                    sinceTimeInSecs / 1000
-                } else {
-                    sinceTimeInSecs
-                }
-                Triple(time, region, stop)
+        .combineLatest(minStartTime, currentServiceTripId, regionObservable, stop)
+        { sinceTimeInSecs, currentServiceTripId, region, stop ->
+            val time = if (currentServiceTripId.isNullOrEmpty()) {
+                sinceTimeInSecs / 1000
+            } else {
+                sinceTimeInSecs
             }
-            .switchMap { (sinceTimeInSecs, region, stop) ->
-                Flowable.create<Pair<List<TimetableEntry>, Optional<ScheduledStop>>>({ emitter ->
-                    val timeInSecs = AtomicLong(sinceTimeInSecs)
-                    val subscription = loadMore
-                            .startWith(Unit)
-                            .switchMap {
-                                fetchAndLoadTimetable.execute(
-                                        stop.embarkationStopCode,
-                                        stop.disembarkationStopCode,
-                                        region,
-                                        timeInSecs.get()
-                                )
-                                        .toObservable()
-                                        .ignoreNetworkErrors()
-                                        .isExecuting { showLoading.set(it) }
-                            }
-                            .subscribe({
-                                emitter.onNext(it)
-                                timeInSecs.set(it.first.last().startTimeInSecs + 1)
-                            }, {
-                                if(BuildConfig.DEBUG){
-                                    it.printStackTrace()
-                                }
-                                emitter.onError(it)
-                            })
-                    emitter.setCancellable { subscription.dispose() }
-                }, BackpressureStrategy.LATEST).toObservable()
-                        .doOnError { throwable: Throwable ->
-                            Timber.e("An error occurred", throwable)
+            Triple(time, region, stop)
+        }
+        .switchMap { (sinceTimeInSecs, region, stop) ->
+            Flowable.create<Pair<List<TimetableEntry>, Optional<ScheduledStop>>>({ emitter ->
+                val timeInSecs = AtomicLong(sinceTimeInSecs)
+                val subscription = loadMore
+                    .startWith(Unit)
+                    .switchMap {
+                        fetchAndLoadTimetable.execute(
+                            stop.embarkationStopCode,
+                            stop.disembarkationStopCode,
+                            region,
+                            timeInSecs.get()
+                        )
+                            .toObservable()
+                            .ignoreNetworkErrors()
+                            .isExecuting { showLoading.set(it) }
+                    }
+                    .subscribe({
+                        emitter.onNext(it)
+                        timeInSecs.set(it.first.last().startTimeInSecs + 1)
+                    }, {
+                        if (BuildConfig.DEBUG) {
+                            it.printStackTrace()
                         }
-                        .scan { a, b -> (a.first + b.first) to b.second }
-            }
-            .doOnError { throwable: Throwable ->
-                Timber.e("An error occurred", throwable)
-            }
-            .replay(1)
-            .refCount()
+                        emitter.onError(it)
+                    })
+                emitter.setCancellable { subscription.dispose() }
+            }, BackpressureStrategy.LATEST).toObservable()
+                .doOnError { throwable: Throwable ->
+                    Timber.e("An error occurred", throwable)
+                }
+                .scan { a, b -> (a.first + b.first) to b.second }
+        }
+        .doOnError { throwable: Throwable ->
+            Timber.e("An error occurred", throwable)
+        }
+        .replay(1)
+        .refCount()
 
     private val parentStop = servicesAndParentStop
-            .map { it.second }
-            .ignoreNetworkErrors()
-            .withLatestFrom(
-                    stop,
-                    BiFunction<Optional<ScheduledStop>, ScheduledStop, ScheduledStop> { parentStop: Optional<ScheduledStop>, stop: ScheduledStop ->
-                        if (parentStop.value != null && parentStop.value.code == stop.code) {
-                            parentStop.value
-                        } else {
-                            stop
-                        }
-                    })
+        .map { it.second }
+        .ignoreNetworkErrors()
+        .withLatestFrom(
+            stop,
+            BiFunction<Optional<ScheduledStop>, ScheduledStop, ScheduledStop> { parentStop: Optional<ScheduledStop>, stop: ScheduledStop ->
+                if (parentStop.value != null && parentStop.value.code == stop.code) {
+                    parentStop.value
+                } else {
+                    stop
+                }
+            })
 
     private val realtimeRelay = PublishRelay.create<Unit>()
 
     private val servicesVMs = Observables.combineLatest(
-            servicesAndParentStop.map { it.first },
-            regionObservable,
-            currentServiceTripId
+        servicesAndParentStop.map { it.first },
+        regionObservable,
+        currentServiceTripId
     ) { services: List<TimetableEntry>, region: Region, currentTripId: String ->
         Triple(services, region, currentTripId)
     }.flatMap {
@@ -214,19 +213,19 @@ class TimetableViewModel @Inject constructor(
         val region = it.second
         _currentServiceTripId = it.third
         realTimeChoreographer.getRealTimeResultsFromCleanElements(region, elements = services)
-                .takeUntil(realtimeRelay)
-                .map { vehicles ->
-                    services.forEach { service: TimetableEntry ->
-                        val vehicle =
-                                vehicles.firstOrNull { service.serviceTripId == it.serviceTripId }
-                        vehicle?.let {
-                            service.realtimeVehicle = it
-                        }
+            .takeUntil(realtimeRelay)
+            .map { vehicles ->
+                services.forEach { service: TimetableEntry ->
+                    val vehicle =
+                        vehicles.firstOrNull { service.serviceTripId == it.serviceTripId }
+                    vehicle?.let {
+                        service.realtimeVehicle = it
                     }
-                    services
                 }
-                .map { it to region }
-                .startWith(services to region)
+                services
+            }
+            .map { it to region }
+            .startWith(services to region)
     }.map {
         val services = it.first
         val region = it.second
@@ -236,13 +235,13 @@ class TimetableViewModel @Inject constructor(
             serviceViewModelProvider.get().apply {
                 this.setService(_currentServiceTripId ?: "", it, timeZone)
                 this.onItemClick.observable.observeOn(AndroidSchedulers.mainThread())
-                        .subscribe { entry ->
+                    .subscribe { entry ->
 //                            if (action.isNotEmpty()) {
 //
 //                            } else {
-                            timetableEntryChosen.accept(entry)
+                        timetableEntryChosen.accept(entry)
 //                            }
-                        }
+                    }
             }
         }
     }.map {
@@ -252,11 +251,11 @@ class TimetableViewModel @Inject constructor(
         { services, filter ->
             val serviceList = services.filter {
                 listOf(
-                        it.service.serviceNumber,
-                        it.service.serviceName,
-                        it.service.serviceDirection
+                    it.service.serviceNumber,
+                    it.service.serviceName,
+                    it.service.serviceDirection
                 ).filter { it != null }
-                        .any { it.orEmpty().contains(filter, ignoreCase = true) }
+                    .any { it.orEmpty().contains(filter, ignoreCase = true) }
             }
 
             serviceList
@@ -265,13 +264,13 @@ class TimetableViewModel @Inject constructor(
 
 
     val onAlertClicks: Observable<ArrayList<RealtimeAlert>> = services
-            .asObservable()
-            .switchMap {
-                it.map { it.onAlertsClick.observable }
-                        .let {
-                            Observable.merge(it)
-                        }
-            }
+        .asObservable()
+        .switchMap {
+            it.map { it.onAlertsClick.observable }
+                .let {
+                    Observable.merge(it)
+                }
+        }
 
     val stopRelay = BehaviorRelay.create<ScheduledStop>()
     val startTimeRelay = BehaviorRelay.create<Long>()
@@ -290,49 +289,49 @@ class TimetableViewModel @Inject constructor(
         parentStop.subscribe(stopRelay::accept) { onError.accept(it.message) }.autoClear()
         minStartTime.subscribe(startTimeRelay::accept) { onError.accept(it.message) }.autoClear()
         servicesVMs
-                .ignoreNetworkErrors()
-                .subscribe({
-                    if (it.isEmpty()) {
-                        stateChange.accept(MultiStateView.ViewState.EMPTY)
-                        return@subscribe
-                    }
+            .ignoreNetworkErrors()
+            .subscribe({
+                if (it.isEmpty()) {
+                    stateChange.accept(MultiStateView.ViewState.EMPTY)
+                    return@subscribe
+                }
 
-                    viewModelScope.launch {
-                        withContext(Dispatchers.Default) {
-                            val diff = services.calculateDiff(it)
-                            withContext(Dispatchers.Main) {
-                                services.update(it, diff)
-                            }
+                viewModelScope.launch {
+                    withContext(Dispatchers.Default) {
+                        val diff = services.calculateDiff(it)
+                        withContext(Dispatchers.Main) {
+                            services.update(it, diff)
                         }
                     }
-                    val tmpServiceList: MutableList<TimetableHeaderLineItem> =
-                            arrayListOf<TimetableHeaderLineItem>()
+                }
+                val tmpServiceList: MutableList<TimetableHeaderLineItem> =
+                    arrayListOf<TimetableHeaderLineItem>()
 
-                    it.forEach {
-                        tmpServiceList.add(
-                                TimetableHeaderLineItem(
-                                        it.serviceNumber.get(),
-                                        it.serviceColor.get()
-                                )
+                it.forEach {
+                    tmpServiceList.add(
+                        TimetableHeaderLineItem(
+                            it.serviceNumber.get(),
+                            it.serviceColor.get()
                         )
-                    }
-                    serviceNumbers.set(tmpServiceList.distinctBy { it.serviceNumber }
-                            .sortedBy { it.serviceNumber })
-                }, {
-                    Timber.e(it)
-                    onError.accept(
-                            it.message
-                                    ?: resources.getString(R.string.an_unexpected_network_error_has_occurred_dot_please_retry_dot)
                     )
-                })
-                .autoClear()
+                }
+                serviceNumbers.set(tmpServiceList.distinctBy { it.serviceNumber }
+                    .sortedBy { it.serviceNumber })
+            }, {
+                Timber.e(it)
+                onError.accept(
+                    it.message
+                        ?: resources.getString(R.string.an_unexpected_network_error_has_occurred_dot_please_retry_dot)
+                )
+            })
+            .autoClear()
 
         servicesVMs
-                .ignoreNetworkErrors()
-                .take(1)
-                .subscribe({
-                    scrollToNow.accept(getFirstNowPosition(it))
-                }, {}).autoClear()
+            .ignoreNetworkErrors()
+            .take(1)
+            .subscribe({
+                scrollToNow.accept(getFirstNowPosition(it))
+            }, {}).autoClear()
     }
 
     fun withBookingActions(bookingActions: ArrayList<String>?, segment: TripSegment?) {
@@ -350,8 +349,8 @@ class TimetableViewModel @Inject constructor(
         }
 
         showButton.set(
-                action.isNotEmpty() && (segment?.booking?.quickBookingsUrl.isNullOrEmpty()
-                        || !segment?.booking?.confirmation?.purchasedTickets().isNullOrEmpty())
+            action.isNotEmpty() && (segment?.booking?.quickBookingsUrl.isNullOrEmpty()
+                || !segment?.booking?.confirmation?.purchasedTickets().isNullOrEmpty())
         )
     }
 
@@ -388,7 +387,7 @@ class TimetableViewModel @Inject constructor(
     }
 
     fun getShareUrl(shareUrl: String, stop: ScheduledStop) =
-            createShareContent.execute(shareUrl, stop, services.map { it.service })
+        createShareContent.execute(shareUrl, stop, services.map { it.service })
 
     /**
      * Handles [TimetableEntry] item click
@@ -405,7 +404,7 @@ class TimetableViewModel @Inject constructor(
         tripSegment?.trip?.segments?.filter {
             !it.isContinuation && !it.isStationary
         }?.mapIndexed { index, segment ->
-            if(segment == tripSegment) {
+            if (segment == tripSegment) {
                 segmentToShowIndex = index
                 waypoints.add(Waypoint.parseFromTimetableEntryAndSegment(segment, entry))
             } else {
