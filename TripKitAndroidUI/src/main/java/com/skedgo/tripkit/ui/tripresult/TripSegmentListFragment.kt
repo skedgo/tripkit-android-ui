@@ -3,6 +3,7 @@ package com.skedgo.tripkit.ui.tripresult
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -10,33 +11,32 @@ import android.view.ViewGroup
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.lifecycleScope
 import com.google.android.gms.maps.model.LatLng
+import com.skedgo.tripkit.ExternalActionParams
+import com.skedgo.tripkit.bookingproviders.BookingResolver
 import com.skedgo.tripkit.logging.ErrorLogger
 import com.skedgo.tripkit.routing.TripGroup
 import com.skedgo.tripkit.routing.TripSegment
 import com.skedgo.tripkit.routing.getBookingSegment
+import com.skedgo.tripkit.ui.ARG_SHOW_CLOSE_BUTTON
+import com.skedgo.tripkit.ui.R
+import com.skedgo.tripkit.ui.TripKitUI
 import com.skedgo.tripkit.ui.*
-import com.skedgo.tripkit.bookingproviders.BookingResolver
-import com.skedgo.tripkit.ui.core.BaseTripKitFragment
-import com.skedgo.tripkit.ExternalActionParams
 import com.skedgo.tripkit.common.model.Location
 import com.skedgo.tripkit.ui.booking.apiv2.BookingV2TrackingService
+import com.skedgo.tripkit.ui.core.BaseTripKitFragment
 import com.skedgo.tripkit.ui.core.addTo
 import com.skedgo.tripkit.ui.databinding.TripSegmentListFragmentBinding
 import com.skedgo.tripkit.ui.map.getGeofenceZone
 import com.skedgo.tripkit.ui.model.TripKitButton
 import com.skedgo.tripkit.ui.model.TripKitButtonConfigurator
 import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButtonHandlerFactory
-import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.PublishSubject
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import timber.log.Timber
 import javax.inject.Inject
 
 
@@ -173,6 +173,13 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
 
     override fun onResume() {
         super.onResume()
+        viewModel.ticketInfoClicked.subscribe { url ->
+            val intent = Intent(Intent.ACTION_VIEW).apply {
+                data = Uri.parse(url)
+            }
+            startActivity(intent)
+        }.addTo(autoDisposable)
+
         viewModel.segmentClicked
                 .subscribe {
                     onTripSegmentClickListener?.tripSegmentClicked(it)
@@ -195,9 +202,9 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
                     dialog.show(requireFragmentManager(), "alerts_sheet")
                 }.addTo(autoDisposable)
         viewModel.updatedState
-            .observe(viewLifecycleOwner) {
-                updateStream?.onNext(Unit)
-            }
+                .observe(viewLifecycleOwner) {
+                    updateStream?.onNext(Unit)
+                }
 
         updateStream?.subscribe {
             viewModel.validateGetOffAlerts()
@@ -214,19 +221,19 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
             flow {
                 geofenceCoordinateList.forEach {
                     emit(
-                        requireContext().getGeofenceZone(
-                            it.first.latitude,
-                            it.first.longitude,
-                            it.second
-                        )
+                            requireContext().getGeofenceZone(
+                                    it.first.latitude,
+                                    it.first.longitude,
+                                    it.second
+                            )
                     )
                 }
             }.flowOn(Dispatchers.Main)
-                .collect { circleOption ->
-                    withContext(Dispatchers.Main) {
-                        tripResultMapContributor?.addCircleToMap(circleOption)
+                    .collect { circleOption ->
+                        withContext(Dispatchers.Main) {
+                            tripResultMapContributor?.addCircleToMap(circleOption)
+                        }
                     }
-                }
         }
     }
 
