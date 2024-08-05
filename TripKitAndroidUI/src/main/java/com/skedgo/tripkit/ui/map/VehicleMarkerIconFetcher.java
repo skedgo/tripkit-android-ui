@@ -17,7 +17,7 @@ import javax.inject.Inject;
 import java.lang.ref.WeakReference;
 
 public class VehicleMarkerIconFetcher {
-  private static final String URL_TEMPLATE = ServerManager.INSTANCE.getConfiguration().getApiTripGoUrl() + "modeicons/android/%s/ic_vehicle_%s.png";
+  private static final String URL_TEMPLATE = ServerManager.INSTANCE.getConfiguration().getStaticTripGoUrl() + "icons/android/%s/ic_vehicle_%s.png";
   private final Resources resources;
   private final Lazy<Picasso> picassoLazy;
 
