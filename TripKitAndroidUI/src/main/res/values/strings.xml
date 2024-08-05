@@ -608,4 +608,5 @@ We aggregate the anonymised data and provide it to researchers, regulators, and 
     <string name="login">Log in</string>
     <string name="logout">Log out</string>
     <string name="label_show_ticket_info">Show ticket info</string>
+    <string name="label_tap_to_make_selections">Tap to make selections</string>
 </resources>
