@@ -202,7 +202,8 @@ class LocationSearchViewModel @Inject constructor(
                         }
 
                         // Filter to identify all school items
-                        val schoolItems = initialSuggestions.filter { it.location.locationClass == LOCATION_CLASS_SCHOOL }
+                        val schoolItems =
+                            initialSuggestions.filter { it.location.locationClass == LOCATION_CLASS_SCHOOL }
 
                         // Using a set to avoid duplicates
                         val uniqueItemsToAdd = mutableSetOf<GoogleAndTripGoSuggestionViewModel>()
@@ -213,7 +214,10 @@ class LocationSearchViewModel @Inject constructor(
                         // Filter and add other items based on their distance and relevance to any school item
                         initialSuggestions.forEach { item ->
                             if (item.location.locationClass != "SchoolLocation" && schoolItems.none { school ->
-                                    LocationUtil.getRelevancePoint(school.location.name, item.location.name) > 0.7
+                                    LocationUtil.getRelevancePoint(
+                                        school.location.name,
+                                        item.location.name
+                                    ) > 0.7
                                 }) {
                                 uniqueItemsToAdd.add(item)
                             }
@@ -277,7 +281,11 @@ class LocationSearchViewModel @Inject constructor(
                 }
                 providedSuggestions.clear()
                 viewModelScope.launch {
-                    locationSearchProvider?.query(context, iconProvider(), params.term())
+                    locationSearchProvider?.query(
+                        context,
+                        iconProvider(),
+                        params.term()
+                    )
                         ?.forEach { suggestion ->
                             providedSuggestions.add(
                                 SearchProviderSuggestionViewModel(

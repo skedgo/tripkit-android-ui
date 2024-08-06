@@ -83,6 +83,12 @@ interface FavoriteDaoV2 {
     )
     suspend fun getFavoritesByTerm(query: String): List<FavoriteV2>
 
+    @Query(
+        "SELECT * from favorites_v2 WHERE userId = :userId AND name LIKE :query OR location_address LIKE :query OR " +
+            "start_address LIKE :query OR end_address LIKE :query"
+    )
+    suspend fun getUserFavoritesByTerm(query: String, userId: String): List<FavoriteV2>
+
     @Transaction
     suspend fun deleteAndInsertFavorite(type: FavoriteType, entity: FavoriteV2) {
         deleteFavoriteType(type)

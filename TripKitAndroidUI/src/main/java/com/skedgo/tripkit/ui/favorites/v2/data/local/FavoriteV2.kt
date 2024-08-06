@@ -68,7 +68,7 @@ data class FavoriteV2(
     ) {
         companion object {
             fun parseLocation(location: Location): LocationFavorite = LocationFavorite(
-                address = location.address,
+                address = location.address ?: "",
                 lat = location.lat,
                 lng = location.lon,
                 name = location.name
@@ -129,7 +129,7 @@ data class FavoriteV2(
         fun location(location: Location?) = apply {
             this.location = location?.let {
                 LocationFavorite(
-                    address = location.address,
+                    address = location.address ?: "",
                     lat = location.lat,
                     lng = location.lon,
                     name = location.name
@@ -140,7 +140,7 @@ data class FavoriteV2(
         fun start(start: Location?) = apply {
             this.start = start?.let {
                 LocationFavorite(
-                    address = start.address,
+                    address = start.address ?: "",
                     lat = start.lat,
                     lng = start.lon,
                     name = start.name
@@ -151,7 +151,7 @@ data class FavoriteV2(
         fun end(end: Location?) = apply {
             this.end = end?.let {
                 LocationFavorite(
-                    address = end.address,
+                    address = end.address ?: "",
                     lat = end.lat,
                     lng = end.lon,
                     name = end.name
