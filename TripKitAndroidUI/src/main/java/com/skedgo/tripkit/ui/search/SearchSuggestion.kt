@@ -11,22 +11,26 @@ interface SearchSuggestion {
 
     @ColorRes
     fun titleColor(): Int
-    @ColorRes fun subtitleColor(): Int
+    @ColorRes
+    fun subtitleColor(): Int
 
     fun icon(): Drawable
     fun location(): Location?
 }
 
-class DefaultSearchSuggestion(val id: Any,
-                              val title: String,
-                              val subtitle: String?,
-                              @ColorRes val titleColor: Int,
-                              @ColorRes val subtitleColor: Int,
-                              val icon: Drawable,
-                                val location: Location? = null): SearchSuggestion {
+class DefaultSearchSuggestion(
+    val id: Any,
+    val title: String,
+    val subtitle: String?,
+    @ColorRes val titleColor: Int,
+    @ColorRes val subtitleColor: Int,
+    val icon: Drawable,
+    val location: Location? = null
+) : SearchSuggestion {
     override fun id(): Any {
         return this.id
     }
+
     override fun title(): String {
         return this.title
     }

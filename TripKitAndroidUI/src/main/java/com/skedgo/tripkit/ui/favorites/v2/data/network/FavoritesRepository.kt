@@ -31,6 +31,9 @@ interface FavoritesRepository {
     fun getFavoriteById(uuid: String): Flow<FavoriteV2?>
     fun getFavoriteByType(type: FavoriteType): Flow<FavoriteV2?>
 
+    // made the same response with getFavorites
+    fun queryFavorites(query: String): Flow<Resource<FavoriteResponse>>
+
     class FavoritesRepositoryImpl @Inject constructor(
         private val api: FavoritesApi,
         private val favoriteDao: FavoriteDaoV2,
@@ -82,8 +85,9 @@ interface FavoritesRepository {
                             favoritesFromResponse?.any { it.uuid == localFavorite.uuid } == true
                         }
                         localFavoritesToUpload.forEach { favorite -> api.addFavorite(favorite) }
-                        if(localFavoritesToUpload.isNotEmpty()) {
-                            response.result = favoritesFromResponse.orEmpty() + localFavoritesToUpload
+                        if (localFavoritesToUpload.isNotEmpty()) {
+                            response.result =
+                                favoritesFromResponse.orEmpty() + localFavoritesToUpload
                         }
                         emit(Resource.success(data = response))
                     } else {
@@ -187,6 +191,20 @@ interface FavoritesRepository {
             flow<FavoriteV2?> {
                 emit(favoriteDao.getFavoriteOfType(type))
             }.flowOn(Dispatchers.IO)
+
+        override fun queryFavorites(query: String): Flow<Resource<FavoriteResponse>> =
+            flow {
+                val userId = configs.userIdentifier()?.call()
+                safeCall<FavoriteResponse> {
+                    val favorites = userId?.let {
+                        favoriteDao.getUserFavoritesByTerm(query, it)
+                    } ?: run {
+                        favoriteDao.getFavoritesByTerm(query)
+                    }
+                    emit(Resource.success(data = FavoriteResponse(result = favorites)))
+                }
+            }.flowOn(Dispatchers.IO)
+
     }
 
 }
