@@ -8,6 +8,7 @@
         <variable
             name="viewModel"
             type="com.skedgo.tripkit.ui.tripresults.TripResultListViewModel" />
+
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -22,11 +23,13 @@
             android:layout_height="wrap_content"
             android:paddingTop="@dimen/spacing_small"
             android:focusable="true"
+            android:screenReaderFocusable="true"
             android:background="@android:color/white"
             android:importantForAccessibility="yes"
             android:contentDescription="@{viewModel.toContentDescription + viewModel.fromContentDescription}"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            app:layout_constraintTop_toTopOf="parent"
+            tools:targetApi="p">
 
             <TextView
                 android:id="@+id/toLocation"
@@ -103,7 +106,10 @@
                 app:layout_constraintBottom_toBottomOf="@id/from"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="@+id/from"
-                app:srcCompat="@drawable/chevron_right" />
+                app:srcCompat="@drawable/chevron_right"
+                android:importantForAccessibility="no"
+                tools:ignore="UseAppTint" />
+
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <!-- Leave Now & Transports header -->
@@ -145,7 +151,9 @@
                     android:layout_gravity="center_vertical"
                     app:srcCompat="@drawable/chevron_down"
                     app:tint="@color/colorPrimary"
-                    tools:tint="@color/colorPrimary" />
+                    tools:tint="@color/colorPrimary"
+                    android:importantForAccessibility="no" />
+
             </LinearLayout>
 
             <LinearLayout
@@ -181,7 +189,9 @@
                     android:src="@{viewModel.showTransport ? @drawable/chevron_up : @drawable/chevron_down}"
                     app:tint="@color/colorPrimary"
                     tools:tint="@color/colorPrimary"
-                    tools:src="@drawable/chevron_down" />
+                    tools:src="@drawable/chevron_down"
+                    android:importantForAccessibility="no" />
+
             </LinearLayout>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
@@ -201,7 +211,8 @@
             app:items="@{viewModel.transportModes}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/leaveNowAndTransportsHeader" />
+            app:layout_constraintTop_toBottomOf="@id/leaveNowAndTransportsHeader"
+            tools:ignore="RtlSymmetry" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/layoutHelpInfo"
@@ -236,7 +247,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/ivHelpIcon"
                 app:layout_constraintTop_toTopOf="parent"
-                android:text="How to book transportation"
+                android:text="@string/label_how_to_book_transportation"
                 android:textColor="@color/black" />
 
             <TextView
@@ -280,4 +291,5 @@
             app:constraint_referenced_ids="transportItemsView, layoutHelpInfo" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+
 </layout>

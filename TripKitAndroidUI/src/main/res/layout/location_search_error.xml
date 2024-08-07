@@ -11,6 +11,7 @@
         <variable
             name="visibility"
             type="boolean" />
+
     </data>
 
     <LinearLayout
@@ -26,7 +27,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@{viewModel.iconSrc}"
-            tools:src="@drawable/ic_noconnection_big" />
+            tools:src="@drawable/ic_noconnection_big"
+            android:importantForAccessibility="no" />
 
         <TextView
             android:id="@+id/errorMessageView"
@@ -52,7 +54,7 @@
             android:textColor="#23b15e"
             android:visibility="gone"
             tools:text="Action Text" />
-    </LinearLayout>
 
+    </LinearLayout>
 
 </layout>

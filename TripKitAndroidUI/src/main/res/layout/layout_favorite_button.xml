@@ -12,6 +12,7 @@
     android:padding="8dp">
 
     <ImageButton
+        android:contentDescription="@string/favourite"
         android:layout_width="45dp"
         android:layout_height="45dp"
         android:layout_gravity="center"
@@ -29,4 +30,5 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:text="@string/favourite" />
+
 </LinearLayout>

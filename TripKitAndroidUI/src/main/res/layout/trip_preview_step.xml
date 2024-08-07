@@ -12,16 +12,20 @@
         <variable
             name="viewModel"
             type="com.skedgo.tripkit.ui.trippreview.directions.DirectionsTripPreviewItemStepViewModel" />
+
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="?selectableItemBackground"
+        android:screenReaderFocusable="true"
+        android:importantForAccessibility="yes"
         android:paddingStart="@dimen/spacing_medium"
         android:paddingTop="@dimen/content_padding"
         android:paddingEnd="@dimen/content_padding"
-        android:paddingBottom="@dimen/content_padding">
+        android:paddingBottom="@dimen/content_padding"
+        tools:targetApi="p">
 
         <ImageView
             android:id="@+id/icon"
@@ -31,7 +35,8 @@
             app:layout_constraintBottom_toBottomOf="@+id/description"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            tools:src="@drawable/maneuver_light_left" />
+            tools:src="@drawable/maneuver_light_left"
+            android:importantForAccessibility="no" />
 
         <TextView
             android:id="@+id/title"
@@ -39,6 +44,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
+            android:focusable="false"
             android:paddingEnd="@dimen/content_padding"
             android:text="@{viewModel.title}"
             android:visibility="@{TextUtils.isEmpty(viewModel.title)? View.GONE: View.VISIBLE}"
@@ -46,7 +52,8 @@
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toEndOf="@+id/icon"
             app:layout_constraintTop_toTopOf="parent"
-            tools:text="An example step" />
+            tools:text="An example step"
+            tools:ignore="RtlSymmetry" />
 
         <TextView
             android:id="@+id/description"
@@ -60,7 +67,8 @@
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toEndOf="@+id/icon"
             app:layout_constraintTop_toBottomOf="@id/title"
-            tools:text="Along some road" />
+            tools:text="Along some road"
+            tools:ignore="RtlSymmetry" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvTags"
@@ -73,4 +81,5 @@
             app:spanCount="2" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+
 </layout>

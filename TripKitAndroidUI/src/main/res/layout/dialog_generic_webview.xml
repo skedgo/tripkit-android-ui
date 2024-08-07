@@ -12,6 +12,7 @@
         <variable
             name="viewModel"
             type="com.skedgo.tripkit.ui.dialog.GenericWebViewViewModel" />
+
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout

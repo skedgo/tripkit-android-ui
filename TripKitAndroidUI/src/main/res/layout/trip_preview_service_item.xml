@@ -8,6 +8,7 @@
         <variable
             name="viewModel"
             type="com.skedgo.tripkit.ui.servicedetail.ServiceDetailViewModel" />
+
     </data>
 
 
@@ -71,6 +72,7 @@
                     android:text="@{viewModel.serviceNumber}"
                     android:textColor="@android:color/white"
                     tools:text="U1" />
+
             </androidx.cardview.widget.CardView>
 
             <TextView
@@ -82,6 +84,7 @@
                 android:text="@{viewModel.secondaryText}"
                 android:textColor="@{viewModel.secondaryTextColor}"
                 tools:text="Scheduled" />
+
         </LinearLayout>
 
         <TextView
@@ -127,13 +130,16 @@
                 android:visibility="@{viewModel.showWheelchairAccessible}"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                tools:src="@drawable/ic_wheelchair" />
+                tools:src="@drawable/ic_wheelchair"
+                android:importantForAccessibility="no"
+                tools:ignore="UseAppTint" />
 
             <TextView
                 android:id="@+id/wheelchairLabel"
                 style="@style/TextAppearance.MaterialComponents.Body1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:labelFor="@id/wheelchair"
                 android:layout_marginStart="@dimen/spacing_normal"
                 android:text="@{viewModel.wheelchairAccessibleText}"
                 android:visibility="@{viewModel.showWheelchairAccessible}"
@@ -149,7 +155,8 @@
                 android:src="@drawable/ic_bike"
                 android:visibility="@{viewModel.showBicycleAccessible}"
                 app:layout_constraintStart_toEndOf="@id/wheelchair"
-                app:layout_constraintTop_toTopOf="@id/wheelchair" />
+                app:layout_constraintTop_toTopOf="@id/wheelchair"
+                android:importantForAccessibility="no" />
 
             <TextView
                 android:id="@+id/tvBicycleLabel"
@@ -157,6 +164,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/spacing_normal"
+                android:labelFor="@id/ivBicycle"
                 android:text="@string/bicycle_accessible"
                 android:visibility="@{viewModel.showBicycleAccessible}"
                 app:layout_constraintStart_toEndOf="@id/ivBicycle"
@@ -173,12 +181,14 @@
                 android:visibility="@{viewModel.showOccupancyInfo}"
                 app:layout_constraintStart_toEndOf="@id/ivBicycle"
                 app:layout_constraintTop_toTopOf="@id/ivBicycle"
-                tools:src="@drawable/ic_occupancy_25" />
+                tools:src="@drawable/ic_occupancy_25"
+                android:importantForAccessibility="no" />
 
             <TextView
                 android:id="@+id/occupancyLabel"
                 style="@style/TextAppearance.MaterialComponents.Body1"
                 android:layout_width="wrap_content"
+                android:labelFor="@id/occupancyView"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/spacing_normal"
                 android:text="@{viewModel.occupancyViewModel.occupancyText}"
@@ -188,6 +198,7 @@
                 tools:text="Label O" />
 
             <ImageView
+                android:contentDescription="@string/desc_expand"
                 android:id="@+id/expandButton"
                 android:layout_width="@dimen/icon_medium"
                 android:layout_height="@dimen/icon_medium"

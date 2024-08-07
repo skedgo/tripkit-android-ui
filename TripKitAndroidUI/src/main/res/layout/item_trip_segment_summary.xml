@@ -8,13 +8,17 @@
         <variable
             name="viewModel"
             type="com.skedgo.tripkit.ui.trippreview.segment.TripSegmentSummaryItemViewModel" />
+
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="wrap_content"
+        android:importantForAccessibility="yes"
+        android:screenReaderFocusable="true"
         android:layout_height="wrap_content"
         android:padding="@dimen/spacing_small"
-        app:clickWithDebounce="@{() -> viewModel.itemClick.perform()}">
+        app:clickWithDebounce="@{() -> viewModel.itemClick.perform()}"
+        tools:targetApi="p">
 
         <ImageView
             android:id="@+id/ivIcon"
@@ -27,7 +31,8 @@
             app:layout_constraintTop_toTopOf="parent"
             app:mirrorImage="@{viewModel.isMirrored()}"
             tools:src="@drawable/ic_train"
-            tools:tint="@color/colorPrimary" />
+            tools:tint="@color/colorPrimary"
+            android:importantForAccessibility="no" />
 
         <TextView
             android:id="@+id/tvTitle"
@@ -35,6 +40,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/shadow_height"
+            android:focusable="false"
             android:text="@{viewModel.title}"
             android:textColor="@{viewModel.selected? @color/colorPrimary : @color/black1}"
             android:textSize="10sp"
@@ -43,7 +49,8 @@
             app:layout_constraintStart_toEndOf="@+id/ivIcon"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_weight="1"
-            tools:text="Title" />
+            tools:text="Title"
+            tools:ignore="SmallSp" />
 
         <TextView
             android:id="@+id/tvSubTitle"
@@ -51,6 +58,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/shadow_height"
+            android:focusable="false"
             android:text="@{viewModel.subTitle}"
             android:textColor="@{viewModel.selected? @color/colorPrimary : @color/black1}"
             android:textSize="10sp"
@@ -59,7 +67,9 @@
             app:layout_constraintStart_toEndOf="@+id/ivIcon"
             app:layout_constraintTop_toBottomOf="@+id/tvTitle"
             app:layout_constraintVertical_weight="1"
-            tools:text="Sub-Title" />
+            tools:text="Sub-Title"
+            tools:ignore="SmallSp" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+
 </layout>

@@ -8,6 +8,7 @@
         <variable
             name="viewModel"
             type="com.skedgo.tripkit.ui.tripresult.TripSegmentsViewModel" />
+
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -45,7 +46,8 @@
             android:visibility="@{viewModel.showCloseButton}"
             app:layout_constraintBottom_toBottomOf="@+id/duration"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/duration" />
+            app:layout_constraintTop_toTopOf="@+id/duration"
+            tools:targetApi="lollipop_mr1" />
 
         <TextView
             android:id="@+id/arrive"
@@ -118,4 +120,5 @@
             app:layout_constraintTop_toBottomOf="@+id/divider" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+
 </layout>

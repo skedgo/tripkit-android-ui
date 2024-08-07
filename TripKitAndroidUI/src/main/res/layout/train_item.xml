@@ -1,20 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android">
+<layout xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android">
 
     <data>
 
         <variable
             name="occupancy"
             type="com.skedgo.tripkit.ui.trip.details.viewmodel.TrainOccupancyItemViewModel" />
+
     </data>
 
     <ImageView
         android:layout_width="20dp"
         android:layout_height="12dp"
-        android:layout_gravity="left"
+        android:layout_gravity="start"
         android:scaleType="fitXY"
-        android:paddingRight="2dp"
+        android:paddingEnd="2dp"
         android:src="@{occupancy.imageDrawable}"
-        android:tint="@{occupancy.imageTintColor}" />
+        android:tint="@{occupancy.imageTintColor}"
+        tools:ignore="RtlSymmetry,UseAppTint"
+        android:importantForAccessibility="no" />
 
 </layout>

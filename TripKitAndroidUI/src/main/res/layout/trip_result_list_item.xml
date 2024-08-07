@@ -10,6 +10,7 @@
         <variable
             name="viewModel"
             type="com.skedgo.tripkit.ui.tripresults.TripResultViewModel" />
+
     </data>
 
     <androidx.cardview.widget.CardView
@@ -28,7 +29,8 @@
                 android:layout_height="wrap_content"
                 android:visibility="@{viewModel.hasTripLabels}"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent">
+                app:layout_constraintTop_toTopOf="parent"
+                tools:ignore="UseCompoundDrawables">
 
                 <ImageView
                     android:id="@+id/badgeIcon"
@@ -42,7 +44,8 @@
                     android:src="@{viewModel.badgeDrawable}"
                     android:visibility="@{viewModel.badgeVisible}"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintTop_toTopOf="parent"
+                    android:importantForAccessibility="no" />
 
                 <TextView
                     android:id="@+id/badgeText"
@@ -56,6 +59,7 @@
                     android:textColor="@{viewModel.badgeTextColor}"
                     android:visibility="@{viewModel.badgeVisible}"
                     tools:text="FASTEST" />
+
             </LinearLayout>
 
             <LinearLayout
@@ -216,7 +220,8 @@
                     android:src="@drawable/ic_action_warning"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:tint="@color/tripKitError" />
+                    app:tint="@color/tripKitError"
+                    android:importantForAccessibility="no" />
 
                 <TextView
                     android:layout_width="0dp"
@@ -271,9 +276,8 @@
                 app:layout_constraintStart_toStartOf="@+id/moreButton"
                 app:layout_constraintHorizontal_bias="0.25" />
 
-
         </androidx.constraintlayout.widget.ConstraintLayout>
-    </androidx.cardview.widget.CardView>
 
+    </androidx.cardview.widget.CardView>
 
 </layout>

@@ -6,7 +6,6 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-
         android:orientation="horizontal"
         android:paddingTop="8dp"
         android:paddingBottom="8dp">
@@ -16,7 +15,8 @@
             android:layout_height="24dp"
             android:src="@drawable/ic_action_warning"
             app:tint="@color/tripKitWarning"
-            tools:tint="@color/tripKitWarning" />
+            tools:tint="@color/tripKitWarning"
+            android:importantForAccessibility="no" />
 
         <TextView
             android:id="@+id/header_text"
@@ -38,8 +38,9 @@
             android:layoutDirection="locale"
             app:srcCompat="@drawable/chevron_right"
             app:tint="@color/black"
-            tools:tint="@color/black" />
-
+            tools:tint="@color/black"
+            android:importantForAccessibility="no" />
 
     </LinearLayout>
+
 </layout>

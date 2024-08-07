@@ -14,6 +14,7 @@
         <variable
             name="viewModel"
             type="com.skedgo.tripkit.ui.trippreview.external.ExternalActionViewModel" />
+
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -68,7 +69,9 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/ivAction"
             app:layout_constraintTop_toTopOf="parent"
-            tools:text="Action" />
+            tools:text="Action"
+            tools:ignore="RtlSymmetry" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+
 </layout>

@@ -7,6 +7,7 @@
         <variable
             name="viewModel"
             type="com.skedgo.tripkit.ui.tripresult.TripSegmentAlertsSheetViewModel" />
+
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -57,5 +58,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintBottom_toBottomOf="parent" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
+
 </layout>

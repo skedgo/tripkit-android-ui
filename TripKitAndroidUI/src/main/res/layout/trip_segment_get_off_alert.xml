@@ -8,6 +8,7 @@
         <variable
             name="viewModel"
             type="com.skedgo.tripkit.ui.tripresult.TripSegmentGetOffAlertsViewModel" />
+
     </data>
 
     <androidx.cardview.widget.CardView
@@ -37,8 +38,8 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="@+id/tvAlertsLabel"
                 app:tint="@color/colorPrimary"
-                tools:tint="@color/colorPrimary" />
-
+                tools:tint="@color/colorPrimary"
+                android:importantForAccessibility="no" />
 
             <TextView
                 android:id="@+id/tvAlertsLabel"
@@ -96,4 +97,5 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.cardview.widget.CardView>
+
 </layout>

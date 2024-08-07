@@ -609,5 +609,13 @@ We aggregate the anonymised data and provide it to researchers, regulators, and 
     <string name="login">Log in</string>
     <string name="logout">Log out</string>
     <string name="label_show_ticket_info">Show ticket info</string>
+    <string name="desc_view_point_of_interest_details">View point of interest details</string>
+    <string name="desc_swap_locations">Swap locations</string>
+    <string name="label_0">0</string>
+    <string name="desc_max_distance">Max distance</string>
+    <string name="desc_middle_distance">Middle distance</string>
+    <string name="desc_show_timetable">Show timetable</string>
+    <string name="desc_expand">Expand</string>
+    <string name="label_how_to_book_transportation">How to book transportation</string>
     <string name="label_tap_to_make_selections">Tap to make selections</string>
 </resources>

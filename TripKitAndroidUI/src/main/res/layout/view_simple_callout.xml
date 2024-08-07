@@ -9,16 +9,20 @@
         android:id="@+id/leftImageView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginRight="@dimen/spacing_small"
+        android:layout_marginEnd="@dimen/spacing_small"
         android:scaleType="fitCenter"
         android:visibility="gone"
         tools:src="@drawable/ic_check"
-        tools:visibility="visible" />
+        tools:visibility="visible"
+        android:importantForAccessibility="no" />
 
     <LinearLayout
         android:layout_width="240dp"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:importantForAccessibility="yes"
+        android:screenReaderFocusable="true"
+        android:orientation="vertical"
+        tools:targetApi="p">
 
         <TextView
             android:id="@+id/titleView"
@@ -26,6 +30,7 @@
             android:layout_height="wrap_content"
             android:ellipsize="marquee"
             android:maxLines="2"
+            android:focusable="false"
             android:textColor="@color/v4_title_text"
             android:textSize="16sp"
             tools:text="2:07pm" />
@@ -33,30 +38,35 @@
         <TextView
             android:id="@+id/snippetView"
             android:layout_width="wrap_content"
+            android:focusable="false"
             android:layout_height="wrap_content"
             android:ellipsize="marquee"
             android:singleLine="true"
             android:textSize="14sp"
             tools:text="Awesome place" />
+
     </LinearLayout>
 
     <ImageView
         android:id="@+id/rightImageView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="@dimen/spacing_small"
+        android:layout_marginStart="@dimen/spacing_small"
         android:scaleType="fitCenter"
         android:visibility="gone"
         tools:src="@drawable/ic_arrow_forward"
-        tools:visibility="visible" />
+        tools:visibility="visible"
+        android:importantForAccessibility="no" />
 
     <ImageView
         android:id="@+id/infoImageView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="@dimen/spacing_small"
+        android:layout_marginStart="@dimen/spacing_small"
         android:scaleType="fitCenter"
         android:visibility="gone"
         tools:src="@drawable/ic_icon_info"
-        tools:visibility="visible" />
+        tools:visibility="visible"
+        android:importantForAccessibility="no" />
+
 </com.skedgo.tripkit.ui.map.SimpleCalloutView>

@@ -4,9 +4,10 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:drawablePadding="@dimen/spacing_small"
-    android:drawableRight="@drawable/ic_zoom"
+    android:drawableEnd="@drawable/ic_zoom"
     android:ellipsize="marquee"
     android:singleLine="true"
     android:textColor="@color/v4_title_text"
     android:textSize="16sp"
-    tools:text="Sydney, New South Wales, Australia" />
+    tools:text="Sydney, New South Wales, Australia"
+    tools:ignore="UseCompatTextViewDrawableXml" />

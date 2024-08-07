@@ -6,6 +6,7 @@
         <variable
             name="viewModel"
             type="com.skedgo.tripkit.ui.trippreview.nearby.NearbyTripPreviewModeItemViewModel" />
+
     </data>
 
     <com.skedgo.tripkit.ui.views.CheckableImageButton

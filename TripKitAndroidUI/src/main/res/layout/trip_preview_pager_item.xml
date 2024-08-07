@@ -9,6 +9,7 @@
         <variable
             name="viewModel"
             type="com.skedgo.tripkit.ui.trippreview.TripPreviewPagerItemViewModel" />
+
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -38,22 +39,28 @@
                     android:layout_height="wrap_content"
                     android:id="@+id/messageLayout"
                     android:background="@color/tripKitSuccess"
+                    android:screenReaderFocusable="true"
+                    android:importantForAccessibility="yes"
                     android:visibility="@{viewModel.messageVisible}"
                     android:padding="8dp"
-                    android:orientation="vertical">
+                    android:orientation="vertical"
+                    tools:targetApi="p">
 
                     <TextView
                         android:layout_width="wrap_content"
                         style="@style/TextAppearance.MaterialComponents.Body1"
                         tools:text="Status"
+                        android:focusable="false"
                         android:layout_height="wrap_content"
                         android:text="@{viewModel.messageTitle}" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:focusable="false"
                         tools:text="A message"
                         android:text="@{viewModel.message}" />
+
                 </LinearLayout>
 
                 <TextView
@@ -73,8 +80,9 @@
                     app:layout_constraintTop_toBottomOf="@+id/instruction" />
 
             </LinearLayout>
+
         </ScrollView>
 
-
     </androidx.constraintlayout.widget.ConstraintLayout>
+
 </layout>

@@ -8,14 +8,18 @@
         <variable
             name="item"
             type="com.skedgo.tripkit.common.model.RealtimeAlert" />
+
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/bg_round_corner_warning"
+        android:importantForAccessibility="yes"
+        android:screenReaderFocusable="true"
         android:layout_marginTop="@dimen/spacing_small"
-        android:padding="@dimen/spacing_small">
+        android:padding="@dimen/spacing_small"
+        tools:targetApi="p">
 
         <ImageView
             android:id="@+id/ivWarning"
@@ -24,7 +28,8 @@
             android:src="@{item.severity()}"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            tools:src="@drawable/ic_action_warning" />
+            tools:src="@drawable/ic_action_warning"
+            android:importantForAccessibility="no" />
 
         <TextView
             android:id="@+id/tvTitle"
@@ -35,6 +40,7 @@
             android:maxLines="2"
             android:textColor="@color/black"
             android:textSize="@dimen/font_size_medium"
+            android:focusable="false"
             android:text="@{item.title()}"
             app:layout_constraintEnd_toStartOf="@+id/ivAction"
             app:layout_constraintStart_toEndOf="@+id/ivWarning"
@@ -48,12 +54,14 @@
             android:padding="@dimen/spacing_small"
             android:src="@drawable/chevron_right"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            android:importantForAccessibility="no" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textSize="@dimen/font_size_normal"
+            android:focusable="false"
             android:layout_marginTop="@dimen/spacing_small"
             android:text="@{item.text()}"
             app:layout_constraintTop_toBottomOf="@+id/tvTitle"

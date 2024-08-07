@@ -13,6 +13,7 @@
         <variable
             name="sharedViewModel"
             type="com.skedgo.tripkit.ui.trippreview.nearby.SharedNearbyTripPreviewItemViewModel" />
+
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -123,7 +124,8 @@
             android:visibility="@{viewModel.showAddress}"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/infoGroupRecyclerView"
-            app:srcCompat="@drawable/ic_pin" />
+            app:srcCompat="@drawable/ic_pin"
+            android:importantForAccessibility="no" />
 
         <TextView
             android:id="@+id/address"
@@ -151,7 +153,9 @@
             android:visibility="@{viewModel.showWebsite}"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/addressIcon"
-            app:srcCompat="@drawable/ic_globe" />
+            app:srcCompat="@drawable/ic_globe"
+            android:importantForAccessibility="no"
+            tools:ignore="UseAppTint" />
 
         <TextView
             android:id="@+id/website"
@@ -181,7 +185,9 @@
             android:visibility="@{viewModel.showWhat3words}"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/websiteIcon"
-            app:srcCompat="@drawable/ic_what3word" />
+            app:srcCompat="@drawable/ic_what3word"
+            android:importantForAccessibility="no"
+            tools:ignore="UseAppTint" />
 
         <TextView
             android:id="@+id/what3word"
@@ -197,4 +203,5 @@
             tools:text="something.something.something" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+
 </layout>

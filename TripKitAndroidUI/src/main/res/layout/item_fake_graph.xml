@@ -9,6 +9,7 @@
         <variable
             name="item"
             type="com.skedgo.tripkit.ui.tripresult.RoadTagChart" />
+
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -17,6 +18,7 @@
         android:padding="@dimen/spacing_small">
 
         <TextView
+            android:contentDescription="@string/desc_max_distance"
             android:id="@+id/tvMax"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -27,6 +29,7 @@
 
         <View
             android:layout_width="1dp"
+            android:contentDescription="@string/desc_middle_distance"
             android:layout_height="0dp"
             android:background="@color/black4"
             android:layout_marginTop="@dimen/spacing_extra_small"
@@ -60,7 +63,7 @@
             android:id="@+id/tvStart"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="0"
+            android:text="@string/label_0"
             android:visibility="invisible"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
@@ -90,4 +93,5 @@
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+
 </layout>

@@ -8,6 +8,7 @@
         <variable
             name="item"
             type="com.skedgo.tripkit.ui.tripresult.RoadTagChartItem" />
+
     </data>
 
     <androidx.cardview.widget.CardView
@@ -39,4 +40,5 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.cardview.widget.CardView>
+
 </layout>

@@ -7,6 +7,7 @@
         <variable
             name="data"
             type="com.skedgo.tripkit.ui.model.TimetableHeaderLineItem" />
+
     </data>
 
     <androidx.cardview.widget.CardView xmlns:card_view="http://schemas.android.com/apk/res-auto"
@@ -30,5 +31,7 @@
             android:paddingLeft="4dp"
             android:paddingRight="4dp"
             style="@style/TextAppearance.MaterialComponents.Caption" />
+
     </androidx.cardview.widget.CardView>
+
 </layout>

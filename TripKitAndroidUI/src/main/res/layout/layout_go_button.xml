@@ -21,7 +21,8 @@
         android:clickable="false"
         android:focusable="false"
         android:src="@drawable/ic_directions"
-        android:tint="@android:color/white" />
+        android:tint="@android:color/white"
+        android:contentDescription="@string/go" />
 
     <TextView
         style="@style/TextAppearance.MaterialComponents.Caption"
@@ -29,4 +30,5 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:text="@string/go" />
+
 </LinearLayout>

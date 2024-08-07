@@ -10,6 +10,7 @@
         <variable
             name="viewModel"
             type="com.skedgo.tripkit.ui.trippreview.drt.DrtTicketViewModel" />
+
     </data>
 
 
@@ -17,13 +18,14 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:focusable="true"
-        android:importantForAccessibility="yes"
-        android:screenReaderFocusable="true">
+        tools:targetApi="p">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/itemDrt_mainLayout"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:importantForAccessibility="yes"
+            android:screenReaderFocusable="true"
             android:padding="@dimen/spacing_small"
             app:layout_constraintEnd_toStartOf="@+id/itemDrt_actionLayout"
             app:layout_constraintStart_toStartOf="parent"
@@ -37,6 +39,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/shadow_height"
                 android:focusable="false"
+                android:labelFor="@id/itemDrt_tvValue"
                 android:text="@{viewModel.label}"
                 android:textColor="@color/black"
                 app:layout_constraintStart_toStartOf="parent"
@@ -133,7 +136,8 @@
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toEndOf="@id/itemDrt_ibDecrement"
                     app:layout_constraintTop_toTopOf="parent"
-                    tools:text="x10" />
+                    tools:text="x10"
+                    tools:ignore="RtlSymmetry" />
 
                 <ImageButton
                     android:id="@+id/itemDrt_ibIncrement"
@@ -166,7 +170,9 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 tools:visibility="visible" />
+
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+
 </layout>

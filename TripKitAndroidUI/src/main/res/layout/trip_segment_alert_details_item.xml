@@ -8,12 +8,16 @@
         <variable
             name="viewModel"
             type="com.skedgo.tripkit.ui.tripresult.TripSegmentAlertsItemViewModel" />
+
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="16dp">
+        android:importantForAccessibility="yes"
+        android:screenReaderFocusable="true"
+        android:padding="16dp"
+        tools:targetApi="p">
 
         <ImageView
             android:id="@+id/warningIcon"
@@ -22,11 +26,14 @@
             android:src="@drawable/ic_action_warning"
             android:tint="@color/tripKitWarning"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            android:importantForAccessibility="no"
+            tools:ignore="UseAppTint" />
 
         <TextView
             android:id="@+id/title"
             style="@style/TextAppearance.MaterialComponents.Body1"
+            android:focusable="false"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="12dp"
@@ -42,6 +49,7 @@
             android:id="@+id/description"
             style="@style/TextAppearance.MaterialComponents.Body2"
             android:layout_width="0dp"
+            android:focusable="false"
             android:layout_height="wrap_content"
             android:layout_marginStart="12dp"
             android:layout_marginTop="8dp"
@@ -53,4 +61,5 @@
             tools:text="Some ipso text here" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+
 </layout>

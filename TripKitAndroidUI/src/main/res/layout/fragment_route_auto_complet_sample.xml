@@ -8,6 +8,7 @@
         <variable
             name="viewModel"
             type="com.skedgo.tripkit.ui.routing.autocompleter.RouteAutocompleteViewModel" />
+
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -20,7 +21,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:onTextChanged="@{(text, start, before, count) -> viewModel.onSearchQueryChange(text)}"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            android:inputType="text"
+            android:importantForAutofill="no"
+            tools:ignore="LabelFor" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:layout_width="match_parent"
@@ -30,4 +34,5 @@
             app:layout_constraintTop_toBottomOf="@id/etSearch" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+
 </layout>

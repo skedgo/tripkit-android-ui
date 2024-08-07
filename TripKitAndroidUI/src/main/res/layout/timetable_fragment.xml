@@ -12,6 +12,7 @@
         <variable
             name="viewModel"
             type="com.skedgo.tripkit.ui.timetables.TimetableViewModel" />
+
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -112,6 +113,7 @@
                 android:elevation="2dp"
                 android:indeterminateOnly="true"
                 android:visibility="@{!viewModel.enableButton}" />
+
         </RelativeLayout>
 
         <FrameLayout
@@ -128,6 +130,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:visibility="@{viewModel.showSearch}" />
+
         </FrameLayout>
 
         <com.skedgo.tripkit.ui.views.MultiStateView
@@ -149,7 +152,6 @@
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                 app:layout_behavior="@string/appbar_scrolling_view_behavior"
                 tools:listitem="@layout/timetable_fragment_list_item" />
-
 
         </com.skedgo.tripkit.ui.views.MultiStateView>
 
@@ -175,5 +177,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/progressBar" />
         <!--</androidx.constraintlayout.motion.widget.MotionLayout>-->
+
     </androidx.constraintlayout.widget.ConstraintLayout>
+
 </layout>

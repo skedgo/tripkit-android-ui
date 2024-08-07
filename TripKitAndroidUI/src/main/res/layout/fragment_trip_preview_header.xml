@@ -8,6 +8,7 @@
         <variable
             name="viewModel"
             type="com.skedgo.tripkit.ui.trippreview.TripPreviewHeaderViewModel" />
+
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -43,6 +44,7 @@
             android:layout_marginTop="@dimen/shadow_height"
             android:gravity="center"
             android:text="@{viewModel.description}"
+            android:labelFor="@id/rvHeaders"
             android:textAlignment="center"
             android:textColor="@color/black1"
             android:visibility="@{viewModel.showDescription &amp;&amp; !viewModel.isHideExactTimes()}"
@@ -51,4 +53,5 @@
             tools:visibility="visible" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+
 </layout>

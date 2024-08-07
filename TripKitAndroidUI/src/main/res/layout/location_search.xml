@@ -8,6 +8,7 @@
         <variable
             name="viewModel"
             type="com.skedgo.tripkit.ui.search.LocationSearchViewModel" />
+
     </data>
 
 
@@ -71,17 +72,21 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="0"
-                    android:paddingLeft="@dimen/content_padding"
+                    android:paddingStart="@dimen/content_padding"
                     android:paddingTop="@dimen/half_content_padding"
                     android:paddingBottom="@dimen/half_content_padding"
-                    android:src="@drawable/ic_googleresult" />
+                    android:src="@drawable/ic_googleresult"
+                    android:importantForAccessibility="no"
+                    tools:ignore="RtlSymmetry" />
 
                 <ImageView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="0"
                     android:padding="@dimen/half_content_padding"
-                    android:src="@drawable/powered_by_google_on_non_white" />
+                    android:src="@drawable/powered_by_google_on_non_white"
+                    android:importantForAccessibility="no" />
+
             </LinearLayout>
 
 
@@ -97,6 +102,9 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:visibility="@{viewModel.showMiddleProgressBar}" />
+
         </FrameLayout>
+
     </LinearLayout>
+
 </layout>

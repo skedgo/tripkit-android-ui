@@ -14,7 +14,6 @@
 
     </data>
 
-
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -61,7 +60,9 @@
                 android:layout_height="16dp"
                 android:tint="@color/black2"
                 android:visibility="@{viewModel.modeInfo != null}"
-                app:srcCompat="@{viewModel.modeInfo}" />
+                app:srcCompat="@{viewModel.modeInfo}"
+                android:importantForAccessibility="no"
+                tools:ignore="UseAppTint" />
 
             <androidx.cardview.widget.CardView
                 android:layout_width="wrap_content"
@@ -84,6 +85,7 @@
                     android:text="@{viewModel.serviceNumber}"
                     android:textColor="@android:color/white"
                     tools:text="U1" />
+
             </androidx.cardview.widget.CardView>
 
             <TextView
@@ -95,6 +97,7 @@
                 android:text="@{viewModel.secondaryText}"
                 android:textColor="@{viewModel.secondaryTextColor}"
                 tools:text="Scheduled" />
+
         </LinearLayout>
 
         <include

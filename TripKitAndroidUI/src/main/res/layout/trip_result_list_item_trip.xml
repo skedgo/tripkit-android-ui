@@ -8,6 +8,7 @@
         <variable
             name="viewModel"
             type="com.skedgo.tripkit.ui.tripresults.TripResultTripViewModel" />
+
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -17,8 +18,11 @@
         android:contentDescription="@{viewModel.contentDescription}"
         android:onClick="@{() -> viewModel.onItemClicked()}"
         android:orientation="vertical"
+        android:importantForAccessibility="yes"
+        android:screenReaderFocusable="true"
         android:padding="16dp"
-        android:paddingBottom="12dp">
+        android:paddingBottom="12dp"
+        tools:targetApi="p">
 
         <TextView
             android:id="@+id/title"
@@ -28,6 +32,7 @@
             android:alpha="@{viewModel.isMissedPreBooking() ? 0.3f : 1f}"
             android:singleLine="true"
             android:text="@{viewModel.title}"
+            android:focusable="false"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             tools:text="10:11" />
@@ -38,6 +43,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@{viewModel.subtitle}"
+            android:focusable="false"
             android:textColor="@color/black1"
             android:visibility="@{!viewModel.isHideExactTimes}"
             app:layout_constraintBottom_toBottomOf="@+id/title"
@@ -60,5 +66,7 @@
             app:layout_constraintTop_toBottomOf="@+id/title">
 
         </com.google.android.flexbox.FlexboxLayout>
+
     </androidx.constraintlayout.widget.ConstraintLayout>
+
 </layout>

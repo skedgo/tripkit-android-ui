@@ -5,8 +5,11 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:background="@android:color/white"
+    android:importantForAccessibility="yes"
+    android:screenReaderFocusable="true"
     android:foreground="?selectableItemBackground"
-    android:padding="8dp">
+    android:padding="8dp"
+    tools:targetApi="p">
 
     <TextView
         android:id="@+id/txtTitle"
@@ -15,6 +18,7 @@
         android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        android:focusable="false"
         tools:text="Sydney Bike Share" />
 
     <TextView
@@ -22,6 +26,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="@string/available_bikes"
+        android:focusable="false"
         android:textAppearance="@style/TextAppearance.AppCompat.Caption"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="@id/txtTitle"
@@ -37,5 +42,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/txtTitle"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        android:importantForAccessibility="no" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

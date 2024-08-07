@@ -12,6 +12,7 @@
         <variable
             name="handlers"
             type="com.skedgo.tripkit.ui.dialog.TripKitDateTimePickerDialogFragment" />
+
     </data>
 
     <LinearLayout
@@ -75,5 +76,7 @@
             android:layout_marginBottom="24dp"
             android:spinnerMode="dropdown"
             app:selection="@{viewModel.selectedPosition}" />
+
     </LinearLayout>
+
 </layout>

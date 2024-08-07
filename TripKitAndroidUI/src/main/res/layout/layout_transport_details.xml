@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:tools="http://schemas.android.com/tools">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <data>
 
@@ -8,14 +9,15 @@
         <variable
             name="details"
             type="com.skedgo.tripkit.ui.generic.transport.TransportDetails" />
+
     </data>
 
-    <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
+    <androidx.constraintlayout.widget.ConstraintLayout xmlns:app="http://schemas.android.com/apk/res-auto"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:importantForAccessibility="yes"
-        android:screenReaderFocusable="true">
+        android:screenReaderFocusable="true"
+        tools:targetApi="p">
 
         <ImageView
             android:id="@+id/ivPickUpIcon"
@@ -28,7 +30,8 @@
             android:src="@drawable/small_circle"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:tint="@color/colorPrimary" />
+            app:tint="@color/colorPrimary"
+            android:importantForAccessibility="no" />
 
         <TextView
             android:id="@+id/tvPickUpLabel"
@@ -37,6 +40,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/spacing_normal"
             android:focusable="false"
+            android:labelFor="@id/tvPickUp"
             android:text="@string/lbl_pickup"
             android:textColor="@color/black1"
             android:textSize="@dimen/font_size_normal"
@@ -89,7 +93,8 @@
             android:src="@drawable/small_circle"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tvPickUp"
-            app:tint="@color/colorPrimary" />
+            app:tint="@color/colorPrimary"
+            android:importantForAccessibility="no" />
 
         <TextView
             android:id="@+id/tvDropOffLabel"
@@ -98,6 +103,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/spacing_normal"
             android:focusable="false"
+            android:labelFor="@id/tvRequestedDropOff"
             android:text="@string/lbl_drop_off"
             android:textColor="@color/black1"
             android:textSize="@dimen/font_size_normal"
@@ -151,6 +157,5 @@
             app:layout_constraintTop_toBottomOf="@+id/ivPickUpIcon" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
-
 
 </layout>

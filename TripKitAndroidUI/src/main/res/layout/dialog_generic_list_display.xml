@@ -12,6 +12,7 @@
         <variable
             name="viewModel"
             type="com.skedgo.tripkit.ui.dialog.GenericListViewModel" />
+
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -68,8 +69,8 @@
             android:layout_marginTop="@dimen/spacing_small"
             android:layout_marginBottom="@dimen/spacing_small"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            app:layout_constraintBottom_toTopOf="@+id/genericList_b_confirm"
             app:layout_constraintTop_toBottomOf="@+id/genericList_cl_header" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </layout>

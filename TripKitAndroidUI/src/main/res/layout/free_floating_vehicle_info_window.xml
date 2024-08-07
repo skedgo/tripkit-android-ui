@@ -25,6 +25,7 @@
         android:drawablePadding="@dimen/spacing_small"
         android:padding="8dp"
         android:text="@string/kickscooter"
+        android:labelFor="@id/name"
         android:textAppearance="@style/TextAppearance.AppCompat.Medium"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/operatorName" />
@@ -50,6 +51,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/type"
         android:drawablePadding="@dimen/spacing_small"
+        android:labelFor="@id/batteryLevel"
         android:padding="8dp"
         android:text="@string/battery"
         android:textAppearance="@style/TextAppearance.AppCompat.Medium"
@@ -80,6 +82,7 @@
         android:src="@drawable/ic_arrow_forward"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toEndOf="@+id/name"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        android:importantForAccessibility="no" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

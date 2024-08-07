@@ -22,12 +22,13 @@
             android:padding="8dp"
             android:background="@android:color/transparent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+            app:layout_constraintEnd_toEndOf="parent"
+            android:importantForAccessibility="no" />
 
         <EditText
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:gravity="center_vertical|left"
+            android:gravity="center_vertical|start"
             android:hint="@string/stationName"
             android:id="@+id/stationSearch"
             app:hintEnabled="false"
@@ -44,4 +45,5 @@
             android:inputType="text" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+
 </layout>

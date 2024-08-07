@@ -8,6 +8,7 @@
         <variable
             name="viewModel"
             type="com.skedgo.tripkit.ui.servicedetail.ServiceDetailViewModel" />
+
     </data>
 
     <merge>
@@ -55,13 +56,16 @@
                 android:visibility="@{viewModel.showWheelchairAccessible}"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                tools:src="@drawable/ic_wheelchair" />
+                tools:src="@drawable/ic_wheelchair"
+                android:importantForAccessibility="no"
+                tools:ignore="UseAppTint" />
 
             <TextView
                 android:id="@+id/wheelchairLabel"
                 style="@style/TextAppearance.MaterialComponents.Body1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:labelFor="@id/wheelchair"
                 android:layout_marginStart="@dimen/spacing_normal"
                 android:text="@{viewModel.wheelchairAccessibleText}"
                 android:visibility="@{viewModel.showWheelchairAccessible}"
@@ -77,7 +81,8 @@
                 android:src="@drawable/ic_bike"
                 android:visibility="@{viewModel.showBicycleAccessible}"
                 app:layout_constraintStart_toEndOf="@id/wheelchair"
-                app:layout_constraintTop_toTopOf="@id/wheelchair" />
+                app:layout_constraintTop_toTopOf="@id/wheelchair"
+                android:importantForAccessibility="no" />
 
             <TextView
                 android:id="@+id/tvBicycleLabel"
@@ -86,6 +91,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/spacing_normal"
                 android:text="@string/bicycle_accessible"
+                android:labelFor="@id/ivBicycle"
                 android:visibility="@{viewModel.showBicycleAccessible}"
                 app:layout_constraintStart_toEndOf="@id/ivBicycle"
                 app:layout_constraintTop_toTopOf="@+id/ivBicycle"
@@ -101,7 +107,8 @@
                 android:visibility="@{viewModel.showOccupancyInfo}"
                 app:layout_constraintStart_toEndOf="@id/ivBicycle"
                 app:layout_constraintTop_toTopOf="@id/ivBicycle"
-                tools:src="@drawable/ic_occupancy_25" />
+                tools:src="@drawable/ic_occupancy_25"
+                android:importantForAccessibility="no" />
 
             <TextView
                 android:id="@+id/occupancyLabel"
@@ -109,6 +116,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/spacing_normal"
+                android:labelFor="@id/occupancyView"
                 android:text="@{viewModel.occupancyViewModel.occupancyText}"
                 android:visibility="@{viewModel.showOccupancyInfo}"
                 app:layout_constraintStart_toEndOf="@id/occupancyView"
@@ -121,6 +129,7 @@
                 android:layout_height="@dimen/icon_medium"
                 android:padding="@dimen/spacing_small"
                 android:layout_marginEnd="@dimen/spacing_normal"
+                android:contentDescription="@string/desc_expand"
                 android:clickable="true"
                 android:focusable="true"
                 android:src="@drawable/chevron_down"
@@ -183,4 +192,5 @@
             tools:visibility="gone" />
 
     </merge>
+
 </layout>

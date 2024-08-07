@@ -8,6 +8,7 @@
         <variable
             name="item"
             type="com.skedgo.tripkit.ui.tripresult.RoadTagChartItem" />
+
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -25,6 +26,7 @@
             app:layout_constraintHorizontal_chainStyle="packed"
             app:layout_constraintHorizontal_weight="1"
             app:layout_constraintStart_toStartOf="parent"
+            android:labelFor="@id/pbProgress"
             app:layout_constraintTop_toTopOf="parent"
             tools:text="Label" />
 

@@ -8,6 +8,7 @@
         <variable
             name="viewModel"
             type="com.skedgo.tripkit.ui.timetables.ServiceViewModel" />
+
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -30,7 +31,6 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
-
             <!-- android:onClick="@{() -> viewModel.onItemClick.perform()}" -->
 
             <LinearLayout
@@ -46,7 +46,9 @@
                     android:layout_width="16dp"
                     android:layout_height="16dp"
                     android:tint="@color/black2"
-                    app:srcCompat="@{viewModel.modeInfo}" />
+                    app:srcCompat="@{viewModel.modeInfo}"
+                    android:importantForAccessibility="no"
+                    tools:ignore="UseAppTint" />
 
                 <androidx.cardview.widget.CardView
                     android:layout_width="wrap_content"
@@ -68,6 +70,7 @@
                         android:text="@{viewModel.serviceNumber}"
                         android:textColor="@android:color/white"
                         tools:text="U1" />
+
                 </androidx.cardview.widget.CardView>
 
                 <ImageView
@@ -77,7 +80,9 @@
                     android:layout_marginStart="4dp"
                     android:tint="@color/tripKitWarning"
                     android:visibility="@{viewModel.serviceAlertViewModel.hasAlerts}"
-                    app:srcCompat="@drawable/ic_action_warning" />
+                    app:srcCompat="@drawable/ic_action_warning"
+                    android:importantForAccessibility="no"
+                    tools:ignore="UseAppTint" />
 
                 <ImageView
                     android:id="@+id/wheelchair"
@@ -87,7 +92,9 @@
                     android:layout_marginEnd="@dimen/spacing_xx_small"
                     android:src="@{viewModel.wheelchairIcon}"
                     android:tint="@{viewModel.wheelchairTint}"
-                    app:addRtlSupport="@{true}" />
+                    app:addRtlSupport="@{true}"
+                    android:importantForAccessibility="no"
+                    tools:ignore="UseAppTint" />
 
                 <ImageView
                     android:id="@+id/ivBicycle"
@@ -97,7 +104,8 @@
                     android:layout_marginStart="@dimen/spacing_extra_small"
                     android:layout_marginEnd="@dimen/spacing_xx_small"
                     android:src="@drawable/ic_bike_accessible"
-                    app:addRtlSupport="@{true}" />
+                    app:addRtlSupport="@{true}"
+                    android:importantForAccessibility="no" />
 
                 <ImageView
                     android:id="@+id/occupancyView"
@@ -107,7 +115,8 @@
                     android:src="@{viewModel.occupancyViewModel.drawableLeft}"
                     android:visibility="@{viewModel.showOccupancyInfo}"
                     app:layout_constraintStart_toEndOf="@id/wheelchair"
-                    app:layout_constraintTop_toTopOf="@id/wheelchair" />
+                    app:layout_constraintTop_toTopOf="@id/wheelchair"
+                    android:importantForAccessibility="no" />
 
             </LinearLayout>
 
@@ -167,7 +176,9 @@
                 app:addRtlSupport="@{true}"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:tint="@color/colorPrimary" />
+                app:tint="@color/colorPrimary"
+                android:importantForAccessibility="no" />
+
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <View
@@ -178,5 +189,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
+
 </layout>

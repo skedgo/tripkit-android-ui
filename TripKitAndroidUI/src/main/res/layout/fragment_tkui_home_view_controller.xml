@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
@@ -7,6 +8,7 @@
         <variable
             name="viewModel"
             type="com.skedgo.tripkit.ui.controller.homeviewcontroller.TKUIHomeViewControllerViewModel" />
+
     </data>
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
@@ -26,7 +28,8 @@
                 android:id="@+id/mapFragment"
                 class="com.skedgo.tripkit.ui.map.home.TripKitMapFragment"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent" />
+                android:layout_height="match_parent"
+                tools:ignore="FragmentTagUsage" />
 
         </FrameLayout>
 
@@ -60,7 +63,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:clickable="true"
-            android:focusable="false"
+            android:focusable="true"
             android:importantForAccessibility="no"
             android:visibility="@{!viewModel.state.chooseOnMap}"
             app:behavior_hideable="false"
@@ -74,7 +77,8 @@
             android:layout_gravity="center"
             android:visibility="@{viewModel.state.chooseOnMap}"
             app:srcCompat="@drawable/ic_pin"
-            app:tint="@android:color/holo_red_light" />
+            app:tint="@android:color/holo_red_light"
+            android:importantForAccessibility="no" />
 
         <FrameLayout
             android:id="@+id/locationPointerFrame"
@@ -82,13 +86,15 @@
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
             android:clickable="true"
-            android:visibility="@{viewModel.state.chooseOnMap}">
+            android:visibility="@{viewModel.state.chooseOnMap}"
+            android:focusable="true">
 
             <fragment
                 android:id="@+id/locationPointerFragment"
                 android:name="com.skedgo.tripkit.ui.locationpointer.LocationPointerFragment"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                tools:ignore="FragmentTagUsage" />
 
         </FrameLayout>
 

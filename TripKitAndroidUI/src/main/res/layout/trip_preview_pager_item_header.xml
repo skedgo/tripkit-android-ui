@@ -8,6 +8,7 @@
         <variable
             name="viewModel"
             type="com.skedgo.tripkit.ui.trippreview.TripPreviewPagerItemViewModel" />
+
     </data>
 
     <merge>
@@ -21,7 +22,8 @@
             android:src="@{viewModel.icon}"
             app:layout_constraintBottom_toBottomOf="@+id/textBarrier"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            android:importantForAccessibility="no" />
 
         <TextView
             android:id="@+id/actionText"
@@ -80,5 +82,7 @@
             android:layout_height="wrap_content"
             app:barrierDirection="bottom"
             app:constraint_referenced_ids="actionText,descriptionText, openInButton" />
+
     </merge>
+
 </layout>

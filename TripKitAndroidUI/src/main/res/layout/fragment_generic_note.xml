@@ -87,6 +87,7 @@
         <variable
             name="viewModel"
             type="com.skedgo.tripkit.ui.dialog.GenericNoteViewModel" />
+
     </data>
 
 </layout>

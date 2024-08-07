@@ -8,14 +8,19 @@
         <variable
             name="viewModel"
             type="com.skedgo.tripkit.ui.servicedetail.ServiceDetailItemViewModel" />
+
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="?android:attr/selectableItemBackground">
+        android:screenReaderFocusable="true"
+        android:importantForAccessibility="yes"
+        android:background="?android:attr/selectableItemBackground"
+        tools:targetApi="p">
         <!--                                                       android:onClick="@{() -> viewModel.onItemClick.perform()}"-->
         <!--    >-->
+
         <TextView
             android:id="@+id/time"
             style="@style/TextAppearance.MaterialComponents.Caption"
@@ -23,6 +28,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:gravity="end|center_vertical"
+            android:focusable="false"
             android:text="@{viewModel.scheduledTime}"
             android:textColor="@{viewModel.scheduledTimeTextColor}"
             app:addRtlSupport="@{true}"
@@ -40,7 +46,8 @@
             android:src="@{viewModel.lineDrawable}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toEndOf="@+id/time"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            android:importantForAccessibility="no" />
 
         <TextView
             android:id="@+id/stopName"
@@ -48,6 +55,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
+            android:focusable="false"
             android:layout_marginTop="10dp"
             android:layout_marginEnd="8dp"
             android:layout_marginBottom="10dp"
@@ -61,6 +69,6 @@
             app:layout_constraintTop_toTopOf="parent"
             tools:text="Stop Name" />
 
-
     </androidx.constraintlayout.widget.ConstraintLayout>
+
 </layout>

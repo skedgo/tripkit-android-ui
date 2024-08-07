@@ -12,6 +12,7 @@
         <variable
             name="viewModel"
             type="com.skedgo.tripkit.ui.tripresult.ActionButtonViewModel" />
+
     </data>
 
     <LinearLayout
@@ -36,7 +37,8 @@
             android:onClick="@{() -> listener.onItemClick(viewModel.tag, viewModel)}"
             android:background="@{viewModel.background}"
             android:importantForAccessibility="no"
-            tools:visibility="visible">
+            tools:visibility="visible"
+            tools:targetApi="m">
 
             <ImageView
                 android:layout_width="24dp"
@@ -71,6 +73,7 @@
             android:textColor="@color/black1"
             android:importantForAccessibility="no"
             tools:text="An action" />
+
     </LinearLayout>
 
 </layout>

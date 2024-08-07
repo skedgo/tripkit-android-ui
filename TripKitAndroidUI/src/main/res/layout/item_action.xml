@@ -10,6 +10,7 @@
         <variable
             name="item"
             type="com.skedgo.tripkit.ui.generic.action_list.Action" />
+
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -31,4 +32,5 @@
             tools:text="Cancel Order" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+
 </layout>

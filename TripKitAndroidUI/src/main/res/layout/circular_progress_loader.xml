@@ -11,4 +11,5 @@
             style="@style/Base.Widget.AppCompat.ProgressBar"
             android:layout_gravity="center" />
     </FrameLayout>
+
 </layout>

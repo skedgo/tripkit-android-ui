@@ -8,13 +8,13 @@
         <variable
             name="viewModel"
             type="com.skedgo.tripkit.ui.tripresult.TripSegmentGetOffAlertDetailViewModel" />
+
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="@dimen/spacing_small">
-
 
         <ImageView
             android:id="@+id/ivIcon"
@@ -25,8 +25,8 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@+id/tvTitle"
             app:customImageTint="@{viewModel.enabled ? @color/black : @color/disabled}"
-            tools:src="@drawable/ic_navigation_start" />
-
+            tools:src="@drawable/ic_navigation_start"
+            android:importantForAccessibility="no" />
 
         <TextView
             android:id="@+id/tvTitle"
@@ -41,4 +41,5 @@
             tools:text="The trip is about to start" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+
 </layout>

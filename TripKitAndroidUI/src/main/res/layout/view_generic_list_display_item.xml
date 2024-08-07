@@ -8,6 +8,7 @@
         <variable
             name="item"
             type="com.skedgo.tripkit.ui.dialog.GenericListItem" />
+
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -41,8 +42,11 @@
 
         <LinearLayout
             android:layout_width="match_parent"
+            android:importantForAccessibility="yes"
+            android:screenReaderFocusable="true"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@id/divider">
+            app:layout_constraintTop_toBottomOf="@id/divider"
+            tools:targetApi="p">
 
             <TextView
                 android:id="@+id/genericListItem_tv_subLabel"
@@ -52,6 +56,7 @@
                 android:layout_marginEnd="@dimen/spacing_small"
                 android:paddingStart="@dimen/spacing_normal"
                 android:paddingEnd="@dimen/spacing_normal"
+                android:focusable="false"
                 android:layout_marginTop="8dp"
                 android:text="@{item.subLabel}"
                 android:textColor="@color/black1"
@@ -65,12 +70,15 @@
                 android:layout_height="match_parent"
                 android:layout_marginEnd="@dimen/spacing_normal"
                 android:text="@{item.date}"
+                android:focusable="false"
                 android:gravity="end"
                 android:textColor="@color/black1"
                 android:layout_marginTop="8dp"
                 android:layout_weight="0.5"
                 tools:text="Dec 15, 2021 at 12:04 PM" />
+
         </LinearLayout>
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </layout>

@@ -20,7 +20,8 @@
         android:clickable="false"
         android:focusable="false"
         android:src="@drawable/ic_share"
-        app:tint="@color/black" />
+        app:tint="@color/black"
+        android:importantForAccessibility="no" />
 
     <TextView
         style="@style/TextAppearance.MaterialComponents.Caption"
@@ -28,4 +29,5 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:text="@string/share" />
+
 </LinearLayout>
