@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <bool name="trip_kit_map_override_default_latlon">false</bool>
-    <string name="trip_kit_map_default_latitude"/>
-    <string name="trip_kit_map_default_longitude"/>
-    <string name="trip_kit_map_default_zoom"/>
+    <string name="trip_kit_map_default_latitude" />
+    <string name="trip_kit_map_default_longitude" />
+    <string name="trip_kit_map_default_zoom" />
 </resources>

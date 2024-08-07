@@ -8,10 +8,10 @@ import com.skedgo.tripkit.ui.utils.getPackageNameFromStoreUrl
 import com.skedgo.tripkit.ui.utils.isAppInstalledById
 
 data class Action(
-        var data: String?, //url or package
-        var appInstalled: Boolean,
-        var drawable: Int,
-        var fallbackUrl: String? = null
+    var data: String?, //url or package
+    var appInstalled: Boolean,
+    var drawable: Int,
+    var fallbackUrl: String? = null
 )
 
 fun Context.handleExternalAction(dataUrl: String): Action? {
@@ -24,12 +24,18 @@ fun Context.handleExternalAction(dataUrl: String): Action? {
 
     return url.getPackageNameFromStoreUrl()?.let { appId ->
         val appInstalled = appId.isAppInstalledById(packageManager)
-        return Action(if (appInstalled) {
-            appId
-        } else {
-            url.checkUrl()
-        }, appInstalled, getExternalActionDrawable(appInstalled, isApp = true, isTel = false))
-    } ?: Action(url.checkUrl(), false, getExternalActionDrawable(false, isApp = false, isTel = url.startsWith("tel:")))
+        return Action(
+            if (appInstalled) {
+                appId
+            } else {
+                url.checkUrl()
+            }, appInstalled, getExternalActionDrawable(appInstalled, isApp = true, isTel = false)
+        )
+    } ?: Action(
+        url.checkUrl(),
+        false,
+        getExternalActionDrawable(false, isApp = false, isTel = url.startsWith("tel:"))
+    )
 }
 
 fun getUrlByApp(app: String): String? {

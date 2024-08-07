@@ -112,9 +112,9 @@ class TripResultViewModel @Inject constructor(
 
     override fun equals(other: Any?): Boolean {
         if (other == null
-                || other !is TripResultViewModel
-                || other.group.uuid() != group.uuid()
-                || other.trip.segments.size != trip.segments.size)
+            || other !is TripResultViewModel
+            || other.group.uuid() != group.uuid()
+            || other.trip.segments.size != trip.segments.size)
             return false
         trip.segments.forEachIndexed { index, value ->
             if (value.bookingHashCode != other.trip.segments[index].bookingHashCode) return false
@@ -126,9 +126,11 @@ class TripResultViewModel @Inject constructor(
         return true
     }
 
-    fun setTripGroup(context: Context,
-                     tripgroup: TripGroup,
-                     classification: TripGroupClassifier.Classification?) {
+    fun setTripGroup(
+        context: Context,
+        tripgroup: TripGroup,
+        classification: TripGroupClassifier.Classification?
+    ) {
         group = tripgroup
         trip = tripgroup.displayTrip!!
         otherTripGroups = tripgroup.trips?.filterNot { it.uuid() == trip.uuid() }
@@ -205,7 +207,12 @@ class TripResultViewModel @Inject constructor(
             if (it.modeInfo != null) {
                 contentDescBuilder.append(it.modeInfo?.alternativeText).append(" ")
                 contentDescBuilder.append(it.modeInfo?.description).append(" ")
-                contentDescBuilder.append("for ").append(buildTitle(context, trip).replace(context.getString(R.string.str_mins), context.getString(R.string.str_minutes))).append(". ")
+                contentDescBuilder.append("for ").append(
+                    buildTitle(context, trip).replace(
+                        context.getString(R.string.str_mins),
+                        context.getString(R.string.str_minutes)
+                    )
+                ).append(". ")
             }
             if (it == trip.segments.last()) {
                 contentDescBuilder.append(buildSubtitle(context, trip))
@@ -221,19 +228,39 @@ class TripResultViewModel @Inject constructor(
                 Triple(R.drawable.ic_like_circle, R.string.easiest, R.color.classification_easiest)
             }
             TripGroupClassifier.Classification.CHEAPEST -> {
-                Triple(R.drawable.ic_money_sign_circle, R.string.cheapest, R.color.classification_cheapest)
+                Triple(
+                    R.drawable.ic_money_sign_circle,
+                    R.string.cheapest,
+                    R.color.classification_cheapest
+                )
             }
             TripGroupClassifier.Classification.FASTEST -> {
-                Triple(R.drawable.ic_lightning_circle, R.string.fastest, R.color.classification_fastest)
+                Triple(
+                    R.drawable.ic_lightning_circle,
+                    R.string.fastest,
+                    R.color.classification_fastest
+                )
             }
             TripGroupClassifier.Classification.GREENEST -> {
-                Triple(R.drawable.ic_leaf_circle, R.string.greenest, R.color.classification_greenest)
+                Triple(
+                    R.drawable.ic_leaf_circle,
+                    R.string.greenest,
+                    R.color.classification_greenest
+                )
             }
             TripGroupClassifier.Classification.HEALTHIEST -> {
-                Triple(R.drawable.ic_heart_circle, R.string.healthiest, R.color.classification_healthiest)
+                Triple(
+                    R.drawable.ic_heart_circle,
+                    R.string.healthiest,
+                    R.color.classification_healthiest
+                )
             }
             TripGroupClassifier.Classification.RECOMMENDED -> {
-                Triple(R.drawable.ic_recommeneded_circle, R.string.recommended, R.color.classification_recommended)
+                Triple(
+                    R.drawable.ic_recommeneded_circle,
+                    R.string.recommended,
+                    R.color.classification_recommended
+                )
             }
             else -> {
                 Triple(-1, -1, -1)
@@ -260,21 +287,36 @@ class TripResultViewModel @Inject constructor(
      * For example, '09:40am - 10:40am (59mins)'
      */
     private fun showTimeRange(startDateTime: DateTime, endDateTime: DateTime): String {
-        return "${printTime.printLocalTime(startDateTime.toLocalTime())} - ${printTime.printLocalTime(endDateTime.toLocalTime())}"
+        return "${printTime.printLocalTime(startDateTime.toLocalTime())} - ${
+            printTime.printLocalTime(
+                endDateTime.toLocalTime()
+            )
+        }"
     }
 
     /**
      * For example, 1hr 50mins
      */
-    private fun formatDuration(context: Context, startTimeInSecs: Long, endTimeInSecs: Long): String = TimeUtils.getDurationInDaysHoursMins(context, (endTimeInSecs - startTimeInSecs).toInt())
+    private fun formatDuration(
+        context: Context,
+        startTimeInSecs: Long,
+        endTimeInSecs: Long
+    ): String =
+        TimeUtils.getDurationInDaysHoursMins(context, (endTimeInSecs - startTimeInSecs).toInt())
 
     private fun buildSubtitle(context: Context, _trip: Trip): String {
         return if (_trip.isDepartureTimeFixed) {
             formatDuration(context, _trip.startTimeInSecs, _trip.endTimeInSecs)
         } else if (!_trip.queryIsLeaveAfter()) {
-            resources.getString(R.string.departs__pattern, printTime.printLocalTime(_trip.startDateTime.toLocalTime()))
+            resources.getString(
+                R.string.departs__pattern,
+                printTime.printLocalTime(_trip.startDateTime.toLocalTime())
+            )
         } else {
-            resources.getString(R.string.arrives__pattern, printTime.printLocalTime(_trip.endDateTime.toLocalTime()))
+            resources.getString(
+                R.string.arrives__pattern,
+                printTime.printLocalTime(_trip.endDateTime.toLocalTime())
+            )
         }
     }
 
@@ -317,7 +359,7 @@ class TripResultViewModel @Inject constructor(
     }
 
     private fun setMoneyCost() {
-        if(trip.moneyCost == 0f  && trip.moneyUsdCost == 0f) {
+        if (trip.moneyCost == 0f && trip.moneyUsdCost == 0f) {
             _isMoneyCostVisible.postValue(false)
             return
         }

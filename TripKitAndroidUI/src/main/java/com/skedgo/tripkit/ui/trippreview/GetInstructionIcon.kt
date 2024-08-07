@@ -10,7 +10,7 @@ import com.skedgo.tripkit.ui.R
 
 class GetInstructionIcon {
     fun getIcon(context: Context, street: Street): Drawable? {
-        val result = when(street.instruction()) {
+        val result = when (street.instruction()) {
             Street.Instruction.HEAD_TOWARDS -> R.drawable.maneuver_start
             Street.Instruction.CONTINUE_STRAIGHT -> R.drawable.maneuver_go_straight
             Street.Instruction.TURN_SLIGHTLY_LEFT -> R.drawable.maneuver_light_left

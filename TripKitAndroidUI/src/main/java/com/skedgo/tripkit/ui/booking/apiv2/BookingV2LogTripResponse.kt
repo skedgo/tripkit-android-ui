@@ -8,7 +8,7 @@ import org.immutables.value.Value
 @Value.Immutable
 @Value.Style(passAnnotations = [JsonAdapter::class])
 @JsonAdapter(GsonAdaptersBookingV2LogTripResponse::class)
-interface BookingV2LogTripResponse{
+interface BookingV2LogTripResponse {
     fun bookingID(): String
     fun bookingURL(): String
 }

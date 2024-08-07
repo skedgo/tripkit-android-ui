@@ -5,11 +5,11 @@ import io.reactivex.Observable
 
 interface RealtimeAlertRepository {
 
-  fun addAlerts(alerts: List<RealtimeAlert>)
+    fun addAlerts(alerts: List<RealtimeAlert>)
 
-  fun addAlertHashCodesForId(id: String, alertHashCodes: List<Long>)
+    fun addAlertHashCodesForId(id: String, alertHashCodes: List<Long>)
 
-  fun getAlerts(id: String): List<RealtimeAlert>?
+    fun getAlerts(id: String): List<RealtimeAlert>?
 
-  fun onAlertForIdAdded(id: String): Observable<RealtimeAlert>
+    fun onAlertForIdAdded(id: String): Observable<RealtimeAlert>
 }

@@ -13,7 +13,10 @@ fun ObservableBoolean.asObservable(): Observable<Boolean> {
         // To emit the current value.
         it.onNext(get())
         val callback = object : androidx.databinding.Observable.OnPropertyChangedCallback() {
-            override fun onPropertyChanged(sender: androidx.databinding.Observable?, propertyId: Int) {
+            override fun onPropertyChanged(
+                sender: androidx.databinding.Observable?,
+                propertyId: Int
+            ) {
                 it.onNext(get())
             }
         }

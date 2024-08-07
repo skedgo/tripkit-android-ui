@@ -11,10 +11,10 @@ import dagger.Provides
 @Module(includes = [ServiceAlertDataModule::class])
 class TimetableModule(private val activityContext: Context) {
 
-  @Provides
-  internal fun provideTimetableLoaderFactory(): TimetableLoaderFactory {
-    return TimetableLoaderFactory()
-  }
+    @Provides
+    internal fun provideTimetableLoaderFactory(): TimetableLoaderFactory {
+        return TimetableLoaderFactory()
+    }
 //
 //  @Provides
 //  internal fun provideTimetableAdapter(cursorToServiceConverter: CursorToServiceConverter,
@@ -23,9 +23,9 @@ class TimetableModule(private val activityContext: Context) {
 //    return TimetableAdapter(activityContext, cursorToServiceConverter, updateServiceAlerts, getClosestPositionToNow)
 //  }
 
-  @Provides
-  internal fun provideCursorToServiceConverter(gson: Gson): CursorToServiceConverter {
-    return CursorToServiceConverter(gson)
-  }
+    @Provides
+    internal fun provideCursorToServiceConverter(gson: Gson): CursorToServiceConverter {
+        return CursorToServiceConverter(gson)
+    }
 
 }

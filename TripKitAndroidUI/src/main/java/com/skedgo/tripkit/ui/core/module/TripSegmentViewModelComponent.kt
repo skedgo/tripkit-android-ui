@@ -5,5 +5,5 @@ import dagger.Subcomponent
 
 @Subcomponent(modules = [TransportationIconTintStrategyModule::class])
 interface TripSegmentViewModelComponent {
-  fun inject(view: TripSegmentViewModel)
+    fun inject(view: TripSegmentViewModel)
 }

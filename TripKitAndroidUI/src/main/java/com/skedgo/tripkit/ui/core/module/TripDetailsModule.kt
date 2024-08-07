@@ -1,4 +1,5 @@
 package com.skedgo.tripkit.ui.core.module
+
 import android.content.Context
 import android.view.LayoutInflater
 import android.widget.TextView
@@ -18,19 +19,20 @@ import dagger.Provides
 @Module
 class TripDetailsModule {
 
-  @ActivityScope
-  @Provides
-  fun selectedTripGroupRepository(
-      tripGroupRepository: TripGroupRepository
-  ): SelectedTripGroupRepository = SelectedTripGroupRepository(tripGroupRepository)
+    @ActivityScope
+    @Provides
+    fun selectedTripGroupRepository(
+        tripGroupRepository: TripGroupRepository
+    ): SelectedTripGroupRepository = SelectedTripGroupRepository(tripGroupRepository)
 
-  @ActivityScope
-  @Provides
-  fun fetchingRealtimeStatusRepository(): FetchingRealtimeStatusRepository =
-      FetchingRealtimeStatusRepository()
+    @ActivityScope
+    @Provides
+    fun fetchingRealtimeStatusRepository(): FetchingRealtimeStatusRepository =
+        FetchingRealtimeStatusRepository()
 
-  @Provides fun isLocationPermissionGranted(context: Context): IsLocationPermissionGranted =
-      IsLocationPermissionGranted(context)
+    @Provides
+    fun isLocationPermissionGranted(context: Context): IsLocationPermissionGranted =
+        IsLocationPermissionGranted(context)
 
 //
 //  @Provides internal fun saveUrlFetcher(httpClient: okhttp3.OkHttpClient, gson: Gson): SaveUrlFetcher {
@@ -44,28 +46,31 @@ class TripDetailsModule {
 //  }
 
 
-  @Provides fun timeLabelMaker(context: Context): TimeLabelMaker {
-    // It's okay to pass rootView as null into inflate() in this case.
-    val inflater: LayoutInflater = LayoutInflater.from(context)
-    val timeTextView = inflater.inflate(R.layout.view_time_label, null) as TextView
-    return TimeLabelMaker(timeTextView)
-  }
+    @Provides
+    fun timeLabelMaker(context: Context): TimeLabelMaker {
+        // It's okay to pass rootView as null into inflate() in this case.
+        val inflater: LayoutInflater = LayoutInflater.from(context)
+        val timeTextView = inflater.inflate(R.layout.view_time_label, null) as TextView
+        return TimeLabelMaker(timeTextView)
+    }
 
-  @Provides fun segmentInfoWindowAdapter(context: Context): SegmentInfoWindowAdapter {
-    val inflater: LayoutInflater = LayoutInflater.from(context)
-    return SegmentInfoWindowAdapter(inflater)
-  }
+    @Provides
+    fun segmentInfoWindowAdapter(context: Context): SegmentInfoWindowAdapter {
+        val inflater: LayoutInflater = LayoutInflater.from(context)
+        return SegmentInfoWindowAdapter(inflater)
+    }
 
-  @Provides fun serviceStopInfoWindowAdapter(context: Context): ServiceStopInfoWindowAdapter {
-    val inflater: LayoutInflater = LayoutInflater.from(context)
-    return ServiceStopInfoWindowAdapter(inflater)
-  }
+    @Provides
+    fun serviceStopInfoWindowAdapter(context: Context): ServiceStopInfoWindowAdapter {
+        val inflater: LayoutInflater = LayoutInflater.from(context)
+        return ServiceStopInfoWindowAdapter(inflater)
+    }
 
 //  @Provides internal fun isLocationPermissionGranted(): IsLocationPermissionGranted =
 //          IsLocationPermissionGranted(activity)
 
-  @Provides
-  @ActivityScope
-  fun segmentCameraUpdateRepository(getSelectedTrip: GetSelectedTrip): SegmentCameraUpdateRepository
-          = SegmentCameraUpdateRepository(getSelectedTrip = getSelectedTrip)
+    @Provides
+    @ActivityScope
+    fun segmentCameraUpdateRepository(getSelectedTrip: GetSelectedTrip): SegmentCameraUpdateRepository =
+        SegmentCameraUpdateRepository(getSelectedTrip = getSelectedTrip)
 }

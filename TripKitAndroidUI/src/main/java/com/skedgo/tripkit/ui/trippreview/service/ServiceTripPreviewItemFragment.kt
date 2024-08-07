@@ -67,32 +67,40 @@ class ServiceTripPreviewItemFragment : BaseTripKitPagerFragment() {
             with(prefs.edit()) {
                 putString("${positionInAdapter}_$ARGS_TRIP_SEGMENT", gson.toJson(it))
                 putString("${positionInAdapter}_$ARGS_TRIP_SEGMENT_TRIP", gson.toJson(it.trip))
-                putString("${positionInAdapter}_$ARGS_TRIP_SEGMENT_TRIP_GROUP", gson.toJson(it.trip?.group))
+                putString(
+                    "${positionInAdapter}_$ARGS_TRIP_SEGMENT_TRIP_GROUP",
+                    gson.toJson(it.trip?.group)
+                )
                 putBoolean("${positionInAdapter}_$ARGS_SHOW_CLOSE_BUTTON", showCloseButton)
                 apply()
             }
         }
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         val binding = TripPreviewServiceItemBinding.inflate(inflater)
         binding.viewModel = viewModel
         binding.lifecycleOwner = this
-        binding.occupancyList.layoutManager = LinearLayoutManager(context, RecyclerView.HORIZONTAL, false)
+        binding.occupancyList.layoutManager =
+            LinearLayoutManager(context, RecyclerView.HORIZONTAL, false)
 
         binding.occupancyList.isNestedScrollingEnabled = false
         binding.recyclerView.isNestedScrollingEnabled = true
 
         val swipeListener = OnSwipeTouchListener(requireContext(),
-                object : OnSwipeTouchListener.SwipeGestureListener {
-                    override fun onSwipeRight() {
-                        onNextPage?.invoke()
-                    }
+            object : OnSwipeTouchListener.SwipeGestureListener {
+                override fun onSwipeRight() {
+                    onNextPage?.invoke()
+                }
 
-                    override fun onSwipeLeft() {
-                        onPreviousPage?.invoke()
-                    }
-                })
+                override fun onSwipeLeft() {
+                    onPreviousPage?.invoke()
+                }
+            })
 
         swipeListener.touchCallback = { v, event ->
             v?.parent?.requestDisallowInterceptTouchEvent(true)
@@ -130,19 +138,30 @@ class ServiceTripPreviewItemFragment : BaseTripKitPagerFragment() {
         with(prefs) {
             var segment: TripSegment? = null
             if (contains("${positionInAdapter}_$ARGS_TRIP_SEGMENT")) {
-                segment = gson.fromJson(getString("${positionInAdapter}_$ARGS_TRIP_SEGMENT", ""), TripSegment::class.java)
+                segment = gson.fromJson(
+                    getString("${positionInAdapter}_$ARGS_TRIP_SEGMENT", ""),
+                    TripSegment::class.java
+                )
                 prefs.edit().remove("${positionInAdapter}_$ARGS_TRIP_SEGMENT").apply()
             }
 
             var trip: Trip? = null
             if (contains("${positionInAdapter}_$ARGS_TRIP_SEGMENT_TRIP")) {
-                trip = gson.fromJson(getString("${positionInAdapter}_$ARGS_TRIP_SEGMENT_TRIP", ""), Trip::class.java)
+                trip = gson.fromJson(
+                    getString("${positionInAdapter}_$ARGS_TRIP_SEGMENT_TRIP", ""),
+                    Trip::class.java
+                )
                 prefs.edit().remove("${positionInAdapter}_$ARGS_TRIP_SEGMENT_TRIP").apply()
             }
 
             var tripSegmentGroup: TripGroup? = null
             if (contains("${positionInAdapter}_$ARGS_TRIP_SEGMENT_TRIP_GROUP")) {
-                tripSegmentGroup = gson.fromJson(getString("${positionInAdapter}_$ARGS_TRIP_SEGMENT_TRIP_GROUP", ""), TripGroup::class.java)
+                tripSegmentGroup = gson.fromJson(
+                    getString(
+                        "${positionInAdapter}_$ARGS_TRIP_SEGMENT_TRIP_GROUP",
+                        ""
+                    ), TripGroup::class.java
+                )
                 prefs.edit().remove("${positionInAdapter}_$ARGS_TRIP_SEGMENT_TRIP").apply()
             }
             trip?.group = tripSegmentGroup
@@ -166,7 +185,11 @@ class ServiceTripPreviewItemFragment : BaseTripKitPagerFragment() {
         const val ARGS_TRIP_SEGMENT_TRIP_GROUP = "tripSegmentTripGroup"
         const val ARGS_SHOW_CLOSE_BUTTON = "showCloseButton"
 
-        fun newInstance(segment: TripSegment, position: Int, showCloseButton: Boolean = false): ServiceTripPreviewItemFragment {
+        fun newInstance(
+            segment: TripSegment,
+            position: Int,
+            showCloseButton: Boolean = false
+        ): ServiceTripPreviewItemFragment {
             val fragment = ServiceTripPreviewItemFragment()
             fragment.showCloseButton = showCloseButton
             fragment.segment = segment

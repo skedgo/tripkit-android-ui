@@ -10,18 +10,23 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
 
-import androidx.annotation.Nullable;
-import androidx.lifecycle.ViewModelProviders;
-
 import com.gojuno.koptional.Some;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.model.*;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
 import com.skedgo.tripkit.common.model.ScheduledStop;
 import com.skedgo.tripkit.common.model.ServiceStop;
 import com.skedgo.tripkit.common.util.DateTimeFormats;
 import com.skedgo.tripkit.common.util.StringUtils;
 import com.skedgo.tripkit.data.regions.RegionService;
+import com.skedgo.tripkit.logging.ErrorLogger;
+import com.skedgo.tripkit.routing.RealTimeVehicle;
 import com.skedgo.tripkit.routing.TripSegment;
 import com.skedgo.tripkit.ui.R;
 import com.skedgo.tripkit.ui.TripKitUI;
@@ -37,26 +42,25 @@ import com.skedgo.tripkit.ui.servicedetail.ServiceDetailFragment;
 import com.skedgo.tripkit.ui.timetables.TimetableFragment;
 import com.squareup.otto.Bus;
 
-import dagger.Lazy;
-import kotlin.Pair;
-
 import org.jetbrains.annotations.NotNull;
-
-import com.skedgo.tripkit.logging.ErrorLogger;
-import com.skedgo.tripkit.routing.RealTimeVehicle;
-
-import javax.inject.Inject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
+import javax.inject.Inject;
+
+import androidx.annotation.Nullable;
+import androidx.lifecycle.ViewModelProviders;
+import dagger.Lazy;
+import kotlin.Pair;
+
 
 public class ServiceStopMapFragment
-        extends LocationEnhancedMapFragment
-        implements GoogleMap.OnInfoWindowClickListener, GoogleMap.InfoWindowAdapter,
-        TimetableFragment.OnTimetableEntrySelectedListener, ServiceDetailFragment.OnScheduledStopClickListener {
+    extends LocationEnhancedMapFragment
+    implements GoogleMap.OnInfoWindowClickListener, GoogleMap.InfoWindowAdapter,
+    TimetableFragment.OnTimetableEntrySelectedListener, ServiceDetailFragment.OnScheduledStopClickListener {
     private static final int LOADER_ID_STOPS = 0x01;
 
     @Inject
@@ -85,11 +89,11 @@ public class ServiceStopMapFragment
     public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         TripKitUI.getInstance()
-                .serviceStopMapComponent()
-                .inject(this);
+            .serviceStopMapComponent()
+            .inject(this);
 
         final RealTimeChoreographerViewModel realTimeViewModel = ViewModelProviders.of(getActivity(), realTimeViewModelFactory)
-                .get(RealTimeChoreographerViewModel.class);
+            .get(RealTimeChoreographerViewModel.class);
 
         viewModel.setRealtimeViewModel(realTimeViewModel);
         TextView timeTextView = (TextView) getActivity().getLayoutInflater().inflate(R.layout.view_time_label, null);
@@ -105,45 +109,45 @@ public class ServiceStopMapFragment
         super.onStart();
         bus.register(this);
         getAutoDisposable().add(viewModel.getDrawStops()
-                .subscribe((newMarkerOptionsAndRemovedStopIdsPair) -> {
-                    List<Pair<MarkerOptions, String>> newMarkerOptions = newMarkerOptionsAndRemovedStopIdsPair.getFirst();
-                    Set<String> removedStopIds = newMarkerOptionsAndRemovedStopIdsPair.getSecond();
-                    for (String id : removedStopIds) {
-                        stopCodesToMarkerMap.get(id).remove();
-                        stopCodesToMarkerMap.remove(id);
+            .subscribe((newMarkerOptionsAndRemovedStopIdsPair) -> {
+                List<Pair<MarkerOptions, String>> newMarkerOptions = newMarkerOptionsAndRemovedStopIdsPair.getFirst();
+                Set<String> removedStopIds = newMarkerOptionsAndRemovedStopIdsPair.getSecond();
+                for (String id : removedStopIds) {
+                    stopCodesToMarkerMap.get(id).remove();
+                    stopCodesToMarkerMap.remove(id);
+                }
+                whenSafeToUseMap(googleMap -> {
+                    for (Pair<MarkerOptions, String> markerOptionsAndStopCodes : newMarkerOptions) {
+                        Marker marker = googleMap.addMarker(markerOptionsAndStopCodes.getFirst());
+                        stopCodesToMarkerMap.put(markerOptionsAndStopCodes.getSecond(), marker);
                     }
-                    whenSafeToUseMap(googleMap -> {
-                        for (Pair<MarkerOptions, String> markerOptionsAndStopCodes : newMarkerOptions) {
-                            Marker marker = googleMap.addMarker(markerOptionsAndStopCodes.getFirst());
-                            stopCodesToMarkerMap.put(markerOptionsAndStopCodes.getSecond(), marker);
-                        }
-                    });
-                }));
+                });
+            }));
 
         getAutoDisposable().add(viewModel.getViewPort()
-                .subscribe(this::centerMapOver));
+            .subscribe(this::centerMapOver));
 
         List<Polyline> serviceLines = new ArrayList<>();
 
         getAutoDisposable().add(viewModel.getDrawServiceLine()
-                .subscribe(polylineOptions -> whenSafeToUseMap(googleMap -> {
-                    for (Polyline line : serviceLines) {
-                        line.remove();
-                    }
-                    serviceLines.clear();
-                    for (PolylineOptions polylineOption : polylineOptions) {
-                        serviceLines.add(googleMap.addPolyline(polylineOption));
-                    }
-                })));
+            .subscribe(polylineOptions -> whenSafeToUseMap(googleMap -> {
+                for (Polyline line : serviceLines) {
+                    line.remove();
+                }
+                serviceLines.clear();
+                for (PolylineOptions polylineOption : polylineOptions) {
+                    serviceLines.add(googleMap.addPolyline(polylineOption));
+                }
+            })));
 
         getAutoDisposable().add(viewModel.getRealtimeVehicle()
-                .subscribe(realTimeVehicleOptional -> {
-                    if (realTimeVehicleOptional instanceof Some) {
-                        setRealTimeVehicle(((Some<RealTimeVehicle>) realTimeVehicleOptional).getValue());
-                    } else {
-                        setRealTimeVehicle(null);
-                    }
-                }));
+            .subscribe(realTimeVehicleOptional -> {
+                if (realTimeVehicleOptional instanceof Some) {
+                    setRealTimeVehicle(((Some<RealTimeVehicle>) realTimeVehicleOptional).getValue());
+                } else {
+                    setRealTimeVehicle(null);
+                }
+            }));
     }
 
     @Override
@@ -248,15 +252,15 @@ public class ServiceStopMapFragment
                 snippet = "Vehicle " + vehicle.getLabel() + " location as at " + time;
             }
             realTimeVehicleMarker = map.addMarker(
-                    new MarkerOptions()
-                            .icon(BitmapDescriptorFactory.fromBitmap(icon))
-                            .rotation(bearing)
-                            .flat(true)
-                            .anchor(0.5f, 0.5f)
-                            .title(markerTitle)
-                            .snippet(snippet)
-                            .position(new LatLng(vehicle.getLocation().getLat(), vehicle.getLocation().getLon()))
-                            .draggable(false)
+                new MarkerOptions()
+                    .icon(BitmapDescriptorFactory.fromBitmap(icon))
+                    .rotation(bearing)
+                    .flat(true)
+                    .anchor(0.5f, 0.5f)
+                    .title(markerTitle)
+                    .snippet(snippet)
+                    .position(new LatLng(vehicle.getLocation().getLat(), vehicle.getLocation().getLon()))
+                    .draggable(false)
             );
         });
     }

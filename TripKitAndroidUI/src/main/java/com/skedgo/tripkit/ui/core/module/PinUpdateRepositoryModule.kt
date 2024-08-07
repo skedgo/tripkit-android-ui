@@ -7,6 +7,6 @@ import dagger.Provides
 
 @Module
 class PinUpdateRepositoryModule {
-  @Provides
-  fun pinUpdateRepository(): PinUpdateRepository = PinUpdateRepositoryImpl()
+    @Provides
+    fun pinUpdateRepository(): PinUpdateRepository = PinUpdateRepositoryImpl()
 }

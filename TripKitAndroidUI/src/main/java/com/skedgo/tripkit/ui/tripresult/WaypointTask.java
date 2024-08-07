@@ -2,31 +2,31 @@ package com.skedgo.tripkit.ui.tripresult;
 
 import android.content.Context;
 import android.text.TextUtils;
-import androidx.annotation.NonNull;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import com.skedgo.tripkit.agenda.ConfigRepository;
 import com.skedgo.tripkit.common.model.Location;
 import com.skedgo.tripkit.common.model.Region;
 import com.skedgo.tripkit.common.util.Gsons;
 import com.skedgo.tripkit.common.util.ListUtils;
-import com.skedgo.tripkit.ui.R;
-import com.skedgo.tripkit.ui.model.TimetableEntry;
-import com.skedgo.tripkit.ui.utils.HttpUtils;
-
-import io.reactivex.SingleEmitter;
-import io.reactivex.SingleOnSubscribe;
-
-import com.skedgo.tripkit.agenda.ConfigRepository;
 import com.skedgo.tripkit.routing.RoutingResponse;
 import com.skedgo.tripkit.routing.SegmentType;
 import com.skedgo.tripkit.routing.TripGroup;
 import com.skedgo.tripkit.routing.TripSegment;
+import com.skedgo.tripkit.ui.R;
+import com.skedgo.tripkit.ui.model.TimetableEntry;
+import com.skedgo.tripkit.ui.utils.HttpUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import androidx.annotation.NonNull;
+import io.reactivex.SingleEmitter;
+import io.reactivex.SingleOnSubscribe;
 
 
 /**
@@ -50,9 +50,9 @@ public class WaypointTask implements SingleOnSubscribe<List<TripGroup>> {
     private WayPointTaskParam param;
 
     public WaypointTask(
-            @NonNull Context context,
-            @NonNull ConfigRepository configCreator,
-            WayPointTaskParam param) {
+        @NonNull Context context,
+        @NonNull ConfigRepository configCreator,
+        WayPointTaskParam param) {
         this.context = context;
         this.configCreator = configCreator;
         this.param = param;
@@ -99,8 +99,8 @@ public class WaypointTask implements SingleOnSubscribe<List<TripGroup>> {
 
                 jsonSegments.add(jsonSegment);
             } else if ((segment.getType() != SegmentType.STATIONARY)
-                    && (segment.getType() != SegmentType.ARRIVAL)
-                    && (segment.getType() != SegmentType.DEPARTURE)) {
+                && (segment.getType() != SegmentType.ARRIVAL)
+                && (segment.getType() != SegmentType.DEPARTURE)) {
                 JsonObject jsonSegment = convertSegmentToJson(segment);
                 if (changeNextDeparture) {
                     // We've iterated at the segment following the prototype segment.
@@ -161,10 +161,10 @@ public class WaypointTask implements SingleOnSubscribe<List<TripGroup>> {
                 TripSegment prototypeSegment = ((WayPointTaskParam.ForChangingService) param).getPrototypeSegment();
                 TimetableEntry service = ((WayPointTaskParam.ForChangingService) param).getService();
                 postData = createPostDataForChangingService(
-                        region,
-                        segments,
-                        prototypeSegment,
-                        service
+                    region,
+                    segments,
+                    prototypeSegment,
+                    service
                 );
             } else {
                 ArrayList<TripSegment> segments = ((WayPointTaskParam.ForChangingStop) param).getSegments();
@@ -173,13 +173,13 @@ public class WaypointTask implements SingleOnSubscribe<List<TripGroup>> {
                 boolean isGetOn = ((WayPointTaskParam.ForChangingStop) param).isGetOn();
 
                 postData = createPostDataForChangingStop(
-                        configCreator.call(),
-                        createJsonSegments(
-                                segments,
-                                prototypeSegment,
-                                waypoint,
-                                isGetOn
-                        )
+                    configCreator.call(),
+                    createJsonSegments(
+                        segments,
+                        prototypeSegment,
+                        waypoint,
+                        isGetOn
+                    )
                 ).toString();
             }
         } catch (Exception e) {
@@ -227,8 +227,8 @@ public class WaypointTask implements SingleOnSubscribe<List<TripGroup>> {
                 JsonObject jsonSegment = convertServiceToJson(region, service);
                 jsonSegments.add(jsonSegment);
             } else if ((segment.getType() != SegmentType.STATIONARY)
-                    && (segment.getType() != SegmentType.ARRIVAL)
-                    && (segment.getType() != SegmentType.DEPARTURE)) {
+                && (segment.getType() != SegmentType.ARRIVAL)
+                && (segment.getType() != SegmentType.DEPARTURE)) {
                 JsonObject jsonSegment = convertSegmentToJson(segment);
                 jsonSegments.add(jsonSegment);
             }

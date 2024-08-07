@@ -49,7 +49,7 @@ class TripKitUIModule {
     @Provides
     @Singleton
     internal fun bus(errorLogger: ErrorLogger): Bus =
-    MainThreadBus { errorLogger.logError(it) }
+        MainThreadBus { errorLogger.logError(it) }
 
 //    @Provides
 //    internal fun httpClient3(): OkHttpClient = TripKit.getInstance().okHttpClient3
@@ -59,9 +59,10 @@ class TripKitUIModule {
 
     @Provides
     internal fun provideStopsPersistor(
-            context: Context,
-            gson: Gson,
-            scheduledStopRepository: ScheduledStopRepository): StopsFetcher.IStopsPersistor {
+        context: Context,
+        gson: Gson,
+        scheduledStopRepository: ScheduledStopRepository
+    ): StopsFetcher.IStopsPersistor {
         return StopsPersistor(context, gson, scheduledStopRepository)
     }
 
@@ -95,17 +96,18 @@ class TripKitUIModule {
 
     @Provides
     internal fun gson(): Gson = Gsons.createForLowercaseEnum()
+
     @Provides
     @Singleton
     internal fun locationsApi(httpClient: OkHttpClient, gson: Gson): LocationsApi {
         return Retrofit.Builder()
-                /* This base url is ignored as the api relies on @Url. */
-                .baseUrl(ServerManager.configuration.apiTripGoUrl)
-                .addCallAdapterFactory(RxJava2CallAdapterFactory.createWithScheduler(Schedulers.io()))
-                .addConverterFactory(GsonConverterFactory.create(gson))
-                .client(httpClient)
-                .build()
-                .create(LocationsApi::class.java)
+            /* This base url is ignored as the api relies on @Url. */
+            .baseUrl(ServerManager.configuration.apiTripGoUrl)
+            .addCallAdapterFactory(RxJava2CallAdapterFactory.createWithScheduler(Schedulers.io()))
+            .addConverterFactory(GsonConverterFactory.create(gson))
+            .client(httpClient)
+            .build()
+            .create(LocationsApi::class.java)
     }
 
 
@@ -113,12 +115,12 @@ class TripKitUIModule {
     @Provides
     fun getServiceApi(httpClient: OkHttpClient, gson: Gson): ServiceApi {
         return Retrofit.Builder()
-                .baseUrl(ServerManager.configuration.apiTripGoUrl)
-                .addConverterFactory(GsonConverterFactory.create(gson))
-                .addCallAdapterFactory(RxJava2CallAdapterFactory.createWithScheduler(Schedulers.io()))
-                .client(httpClient)
-                .build()
-                .create(ServiceApi::class.java)
+            .baseUrl(ServerManager.configuration.apiTripGoUrl)
+            .addConverterFactory(GsonConverterFactory.create(gson))
+            .addCallAdapterFactory(RxJava2CallAdapterFactory.createWithScheduler(Schedulers.io()))
+            .client(httpClient)
+            .build()
+            .create(ServiceApi::class.java)
     }
 
     @Provides
@@ -135,9 +137,11 @@ class TripKitUIModule {
     fun provideViewControllerEventBus() = ViewControllerEventBus
 
     @Provides
-    fun tkuiActionButtonHandler(): TKUIActionButtonHandler = TKUIActionButtonHandler(ViewControllerEventBus)
+    fun tkuiActionButtonHandler(): TKUIActionButtonHandler =
+        TKUIActionButtonHandler(ViewControllerEventBus)
 
     @Provides
-    fun tkuiActionButtonHandlerFactory(provider: Provider<TKUIActionButtonHandler>): TKUIActionButtonHandlerFactory = TKUIActionButtonHandlerFactory(provider)
+    fun tkuiActionButtonHandlerFactory(provider: Provider<TKUIActionButtonHandler>): TKUIActionButtonHandlerFactory =
+        TKUIActionButtonHandlerFactory(provider)
 
 }

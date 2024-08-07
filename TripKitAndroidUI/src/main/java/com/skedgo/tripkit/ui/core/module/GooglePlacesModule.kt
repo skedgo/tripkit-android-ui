@@ -9,7 +9,11 @@ import javax.inject.Provider
 
 @Module
 class GooglePlacesModule {
-  @Provides
-  internal fun placeSearchRepository(context: Context): PlaceSearchRepository =
-      PlaceSearchRepositoryImpl(Provider { com.google.android.libraries.places.api.Places.createClient(context) })
+    @Provides
+    internal fun placeSearchRepository(context: Context): PlaceSearchRepository =
+        PlaceSearchRepositoryImpl(Provider {
+            com.google.android.libraries.places.api.Places.createClient(
+                context
+            )
+        })
 }

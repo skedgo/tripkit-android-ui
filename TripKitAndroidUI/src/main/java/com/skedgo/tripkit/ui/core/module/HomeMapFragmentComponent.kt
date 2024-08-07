@@ -6,12 +6,16 @@ import dagger.Subcomponent
 
 
 @ActivityScope
-@Subcomponent(modules = arrayOf(HomeMapFragmentModule::class,
+@Subcomponent(
+    modules = arrayOf(
+        HomeMapFragmentModule::class,
         CameraPositionDataModule::class,
         LocationStuffModule::class,
         PinUpdateRepositoryModule::class,
         ParkingModule::class,
-        ScheduledStopServiceModule::class))
+        ScheduledStopServiceModule::class
+    )
+)
 interface HomeMapFragmentComponent {
     fun inject(fragment: TripKitMapFragment)
 }

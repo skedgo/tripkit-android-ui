@@ -1,4 +1,5 @@
 package com.skedgo.tripkit.ui.map
+
 import android.content.Context
 import android.content.res.Resources
 import com.google.android.gms.maps.model.MarkerOptions
@@ -13,32 +14,37 @@ import com.squareup.picasso.Picasso
 import io.reactivex.Single
 
 class FreeFloatingVehiclePOILocation(
-    val freeFloatingLocationEntity: FreeFloatingLocationEntity) : IMapPoiLocation {
-  override fun createMarkerOptions(resources: Resources, picasso: Picasso): Single<MarkerOptions> =
-      CreateMarkerForFreeFloatingLocation.execute(resources, freeFloatingLocationEntity)
+    val freeFloatingLocationEntity: FreeFloatingLocationEntity
+) : IMapPoiLocation {
+    override fun createMarkerOptions(
+        resources: Resources,
+        picasso: Picasso
+    ): Single<MarkerOptions> =
+        CreateMarkerForFreeFloatingLocation.execute(resources, freeFloatingLocationEntity)
 
-  override fun getInfoWindowAdapter(context: Context): StopInfoWindowAdapter? {
-    return FreeFloatingVehicleInfoWindowAdapter(context)
-  }
+    override fun getInfoWindowAdapter(context: Context): StopInfoWindowAdapter? {
+        return FreeFloatingVehicleInfoWindowAdapter(context)
+    }
 
-  override fun toLocation(): Location {
-    val location = PodLocation(freeFloatingLocationEntity.lat, freeFloatingLocationEntity.lng)
-    location.podIdentifier = freeFloatingLocationEntity.identifier
-    location.phoneNumber = freeFloatingLocationEntity.vehicle.operator.phone
-    location.name = freeFloatingLocationEntity.vehicle.operator.name
-    location.address = freeFloatingLocationEntity.address
-    location.url = freeFloatingLocationEntity.vehicle.operator.website
-    location.locationType = Location.TYPE_E_BIKE
-    location.appUrl = freeFloatingLocationEntity.vehicle.operator.appInfo?.appURLAndroid
-    location.isWithExternalApp = !freeFloatingLocationEntity.vehicle.operator.appInfo?.appURLAndroid.isNullOrEmpty()
-    return location
-  }
+    override fun toLocation(): Location {
+        val location = PodLocation(freeFloatingLocationEntity.lat, freeFloatingLocationEntity.lng)
+        location.podIdentifier = freeFloatingLocationEntity.identifier
+        location.phoneNumber = freeFloatingLocationEntity.vehicle.operator.phone
+        location.name = freeFloatingLocationEntity.vehicle.operator.name
+        location.address = freeFloatingLocationEntity.address
+        location.url = freeFloatingLocationEntity.vehicle.operator.website
+        location.locationType = Location.TYPE_E_BIKE
+        location.appUrl = freeFloatingLocationEntity.vehicle.operator.appInfo?.appURLAndroid
+        location.isWithExternalApp =
+            !freeFloatingLocationEntity.vehicle.operator.appInfo?.appURLAndroid.isNullOrEmpty()
+        return location
+    }
 
-  override fun onMarkerClick(bus: Bus, eventTracker: EventTracker) {
+    override fun onMarkerClick(bus: Bus, eventTracker: EventTracker) {
 //    val event = Event.TransportIconSelected(null)
 //    eventTracker.log(event)
-  }
+    }
 
-  override val identifier: String = freeFloatingLocationEntity.identifier
+    override val identifier: String = freeFloatingLocationEntity.identifier
 
 }

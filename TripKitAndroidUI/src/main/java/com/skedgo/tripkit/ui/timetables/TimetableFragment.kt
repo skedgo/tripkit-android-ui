@@ -42,7 +42,6 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.PublishSubject
 import timber.log.Timber
-import java.lang.Exception
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
@@ -486,7 +485,7 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
 
         bookingActions =
             cachedBookingActions ?: savedInstanceState?.getStringArrayList(ARG_BOOKING_ACTION)
-                    ?: arguments?.getStringArrayList(ARG_BOOKING_ACTION)
+                ?: arguments?.getStringArrayList(ARG_BOOKING_ACTION)
 
         val showCloseButton = arguments?.getBoolean(ARG_SHOW_CLOSE_BUTTON, false) ?: false
         viewModel.showCloseButton.set(showCloseButton)

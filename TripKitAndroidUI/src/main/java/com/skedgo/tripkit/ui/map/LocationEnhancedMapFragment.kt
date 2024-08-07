@@ -1,6 +1,5 @@
 package com.skedgo.tripkit.ui.map
 
-import android.content.Context
 import android.location.Location
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -15,10 +14,7 @@ import com.google.android.material.button.MaterialButton
 import com.skedgo.tripkit.logging.ErrorLogger
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.core.addTo
-import com.skedgo.tripkit.ui.core.permissions.*
-import com.skedgo.tripkit.ui.core.permissions.PermissionResult.Granted
 import io.reactivex.Observable
-import io.reactivex.Single
 import io.reactivex.functions.Consumer
 import javax.inject.Inject
 
@@ -54,11 +50,19 @@ open class LocationEnhancedMapFragment : BaseMapFragment() {
         whenSafeToUseMap(Consumer { googleMap: GoogleMap -> applyDefaultSettings(googleMap) })
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         val originalView = super.onCreateView(inflater, container, savedInstanceState) as ViewGroup?
         // Add the settings button
         if (originalView != null) {
-            settingsButton = inflater.inflate(R.layout.map_settings_button, originalView, false) as MaterialButton
+            settingsButton = inflater.inflate(
+                R.layout.map_settings_button,
+                originalView,
+                false
+            ) as MaterialButton
             settingsButton!!.visibility = View.GONE
             originalView.addView(settingsButton)
 
@@ -75,18 +79,25 @@ open class LocationEnhancedMapFragment : BaseMapFragment() {
         if (activity == null) {
             return
         }
-        ExcuseMe.couldYouGive(this).permissionFor(android.Manifest.permission.ACCESS_FINE_LOCATION) {
-            if (it.granted.contains(android.Manifest.permission.ACCESS_FINE_LOCATION)) {
-                locationStream
+        ExcuseMe.couldYouGive(this)
+            .permissionFor(android.Manifest.permission.ACCESS_FINE_LOCATION) {
+                if (it.granted.contains(android.Manifest.permission.ACCESS_FINE_LOCATION)) {
+                    locationStream
                         .take(1)
                         .singleOrError()
                         .map { location: Location -> LatLng(location.latitude, location.longitude) }
                         .map { latLng: LatLng? -> CameraUpdateFactory.newLatLng(latLng) }
                         .subscribe(
-                                { cameraUpdate: CameraUpdate? -> whenSafeToUseMap(Consumer { map: GoogleMap -> map.animateCamera(cameraUpdate) }) }) { error: Throwable? -> errorLogger!!.logError(error!!) }
+                            { cameraUpdate: CameraUpdate? ->
+                                whenSafeToUseMap(Consumer { map: GoogleMap ->
+                                    map.animateCamera(
+                                        cameraUpdate
+                                    )
+                                })
+                            }) { error: Throwable? -> errorLogger!!.logError(error!!) }
                         .addTo(autoDisposable)
+                }
             }
-        }
 
     }
 

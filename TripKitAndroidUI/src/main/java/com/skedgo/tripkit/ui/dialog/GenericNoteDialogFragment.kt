@@ -32,9 +32,11 @@ class GenericNoteDialogFragment : DialogFragment(), GenericNoteDialogFragmentHan
         dialog?.dismiss()
     }
 
-    override fun onCreateView(inflater: LayoutInflater,
-                              container: ViewGroup?,
-                              savedInstanceState: Bundle?): View {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
         binding = FragmentGenericNoteBinding.inflate(inflater)
         binding.viewModel = viewModel
         binding.handler = this
@@ -58,7 +60,10 @@ class GenericNoteDialogFragment : DialogFragment(), GenericNoteDialogFragmentHan
         super.onStart()
 
         dialog?.apply {
-            window?.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
+            window?.setLayout(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT
+            )
             window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         }
     }
@@ -87,10 +92,10 @@ class GenericNoteDialogFragment : DialogFragment(), GenericNoteDialogFragmentHan
 
         @JvmStatic
         fun newInstance(
-                fragmentTitle: String = "",
-                inputValue: String = "",
-                viewOnlyMode: Boolean = false,
-                doneCallback: ((String) -> Unit)? = null
+            fragmentTitle: String = "",
+            inputValue: String = "",
+            viewOnlyMode: Boolean = false,
+            doneCallback: ((String) -> Unit)? = null
         ) = GenericNoteDialogFragment().apply {
             arguments = Bundle().apply {
                 putString(ARG_TITLE, fragmentTitle)

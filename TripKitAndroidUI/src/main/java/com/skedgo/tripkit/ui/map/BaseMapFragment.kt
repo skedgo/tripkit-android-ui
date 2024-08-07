@@ -24,41 +24,41 @@ abstract class BaseMapFragment : SupportMapFragment() {
         autoDisposable.bindTo(this.lifecycle)
     }
 
-  private val whenViewIsMeasured: BehaviorRelay<Optional<Unit>> = BehaviorRelay.create()
-  private var subscription: CompositeDisposable = CompositeDisposable()
+    private val whenViewIsMeasured: BehaviorRelay<Optional<Unit>> = BehaviorRelay.create()
+    private var subscription: CompositeDisposable = CompositeDisposable()
 
-  /**
-   * A safer point to retrieve [GoogleMap] as the callback is invoked
-   * after fragment view is measured. This makes it safe to move or animate map with CameraUpdate.
-   */
-  fun whenSafeToUseMap(callback: Consumer<GoogleMap>) {
-    subscription.add(
-        Flowable
-            .create(FlowableOnSubscribe<GoogleMap> {
-              super.getMapAsync { map: GoogleMap ->
-                it.onNext(map)
-                it.onComplete()
-              }
-            }, BackpressureStrategy.LATEST)
-            .toObservable()
-            .delaySubscription(whenViewIsMeasured.filterSome())
-            .subscribe(callback::accept)
-    )
-  }
+    /**
+     * A safer point to retrieve [GoogleMap] as the callback is invoked
+     * after fragment view is measured. This makes it safe to move or animate map with CameraUpdate.
+     */
+    fun whenSafeToUseMap(callback: Consumer<GoogleMap>) {
+        subscription.add(
+            Flowable
+                .create(FlowableOnSubscribe<GoogleMap> {
+                    super.getMapAsync { map: GoogleMap ->
+                        it.onNext(map)
+                        it.onComplete()
+                    }
+                }, BackpressureStrategy.LATEST)
+                .toObservable()
+                .delaySubscription(whenViewIsMeasured.filterSome())
+                .subscribe(callback::accept)
+        )
+    }
 
-  override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-    super.onViewCreated(view, savedInstanceState)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
-    subscription.add(
-        view.afterMeasured().subscribe { _: Unit ->
-          whenViewIsMeasured.accept(Some(Unit))
-        }
-    )
-  }
+        subscription.add(
+            view.afterMeasured().subscribe { _: Unit ->
+                whenViewIsMeasured.accept(Some(Unit))
+            }
+        )
+    }
 
-  override fun onDestroyView() {
-    subscription.clear()
-    whenViewIsMeasured.accept(None)
-    super.onDestroyView()
-  }
+    override fun onDestroyView() {
+        subscription.clear()
+        whenViewIsMeasured.accept(None)
+        super.onDestroyView()
+    }
 }

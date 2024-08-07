@@ -8,6 +8,7 @@ import dagger.Provides
 
 @Module
 class ConnectivityServiceModule {
-  @Provides
-  fun connectivityService(context: Context): ConnectivityService = ConnectivityServiceImpl(context)
+    @Provides
+    fun connectivityService(context: Context): ConnectivityService =
+        ConnectivityServiceImpl(context)
 }

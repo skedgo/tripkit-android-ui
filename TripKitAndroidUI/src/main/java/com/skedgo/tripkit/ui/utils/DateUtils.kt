@@ -5,7 +5,8 @@ import com.skedgo.tripkit.ui.R
 import org.joda.time.DateTimeZone
 import org.joda.time.format.DateTimeFormat
 import org.joda.time.format.DateTimeFormatter
-import java.util.*
+import java.util.Calendar
+import java.util.Date
 
 fun getISODateFormatter(tz: DateTimeZone? = null): DateTimeFormatter {
     return DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss").withZone(tz)

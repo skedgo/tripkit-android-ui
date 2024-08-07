@@ -8,13 +8,13 @@ import kotlinx.coroutines.flow.Flow
 
 interface GetTripFromWaypoints {
 
-  data class WaypointResponse(
-          val tripGroup: TripGroup? = null,
-          val error: String? = ""
-  )
+    data class WaypointResponse(
+        val tripGroup: TripGroup? = null,
+        val error: String? = ""
+    )
 
-  fun execute(config: RoutingConfig, waypoints: List<Waypoint>): Observable<WaypointResponse?>
-  fun executeAsFlow(config: RoutingConfig, waypoints: List<Waypoint>): Flow<WaypointResponse?>
+    fun execute(config: RoutingConfig, waypoints: List<Waypoint>): Observable<WaypointResponse?>
+    fun executeAsFlow(config: RoutingConfig, waypoints: List<Waypoint>): Flow<WaypointResponse?>
 
-  suspend fun requestTripGroup(config: RoutingConfig, waypoints: List<Waypoint>): TripGroup?
+    suspend fun requestTripGroup(config: RoutingConfig, waypoints: List<Waypoint>): TripGroup?
 }

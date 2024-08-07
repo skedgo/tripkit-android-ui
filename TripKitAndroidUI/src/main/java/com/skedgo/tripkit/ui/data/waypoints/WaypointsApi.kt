@@ -9,12 +9,12 @@ import retrofit2.http.POST
 
 interface WaypointsApi {
 
-  @POST("waypoint.json")
-  fun request(@Body body: WaypointsRequestBody): Observable<RoutingResponse>
+    @POST("waypoint.json")
+    fun request(@Body body: WaypointsRequestBody): Observable<RoutingResponse>
 
-  @POST("waypoint.json")
-  fun request(@Body body: WaypointsAdvancedRequestBody): Observable<RoutingResponse>
+    @POST("waypoint.json")
+    fun request(@Body body: WaypointsAdvancedRequestBody): Observable<RoutingResponse>
 
-  @POST("waypoint.json")
-  suspend fun requestTripGroup(@Body body: WaypointsRequestBody): NetworkResponse<RoutingResponse, ApiError>
+    @POST("waypoint.json")
+    suspend fun requestTripGroup(@Body body: WaypointsRequestBody): NetworkResponse<RoutingResponse, ApiError>
 }

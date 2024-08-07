@@ -8,21 +8,22 @@ import io.reactivex.schedulers.Schedulers
 open class SelectedTripGroupRepository constructor(
     private val tripGroupRepository: TripGroupRepository
 ) {
-  private val selectedTripGroupId = BehaviorRelay
-      .create<String>()
-      .toSerialized()
+    private val selectedTripGroupId = BehaviorRelay
+        .create<String>()
+        .toSerialized()
 
-  private val selectedTripGroup = selectedTripGroupId
-      .distinctUntilChanged()
+    private val selectedTripGroup = selectedTripGroupId
+        .distinctUntilChanged()
         .switchMap {
-          tripGroupRepository.getTripGroup(it) }
-      .observeOn(Schedulers.computation())
+            tripGroupRepository.getTripGroup(it)
+        }
+        .observeOn(Schedulers.computation())
 
-  open fun getSelectedTripGroup(): Observable<TripGroup>  {
-    return selectedTripGroup
-  }
+    open fun getSelectedTripGroup(): Observable<TripGroup> {
+        return selectedTripGroup
+    }
 
-  open fun setSelectedTripGroupId(selectedTripGroupId: String) {
-    this.selectedTripGroupId.accept(selectedTripGroupId)
-  }
+    open fun setSelectedTripGroupId(selectedTripGroupId: String) {
+        this.selectedTripGroupId.accept(selectedTripGroupId)
+    }
 }

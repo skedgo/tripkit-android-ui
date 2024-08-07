@@ -15,11 +15,15 @@ import javax.inject.Inject
 import kotlin.math.abs
 
 open class GetRealtimeText @Inject constructor(
-        private val context: Context,
-        private val printTime: PrintTime
+    private val context: Context,
+    private val printTime: PrintTime
 ) {
 
-    open fun execute(dateTimeZone: DateTimeZone, service: TimetableEntry, vehicle: RealTimeVehicle? = null): Pair<String, Int> {
+    open fun execute(
+        dateTimeZone: DateTimeZone,
+        service: TimetableEntry,
+        vehicle: RealTimeVehicle? = null
+    ): Pair<String, Int> {
 
         val isRightToLeft = context.resources.getBoolean(R.bool.is_right_to_left)
 
@@ -65,11 +69,11 @@ open class GetRealtimeText @Inject constructor(
 
                 var timeDiff = service.serviceTime - realtimeDeparture
                 var isSameHourAndMinutes = serviceTimeHM.first == realtimeDepartureHM.first &&
-                        serviceTimeHM.second == realtimeDepartureHM.second
+                    serviceTimeHM.second == realtimeDepartureHM.second
                 if (timeDiff > 36000) {
                     timeDiff = endTime - realtimeDeparture
                     isSameHourAndMinutes = endTimeHM.first == realtimeDepartureHM.first &&
-                            endTimeHM.second == realtimeDepartureHM.second
+                        endTimeHM.second == realtimeDepartureHM.second
                 }
 
                 val (status, delayed) = when {

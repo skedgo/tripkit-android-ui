@@ -11,18 +11,18 @@ import javax.inject.Inject
 import kotlin.properties.Delegates
 
 class GenericListDisplayAdapter @Inject constructor() :
-        RecyclerView.Adapter<GenericListDisplayAdapter.Holder>(),
-        AutoUpdatableAdapter {
+    RecyclerView.Adapter<GenericListDisplayAdapter.Holder>(),
+    AutoUpdatableAdapter {
 
     internal var collection: List<GenericListItem> by Delegates.observable(emptyList()) { prop, old, new ->
         autoNotify(old, new) { o, n -> o.label == n.label }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
-            Holder.from(
-                    parent,
-                    R.layout.view_generic_list_display_item
-            )
+        Holder.from(
+            parent,
+            R.layout.view_generic_list_display_item
+        )
 
     override fun getItemCount() = collection.size
 
@@ -46,15 +46,16 @@ class GenericListDisplayAdapter @Inject constructor() :
         return position
     }
 
-    class Holder(val binding: ViewGenericListDisplayItemBinding) : RecyclerView.ViewHolder(binding.root) {
+    class Holder(val binding: ViewGenericListDisplayItemBinding) :
+        RecyclerView.ViewHolder(binding.root) {
         companion object {
             fun from(parent: ViewGroup, layout: Int): Holder {
                 val inflater = LayoutInflater.from(parent.context)
                 val binding =
-                        DataBindingUtil.inflate<ViewGenericListDisplayItemBinding>(
-                                inflater, layout,
-                                parent, false
-                        )
+                    DataBindingUtil.inflate<ViewGenericListDisplayItemBinding>(
+                        inflater, layout,
+                        parent, false
+                    )
                 return Holder(binding)
             }
         }

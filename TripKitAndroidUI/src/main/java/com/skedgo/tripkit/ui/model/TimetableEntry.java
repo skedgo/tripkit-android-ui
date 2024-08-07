@@ -3,21 +3,29 @@ package com.skedgo.tripkit.ui.model;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
-import androidx.annotation.Nullable;
+
 import com.google.gson.annotations.SerializedName;
 import com.skedgo.tripkit.common.agenda.IRealTimeElement;
-import com.skedgo.tripkit.common.model.*;
+import com.skedgo.tripkit.common.model.BicycleAccessible;
+import com.skedgo.tripkit.common.model.ITimeRange;
+import com.skedgo.tripkit.common.model.RealTimeStatus;
+import com.skedgo.tripkit.common.model.RealtimeAlert;
+import com.skedgo.tripkit.common.model.ScheduledStop;
+import com.skedgo.tripkit.common.model.WheelchairAccessible;
 import com.skedgo.tripkit.common.rx.Var;
-import com.skedgo.tripkit.ui.BuildConfig;
-import io.reactivex.functions.Consumer;
-import org.jetbrains.annotations.NotNull;
 import com.skedgo.tripkit.routing.ModeInfo;
 import com.skedgo.tripkit.routing.RealTimeVehicle;
 import com.skedgo.tripkit.routing.ServiceColor;
 import com.skedgo.tripkit.routing.VehicleMode;
+import com.skedgo.tripkit.ui.BuildConfig;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import androidx.annotation.Nullable;
+import io.reactivex.functions.Consumer;
 
 /**
  * (Aka Service)
@@ -78,40 +86,65 @@ public class TimetableEntry implements Parcelable, IRealTimeElement, ITimeRange,
     public String pairIdentifier;
     private transient long id;
     private transient boolean isFavourite;
-    @SerializedName("realtimeVehicle") private RealTimeVehicle realtimeVehicle;
-    @SerializedName("stopCode") private String stopCode;
-    @SerializedName("modeInfo") private ModeInfo modeInfo;
-    @SerializedName("operator") private String operator;
-    @SerializedName("endStopCode") private String endStopCode;
-    @SerializedName("serviceTripID") private String serviceTripId;
-    @SerializedName("serviceNumber") private String serviceNumber;
-    @SerializedName("serviceName") private String serviceName;
-    @SerializedName("serviceDirection") private String serviceDirection;
-    @SerializedName("realTimeStatus") private RealTimeStatus realTimeStatus;
-    @SerializedName("realTimeDeparture") private int realTimeDeparture = -1;
-    @SerializedName("realTimeArrival") private int realTimeArrival = -1;
+    @SerializedName("realtimeVehicle")
+    private RealTimeVehicle realtimeVehicle;
+    @SerializedName("stopCode")
+    private String stopCode;
+    @SerializedName("modeInfo")
+    private ModeInfo modeInfo;
+    @SerializedName("operator")
+    private String operator;
+    @SerializedName("endStopCode")
+    private String endStopCode;
+    @SerializedName("serviceTripID")
+    private String serviceTripId;
+    @SerializedName("serviceNumber")
+    private String serviceNumber;
+    @SerializedName("serviceName")
+    private String serviceName;
+    @SerializedName("serviceDirection")
+    private String serviceDirection;
+    @SerializedName("realTimeStatus")
+    private RealTimeStatus realTimeStatus;
+    @SerializedName("realTimeDeparture")
+    private int realTimeDeparture = -1;
+    @SerializedName("realTimeArrival")
+    private int realTimeArrival = -1;
 
-    @SerializedName("alerts") private ArrayList<RealtimeAlert> alerts;
-    @SerializedName("serviceColor") private ServiceColor serviceColor;
-    @SerializedName("frequency") private int frequency;
-    @SerializedName("searchString") private String searchString;
-    @SerializedName("alertHashCodes") private @Nullable ArrayList<Long> alertHashCodes;
-    @SerializedName("wheelchairAccessible") private @Nullable Boolean wheelchairAccessible;
-    @SerializedName("bicycleAccessible") private @Nullable Boolean bicycleAccessible;
-    @SerializedName("start_stop_short_name") private String startStopShortName;
-    @SerializedName("startPlatform") private String startPlatform;
+    @SerializedName("alerts")
+    private ArrayList<RealtimeAlert> alerts;
+    @SerializedName("serviceColor")
+    private ServiceColor serviceColor;
+    @SerializedName("frequency")
+    private int frequency;
+    @SerializedName("searchString")
+    private String searchString;
+    @SerializedName("alertHashCodes")
+    private @Nullable ArrayList<Long> alertHashCodes;
+    @SerializedName("wheelchairAccessible")
+    private @Nullable Boolean wheelchairAccessible;
+    @SerializedName("bicycleAccessible")
+    private @Nullable Boolean bicycleAccessible;
+    @SerializedName("start_stop_short_name")
+    private String startStopShortName;
+    @SerializedName("startPlatform")
+    private String startPlatform;
     /**
      * Replacement: {@link #modeInfo}.
      */
-    @Deprecated @SerializedName("mode") private VehicleMode mode;
+    @Deprecated
+    @SerializedName("mode")
+    private VehicleMode mode;
     /**
      * This field is primarily used to interact with Gson or Parcel.
      */
-    @SerializedName("startTime") private long serializedStartSecs;
+    @SerializedName("startTime")
+    private long serializedStartSecs;
     /**
      * This field is primarily used to interact with Gson or Parcel.
      */
-    @SerializedName("endTime") private long serializedEndSecs;
+    @SerializedName("endTime")
+    private long serializedEndSecs;
     /**
      * Service time is initially the same as "startTime". If is a realtime service, here we save the
      * service time, while startTime will have the real arriving time.
@@ -130,7 +163,8 @@ public class TimetableEntry implements Parcelable, IRealTimeElement, ITimeRange,
         }
     }
 
-    @Nullable public String getServiceDirection() {
+    @Nullable
+    public String getServiceDirection() {
         return serviceDirection;
     }
 
@@ -292,7 +326,8 @@ public class TimetableEntry implements Parcelable, IRealTimeElement, ITimeRange,
         this.serviceTime = serviceTime;
     }
 
-    @Nullable public ArrayList<Long> getAlertHashCodes() {
+    @Nullable
+    public ArrayList<Long> getAlertHashCodes() {
         return alertHashCodes;
     }
 
@@ -365,7 +400,8 @@ public class TimetableEntry implements Parcelable, IRealTimeElement, ITimeRange,
     /**
      * For debug purpose only.
      */
-    @NotNull @Override
+    @NotNull
+    @Override
     public String toString() {
         // Trim the package part to print out something less verbal.
         return TimetableEntry.class.getSimpleName() + hashCode();
@@ -379,7 +415,8 @@ public class TimetableEntry implements Parcelable, IRealTimeElement, ITimeRange,
         this.realtimeVehicle = realtimeVehicle;
     }
 
-    @Nullable public Boolean getWheelchairAccessible() {
+    @Nullable
+    public Boolean getWheelchairAccessible() {
         return wheelchairAccessible;
     }
 
@@ -397,8 +434,13 @@ public class TimetableEntry implements Parcelable, IRealTimeElement, ITimeRange,
         this.bicycleAccessible = bicycleAccessible;
     }
 
-    public String getStartStopShortName() { return startStopShortName; }
-    public void setStartStopShortName(String startStopShortName) { this.startStopShortName = startStopShortName; }
+    public String getStartStopShortName() {
+        return startStopShortName;
+    }
+
+    public void setStartStopShortName(String startStopShortName) {
+        this.startStopShortName = startStopShortName;
+    }
 
     @Nullable
     public ModeInfo getModeInfo() {
@@ -413,12 +455,12 @@ public class TimetableEntry implements Parcelable, IRealTimeElement, ITimeRange,
         return realTimeDeparture;
     }
 
-    public int getRealTimeArrival() {
-        return realTimeArrival;
-    }
-
     public void setRealTimeDeparture(int realTimeDeparture) {
         this.realTimeDeparture = realTimeDeparture;
+    }
+
+    public int getRealTimeArrival() {
+        return realTimeArrival;
     }
 
     public void setRealTimeArrival(int realTimeArrival) {

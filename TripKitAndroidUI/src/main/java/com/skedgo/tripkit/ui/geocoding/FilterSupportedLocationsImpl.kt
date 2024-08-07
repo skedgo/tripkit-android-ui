@@ -8,8 +8,9 @@ import javax.inject.Inject
 class FilterSupportedLocationsImpl @Inject internal constructor(
     val regionService: RegionService
 ) : FilterSupportedLocations {
-  override operator fun invoke(
-      results: List<GCResultInterface>) : Observable<List<GCResultInterface>> = Observable.empty()
+    override operator fun invoke(
+        results: List<GCResultInterface>
+    ): Observable<List<GCResultInterface>> = Observable.empty()
 //  ): Observable<List<GCResultInterface>> =
 //      Observable.fromIterable(results)
 //          .filter { result ->

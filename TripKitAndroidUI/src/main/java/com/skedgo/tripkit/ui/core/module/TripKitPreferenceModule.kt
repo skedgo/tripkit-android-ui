@@ -4,7 +4,6 @@ import android.content.Context
 import com.skedgo.tripkit.ui.utils.TransportModeSharedPreference
 import dagger.Module
 import dagger.Provides
-import javax.inject.Named
 
 @Module
 class TripKitPreferenceModule {

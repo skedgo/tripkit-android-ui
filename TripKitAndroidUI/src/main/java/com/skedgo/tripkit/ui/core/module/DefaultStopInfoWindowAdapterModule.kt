@@ -8,10 +8,11 @@ import dagger.Provides
 @Module
 class DefaultStopInfoWindowAdapterModule {
 
-  @Provides
-  fun stopInfoWindowAdapter(
-      defaultInfoWindowAdapter: DefaultStopInfoWindowAdapter): StopInfoWindowAdapter {
-    return defaultInfoWindowAdapter
-  }
+    @Provides
+    fun stopInfoWindowAdapter(
+        defaultInfoWindowAdapter: DefaultStopInfoWindowAdapter
+    ): StopInfoWindowAdapter {
+        return defaultInfoWindowAdapter
+    }
 
 }

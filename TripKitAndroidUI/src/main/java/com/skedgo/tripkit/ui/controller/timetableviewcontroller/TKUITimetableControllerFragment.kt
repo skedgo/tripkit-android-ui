@@ -80,7 +80,7 @@ class TKUITimetableControllerFragment : BaseFragment<FragmentTkuiTimetableContro
 
     override fun clearInstances() {
         super.clearInstances()
-        if(timetableFragment != null) {
+        if (timetableFragment != null) {
             timetableFragment?.clearInstances()
             timetableFragment = null
         }
@@ -190,7 +190,7 @@ class TKUITimetableControllerFragment : BaseFragment<FragmentTkuiTimetableContro
     private fun resetMapState() {
         mapFragment?.setShowPoiMarkers(true, emptyList())
         val contributor = serviceDetailsFragment?.contributor()
-        if(contributor is TimetableMapContributor) {
+        if (contributor is TimetableMapContributor) {
             contributor.getMapPreviousPosition().let {
                 it?.let { mapFragment?.moveToCameraPosition(it) }
             }

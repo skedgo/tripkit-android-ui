@@ -10,7 +10,7 @@ import io.reactivex.Observable
 import javax.inject.Inject
 
 class LocationSearchErrorViewModel @Inject constructor(
-        val context: Context
+    val context: Context
 ) {
     private val retryPublisher: PublishRelay<Unit> = PublishRelay.create<Unit>()
     private val chooseOnMapPublisher: PublishRelay<Unit> = PublishRelay.create<Unit>()
@@ -38,7 +38,12 @@ class LocationSearchErrorViewModel @Inject constructor(
         this.errorType = errorType
         when (errorType) {
             is SearchErrorType.NoResults -> {
-                title.set(context.getString(R.string._apost_pattern_apost_not_found_dot, errorType.searchText))
+                title.set(
+                    context.getString(
+                        R.string._apost_pattern_apost_not_found_dot,
+                        errorType.searchText
+                    )
+                )
                 actionText.set(context.getString(R.string.drop_new_pin))
                 iconSrc.set(ContextCompat.getDrawable(context, R.drawable.ic_empty_result))
             }

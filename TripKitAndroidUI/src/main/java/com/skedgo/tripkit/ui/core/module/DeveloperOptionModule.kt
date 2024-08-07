@@ -11,8 +11,8 @@ class DeveloperOptionModule {
     @Provides
     fun developerPreferenceRepository(context: Context): DeveloperPreferenceRepository {
         val preferences = context.getSharedPreferences(
-                "DeveloperPreferences2",
-                Context.MODE_PRIVATE
+            "DeveloperPreferences2",
+            Context.MODE_PRIVATE
         )
         return DeveloperPreferenceRepositoryImpl(context, preferences)
     }

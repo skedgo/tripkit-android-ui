@@ -46,7 +46,8 @@ class DirectionsTripPreviewItemFragment : BaseTripKitFragment() {
 
     override fun onResume() {
         super.onResume()
-        viewModel.closeClicked.observable.observeOn(AndroidSchedulers.mainThread()).subscribe { onCloseButtonListener?.onClick(null) }.addTo(autoDisposable)
+        viewModel.closeClicked.observable.observeOn(AndroidSchedulers.mainThread())
+            .subscribe { onCloseButtonListener?.onClick(null) }.addTo(autoDisposable)
         viewModel.showLaunchInMapsClicked.observable.onEach {
             it.segment?.let {
                 /*
@@ -66,7 +67,8 @@ class DirectionsTripPreviewItemFragment : BaseTripKitFragment() {
                 } else {
                     "driving"
                 }
-                val uri = Uri.parse("https://www.google.com/maps/dir/?api=1&origin=${it.from.lat},${it.from.lon}&destination=${it.to.lat},${it.to.lon}&travelmode=$mode")
+                val uri =
+                    Uri.parse("https://www.google.com/maps/dir/?api=1&origin=${it.from.lat},${it.from.lon}&destination=${it.to.lat},${it.to.lon}&travelmode=$mode")
                 val mapIntent = Intent(Intent.ACTION_VIEW, uri)
                 //mapIntent.setPackage("com.google.android.apps.maps")
                 if (mapIntent.resolveActivity(requireActivity().packageManager) != null) {
@@ -81,7 +83,11 @@ class DirectionsTripPreviewItemFragment : BaseTripKitFragment() {
         //outState.putString(ARGS_SEGMENT, Gson().toJson(segment))
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         val binding = TripPreviewPagerDirectionsItemBinding.inflate(inflater)
         binding.lifecycleOwner = this
         binding.viewModel = viewModel

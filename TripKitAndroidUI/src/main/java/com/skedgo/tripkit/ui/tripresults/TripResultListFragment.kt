@@ -80,7 +80,10 @@ class TripResultListFragment : BaseTripKitFragment() {
         this.locationClickListener = listener
     }
 
-    fun setOnLocationClickListener(startLocationClicked: () -> Unit, destinationLocationClicked: () -> Unit) {
+    fun setOnLocationClickListener(
+        startLocationClicked: () -> Unit,
+        destinationLocationClicked: () -> Unit
+    ) {
         this.locationClickListener = object : OnLocationClickListener {
             override fun onStartLocationClicked() {
                 startLocationClicked()
@@ -138,11 +141,13 @@ class TripResultListFragment : BaseTripKitFragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         viewModel = ViewModelProviders.of(this, viewModelProviderFactory)
-                .get(TripResultListViewModel::class.java)
+            .get(TripResultListViewModel::class.java)
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
 
         previouslyInitialized = ::binding.isInitialized
 
@@ -165,7 +170,7 @@ class TripResultListFragment : BaseTripKitFragment() {
         }
 
         binding.leaveNowLayout.setOnClickListener { showDateTimePicker() }
-        binding.leaveNowLayout.accessibilityDelegate = object: View.AccessibilityDelegate() {
+        binding.leaveNowLayout.accessibilityDelegate = object : View.AccessibilityDelegate() {
             override fun sendAccessibilityEvent(host: View, eventType: Int) {
                 region?.let {
                     host.modifyLeaveNowAccessibility(viewModel.query.timeTag, it)
@@ -230,7 +235,8 @@ class TripResultListFragment : BaseTripKitFragment() {
                     val view = (activity as OnResultStateListener).provideErrorView(error)
                     msv.setViewForState(view, MultiStateView.ViewState.ERROR, true)
                 } else {
-                    val view = LayoutInflater.from(activity).inflate(R.layout.generic_error_view, null)
+                    val view =
+                        LayoutInflater.from(activity).inflate(R.layout.generic_error_view, null)
                     view?.findViewById<TextView>(R.id.errorMessageView)?.text = error
                     msv.setViewForState(view, MultiStateView.ViewState.ERROR, true)
                 }
@@ -238,10 +244,10 @@ class TripResultListFragment : BaseTripKitFragment() {
         }.addTo(autoDisposable)
 
         viewModel.onItemClicked
-                .observeOn(AndroidSchedulers.mainThread())
-                .doOnNext { viewTrip ->
-                    tripSelectedListener?.onTripSelected(viewTrip, viewModel.tripGroupList)
-                }.subscribe().addTo(autoDisposable)
+            .observeOn(AndroidSchedulers.mainThread())
+            .doOnNext { viewTrip ->
+                tripSelectedListener?.onTripSelected(viewTrip, viewModel.tripGroupList)
+            }.subscribe().addTo(autoDisposable)
 
 //        viewModel.onMoreButtonClicked
 //                .observeOn(AndroidSchedulers.mainThread())
@@ -258,9 +264,14 @@ class TripResultListFragment : BaseTripKitFragment() {
             binding.multiStateView?.let { msv ->
                 if (it == MultiStateView.ViewState.EMPTY) {
                     if (activity is OnResultStateListener) {
-                        msv.setViewForState((activity as OnResultStateListener).provideEmptyView(), MultiStateView.ViewState.EMPTY, true)
+                        msv.setViewForState(
+                            (activity as OnResultStateListener).provideEmptyView(),
+                            MultiStateView.ViewState.EMPTY,
+                            true
+                        )
                     } else {
-                        val view = LayoutInflater.from(activity).inflate(R.layout.generic_empty_view, null)
+                        val view =
+                            LayoutInflater.from(activity).inflate(R.layout.generic_empty_view, null)
                         msv.setViewForState(view, MultiStateView.ViewState.EMPTY, true)
                     }
                 } else if (it == MultiStateView.ViewState.CONTENT) {
@@ -335,7 +346,8 @@ class TripResultListFragment : BaseTripKitFragment() {
                 .timeMillis(timeMillis)
                 .withPositiveAction(R.string.done)
                 .setTimePickerMinutesInterval(
-                    globalConfigs.dateTimePickerConfig()?.dateTimePickerMinuteInterval ?: 1)
+                    globalConfigs.dateTimePickerConfig()?.dateTimePickerMinuteInterval ?: 1
+                )
                 .setLeaveAtLabel(globalConfigs.dateTimePickerConfig()?.dateTimePickerLeaveAtLabel)
                 .setArriveByLabel(globalConfigs.dateTimePickerConfig()?.dateTimePickerArriveByLabel)
                 .withDateTimeMinLimit(currentDate)
@@ -346,7 +358,8 @@ class TripResultListFragment : BaseTripKitFragment() {
 
             val fragment = builder.build()
 
-            fragment.setOnTimeSelectedListener(object : TripKitDateTimePickerDialogFragment.OnTimeSelectedListener {
+            fragment.setOnTimeSelectedListener(object :
+                TripKitDateTimePickerDialogFragment.OnTimeSelectedListener {
                 override fun onTimeSelected(timeTag: TimeTag) {
                     TripSearchUtils.dateTimeQuery = timeTag.timeInMillis
                     viewModel.updateQueryTime(timeTag)
@@ -368,17 +381,18 @@ class TripResultListFragment : BaseTripKitFragment() {
             transportModeFilter = it
         }
 
-        showTransportSelectionView = arguments?.getBoolean(ARG_SHOW_TRANSPORT_MODE_SELECTION, true)!!
+        showTransportSelectionView =
+            arguments?.getBoolean(ARG_SHOW_TRANSPORT_MODE_SELECTION, true)!!
 
         val globalConfigs = TripKit.getInstance().configs()
         val showDateTimePopUpOnOpen = globalConfigs.routeScreenConfig() != null &&
-                globalConfigs.routeScreenConfig()?.popUpDateTimePickerOnOpen == true
+            globalConfigs.routeScreenConfig()?.popUpDateTimePickerOnOpen == true
 
         query?.let {
             viewModel.setup(
-                    it, showTransportSelectionView, transportModeFilter, actionButtonHandlerFactory,
+                it, showTransportSelectionView, transportModeFilter, actionButtonHandlerFactory,
 
-                    execute = !showDateTimePopUpOnOpen
+                execute = !showDateTimePopUpOnOpen
             )
         }
 

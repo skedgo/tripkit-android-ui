@@ -11,20 +11,19 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
-import androidx.annotation.LayoutRes
 import androidx.annotation.Nullable
-import timber.log.Timber
 
 /*
     Adapted from https://github.com/Kennyc1012/MultiStateView/blob/master/library/src/main/java/com/kennyc/view/MultiStateView.kt
  */
 
-class MultiStateView(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0)
-    : FrameLayout(context, attrs, defStyle) {
+class MultiStateView(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
+    FrameLayout(context, attrs, defStyle) {
 
     constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0) {
 
     }
+
     enum class ViewState {
         LOADING,
         ERROR,
@@ -166,7 +165,12 @@ class MultiStateView(context: Context, attrs: AttributeSet? = null, defStyle: In
         return super.addViewInLayout(child, index, params)
     }
 
-    override fun addViewInLayout(child: View, index: Int, params: ViewGroup.LayoutParams, preventRequestLayout: Boolean): Boolean {
+    override fun addViewInLayout(
+        child: View,
+        index: Int,
+        params: ViewGroup.LayoutParams,
+        preventRequestLayout: Boolean
+    ): Boolean {
         if (isValidContentView(child)) contentView = child
         return super.addViewInLayout(child, index, params, preventRequestLayout)
     }
@@ -240,6 +244,7 @@ class MultiStateView(context: Context, attrs: AttributeSet? = null, defStyle: In
             }
         }
     }
+
     private fun animateLayoutChange(@Nullable previousView: View?) {
         if (previousView == null) {
             requireNotNull(getView(viewState)).visibility = View.VISIBLE
@@ -257,7 +262,8 @@ class MultiStateView(context: Context, attrs: AttributeSet? = null, defStyle: In
                     previousView.visibility = View.GONE
                     val currentView = requireNotNull(getView(viewState))
                     currentView.visibility = View.VISIBLE
-                    ObjectAnimator.ofFloat(currentView, "alpha", 0.0f, 1.0f).setDuration(250L).start()
+                    ObjectAnimator.ofFloat(currentView, "alpha", 0.0f, 1.0f).setDuration(250L)
+                        .start()
                 }
             })
         }.start()

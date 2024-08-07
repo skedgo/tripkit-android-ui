@@ -16,24 +16,26 @@ import javax.inject.Provider
 
 @Module
 class LocationStuffModule {
-  @Provides fun rxFusedLocationProviderClient(context: Context): RxFusedLocationProviderClient
-          = RxFusedLocationProviderClient(FusedLocationProviderClient(context))
+    @Provides
+    fun rxFusedLocationProviderClient(context: Context): RxFusedLocationProviderClient =
+        RxFusedLocationProviderClient(FusedLocationProviderClient(context))
 
-  @Provides
-  fun locationStream(
-          client: RxFusedLocationProviderClient
-  ): Observable<Location> = client.requestLocationStream(
-          LocationRequest.create()
-                  .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
-                  .setInterval(TimeUnit.SECONDS.toMillis(30))
-                  .setFastestInterval(TimeUnit.SECONDS.toMillis(10))
-  )
-  @Provides
-  fun userGeoPointRepository(
-          getLocationUpdates: Provider<Observable<Location>>,
-          getNow: GetNow
-  ): UserGeoPointRepository = UserGeoPointRepositoryImpl(
-      getLocationUpdates = { getLocationUpdates.get() },
-      getNow = getNow
-  )
+    @Provides
+    fun locationStream(
+        client: RxFusedLocationProviderClient
+    ): Observable<Location> = client.requestLocationStream(
+        LocationRequest.create()
+            .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
+            .setInterval(TimeUnit.SECONDS.toMillis(30))
+            .setFastestInterval(TimeUnit.SECONDS.toMillis(10))
+    )
+
+    @Provides
+    fun userGeoPointRepository(
+        getLocationUpdates: Provider<Observable<Location>>,
+        getNow: GetNow
+    ): UserGeoPointRepository = UserGeoPointRepositoryImpl(
+        getLocationUpdates = { getLocationUpdates.get() },
+        getNow = getNow
+    )
 }

@@ -6,20 +6,20 @@ import io.reactivex.Single
 
 interface DeparturesRepository {
     fun getTimetableEntries(
-            region: String,
-            embarkationStopCodes: List<String>,
-            disembarkationStopCodes: List<String>?,
-            timeInSecs: Long,
-            limit: Int
+        region: String,
+        embarkationStopCodes: List<String>,
+        disembarkationStopCodes: List<String>?,
+        timeInSecs: Long,
+        limit: Int
     ): Single<DeparturesResponse>
 
     fun getTimetableEntries(
-            region: String,
-            embarkationStopCodes: List<String>,
-            disembarkationStopCodes: List<String>?,
-            timeInSecs: Long,
-            limit: Int,
-            filters: List<DepartureFilter>,
-            includeStops: Boolean = false
+        region: String,
+        embarkationStopCodes: List<String>,
+        disembarkationStopCodes: List<String>?,
+        timeInSecs: Long,
+        limit: Int,
+        filters: List<DepartureFilter>,
+        includeStops: Boolean = false
     ): Single<DeparturesResponse>
 }

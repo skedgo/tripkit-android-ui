@@ -7,8 +7,8 @@ import dagger.Provides
 
 @Module
 class FetchSuggestionsModule {
-  @Provides
-  fun fetchSuggestions(autoCompleteTask: AutoCompleteTask): FetchSuggestions {
-    return autoCompleteTask
-  }
+    @Provides
+    fun fetchSuggestions(autoCompleteTask: AutoCompleteTask): FetchSuggestions {
+        return autoCompleteTask
+    }
 }

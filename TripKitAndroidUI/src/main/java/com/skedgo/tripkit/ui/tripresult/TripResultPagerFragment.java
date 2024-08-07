@@ -32,30 +32,12 @@ import androidx.fragment.app.Fragment;
 import androidx.viewpager.widget.ViewPager;
 
 public class TripResultPagerFragment extends BaseTripKitFragment implements ViewPager.OnPageChangeListener, TripSegmentListFragment.OnTripKitButtonClickListener {
-    public interface OnTripKitButtonClickListener {
-        void onTripKitButtonClicked(int id, TripGroup tripGroup);
-    }
-
-    public interface OnTripUpdatedListener {
-        void onTripUpdated(Trip trip);
-    }
-
-    OnTripKitButtonClickListener tripButtonClickListener = null;
-
-    public void setOnTripKitButtonClickListener(OnTripKitButtonClickListener listener) {
-        this.tripButtonClickListener = listener;
-    }
-
-    OnTripUpdatedListener tripUpdatedListener = null;
-
-    public void setOnTripUpdatedListener(OnTripUpdatedListener listener) {
-        this.tripUpdatedListener = listener;
-    }
-
     private static final String KEY_CURRENT_PAGE = "currentPage";
     private static final String KEY_SHOW_CLOSE_BUTTON = "showCloseButton";
     private final BookViewClickEventHandler bookViewClickEventHandler = BookViewClickEventHandler.create(this);
-
+    public TripSegmentListFragment.OnTripSegmentClickListener tripSegmentClickListener = null;
+    OnTripKitButtonClickListener tripButtonClickListener = null;
+    OnTripUpdatedListener tripUpdatedListener = null;
     /* TODO: Replace with RxJava-based approach. */
     @Inject
     @Deprecated
@@ -64,17 +46,24 @@ public class TripResultPagerFragment extends BaseTripKitFragment implements View
     TripResultPagerViewModel viewModel;
     @Inject
     ErrorLogger errorLogger;
-
-
     private TripGroupsPagerAdapter tripGroupsPagerAdapter;
     private TripResultPagerBinding binding;
     private TripResultMapContributor mapContributor = new TripResultMapContributor();
-    public TripSegmentListFragment.OnTripSegmentClickListener tripSegmentClickListener = null;
     private ActionButtonHandlerFactory actionButtonHandlerFactory = null;
     private List<TripGroup> initialTripGroupList = null;
-
     private Location queryFromLocation = null;
     private Location queryToLocation = null;
+    @Nullable
+    private PagerFragmentArguments args;
+    private int currentPage = -1;
+
+    public void setOnTripKitButtonClickListener(OnTripKitButtonClickListener listener) {
+        this.tripButtonClickListener = listener;
+    }
+
+    public void setOnTripUpdatedListener(OnTripUpdatedListener listener) {
+        this.tripUpdatedListener = listener;
+    }
 
     public void setActionButtonHandlerFactory(ActionButtonHandlerFactory actionButtonHandlerFactory) {
         this.actionButtonHandlerFactory = actionButtonHandlerFactory;
@@ -84,10 +73,6 @@ public class TripResultPagerFragment extends BaseTripKitFragment implements View
         queryFromLocation = from;
         queryToLocation = to;
     }
-
-    @Nullable
-    private PagerFragmentArguments args;
-    private int currentPage = -1;
 
     @Nullable
     @Override
@@ -105,7 +90,6 @@ public class TripResultPagerFragment extends BaseTripKitFragment implements View
         viewModel.getCurrentPage().set(currentPage);
         return binding.getRoot();
     }
-
 
     @Override
     public void onResume() {
@@ -285,6 +269,14 @@ public class TripResultPagerFragment extends BaseTripKitFragment implements View
         if (tripButtonClickListener != null) {
             tripButtonClickListener.onTripKitButtonClicked(id, tripGroup);
         }
+    }
+
+    public interface OnTripKitButtonClickListener {
+        void onTripKitButtonClicked(int id, TripGroup tripGroup);
+    }
+
+    public interface OnTripUpdatedListener {
+        void onTripUpdated(Trip trip);
     }
 
     public static class Builder {

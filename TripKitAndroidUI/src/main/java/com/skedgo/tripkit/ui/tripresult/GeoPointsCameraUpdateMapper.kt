@@ -11,8 +11,8 @@ const val ZoomOnSingleLocation = 21.0f
 const val OneKilometers = 1000.00
 
 fun List<GeoPoint>.toCameraUpdate(): CameraUpdate = this
-        .map { LatLng(it.latitude, it.longitude) }
-        .toList()
-        .fold(LatLngBounds.Builder(), LatLngBounds.Builder::include)
-        .build()
-        .toCameraUpdate(CameraUpdatePadding)
+    .map { LatLng(it.latitude, it.longitude) }
+    .toList()
+    .fold(LatLngBounds.Builder(), LatLngBounds.Builder::include)
+    .build()
+    .toCameraUpdate(CameraUpdatePadding)

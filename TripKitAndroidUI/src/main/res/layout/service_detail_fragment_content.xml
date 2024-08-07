@@ -55,7 +55,7 @@
                 android:visibility="@{viewModel.showWheelchairAccessible}"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                tools:src="@drawable/ic_wheelchair"/>
+                tools:src="@drawable/ic_wheelchair" />
 
             <TextView
                 android:id="@+id/wheelchairLabel"
@@ -67,7 +67,7 @@
                 android:visibility="@{viewModel.showWheelchairAccessible}"
                 app:layout_constraintStart_toEndOf="@id/wheelchair"
                 app:layout_constraintTop_toTopOf="@+id/wheelchair"
-                tools:text="Label w"/>
+                tools:text="Label w" />
 
             <ImageView
                 android:id="@+id/ivBicycle"
@@ -90,7 +90,7 @@
                 app:layout_constraintStart_toEndOf="@id/ivBicycle"
                 app:layout_constraintTop_toTopOf="@+id/ivBicycle"
                 app:layout_constraintBottom_toBottomOf="@+id/ivBicycle"
-                tools:text="Label B"/>
+                tools:text="Label B" />
 
             <ImageView
                 android:id="@+id/occupancyView"
@@ -101,7 +101,7 @@
                 android:visibility="@{viewModel.showOccupancyInfo}"
                 app:layout_constraintStart_toEndOf="@id/ivBicycle"
                 app:layout_constraintTop_toTopOf="@id/ivBicycle"
-                tools:src="@drawable/ic_occupancy_25"/>
+                tools:src="@drawable/ic_occupancy_25" />
 
             <TextView
                 android:id="@+id/occupancyLabel"
@@ -113,7 +113,7 @@
                 android:visibility="@{viewModel.showOccupancyInfo}"
                 app:layout_constraintStart_toEndOf="@id/occupancyView"
                 app:layout_constraintTop_toTopOf="@+id/occupancyView"
-                tools:text="Label O"/>
+                tools:text="Label O" />
 
             <ImageView
                 android:id="@+id/expandButton"
@@ -165,7 +165,7 @@
             app:layout_constraintTop_toBottomOf="@id/secondDividingLine"
             tools:itemCount="2"
             tools:listitem="@layout/item_service_alert"
-            tools:visibility="gone"/>
+            tools:visibility="gone" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerView"
@@ -180,7 +180,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/rvAlerts"
-            tools:visibility="gone"/>
+            tools:visibility="gone" />
 
     </merge>
 </layout>

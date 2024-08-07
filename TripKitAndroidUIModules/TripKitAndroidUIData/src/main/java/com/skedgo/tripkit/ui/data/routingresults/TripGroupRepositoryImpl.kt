@@ -21,14 +21,13 @@ import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers.io
 import io.reactivex.subjects.PublishSubject
 import org.joda.time.Days
-import org.joda.time.Hours
 import java.util.concurrent.ConcurrentHashMap
 
 typealias A2bRoutingRequestId = String
 
 class TripGroupRepositoryImpl(
-        private val routeStore: RouteStore,
-        private val getNow: GetNow
+    private val routeStore: RouteStore,
+    private val getNow: GetNow
 ) : TripGroupRepository {
     private val onNewTripGroupsAvailable = PublishSubject.create<A2bRoutingRequestId>()
     private val _whenTripGroupIsUpdated = PublishRelay.create<TripGroupId>()
@@ -36,25 +35,25 @@ class TripGroupRepositoryImpl(
     private val map = ConcurrentHashMap<String, Observable<TripGroup>>()
 
     override fun getTripGroupsByA2bRoutingRequestId(
-            a2bRoutingRequestId: String
+        a2bRoutingRequestId: String
     ): Observable<List<TripGroup>> =
-            routeStore.queryTripGroupIdsByRequestIdAsync(a2bRoutingRequestId)
-                    .map { getTripGroup(it) }
-                    .toList()
-                    .toObservable()
-                    .repeatWhen {
-                        onNewTripGroupsAvailable()
-                                .filter { a2bRoutingRequestId == it }
-                                .map { Unit }
-                                .observeOn(io())
-                    }
-                    .switchMap {
-                        Observable.combineLatest(it) { it.map { it as TripGroup }.toList() }
-                                .switchIfEmpty(Observable.just(emptyList()))
-                    }
+        routeStore.queryTripGroupIdsByRequestIdAsync(a2bRoutingRequestId)
+            .map { getTripGroup(it) }
+            .toList()
+            .toObservable()
+            .repeatWhen {
+                onNewTripGroupsAvailable()
+                    .filter { a2bRoutingRequestId == it }
+                    .map { Unit }
+                    .observeOn(io())
+            }
+            .switchMap {
+                Observable.combineLatest(it) { it.map { it as TripGroup }.toList() }
+                    .switchIfEmpty(Observable.just(emptyList()))
+            }
 
     override fun whenTripGroupIsUpdated(): Observable<TripGroupId> =
-            _whenTripGroupIsUpdated.hide()
+        _whenTripGroupIsUpdated.hide()
 
     override fun getTripGroup(tripGroupId: String): Observable<TripGroup> {
 //        return map[tripGroupId] ?: createQuery(tripGroupId)
@@ -63,10 +62,10 @@ class TripGroupRepositoryImpl(
 
     private fun createQuery(tripGroupId: String): Observable<TripGroup> {
         val query = routeStore.queryAsync(GroupQueries.hasUuid(tripGroupId))
-                .repeatWhen { _whenTripGroupIsUpdated.hide().filter { it == tripGroupId } }
-                .subscribeOn(io())
-                .replay(1)
-                .autoConnect()
+            .repeatWhen { _whenTripGroupIsUpdated.hide().filter { it == tripGroupId } }
+            .subscribeOn(io())
+            .replay(1)
+            .autoConnect()
         map[tripGroupId] = query
         return query
     }
@@ -78,41 +77,41 @@ class TripGroupRepositoryImpl(
     override fun updateTrip(tripGroupId: String, oldTripUuid: String, trip: Trip): Completable {
         val done = map.remove(tripGroupId)
         return routeStore.updateTripAsync(oldTripUuid, trip)
-                .andThen(
-                        Completable.fromAction {
-                            _whenTripGroupIsUpdated.accept(tripGroupId)
-                        })
-                .subscribeOn(io())
+            .andThen(
+                Completable.fromAction {
+                    _whenTripGroupIsUpdated.accept(tripGroupId)
+                })
+            .subscribeOn(io())
     }
 
     override fun updateNotify(tripGroupId: String, isFavorite: Boolean): Completable =
-            routeStore.updateNotifiability(tripGroupId, isFavorite)
-                    .andThen(
-                            Completable.fromAction {
-                                _whenTripGroupIsUpdated.accept(tripGroupId)
-                                whenManualTripChanges.accept(Unit)
-                            }
-                    )
+        routeStore.updateNotifiability(tripGroupId, isFavorite)
+            .andThen(
+                Completable.fromAction {
+                    _whenTripGroupIsUpdated.accept(tripGroupId)
+                    whenManualTripChanges.accept(Unit)
+                }
+            )
 
     override fun addTripToTripGroup(tripGroupId: String, displayTrip: Trip): Completable {
         return routeStore.addTripToTripGroup(tripGroupId, displayTrip)
-                .andThen(
-                        Completable.fromAction {
-                            _whenTripGroupIsUpdated.accept(tripGroupId)
-                        }
-                )
+            .andThen(
+                Completable.fromAction {
+                    _whenTripGroupIsUpdated.accept(tripGroupId)
+                }
+            )
     }
 
     override fun setTripGroup(tripGroup: TripGroup): Completable {
         return Observable.just(tripGroup)
-                .flatMap {
-                    routeStore.updateAlternativeTrips(mutableListOf(it))
-                }.singleOrError()
-                .doOnSuccess {
-                    _whenTripGroupIsUpdated.accept(it.first().uuid())
-                }
-                .toCompletable()
-                .subscribeOn(io())
+            .flatMap {
+                routeStore.updateAlternativeTrips(mutableListOf(it))
+            }.singleOrError()
+            .doOnSuccess {
+                _whenTripGroupIsUpdated.accept(it.first().uuid())
+            }
+            .toCompletable()
+            .subscribeOn(io())
     }
 
     // Remove tripGroups, trips and segments in cache that was not saved on the current day
@@ -136,18 +135,18 @@ class TripGroupRepositoryImpl(
 
     override fun addTripGroups(requestId: String?, groups: List<TripGroup>): Completable {
         return routeStore.saveAsync(requestId, groups)
-                .ignoreElements()
-                .andThen(Completable.fromAction {
-                    groups.forEach {
-                        _whenTripGroupIsUpdated.accept(it.uuid())
-                    }
-                    onNewTripGroupsAvailable.onNext(requestId!!)
-                })
+            .ignoreElements()
+            .andThen(Completable.fromAction {
+                groups.forEach {
+                    _whenTripGroupIsUpdated.accept(it.uuid())
+                }
+                onNewTripGroupsAvailable.onNext(requestId!!)
+            })
     }
 
     override fun onManualTripChanges(): Observable<Unit> =
-            whenManualTripChanges.hide()
+        whenManualTripChanges.hide()
 
     override fun onNewTripGroupsAvailable(): Observable<String> =
-            onNewTripGroupsAvailable.hide()
+        onNewTripGroupsAvailable.hide()
 }

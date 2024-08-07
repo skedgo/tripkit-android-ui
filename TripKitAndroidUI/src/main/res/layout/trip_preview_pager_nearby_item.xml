@@ -1,44 +1,54 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        xmlns:bind="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:bind="http://schemas.android.com/apk/res-auto">
 
-<data>
-    <variable name="viewModel" type="com.skedgo.tripkit.ui.trippreview.nearby.NearbyTripPreviewItemViewModel"/>
-        <variable name="sharedViewModel" type="com.skedgo.tripkit.ui.trippreview.nearby.SharedNearbyTripPreviewItemViewModel"/>
+    <data>
+
+        <variable
+            name="viewModel"
+            type="com.skedgo.tripkit.ui.trippreview.nearby.NearbyTripPreviewItemViewModel" />
+
+        <variable
+            name="sharedViewModel"
+            type="com.skedgo.tripkit.ui.trippreview.nearby.SharedNearbyTripPreviewItemViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <include
+            layout="@layout/trip_preview_pager_item_header"
+            bind:viewModel="@{sharedViewModel}" />
+
+        <androidx.recyclerview.widget.RecyclerView
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="wrap_content"
+            android:id="@+id/transportItemsView"
+            app:itemBinding="@{viewModel.transportBinding}"
+            app:items="@{viewModel.transportModes}"
+            android:background="#f5f6f7"
+            android:layout_marginTop="32dp"
+            android:visibility="@{viewModel.showModes}"
+            android:paddingStart="16dp"
+            android:paddingTop="16dp"
+            android:paddingBottom="8dp"
+            android:overScrollMode="never"
+            android:nestedScrollingEnabled="false"
+            app:layout_constraintTop_toBottomOf="@id/textBarrier"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
 
-        <include layout="@layout/trip_preview_pager_item_header" bind:viewModel="@{sharedViewModel}"/>
-
-        <androidx.recyclerview.widget.RecyclerView android:layout_width="match_parent"
-                                                   android:layout_height="wrap_content"
-                                                   android:id="@+id/transportItemsView"
-                                                   app:itemBinding="@{viewModel.transportBinding}"
-                                                   app:items="@{viewModel.transportModes}"
-                                                   android:background="#f5f6f7"
-                                                   android:layout_marginTop="32dp"
-                                                   android:visibility="@{viewModel.showModes}"
-                                                   android:paddingStart="16dp"
-                                                   android:paddingTop="16dp"
-                                                   android:paddingBottom="8dp"
-                                                   android:overScrollMode="never"
-                                                   android:nestedScrollingEnabled="false"
-                                                   app:layout_constraintTop_toBottomOf="@id/textBarrier"
-                                                   app:layout_constraintStart_toStartOf="parent"
-                                                   app:layout_constraintEnd_toEndOf="parent"/>
-
-        <androidx.recyclerview.widget.RecyclerView android:layout_width="0dp" android:layout_height="0dp"
-                                                   app:layout_constraintStart_toStartOf="parent"
-                                                   app:layout_constraintEnd_toEndOf="parent"
-                                                   app:layout_constraintTop_toBottomOf="@+id/transportItemsView"
-                                                   app:layout_constraintBottom_toBottomOf="parent"
-                                                   app:items="@{viewModel.mergedList}"
-                                                   app:itemBinding="@{viewModel.binding}"
-                                                   app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                                                   />
+        <androidx.recyclerview.widget.RecyclerView
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/transportItemsView"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:items="@{viewModel.mergedList}"
+            app:itemBinding="@{viewModel.binding}"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

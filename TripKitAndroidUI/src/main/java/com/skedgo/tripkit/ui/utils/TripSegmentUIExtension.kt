@@ -96,8 +96,8 @@ private fun TripSegment.getAlertIcon(context: Context): Drawable? {
 
 private fun TripSegment.shouldAttachAlertIconToSubtitle(): Boolean {
     return (serviceTripId == null
-            && startStopCode == null
-            && endStopCode == null)
+        && startStopCode == null
+        && endStopCode == null)
 }
 
 fun TripSegment.generateTripPreviewHeader(icon: Drawable): TripSegmentSummary {

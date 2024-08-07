@@ -8,7 +8,8 @@ import javax.inject.Singleton
 
 @Module
 class EventTrackerModule {
-  @Provides
-  @Singleton
-  internal fun eventTracker(eventTrackerChain: EventTrackerChain): EventTracker = eventTrackerChain
+    @Provides
+    @Singleton
+    internal fun eventTracker(eventTrackerChain: EventTrackerChain): EventTracker =
+        eventTrackerChain
 }

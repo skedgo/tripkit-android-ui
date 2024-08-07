@@ -74,9 +74,9 @@ class DrtItemViewModel : ViewModel() {
             _enableIncrement.value = currentValue < maxValue
         }
 
-        if(_viewMode.value != true) {
+        if (_viewMode.value != true) {
             setContentDescriptionWithAppendingLabel(
-                    "${values.joinToString(",")}, ${defaultValue.value}"
+                "${values.joinToString(",")}, ${defaultValue.value}"
             )
         }
     }
@@ -177,7 +177,7 @@ class DrtItemViewModel : ViewModel() {
         _defaultValue.postValue(value)
     }
 
-    fun setUrlValue(value: String?){
+    fun setUrlValue(value: String?) {
         _urlValue.postValue(value)
     }
 
@@ -185,9 +185,9 @@ class DrtItemViewModel : ViewModel() {
     fun generateSummaryDetails(): PaymentSummaryDetails {
 
         return PaymentSummaryDetails(
-                hashCode().toString(),
-                icon.value ?: 0,
-                getItemValueAsString() ?: ""
+            hashCode().toString(),
+            icon.value ?: 0,
+            getItemValueAsString() ?: ""
         )
     }
 
@@ -202,12 +202,18 @@ class DrtItemViewModel : ViewModel() {
 
     companion object {
         fun diffCallback() = object : DiffUtil.ItemCallback<DrtItemViewModel>() {
-            override fun areItemsTheSame(oldItem: DrtItemViewModel, newItem: DrtItemViewModel): Boolean =
-                    oldItem.label == newItem.label
+            override fun areItemsTheSame(
+                oldItem: DrtItemViewModel,
+                newItem: DrtItemViewModel
+            ): Boolean =
+                oldItem.label == newItem.label
 
-            override fun areContentsTheSame(oldItem: DrtItemViewModel, newItem: DrtItemViewModel): Boolean =
-                    oldItem.label.value == newItem.label.value
-                            && oldItem.values.value == newItem.values.value
+            override fun areContentsTheSame(
+                oldItem: DrtItemViewModel,
+                newItem: DrtItemViewModel
+            ): Boolean =
+                oldItem.label.value == newItem.label.value
+                    && oldItem.values.value == newItem.values.value
         }
     }
 }

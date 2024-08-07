@@ -24,7 +24,7 @@
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             app:layout_constraintTop_toTopOf="parent"
             tools:listitem="@layout/item_fake_graph"
-            tools:itemCount="1"/>
+            tools:itemCount="1" />
 
         <View
             android:id="@+id/divider"

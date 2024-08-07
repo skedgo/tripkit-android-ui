@@ -6,14 +6,16 @@ import android.graphics.PorterDuff;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageView;
-import androidx.annotation.Nullable;
-import androidx.databinding.BindingAdapter;
+
 import com.skedgo.tripkit.common.model.TransportMode;
 import com.skedgo.tripkit.common.util.TransportModeUtils;
-import com.skedgo.tripkit.ui.R;
-import com.skedgo.tripkit.ui.TripKitUI;
 import com.skedgo.tripkit.routing.ModeInfo;
 import com.skedgo.tripkit.routing.VehicleMode;
+import com.skedgo.tripkit.ui.R;
+import com.skedgo.tripkit.ui.TripKitUI;
+
+import androidx.annotation.Nullable;
+import androidx.databinding.BindingAdapter;
 
 import static com.skedgo.tripkit.common.util.TransportModeUtils.getIconUrlForId;
 
@@ -27,6 +29,7 @@ public final class ImageViewBindingAdapters {
         }
         view.setVisibility((visible) ? View.VISIBLE : View.GONE);
     }
+
     @BindingAdapter("fadeVisible")
     public static void setFadeVisible(final View view, boolean visible) {
         if (view.getTag() == null) {
@@ -70,8 +73,8 @@ public final class ImageViewBindingAdapters {
     private static void loadModeInfo(ImageView view, @Nullable ModeInfo modeInfo) {
         if (modeInfo == null) {
             TripKitUI.getInstance().picasso()
-                    .load(R.drawable.ic_public_transport)
-                    .into(view);
+                .load(R.drawable.ic_public_transport)
+                .into(view);
             return;
         }
 
@@ -79,10 +82,10 @@ public final class ImageViewBindingAdapters {
         int placeHolder = mode != null ? mode.getIconRes() : R.drawable.ic_public_transport;
         final String url = TransportModeUtils.getIconUrlForModeInfo(view.getResources(), modeInfo);
         TripKitUI.getInstance().picasso()
-                .load(url)
-                .placeholder(placeHolder)
-                .error(placeHolder)
-                .into(view);
+            .load(url)
+            .placeholder(placeHolder)
+            .error(placeHolder)
+            .into(view);
     }
 
     @BindingAdapter("modeId")
@@ -94,7 +97,7 @@ public final class ImageViewBindingAdapters {
     }
 
     @BindingAdapter("android:src")
-    public static void setImageResource(ImageView imageView, int resource){
+    public static void setImageResource(ImageView imageView, int resource) {
         imageView.setImageResource(resource);
     }
 
@@ -105,10 +108,10 @@ public final class ImageViewBindingAdapters {
             if (!TextUtils.isEmpty(modeIconId)) {
                 final String url = getIconUrlForId(view.getResources(), modeIconId);
                 TripKitUI.getInstance().picasso()
-                        .load(url)
-                        .placeholder(R.drawable.ic_car_ride_share)
-                        .error(R.drawable.ic_car_ride_share)
-                        .into(view);
+                    .load(url)
+                    .placeholder(R.drawable.ic_car_ride_share)
+                    .error(R.drawable.ic_car_ride_share)
+                    .into(view);
             } else {
                 view.setImageResource(R.drawable.ic_car_ride_share);
             }

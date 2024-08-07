@@ -25,7 +25,7 @@ fun Trip.toWaypoints(): List<Waypoint> {
                 start = segment.from.coordinateString,
                 end = segment.to.coordinateString,
                 order = index
-                )
+            )
         }
     return waypoints.plus(
         segments.last().let { Waypoint(it.to.lat, it.to.lon, null, null) }

@@ -43,10 +43,10 @@ import javax.inject.Inject
 
 
 class TripSegmentGetOffAlertsViewModel @Inject internal constructor(
-        var trip: Trip,
-        defaultValue: Boolean = false,
-        private val tripUpdater: TripUpdater,
-        private val remindersRepository: RemindersRepository
+    var trip: Trip,
+    defaultValue: Boolean = false,
+    private val tripUpdater: TripUpdater,
+    private val remindersRepository: RemindersRepository
 ) : RxViewModel() {
 
     companion object {
@@ -73,8 +73,13 @@ class TripSegmentGetOffAlertsViewModel @Inject internal constructor(
         _isVisible.postValue(configs.hasGetOffAlerts())
     }
 
-    val items = DiffObservableList<TripSegmentGetOffAlertDetailViewModel>(TripSegmentGetOffAlertDetailViewModel.diffCallback())
-    val itemBinding = ItemBinding.of<TripSegmentGetOffAlertDetailViewModel>(BR.viewModel, R.layout.item_alert_detail)
+    val items = DiffObservableList<TripSegmentGetOffAlertDetailViewModel>(
+        TripSegmentGetOffAlertDetailViewModel.diffCallback()
+    )
+    val itemBinding = ItemBinding.of<TripSegmentGetOffAlertDetailViewModel>(
+        BR.viewModel,
+        R.layout.item_alert_detail
+    )
 
     fun validate() {
         _getOffAlertStateOn.postValue(GetOffAlertCache.isTripAlertStateOn(trip.tripUuid))
@@ -237,20 +242,29 @@ class TripSegmentGetOffAlertsViewModel @Inject internal constructor(
             val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
             var pendingIntent: PendingIntent? = null
             var startSegmentStartTimeInSecs = 0L
-            val reminderInMinutes = runBlocking { remindersRepository.getTripNotificationReminderMinutes() }
+            val reminderInMinutes =
+                runBlocking { remindersRepository.getTripNotificationReminderMinutes() }
 
             trip.segments?.minByOrNull { it.startTimeInSecs }?.let { startSegment ->
                 startSegmentStartTimeInSecs = startSegment.startTimeInSecs
                 val alarmIntent = Intent(context, TripAlarmBroadcastReceiver::class.java)
                 alarmIntent.putExtra(TripAlarmBroadcastReceiver.ACTION_START_TRIP_EVENT, true)
-                alarmIntent.putExtra(TripAlarmBroadcastReceiver.EXTRA_START_TRIP_EVENT_TRIP, Gson().toJson(trip))
+                alarmIntent.putExtra(
+                    TripAlarmBroadcastReceiver.EXTRA_START_TRIP_EVENT_TRIP,
+                    Gson().toJson(trip)
+                )
                 trip.group?.let {
                     alarmIntent.putExtra(
                         TripAlarmBroadcastReceiver.EXTRA_START_TRIP_EVENT_TRIP_GROUP_UUID,
                         it.uuid()
                     )
                 }
-                pendingIntent = PendingIntent.getBroadcast(context, 0, alarmIntent, 0 or PendingIntent.FLAG_IMMUTABLE)
+                pendingIntent = PendingIntent.getBroadcast(
+                    context,
+                    0,
+                    alarmIntent,
+                    0 or PendingIntent.FLAG_IMMUTABLE
+                )
             }
 
             trip.subscribeURL?.let { url ->
@@ -258,7 +272,7 @@ class TripSegmentGetOffAlertsViewModel @Inject internal constructor(
                     .flatMap {
                         val updateUrl = trip.updateURL ?: ""
                         // remove hash to force get updated trip for getting the unsubscribeURL
-                        if(updateUrl.contains(URL_PARAM_HASH)) {
+                        if (updateUrl.contains(URL_PARAM_HASH)) {
                             updateUrl.removeQueryParamFromUrl(URL_PARAM_HASH)
                         }
                         tripUpdater.getUpdateAsync(updateUrl)
@@ -283,7 +297,7 @@ class TripSegmentGetOffAlertsViewModel @Inject internal constructor(
                     DateTime(System.currentTimeMillis(), trip.from.dateTimeZone).millis
                 )
 
-                if(startSegmentStartTimeInSecs > currentDateTimeInSeconds &&
+                if (startSegmentStartTimeInSecs > currentDateTimeInSeconds &&
                     (startSegmentStartTimeInSecs - currentDateTimeInSeconds) >= reminder) {
                     pendingIntent?.let { intent ->
                         alarmManager.set(
@@ -320,7 +334,12 @@ class TripSegmentGetOffAlertsViewModel @Inject internal constructor(
         try {
             val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
             val alarmIntent = Intent(context, TripAlarmBroadcastReceiver::class.java)
-            val pendingIntent = PendingIntent.getBroadcast(context, 0, alarmIntent, PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+            val pendingIntent = PendingIntent.getBroadcast(
+                context,
+                0,
+                alarmIntent,
+                PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
 
             alarmManager.cancel(pendingIntent)
             pendingIntent.cancel()
@@ -346,19 +365,26 @@ class TripSegmentGetOffAlertsViewModel @Inject internal constructor(
 }
 
 class TripSegmentGetOffAlertDetailViewModel @Inject internal constructor(
-        val icon: Drawable?,
-        val title: String,
-        val isEnabled: Boolean = true
+    val icon: Drawable?,
+    val title: String,
+    val isEnabled: Boolean = true
 ) : RxViewModel() {
     companion object {
-        fun diffCallback() = object : DiffUtil.ItemCallback<TripSegmentGetOffAlertDetailViewModel>() {
-            override fun areItemsTheSame(oldItem: TripSegmentGetOffAlertDetailViewModel, newItem: TripSegmentGetOffAlertDetailViewModel): Boolean =
+        fun diffCallback() =
+            object : DiffUtil.ItemCallback<TripSegmentGetOffAlertDetailViewModel>() {
+                override fun areItemsTheSame(
+                    oldItem: TripSegmentGetOffAlertDetailViewModel,
+                    newItem: TripSegmentGetOffAlertDetailViewModel
+                ): Boolean =
                     oldItem.title == newItem.title
 
-            @SuppressLint("DiffUtilEquals")
-            override fun areContentsTheSame(oldItem: TripSegmentGetOffAlertDetailViewModel, newItem: TripSegmentGetOffAlertDetailViewModel): Boolean =
+                @SuppressLint("DiffUtilEquals")
+                override fun areContentsTheSame(
+                    oldItem: TripSegmentGetOffAlertDetailViewModel,
+                    newItem: TripSegmentGetOffAlertDetailViewModel
+                ): Boolean =
                     oldItem.icon == newItem.icon
-                            && oldItem.title == newItem.title
-        }
+                        && oldItem.title == newItem.title
+            }
     }
 }

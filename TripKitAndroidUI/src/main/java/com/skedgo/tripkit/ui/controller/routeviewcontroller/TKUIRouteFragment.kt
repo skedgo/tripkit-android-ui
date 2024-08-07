@@ -5,12 +5,8 @@ import android.os.Bundle
 import android.os.Handler
 import android.text.Editable
 import android.text.TextWatcher
-import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
-import android.widget.EditText
 import android.widget.Toast
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -36,8 +32,6 @@ import com.skedgo.tripkit.ui.core.BaseFragment
 import com.skedgo.tripkit.ui.core.addTo
 import com.skedgo.tripkit.ui.databinding.FragmentTkuiRouteBinding
 import com.skedgo.tripkit.ui.search.FixedSuggestions
-import com.skedgo.tripkit.ui.search.LocationSearchFragment
-import com.skedgo.tripkit.ui.utils.hideKeyboard
 import com.skedgo.tripkit.ui.utils.showKeyboard
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
@@ -391,7 +385,7 @@ class TKUIRouteFragment : BaseFragment<FragmentTkuiRouteBinding>() {
     private fun toggleShowCurrentLocation() {
         suggestionProvider?.showCurrentLocation =
             !(viewModel.startLocation?.locationType == Location.TYPE_CURRENT_LOCATION
-                    || viewModel.destinationLocation?.locationType == Location.TYPE_CURRENT_LOCATION)
+                || viewModel.destinationLocation?.locationType == Location.TYPE_CURRENT_LOCATION)
     }
 
     private fun setCorrectLocation(location: Location?) {
@@ -478,7 +472,7 @@ class TKUIRouteFragment : BaseFragment<FragmentTkuiRouteBinding>() {
         }
     }
 
-     fun getLocationField(): LocationField = if (binding.tieStartEdit.hasFocus()) {
+    fun getLocationField(): LocationField = if (binding.tieStartEdit.hasFocus()) {
         LocationField.ORIGIN
     } else if (binding.tieDestinationEdit.hasFocus()) {
         LocationField.DESTINATION

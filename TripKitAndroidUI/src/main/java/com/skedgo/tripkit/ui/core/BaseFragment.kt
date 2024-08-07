@@ -10,7 +10,6 @@ import android.view.accessibility.AccessibilityNodeInfo
 import androidx.annotation.LayoutRes
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
-import androidx.fragment.app.Fragment
 import com.google.gson.Gson
 import com.skedgo.tripkit.ui.utils.getAccessibilityManager
 import com.skedgo.tripkit.ui.utils.isTalkBackOn
@@ -43,9 +42,9 @@ abstract class BaseFragment<V : ViewDataBinding> : BaseTripKitPagerFragment() {
     private var previouslyInitialized = false
 
     override fun onCreateView(
-            inflater: LayoutInflater,
-            container: ViewGroup?,
-            savedInstanceState: Bundle?
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
     ): View {
         if (!::binding.isInitialized) {
             binding = DataBindingUtil.inflate(inflater, layoutRes, container, false)
@@ -74,7 +73,8 @@ abstract class BaseFragment<V : ViewDataBinding> : BaseTripKitPagerFragment() {
                         focusAccessibilityDefaultView(true)
                     }
                 }
-            } catch (e: Exception) {}
+            } catch (e: Exception) {
+            }
         }
     }
 
@@ -99,7 +99,8 @@ abstract class BaseFragment<V : ViewDataBinding> : BaseTripKitPagerFragment() {
                 } catch (e: Exception) {
                 }
             }, if (withDelay) 500 else 0)
-        } catch (e: Exception) {}
+        } catch (e: Exception) {
+        }
     }
 
 }

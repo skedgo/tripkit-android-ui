@@ -18,30 +18,30 @@ import static org.immutables.value.Value.Style.ImplementationVisibility.PACKAGE;
 )
 @JsonAdapter(GsonAdaptersConfigDto.class)
 public interface ConfigDto {
-  @Parameter
-  String v();
+    @Parameter
+    String v();
 
-  @Parameter
-  @Nullable
-  Integer tt();
+    @Parameter
+    @Nullable
+    Integer tt();
 
-  @Parameter
-  @Nullable
-  Integer ws();
+    @Parameter
+    @Nullable
+    Integer ws();
 
-  @Parameter
-  @Nullable
-  Integer cs();
+    @Parameter
+    @Nullable
+    Integer cs();
 
-  @Parameter
-  @Nullable
-  Boolean conc();
+    @Parameter
+    @Nullable
+    Boolean conc();
 
-  @Parameter
-  @Nullable
-  Boolean wheelchair();
+    @Parameter
+    @Nullable
+    Boolean wheelchair();
 
-  @Parameter
-  @Nullable
-  String wp();
+    @Parameter
+    @Nullable
+    String wp();
 }

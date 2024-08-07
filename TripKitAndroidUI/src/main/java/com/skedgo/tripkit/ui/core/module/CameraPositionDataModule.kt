@@ -1,4 +1,5 @@
 package com.skedgo.tripkit.ui.core.module
+
 import android.content.Context
 import android.content.SharedPreferences
 import com.skedgo.tripkit.camera.CachingDateTimeOfMapCameraPositionRepository
@@ -7,17 +8,22 @@ import com.skedgo.tripkit.ui.data.cameraposition.CachingDateTimeOfMapCameraPosit
 import com.skedgo.tripkit.ui.data.cameraposition.LastCameraPositionRepositoryImpl
 import dagger.Module
 import dagger.Provides
-import java.util.*
+import java.util.Locale
 
 @Module
 class CameraPositionDataModule {
-  @Provides
-  fun lastCameraPositionRepository(context: Context): LastCameraPositionRepository =
-      LastCameraPositionRepositoryImpl(context.resources, getMapPrefs(context), Locale.getDefault())
-  @Provides
-  fun cachingDateTimeOfMapCameraPositionRepository(context: Context): CachingDateTimeOfMapCameraPositionRepository =
-          CachingDateTimeOfMapCameraPositionRepositoryImpl(getMapPrefs(context))
+    @Provides
+    fun lastCameraPositionRepository(context: Context): LastCameraPositionRepository =
+        LastCameraPositionRepositoryImpl(
+            context.resources,
+            getMapPrefs(context),
+            Locale.getDefault()
+        )
 
-  private fun getMapPrefs(context: Context): SharedPreferences
-      = context.getSharedPreferences("MapPreferences", Context.MODE_PRIVATE)
+    @Provides
+    fun cachingDateTimeOfMapCameraPositionRepository(context: Context): CachingDateTimeOfMapCameraPositionRepository =
+        CachingDateTimeOfMapCameraPositionRepositoryImpl(getMapPrefs(context))
+
+    private fun getMapPrefs(context: Context): SharedPreferences =
+        context.getSharedPreferences("MapPreferences", Context.MODE_PRIVATE)
 }

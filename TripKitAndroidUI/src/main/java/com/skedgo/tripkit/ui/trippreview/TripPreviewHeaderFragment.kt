@@ -25,8 +25,10 @@ class TripPreviewHeaderFragment : Fragment() {
     private var pageIndexStream: PublishSubject<Pair<Long, String>>? = null
     private var hideExactTimes: Boolean = false
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View {
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
         binding = FragmentTripPreviewHeaderBinding.inflate(inflater)
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
@@ -42,9 +44,9 @@ class TripPreviewHeaderFragment : Fragment() {
 
     private fun initObserver() {
         pageIndexStream?.subscribeOn(AndroidSchedulers.mainThread())
-                ?.subscribe {
-                    viewModel.setSelectedById(it.first, it.second)
-                }?.addTo(disposeBag)
+            ?.subscribe {
+                viewModel.setSelectedById(it.first, it.second)
+            }?.addTo(disposeBag)
 
         viewModel.apply {
             observe(selectedSegmentId) {
@@ -65,8 +67,8 @@ class TripPreviewHeaderFragment : Fragment() {
         const val TAG = "TripPreviewHeader"
 
         fun newInstance(
-                pageIndexStream: PublishSubject<Pair<Long, String>>?,
-                hideExactTimes: Boolean
+            pageIndexStream: PublishSubject<Pair<Long, String>>?,
+            hideExactTimes: Boolean
         ): TripPreviewHeaderFragment {
             return TripPreviewHeaderFragment().apply {
                 this.pageIndexStream = pageIndexStream

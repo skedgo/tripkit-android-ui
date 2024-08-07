@@ -34,16 +34,23 @@ class NearbyTripPreviewItemFragment() : BaseTripKitFragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        viewModel = ViewModelProviders.of(this).get("nearbyViewModel", NearbyTripPreviewItemViewModel::class.java)
-        sharedViewModel = ViewModelProviders.of(requireParentFragment(), sharedViewModelFactory).get("sharedNearbyViewModel", SharedNearbyTripPreviewItemViewModel::class.java)
-        sharedViewModel.closeClicked.observable.observeOn(AndroidSchedulers.mainThread()).subscribe { onCloseButtonListener?.onClick(null) }.addTo(autoDisposable)
+        viewModel = ViewModelProviders.of(this)
+            .get("nearbyViewModel", NearbyTripPreviewItemViewModel::class.java)
+        sharedViewModel = ViewModelProviders.of(requireParentFragment(), sharedViewModelFactory)
+            .get("sharedNearbyViewModel", SharedNearbyTripPreviewItemViewModel::class.java)
+        sharedViewModel.closeClicked.observable.observeOn(AndroidSchedulers.mainThread())
+            .subscribe { onCloseButtonListener?.onClick(null) }.addTo(autoDisposable)
         //sharedViewModel.setSegment(context!!, segment)
         segment?.let {
             sharedViewModel.setSegment(requireContext(), it)
         }
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         val binding = TripPreviewPagerNearbyItemBinding.inflate(inflater)
         val layoutManager = FlexboxLayoutManager(context)
         layoutManager.flexDirection = FlexDirection.ROW
@@ -59,18 +66,18 @@ class NearbyTripPreviewItemFragment() : BaseTripKitFragment() {
         viewModel.clearTransportModes()
 
         sharedViewModel.locationList
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe {
-                    viewModel.setLocations(it)
-                }.addTo(autoDisposable)
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe {
+                viewModel.setLocations(it)
+            }.addTo(autoDisposable)
         sharedViewModel.locationList
-                .observeOn(AndroidSchedulers.mainThread())
-                .flatMapIterable { item -> item }
-                .filter { it.modeInfo != null }
-                .map { location -> location.modeInfo!! }
-                .distinct { it.id }
-                .subscribe { mode -> viewModel.addMode(mode) }
-                .addTo(autoDisposable)
+            .observeOn(AndroidSchedulers.mainThread())
+            .flatMapIterable { item -> item }
+            .filter { it.modeInfo != null }
+            .map { location -> location.modeInfo!! }
+            .distinct { it.id }
+            .subscribe { mode -> viewModel.addMode(mode) }
+            .addTo(autoDisposable)
 
     }
 

@@ -3,10 +3,10 @@ package com.skedgo.tripkit.ui.utils
 import android.content.Context
 import com.skedgo.tripkit.common.util.DateTimeFormats
 import com.skedgo.tripkit.common.util.TimeUtils
-import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.routing.TripSegment
 import com.skedgo.tripkit.routing.endDateTime
 import com.skedgo.tripkit.routing.startDateTime
+import com.skedgo.tripkit.ui.R
 import javax.inject.Inject
 
 
@@ -58,7 +58,10 @@ class TripSegmentActionProcessor @Inject constructor() {
         out = locationsRegex.replace(out, "")
 
         if (stopsRegex.matches(out)) {
-            out = stopsRegex.replace(out, context.resources.getQuantityString(R.plurals.number_of_stops, segment.stopCount))
+            out = stopsRegex.replace(
+                out,
+                context.resources.getQuantityString(R.plurals.number_of_stops, segment.stopCount)
+            )
         }
 
         out = if (segment.platform != null) {

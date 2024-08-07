@@ -6,13 +6,13 @@ import androidx.databinding.ObservableField
 import androidx.databinding.ObservableFloat
 import androidx.databinding.ObservableInt
 import com.skedgo.tripkit.common.model.RealtimeAlert
+import com.skedgo.tripkit.routing.ModeInfo
 import com.skedgo.tripkit.ui.core.RxViewModel
 import com.skedgo.tripkit.ui.model.TimetableEntry
 import com.skedgo.tripkit.ui.trip.details.viewmodel.OccupancyViewModel
 import com.skedgo.tripkit.ui.trip.details.viewmodel.ServiceAlertViewModel
 import com.skedgo.tripkit.ui.utils.TapAction
 import org.joda.time.DateTimeZone
-import com.skedgo.tripkit.routing.ModeInfo
 
 abstract class ServiceViewModel() : RxViewModel() {
     abstract val occupancyViewModel: OccupancyViewModel
@@ -44,6 +44,10 @@ abstract class ServiceViewModel() : RxViewModel() {
     abstract var dateTimeZone: DateTimeZone
 
     abstract fun getRealTimeDeparture(): Long
-    abstract fun setService(_currentTripId: String, _service: TimetableEntry, _dateTimeZone: DateTimeZone)
+    abstract fun setService(
+        _currentTripId: String,
+        _service: TimetableEntry,
+        _dateTimeZone: DateTimeZone
+    )
 
 }

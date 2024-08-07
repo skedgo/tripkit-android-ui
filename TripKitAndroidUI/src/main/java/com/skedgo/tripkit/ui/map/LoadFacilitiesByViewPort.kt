@@ -2,10 +2,10 @@ package com.skedgo.tripkit.ui.map
 
 import com.skedgo.tripkit.data.database.locations.facility.FacilityLocationEntity
 import com.skedgo.tripkit.data.database.locations.facility.FacilityRepository
+import com.skedgo.tripkit.location.GeoPoint
 import com.skedgo.tripkit.ui.map.home.GetCellIdsFromViewPort
 import com.skedgo.tripkit.ui.map.home.ViewPort
 import io.reactivex.Observable
-import com.skedgo.tripkit.location.GeoPoint
 import javax.inject.Inject
 
 open class LoadFacilitiesByViewPort @Inject constructor(

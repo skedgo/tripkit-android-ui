@@ -19,7 +19,10 @@ import javax.inject.Inject
 class TripPreviewHeaderViewModel @Inject constructor() : RxViewModel() {
 
     val items: ObservableArrayList<TripSegmentSummaryItemViewModel> = ObservableArrayList()
-    val itemBinding = ItemBinding.of<TripSegmentSummaryItemViewModel>(BR.viewModel, R.layout.item_trip_segment_summary)
+    val itemBinding = ItemBinding.of<TripSegmentSummaryItemViewModel>(
+        BR.viewModel,
+        R.layout.item_trip_segment_summary
+    )
 
     private val _description = MutableLiveData<String>()
     val description: LiveData<String> = _description
@@ -33,7 +36,7 @@ class TripPreviewHeaderViewModel @Inject constructor() : RxViewModel() {
     private val _isHideExactTimes = MutableLiveData(false)
     val isHideExactTimes: LiveData<Boolean> = _isHideExactTimes
 
-    fun setHideExactTimes(value: Boolean){
+    fun setHideExactTimes(value: Boolean) {
         _isHideExactTimes.value = value
     }
 
@@ -43,26 +46,26 @@ class TripPreviewHeaderViewModel @Inject constructor() : RxViewModel() {
 
         items.clear()
         items.addAll(
-                segmentSummaryItems.mapIndexed { index, segmentSummary ->
-                    TripSegmentSummaryItemViewModel.parseFromTripSegmentSummary(
-                        segmentSummary, isRightToLeft
-                    ).apply {
-                        if (index == 0) {
-                            selected.set(true)
-                            segmentSummary.description?.let { desc ->
-                                _description.value = desc
-                                _showDescription.value = true
-                            }
+            segmentSummaryItems.mapIndexed { index, segmentSummary ->
+                TripSegmentSummaryItemViewModel.parseFromTripSegmentSummary(
+                    segmentSummary, isRightToLeft
+                ).apply {
+                    if (index == 0) {
+                        selected.set(true)
+                        segmentSummary.description?.let { desc ->
+                            _description.value = desc
+                            _showDescription.value = true
                         }
-
-                        itemClick.observable.onEach {
-                            it.id.get()?.apply {
-                                setSelectedById(this)
-                                _selectedSegmentId.value = Pair(this, it.modeId.get().toString())
-                            }
-                        }.launchIn(viewModelScope)
                     }
+
+                    itemClick.observable.onEach {
+                        it.id.get()?.apply {
+                            setSelectedById(this)
+                            _selectedSegmentId.value = Pair(this, it.modeId.get().toString())
+                        }
+                    }.launchIn(viewModelScope)
                 }
+            }
         )
     }
 
@@ -89,16 +92,16 @@ class TripPreviewHeaderViewModel @Inject constructor() : RxViewModel() {
                 when (it) {
                     getNextPreviousItemModeId(true) -> {
                         items[
-                                items.indexOfFirst { selectedItem ->
-                                    selectedItem.selected.get()
-                                } + 1
+                            items.indexOfFirst { selectedItem ->
+                                selectedItem.selected.get()
+                            } + 1
                         ]
                     }
                     getNextPreviousItemModeId(false) -> {
                         items[
-                                items.indexOfFirst { selectedItem ->
-                                    selectedItem.selected.get()
-                                } - 1
+                            items.indexOfFirst { selectedItem ->
+                                selectedItem.selected.get()
+                            } - 1
                         ]
                     }
                     else -> {

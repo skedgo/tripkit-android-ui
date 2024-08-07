@@ -16,42 +16,45 @@ class RealTimeRepositoryImpl @Inject constructor(
     private val regionService: RegionService
 ) : RealTimeRepository {
 
-  override fun getUpdates(region: String, elements: List<IRealTimeElement>): Single<List<RealTimeVehicle>> =
-      regionService.getRegionByNameAsync(region)
-          .flatMap {
-              Observable.fromIterable(it.urLs)
-          }
-          .map {
-            it.toHttpUrlOrNull()!!
-                .newBuilder()
-                .addPathSegment(LATEST_ENDPOINT)
-                .build()
-                .toString()
-          }
-          .map { url ->
-            val latestServices = elements.map {
-              ImmutableLatestService.builder()
-                  .operator(it.operator)
-                  .serviceTripID(it.serviceTripId)
-                  .startStopCode(it.startStopCode)
-                  .endStopCode(it.endStopCode)
-                  .startTime(it.startTimeInSecs)
-                  .build()
+    override fun getUpdates(
+        region: String,
+        elements: List<IRealTimeElement>
+    ): Single<List<RealTimeVehicle>> =
+        regionService.getRegionByNameAsync(region)
+            .flatMap {
+                Observable.fromIterable(it.urLs)
             }
-
-            val requestBody = ImmutableLatestRequestBody.builder()
-                .region(region)
-                .services(latestServices)
-                .build()
-
-            latestApi.request(url, requestBody)
-          }
-          .scan { a, b -> a.onErrorResumeNext { b } }
-          .lastOrError()
-          .flatMap { it }
-          .map { latestResponse ->
-            latestResponse.services().map {
-              it.toRealTimeVehicle()
+            .map {
+                it.toHttpUrlOrNull()!!
+                    .newBuilder()
+                    .addPathSegment(LATEST_ENDPOINT)
+                    .build()
+                    .toString()
             }
-          }
+            .map { url ->
+                val latestServices = elements.map {
+                    ImmutableLatestService.builder()
+                        .operator(it.operator)
+                        .serviceTripID(it.serviceTripId)
+                        .startStopCode(it.startStopCode)
+                        .endStopCode(it.endStopCode)
+                        .startTime(it.startTimeInSecs)
+                        .build()
+                }
+
+                val requestBody = ImmutableLatestRequestBody.builder()
+                    .region(region)
+                    .services(latestServices)
+                    .build()
+
+                latestApi.request(url, requestBody)
+            }
+            .scan { a, b -> a.onErrorResumeNext { b } }
+            .lastOrError()
+            .flatMap { it }
+            .map { latestResponse ->
+                latestResponse.services().map {
+                    it.toRealTimeVehicle()
+                }
+            }
 }

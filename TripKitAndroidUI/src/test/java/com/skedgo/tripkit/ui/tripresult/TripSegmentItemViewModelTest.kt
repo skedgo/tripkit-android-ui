@@ -13,6 +13,7 @@ import com.skedgo.tripkit.ui.base.MockKTest
 import com.skedgo.tripkit.ui.trip.details.viewmodel.OccupancyViewModel
 import com.skedgo.tripkit.ui.tripresults.GetTransportIconTintStrategy
 import com.skedgo.tripkit.ui.tripresults.TripSegmentHelper
+import com.skedgo.tripkit.ui.utils.TransportModeSharedPreference
 import io.mockk.MockKAnnotations
 import io.mockk.Runs
 import io.mockk.every
@@ -29,7 +30,7 @@ import org.junit.runner.RunWith
 import org.mockito.junit.MockitoJUnitRunner
 
 @RunWith(MockitoJUnitRunner::class)
-class TripSegmentItemViewModelTest: MockKTest() {
+class TripSegmentItemViewModelTest : MockKTest() {
 
     private lateinit var context: Context
 
@@ -44,6 +45,9 @@ class TripSegmentItemViewModelTest: MockKTest() {
 
     @MockK
     private lateinit var printTime: PrintTime
+
+    @MockK(relaxed = true)
+    private lateinit var transportModeSharedPreference: TransportModeSharedPreference
 
     private lateinit var viewModel: TripSegmentItemViewModel
 
@@ -72,7 +76,8 @@ class TripSegmentItemViewModelTest: MockKTest() {
             getTransportIconTintStrategy,
             tripSegmentHelper,
             printTime,
-            occupancyViewModel
+            occupancyViewModel,
+            transportModeSharedPreference
         )
 
     }

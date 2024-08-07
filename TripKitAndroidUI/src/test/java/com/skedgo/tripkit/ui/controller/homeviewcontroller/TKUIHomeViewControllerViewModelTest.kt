@@ -34,7 +34,7 @@ import org.mockito.junit.MockitoJUnitRunner
 import java.lang.RuntimeException
 
 @RunWith(MockitoJUnitRunner::class)
-class TKUIHomeViewControllerViewModelTest: MockKTest() {
+class TKUIHomeViewControllerViewModelTest : MockKTest() {
 
     private lateinit var viewModel: TKUIHomeViewControllerViewModel
 
@@ -104,7 +104,9 @@ class TKUIHomeViewControllerViewModelTest: MockKTest() {
     @Test
     fun `getUserGeoPoint GeoPoint returns an exception so try should return failed`() {
         val exception = RuntimeException("error")
-        every { userGeoPointRepository.getFirstCurrentGeoPoint() } returns Observable.error(exception)
+        every { userGeoPointRepository.getFirstCurrentGeoPoint() } returns Observable.error(
+            exception
+        )
 
         val locationSubscriber = TestObserver<Try<Location>>()
 
@@ -161,7 +163,14 @@ class TKUIHomeViewControllerViewModelTest: MockKTest() {
         viewModel.handleFixedSuggestionAction(FixedSuggestions.HOME)
 
         // Verify that the correct event is published
-        verify { eventBus.publish(ViewControllerEvent.OnLocationChosen(homeLocation, LocationField.NONE)) }
+        verify {
+            eventBus.publish(
+                ViewControllerEvent.OnLocationChosen(
+                    homeLocation,
+                    LocationField.NONE
+                )
+            )
+        }
     }
 
     @Test
@@ -173,6 +182,13 @@ class TKUIHomeViewControllerViewModelTest: MockKTest() {
         viewModel.handleFixedSuggestionAction(FixedSuggestions.WORK)
 
         // Verify that the correct event is published
-        verify { eventBus.publish(ViewControllerEvent.OnLocationChosen(workLocation, LocationField.NONE)) }
+        verify {
+            eventBus.publish(
+                ViewControllerEvent.OnLocationChosen(
+                    workLocation,
+                    LocationField.NONE
+                )
+            )
+        }
     }
 }

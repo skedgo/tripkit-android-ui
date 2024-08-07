@@ -36,8 +36,12 @@ object CreateMarkerFoFacility {
         canvas.drawCircle(fillCenter, fillCenter, strokeCenter, paint)
 
         val contentPadding = resources.getDimensionPixelSize(R.dimen.map_icon_padding).toFloat()
-        TripGoStyleKit.drawIconcarshare(canvas, RectF(contentPadding, contentPadding,
-            iconSize - contentPadding, iconSize - contentPadding), TripGoStyleKit.ResizingBehavior.AspectFit)
+        TripGoStyleKit.drawIconcarshare(
+            canvas, RectF(
+                contentPadding, contentPadding,
+                iconSize - contentPadding, iconSize - contentPadding
+            ), TripGoStyleKit.ResizingBehavior.AspectFit
+        )
 
         return MarkerOptions()
             .title(facilityLocation.name)

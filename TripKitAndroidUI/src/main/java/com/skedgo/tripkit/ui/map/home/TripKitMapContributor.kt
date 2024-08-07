@@ -30,6 +30,7 @@ interface TripKitMapContributor {
      * Called when an info window is clicked.
      */
     fun getInfoContents(marker: Marker): View?
+
     /**
      * Called either from `onStop()` or when the map is switching to another contributor.
      */

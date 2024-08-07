@@ -1,10 +1,10 @@
 package com.skedgo.tripkit.ui.map
 
+import com.skedgo.tripkit.parkingspots.ParkingRepository
+import com.skedgo.tripkit.parkingspots.models.OffStreetParking
 import com.skedgo.tripkit.ui.map.home.GetCellIdsFromViewPort
 import com.skedgo.tripkit.ui.map.home.ViewPort
 import io.reactivex.Observable
-import com.skedgo.tripkit.parkingspots.ParkingRepository
-import com.skedgo.tripkit.parkingspots.models.OffStreetParking
 import javax.inject.Inject
 
 open class LoadCarParksByViewPort @Inject constructor(

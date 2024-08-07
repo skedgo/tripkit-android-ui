@@ -26,18 +26,22 @@ class RouteInputView : CardView, View.OnClickListener {
              * The "Start" EditText.
              */
             START,
+
             /**
              * The "Destination" EditText.
              */
             DESTINATION,
+
             /**
              * The "Swap Start and Destination" button.
              */
             SWAPPED,
+
             /**
              * The "Set Time" button.
              */
             TIME,
+
             /**
              * The "Route" button.
              */
@@ -62,8 +66,9 @@ class RouteInputView : CardView, View.OnClickListener {
     fun setOnRouteWidgetClickedListener(callback: OnRouteWidgetClickedListener) {
         this.mRouteWidgetClickedListener = callback
     }
-    fun setOnRouteWidgetClickedListener(listener:(OnRouteWidgetClickedListener.Widget) -> Unit) {
-        this.mRouteWidgetClickedListener = object: OnRouteWidgetClickedListener {
+
+    fun setOnRouteWidgetClickedListener(listener: (OnRouteWidgetClickedListener.Widget) -> Unit) {
+        this.mRouteWidgetClickedListener = object : OnRouteWidgetClickedListener {
             override fun widgetClicked(button: OnRouteWidgetClickedListener.Widget) {
                 listener(button)
             }
@@ -84,7 +89,7 @@ class RouteInputView : CardView, View.OnClickListener {
         TripKitUI.getInstance().routeInputViewComponent().inject(this)
 
         val inflater = context
-                .getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+            .getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         inflater.inflate(R.layout.route_input, this, true)
 
         startEdit = findViewById<EditText>(R.id.startEdit)
@@ -103,10 +108,18 @@ class RouteInputView : CardView, View.OnClickListener {
     override fun onClick(view: View?) {
         view?.let {
             when (it.id) {
-                R.id.startEdit -> mRouteWidgetClickedListener?.widgetClicked(OnRouteWidgetClickedListener.Widget.START)
-                R.id.destEdit -> mRouteWidgetClickedListener?.widgetClicked(OnRouteWidgetClickedListener.Widget.DESTINATION)
-                R.id.timeButton -> mRouteWidgetClickedListener?.widgetClicked(OnRouteWidgetClickedListener.Widget.TIME)
-                R.id.routeButton -> mRouteWidgetClickedListener?.widgetClicked(OnRouteWidgetClickedListener.Widget.ROUTE)
+                R.id.startEdit -> mRouteWidgetClickedListener?.widgetClicked(
+                    OnRouteWidgetClickedListener.Widget.START
+                )
+                R.id.destEdit -> mRouteWidgetClickedListener?.widgetClicked(
+                    OnRouteWidgetClickedListener.Widget.DESTINATION
+                )
+                R.id.timeButton -> mRouteWidgetClickedListener?.widgetClicked(
+                    OnRouteWidgetClickedListener.Widget.TIME
+                )
+                R.id.routeButton -> mRouteWidgetClickedListener?.widgetClicked(
+                    OnRouteWidgetClickedListener.Widget.ROUTE
+                )
                 R.id.swap -> {
                     val startText = startEdit?.text.toString()
                     val destText = destEdit?.text.toString()

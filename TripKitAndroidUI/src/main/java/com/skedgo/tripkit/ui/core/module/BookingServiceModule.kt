@@ -13,12 +13,16 @@ import retrofit2.converter.gson.GsonConverterFactory
 @Module
 class BookingServiceModule {
     @Provides
-    fun bookingV2TrackingApi(builder: Retrofit.Builder, client: OkHttpClient?): BookingV2TrackingApi? {
-        val gson = GsonBuilder().registerTypeAdapterFactory(GsonAdaptersBookingV2LogTripResponse()).create()
+    fun bookingV2TrackingApi(
+        builder: Retrofit.Builder,
+        client: OkHttpClient?
+    ): BookingV2TrackingApi? {
+        val gson = GsonBuilder().registerTypeAdapterFactory(GsonAdaptersBookingV2LogTripResponse())
+            .create()
         return builder.addConverterFactory(GsonConverterFactory.create(gson))
-                .client(client)
-                .build()
-                .create(BookingV2TrackingApi::class.java)
+            .client(client)
+            .build()
+            .create(BookingV2TrackingApi::class.java)
     }
 
     @Provides

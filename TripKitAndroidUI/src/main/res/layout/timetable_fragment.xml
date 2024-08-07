@@ -61,7 +61,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="@+id/nameOfStation"
             app:layout_constraintTop_toBottomOf="@+id/nameOfStation"
-            tools:listitem="@layout/timetable_header_line_item"/>
+            tools:listitem="@layout/timetable_header_line_item" />
 
         <LinearLayout
             android:id="@+id/buttonLayout"

@@ -1,9 +1,5 @@
 package com.skedgo.tripkit.ui.interactor
 
-import com.skedgo.tripkit.ui.payment.PaymentData
-import io.reactivex.Observable
-import io.reactivex.subjects.PublishSubject
-
 //object TripKitEventBus {
 //    private val publisher = PublishSubject.create<Any>()
 //

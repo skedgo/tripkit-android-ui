@@ -9,9 +9,9 @@ import org.immutables.value.Value
 @Value.Style(passAnnotations = [JsonAdapter::class])
 @JsonAdapter(GsonAdaptersLatestService::class)
 interface LatestService {
-  fun operator(): String
-  fun serviceTripID(): String
-  fun startStopCode(): String
-  fun startTime(): Long
-  fun endStopCode(): String?
+    fun operator(): String
+    fun serviceTripID(): String
+    fun startStopCode(): String
+    fun startTime(): Long
+    fun endStopCode(): String?
 }

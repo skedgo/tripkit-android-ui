@@ -18,10 +18,11 @@ import me.tatarka.bindingcollectionadapter2.ItemBinding
 import timber.log.Timber
 import javax.inject.Inject
 
-class ModeLocationTripPreviewViewModel @Inject constructor(private val locationInfoService: LocationInfoService)
-    : RxViewModel() {
+class ModeLocationTripPreviewViewModel @Inject constructor(private val locationInfoService: LocationInfoService) :
+    RxViewModel() {
     val infoGroups = ObservableArrayList<InfoGroupViewModel>()
-    val infoGroupBinding: ItemBinding<InfoGroupViewModel> = ItemBinding.of(BR.viewModel, R.layout.trip_preview_pager_nearby_info_group_item)
+    val infoGroupBinding: ItemBinding<InfoGroupViewModel> =
+        ItemBinding.of(BR.viewModel, R.layout.trip_preview_pager_nearby_info_group_item)
 
     var address = ObservableField<String>("")
     var showAddress = ObservableBoolean(false)
@@ -34,24 +35,28 @@ class ModeLocationTripPreviewViewModel @Inject constructor(private val locationI
     fun set(segment: TripSegment) {
         infoGroups.clear()
         locationInfoService.getLocationInfoAsync(segment.singleLocation)
-                .take(1)
-                .subscribe({
-                    val w3w = it.details()?.w3w()
-                    if (!w3w.isNullOrBlank()) {
-                        this.what3words.set(w3w)
-                        this.showWhat3words.set(true)
-                    }
-                }, { Timber.e(it) })
-                .autoClear()
+            .take(1)
+            .subscribe({
+                val w3w = it.details()?.w3w()
+                if (!w3w.isNullOrBlank()) {
+                    this.what3words.set(w3w)
+                    this.showWhat3words.set(true)
+                }
+            }, { Timber.e(it) })
+            .autoClear()
         if (segment.sharedVehicle != null) {
             val vehicle = segment.sharedVehicle
             val vehicleVm = InfoGroupViewModel()
-            vehicleVm.title.set(vehicle.vehicleType()?.title()
+            vehicleVm.title.set(
+                vehicle.vehicleType()?.title()
                     ?: getSharedVehicleType(vehicle.vehicleTypeInfo()?.formFactor ?: "")?.title()
-                    ?: R.string.car)
+                    ?: R.string.car
+            )
             vehicleVm.value.set(vehicle.name())
-            vehicleVm.icon.set(vehicle.vehicleType()?.iconId
-                    ?: getSharedVehicleType(vehicle.vehicleTypeInfo()?.formFactor ?: "")?.iconId)
+            vehicleVm.icon.set(
+                vehicle.vehicleType()?.iconId
+                    ?: getSharedVehicleType(vehicle.vehicleTypeInfo()?.formFactor ?: "")?.iconId
+            )
             infoGroups.add(vehicleVm)
 
             if (vehicle.batteryRange() != null) {
@@ -65,13 +70,13 @@ class ModeLocationTripPreviewViewModel @Inject constructor(private val locationI
                 batteryLevelVm.title.set(R.string.battery)
                 batteryLevelVm.value.set(String.format("%d%%", vehicle.batteryLevel()))
                 batteryLevelVm.icon.set(
-                        when {
-                            vehicle.batteryLevel()!! < 12 -> R.drawable.ic_battery_0
-                            vehicle.batteryLevel()!! < 37 -> R.drawable.ic_battery_25
-                            vehicle.batteryLevel()!! < 62 -> R.drawable.ic_battery_50
-                            vehicle.batteryLevel()!! < 87 -> R.drawable.ic_battery_75
-                            else -> R.drawable.ic_battery_100
-                        }
+                    when {
+                        vehicle.batteryLevel()!! < 12 -> R.drawable.ic_battery_0
+                        vehicle.batteryLevel()!! < 37 -> R.drawable.ic_battery_25
+                        vehicle.batteryLevel()!! < 62 -> R.drawable.ic_battery_50
+                        vehicle.batteryLevel()!! < 87 -> R.drawable.ic_battery_75
+                        else -> R.drawable.ic_battery_100
+                    }
                 )
                 infoGroups.add(batteryLevelVm)
             }

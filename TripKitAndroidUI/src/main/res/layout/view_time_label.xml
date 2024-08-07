@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <TextView xmlns:android="http://schemas.android.com/apk/res/android"
-          xmlns:tools="http://schemas.android.com/tools"
-          android:layout_width="wrap_content"
-          android:layout_height="@dimen/time_label_height"
-          android:gravity="center"
-          android:paddingLeft="@dimen/v4_content_padding"
-          android:paddingRight="@dimen/v4_content_padding"
-          android:textColor="@android:color/white"
-          android:textSize="12sp"
-          tools:background="@drawable/v4_shape_map_time_label"
-          tools:text="12:00" />
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="@dimen/time_label_height"
+    android:gravity="center"
+    android:paddingLeft="@dimen/v4_content_padding"
+    android:paddingRight="@dimen/v4_content_padding"
+    android:textColor="@android:color/white"
+    android:textSize="12sp"
+    tools:background="@drawable/v4_shape_map_time_label"
+    tools:text="12:00" />

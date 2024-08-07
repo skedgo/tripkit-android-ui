@@ -2,29 +2,19 @@ package com.skedgo.tripkit.ui.controller.poidetails
 
 import android.content.Context
 import android.os.Bundle
-import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import androidx.core.view.WindowInsetsCompat
-import androidx.lifecycle.lifecycleScope
 import com.skedgo.tripkit.common.model.Location
-import com.skedgo.tripkit.ui.ARG_IS_DEPARTURE
-import com.skedgo.tripkit.ui.ARG_IS_ROUTING
-import com.skedgo.tripkit.ui.ARG_LOCATION
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.TripKitUI
-import com.skedgo.tripkit.ui.controller.ControllerDataProvider
 import com.skedgo.tripkit.ui.controller.ViewControllerEvent
 import com.skedgo.tripkit.ui.controller.ViewControllerEventBus
 import com.skedgo.tripkit.ui.controller.utils.LocationField
-import com.skedgo.tripkit.ui.controller.utils.actionhandler.TKUIActionButtonHandler
 import com.skedgo.tripkit.ui.core.BaseFragment
 import com.skedgo.tripkit.ui.core.addTo
 import com.skedgo.tripkit.ui.databinding.FragmentTkuiPoiDetailsBinding
 import com.skedgo.tripkit.ui.poidetails.PoiDetailsFragment
 import com.skedgo.tripkit.ui.utils.defocusAndHideKeyboard
-import com.skedgo.tripkit.ui.utils.hideKeyboard
 import javax.inject.Inject
 
 class TKUIPoiDetailsFragment : BaseFragment<FragmentTkuiPoiDetailsBinding>() {

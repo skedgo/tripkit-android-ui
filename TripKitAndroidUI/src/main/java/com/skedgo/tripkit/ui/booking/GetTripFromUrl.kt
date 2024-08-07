@@ -8,8 +8,8 @@ import io.reactivex.Observable
 interface GetTripFromUrl {
 
     data class WaypointResponse(
-            val tripGroup: TripGroup? = null,
-            val error: String? = ""
+        val tripGroup: TripGroup? = null,
+        val error: String? = ""
     )
 
     fun execute(config: RoutingConfig, waypoints: List<Waypoint>): Observable<WaypointResponse?>

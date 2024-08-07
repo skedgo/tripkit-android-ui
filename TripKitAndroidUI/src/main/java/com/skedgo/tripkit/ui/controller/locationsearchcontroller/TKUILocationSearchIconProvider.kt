@@ -5,11 +5,16 @@ import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.search.LocationSearchIconProvider
 
 class TKUILocationSearchIconProvider : LocationSearchIconProvider {
-    override fun iconForSearchResult(resultType: LocationSearchIconProvider.SearchResultType, stopType: StopType?): Int {
+    override fun iconForSearchResult(
+        resultType: LocationSearchIconProvider.SearchResultType,
+        stopType: StopType?
+    ): Int {
         return when (resultType) {
             LocationSearchIconProvider.SearchResultType.CURRENT_LOCATION -> R.drawable.ic_search_current_location
             LocationSearchIconProvider.SearchResultType.DROP_PIN -> R.drawable.ic_search_choose_on_map
-            LocationSearchIconProvider.SearchResultType.SCHEDULED_STOP -> getIconForScheduledStop(stopType)
+            LocationSearchIconProvider.SearchResultType.SCHEDULED_STOP -> getIconForScheduledStop(
+                stopType
+            )
             LocationSearchIconProvider.SearchResultType.CONTACT -> R.drawable.ic_contact_search
             LocationSearchIconProvider.SearchResultType.CALENDAR -> R.drawable.ic_search_calendar
             LocationSearchIconProvider.SearchResultType.W3W -> R.drawable.icon_what3word_gray

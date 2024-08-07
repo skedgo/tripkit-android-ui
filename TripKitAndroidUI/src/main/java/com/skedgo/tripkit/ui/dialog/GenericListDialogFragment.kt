@@ -45,13 +45,18 @@ class GenericListDialogFragment : DialogFragment(), GenericListDialogFragmentHan
         super.onStart()
 
         dialog?.apply {
-            window?.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
+            window?.setLayout(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT
+            )
             window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         }
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View {
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
         binding = DialogGenericListBinding.inflate(inflater, container, false)
 
         return binding.root
@@ -158,8 +163,10 @@ class GenericListDialogFragment : DialogFragment(), GenericListDialogFragmentHan
                     ARGS_TITLE to title,
                     ARGS_LIST_SELECTION to Gson().toJson(selection),
                     ARGS_IS_SINGLE_SELECTION to isSingleSelection,
-                    ARGS_PREVIOUSLY_SELECTED to Gson().toJson(previousSelectedValues
-                        ?: emptyList<String>()),
+                    ARGS_PREVIOUSLY_SELECTED to Gson().toJson(
+                        previousSelectedValues
+                            ?: emptyList<String>()
+                    ),
                     ARGS_VIEW_ONLY_MODE to viewOnlyMode,
                 )
                 this.onConfirm = onConfirmCallback

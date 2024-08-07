@@ -14,8 +14,11 @@ import com.skedgo.tripkit.ui.trippreview.handleExternalAction
 class ExternalActionTripPreviewItemViewModel : TripPreviewPagerItemViewModel() {
     val items = ObservableArrayList<ExternalActionViewModel>()
 
-    val binding = ItemBinding.of<ExternalActionViewModel>(BR.viewModel, R.layout.trip_preview_external_action_pager_list_item)
-            .bindExtra(BR.parentViewModel, this)
+    val binding = ItemBinding.of<ExternalActionViewModel>(
+        BR.viewModel,
+        R.layout.trip_preview_external_action_pager_list_item
+    )
+        .bindExtra(BR.parentViewModel, this)
 
     override fun setSegment(context: Context, segment: TripSegment) {
         super.setSegment(context, segment)

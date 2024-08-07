@@ -35,7 +35,8 @@ class FavoritesModule {
         val gson = GsonConverterFactory.create(
             GsonBuilder()
                 .registerTypeAdapter(Waypoint::class.java, WaypointsAdapter())
-                .create())
+                .create()
+        )
         return builder
             .addConverterFactory(gson)
             .client(httpClient)

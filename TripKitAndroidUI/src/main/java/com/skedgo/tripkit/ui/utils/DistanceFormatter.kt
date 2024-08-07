@@ -1,9 +1,8 @@
 package com.skedgo.tripkit.ui.utils
 
-import timber.log.Timber
 import java.text.DecimalFormat
 import java.text.NumberFormat
-import java.util.*
+import java.util.Locale
 import kotlin.math.floor
 
 /**
@@ -20,10 +19,12 @@ object DistanceFormatter {
         MILES,
         KILOMETERS
     }
+
     private const val METERS_IN_ONE_MILE = 1609.0
     private const val METERS_IN_ONE_FOOT = 0.3048
     private const val FEET_IN_ONE_MILE = 5280.0
     private var decimalFormat: DecimalFormat? = null
+
     /**
      * Format a distance for display
      *
@@ -35,6 +36,7 @@ object DistanceFormatter {
         val locale = Locale.getDefault()
         return format(distanceInMeters, locale)
     }
+
     /**
      * Format distance for display using specified distance units.
      *
@@ -43,7 +45,7 @@ object DistanceFormatter {
      * @return distance string formatted according to the rules of the formatter.
      */
     fun format(distanceInMeters: Int, units: DistanceUnits): String {
-        return format(distanceInMeters,  Locale.getDefault(), units)
+        return format(distanceInMeters, Locale.getDefault(), units)
     }
 
     /**
@@ -69,8 +71,10 @@ object DistanceFormatter {
      * @param units miles or kilometers.
      * @return distance string formatted according to the rules of the formatter.
      */
-    fun format(distanceInMeters: Int, locale: Locale,
-               units: DistanceUnits): String {
+    fun format(
+        distanceInMeters: Int, locale: Locale,
+        units: DistanceUnits
+    ): String {
         decimalFormat = NumberFormat.getNumberInstance(locale) as DecimalFormat
         decimalFormat!!.applyPattern("#.#")
         return if (distanceInMeters == 0) {
@@ -93,7 +97,7 @@ object DistanceFormatter {
     private fun formatKilometers(distanceInMeters: Int): String {
         return if (distanceInMeters < 1000) {
             formatDistanceInMeters(distanceInMeters)
-        } else  {
+        } else {
             formatDistanceInKilometers(distanceInMeters)
         }
     }
@@ -117,8 +121,10 @@ object DistanceFormatter {
     }
 
     private fun formatDistanceInMiles(distanceInMeters: Int): String {
-        return String.format(Locale.getDefault(), "%s mi",
-                decimalFormat!!.format(distanceInMeters / METERS_IN_ONE_MILE))
+        return String.format(
+            Locale.getDefault(), "%s mi",
+            decimalFormat!!.format(distanceInMeters / METERS_IN_ONE_MILE)
+        )
     }
 
     private fun roundDownToNearestTen(distance: Double): Int {

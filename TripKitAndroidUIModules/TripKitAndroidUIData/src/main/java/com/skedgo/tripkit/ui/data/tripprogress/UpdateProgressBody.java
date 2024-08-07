@@ -1,4 +1,5 @@
 package com.skedgo.tripkit.ui.data.tripprogress;
+
 import com.google.gson.annotations.JsonAdapter;
 
 import java.util.List;
@@ -9,18 +10,19 @@ import static org.immutables.value.Value.Style;
 
 @Immutable
 @Style(
-        overshadowImplementation = true,
-        passAnnotations = JsonAdapter.class
+    overshadowImplementation = true,
+    passAnnotations = JsonAdapter.class
 )
 @TypeAdapters
 @JsonAdapter(GsonAdaptersUpdateProgressBody.class)
 public abstract class UpdateProgressBody {
 
-  public static Builder builder() {
-    return new Builder();
-  }
+    public static Builder builder() {
+        return new Builder();
+    }
 
-  public abstract List<LocationSampleDto> samples();
+    public abstract List<LocationSampleDto> samples();
 
-  public static class Builder extends ImmutableUpdateProgressBody.Builder {}
+    public static class Builder extends ImmutableUpdateProgressBody.Builder {
+    }
 }

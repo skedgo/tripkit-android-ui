@@ -7,14 +7,15 @@ import javax.inject.Inject
 open class GetCurrentMapCameraPosition @Inject internal constructor(
     private val userGeoPointRepository: UserGeoPointRepository
 ) {
-  open fun execute(): Observable<MapCameraPosition> = userGeoPointRepository.getFirstCurrentGeoPoint()
-      .map {
-        MapCameraPosition(
-            lat = it.latitude,
-            lng = it.longitude,
-            zoom = 15f,
-            tilt = 0f,
-            bearing = 0f
-        )
-      }
+    open fun execute(): Observable<MapCameraPosition> =
+        userGeoPointRepository.getFirstCurrentGeoPoint()
+            .map {
+                MapCameraPosition(
+                    lat = it.latitude,
+                    lng = it.longitude,
+                    zoom = 15f,
+                    tilt = 0f,
+                    bearing = 0f
+                )
+            }
 }

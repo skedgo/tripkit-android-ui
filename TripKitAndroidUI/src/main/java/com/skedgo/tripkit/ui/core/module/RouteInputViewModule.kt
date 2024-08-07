@@ -9,6 +9,6 @@ import dagger.Provides
 class RouteInputViewModule {
     @Provides
     internal fun routeInputViewModel()
-            : RouteInputViewModel = RouteInputViewModel()
+        : RouteInputViewModel = RouteInputViewModel()
 
 }

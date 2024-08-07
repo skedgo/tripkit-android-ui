@@ -33,6 +33,7 @@ class StandardTripPreviewItemFragment : BaseTripKitFragment() {
     lateinit var sharedViewModel: SharedNearbyTripPreviewItemViewModel
     lateinit var vm: TripPreviewPagerItemViewModel
     lateinit var binding: TripPreviewPagerItemBinding
+
     @Inject
     lateinit var bookingService: BookingService
 
@@ -45,11 +46,16 @@ class StandardTripPreviewItemFragment : BaseTripKitFragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        sharedViewModel = ViewModelProviders.of(requireParentFragment(), sharedViewModelFactory).get("sharedNearbyViewModel", SharedNearbyTripPreviewItemViewModel::class.java)
+        sharedViewModel = ViewModelProviders.of(requireParentFragment(), sharedViewModelFactory)
+            .get("sharedNearbyViewModel", SharedNearbyTripPreviewItemViewModel::class.java)
         vm = ViewModelProviders.of(this).get(TripPreviewPagerItemViewModel::class.java)
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         binding = TripPreviewPagerItemBinding.inflate(inflater)
         segment?.let {
             vm.setSegment(requireContext(), it)
@@ -61,25 +67,27 @@ class StandardTripPreviewItemFragment : BaseTripKitFragment() {
 
     override fun onResume() {
         super.onResume()
-        vm.closeClicked.observable.observeOn(AndroidSchedulers.mainThread()).subscribe{ onCloseButtonListener?.onClick(null) }.addTo(autoDisposable)
+        vm.closeClicked.observable.observeOn(AndroidSchedulers.mainThread())
+            .subscribe { onCloseButtonListener?.onClick(null) }.addTo(autoDisposable)
         sharedViewModel.bookingForm.observeOn(AndroidSchedulers.mainThread())
-                .subscribe {
-                    binding.actionButtonLayout.removeAllViews()
-                    processForm(it)
-                }
-                .addTo(autoDisposable)
+            .subscribe {
+                binding.actionButtonLayout.removeAllViews()
+                processForm(it)
+            }
+            .addTo(autoDisposable)
 
     }
 
     private fun processForm(form: BookingForm) {
-        form.form.forEach {formGroup ->
+        form.form.forEach { formGroup ->
             formGroup.fields.forEach { formField ->
                 if (formField.id == "booking_status") {
                     vm.messageTitle.set(formField.title)
                     vm.message.set(formField.sidetitle)
                     vm.messageVisible.set(true)
                 } else if (formField.id == "end_booking" && formField is LinkFormField) {
-                    val newButton = MaterialButton(requireContext(), null, R.attr.borderlessButtonStyle)
+                    val newButton =
+                        MaterialButton(requireContext(), null, R.attr.borderlessButtonStyle)
                     newButton.text = formField.title
                     newButton.setOnClickListener {
                         runAction(formField)
@@ -92,19 +100,20 @@ class StandardTripPreviewItemFragment : BaseTripKitFragment() {
 
         }
     }
+
     private fun runAction(formField: LinkFormField) {
         formField.value?.let {
             // This should actually be a post, though.
             bookingService.getFormAsync(it)
-                    .observeOn(mainThread())
-                    .subscribe({
-                        sharedViewModel.bookingForm.accept(it)
-                    }, {}).addTo(autoDisposable)
+                .observeOn(mainThread())
+                .subscribe({
+                    sharedViewModel.bookingForm.accept(it)
+                }, {}).addTo(autoDisposable)
         }
     }
 
-    companion object{
-        fun newInstance(segment: TripSegment): StandardTripPreviewItemFragment{
+    companion object {
+        fun newInstance(segment: TripSegment): StandardTripPreviewItemFragment {
             val fragment = StandardTripPreviewItemFragment()
             fragment.segment = segment
             return fragment

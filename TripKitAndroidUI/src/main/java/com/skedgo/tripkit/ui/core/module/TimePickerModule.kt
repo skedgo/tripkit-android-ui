@@ -7,19 +7,19 @@ import com.skedgo.tripkit.ui.trip.options.InterCityTimePickerViewModel
 import com.squareup.otto.Bus
 import dagger.Module
 import dagger.Provides
-import java.util.*
+import java.util.TimeZone
 
 @Module
 class TimePickerModule {
-  @Provides
-  fun timePickerViewModel(
-      context: Context,
-      bus: Bus,
-      getNow: GetNow
-  ): ITimePickerViewModel = InterCityTimePickerViewModel(
-      context,
-      bus,
-      getNow,
-      TimeZone.getDefault().id
-  )
+    @Provides
+    fun timePickerViewModel(
+        context: Context,
+        bus: Bus,
+        getNow: GetNow
+    ): ITimePickerViewModel = InterCityTimePickerViewModel(
+        context,
+        bus,
+        getNow,
+        TimeZone.getDefault().id
+    )
 }

@@ -5,13 +5,15 @@ import com.skedgo.tripkit.ui.map.home.TripKitMapFragment
 import dagger.Module
 import dagger.Provides
 
-@Module(includes = [ ServiceAlertDataModule::class,
-  CameraPositionDataModule::class,
-  DefaultStopInfoWindowAdapterModule::class,
-  DefaultLoadPOILocationsByViewPortModule::class])
+@Module(
+    includes = [ServiceAlertDataModule::class,
+        CameraPositionDataModule::class,
+        DefaultStopInfoWindowAdapterModule::class,
+        DefaultLoadPOILocationsByViewPortModule::class]
+)
 class HomeMapFragmentModule(fragment: TripKitMapFragment) {
-  private val inflater = fragment.layoutInflater
+    private val inflater = fragment.layoutInflater
 
-  @Provides
-  fun layoutInflater(): LayoutInflater = inflater
+    @Provides
+    fun layoutInflater(): LayoutInflater = inflater
 }

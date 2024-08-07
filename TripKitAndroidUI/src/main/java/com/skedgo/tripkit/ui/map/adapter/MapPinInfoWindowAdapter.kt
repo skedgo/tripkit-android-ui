@@ -9,7 +9,9 @@ import com.google.android.gms.maps.model.Marker
 import com.skedgo.tripkit.ui.R
 
 class MapPinInfoWindowAdapter(private val context: Context) : StopInfoWindowAdapter {
-    val view: View by lazy { LayoutInflater.from(context).inflate(R.layout.map_pin_info_window, null, false) }
+    val view: View by lazy {
+        LayoutInflater.from(context).inflate(R.layout.map_pin_info_window, null, false)
+    }
 
     @SuppressLint("InflateParams")
     override fun getInfoWindow(marker: Marker): View {

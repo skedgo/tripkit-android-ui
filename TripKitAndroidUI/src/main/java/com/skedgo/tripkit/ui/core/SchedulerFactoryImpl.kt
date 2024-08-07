@@ -7,7 +7,7 @@ import io.reactivex.schedulers.Schedulers.io
 import javax.inject.Inject
 
 class SchedulerFactoryImpl @Inject internal constructor() : SchedulerFactory {
-  override val mainScheduler: Scheduler = mainThread()
-  override val ioScheduler: Scheduler = io()
-  override val computationScheduler: Scheduler = computation()
+    override val mainScheduler: Scheduler = mainThread()
+    override val ioScheduler: Scheduler = io()
+    override val computationScheduler: Scheduler = computation()
 }

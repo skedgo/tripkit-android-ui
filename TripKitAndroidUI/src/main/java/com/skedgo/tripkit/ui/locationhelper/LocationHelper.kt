@@ -50,8 +50,8 @@ class LocationHelper constructor(private var context: Context) {
      * @param listener A function to be called when a location is found.
      * @param error A function to be called when an error occurred.
      */
-    fun getCurrentLocation(listener:(Location) -> Unit, error:(String) -> Unit) {
-        this.listener = object: OnLocationFoundListener {
+    fun getCurrentLocation(listener: (Location) -> Unit, error: (String) -> Unit) {
+        this.listener = object : OnLocationFoundListener {
             override fun locationError(error: String) {
                 error(error)
             }
@@ -79,14 +79,14 @@ class LocationHelper constructor(private var context: Context) {
     private fun geocode(lat: Double, lon: Double) {
         var geocoder = AndroidGeocoder(context)
         geocoder.getAddress(lat, lon)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe ({
-                    var location = Location()
-                    location.lat = lat
-                    location.lon = lon
-                    location.address = it
-                    this.listener?.locationFound(location)
-                }, { this.listener?.locationError(it.localizedMessage)})
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({
+                var location = Location()
+                location.lat = lat
+                location.lon = lon
+                location.address = it
+                this.listener?.locationFound(location)
+            }, { this.listener?.locationError(it.localizedMessage) })
 
     }
 }

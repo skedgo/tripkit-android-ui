@@ -3,7 +3,6 @@ package com.skedgo.tripkit.ui.controller.homeviewcontroller
 import android.Manifest
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
@@ -18,7 +17,6 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.lifecycleScope
 import com.araujo.jordan.excuseme.ExcuseMe
-import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.CircleCrop
 import com.bumptech.glide.request.RequestOptions
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -401,11 +399,12 @@ class TKUIHomeViewControllerFragment :
         tag: String,
         state: Int = BottomSheetBehavior.STATE_HALF_EXPANDED
     ) {
-        if(fragment !is TKUIPoiDetailsFragment) {
+        if (fragment !is TKUIPoiDetailsFragment) {
             isFromChooseOnMap = false
         }
 
-        bottomSheetBehavior.peekHeight = resources.getDimensionPixelSize(R.dimen.bottom_sheet_peek_height)
+        bottomSheetBehavior.peekHeight =
+            resources.getDimensionPixelSize(R.dimen.bottom_sheet_peek_height)
         binding.standardBottomSheet.visibility = View.VISIBLE
         bottomSheetFragment.update(fragment, tag)
         bottomSheetBehavior.state = state
@@ -503,8 +502,7 @@ class TKUIHomeViewControllerFragment :
                     if (bottomSheetBehavior.state == BottomSheetBehavior.STATE_DRAGGING) {
                         setMapPadding(slideOffset)
                         map.moveCamera(CameraUpdateFactory.newLatLng(currentCenter))
-                    }
-                    else if (bottomSheetBehavior.state == BottomSheetBehavior.STATE_SETTLING) {
+                    } else if (bottomSheetBehavior.state == BottomSheetBehavior.STATE_SETTLING) {
                         setMapPadding(slideOffset)
                         map.moveCamera(CameraUpdateFactory.newLatLng(currentCenter))
                         hideKeyboard(requireContext(), bottomSheet)
@@ -574,7 +572,10 @@ class TKUIHomeViewControllerFragment :
                 if (it.count > 0) {
                     bottomSheetVisibilityCallback?.invoke(1)
                 } else {
-                    updateFabMyLocationAnchor(binding.mapFragmentParent.id, Gravity.BOTTOM or Gravity.END)
+                    updateFabMyLocationAnchor(
+                        binding.mapFragmentParent.id,
+                        Gravity.BOTTOM or Gravity.END
+                    )
                     bottomSheetBehavior.peekHeight = 0
                     bottomSheetVisibilityCallback?.invoke(0)
                 }
@@ -620,7 +621,7 @@ class TKUIHomeViewControllerFragment :
 
     private fun updateFabMyLocationAnchor(anchorId: Int, anchorGravity: Int) {
         val layoutParams = binding.ivMyLocation.layoutParams as CoordinatorLayout.LayoutParams
-        if(layoutParams.anchorId == anchorId) {
+        if (layoutParams.anchorId == anchorId) {
             return
         }
         layoutParams.anchorId = anchorId
@@ -630,7 +631,7 @@ class TKUIHomeViewControllerFragment :
 
     private fun handleCloseAction() {
 
-        if(isFromChooseOnMap) {
+        if (isFromChooseOnMap) {
             isFromChooseOnMap = false
             viewModel.toggleChooseOnMap(true)
         }
@@ -779,7 +780,7 @@ class TKUIHomeViewControllerFragment :
             TripPreviewHeaderFragment.newInstance(
                 pageIndexStream,
                 tripSegment.trip.isHideExactTimes ||
-                        tripSegment.trip.segments.any { it.isHideExactTimes }
+                    tripSegment.trip.segments.any { it.isHideExactTimes }
             )
         replaceFragment(headerFragment, TripPreviewHeaderFragment.TAG, R.id.topSheet, false)
 
@@ -881,7 +882,7 @@ class TKUIHomeViewControllerFragment :
                     updateModalDialog?.dismissAllowingStateLoss()
                     updateModalDialog = null
                 }
-                if(show) {
+                if (show) {
                     updateModalDialog = UpdateModalDialog.newInstance(message)
                     updateModalDialog?.show(childFragmentManager, null)
                 }

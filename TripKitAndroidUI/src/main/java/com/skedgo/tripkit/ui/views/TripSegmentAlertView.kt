@@ -7,7 +7,6 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import com.skedgo.tripkit.common.model.RealtimeAlert
 import com.skedgo.tripkit.ui.R
-import timber.log.Timber
 
 
 class TripSegmentAlertView : LinearLayout {
@@ -19,7 +18,11 @@ class TripSegmentAlertView : LinearLayout {
         init()
     }
 
-    constructor(context: Context, attrs: AttributeSet?, defStyle: Int) : super(context, attrs, defStyle) {
+    constructor(context: Context, attrs: AttributeSet?, defStyle: Int) : super(
+        context,
+        attrs,
+        defStyle
+    ) {
         init()
     }
 
@@ -37,10 +40,12 @@ class TripSegmentAlertView : LinearLayout {
         val inflator = LayoutInflater.from(context)
         val headerView = inflator.inflate(R.layout.trip_segment_alert_header_item, this, true)
         val headerText = headerView.findViewById(R.id.header_text) as TextView
-        headerText.text = resources.getQuantityString(R.plurals.number_of_alerts, alerts.size, alerts.size)
+        headerText.text =
+            resources.getQuantityString(R.plurals.number_of_alerts, alerts.size, alerts.size)
 
         alerts.forEach { alert ->
-            val view = inflator.inflate(R.layout.trip_segment_alert_view_item, this, false) as TextView
+            val view =
+                inflator.inflate(R.layout.trip_segment_alert_view_item, this, false) as TextView
             view.text = alert.title()
             addView(view)
         }

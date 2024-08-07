@@ -1,11 +1,7 @@
 package com.skedgo.tripkit.ui.favorites.trips
 
-import com.skedgo.tripkit.ui.favorites.waypoints.toWaypointEntity
-import com.skedgo.tripkit.ui.favorites.waypoints.toWaypoint
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.map
 
 
 class FavoriteTripsRepositoryImpl(private val db: FavoriteTripsDataBase) : FavoriteTripsRepository {

@@ -47,7 +47,8 @@ class DirectionsTripPreviewItemStepViewModel : ViewModel() {
 
 class DirectionsTripPreviewItemViewModel : TripPreviewPagerItemViewModel() {
 
-    val customAdapter = TripPreviewStepCustomRecyclerViewAdapter<DirectionsTripPreviewItemStepViewModel>()
+    val customAdapter =
+        TripPreviewStepCustomRecyclerViewAdapter<DirectionsTripPreviewItemStepViewModel>()
 
     var items = ObservableArrayList<DirectionsTripPreviewItemStepViewModel>()
     var itemBinding = ItemBinding.of<DirectionsTripPreviewItemStepViewModel>(
@@ -78,7 +79,7 @@ class DirectionsTripPreviewItemViewModel : TripPreviewPagerItemViewModel() {
             }
             vm.roadTags = it.roadTags()?.map {
                 try {
-                    RoadTag.valueOf(it.replace("-","_"))
+                    RoadTag.valueOf(it.replace("-", "_"))
                 } catch (e: Exception) {
                     RoadTag.UNKNOWN
                 }

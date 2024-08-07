@@ -39,21 +39,25 @@ class ExternalActionTripPreviewItemFragment : BaseTripKitFragment() {
     override fun onResume() {
         super.onResume()
         viewModel.closeClicked.observable
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe {
-                    onCloseButtonListener?.onClick(null)
-                }.addTo(autoDisposable)
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe {
+                onCloseButtonListener?.onClick(null)
+            }.addTo(autoDisposable)
         viewModel.externalActionChosen.observeOn(AndroidSchedulers.mainThread())
-                .subscribe {
-                    viewModel.enableActionButtons.set(false)
-                    //tripPreviewPagerListener?.onExternalActionButtonClicked(it)
-                    externalActionCallback?.invoke(tripSegment, it)
-                }.addTo(autoDisposable)
+            .subscribe {
+                viewModel.enableActionButtons.set(false)
+                //tripPreviewPagerListener?.onExternalActionButtonClicked(it)
+                externalActionCallback?.invoke(tripSegment, it)
+            }.addTo(autoDisposable)
         viewModel.enableActionButtons.set(true)
     }
 
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         val binding = TripPreviewExternalActionPagerItemBinding.inflate(inflater)
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
@@ -69,20 +73,20 @@ class ExternalActionTripPreviewItemFragment : BaseTripKitFragment() {
 
     private fun doBooking(action: String) {
         val params: ExternalActionParams = ExternalActionParams.builder()
-                .action(action)
-                .segment(tripSegment)
-                .build()
+            .action(action)
+            .segment(tripSegment)
+            .build()
         bookingResolver.performExternalActionAsync(params)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe {
-                    startActivity(it.data())
-                }.addTo(autoDisposable)
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe {
+                startActivity(it.data())
+            }.addTo(autoDisposable)
     }
 
     companion object {
         fun newInstance(
-                tripSegment: TripSegment,
-                externalActionCallback: ((TripSegment?, Action?) -> Unit)? = null
+            tripSegment: TripSegment,
+            externalActionCallback: ((TripSegment?, Action?) -> Unit)? = null
         ): ExternalActionTripPreviewItemFragment {
             val fragment = ExternalActionTripPreviewItemFragment()
             fragment.externalActionCallback = externalActionCallback

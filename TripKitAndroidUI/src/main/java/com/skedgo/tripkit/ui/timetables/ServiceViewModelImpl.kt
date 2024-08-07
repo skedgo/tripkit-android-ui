@@ -9,6 +9,8 @@ import androidx.databinding.ObservableField
 import androidx.databinding.ObservableFloat
 import androidx.databinding.ObservableInt
 import com.skedgo.TripKit
+import com.skedgo.tripkit.logging.ErrorLogger
+import com.skedgo.tripkit.routing.ModeInfo
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.model.TimetableEntry
 import com.skedgo.tripkit.ui.trip.details.viewmodel.OccupancyViewModel
@@ -16,23 +18,18 @@ import com.skedgo.tripkit.ui.trip.details.viewmodel.ServiceAlertViewModel
 import com.skedgo.tripkit.ui.utils.TapAction
 import com.skedgo.tripkit.ui.utils.TimeSpanUtils
 import org.joda.time.DateTimeZone
-import com.skedgo.tripkit.logging.ErrorLogger
-import com.skedgo.tripkit.routing.ModeInfo
-import org.joda.time.DateTime
-import org.joda.time.format.DateTimeFormat
-import timber.log.Timber
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 internal class ServiceViewModelImpl @Inject constructor(
-        private val context: Context,
-        override val occupancyViewModel: OccupancyViewModel,
-        override val serviceAlertViewModel: ServiceAlertViewModel,
-        private val getServiceTitleText: GetServiceTitleText,
-        private val getServiceSubTitleText: GetServiceSubTitleText,
-        private val getServiceTertiaryText: GetServiceTertiaryText,
-        private val getRealtimeText: GetRealtimeText,
-        private val errorLogger: ErrorLogger
+    private val context: Context,
+    override val occupancyViewModel: OccupancyViewModel,
+    override val serviceAlertViewModel: ServiceAlertViewModel,
+    private val getServiceTitleText: GetServiceTitleText,
+    private val getServiceSubTitleText: GetServiceSubTitleText,
+    private val getServiceTertiaryText: GetServiceTertiaryText,
+    private val getRealtimeText: GetRealtimeText,
+    private val errorLogger: ErrorLogger
 ) : ServiceViewModel() {
     //  override val wheelchairAccessible = ObservableBoolean(false)
     override val wheelchairIcon = ObservableField<Drawable?>()
@@ -63,9 +60,11 @@ internal class ServiceViewModelImpl @Inject constructor(
 
     override fun getRealTimeDeparture() = realTimeDeparture(service, service.realtimeVehicle)
 
-    override fun setService(_currentTripId: String,
-                            _service: TimetableEntry,
-                            _dateTimeZone: DateTimeZone) {
+    override fun setService(
+        _currentTripId: String,
+        _service: TimetableEntry,
+        _dateTimeZone: DateTimeZone
+    ) {
         service = _service
         this.isCurrentTrip.set(_currentTripId == service.serviceTripId)
         dateTimeZone = _dateTimeZone
@@ -80,13 +79,17 @@ internal class ServiceViewModelImpl @Inject constructor(
         } else {
             serviceNumber.set(service.serviceNumber)
         }
-        val (secondaryMessage, color) = getRealtimeText.execute(dateTimeZone, service, service.realtimeVehicle)
+        val (secondaryMessage, color) = getRealtimeText.execute(
+            dateTimeZone,
+            service,
+            service.realtimeVehicle
+        )
         secondaryText.set(secondaryMessage)
         secondaryTextColor.set(ContextCompat.getColor(context, color))
         tertiaryText.set(getServiceTertiaryText.execute(service))
 
         val globalConfigs = TripKit.getInstance().configs()
-        if(globalConfigs.showOperatorNames()) {
+        if (globalConfigs.showOperatorNames()) {
             quaternaryText.set(service.operator)
         }
 
@@ -109,8 +112,8 @@ internal class ServiceViewModelImpl @Inject constructor(
     private fun presentCountDownTimeForFrequency() {
         if (!service.isFrequencyBased) {
             service.getTimeLeftToDepartInterval(30, TimeUnit.SECONDS)
-                    .subscribe({ presentCountDownTime(it) }, errorLogger::logError)
-                    .autoClear()
+                .subscribe({ presentCountDownTime(it) }, errorLogger::logError)
+                .autoClear()
         }
     }
 
@@ -118,10 +121,20 @@ internal class ServiceViewModelImpl @Inject constructor(
         countDownTimeText.set(TimeSpanUtils.getRelativeTimeSpanString(departureCountDownTimeInMins))
 
         if (departureCountDownTimeInMins < 0) {
-            countDownTimeTextBack.set(ContextCompat.getDrawable(context, R.drawable.v4_shape_rect_cancelled))
+            countDownTimeTextBack.set(
+                ContextCompat.getDrawable(
+                    context,
+                    R.drawable.v4_shape_rect_cancelled
+                )
+            )
             alpha.set(0.5f)
         } else {
-            countDownTimeTextBack.set(ContextCompat.getDrawable(context, R.drawable.v4_shape_btn_positive_normal))
+            countDownTimeTextBack.set(
+                ContextCompat.getDrawable(
+                    context,
+                    R.drawable.v4_shape_btn_positive_normal
+                )
+            )
             alpha.set(1f)
         }
     }
@@ -146,13 +159,18 @@ internal class ServiceViewModelImpl @Inject constructor(
                 wheelchairIcon.set(ContextCompat.getDrawable(context, R.drawable.ic_wheelchair))
                 wheelchairTint.set(ContextCompat.getColor(context, R.color.black2))
             } else {
-                wheelchairIcon.set(ContextCompat.getDrawable(context, R.drawable.ic_wheelchair_not_accessible))
+                wheelchairIcon.set(
+                    ContextCompat.getDrawable(
+                        context,
+                        R.drawable.ic_wheelchair_not_accessible
+                    )
+                )
                 wheelchairTint.set(ContextCompat.getColor(context, R.color.tripKitWarning))
             }
         }
         serviceAlertViewModel.setAlerts(service.alerts)
         serviceAlertViewModel.showAlertsObservable
-                .subscribe { onAlertsClick.perform() }
-                .autoClear()
+            .subscribe { onAlertsClick.perform() }
+            .autoClear()
     }
 }

@@ -23,7 +23,8 @@ fun setMatcher(textView: TextView, matcher: String?) {
 
                 // Find the position of the word in the text
                 while (spanStartPosition != -1 && word.isNotEmpty()) {
-                    spanStartPosition = spannableString.indexOf(word, spanStartPosition, ignoreCase = true)
+                    spanStartPosition =
+                        spannableString.indexOf(word, spanStartPosition, ignoreCase = true)
 
                     // If the word is found, bold it
                     if (spanStartPosition != -1) {
@@ -62,7 +63,8 @@ fun setMatcher(textView: TextView, matcher: List<String>?) {
 
                 // Find the position of the word in the text
                 while (spanStartPosition != -1) {
-                    spanStartPosition = spannableString.indexOf(word, spanStartPosition, ignoreCase = true)
+                    spanStartPosition =
+                        spannableString.indexOf(word, spanStartPosition, ignoreCase = true)
 
                     // If the word is found, bold it
                     if (spanStartPosition != -1) {

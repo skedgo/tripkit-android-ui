@@ -4,6 +4,7 @@
     <style name="tripkit_search_result_title">
         <item name="android:textSize">22sp</item>
     </style>
+
     <style name="tripkit_search_result_subtitle">
         <item name="android:textSize">12sp</item>
     </style>

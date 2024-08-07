@@ -126,14 +126,16 @@ class TKUILocationSearchViewControllerFragment :
                     LocationSearchFragment.OnAttachFragmentListener {
                     override fun onAttachFragment() {}
                 })
-                setOnItemActionClickListener(object : LocationSearchFragment.OnItemActionClickListener {
+                setOnItemActionClickListener(object :
+                    LocationSearchFragment.OnItemActionClickListener {
                     override fun onInfoClick(location: Location) {
                         listener?.onInfoSelected(location)
                     }
+
                     override fun onSuggestionActionClick(location: Location) {
                         // Right now, we only have scenario for Timetable entry so adding this validation
                         // to check if the location is a ScheduledStop
-                        if(location is ScheduledStop) {
+                        if (location is ScheduledStop) {
                             //TODO update to handle timetable click on controller
                         }
                     }

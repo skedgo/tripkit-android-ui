@@ -7,6 +7,9 @@ import retrofit2.http.POST
 import retrofit2.http.Url
 
 interface DeparturesApi {
-  @POST
-  fun request(@Url url: String, @Body departureRequestBody: DepartureRequestBody): Single<DeparturesResponse>
+    @POST
+    fun request(
+        @Url url: String,
+        @Body departureRequestBody: DepartureRequestBody
+    ): Single<DeparturesResponse>
 }

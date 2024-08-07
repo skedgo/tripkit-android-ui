@@ -60,7 +60,7 @@ class SimpleTransportModeFilter() : TransportModeFilter {
 
     constructor(parcel: Parcel) : this() {
         var list = mutableListOf<String>()
-         parcel.readStringList(list)
+        parcel.readStringList(list)
         this.transportModes = list.toSet()
 
         var avoidList = mutableListOf<String>()

@@ -13,36 +13,57 @@ import io.reactivex.Observable
 import javax.inject.Inject
 
 open class LoadStopsByViewPort @Inject constructor(
-        private val getCellIdsFromViewPort: GetCellIdsFromViewPort,
-        private val scheduledStopRepository: ScheduledStopRepository,
-        private val regionService: RegionService) {
+    private val getCellIdsFromViewPort: GetCellIdsFromViewPort,
+    private val scheduledStopRepository: ScheduledStopRepository,
+    private val regionService: RegionService
+) {
 
-  open fun execute(viewPort: ViewPort): Observable<List<ScheduledStop>> {
-    return when (viewPort) {
-      is ViewPort.CloseEnough -> {
-        val bounds = LatLngBounds.builder()
-            .include(LatLng(viewPort.visibleBounds.southwest.latitude, viewPort.visibleBounds.southwest.longitude))
-            .include(LatLng(viewPort.visibleBounds.northeast.latitude, viewPort.visibleBounds.northeast.longitude))
-            .build()
-        regionService.getRegionByLocationAsync(bounds.center.latitude, bounds.center.longitude)
-            .ignoreOutOfRegionsException()
-            .flatMap { region ->
-              getCellIdsFromViewPort.execute(viewPort)
-                  .map { region to it }
+    open fun execute(viewPort: ViewPort): Observable<List<ScheduledStop>> {
+        return when (viewPort) {
+            is ViewPort.CloseEnough -> {
+                val bounds = LatLngBounds.builder()
+                    .include(
+                        LatLng(
+                            viewPort.visibleBounds.southwest.latitude,
+                            viewPort.visibleBounds.southwest.longitude
+                        )
+                    )
+                    .include(
+                        LatLng(
+                            viewPort.visibleBounds.northeast.latitude,
+                            viewPort.visibleBounds.northeast.longitude
+                        )
+                    )
+                    .build()
+                regionService.getRegionByLocationAsync(
+                    bounds.center.latitude,
+                    bounds.center.longitude
+                )
+                    .ignoreOutOfRegionsException()
+                    .flatMap { region ->
+                        getCellIdsFromViewPort.execute(viewPort)
+                            .map { region to it }
+                    }
+                    .map { (region, cellIds) ->
+                        StopLoaderArgs.newArgsForStopsLoader(cellIds, region, bounds)
+                    }
+                    .map { it.first to it.second }
+                    .flatMap { (cellIds, bounds) ->
+                        val selectionArgs =
+                            StopLoaderArgs.createStopLoaderSelectionArgs(cellIds, bounds)
+                        val selection = StopLoaderArgs.createStopLoaderSelection(cellIds.size)
+                        scheduledStopRepository.queryStops(
+                            CursorToStopConverter.PROJECTION,
+                            selection,
+                            selectionArgs,
+                            null
+                        )
+                            .repeatWhen { scheduledStopRepository.changes }
+                    }
+                    .defaultIfEmpty(emptyList())
             }
-            .map { (region, cellIds) ->
-              StopLoaderArgs.newArgsForStopsLoader(cellIds, region, bounds)
-            }
-            .map { it.first to it.second }
-            .flatMap { (cellIds, bounds) ->
-              val selectionArgs = StopLoaderArgs.createStopLoaderSelectionArgs(cellIds, bounds)
-              val selection = StopLoaderArgs.createStopLoaderSelection(cellIds.size)
-              scheduledStopRepository.queryStops(CursorToStopConverter.PROJECTION, selection, selectionArgs, null)
-                  .repeatWhen { scheduledStopRepository.changes }
-            }
-            .defaultIfEmpty(emptyList())
-      }
-      is ViewPort.NotCloseEnough -> Observable.just(emptyList())
+            is ViewPort.NotCloseEnough -> Observable.just(emptyList())
+            else -> Observable.just(emptyList())
+        }
     }
-  }
 }

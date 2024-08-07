@@ -16,7 +16,8 @@ sealed class Place {
         override fun icon(): Drawable? = icon
     }
 
-    data class WithoutLocation(val prediction: GooglePlacePrediction, val icon: Drawable?) : Place() {
+    data class WithoutLocation(val prediction: GooglePlacePrediction, val icon: Drawable?) :
+        Place() {
         constructor(prediction: GooglePlacePrediction) : this(prediction, null)
 
         override fun source(): String? = Location.GOOGLE

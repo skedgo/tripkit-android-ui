@@ -6,17 +6,17 @@ import com.skedgo.tripkit.common.model.Location;
 import java.util.List;
 
 public class GeocodeResponse {
-  @SerializedName("query")
-  private String mQuery;
+    @SerializedName("query")
+    private String mQuery;
 
-  @SerializedName("choices")
-  private List<Location> mChoiceList;
+    @SerializedName("choices")
+    private List<Location> mChoiceList;
 
-  public List<Location> getChoiceList() {
-    return mChoiceList;
-  }
+    public List<Location> getChoiceList() {
+        return mChoiceList;
+    }
 
-  public String getQuery() {
-    return mQuery;
-  }
+    public String getQuery() {
+        return mQuery;
+    }
 }

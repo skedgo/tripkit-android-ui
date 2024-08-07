@@ -4,7 +4,9 @@ import android.content.Context
 import com.skedgo.tripkit.common.model.TimeTag
 import com.skedgo.tripkit.ui.R
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Date
+import java.util.Locale
+import java.util.TimeZone
 import java.util.concurrent.TimeUnit
 
 
@@ -26,7 +28,11 @@ fun TimeTag.formatString(context: Context, timezone: String?): String {
         stringBuilder.append(" ")
         val date = Date(millis)
         val dateFormat = SimpleDateFormat("MMM dd, h:mm a", Locale.US)
-        dateFormat.timeZone = if (timezone != null) { TimeZone.getTimeZone(timezone) } else { TimeZone.getDefault() }
+        dateFormat.timeZone = if (timezone != null) {
+            TimeZone.getTimeZone(timezone)
+        } else {
+            TimeZone.getDefault()
+        }
         val timeText = dateFormat.format(date)
         stringBuilder.append(timeText)
     }

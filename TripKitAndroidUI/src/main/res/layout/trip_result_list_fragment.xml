@@ -181,7 +181,7 @@
                     android:src="@{viewModel.showTransport ? @drawable/chevron_up : @drawable/chevron_down}"
                     app:tint="@color/colorPrimary"
                     tools:tint="@color/colorPrimary"
-                    tools:src="@drawable/chevron_down"/>
+                    tools:src="@drawable/chevron_down" />
             </LinearLayout>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
@@ -237,7 +237,7 @@
                 app:layout_constraintStart_toEndOf="@+id/ivHelpIcon"
                 app:layout_constraintTop_toTopOf="parent"
                 android:text="How to book transportation"
-                android:textColor="@color/black"/>
+                android:textColor="@color/black" />
 
             <TextView
                 android:layout_width="wrap_content"

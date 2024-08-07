@@ -140,7 +140,8 @@ class ServiceDetailViewModel @Inject constructor(
         _showBicycleAccessible.postValue(bicycleAccessible ?: false)
 
         showExpandableMenu.set(
-            showOccupancyInfo.get() || showWheelchairAccessible.get() || (showBicycleAccessible.value ?: false)
+            showOccupancyInfo.get() || showWheelchairAccessible.get() || (showBicycleAccessible.value
+                ?: false)
         )
 
         serviceColor?.let {
