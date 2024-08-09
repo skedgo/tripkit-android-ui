@@ -15,7 +15,7 @@ import static com.skedgo.tripkit.ui.map.IconUtils.asUrl;
 
 
 public class AlertMarkerIconFetcher {
-  private static final String URL_TEMPLATE = ServerManager.INSTANCE.getConfiguration().getApiTripGoUrl() + "modeicons/android/%s/ic_alert_%s.png";
+  private static final String URL_TEMPLATE = ServerManager.INSTANCE.getConfiguration().getStaticTripGoUrl() + "icons/android/%s/ic_alert_%s.png";
   private final Resources resources;
   private final Lazy<Picasso> picassoLazy;
 
