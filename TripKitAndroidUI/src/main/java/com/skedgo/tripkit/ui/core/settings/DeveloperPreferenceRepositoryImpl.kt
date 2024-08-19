@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.util.Log
 import com.skedgo.tripkit.configuration.ServerManager
+import com.skedgo.tripkit.ui.BuildConfig
 import com.skedgo.tripkit.ui.R
 import io.reactivex.Observable
 
@@ -79,5 +80,12 @@ class DeveloperPreferenceRepositoryImpl constructor(
       }
     }
 
-  private fun serverType() = preferences.getString(serverTypeKey, context.getString(R.string.pref_production_server))
+  private fun serverType() = preferences.getString(
+    serverTypeKey,
+    if (BuildConfig.DEBUG) {
+      context.getString(R.string.pref_beta_server)
+    } else {
+      context.getString(R.string.pref_production_server)
+    }
+  )
 }
