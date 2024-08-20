@@ -15,8 +15,8 @@ import javax.inject.Inject
 import kotlin.properties.Delegates
 
 class GenericListAdapter @Inject constructor() :
-        RecyclerView.Adapter<GenericListAdapter.Holder>(),
-        AutoUpdatableAdapter {
+    RecyclerView.Adapter<GenericListAdapter.Holder>(),
+    AutoUpdatableAdapter {
 
     internal var collection: List<GenericListItem> by Delegates.observable(emptyList()) { prop, old, new ->
         autoNotify(old, new) { o, n -> o.label == n.label }
@@ -32,10 +32,10 @@ class GenericListAdapter @Inject constructor() :
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
-            Holder.from(
-                    parent,
-                    R.layout.view_generic_list_item
-            )
+        Holder.from(
+            parent,
+            R.layout.view_generic_list_item
+        )
 
     override fun getItemCount() = collection.size
 
@@ -58,7 +58,7 @@ class GenericListAdapter @Inject constructor() :
                     clickListener.invoke(listItem)
                 }
             }
-            clParent.accessibilityDelegate = object: View.AccessibilityDelegate(){
+            clParent.accessibilityDelegate = object : View.AccessibilityDelegate() {
                 override fun onInitializeAccessibilityNodeInfo(
                     host: View,
                     info: AccessibilityNodeInfo
@@ -66,7 +66,7 @@ class GenericListAdapter @Inject constructor() :
 
                     super.onInitializeAccessibilityNodeInfo(host, info)
 
-                    if(!isViewOnlyMode) {
+                    if (!isViewOnlyMode) {
 
                         val description =
                             if (collection[position].selected) "unselect" else "select"
@@ -84,7 +84,7 @@ class GenericListAdapter @Inject constructor() :
                     val currentContentDescription = genericListItemTvLabel.text
 
                     host?.contentDescription = "$currentContentDescription ${
-                            if(collection[position].selected) "\n Selected" else ""
+                        if (collection[position].selected) "\n Selected" else ""
                     }"
 
                     super.sendAccessibilityEvent(host, eventType)
@@ -110,10 +110,10 @@ class GenericListAdapter @Inject constructor() :
             fun from(parent: ViewGroup, layout: Int): Holder {
                 val inflater = LayoutInflater.from(parent.context)
                 val binding =
-                        DataBindingUtil.inflate<ViewGenericListItemBinding>(
-                                inflater, layout,
-                                parent, false
-                        )
+                    DataBindingUtil.inflate<ViewGenericListItemBinding>(
+                        inflater, layout,
+                        parent, false
+                    )
                 return Holder(binding)
             }
         }

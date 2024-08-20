@@ -7,8 +7,8 @@ import javax.inject.Inject
 import javax.inject.Provider
 
 @ActivityScope
-class LocationPointerViewModelFactory @Inject constructor(private val locationChooserViewModelProvider: Provider<LocationPointerViewModel>)
-        : ViewModelProvider.Factory {
+class LocationPointerViewModelFactory @Inject constructor(private val locationChooserViewModelProvider: Provider<LocationPointerViewModel>) :
+    ViewModelProvider.Factory {
 
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass == LocationPointerViewModel::class.java) {

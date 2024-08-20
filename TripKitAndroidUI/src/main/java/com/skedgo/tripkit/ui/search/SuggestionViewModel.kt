@@ -34,7 +34,11 @@ sealed class SuggestionViewModel(
     abstract val onSuggestionActionClicked: TapAction<SuggestionViewModel>
 }
 
-open class FixedSuggestionViewModel(context: Context, suggestion: SearchSuggestion, term: String? = null) :
+open class FixedSuggestionViewModel(
+    context: Context,
+    suggestion: SearchSuggestion,
+    term: String? = null
+) :
     SuggestionViewModel(context, term) {
     val suggestion = suggestion
     val id = suggestion.id()
@@ -43,18 +47,29 @@ open class FixedSuggestionViewModel(context: Context, suggestion: SearchSuggesti
     override val subtitle = suggestion.subtitle()
     override val subtitleTextColorRes = suggestion.subtitleColor()
     override val onItemClicked: TapAction<SuggestionViewModel> = TapAction.create { this }
-    override val showInfoIcon = suggestion.location() != null && suggestion.location() !is ScheduledStop
+    override val showInfoIcon =
+        suggestion.location() != null && suggestion.location() !is ScheduledStop
     override val onInfoClicked: TapAction<SuggestionViewModel> = TapAction.create { this }
-    override val onSuggestionActionClicked: TapAction<SuggestionViewModel> = TapAction.create { this }
+    override val onSuggestionActionClicked: TapAction<SuggestionViewModel> =
+        TapAction.create { this }
+
     init {
         icon.set(suggestion.icon())
     }
 }
 
-class SearchProviderSuggestionViewModel(context: Context, suggestion: SearchSuggestion, term: String? = null) :
+class SearchProviderSuggestionViewModel(
+    context: Context,
+    suggestion: SearchSuggestion,
+    term: String? = null
+) :
     FixedSuggestionViewModel(context, suggestion, term)
 
-class CityProviderSuggestionViewModel(context: Context, suggestion: SearchSuggestion, term: String? = null) :
+class CityProviderSuggestionViewModel(
+    context: Context,
+    suggestion: SearchSuggestion,
+    term: String? = null
+) :
     FixedSuggestionViewModel(context, suggestion, term)
 
 class GoogleAndTripGoSuggestionViewModel(
@@ -70,7 +85,8 @@ class GoogleAndTripGoSuggestionViewModel(
     override val subtitleTextColorRes: Int = R.color.description_text
     override val onItemClicked: TapAction<SuggestionViewModel> = TapAction.create { this }
     override val onInfoClicked: TapAction<SuggestionViewModel> = TapAction.create { this }
-    override val onSuggestionActionClicked: TapAction<SuggestionViewModel> = TapAction.create { this }
+    override val onSuggestionActionClicked: TapAction<SuggestionViewModel> =
+        TapAction.create { this }
 
     val location: Location by lazy {
         if (place is Place.TripGoPOI) {

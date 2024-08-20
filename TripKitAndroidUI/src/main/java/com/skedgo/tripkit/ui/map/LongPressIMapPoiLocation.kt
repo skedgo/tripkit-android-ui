@@ -5,7 +5,6 @@ import android.content.res.Resources
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.skedgo.tripkit.common.model.Location
-import com.skedgo.tripkit.common.model.PoiLocation
 import com.skedgo.tripkit.ui.map.adapter.StopInfoWindowAdapter
 import com.skedgo.tripkit.ui.tracking.EventTracker
 import com.squareup.otto.Bus
@@ -13,7 +12,10 @@ import com.squareup.picasso.Picasso
 import io.reactivex.Single
 
 
-class LongPressIMapPoiLocation(val point: LatLng, private val stopInfoWindowAdapter: StopInfoWindowAdapter) : IMapPoiLocation {
+class LongPressIMapPoiLocation(
+    val point: LatLng,
+    private val stopInfoWindowAdapter: StopInfoWindowAdapter
+) : IMapPoiLocation {
     private val location: Location = Location()
 
     init {
@@ -26,7 +28,10 @@ class LongPressIMapPoiLocation(val point: LatLng, private val stopInfoWindowAdap
         location.name = name
     }
 
-    override fun createMarkerOptions(resources: Resources, picasso: Picasso): Single<MarkerOptions> {
+    override fun createMarkerOptions(
+        resources: Resources,
+        picasso: Picasso
+    ): Single<MarkerOptions> {
         return Single.create { MarkerOptions() }
     }
 

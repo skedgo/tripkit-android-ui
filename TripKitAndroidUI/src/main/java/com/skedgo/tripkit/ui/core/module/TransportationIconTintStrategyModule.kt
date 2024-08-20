@@ -9,5 +9,5 @@ import dagger.Provides
 class TransportationIconTintStrategyModule {
     @Provides
     fun transportationIconTintStrategy(resources: Resources)
-            : GetTransportIconTintStrategy = GetTransportIconTintStrategy(resources)
+        : GetTransportIconTintStrategy = GetTransportIconTintStrategy(resources)
 }

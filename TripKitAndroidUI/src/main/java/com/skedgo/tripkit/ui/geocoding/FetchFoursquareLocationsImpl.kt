@@ -11,27 +11,27 @@ import javax.inject.Inject
 class FetchFoursquareLocationsImpl @Inject internal constructor(
     private val schedulerFactory: SchedulerFactory
 ) : FetchFoursquareLocations {
-  override fun getLocations(
-          parameters: FetchLocationsParameters
-  ): Observable<List<GCResultInterface>> =
-      Observable
-          .create(ObservableOnSubscribe<List<GCResultInterface>> { subscriber ->
-            val suggestionsFromFoursquare = getLocationFromFoursquareClient(parameters)
-            subscriber.onNext(suggestionsFromFoursquare)
-            subscriber.onComplete()
-          })
-          /* Don't let any error of one source terminate one another source. */
-          .onErrorResumeNext(Observable.empty())
-          .subscribeOn(schedulerFactory.ioScheduler)
+    override fun getLocations(
+        parameters: FetchLocationsParameters
+    ): Observable<List<GCResultInterface>> =
+        Observable
+            .create(ObservableOnSubscribe<List<GCResultInterface>> { subscriber ->
+                val suggestionsFromFoursquare = getLocationFromFoursquareClient(parameters)
+                subscriber.onNext(suggestionsFromFoursquare)
+                subscriber.onComplete()
+            })
+            /* Don't let any error of one source terminate one another source. */
+            .onErrorResumeNext(Observable.empty())
+            .subscribeOn(schedulerFactory.ioScheduler)
 
-  private fun getLocationFromFoursquareClient(
-      parameters: FetchLocationsParameters
-  ): List<GCResultInterface> {
-    val foursquareGeocoder = FoursquareGeocoder(
-        parameters.term(),
-        parameters.nearbyLat(),
-        parameters.nearbyLon()
-    )
-    return ArrayList<GCResultInterface>(foursquareGeocoder.fromFoursquare)
-  }
+    private fun getLocationFromFoursquareClient(
+        parameters: FetchLocationsParameters
+    ): List<GCResultInterface> {
+        val foursquareGeocoder = FoursquareGeocoder(
+            parameters.term(),
+            parameters.nearbyLat(),
+            parameters.nearbyLon()
+        )
+        return ArrayList<GCResultInterface>(foursquareGeocoder.fromFoursquare)
+    }
 }

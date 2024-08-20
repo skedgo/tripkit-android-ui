@@ -1,6 +1,7 @@
 package com.skedgo.tripkit.ui.core.module
 
 import com.google.gson.Gson
+import com.skedgo.tripkit.configuration.ServerManager
 import com.skedgo.tripkit.ui.core.SchedulerFactory
 import com.skedgo.tripkit.ui.data.realtime.LatestApi
 import com.skedgo.tripkit.ui.data.realtime.RealTimeRepositoryImpl
@@ -13,31 +14,30 @@ import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
-import com.skedgo.tripkit.configuration.ServerManager
 import javax.inject.Singleton
 
 @Module
 class RealTimeRepositoryModule {
 
-  @Provides
-  @Singleton
-  fun realTimeAlertRepository(impl: RealtimeAlertRepositoryImpl): RealtimeAlertRepository = impl
+    @Provides
+    @Singleton
+    fun realTimeAlertRepository(impl: RealtimeAlertRepositoryImpl): RealtimeAlertRepository = impl
 
-  @Provides
-  @Singleton
-  fun realTimeRepository(impl: RealTimeRepositoryImpl): RealTimeRepository = impl
+    @Provides
+    @Singleton
+    fun realTimeRepository(impl: RealTimeRepositoryImpl): RealTimeRepository = impl
 
-  @Provides
-  internal fun latestApi(
-          gson: Gson,
-          httpClient: OkHttpClient,
-          schedulers: SchedulerFactory
-  ): LatestApi = Retrofit.Builder()
-      /* This base url is ignored as the api relies on @Url. */
-      .baseUrl(ServerManager.configuration.apiTripGoUrl)
-      .addCallAdapterFactory(RxJava2CallAdapterFactory.createWithScheduler(schedulers.ioScheduler))
-      .addConverterFactory(GsonConverterFactory.create(gson))
-      .client(httpClient)
-      .build()
-      .create(LatestApi::class.java)
+    @Provides
+    internal fun latestApi(
+        gson: Gson,
+        httpClient: OkHttpClient,
+        schedulers: SchedulerFactory
+    ): LatestApi = Retrofit.Builder()
+        /* This base url is ignored as the api relies on @Url. */
+        .baseUrl(ServerManager.configuration.apiTripGoUrl)
+        .addCallAdapterFactory(RxJava2CallAdapterFactory.createWithScheduler(schedulers.ioScheduler))
+        .addConverterFactory(GsonConverterFactory.create(gson))
+        .client(httpClient)
+        .build()
+        .create(LatestApi::class.java)
 }

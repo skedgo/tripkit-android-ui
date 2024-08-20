@@ -1,7 +1,7 @@
 package com.skedgo.tripkit.ui.data.realtime
 
-import org.immutables.gson.Gson
 import com.google.gson.annotations.JsonAdapter
+import org.immutables.gson.Gson
 import org.immutables.value.Value
 
 @Value.Immutable
@@ -9,7 +9,7 @@ import org.immutables.value.Value
 @Value.Style(passAnnotations = [JsonAdapter::class])
 @JsonAdapter(GsonAdaptersLatestRequestBody::class)
 interface LatestRequestBody {
-  fun region(): String
+    fun region(): String
 
-  fun services(): List<LatestService>
+    fun services(): List<LatestService>
 }

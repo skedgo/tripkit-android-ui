@@ -9,8 +9,8 @@ import javax.inject.Inject
 import javax.inject.Provider
 
 @ActivityScope
-class TripPreviewHeaderViewModelFactory @Inject constructor(private val tripPreviewHeaderViewModelProvider: Provider<TripPreviewHeaderViewModel>)
-    : ViewModelProvider.Factory {
+class TripPreviewHeaderViewModelFactory @Inject constructor(private val tripPreviewHeaderViewModelProvider: Provider<TripPreviewHeaderViewModel>) :
+    ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass == TripPreviewHeaderViewModel::class.java) {
             return tripPreviewHeaderViewModelProvider.get() as T

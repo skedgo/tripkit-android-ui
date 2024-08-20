@@ -79,7 +79,7 @@
                 app:layout_constraintTop_toBottomOf="@+id/itemDrt_tvLabel"
                 tools:text="@string/label_tap_to_make_selections" />
 
-<!--            android:visibility="@{viewModel.description.length() > 0}"-->
+            <!--            android:visibility="@{viewModel.description.length() > 0}"-->
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -117,7 +117,7 @@
                     android:contentDescription="@string/talkback_decrement"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"/>
+                    app:layout_constraintTop_toTopOf="parent" />
 
                 <TextView
                     android:id="@+id/itemDrt_tvQuantity"
@@ -147,7 +147,7 @@
                     app:accessibilityViewFocus="@{viewModel.accessibilityFocusIncrementAction}"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toEndOf="@id/itemDrt_tvQuantity"
-                    app:layout_constraintTop_toTopOf="parent"/>
+                    app:layout_constraintTop_toTopOf="parent" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 

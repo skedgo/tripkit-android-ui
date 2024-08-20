@@ -7,7 +7,6 @@ import com.skedgo.tripkit.routing.Trip
 import com.skedgo.tripkit.routing.TripGroup
 import com.skedgo.tripkit.routing.TripSegment
 import com.skedgo.tripkit.ui.controller.utils.LocationField
-import com.skedgo.tripkit.ui.locationpointer.LocationPointerFragment
 import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
 
@@ -33,7 +32,11 @@ class ViewControllerEvent {
     data class OnGetRouteTripResults(val origin: Location, val destination: Location)
     data class OnShareTrip(val trip: Trip)
     data class OnLaunchReportingTripBug(val trip: Trip)
-    data class OnTripPrimaryActionClick(val tripSegment: TripSegment, val fromListOverviewAction: Boolean)
+    data class OnTripPrimaryActionClick(
+        val tripSegment: TripSegment,
+        val fromListOverviewAction: Boolean
+    )
+
     data class OnViewTrip(val viewTrip: ViewTrip, val tripGroupList: List<TripGroup>)
     data class OnShowRouteSelection(val startLocation: Location, val destLocation: Location)
     data class OnRouteFromCurrentLocation(val location: Location)

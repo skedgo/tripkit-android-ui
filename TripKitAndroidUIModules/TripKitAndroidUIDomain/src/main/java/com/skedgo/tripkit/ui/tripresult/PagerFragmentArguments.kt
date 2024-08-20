@@ -1,7 +1,5 @@
 package com.skedgo.tripkit.ui.tripresult
 
-import com.skedgo.tripkit.common.model.Location
-
 sealed class PagerFragmentArguments
 
 // TODO Refactor this

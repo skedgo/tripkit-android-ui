@@ -16,7 +16,8 @@ import timber.log.Timber
 import javax.inject.Inject
 
 
-class ServiceDetailItemViewModel @Inject constructor(val getStopTimeDisplayText: GetStopTimeDisplayText): RxViewModel() {
+class ServiceDetailItemViewModel @Inject constructor(val getStopTimeDisplayText: GetStopTimeDisplayText) :
+    RxViewModel() {
     enum class LineDirection {
         START, MIDDLE, END
     }
@@ -32,9 +33,24 @@ class ServiceDetailItemViewModel @Inject constructor(val getStopTimeDisplayText:
 
     fun setDrawable(context: Context, direction: LineDirection) {
         when (direction) {
-            LineDirection.START -> lineDrawable.set(ContextCompat.getDrawable(context, R.drawable.service_line_start) as NinePatchDrawable)
-            LineDirection.MIDDLE -> lineDrawable.set(ContextCompat.getDrawable(context, R.drawable.service_line_middle) as NinePatchDrawable)
-            LineDirection.END -> lineDrawable.set(ContextCompat.getDrawable(context, R.drawable.service_line_end) as NinePatchDrawable)
+            LineDirection.START -> lineDrawable.set(
+                ContextCompat.getDrawable(
+                    context,
+                    R.drawable.service_line_start
+                ) as NinePatchDrawable
+            )
+            LineDirection.MIDDLE -> lineDrawable.set(
+                ContextCompat.getDrawable(
+                    context,
+                    R.drawable.service_line_middle
+                ) as NinePatchDrawable
+            )
+            LineDirection.END -> lineDrawable.set(
+                ContextCompat.getDrawable(
+                    context,
+                    R.drawable.service_line_end
+                ) as NinePatchDrawable
+            )
         }
 
         lineDrawable.get()?.setColorFilter(lineColor, PorterDuff.Mode.SRC_ATOP)
@@ -53,11 +69,10 @@ class ServiceDetailItemViewModel @Inject constructor(val getStopTimeDisplayText:
         }
         scheduledTimeTextColor.set(ContextCompat.getColor(context, R.color.black1))
         getStopTimeDisplayText.execute(stop)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({
-                    text ->
-                        scheduledTime.set(text)
-                }, { Timber.e(it)}).autoClear()
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({ text ->
+                scheduledTime.set(text)
+            }, { Timber.e(it) }).autoClear()
     }
 
 }

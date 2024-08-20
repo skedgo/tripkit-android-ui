@@ -4,16 +4,14 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.skedgo.tripkit.common.model.Location
 import com.skedgo.tripkit.regionrouting.RegionRoutingAutoCompleter
-import com.skedgo.tripkit.regionrouting.RegionRoutingRepository
 import com.skedgo.tripkit.regionrouting.data.RegionRoute
 import com.skedgo.tripkit.ui.TripKitUI
 import com.skedgo.tripkit.ui.core.RxViewModel
-import com.skedgo.tripkit.ui.utils.configureInterceptor
 import io.reactivex.subjects.PublishSubject
 import javax.inject.Inject
 
 class RouteAutocompleteViewModel @Inject constructor(
-        //private val regionRoutingRepository: RegionRoutingRepository
+    //private val regionRoutingRepository: RegionRoutingRepository
 ) : RxViewModel() {
 
     private val routeAutoCompletePublishSubject = PublishSubject.create<String>()
@@ -40,9 +38,9 @@ class RouteAutocompleteViewModel @Inject constructor(
 
     fun onSearchQueryChange(text: CharSequence) {
         regionRoutingAutoCompleter.sendQuery(
-                RegionRoutingAutoCompleter.AutoCompleteQuery.Builder(
-                        text.toString()
-                ).byRegionName("US_CA_LosAngeles").build()
+            RegionRoutingAutoCompleter.AutoCompleteQuery.Builder(
+                text.toString()
+            ).byRegionName("US_CA_LosAngeles").build()
         )
     }
 

@@ -10,9 +10,9 @@ class BottomSheetViewPager(context: Context, attrs: AttributeSet?) : ViewPager(c
     constructor(context: Context) : this(context, null)
 
     private val positionField: Field =
-            ViewPager.LayoutParams::class.java.getDeclaredField("position").also {
-                it.isAccessible = true
-            }
+        ViewPager.LayoutParams::class.java.getDeclaredField("position").also {
+            it.isAccessible = true
+        }
 
     init {
         addOnPageChangeListener(object : SimpleOnPageChangeListener() {
@@ -26,7 +26,7 @@ class BottomSheetViewPager(context: Context, attrs: AttributeSet?) : ViewPager(c
         val stackTrace = Throwable().stackTrace
         val calledFromFindScrollingChild = stackTrace.getOrNull(1)?.let {
             it.className == "com.google.android.material.bottomsheet.BottomSheetBehavior" &&
-                    it.methodName == "findScrollingChild"
+                it.methodName == "findScrollingChild"
         }
         if (calledFromFindScrollingChild != true) {
             return super.getChildAt(index)

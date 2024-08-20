@@ -39,21 +39,34 @@ class NearbyTripPreviewModeItemViewModel {
 
     fun onItemClick(view: View) {
         checked.set(!checked.get())
-        clicked.accept(modeId.get()!! to checked.get() )
+        clicked.accept(modeId.get()!! to checked.get())
     }
 }
+
 class NearbyTripPreviewItemViewModel : RxViewModel() {
     val loadingItem = LoaderPlaceholder()
     val showModes = ObservableBoolean(false)
     var originalItems = listOf<NearbyLocation>()
     var items = ObservableArrayList<NearbyTripPreviewItemListItemViewModel>()
     val binding = ItemBinding.of(
-            OnItemBindClass<Any>()
-                    .map(NearbyTripPreviewItemListItemViewModel::class.java, com.skedgo.tripkit.ui.BR.viewModel, R.layout.trip_preview_pager_nearby_list_item)
-                    .map(LoaderPlaceholder::class.java, ItemBinding.VAR_NONE, R.layout.circular_progress_loader))
+        OnItemBindClass<Any>()
+            .map(
+                NearbyTripPreviewItemListItemViewModel::class.java,
+                com.skedgo.tripkit.ui.BR.viewModel,
+                R.layout.trip_preview_pager_nearby_list_item
+            )
+            .map(
+                LoaderPlaceholder::class.java,
+                ItemBinding.VAR_NONE,
+                R.layout.circular_progress_loader
+            )
+    )
 
     var transportModes = ObservableArrayList<NearbyTripPreviewModeItemViewModel>()
-    var transportBinding = ItemBinding.of<NearbyTripPreviewModeItemViewModel>(BR.viewModel, R.layout.trip_preview_pager_nearby_list_mode_transport)
+    var transportBinding = ItemBinding.of<NearbyTripPreviewModeItemViewModel>(
+        BR.viewModel,
+        R.layout.trip_preview_pager_nearby_list_mode_transport
+    )
     val mergedList = MergeObservableList<Any>().insertItem(loadingItem).insertList(items)
 
     fun clearTransportModes() {
@@ -64,8 +77,8 @@ class NearbyTripPreviewItemViewModel : RxViewModel() {
         val vm = NearbyTripPreviewModeItemViewModel()
         vm.modeId.set(modeInfo.id)
         vm.clicked.observeOn(mainThread())
-                .subscribe { loadLocations(true) }
-                .autoClear()
+            .subscribe { loadLocations(true) }
+            .autoClear()
         modeInfo.modeCompat?.let {
             vm.modeIconId.set(it.iconRes)
         }
@@ -74,7 +87,8 @@ class NearbyTripPreviewItemViewModel : RxViewModel() {
     }
 
     fun loadLocations(checkModes: Boolean = false) {
-        var enabledModes = transportModes.filter { it.checked.get() }.map{ it.modeId.get()!! }.toSet()
+        var enabledModes =
+            transportModes.filter { it.checked.get() }.map { it.modeId.get()!! }.toSet()
         items.clear()
         originalItems.forEach {
             if (!checkModes || enabledModes.contains(it.modeInfo?.id)) {
@@ -89,6 +103,7 @@ class NearbyTripPreviewItemViewModel : RxViewModel() {
         }
 
     }
+
     fun setLocations(list: List<NearbyLocation>) {
         originalItems = list
         loadLocations()

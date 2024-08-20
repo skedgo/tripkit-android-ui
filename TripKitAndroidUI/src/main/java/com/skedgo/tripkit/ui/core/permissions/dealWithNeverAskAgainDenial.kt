@@ -7,9 +7,9 @@ import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.utils.viewAppDetailsSettingsIntent
 
 fun Activity.dealWithNeverAskAgainDenial(message: String): () -> Unit = {
-  Snackbar.make(findContentLayout(), message, Snackbar.LENGTH_LONG)
-      .setAction(R.string.settings, { startActivity(viewAppDetailsSettingsIntent()) })
-      .show()
+    Snackbar.make(findContentLayout(), message, Snackbar.LENGTH_LONG)
+        .setAction(R.string.settings, { startActivity(viewAppDetailsSettingsIntent()) })
+        .show()
 }
 
 fun Activity.findContentLayout(): View = findViewById(android.R.id.content)

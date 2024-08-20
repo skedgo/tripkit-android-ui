@@ -32,13 +32,18 @@ class GenericListDisplayDialogFragment : DialogFragment(), GenericListDisplayDia
         super.onStart()
 
         dialog?.apply {
-            window?.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
+            window?.setLayout(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT
+            )
             window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         }
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View {
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
         binding = DialogGenericListDisplayBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -90,14 +95,14 @@ class GenericListDisplayDialogFragment : DialogFragment(), GenericListDisplayDia
         private const val ARGS_LIST_SELECTION = "_list_selection"
 
         fun newInstance(
-                selection: List<GenericListItem>,
-                title: String = "",
-                onCloseCallback: (() -> Unit)? = null
+            selection: List<GenericListItem>,
+            title: String = "",
+            onCloseCallback: (() -> Unit)? = null
         ): GenericListDisplayDialogFragment {
             return GenericListDisplayDialogFragment().apply {
                 arguments = bundleOf(
-                        ARGS_TITLE to title,
-                        ARGS_LIST_SELECTION to Gson().toJson(selection)
+                    ARGS_TITLE to title,
+                    ARGS_LIST_SELECTION to Gson().toJson(selection)
                 )
                 this.onClose = onCloseCallback
             }

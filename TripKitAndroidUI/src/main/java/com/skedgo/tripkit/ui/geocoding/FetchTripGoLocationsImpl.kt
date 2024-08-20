@@ -1,9 +1,9 @@
 package com.skedgo.tripkit.ui.geocoding
 
-import com.skedgo.tripkit.common.model.Location
 import com.skedgo.geocoding.GCSkedgoResult
 import com.skedgo.geocoding.agregator.GCResultInterface
 import com.skedgo.tripkit.common.model.LOCATION_CLASS_SCHOOL
+import com.skedgo.tripkit.common.model.Location
 import com.skedgo.tripkit.ui.search.FetchLocationsParameters
 import com.skedgo.tripkit.ui.search.FetchTripGoLocations
 import com.skedgo.tripkit.ui.utils.TransportModeSharedPreference

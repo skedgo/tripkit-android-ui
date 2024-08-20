@@ -11,7 +11,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.skedgo.tripkit.ui.databinding.DialogGenericListOldBinding
 
 @Deprecated("Use GenericListDialogFragment")
-class GenericListFragmentOld(private val listener: Listener) : DialogFragment(), GenericListAdapterOld.OnSelectListener {
+class GenericListFragmentOld(private val listener: Listener) : DialogFragment(),
+    GenericListAdapterOld.OnSelectListener {
 
     private lateinit var binding: DialogGenericListOldBinding
     private lateinit var selection: List<String>
@@ -21,7 +22,11 @@ class GenericListFragmentOld(private val listener: Listener) : DialogFragment(),
     private var isMultiSelect = true
     private val selectedList = ArrayList<String>()
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
         binding = DialogGenericListOldBinding.inflate(inflater, container, false)
 
         setupSelectionRecyclerView()
@@ -35,7 +40,10 @@ class GenericListFragmentOld(private val listener: Listener) : DialogFragment(),
 
         val dialog = dialog
         if (dialog != null) {
-            dialog.window?.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
+            dialog.window?.setLayout(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT
+            )
             dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         }
     }

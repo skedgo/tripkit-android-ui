@@ -5,7 +5,7 @@
 
     <data>
 
-        <import type="androidx.core.content.ContextCompat"/>
+        <import type="androidx.core.content.ContextCompat" />
 
         <variable
             name="item"

@@ -25,9 +25,9 @@ import com.skedgo.tripkit.ui.databinding.FragmentTkuiTripPreviewBinding
 import com.skedgo.tripkit.ui.payment.PaymentData
 import com.skedgo.tripkit.ui.timetables.TimetableFragment
 import com.skedgo.tripkit.ui.trippreview.Action
-import com.skedgo.tripkit.ui.trippreview.segment.TripSegmentSummary
 import com.skedgo.tripkit.ui.trippreview.TripPreviewPagerListener
 import com.skedgo.tripkit.ui.trippreview.TripPreviewPagerViewModel
+import com.skedgo.tripkit.ui.trippreview.segment.TripSegmentSummary
 import com.skedgo.tripkit.ui.tripresults.GetTransportIconTintStrategy
 import com.skedgo.tripkit.ui.utils.ITEM_SERVICE
 import com.skedgo.tripkit.ui.utils.correctItemType
@@ -148,7 +148,7 @@ class TKUITripPreviewFragment : BaseFragment<FragmentTkuiTripPreviewBinding>() {
                         }
                         .filter {
                             it.type != SegmentType.DEPARTURE &&
-                                    it.type != SegmentType.ARRIVAL
+                                it.type != SegmentType.ARRIVAL
                         },
                     fromTripAction
                 )

@@ -4,5 +4,5 @@ import com.skedgo.geocoding.agregator.GCResultInterface
 import io.reactivex.Observable
 
 interface FetchLocations {
-  fun getLocations(parameters: FetchLocationsParameters): Observable<List<GCResultInterface>>
+    fun getLocations(parameters: FetchLocationsParameters): Observable<List<GCResultInterface>>
 }

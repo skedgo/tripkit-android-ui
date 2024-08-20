@@ -4,7 +4,7 @@ import com.skedgo.geocoding.agregator.GCResultInterface
 import io.reactivex.Observable
 
 interface FetchTripGoLocations : FetchLocations {
-  override fun getLocations(
-          parameters: FetchLocationsParameters
-  ): Observable<List<GCResultInterface>>
+    override fun getLocations(
+        parameters: FetchLocationsParameters
+    ): Observable<List<GCResultInterface>>
 }

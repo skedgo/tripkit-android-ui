@@ -10,17 +10,17 @@ import io.reactivex.Observable
  * Note that the [Observable] returned by this function is not intended to emit the current value.
  */
 fun SharedPreferences.onChange(observedKey: String): Observable<Pair<SharedPreferences, String>> {
-  return Flowable
-      .create<String>({emitter ->
-        val listener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
-            key?.let {
-                emitter.onNext(it)
+    return Flowable
+        .create<String>({ emitter ->
+            val listener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
+                key?.let {
+                    emitter.onNext(it)
+                }
             }
-        }
-        registerOnSharedPreferenceChangeListener(listener)
-        emitter.setCancellable { unregisterOnSharedPreferenceChangeListener(listener) }
-      }, BackpressureStrategy.BUFFER)
-      .toObservable()
-      .filter { it == observedKey }
-      .map { Pair<SharedPreferences, String>(this, it) }
+            registerOnSharedPreferenceChangeListener(listener)
+            emitter.setCancellable { unregisterOnSharedPreferenceChangeListener(listener) }
+        }, BackpressureStrategy.BUFFER)
+        .toObservable()
+        .filter { it == observedKey }
+        .map { Pair<SharedPreferences, String>(this, it) }
 }

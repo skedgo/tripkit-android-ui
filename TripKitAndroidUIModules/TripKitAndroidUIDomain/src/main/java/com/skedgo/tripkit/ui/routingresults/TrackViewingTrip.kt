@@ -8,13 +8,14 @@ import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 open class TrackViewingTrip @Inject internal constructor(
-    private val eventTracker: EventTracker) {
+    private val eventTracker: EventTracker
+) {
 
-  open fun execute(getSource: Observable<TripSource>): Observable<Unit> =
-      getSource.debounce(5, TimeUnit.SECONDS)
-          .flatMap {
-            Observable.fromCallable {
-              eventTracker.log(Event.ViewTrip(it.value))
+    open fun execute(getSource: Observable<TripSource>): Observable<Unit> =
+        getSource.debounce(5, TimeUnit.SECONDS)
+            .flatMap {
+                Observable.fromCallable {
+                    eventTracker.log(Event.ViewTrip(it.value))
+                }
             }
-          }
 }

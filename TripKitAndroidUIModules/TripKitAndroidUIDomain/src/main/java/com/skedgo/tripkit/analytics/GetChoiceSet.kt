@@ -1,7 +1,10 @@
 package com.skedgo.tripkit.analytics
 
-import com.skedgo.tripkit.routing.*
-import java.util.*
+import com.skedgo.tripkit.routing.GroupVisibility
+import com.skedgo.tripkit.routing.SegmentType
+import com.skedgo.tripkit.routing.Trip
+import com.skedgo.tripkit.routing.TripGroup
+import com.skedgo.tripkit.routing.TripSegment
 import javax.inject.Inject
 
 open class GetChoiceSet @Inject constructor() {
@@ -10,31 +13,31 @@ open class GetChoiceSet @Inject constructor() {
      * @param visibleTripGroups Represents a list of [TripGroup] that we show to users.
      */
     open fun execute(
-            selectedTrip: Trip,
-            visibleTripGroups: List<TripGroup>
+        selectedTrip: Trip,
+        visibleTripGroups: List<TripGroup>
     ): List<Choice> = visibleTripGroups
-            .map { Pair(it.displayTrip, it.visibility) }
-            .map {
-                when (it.second.toString()) {
-                    GroupVisibility.FULL.name -> Pair(it.first, Visibility.Full)
-                    else -> Pair(it.first, Visibility.Minimized)
-                }
+        .map { Pair(it.displayTrip, it.visibility) }
+        .map {
+            when (it.second.toString()) {
+                GroupVisibility.FULL.name -> Pair(it.first, Visibility.Full)
+                else -> Pair(it.first, Visibility.Minimized)
             }
-            .map {
-                val trip = it.first!!
-                Choice(
-                        trip.moneyCost,
-                        trip.weightedScore,
-                        trip.carbonCost,
-                        trip.hassleCost,
-                        trip.caloriesCost,
-                        getMiniSegments(trip.segments),
-                        trip.uuid() == selectedTrip.uuid(),
-                        it.second.value,
-                        trip.endTimeInSecs,
-                        trip.startTimeInSecs
-                )
-            }
+        }
+        .map {
+            val trip = it.first!!
+            Choice(
+                trip.moneyCost,
+                trip.weightedScore,
+                trip.carbonCost,
+                trip.hassleCost,
+                trip.caloriesCost,
+                getMiniSegments(trip.segments),
+                trip.uuid() == selectedTrip.uuid(),
+                it.second.value,
+                trip.endTimeInSecs,
+                trip.startTimeInSecs
+            )
+        }
 
 //    open fun execute(
 //            selectedTrip: Trip,
@@ -64,11 +67,11 @@ open class GetChoiceSet @Inject constructor() {
 //            }
 
     private fun getMiniSegments(segments: List<TripSegment>): List<MiniSegment> = segments
-            .filter { it.modeInfo != null }
-            .map {
-                val segmentType = getSegmentMode(it)
-                MiniSegment(segmentType, it.endTimeInSecs - it.startTimeInSecs)
-            }
+        .filter { it.modeInfo != null }
+        .map {
+            val segmentType = getSegmentMode(it)
+            MiniSegment(segmentType, it.endTimeInSecs - it.startTimeInSecs)
+        }
 
     private fun getSegmentMode(segment: TripSegment): String = when (segment.type) {
         SegmentType.STATIONARY -> segment.modeInfo?.localIconName ?: "wait"

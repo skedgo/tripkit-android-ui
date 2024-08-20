@@ -6,7 +6,6 @@ import org.immutables.gson.Gson.TypeAdapters;
 import org.immutables.value.Value.Immutable;
 
 import static org.immutables.value.Value.Style;
-import static org.immutables.value.Value.Style.ImplementationVisibility.PACKAGE;
 
 @Immutable
 @Style(
@@ -16,11 +15,16 @@ import static org.immutables.value.Value.Style.ImplementationVisibility.PACKAGE;
 @TypeAdapters
 @JsonAdapter(GsonAdaptersLocationSampleDto.class)
 public interface LocationSampleDto {
-  long timestamp();
-  double latitude();
-  double longitude();
-  int bearing();
-  int speed();
+    long timestamp();
 
-  class Builder extends ImmutableLocationSampleDto.Builder {}
+    double latitude();
+
+    double longitude();
+
+    int bearing();
+
+    int speed();
+
+    class Builder extends ImmutableLocationSampleDto.Builder {
+    }
 }

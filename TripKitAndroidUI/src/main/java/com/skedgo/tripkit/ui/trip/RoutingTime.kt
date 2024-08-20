@@ -1,4 +1,5 @@
 package com.skedgo.tripkit.ui.trip
+
 import org.joda.time.DateTime
 
 sealed class RoutingTime

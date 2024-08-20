@@ -33,7 +33,7 @@
             app:layout_constraintStart_toStartOf="@+id/tvMax"
             app:layout_constraintEnd_toEndOf="@id/tvMax"
             app:layout_constraintTop_toBottomOf="@+id/vTopDivider"
-            app:layout_constraintBottom_toBottomOf="parent"/>
+            app:layout_constraintBottom_toBottomOf="parent" />
 
         <TextView
             android:id="@+id/tvMiddle"

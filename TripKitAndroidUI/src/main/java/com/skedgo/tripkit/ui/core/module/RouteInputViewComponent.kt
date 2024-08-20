@@ -5,5 +5,5 @@ import dagger.Subcomponent
 
 @Subcomponent(modules = [RouteInputViewModule::class])
 interface RouteInputViewComponent {
-  fun inject(view: RouteInputView)
+    fun inject(view: RouteInputView)
 }

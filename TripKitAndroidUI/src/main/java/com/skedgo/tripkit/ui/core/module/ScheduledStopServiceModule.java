@@ -1,5 +1,6 @@
 package com.skedgo.tripkit.ui.core.module;
 
+import com.skedgo.tripkit.agenda.ConfigRepository;
 import com.skedgo.tripkit.data.database.locations.bikepods.BikePodRepository;
 import com.skedgo.tripkit.data.database.locations.carparks.CarParkMapper;
 import com.skedgo.tripkit.data.database.locations.carparks.CarParkPersistor;
@@ -14,8 +15,6 @@ import com.skedgo.tripkit.data.locations.StopsFetcher;
 
 import dagger.Module;
 import dagger.Provides;
-
-import com.skedgo.tripkit.agenda.ConfigRepository;
 
 @Module
 public class ScheduledStopServiceModule {
@@ -35,20 +34,20 @@ public class ScheduledStopServiceModule {
                                      CarPodRepository carPodRepository,
                                      FacilityRepository facilityRepository) {
         return new StopsFetcher(
-                api,
-                cellsLoader,
-                cellsPersistor,
-                stopsPersistor,
-                configCreator,
-                bikePodRepository,
-                freeFloatingRepository,
-                carParkPersistor,
-                onStreetParkingPersistor,
-                CarParkMapper,
-                carPodMapper,
-                onStreetParkingMapper,
-                carPodRepository,
-                facilityRepository
+            api,
+            cellsLoader,
+            cellsPersistor,
+            stopsPersistor,
+            configCreator,
+            bikePodRepository,
+            freeFloatingRepository,
+            carParkPersistor,
+            onStreetParkingPersistor,
+            CarParkMapper,
+            carPodMapper,
+            onStreetParkingMapper,
+            carPodRepository,
+            facilityRepository
         );
     }
 }

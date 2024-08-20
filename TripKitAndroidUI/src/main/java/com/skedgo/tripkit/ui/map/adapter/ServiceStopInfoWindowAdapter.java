@@ -3,11 +3,11 @@ package com.skedgo.tripkit.ui.map.adapter;
 import android.view.LayoutInflater;
 import android.view.View;
 
-import androidx.annotation.NonNull;
-
 import com.google.android.gms.maps.model.Marker;
 import com.skedgo.tripkit.ui.R;
 import com.skedgo.tripkit.ui.map.SimpleCalloutView;
+
+import androidx.annotation.NonNull;
 
 public final class ServiceStopInfoWindowAdapter extends SimpleInfoWindowAdapter {
     private final LayoutInflater inflater;

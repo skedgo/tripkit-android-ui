@@ -3,15 +3,17 @@ package com.skedgo.tripkit.ui.core.binding;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
-import androidx.databinding.BindingAdapter;
-import androidx.databinding.DataBindingUtil;
-import androidx.databinding.ViewDataBinding;
+
 import com.skedgo.tripkit.common.model.RealtimeAlert;
 import com.skedgo.tripkit.ui.BR;
 import com.skedgo.tripkit.ui.views.TripSegmentAlertView;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import androidx.databinding.BindingAdapter;
+import androidx.databinding.DataBindingUtil;
+import androidx.databinding.ViewDataBinding;
 
 public final class ArrayBindingAdapter {
     @BindingAdapter({"entries", "layout"})
@@ -20,11 +22,11 @@ public final class ArrayBindingAdapter {
         viewGroup.removeAllViews();
         if (entries != null) {
             LayoutInflater inflater = (LayoutInflater)
-                    viewGroup.getContext()
-                            .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                viewGroup.getContext()
+                    .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             for (T entry : entries) {
                 ViewDataBinding binding = DataBindingUtil
-                        .inflate(inflater, layoutId, viewGroup, true);
+                    .inflate(inflater, layoutId, viewGroup, true);
                 binding.setVariable(BR.viewModel, entry);
             }
         }

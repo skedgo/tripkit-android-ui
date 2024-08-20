@@ -2,8 +2,6 @@ package com.skedgo.tripkit.ui.controller.utils.actionhandler
 
 import android.content.Context
 import com.skedgo.TripKit
-import com.skedgo.tripkit.ui.favorites.trips.FavoriteTripsRepository
-import com.skedgo.tripkit.ui.favorites.trips.toFavoriteTrip
 import com.skedgo.tripkit.routing.Trip
 import com.skedgo.tripkit.routing.getMainTripSegment
 import com.skedgo.tripkit.routing.getSummarySegments
@@ -13,9 +11,6 @@ import com.skedgo.tripkit.ui.controller.ViewControllerEventBus
 import com.skedgo.tripkit.ui.tripresult.ActionButtonViewModel
 import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButton
 import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButtonHandler
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 
@@ -68,7 +63,7 @@ open class TKUIActionButtonHandler @Inject constructor(
             )
         )
 
-        if(!globalConfigs.hideFavorites()) {
+        if (!globalConfigs.hideFavorites()) {
             favouriteText = context.getString(R.string.favourite)
             unfavouriteText = context.getString(R.string.remove_favourite)
             val favText = if (isTripFavorite(trip)) {

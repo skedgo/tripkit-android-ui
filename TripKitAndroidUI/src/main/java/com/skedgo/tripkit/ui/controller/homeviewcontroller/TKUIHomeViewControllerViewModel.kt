@@ -20,7 +20,6 @@ import com.skedgo.tripkit.ui.controller.utils.LocationField
 import com.skedgo.tripkit.ui.core.RxViewModel
 import com.skedgo.tripkit.ui.search.FixedSuggestions
 import io.reactivex.Observable
-import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -38,7 +37,7 @@ class TKUIHomeViewControllerViewModel @Inject constructor(
     val myLocationButtonVisible: LiveData<Boolean> = _myLocationButtonVisible
 
     @VisibleForTesting
-    fun getUserGeoPointObservable() : Observable<Try<Location>> =
+    fun getUserGeoPointObservable(): Observable<Try<Location>> =
         userGeoPointRepository.getFirstCurrentGeoPoint()
             .toTry()
             .map<Try<Location>> { tried: Try<GeoPoint> ->

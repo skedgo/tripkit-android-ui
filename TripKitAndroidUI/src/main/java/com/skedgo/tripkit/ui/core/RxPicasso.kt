@@ -11,7 +11,7 @@ import kotlinx.coroutines.launch
 
 
 fun Picasso.fetchAsync(url: String): Single<Bitmap> =
-        fetchAsyncWithSize(url, null).observeOn(Schedulers.io()).subscribeOn(mainThread())
+    fetchAsyncWithSize(url, null).observeOn(Schedulers.io()).subscribeOn(mainThread())
 
 fun Picasso.fetchAsyncWithSize(url: String, @DimenRes maxSize: Int? = null): Single<Bitmap> {
     return Single.create {
@@ -21,9 +21,9 @@ fun Picasso.fetchAsyncWithSize(url: String, @DimenRes maxSize: Int? = null): Sin
                 if (!it.isDisposed) {
                     val creator = single.load(url)
                     maxSize?.let {
-                        creator.resizeDimen(it,it)
-                                .centerInside()
-                                .onlyScaleDown()
+                        creator.resizeDimen(it, it)
+                            .centerInside()
+                            .onlyScaleDown()
                     }
                     val bitmap = creator.get()
                     it.onSuccess(bitmap)
@@ -34,7 +34,6 @@ fun Picasso.fetchAsyncWithSize(url: String, @DimenRes maxSize: Int? = null): Sin
         }
     }
 }
-
 
 
 class UnableToFetchBitmapError(message: String) : RuntimeException(message)

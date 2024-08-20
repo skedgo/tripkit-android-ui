@@ -10,6 +10,7 @@ import com.skedgo.tripkit.common.model.RealTimeStatus
 import com.skedgo.tripkit.common.model.Region
 import com.skedgo.tripkit.common.model.ScheduledStop
 import com.skedgo.tripkit.data.regions.RegionService
+import com.skedgo.tripkit.routing.RealTimeVehicle
 import com.skedgo.tripkit.tripplanner.DiffTransformer
 import com.skedgo.tripkit.ui.core.RxViewModel
 import com.skedgo.tripkit.ui.data.location.toLatLng
@@ -25,7 +26,6 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.functions.BiFunction
 import io.reactivex.rxkotlin.Observables
 import io.reactivex.schedulers.Schedulers
-import com.skedgo.tripkit.routing.RealTimeVehicle
 import javax.inject.Inject
 
 class ServiceStopMapViewModel @Inject constructor(

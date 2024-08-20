@@ -53,12 +53,12 @@ import javax.inject.Inject
 
 @SuppressLint("StaticFieldLeak")
 class TripSegmentItemViewModel @Inject internal constructor(
-        private val context: Context,
-        private val getTransportIconTintStrategy: GetTransportIconTintStrategy,
-        private val tripSegmentHelper: TripSegmentHelper,
-        private val printTime: PrintTime,
-        val occupancyViewModel: OccupancyViewModel,
-        private val transportModeSharedPreference: TransportModeSharedPreference
+    private val context: Context,
+    private val getTransportIconTintStrategy: GetTransportIconTintStrategy,
+    private val tripSegmentHelper: TripSegmentHelper,
+    private val printTime: PrintTime,
+    val occupancyViewModel: OccupancyViewModel,
+    private val transportModeSharedPreference: TransportModeSharedPreference
 ) : RxViewModel() {
     enum class SegmentViewType {
         TERMINAL,
@@ -110,17 +110,17 @@ class TripSegmentItemViewModel @Inject internal constructor(
 
     //TODO break this big function into small functions
     fun setupSegment(
-            viewType: SegmentViewType,
-            title: String,
-            description: String? = null,
-            startTime: String? = null,
-            endTime: String? = null,
-            delay: Long = 0,
-            hasRealtime: Boolean = false,
-            lineColor: Int = Color.TRANSPARENT,
-            topConnectionColor: Int = lineColor,
-            bottomConnectionColor: Int = lineColor,
-            isStationaryItem: Boolean = false,
+        viewType: SegmentViewType,
+        title: String,
+        description: String? = null,
+        startTime: String? = null,
+        endTime: String? = null,
+        delay: Long = 0,
+        hasRealtime: Boolean = false,
+        lineColor: Int = Color.TRANSPARENT,
+        topConnectionColor: Int = lineColor,
+        bottomConnectionColor: Int = lineColor,
+        isStationaryItem: Boolean = false,
     ) {
         this.isStationaryItem = isStationaryItem
         tripSegment?.let { segment ->
@@ -136,7 +136,7 @@ class TripSegmentItemViewModel @Inject internal constructor(
             val tintWhite = segment.drawTransitLineWithCircleOverlay(viewType, lineColor)
 
             val segmentCircleColor =
-                    getSegmentCircleColor(topConnectionColor, bottomConnectionColor)
+                getSegmentCircleColor(topConnectionColor, bottomConnectionColor)
 
             setTerminalSegmentIcon(viewType, segmentCircleColor, lineColor)
 
@@ -149,11 +149,11 @@ class TripSegmentItemViewModel @Inject internal constructor(
                 initOccupancy(segment)
             }
             val isBicycleEnabled =
-                    transportModeSharedPreference.isTransportModeEnabled(TransportMode.ID_BICYCLE)
+                transportModeSharedPreference.isTransportModeEnabled(TransportMode.ID_BICYCLE)
             _showBicycleAccessible.postValue(
-                    isBicycleEnabled &&
-                            segment.bicycleAccessible &&
-                            !isStationaryItem
+                isBicycleEnabled &&
+                    segment.bicycleAccessible &&
+                    !isStationaryItem
             )
         }
     }
@@ -176,10 +176,10 @@ class TripSegmentItemViewModel @Inject internal constructor(
     }
 
     private fun TripSegment.determineAndShowSegmentIcon(
-            viewType: SegmentViewType,
-            lineColor: Int,
-            tintWhite: Boolean,
-            segmentCircleColor: Int
+        viewType: SegmentViewType,
+        lineColor: Int,
+        tintWhite: Boolean,
+        segmentCircleColor: Int
     ) {
         if (viewType == SegmentViewType.TERMINAL) {
             // But terminal segments that are not part of a transit line show the map marker icon.
@@ -195,9 +195,9 @@ class TripSegmentItemViewModel @Inject internal constructor(
     }
 
     private fun setTerminalSegmentIcon(
-            viewType: SegmentViewType,
-            segmentCircleColor: Int,
-            lineColor: Int
+        viewType: SegmentViewType,
+        segmentCircleColor: Int,
+        lineColor: Int
     ) {
         // If the terminal segment is the end of a public transit line, end with that rather than a destination icon.
         if (segmentCircleColor != Color.TRANSPARENT && (lineColor == Color.TRANSPARENT || viewType == SegmentViewType.TERMINAL)) {
@@ -211,8 +211,8 @@ class TripSegmentItemViewModel @Inject internal constructor(
     }
 
     private fun TripSegment.drawTransitLineWithCircleOverlay(
-            viewType: SegmentViewType,
-            lineColor: Int = Color.TRANSPARENT
+        viewType: SegmentViewType,
+        lineColor: Int = Color.TRANSPARENT
     ): Boolean {
         // When showing transit lines, we draw a circle in the middle with the icon overlayed on it and lines connecting
         // the top and/or bottom segments.
@@ -220,14 +220,18 @@ class TripSegmentItemViewModel @Inject internal constructor(
         // Those STATIONARY_BRIDGE views set the lineColor to transparent and just use a connection color, so
         // we also handle the special case of a TERMINAL being the last segment.
         if (lineColor != Color.TRANSPARENT
-                && viewType != SegmentViewType.TERMINAL /* Don't show the circle background when it's a terminal */) {
+            && viewType != SegmentViewType.TERMINAL /* Don't show the circle background when it's a terminal */) {
             val tintWhite =
-                    when {
-                        this.modeInfo?.remoteIconIsBranding == true && this.modeInfo?.remoteIconName?.contains(RemoteIcon.NEURON) == true ||
-                                this.modeInfo?.remoteIconIsBranding == true && this.modeInfo?.remoteIconName?.contains(RemoteIcon.LIME) == true -> false
+                when {
+                    this.modeInfo?.remoteIconIsBranding == true && this.modeInfo?.remoteIconName?.contains(
+                        RemoteIcon.NEURON
+                    ) == true ||
+                        this.modeInfo?.remoteIconIsBranding == true && this.modeInfo?.remoteIconName?.contains(
+                        RemoteIcon.LIME
+                    ) == true -> false
 
-                        else -> true
-                    }
+                    else -> true
+                }
 
             backgroundCircleTint.set(lineColor)
             showBackgroundCircle.set(true)
@@ -240,17 +244,17 @@ class TripSegmentItemViewModel @Inject internal constructor(
 
     private fun TripSegment.verifyAndUpdateExternalAction(viewType: SegmentViewType) {
         if ((this.correctItemType() == ITEM_EXTERNAL_BOOKING && viewType == SegmentViewType.MOVING)
-                || (this.correctItemType() == ITEM_NEARBY && this.booking?.externalActions?.isNotEmpty() == true)
+            || (this.correctItemType() == ITEM_NEARBY && this.booking?.externalActions?.isNotEmpty() == true)
         ) {
             externalAction.set(this.booking!!.title)
         }
     }
 
     private fun verifyAndSetTime(
-            hasRealtime: Boolean,
-            startTime: String? = null,
-            endTime: String? = null,
-            delay: Long = 0,
+        hasRealtime: Boolean,
+        startTime: String? = null,
+        endTime: String? = null,
+        delay: Long = 0,
     ) {
         if (hasRealtime) {
             // We show the realtime times differently than when they aren't real time. When a
@@ -260,43 +264,43 @@ class TripSegmentItemViewModel @Inject internal constructor(
 
             val startTimeSpannable = SpannableString(startTime)
             startTimeSpannable.setSpan(
-                    StyleSpan(BOLD),
-                    0,
-                    startTimeSpannable.length,
-                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                StyleSpan(BOLD),
+                0,
+                startTimeSpannable.length,
+                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
             )
 
             if (delay > 0) { // Late
                 startTimeSpannable.setSpan(
-                        ForegroundColorSpan(ContextCompat.getColor(context, R.color.tripKitError)),
-                        0,
-                        startTimeSpannable.length,
-                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                    ForegroundColorSpan(ContextCompat.getColor(context, R.color.tripKitError)),
+                    0,
+                    startTimeSpannable.length,
+                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
                 )
 
             } else if (delay < 0) { // Early
                 startTimeSpannable.setSpan(
-                        ForegroundColorSpan(
-                                ContextCompat.getColor(
-                                        context,
-                                        R.color.tripKitWarning
-                                )
-                        ),
-                        0,
-                        startTimeSpannable.length,
-                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                    ForegroundColorSpan(
+                        ContextCompat.getColor(
+                            context,
+                            R.color.tripKitWarning
+                        )
+                    ),
+                    0,
+                    startTimeSpannable.length,
+                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
                 )
             } else { // On time
                 startTimeSpannable.setSpan(
-                        ForegroundColorSpan(
-                                ContextCompat.getColor(
-                                        context,
-                                        R.color.tripKitSuccess
-                                )
-                        ),
-                        0,
-                        startTimeSpannable.length,
-                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                    ForegroundColorSpan(
+                        ContextCompat.getColor(
+                            context,
+                            R.color.tripKitSuccess
+                        )
+                    ),
+                    0,
+                    startTimeSpannable.length,
+                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
                 )
             }
             this.startTime.set(startTimeSpannable)
@@ -307,10 +311,10 @@ class TripSegmentItemViewModel @Inject internal constructor(
                 // crossed out.
                 val endTimeSpannable = SpannableString(endTime)
                 endTimeSpannable.setSpan(
-                        StrikethroughSpan(),
-                        0,
-                        endTimeSpannable.length,
-                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                    StrikethroughSpan(),
+                    0,
+                    endTimeSpannable.length,
+                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
                 )
                 this.endTime.set(endTimeSpannable)
                 this.showEndTime.set(true)
@@ -329,8 +333,8 @@ class TripSegmentItemViewModel @Inject internal constructor(
     }
 
     private fun getSegmentCircleColor(
-            topConnectionColor: Int,
-            bottomConnectionColor: Int,
+        topConnectionColor: Int,
+        bottomConnectionColor: Int,
     ): Int {
         var segmentCircleColor = Color.TRANSPARENT
         if (topConnectionColor != Color.TRANSPARENT) {
@@ -360,34 +364,34 @@ class TripSegmentItemViewModel @Inject internal constructor(
         if (isStationaryItem) return
         val roadTagChartItems = mutableListOf<RoadTagChartItem>()
         tripSegment?.streets?.filter { !it.roadTags().isNullOrEmpty() }
-                ?.flatMap { street ->
-                    street.roadTags()!!.map { roadTag ->
-                        val newStreet = ImmutableStreet.builder()
-                                .name(street.name())
-                                .metres(street.metres())
-                                .encodedWaypoints(street.encodedWaypoints())
-                                .safe(street.safe())
-                                .dismount(street.dismount())
-                                .roadTags(listOf(roadTag))
-                                .build()
-                        newStreet
-                    }
+            ?.flatMap { street ->
+                street.roadTags()!!.map { roadTag ->
+                    val newStreet = ImmutableStreet.builder()
+                        .name(street.name())
+                        .metres(street.metres())
+                        .encodedWaypoints(street.encodedWaypoints())
+                        .safe(street.safe())
+                        .dismount(street.dismount())
+                        .roadTags(listOf(roadTag))
+                        .build()
+                    newStreet
                 }
-                ?.groupBy { it.roadTags() }
-                ?.mapValues { entry ->
-                    entry.key?.firstOrNull()?.let {
-                        val roadTag = it.parseRoadTag()
-                        val street = entry.value
-                        roadTagChartItems.add(
-                                RoadTagChartItem(
-                                        label = roadTag.getRoadTagLabel(),
-                                        length = street.sumOf { it.metres().toInt() },
-                                        color = roadTag.getRoadSafetyColor(),
-                                        index = roadTag.getRoadSafetyIndex()
-                                )
+            }
+            ?.groupBy { it.roadTags() }
+            ?.mapValues { entry ->
+                entry.key?.firstOrNull()?.let {
+                    val roadTag = it.parseRoadTag()
+                    val street = entry.value
+                    roadTagChartItems.add(
+                        RoadTagChartItem(
+                            label = roadTag.getRoadTagLabel(),
+                            length = street.sumOf { it.metres().toInt() },
+                            color = roadTag.getRoadSafetyColor(),
+                            index = roadTag.getRoadSafetyIndex()
                         )
-                    }
+                    )
                 }
+            }
 
         if (roadTagChartItems.isNotEmpty()) {
             _roadTagsCharItems.postValue(roadTagChartItems)
@@ -423,30 +427,30 @@ class TripSegmentItemViewModel @Inject internal constructor(
                 icon.set(null)
             } else {
                 val url =
-                        tripSegmentHelper.getIconUrlForModeInfo(context.resources, segment.modeInfo)
+                    tripSegmentHelper.getIconUrlForModeInfo(context.resources, segment.modeInfo)
                 var remoteIcon = Observable.empty<Drawable>()
                 if (url != null) {
                     remoteIcon = TripKitUI.getInstance().picasso().fetchAsync(url).toObservable()
-                            .map { bitmap -> BitmapDrawable(context.resources, bitmap) }
+                        .map { bitmap -> BitmapDrawable(context.resources, bitmap) }
                 }
                 Observable
-                        .just(ContextCompat.getDrawable(context, segment.darkVehicleIcon))
-                        .concatWith(remoteIcon)
-                        .map {
-                            if (tintWhite) {
-                                it.tint(Color.WHITE)
-                            } else {
-                                it
-                            }
+                    .just(ContextCompat.getDrawable(context, segment.darkVehicleIcon))
+                    .concatWith(remoteIcon)
+                    .map {
+                        if (tintWhite) {
+                            it.tint(Color.WHITE)
+                        } else {
+                            it
                         }
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .doOnComplete {
-                            this.showTicketInfo.set(!segment.ticketURL.isNullOrEmpty())
-                        }
-                        .subscribe({ drawable:
-                                     Drawable ->
-                            icon.set(drawable)
-                        }, { e -> Timber.e(e) }).autoClear()
+                    }
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .doOnComplete {
+                        this.showTicketInfo.set(!segment.ticketURL.isNullOrEmpty())
+                    }
+                    .subscribe({ drawable:
+                                 Drawable ->
+                        icon.set(drawable)
+                    }, { e -> Timber.e(e) }).autoClear()
 
             }
         }

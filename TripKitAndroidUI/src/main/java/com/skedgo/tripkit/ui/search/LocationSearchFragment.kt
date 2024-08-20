@@ -213,10 +213,10 @@ class LocationSearchFragment : BaseTripKitFragment() {
         searchView = binding.searchLayout.searchView
 
         binding.resultView.addItemDecoration(buildItemDecoration())
-        binding.resultView.addOnScrollListener(object: RecyclerView.OnScrollListener() {
+        binding.resultView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
                 super.onScrollStateChanged(recyclerView, newState)
-                if(newState == RecyclerView.SCROLL_STATE_DRAGGING) {
+                if (newState == RecyclerView.SCROLL_STATE_DRAGGING) {
                     defocusAndHideKeyboard(
                         requireContext(), requireActivity().currentFocus ?: view?.rootView
                     )

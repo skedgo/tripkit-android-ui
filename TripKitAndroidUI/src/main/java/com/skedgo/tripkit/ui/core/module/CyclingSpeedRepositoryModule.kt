@@ -9,9 +9,9 @@ import dagger.Provides
 
 @Module
 class CyclingSpeedRepositoryModule {
-  @Provides fun cyclingSpeedRepository(
-      resources: Resources,
-      prefs: SharedPreferences
-  ): CyclingSpeedRepository
-      = CyclingSpeedRepositoryImpl(resources, prefs)
+    @Provides
+    fun cyclingSpeedRepository(
+        resources: Resources,
+        prefs: SharedPreferences
+    ): CyclingSpeedRepository = CyclingSpeedRepositoryImpl(resources, prefs)
 }

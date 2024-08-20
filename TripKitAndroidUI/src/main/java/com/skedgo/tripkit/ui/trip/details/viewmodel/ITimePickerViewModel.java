@@ -2,17 +2,17 @@ package com.skedgo.tripkit.ui.trip.details.viewmodel;
 
 import android.os.Bundle;
 
-import androidx.annotation.Nullable;
-import androidx.databinding.ObservableBoolean;
-import androidx.databinding.ObservableField;
-import androidx.databinding.ObservableInt;
-
 import com.skedgo.tripkit.common.model.TimeTag;
 
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.TimeZone;
+
+import androidx.annotation.Nullable;
+import androidx.databinding.ObservableBoolean;
+import androidx.databinding.ObservableField;
+import androidx.databinding.ObservableInt;
 
 public interface ITimePickerViewModel {
 

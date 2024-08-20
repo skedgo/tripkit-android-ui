@@ -1,4 +1,5 @@
 package com.skedgo.tripkit.location
+
 data class LocationSample(
     var timestamp: Long,
     var latitude: Double,

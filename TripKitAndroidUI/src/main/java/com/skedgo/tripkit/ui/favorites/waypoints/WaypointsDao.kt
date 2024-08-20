@@ -8,17 +8,18 @@ import androidx.room.Query
 @Dao
 interface WaypointsDao {
 
-  @Query("SELECT * from waypoints")
-  suspend fun getAllWaypoints(): List<WaypointEntity>
-  @Query("SELECT * from waypoints WHERE tripId = :tripId")
-  fun getWaypointsByTrip(tripId: String): List<WaypointEntity>
+    @Query("SELECT * from waypoints")
+    suspend fun getAllWaypoints(): List<WaypointEntity>
 
-  @Insert(onConflict = OnConflictStrategy.REPLACE)
-  suspend fun insert(waypoint: WaypointEntity)
+    @Query("SELECT * from waypoints WHERE tripId = :tripId")
+    fun getWaypointsByTrip(tripId: String): List<WaypointEntity>
 
-  @Insert(onConflict = OnConflictStrategy.REPLACE)
-  suspend fun insertAll(waypoints: List<WaypointEntity>)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insert(waypoint: WaypointEntity)
 
-  @Query("DELETE from waypoints WHERE tripId = :tripId")
-  fun deleteTripWaypoints(tripId: String)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAll(waypoints: List<WaypointEntity>)
+
+    @Query("DELETE from waypoints WHERE tripId = :tripId")
+    fun deleteTripWaypoints(tripId: String)
 }

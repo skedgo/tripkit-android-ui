@@ -2,10 +2,7 @@ package com.skedgo.tripkit.ui.controller.tripdetailsviewcontroller
 
 import android.content.Context
 import android.os.Bundle
-import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import androidx.core.view.isVisible
 import com.jakewharton.rxrelay2.PublishRelay
 import com.skedgo.tripkit.model.ViewTrip

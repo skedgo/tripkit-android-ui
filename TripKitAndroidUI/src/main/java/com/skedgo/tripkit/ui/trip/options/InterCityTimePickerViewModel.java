@@ -4,6 +4,24 @@ import android.content.Context;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.text.format.DateFormat;
+
+import com.skedgo.tripkit.common.model.TimeTag;
+import com.skedgo.tripkit.time.GetNow;
+import com.skedgo.tripkit.ui.R;
+import com.skedgo.tripkit.ui.trip.details.viewmodel.ITimePickerViewModel;
+import com.squareup.otto.Bus;
+
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.List;
+import java.util.TimeZone;
+import java.util.concurrent.TimeUnit;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
@@ -11,15 +29,6 @@ import androidx.databinding.Observable;
 import androidx.databinding.ObservableBoolean;
 import androidx.databinding.ObservableField;
 import androidx.databinding.ObservableInt;
-import com.skedgo.tripkit.common.model.TimeTag;
-import com.skedgo.tripkit.time.GetNow;
-import com.skedgo.tripkit.ui.R;
-import com.skedgo.tripkit.ui.trip.details.viewmodel.ITimePickerViewModel;
-import com.squareup.otto.Bus;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
-import java.util.*;
-import java.util.concurrent.TimeUnit;
 
 public class InterCityTimePickerViewModel implements ITimePickerViewModel {
     public static final String ARG_TITLE = "title";

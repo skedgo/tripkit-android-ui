@@ -64,7 +64,7 @@ class TripSegmentViewModel @Inject constructor(
         isRealtime.set(segment.isRealTime)
         isBicycleAccessible.set(
             transportModeSharedPreference.isTransportModeEnabled(TransportMode.ID_BICYCLE) &&
-            segment.bicycleAccessible
+                segment.bicycleAccessible
         )
 
         buildSubtitle(trip, segment)
@@ -79,22 +79,29 @@ class TripSegmentViewModel @Inject constructor(
         var remoteIcon = Observable.empty<Drawable>()
         if (url != null) {
             remoteIcon = TripKitUI.getInstance().picasso().fetchAsync(url).toObservable()
-                    .map { bitmap -> BitmapDrawable(context.resources, bitmap) }
+                .map { bitmap -> BitmapDrawable(context.resources, bitmap) }
         }
         Observable
-                .just(ContextCompat.getDrawable(context, segment.darkVehicleIconWithNoRealtimeChecking))
-                .concatWith(remoteIcon)
-                .doOnError { e -> Timber.e(e) }
-                .flatMap { drawable ->
-                    getTransportIconTintStrategy.invoke()
-                            .map { transportTintStrategy -> transportTintStrategy.apply(segment.modeInfo!!.remoteIconIsTemplate, segment.modeInfo!!.remoteIconIsBranding, segment.serviceColor, drawable) }
-                            .toObservable()
-                }
-                .map { bitmapDrawable -> createSummaryIcon(segment, bitmapDrawable) }
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({ drawable: Drawable ->
-                    icon.set(drawable)
-                }, { e -> Timber.e(e) }).autoClear()
+            .just(ContextCompat.getDrawable(context, segment.darkVehicleIconWithNoRealtimeChecking))
+            .concatWith(remoteIcon)
+            .doOnError { e -> Timber.e(e) }
+            .flatMap { drawable ->
+                getTransportIconTintStrategy.invoke()
+                    .map { transportTintStrategy ->
+                        transportTintStrategy.apply(
+                            segment.modeInfo!!.remoteIconIsTemplate,
+                            segment.modeInfo!!.remoteIconIsBranding,
+                            segment.serviceColor,
+                            drawable
+                        )
+                    }
+                    .toObservable()
+            }
+            .map { bitmapDrawable -> createSummaryIcon(segment, bitmapDrawable) }
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({ drawable: Drawable ->
+                icon.set(drawable)
+            }, { e -> Timber.e(e) }).autoClear()
 
     }
 
@@ -117,13 +124,18 @@ class TripSegmentViewModel @Inject constructor(
 
     private fun getAlertIconSpan(segment: TripSegment): CharSequence? {
         if (segment.alerts != null && !segment.alerts!!.isEmpty()
-                && shouldAttachAlertIconToSubtitle(segment)) {
+            && shouldAttachAlertIconToSubtitle(segment)) {
             val alertIcon = getAlertIcon(segment)
             val alertIconSpan = SpannableStringBuilder("  ")
             val width = alertIcon.intrinsicWidth / 2
             val height = alertIcon.intrinsicHeight / 2
             alertIcon.setBounds(0, 0, width, height)
-            alertIconSpan.setSpan(ImageSpan(alertIcon, DynamicDrawableSpan.ALIGN_BASELINE), 1, 2, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            alertIconSpan.setSpan(
+                ImageSpan(alertIcon, DynamicDrawableSpan.ALIGN_BASELINE),
+                1,
+                2,
+                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+            )
             alertIconSpan.setSpan(RelativeSizeSpan(0.7f), 0, 2, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
             return alertIconSpan
         }
@@ -141,10 +153,11 @@ class TripSegmentViewModel @Inject constructor(
 
         val layerDrawable = LayerDrawable(layers)
         layerDrawable.setBounds(0, 0, transportIcon.intrinsicWidth, transportIcon.intrinsicHeight)
-        alertIcon.setBounds(0,
-                transportIcon.intrinsicHeight / 4,
-                transportIcon.intrinsicWidth / 4 * 3,
-                transportIcon.intrinsicHeight
+        alertIcon.setBounds(
+            0,
+            transportIcon.intrinsicHeight / 4,
+            transportIcon.intrinsicWidth / 4 * 3,
+            transportIcon.intrinsicHeight
         )
         return layerDrawable
     }
@@ -159,8 +172,8 @@ class TripSegmentViewModel @Inject constructor(
 
     internal fun shouldAttachAlertIconToSubtitle(segment: TripSegment): Boolean {
         return (segment.serviceTripId == null
-                && segment.startStopCode == null
-                && segment.endStopCode == null)
+            && segment.startStopCode == null
+            && segment.endStopCode == null)
     }
 
     private fun showTitle(segment: TripSegment) {
@@ -190,12 +203,21 @@ class TripSegmentViewModel @Inject constructor(
                 context.resources.getString(R.string.live_traffic)
             }
         } else if (trip.isMixedModal(false) && !segment.hasTimeTable()) {
-            return TimeUtils.getDurationInHoursMins(context, (segment.endTimeInSecs - segment.startTimeInSecs).toInt())
+            return TimeUtils.getDurationInHoursMins(
+                context,
+                (segment.endTimeInSecs - segment.startTimeInSecs).toInt()
+            )
         } else if (segment.metresSafe > 0) {
             if (segment.isCycling) {
-                return context.resources.getString(R.string._pattern_cycle_friendly, "${segment.cycleFriendliness}%")
+                return context.resources.getString(
+                    R.string._pattern_cycle_friendly,
+                    "${segment.cycleFriendliness}%"
+                )
             } else if (segment.isWheelchair) {
-                return context.resources.getString(R.string._pattern_wheelchair_friendly, "${segment.wheelchairFriendliness}%")
+                return context.resources.getString(
+                    R.string._pattern_wheelchair_friendly,
+                    "${segment.wheelchairFriendliness}%"
+                )
             }
         } else if (segment.hasTimeTable()) {
             if (segment.frequency == 0) {

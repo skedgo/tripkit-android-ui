@@ -31,7 +31,7 @@
                 android:src="@{viewModel.icon}"
                 tools:src="@drawable/ic_bus"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"/>
+                app:layout_constraintTop_toTopOf="parent" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -61,7 +61,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toEndOf="@+id/iconContent"
             app:layout_constraintTop_toBottomOf="@+id/primary"
-            tools:text="2:30 PM"/>
+            tools:text="2:30 PM" />
 
         <ImageView
             android:id="@+id/ivWifi"
@@ -72,7 +72,7 @@
             android:src="@drawable/ic_wifi"
             android:visibility="@{viewModel.isRealtime()}"
             app:layout_constraintBottom_toBottomOf="@+id/secondary"
-            app:layout_constraintStart_toEndOf="@+id/secondary"/>
+            app:layout_constraintStart_toEndOf="@+id/secondary" />
 
         <ImageView
             android:layout_width="@dimen/icon_x_small"
@@ -82,7 +82,7 @@
             android:src="@drawable/ic_bike"
             android:visibility="@{viewModel.isBicycleAccessible()}"
             app:layout_constraintBottom_toBottomOf="@+id/secondary"
-            app:layout_constraintStart_toEndOf="@+id/ivWifi"/>
+            app:layout_constraintStart_toEndOf="@+id/ivWifi" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

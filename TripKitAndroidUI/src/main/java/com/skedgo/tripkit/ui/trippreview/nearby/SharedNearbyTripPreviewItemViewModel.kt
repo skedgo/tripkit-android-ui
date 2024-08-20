@@ -27,12 +27,17 @@ import me.tatarka.bindingcollectionadapter2.ItemBinding
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import javax.inject.Inject
 
-class SharedNearbyTripPreviewItemViewModel @Inject constructor(private val regionService: RegionService,
-                                                               private val locationsApi: LocationsApi) : TripPreviewPagerItemViewModel() {
+class SharedNearbyTripPreviewItemViewModel @Inject constructor(
+    private val regionService: RegionService,
+    private val locationsApi: LocationsApi
+) : TripPreviewPagerItemViewModel() {
 
     val externalActions = ObservableArrayList<ExternalActionViewModel>()
-    val externalActionsBinding = ItemBinding.of<ExternalActionViewModel>(BR.viewModel, R.layout.trip_preview_external_action_pager_list_item)
-            .bindExtra(BR.parentViewModel, this)
+    val externalActionsBinding = ItemBinding.of<ExternalActionViewModel>(
+        BR.viewModel,
+        R.layout.trip_preview_external_action_pager_list_item
+    )
+        .bindExtra(BR.parentViewModel, this)
 
     var locationDetails = BehaviorRelay.create<NearbyLocation>()
     var locationList = BehaviorRelay.create<List<NearbyLocation>>()
@@ -51,102 +56,133 @@ class SharedNearbyTripPreviewItemViewModel @Inject constructor(private val regio
         if (segment != loadedSegment) {
             loadedSegment = segment
 
-            val details = NearbyLocation(lat = segment.singleLocation.lat,
-                    lng = segment.singleLocation.lon,
-                    title = segment.operator,
-                    address = segment.singleLocation.address,
-                    website = null,
-                    modeInfo = segment.modeInfo)
+            val details = NearbyLocation(
+                lat = segment.singleLocation.lat,
+                lng = segment.singleLocation.lon,
+                title = segment.operator,
+                address = segment.singleLocation.address,
+                website = null,
+                modeInfo = segment.modeInfo
+            )
             locationDetails.accept(details)
             regionService.getRegionByLocationAsync(segment.singleLocation)
-                    .subscribe({ region ->
-                        val baseUrl = region.urLs!![0]
-                        val url = baseUrl.toHttpUrlOrNull()!!
-                                .newBuilder()
-                                .addPathSegment("locations.json")
-                                .build()
-                        val mode = when {
-                            (segment.modeInfo?.id?.startsWith("stationary_parking")!!) -> "stationary_parking-offstreet"
-                            (segment.transportModeId?.indexOf('_') != segment.transportModeId?.lastIndexOf('_')) -> segment.transportModeId?.substringBeforeLast('_')
-                            else -> segment.transportModeId
-                        }
+                .subscribe({ region ->
+                    val baseUrl = region.urLs!![0]
+                    val url = baseUrl.toHttpUrlOrNull()!!
+                        .newBuilder()
+                        .addPathSegment("locations.json")
+                        .build()
+                    val mode = when {
+                        (segment.modeInfo?.id?.startsWith("stationary_parking")!!) -> "stationary_parking-offstreet"
+                        (segment.transportModeId?.indexOf('_') != segment.transportModeId?.lastIndexOf(
+                            '_'
+                        )) -> segment.transportModeId?.substringBeforeLast('_')
+                        else -> segment.transportModeId
+                    }
 
-                        locationsApi.fetchLocationsAsync(url.toString(),
-                                segment.singleLocation.lat,
-                                segment.singleLocation.lon,
-                                1000, // Limit
-                                1124, // Radius
-                                listOf(mode))
-                                .subscribe({
-                                    val newList = mutableListOf<NearbyLocation>()
-                                    it.groups.forEach {
-                                        it.bikePods?.forEach {
-                                            newList.add(NearbyLocation(lat = it.lat,
-                                                    lng = it.lng,
-                                                    title = it.bikePod.operator.name,
-                                                    address = it.address,
-                                                    website = it.bikePod.operator.website,
-                                                    modeInfo = it.modeInfo?.toModeInfo()))
-                                        }
-                                        it.freeFloating?.forEach {
-                                            newList.add(NearbyLocation(lat = it.lat,
-                                                    lng = it.lng,
-                                                    title = it.vehicle.operator.name,
-                                                    address = it.address,
-                                                    website = it.vehicle.operator.website,
-                                                    modeInfo = it.modeInfo?.toModeInfo()))
+                    locationsApi.fetchLocationsAsync(
+                        url.toString(),
+                        segment.singleLocation.lat,
+                        segment.singleLocation.lon,
+                        1000, // Limit
+                        1124, // Radius
+                        listOf(mode)
+                    )
+                        .subscribe({
+                            val newList = mutableListOf<NearbyLocation>()
+                            it.groups.forEach {
+                                it.bikePods?.forEach {
+                                    newList.add(
+                                        NearbyLocation(
+                                            lat = it.lat,
+                                            lng = it.lng,
+                                            title = it.bikePod.operator.name,
+                                            address = it.address,
+                                            website = it.bikePod.operator.website,
+                                            modeInfo = it.modeInfo?.toModeInfo()
+                                        )
+                                    )
+                                }
+                                it.freeFloating?.forEach {
+                                    newList.add(
+                                        NearbyLocation(
+                                            lat = it.lat,
+                                            lng = it.lng,
+                                            title = it.vehicle.operator.name,
+                                            address = it.address,
+                                            website = it.vehicle.operator.website,
+                                            modeInfo = it.modeInfo?.toModeInfo()
+                                        )
+                                    )
 
-                                        }
-                                        it.carRentals?.forEach {
-                                            newList.add(NearbyLocation(lat = it.lat(),
-                                                    lng = it.lng(),
-                                                    title = it.name(),
-                                                    address = it.address(),
-                                                    website = null,
-                                                    modeInfo = it.modeInfo()))
+                                }
+                                it.carRentals?.forEach {
+                                    newList.add(
+                                        NearbyLocation(
+                                            lat = it.lat(),
+                                            lng = it.lng(),
+                                            title = it.name(),
+                                            address = it.address(),
+                                            website = null,
+                                            modeInfo = it.modeInfo()
+                                        )
+                                    )
 
-                                        }
-                                        it.carPods?.forEach {
-                                            newList.add(NearbyLocation(lat = it.lat,
-                                                    lng = it.lng,
-                                                    title = it.name,
-                                                    address = it.address,
-                                                    website = it.carPod.operator.website,
-                                                    modeInfo = it.modeInfo))
+                                }
+                                it.carPods?.forEach {
+                                    newList.add(
+                                        NearbyLocation(
+                                            lat = it.lat,
+                                            lng = it.lng,
+                                            title = it.name,
+                                            address = it.address,
+                                            website = it.carPod.operator.website,
+                                            modeInfo = it.modeInfo
+                                        )
+                                    )
 
-                                        }
-                                        it.carParks?.forEach {
-                                            newList.add(NearbyLocation(lat = it.lat(),
-                                                    lng = it.lng(),
-                                                    title = it.name(),
-                                                    address = it.address(),
-                                                    website = it.carPark().operator().website(),
-                                                    modeInfo = it.modeInfo()))
+                                }
+                                it.carParks?.forEach {
+                                    newList.add(
+                                        NearbyLocation(
+                                            lat = it.lat(),
+                                            lng = it.lng(),
+                                            title = it.name(),
+                                            address = it.address(),
+                                            website = it.carPark().operator().website(),
+                                            modeInfo = it.modeInfo()
+                                        )
+                                    )
 
-                                        }
-                                        it.facilities?.forEach {
-                                            newList.add(
-                                                NearbyLocation(
-                                                    lat = it.lat,
-                                                    lng = it.lng,
-                                                    title = it.name,
-                                                    address = it.address,
-                                                    website = null,
-                                                    modeInfo = null
-                                                )
-                                            )
-                                        }
-                                    }
-                                    val compareLat = segment.singleLocation.lat
-                                    val compareLng = segment.singleLocation.lon
+                                }
+                                it.facilities?.forEach {
+                                    newList.add(
+                                        NearbyLocation(
+                                            lat = it.lat,
+                                            lng = it.lng,
+                                            title = it.name,
+                                            address = it.address,
+                                            website = null,
+                                            modeInfo = null
+                                        )
+                                    )
+                                }
+                            }
+                            val compareLat = segment.singleLocation.lat
+                            val compareLng = segment.singleLocation.lon
 
-                                    val comparator = compareBy<NearbyLocation> {
-                                        SphericalUtil.computeDistanceBetween(compareLat, compareLng, it.lat, it.lng)
-                                    }
-                                    newList.sortWith(comparator)
-                                    locationList.accept(newList)
-                                }, { loadedSegment = null }).autoClear()
-                    }, { loadedSegment = null }).autoClear()
+                            val comparator = compareBy<NearbyLocation> {
+                                SphericalUtil.computeDistanceBetween(
+                                    compareLat,
+                                    compareLng,
+                                    it.lat,
+                                    it.lng
+                                )
+                            }
+                            newList.sortWith(comparator)
+                            locationList.accept(newList)
+                        }, { loadedSegment = null }).autoClear()
+                }, { loadedSegment = null }).autoClear()
 
         }
     }
@@ -218,23 +254,23 @@ class SharedNearbyTripPreviewItemViewModel @Inject constructor(private val regio
         */
 
         vm.title.set(
-                when {
-                    index == 0 -> {
-                        var label = loadedSegment?.booking?.title
-                        /*
-                        if (!loadedSegment?.booking?.accessibilityLabel.isNullOrEmpty()) {
-                            label = loadedSegment?.booking?.accessibilityLabel
-                        }
-                        */
-                        label
+            when {
+                index == 0 -> {
+                    var label = loadedSegment?.booking?.title
+                    /*
+                    if (!loadedSegment?.booking?.accessibilityLabel.isNullOrEmpty()) {
+                        label = loadedSegment?.booking?.accessibilityLabel
                     }
-                    URLUtil.isNetworkUrl(externalAction?.data) -> {
-                        context.getString(R.string.show_website)
-                    }
-                    else -> {
-                        context.getString(R.string.open_app)
-                    }
+                    */
+                    label
                 }
+                URLUtil.isNetworkUrl(externalAction?.data) -> {
+                    context.getString(R.string.show_website)
+                }
+                else -> {
+                    context.getString(R.string.open_app)
+                }
+            }
         )
         externalActions.add(vm)
         showActions.set(false)
@@ -244,11 +280,11 @@ class SharedNearbyTripPreviewItemViewModel @Inject constructor(private val regio
         hasExternalActions.set(false)
         loadedSegment?.sharedVehicle?.operator()?.appInfo?.appURLAndroid?.let {
             buttonText.set(
-                    if (it.isAppInstalled(context.packageManager)) {
-                        context.getString(R.string.open_app)
-                    } else {
-                        context.getString(R.string.get_app)
-                    }
+                if (it.isAppInstalled(context.packageManager)) {
+                    context.getString(R.string.open_app)
+                } else {
+                    context.getString(R.string.get_app)
+                }
             )
             action = if (it.isAppInstalled(context.packageManager)) {
                 "openApp"
@@ -263,16 +299,17 @@ class SharedNearbyTripPreviewItemViewModel @Inject constructor(private val regio
     //in case url is a deep link, app is not installed and no way to get app package name from externalActions
     private fun generateFallbackUrl(): String? {
         return loadedSegment?.booking?.externalActions?.singleOrNull { it.getPackageNameFromStoreUrl() != null }
-                ?: loadedSegment?.sharedVehicle?.operator()?.appInfo?.appURLAndroid
-                ?: loadedSegment?.booking?.externalActions?.singleOrNull { URLUtil.isNetworkUrl(it) }
+            ?: loadedSegment?.sharedVehicle?.operator()?.appInfo?.appURLAndroid
+            ?: loadedSegment?.booking?.externalActions?.singleOrNull { URLUtil.isNetworkUrl(it) }
     }
 
     private fun checkAppIdOnSharedVehicleAndIfInstalled(context: Context): String? {
-        loadedSegment?.sharedVehicle?.operator()?.appInfo?.appURLAndroid?.getPackageNameFromStoreUrl()?.let {
-            if (it.isAppInstalledById(context.packageManager)) {
-                return it
+        loadedSegment?.sharedVehicle?.operator()?.appInfo?.appURLAndroid?.getPackageNameFromStoreUrl()
+            ?.let {
+                if (it.isAppInstalledById(context.packageManager)) {
+                    return it
+                }
             }
-        }
 
         return null
     }

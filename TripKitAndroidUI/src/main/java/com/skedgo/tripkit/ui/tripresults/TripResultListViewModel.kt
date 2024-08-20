@@ -64,7 +64,8 @@ class TripResultListViewModel @Inject constructor(
     private val regionService: RegionService,
     private val routeService: RouteService,
     private val errorLogger: ErrorLogger,
-    private val routingTimeViewModelMapper: RoutingTimeViewModelMapper) : RxViewModel(), ActionButtonContainer {
+    private val routingTimeViewModelMapper: RoutingTimeViewModelMapper
+) : RxViewModel(), ActionButtonContainer {
     val loadingItem = LoaderPlaceholder()
     val fromName = ObservableField<String>()
     val fromContentDescription = ObservableField<String>()
@@ -84,15 +85,23 @@ class TripResultListViewModel @Inject constructor(
         ItemBinding.of(
             OnItemBindClass<Any>()
                 .map(TripResultViewModel::class.java, BR.viewModel, R.layout.trip_result_list_item)
-                .map(LoaderPlaceholder::class.java, ItemBinding.VAR_NONE, R.layout.circular_progress_loader)
+                .map(
+                    LoaderPlaceholder::class.java,
+                    ItemBinding.VAR_NONE,
+                    R.layout.circular_progress_loader
+                )
         )
 
     val results = DiffObservableList<TripResultViewModel>(GroupDiffCallback)
     private val loadingList = ObservableArrayList<LoaderPlaceholder>()
     val mergedList = MergeObservableList<Any>().insertList(loadingList).insertList(results)
 
-    val transportBinding = ItemBinding.of<TripResultTransportItemViewModel>(BR.viewModel, R.layout.trip_result_list_transport_item)
-    val transportModes: ObservableField<List<TripResultTransportItemViewModel>> = ObservableField(emptyList())
+    val transportBinding = ItemBinding.of<TripResultTransportItemViewModel>(
+        BR.viewModel,
+        R.layout.trip_result_list_transport_item
+    )
+    val transportModes: ObservableField<List<TripResultTransportItemViewModel>> =
+        ObservableField(emptyList())
     val showTransport = ObservableBoolean(false)
     val showTransportModeSelection = ObservableBoolean(true)
     val isError = ObservableBoolean(false)
@@ -275,7 +284,8 @@ class TripResultListViewModel @Inject constructor(
 
 
                 }
-            } catch (_: Exception) {}
+            } catch (_: Exception) {
+            }
         }
     }
 
@@ -283,7 +293,10 @@ class TripResultListViewModel @Inject constructor(
         query = query.clone(true)
         query.setUseWheelchair(transportVisibilityFilter!!.isSelected(TransportMode.ID_WHEEL_CHAIR))
         val request = Observable.defer {
-            val filter = TripResultListViewTransportModeFilter(transportModeFilter!!, transportVisibilityFilter!!)
+            val filter = TripResultListViewTransportModeFilter(
+                transportModeFilter!!,
+                transportVisibilityFilter!!
+            )
             replaceModes?.let {
                 filter.replaceTransportModes(it)
             }
@@ -298,26 +311,32 @@ class TripResultListViewModel @Inject constructor(
             .doOnSubscribe {
                 setLoading(true)
                 stateChange.accept(MultiStateView.ViewState.CONTENT)
-                routingStatusRepositoryLazy.get().putRoutingStatus(RoutingStatus(
-                    query.uuid(),
-                    Status.InProgress()
-                )).subscribe()
+                routingStatusRepositoryLazy.get().putRoutingStatus(
+                    RoutingStatus(
+                        query.uuid(),
+                        Status.InProgress()
+                    )
+                ).subscribe()
                 loadFromStore()
             }.doOnError {
                 val message = when (it) {
                     is RoutingError -> it.message
                     else -> context.getString(R.string.error_encountered)
                 }
-                routingStatusRepositoryLazy.get().putRoutingStatus(RoutingStatus(
-                    query.uuid(),
-                    Status.Error(message)
-                )).subscribe()
+                routingStatusRepositoryLazy.get().putRoutingStatus(
+                    RoutingStatus(
+                        query.uuid(),
+                        Status.Error(message)
+                    )
+                ).subscribe()
             }
             .doOnComplete {
-                routingStatusRepositoryLazy.get().putRoutingStatus(RoutingStatus(
-                    query.uuid(),
-                    Status.Completed()
-                )).subscribe()
+                routingStatusRepositoryLazy.get().putRoutingStatus(
+                    RoutingStatus(
+                        query.uuid(),
+                        Status.Completed()
+                    )
+                ).subscribe()
             }
             .doFinally {
                 onFinished.accept(true)
@@ -345,14 +364,17 @@ class TripResultListViewModel @Inject constructor(
     private fun loadFromStore() {
         val tripFlow = MutableSharedFlow<Trip>()
         tripFlow.onEach {
-            val clickEvent = ViewTrip(query = this.query,
+            val clickEvent = ViewTrip(
+                query = this.query,
                 tripGroupUUID = it.group.uuid(),
                 sortOrder = 1, /* TODO Proper sorting */
-                displayTripID = it.id)
+                displayTripID = it.id
+            )
             onItemClicked.accept(clickEvent)
         }.launchIn(viewModelScope)
 
-        getSortedTripGroupsWithRoutingStatusProvider.get().execute(query, 1, transportVisibilityFilter!!)
+        getSortedTripGroupsWithRoutingStatusProvider.get()
+            .execute(query, 1, transportVisibilityFilter!!)
             .observeOn(AndroidSchedulers.mainThread())
             .map {
                 var list = it.first
@@ -361,7 +383,8 @@ class TripResultListViewModel @Inject constructor(
 
                 // Compare with tempTripGroupList and add fullUrl if it matches
                 list.forEach { group ->
-                    val matchingGroup = tripGroupWithUrlList.find { tempGroup -> tempGroup.uuid() == group.uuid() }
+                    val matchingGroup =
+                        tripGroupWithUrlList.find { tempGroup -> tempGroup.uuid() == group.uuid() }
                     if (matchingGroup != null) {
                         group.fullUrl = matchingGroup.fullUrl
                     }
@@ -371,7 +394,8 @@ class TripResultListViewModel @Inject constructor(
                 val classifier = TripGroupClassifier(list)
                 list.map { group ->
                     val vm = tripResultViewModelProvider.get().apply {
-                        var handler: ActionButtonHandler? = actionButtonHandlerFactory?.createHandler(this@TripResultListViewModel)
+                        var handler: ActionButtonHandler? =
+                            actionButtonHandlerFactory?.createHandler(this@TripResultListViewModel)
                         this.actionButtonHandler = handler
                         this.clickFlow = tripFlow
                         this.setTripGroup(context, group, classifier.classify(group))
@@ -403,7 +427,13 @@ class TripResultListViewModel @Inject constructor(
     fun changeQuery(newQuery: Query) {
         results.update(emptyList())
         networkRequests.clear()
-        setup(newQuery, showTransportModeSelection.get(), transportModeFilter, actionButtonHandlerFactory, true)
+        setup(
+            newQuery,
+            showTransportModeSelection.get(),
+            transportModeFilter,
+            actionButtonHandlerFactory,
+            true
+        )
     }
 
     fun updateQueryTime(timeTag: TimeTag) {

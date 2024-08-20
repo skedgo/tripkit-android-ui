@@ -7,8 +7,8 @@ import javax.inject.Inject
 import javax.inject.Provider
 
 @ActivityScope
-class TripPreviewPagerFragmentViewModelFactory @Inject constructor(private val tripPreviewPagerFragmentViewModelProvider: Provider<TripPreviewPagerFragmentViewModel>)
-    : ViewModelProvider.Factory {
+class TripPreviewPagerFragmentViewModelFactory @Inject constructor(private val tripPreviewPagerFragmentViewModelProvider: Provider<TripPreviewPagerFragmentViewModel>) :
+    ViewModelProvider.Factory {
 
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass == TripPreviewPagerFragmentViewModel::class.java) {

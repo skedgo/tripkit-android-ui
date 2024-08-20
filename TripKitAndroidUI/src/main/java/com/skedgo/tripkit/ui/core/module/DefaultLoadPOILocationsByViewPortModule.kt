@@ -8,9 +8,10 @@ import dagger.Provides
 @Module
 class DefaultLoadPOILocationsByViewPortModule {
 
-  @Provides
-  fun loadPOILocationsByViewPort(
-      defaultLoadPOILocationsByViewPort: DefaultLoadPOILocationsByViewPort)
-      : LoadPOILocationsByViewPort = defaultLoadPOILocationsByViewPort
+    @Provides
+    fun loadPOILocationsByViewPort(
+        defaultLoadPOILocationsByViewPort: DefaultLoadPOILocationsByViewPort
+    )
+        : LoadPOILocationsByViewPort = defaultLoadPOILocationsByViewPort
 
 }

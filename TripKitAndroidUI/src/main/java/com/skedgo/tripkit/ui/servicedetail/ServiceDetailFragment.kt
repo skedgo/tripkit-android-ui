@@ -64,21 +64,24 @@ class ServiceDetailFragment : BaseTripKitFragment() {
     override fun onResume() {
         super.onResume()
         viewModel.onItemClicked
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe { stop ->
-                    this.clickListener.forEach {
-                        it.onScheduledStopClicked(stop)
-                    }
-                    mapContributor.serviceStopClick(stop)
-                }.addTo(autoDisposable)
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe { stop ->
+                this.clickListener.forEach {
+                    it.onScheduledStopClicked(stop)
+                }
+                mapContributor.serviceStopClick(stop)
+            }.addTo(autoDisposable)
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         binding = ServiceDetailFragmentBinding.inflate(layoutInflater)
         binding.lifecycleOwner = viewLifecycleOwner
         binding.viewModel = viewModel
-        binding.content.occupancyList.layoutManager = LinearLayoutManager(context, RecyclerView.HORIZONTAL, false)
+        binding.content.occupancyList.layoutManager =
+            LinearLayoutManager(context, RecyclerView.HORIZONTAL, false)
 
         return binding.root
     }
@@ -87,7 +90,8 @@ class ServiceDetailFragment : BaseTripKitFragment() {
         super.onViewCreated(view, savedInstanceState)
         stop = arguments?.getParcelable(ARG_STOP)
         timetableEntry = arguments?.getParcelable(ARG_TIMETABLE_ENTRY)
-        val showCloseButton = arguments?.getBoolean(com.skedgo.tripkit.ui.timetables.ARG_SHOW_CLOSE_BUTTON, false)
+        val showCloseButton =
+            arguments?.getBoolean(com.skedgo.tripkit.ui.timetables.ARG_SHOW_CLOSE_BUTTON, false)
                 ?: false
         viewModel.showCloseButton.set(showCloseButton)
         binding.closeButton.setOnClickListener(onCloseButtonListener)

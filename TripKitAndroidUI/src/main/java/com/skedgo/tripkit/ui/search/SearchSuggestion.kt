@@ -11,6 +11,7 @@ interface SearchSuggestion {
 
     @ColorRes
     fun titleColor(): Int
+
     @ColorRes
     fun subtitleColor(): Int
 

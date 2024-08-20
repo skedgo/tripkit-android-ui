@@ -64,50 +64,50 @@ import static com.skedgo.tripkit.routing.TripAlarmBroadcastReceiver.NOTIFICATION
 
 @Singleton
 @Component(modules = {
-        AutoCompleteTaskModule.class,
-        AutoCompleteTaskProvidesModule.class,
-        SchedulerFactoryModule.class,
-        GooglePlacesModule.class,
-        ConnectivityServiceModule.class,
-        FetchSuggestionsModule.class,
-        RouteStoreModule.class,
-        TripKitUIModule.class,
-        ContextModule.class,
-        HttpClientModule.class,
-        ErrorLoggerModule.class,
-        PicassoModule.class,
-        TripKitModule.class,
-        DbHelperModule.class,
-        ServiceViewModelModule.class,
-        RealTimeRepositoryModule.class,
-        ServiceAlertDataModule.class,
-        ServiceDetailsModule.class,
-        ServiceDetailItemViewModelModule.class,
-        TripGroupRepositoryModule.class,
-        DeparturesModule.class,
-        EventTrackerModule.class,
-        LocationStuffModule.class,
-        MyPersonalDataModule.class,
-        PreferredTransferTimeRepositoryModule.class,
-        CyclingSpeedRepositoryModule.class,
-        WalkingSpeedRepositoryModule.class,
-        PrioritiesRepositoryModule.class,
-        GetRoutingConfigModule.class,
-        BookingModule.class,
-        SchedulerFactoryModule.class,
-        WaypointsModule.class,
-        FavoriteTripsModule.class,
-        FavoritesModule.class,
-        UserInfoRepositoryModule.class,
-        ViewModelModule.class,
-        ControllerModule.class,
-        DeveloperOptionModule.class,
-        RemindersRepositoryModule.class,
-        TripKitPreferenceModule.class
+    AutoCompleteTaskModule.class,
+    AutoCompleteTaskProvidesModule.class,
+    SchedulerFactoryModule.class,
+    GooglePlacesModule.class,
+    ConnectivityServiceModule.class,
+    FetchSuggestionsModule.class,
+    RouteStoreModule.class,
+    TripKitUIModule.class,
+    ContextModule.class,
+    HttpClientModule.class,
+    ErrorLoggerModule.class,
+    PicassoModule.class,
+    TripKitModule.class,
+    DbHelperModule.class,
+    ServiceViewModelModule.class,
+    RealTimeRepositoryModule.class,
+    ServiceAlertDataModule.class,
+    ServiceDetailsModule.class,
+    ServiceDetailItemViewModelModule.class,
+    TripGroupRepositoryModule.class,
+    DeparturesModule.class,
+    EventTrackerModule.class,
+    LocationStuffModule.class,
+    MyPersonalDataModule.class,
+    PreferredTransferTimeRepositoryModule.class,
+    CyclingSpeedRepositoryModule.class,
+    WalkingSpeedRepositoryModule.class,
+    PrioritiesRepositoryModule.class,
+    GetRoutingConfigModule.class,
+    BookingModule.class,
+    SchedulerFactoryModule.class,
+    WaypointsModule.class,
+    FavoriteTripsModule.class,
+    FavoritesModule.class,
+    UserInfoRepositoryModule.class,
+    ViewModelModule.class,
+    ControllerModule.class,
+    DeveloperOptionModule.class,
+    RemindersRepositoryModule.class,
+    TripKitPreferenceModule.class
 })
 public abstract class TripKitUI {
-    private static TripKitUI instance;
     public static String AUTHORITY_END = ".com.skedgo.tripkit.ui.";
+    private static TripKitUI instance;
 
     public static TripKitUI getInstance() {
         synchronized (TripKitUI.class) {
@@ -121,47 +121,47 @@ public abstract class TripKitUI {
 
     public static Configs buildTripKitConfig(Context context, Key.ApiKey key) {
         DeveloperPreferenceRepositoryImpl repository = new DeveloperPreferenceRepositoryImpl(context, context.getSharedPreferences(
-                "TripKit", Context.MODE_PRIVATE));
+            "TripKit", Context.MODE_PRIVATE));
         boolean isDebuggable = (0 != (context.getApplicationInfo().flags
-                & ApplicationInfo.FLAG_DEBUGGABLE) || BuildConfig.DEBUG);
+            & ApplicationInfo.FLAG_DEBUGGABLE) || BuildConfig.DEBUG);
         return TripKitConfigs.builder().context(context)
 
-                .debuggable(isDebuggable)
-                .baseUrlAdapterFactory(new Callable<String>() {
-                    @Override
-                    public String call() throws Exception {
-                        return repository.getServer();
-                    }
-                })
-                .userTokenProvider(() -> {
-                    SharedPreferences prefs = context.getSharedPreferences("UserTokenPreferences", Context.MODE_PRIVATE);
-                    return prefs.getString("userToken", "");
-                })
-                .key(() -> key).build();
+            .debuggable(isDebuggable)
+            .baseUrlAdapterFactory(new Callable<String>() {
+                @Override
+                public String call() throws Exception {
+                    return repository.getServer();
+                }
+            })
+            .userTokenProvider(() -> {
+                SharedPreferences prefs = context.getSharedPreferences("UserTokenPreferences", Context.MODE_PRIVATE);
+                return prefs.getString("userToken", "");
+            })
+            .key(() -> key).build();
     }
 
     public static Configs buildTripKitConfig(
-            Context context,
-            Key.ApiKey key,
-            @Nullable Callable<String> customUrlAdapterFactory
+        Context context,
+        Key.ApiKey key,
+        @Nullable Callable<String> customUrlAdapterFactory
     ) {
         DeveloperPreferenceRepositoryImpl repository = new DeveloperPreferenceRepositoryImpl(context, context.getSharedPreferences(
-                "TripKit", Context.MODE_PRIVATE));
+            "TripKit", Context.MODE_PRIVATE));
         boolean isDebuggable = (0 != (context.getApplicationInfo().flags
-                & ApplicationInfo.FLAG_DEBUGGABLE) || BuildConfig.DEBUG);
+            & ApplicationInfo.FLAG_DEBUGGABLE) || BuildConfig.DEBUG);
         return TripKitConfigs.builder().context(context)
-                .debuggable(isDebuggable)
-                .baseUrlAdapterFactory(
-                        (customUrlAdapterFactory != null) ?
-                                customUrlAdapterFactory :
-                                (Callable<String>) repository::getServer
+            .debuggable(isDebuggable)
+            .baseUrlAdapterFactory(
+                (customUrlAdapterFactory != null) ?
+                    customUrlAdapterFactory :
+                    (Callable<String>) repository::getServer
 
-                )
-                .userTokenProvider(() -> {
-                    SharedPreferences prefs = context.getSharedPreferences("UserTokenPreferences", Context.MODE_PRIVATE);
-                    return prefs.getString("userToken", "");
-                })
-                .key(() -> key).build();
+            )
+            .userTokenProvider(() -> {
+                SharedPreferences prefs = context.getSharedPreferences("UserTokenPreferences", Context.MODE_PRIVATE);
+                return prefs.getString("userToken", "");
+            })
+            .key(() -> key).build();
     }
 
     public static void initialize(Context context, Key.ApiKey key, @Nullable Configs configs) {
@@ -195,9 +195,9 @@ public abstract class TripKitUI {
 
             if (httpClientModule != null) {
                 TripKit tripKit = DaggerTripKit.builder()
-                        .mainModule(new MainModule(tripKitConfigs))
-                        .httpClientModule(httpClientModule)
-                        .build();
+                    .mainModule(new MainModule(tripKitConfigs))
+                    .httpClientModule(httpClientModule)
+                    .build();
                 TripKit.initialize(context, tripKit);
                 JodaTimeAndroid.init(context);
                 GetOffAlertCache.INSTANCE.init(context);
@@ -205,12 +205,12 @@ public abstract class TripKitUI {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     List<NotificationChannel> channels = new ArrayList<>();
                     channels.add(NotificationKt.createChannel(
-                            NOTIFICATION_CHANNEL_START_TRIP_ID,
-                            NOTIFICATION_CHANNEL_START_TRIP)
+                        NOTIFICATION_CHANNEL_START_TRIP_ID,
+                        NOTIFICATION_CHANNEL_START_TRIP)
                     );
                     NotificationKt.createNotificationChannels(
-                            context,
-                            channels
+                        context,
+                        channels
                     );
                 }
             } else {
@@ -233,14 +233,14 @@ public abstract class TripKitUI {
                 builder.httpClientModule(httpClientModule);
             } else {
                 builder.httpClientModule(new HttpClientModule(
-                        null, null,
-                        tripKitConfigs,
-                        null, null
+                    null, null,
+                    tripKitConfigs,
+                    null, null
                 ));
             }
 
             instance = builder.contextModule(new ContextModule(context))
-                    .build();
+                .build();
         }
     }
 

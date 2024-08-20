@@ -9,43 +9,50 @@ import io.reactivex.Observable
 import javax.inject.Inject
 
 open class FetchStopsByViewport @Inject constructor(
-        private val getCellIdsFromViewPort: GetCellIdsFromViewPort,
-        private val regionService: RegionService,
-        private val stopsFetcher: StopsFetcher) {
+    private val getCellIdsFromViewPort: GetCellIdsFromViewPort,
+    private val regionService: RegionService,
+    private val stopsFetcher: StopsFetcher
+) {
 
     enum class ClearDataType {
         CAR_PODS
     }
 
     open fun execute(viewPort: ViewPort): Completable =
-            when (viewPort) {
-                is ViewPort.CloseEnough -> {
-                    regionService.getRegionByLocationAsync(viewPort.visibleBounds.southwest.latitude, viewPort.visibleBounds.southwest.longitude)
-                            .ignoreOutOfRegionsException()
-                            .flatMap { region ->
-                                val parentStops = FetchStopParams(listOf(region.name!!), region, ApiZoomLevels.REGION)
-                                if (viewPort.isInner()) {
-                                    getCellIdsFromViewPort.execute(viewPort)
-                                            .map {
-                                                FetchStopParams(it, region,
-                                                        ApiZoomLevels.fromMapZoomLevel(ZoomLevel.fromLevel(viewPort.zoom)))
-                                            }
-                                            .startWith(parentStops)
-                                } else {
-                                    Observable.just(parentStops)
+        when (viewPort) {
+            is ViewPort.CloseEnough -> {
+                regionService.getRegionByLocationAsync(
+                    viewPort.visibleBounds.southwest.latitude,
+                    viewPort.visibleBounds.southwest.longitude
+                )
+                    .ignoreOutOfRegionsException()
+                    .flatMap { region ->
+                        val parentStops =
+                            FetchStopParams(listOf(region.name!!), region, ApiZoomLevels.REGION)
+                        if (viewPort.isInner()) {
+                            getCellIdsFromViewPort.execute(viewPort)
+                                .map {
+                                    FetchStopParams(
+                                        it, region,
+                                        ApiZoomLevels.fromMapZoomLevel(ZoomLevel.fromLevel(viewPort.zoom))
+                                    )
                                 }
-                            }
-                }
-                else -> Observable.empty<FetchStopParams>()
-            }
-                    .flatMapCompletable {
-                        stopsFetcher.fetchAsync(it.cellIds, it.region, it.level)
-                                .ignoreNetworkErrors()
-                                .ignoreElements()
+                                .startWith(parentStops)
+                        } else {
+                            Observable.just(parentStops)
+                        }
                     }
+            }
+            else -> Observable.empty<FetchStopParams>()
+        }
+            .flatMapCompletable {
+                stopsFetcher.fetchAsync(it.cellIds, it.region, it.level)
+                    .ignoreNetworkErrors()
+                    .ignoreElements()
+            }
 
-    open fun clearData(type: ClearDataType): Completable?{
-        return if(type == ClearDataType.CAR_PODS){
+    open fun clearData(type: ClearDataType): Completable? {
+        return if (type == ClearDataType.CAR_PODS) {
             stopsFetcher.clearCarPods()
         } else {
             null
@@ -53,7 +60,6 @@ open class FetchStopsByViewport @Inject constructor(
     }
 
 }
-
 
 
 class FetchStopParams(val cellIds: List<String>, val region: Region, val level: Int)

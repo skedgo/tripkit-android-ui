@@ -2,13 +2,28 @@ package com.skedgo.tripkit.ui.core.module;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.skedgo.tripkit.booking.*;
+import com.skedgo.tripkit.booking.AuthApi;
+import com.skedgo.tripkit.booking.BookingApi;
+import com.skedgo.tripkit.booking.BookingService;
+import com.skedgo.tripkit.booking.BookingServiceImpl;
+import com.skedgo.tripkit.booking.ExternalOAuthService;
+import com.skedgo.tripkit.booking.ExternalOAuthServiceGenerator;
+import com.skedgo.tripkit.booking.ExternalOAuthServiceImpl;
+import com.skedgo.tripkit.booking.FormField;
+import com.skedgo.tripkit.booking.FormFieldJsonAdapter;
+import com.skedgo.tripkit.booking.GsonAdaptersAuthProvider;
+import com.skedgo.tripkit.booking.GsonAdaptersLogOutResponse;
+import com.skedgo.tripkit.booking.GsonAdaptersQuickBooking;
+import com.skedgo.tripkit.booking.QuickBookingApi;
+import com.skedgo.tripkit.booking.QuickBookingService;
+import com.skedgo.tripkit.booking.QuickBookingServiceImpl;
 import com.skedgo.tripkit.booking.quickbooking.QuickBookingRepository;
 import com.skedgo.tripkit.configuration.ServerManager;
 import com.skedgo.tripkit.data.database.TripKitDatabase;
 import com.skedgo.tripkit.ui.booking.apiv2.BookingV2TrackingApi;
 import com.skedgo.tripkit.ui.booking.apiv2.BookingV2TrackingService;
 import com.skedgo.tripkit.ui.booking.apiv2.GsonAdaptersBookingV2LogTripResponse;
+
 import dagger.Module;
 import dagger.Provides;
 import io.reactivex.schedulers.Schedulers;
@@ -22,62 +37,62 @@ public class BookingModule {
     @Provides
     BookingApi bookingApi(OkHttpClient httpClient) {
         final Gson gson = new GsonBuilder()
-                .registerTypeAdapter(FormField.class, new FormFieldJsonAdapter())
-                .create();
+            .registerTypeAdapter(FormField.class, new FormFieldJsonAdapter())
+            .create();
         return new Retrofit.Builder()
-                /* This base url is ignored as the api relies on @Url. */
-                .baseUrl(ServerManager.INSTANCE.getConfiguration().getApiTripGoUrl())
-                .addCallAdapterFactory(RxJava2CallAdapterFactory.createWithScheduler(Schedulers.io()))
-                .addConverterFactory(GsonConverterFactory.create(gson))
-                .client(httpClient)
-                .build()
-                .create(BookingApi.class);
+            /* This base url is ignored as the api relies on @Url. */
+            .baseUrl(ServerManager.INSTANCE.getConfiguration().getApiTripGoUrl())
+            .addCallAdapterFactory(RxJava2CallAdapterFactory.createWithScheduler(Schedulers.io()))
+            .addConverterFactory(GsonConverterFactory.create(gson))
+            .client(httpClient)
+            .build()
+            .create(BookingApi.class);
     }
 
     @Provides
     QuickBookingApi quickBookingApi(OkHttpClient httpClient) {
         final Gson gson = new GsonBuilder()
-                .registerTypeAdapterFactory(new GsonAdaptersQuickBooking())
-                .create();
+            .registerTypeAdapterFactory(new GsonAdaptersQuickBooking())
+            .create();
         return new Retrofit.Builder()
-                /* This base url is ignored as the api relies on @Url. */
-                .baseUrl(ServerManager.INSTANCE.getConfiguration().getApiTripGoUrl())
-                .addCallAdapterFactory(RxJava2CallAdapterFactory.createWithScheduler(Schedulers.io()))
-                .addConverterFactory(GsonConverterFactory.create(gson))
-                .client(httpClient)
-                .build()
-                .create(QuickBookingApi.class);
+            /* This base url is ignored as the api relies on @Url. */
+            .baseUrl(ServerManager.INSTANCE.getConfiguration().getApiTripGoUrl())
+            .addCallAdapterFactory(RxJava2CallAdapterFactory.createWithScheduler(Schedulers.io()))
+            .addConverterFactory(GsonConverterFactory.create(gson))
+            .client(httpClient)
+            .build()
+            .create(QuickBookingApi.class);
     }
 
     @Provides
     com.skedgo.tripkit.booking.quickbooking.QuickBookingApi newQuickBookingApi(
-            OkHttpClient httpClient
+        OkHttpClient httpClient
     ) {
         return new Retrofit.Builder()
-                /* This base url is ignored as the api relies on @Url. */
-                .baseUrl(ServerManager.INSTANCE.getConfiguration().getApiTripGoUrl())
-                .addCallAdapterFactory(RxJava2CallAdapterFactory.createWithScheduler(Schedulers.io()))
-                .addConverterFactory(GsonConverterFactory.create())
-                .client(httpClient)
-                .build()
-                .create(com.skedgo.tripkit.booking.quickbooking.QuickBookingApi.class);
+            /* This base url is ignored as the api relies on @Url. */
+            .baseUrl(ServerManager.INSTANCE.getConfiguration().getApiTripGoUrl())
+            .addCallAdapterFactory(RxJava2CallAdapterFactory.createWithScheduler(Schedulers.io()))
+            .addConverterFactory(GsonConverterFactory.create())
+            .client(httpClient)
+            .build()
+            .create(com.skedgo.tripkit.booking.quickbooking.QuickBookingApi.class);
     }
 
     @Provides
     AuthApi authApi(OkHttpClient httpClient) {
         final Gson gson = new GsonBuilder()
-                .registerTypeAdapter(FormField.class, new FormFieldJsonAdapter())
-                .registerTypeAdapterFactory(new GsonAdaptersAuthProvider())
-                .registerTypeAdapterFactory(new GsonAdaptersLogOutResponse())
-                .create();
+            .registerTypeAdapter(FormField.class, new FormFieldJsonAdapter())
+            .registerTypeAdapterFactory(new GsonAdaptersAuthProvider())
+            .registerTypeAdapterFactory(new GsonAdaptersLogOutResponse())
+            .create();
         return new Retrofit.Builder()
-                /* This base url is ignored as the api relies on @Url. */
-                .baseUrl(ServerManager.INSTANCE.getConfiguration().getApiTripGoUrl())
-                .addCallAdapterFactory(RxJava2CallAdapterFactory.createWithScheduler(Schedulers.io()))
-                .addConverterFactory(GsonConverterFactory.create(gson))
-                .client(httpClient)
-                .build()
-                .create(AuthApi.class);
+            /* This base url is ignored as the api relies on @Url. */
+            .baseUrl(ServerManager.INSTANCE.getConfiguration().getApiTripGoUrl())
+            .addCallAdapterFactory(RxJava2CallAdapterFactory.createWithScheduler(Schedulers.io()))
+            .addConverterFactory(GsonConverterFactory.create(gson))
+            .client(httpClient)
+            .build()
+            .create(AuthApi.class);
     }
     /*
         @Provides
@@ -99,9 +114,9 @@ public class BookingModule {
     BookingV2TrackingApi bookingV2TrackingApi(Retrofit.Builder builder, OkHttpClient client) {
         Gson gson = new GsonBuilder().registerTypeAdapterFactory(new GsonAdaptersBookingV2LogTripResponse()).create();
         return builder.addConverterFactory(GsonConverterFactory.create(gson))
-                .client(client)
-                .build()
-                .create(BookingV2TrackingApi.class);
+            .client(client)
+            .build()
+            .create(BookingV2TrackingApi.class);
     }
 
     @Provides
@@ -144,17 +159,17 @@ public class BookingModule {
 
     @Provides
     com.skedgo.tripkit.booking.quickbooking.QuickBookingService getNewQuickBookingService(
-            com.skedgo.tripkit.booking.quickbooking.QuickBookingApi quickBookingApi
+        com.skedgo.tripkit.booking.quickbooking.QuickBookingApi quickBookingApi
     ) {
         return new com.skedgo.tripkit.booking.quickbooking.QuickBookingService.QuickBookingServiceImpl(
-                quickBookingApi
+            quickBookingApi
         );
     }
 
     @Provides
     QuickBookingRepository getQuickBookingRepository(
-            com.skedgo.tripkit.booking.quickbooking.QuickBookingService service,
-            TripKitDatabase database
+        com.skedgo.tripkit.booking.quickbooking.QuickBookingService service,
+        TripKitDatabase database
     ) {
         return new QuickBookingRepository(service, database);
     }

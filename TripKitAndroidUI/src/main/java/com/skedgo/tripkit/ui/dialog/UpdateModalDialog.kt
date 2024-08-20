@@ -9,7 +9,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.Window
 import androidx.fragment.app.DialogFragment
-import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.databinding.DialogUpdateBinding
 
 class UpdateModalDialog : DialogFragment() {
@@ -17,7 +16,11 @@ class UpdateModalDialog : DialogFragment() {
 
     private var title: String? = ""
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
         binding = DialogUpdateBinding.inflate(inflater, container, false)
         binding.txtUpdate.text = title
         return binding.root
@@ -34,7 +37,10 @@ class UpdateModalDialog : DialogFragment() {
 
         val dialog = dialog
         if (dialog != null) {
-            dialog.window?.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
+            dialog.window?.setLayout(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT
+            )
             dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
             dialog.setCancelable(false)
         }

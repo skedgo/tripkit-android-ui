@@ -9,9 +9,9 @@ import dagger.Provides
 
 @Module
 class WalkingSpeedRepositoryModule {
-  @Provides fun walkingSpeedRepository(
-      resources: Resources,
-      prefs: SharedPreferences
-  ): WalkingSpeedRepository
-      = WalkingSpeedRepositoryImpl(resources, prefs)
+    @Provides
+    fun walkingSpeedRepository(
+        resources: Resources,
+        prefs: SharedPreferences
+    ): WalkingSpeedRepository = WalkingSpeedRepositoryImpl(resources, prefs)
 }

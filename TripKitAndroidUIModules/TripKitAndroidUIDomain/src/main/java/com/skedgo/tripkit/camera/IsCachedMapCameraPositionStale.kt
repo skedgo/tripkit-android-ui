@@ -8,14 +8,14 @@ import javax.inject.Inject
 open class IsCachedMapCameraPositionStale @Inject internal constructor(
     private val getNow: GetNow
 ) {
-  /**
-   * @param cachingDateTime Should be [CachedMapCameraPosition.cachingDateTime].
-   */
-  open fun execute(cachingDateTime: DateTime) =
-      Math.abs(
-          Days.daysBetween(
-              getNow.execute().toLocalDate(),
-              cachingDateTime.toLocalDate()
-          ).days
-      ) > 1
+    /**
+     * @param cachingDateTime Should be [CachedMapCameraPosition.cachingDateTime].
+     */
+    open fun execute(cachingDateTime: DateTime) =
+        Math.abs(
+            Days.daysBetween(
+                getNow.execute().toLocalDate(),
+                cachingDateTime.toLocalDate()
+            ).days
+        ) > 1
 }

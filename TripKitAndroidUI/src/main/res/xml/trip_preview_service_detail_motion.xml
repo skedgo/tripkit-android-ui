@@ -19,10 +19,12 @@
             <PropertySet android:alpha="0" />
         </Constraint>
         <Constraint android:id="@+id/tvBicycleLabel">
-            <PropertySet android:alpha="0"
-                app:visibilityMode="ignore"/>
+            <PropertySet
+                android:alpha="0"
+                app:visibilityMode="ignore" />
         </Constraint>
-        <Constraint android:id="@+id/occupancyView"
+        <Constraint
+            android:id="@+id/occupancyView"
             app:visibilityMode="ignore">
             <Layout
                 android:layout_width="@dimen/service_detail_icon_size"
@@ -31,7 +33,8 @@
                 app:layout_constraintStart_toEndOf="@id/ivBicycle"
                 app:layout_constraintTop_toTopOf="@id/ivBicycle" />
         </Constraint>
-        <Constraint android:id="@+id/ivBicycle"
+        <Constraint
+            android:id="@+id/ivBicycle"
             app:visibilityMode="ignore">
             <Layout
                 android:layout_width="@dimen/service_detail_icon_size"

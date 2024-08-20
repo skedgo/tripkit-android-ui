@@ -10,7 +10,12 @@ import android.view.ViewGroup
 import androidx.lifecycle.ViewModelProviders
 import com.jakewharton.rxrelay2.PublishRelay
 import com.skedgo.tripkit.common.model.Location
-import com.skedgo.tripkit.ui.*
+import com.skedgo.tripkit.ui.ARG_IS_DEPARTURE
+import com.skedgo.tripkit.ui.ARG_IS_FAVORITE
+import com.skedgo.tripkit.ui.ARG_IS_ROUTING
+import com.skedgo.tripkit.ui.ARG_LOCATION
+import com.skedgo.tripkit.ui.ARG_SHOW_CLOSE_BUTTON
+import com.skedgo.tripkit.ui.TripKitUI
 import com.skedgo.tripkit.ui.core.BaseTripKitFragment
 import com.skedgo.tripkit.ui.databinding.PoiDetailsFragmentBinding
 import com.skedgo.tripkit.ui.utils.getPackageNameFromStoreUrl

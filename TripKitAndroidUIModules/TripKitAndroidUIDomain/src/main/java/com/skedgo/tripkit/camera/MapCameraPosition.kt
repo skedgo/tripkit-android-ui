@@ -1,4 +1,5 @@
 package com.skedgo.tripkit.camera
+
 data class MapCameraPosition(
     val lat: Double,
     val lng: Double,

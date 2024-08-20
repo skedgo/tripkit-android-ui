@@ -78,7 +78,10 @@ open class TripPreviewPagerItemViewModel : RxViewModel() {
 
         var instruction = segment.miniInstruction?.description
         instruction = try {
-            instruction?.replace(SegmentNotesTemplates.TEMPLATE_DIRECTION, segment.serviceDirection ?: "")
+            instruction?.replace(
+                SegmentNotesTemplates.TEMPLATE_DIRECTION,
+                segment.serviceDirection ?: ""
+            )
         } catch (e: Exception) {
             instruction
         }
@@ -179,7 +182,9 @@ open class TripPreviewPagerItemViewModel : RxViewModel() {
             fetchRegionAndSetupPickUpMessage(segment.trip)
         }
 
-        hasPickUpWindow.set(segment.booking?.confirmation?.purchase()?.pickupWindowDuration() != null)
+        hasPickUpWindow.set(
+            segment.booking?.confirmation?.purchase()?.pickupWindowDuration() != null
+        )
     }
 
     private fun fetchRegionAndSetupPickUpMessage(trip: Trip) {
@@ -188,9 +193,9 @@ open class TripPreviewPagerItemViewModel : RxViewModel() {
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({
                 getPickUpWindowMessage(trip, it)
-            },{
+            }, {
                 Timber.e(it)
-                if(BuildConfig.DEBUG){
+                if (BuildConfig.DEBUG) {
                     it.printStackTrace()
                 }
                 getPickUpWindowMessage(trip, null)

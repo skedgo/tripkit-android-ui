@@ -6,8 +6,8 @@
     android:viewportHeight="8.4666659">
 
     <group
-            android:name="layer1"
-            android:translateY="-288.53334">
+        android:name="layer1"
+        android:translateY="-288.53334">
         <path
             android:name="path815"
             android:fillColor="#23b15e"

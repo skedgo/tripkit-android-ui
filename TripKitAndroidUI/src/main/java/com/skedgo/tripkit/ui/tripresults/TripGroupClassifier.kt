@@ -6,7 +6,7 @@ import kotlin.math.max
 import kotlin.math.min
 
 
-class TripGroupClassifier constructor (tripGroups: List<TripGroup>){
+class TripGroupClassifier constructor(tripGroups: List<TripGroup>) {
     enum class Classification {
         NONE,
         CHEAPEST,
@@ -22,7 +22,7 @@ class TripGroupClassifier constructor (tripGroups: List<TripGroup>){
     private var hassles = floatArrayOf(Float.POSITIVE_INFINITY, Float.NEGATIVE_INFINITY)
     private var durations = floatArrayOf(Float.POSITIVE_INFINITY, Float.NEGATIVE_INFINITY)
     private var calories = floatArrayOf(Float.POSITIVE_INFINITY, Float.NEGATIVE_INFINITY)
-    private var carbons =  floatArrayOf(Float.POSITIVE_INFINITY, Float.NEGATIVE_INFINITY)
+    private var carbons = floatArrayOf(Float.POSITIVE_INFINITY, Float.NEGATIVE_INFINITY)
 
     var FloatArray.second
         set(value) = set(1, value)
@@ -69,16 +69,29 @@ class TripGroupClassifier constructor (tripGroups: List<TripGroup>){
     fun classify(tripGroup: TripGroup): Classification {
         val trip = tripGroup.displayTrip ?: return Classification.NONE
         return when {
-            matches(weighted.first, weighted.second, trip.weightedScore) -> Classification.RECOMMENDED
-            matches(durations.first, durations.second, trip.durationInSeconds().toFloat()) -> Classification.FASTEST
+            matches(
+                weighted.first,
+                weighted.second,
+                trip.weightedScore
+            ) -> Classification.RECOMMENDED
+            matches(
+                durations.first,
+                durations.second,
+                trip.durationInSeconds().toFloat()
+            ) -> Classification.FASTEST
             matches(prices.first, prices.second, trip.moneyCost) -> Classification.CHEAPEST
-            matches(calories.first, calories.second, trip.caloriesCost * -1) -> Classification.HEALTHIEST
+            matches(
+                calories.first,
+                calories.second,
+                trip.caloriesCost * -1
+            ) -> Classification.HEALTHIEST
             matches(hassles.first, hassles.second, trip.hassleCost) -> Classification.EASIEST
             matches(carbons.first, carbons.second, trip.carbonCost) -> Classification.GREENEST
             else -> Classification.NONE
         }
     }
 
-    private fun matches(min: Float, max: Float, value: Float): Boolean = (min == value && max > (min * 1.25))
+    private fun matches(min: Float, max: Float, value: Float): Boolean =
+        (min == value && max > (min * 1.25))
 
 }

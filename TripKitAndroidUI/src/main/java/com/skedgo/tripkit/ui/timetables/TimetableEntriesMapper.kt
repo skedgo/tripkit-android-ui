@@ -6,7 +6,7 @@ import com.skedgo.tripkit.common.util.TimeUtils
 import com.skedgo.tripkit.data.database.DbFields
 import com.skedgo.tripkit.ui.model.TimetableEntry
 import com.skedgo.tripkit.ui.realtime.RealtimeAlertRepository
-import java.util.*
+import java.util.Random
 import javax.inject.Inject
 
 class TimetableEntriesMapper @Inject constructor(
@@ -29,7 +29,10 @@ class TimetableEntriesMapper @Inject constructor(
                 serviceValuesList[i].put(DbFields.END_STOP_CODE.name, service.endStopCode)
                 serviceValuesList[i].put(DbFields.START_TIME.name, service.startTimeInSecs)
                 serviceValuesList[i].put(DbFields.END_TIME.name, service.endTimeInSecs)
-                serviceValuesList[i].put(DbFields.JULIAN_DAY.name, TimeUtils.getJulianDay(service.startTimeInSecs * 1000))
+                serviceValuesList[i].put(
+                    DbFields.JULIAN_DAY.name,
+                    TimeUtils.getJulianDay(service.startTimeInSecs * 1000)
+                )
                 serviceValuesList[i].put(DbFields.FREQUENCY.name, service.frequency)
                 serviceValuesList[i].put(DbFields.SERVICE_NUMBER.name, service.serviceNumber)
                 serviceValuesList[i].put(DbFields.SERVICE_NAME.name, service.serviceName)
@@ -38,8 +41,14 @@ class TimetableEntriesMapper @Inject constructor(
                 serviceValuesList[i].put(DbFields.SEARCH_STRING.name, service.searchString)
                 serviceValuesList[i].put(DbFields.SERVICE_TIME.name, service.serviceTime)
                 serviceValuesList[i].put(DbFields.SERVICE_DIRECTION.name, service.serviceDirection)
-                serviceValuesList[i].put(DbFields.WHEELCHAIR_ACCESSIBLE.name, getModeAccessibility.wheelchair(service))
-                serviceValuesList[i].put(DbFields.BICYCLE_ACCESSIBLE.name, getModeAccessibility.bicycle(service))
+                serviceValuesList[i].put(
+                    DbFields.WHEELCHAIR_ACCESSIBLE.name,
+                    getModeAccessibility.wheelchair(service)
+                )
+                serviceValuesList[i].put(
+                    DbFields.BICYCLE_ACCESSIBLE.name,
+                    getModeAccessibility.bicycle(service)
+                )
                 service.startStop?.let {
                     serviceValuesList[i].put(DbFields.START_STOP_SHORT_NAME.name, it.shortName)
                 }

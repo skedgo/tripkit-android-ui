@@ -2,11 +2,11 @@ package com.skedgo.tripkit.ui.core.module
 
 //import com.skedgo.tripgo.sdk.booking.TripPreviewTicketFooterFragment
 //import com.skedgo.tripgo.sdk.booking.drt.DrtFragment
-import com.skedgo.tripkit.ui.trippreview.standard.StandardTripPreviewItemFragment
 import com.skedgo.tripkit.ui.trippreview.external.ExternalActionTripPreviewItemFragment
 import com.skedgo.tripkit.ui.trippreview.nearby.ModeLocationTripPreviewItemFragment
 import com.skedgo.tripkit.ui.trippreview.nearby.NearbyTripPreviewItemFragment
 import com.skedgo.tripkit.ui.trippreview.service.ServiceTripPreviewItemFragment
+import com.skedgo.tripkit.ui.trippreview.standard.StandardTripPreviewItemFragment
 import dagger.Subcomponent
 
 @ActivityScope

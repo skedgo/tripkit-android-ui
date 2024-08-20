@@ -23,7 +23,10 @@ import me.tatarka.bindingcollectionadapter2.ItemBinding
 
 class TripSegmentAlertsSheetViewModel {
     val items: ObservableList<TripSegmentAlertsItemViewModel> = ObservableArrayList()
-    val itemBinding = ItemBinding.of<TripSegmentAlertsItemViewModel>(BR.viewModel, R.layout.trip_segment_alert_details_item)
+    val itemBinding = ItemBinding.of<TripSegmentAlertsItemViewModel>(
+        BR.viewModel,
+        R.layout.trip_segment_alert_details_item
+    )
 }
 
 class TripSegmentAlertsSheet : BottomSheetDialogFragment() {
@@ -39,13 +42,27 @@ class TripSegmentAlertsSheet : BottomSheetDialogFragment() {
         }
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val binding = DataBindingUtil.inflate<TripSegmentAlertDetailsBottomSheetBinding>(inflater, R.layout.trip_segment_alert_details_bottom_sheet, container, false)
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        val binding = DataBindingUtil.inflate<TripSegmentAlertDetailsBottomSheetBinding>(
+            inflater,
+            R.layout.trip_segment_alert_details_bottom_sheet,
+            container,
+            false
+        )
         binding.viewModel = viewModel
         binding.closeButton.setOnClickListener {
             dismiss()
         }
-        binding.alertsList.addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
+        binding.alertsList.addItemDecoration(
+            DividerItemDecoration(
+                context,
+                DividerItemDecoration.VERTICAL
+            )
+        )
         return binding.root
     }
 
@@ -60,7 +77,8 @@ class TripSegmentAlertsSheet : BottomSheetDialogFragment() {
 
 
     private fun setupFullHeight(bottomSheetDialog: BottomSheetDialog) {
-        val bottomSheet = bottomSheetDialog.findViewById<View>(R.id.design_bottom_sheet) as FrameLayout?
+        val bottomSheet =
+            bottomSheetDialog.findViewById<View>(R.id.design_bottom_sheet) as FrameLayout?
         bottomSheet?.let {
             val behavior = BottomSheetBehavior.from(bottomSheet)
             behavior.isHideable = false

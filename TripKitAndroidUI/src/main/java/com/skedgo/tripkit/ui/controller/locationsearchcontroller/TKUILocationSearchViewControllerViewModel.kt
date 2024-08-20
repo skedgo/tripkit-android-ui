@@ -4,7 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.skedgo.tripkit.ui.core.RxViewModel
 
-class TKUILocationSearchViewControllerViewModel: RxViewModel() {
+class TKUILocationSearchViewControllerViewModel : RxViewModel() {
 
     private val _withHeaders = MutableLiveData(false)
     val withHeaders: LiveData<Boolean> = _withHeaders

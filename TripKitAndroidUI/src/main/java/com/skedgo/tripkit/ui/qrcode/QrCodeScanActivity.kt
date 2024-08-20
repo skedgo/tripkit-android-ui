@@ -2,10 +2,13 @@ package com.skedgo.tripkit.ui.qrcode
 
 import android.content.Intent
 import android.os.Bundle
-import android.os.PersistableBundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
-import androidx.camera.core.*
+import androidx.camera.core.Camera
+import androidx.camera.core.CameraSelector
+import androidx.camera.core.ImageAnalysis
+import androidx.camera.core.ImageCapture
+import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
@@ -18,6 +21,7 @@ import java.util.concurrent.Executors
 const val INTENT_KEY_BARCODES = "barcodes"
 const val INTENT_KEY_INTERNAL_URL = "internal_url"
 const val INTENT_KEY_BUTTON_ID = "button_id"
+
 class QrCodeScanActivity : AppCompatActivity() {
 
     lateinit var binding: QrScanActivityBinding
@@ -40,7 +44,7 @@ class QrCodeScanActivity : AppCompatActivity() {
     override fun onStart() {
         super.onStart()
         ExcuseMe.couldYouGive(this).permissionFor(android.Manifest.permission.CAMERA) {
-            if(it.granted.contains(android.Manifest.permission.CAMERA)) {
+            if (it.granted.contains(android.Manifest.permission.CAMERA)) {
                 binding.viewFinder.post { runCamera() }
             }
         }
@@ -52,30 +56,32 @@ class QrCodeScanActivity : AppCompatActivity() {
         cameraProviderFuture.addListener(Runnable {
             val cameraProvider: ProcessCameraProvider = cameraProviderFuture.get()
             preview = Preview.Builder()
-                    .build()
+                .build()
 
-            val cameraSelector = CameraSelector.Builder().requireLensFacing(CameraSelector.LENS_FACING_BACK).build()
+            val cameraSelector =
+                CameraSelector.Builder().requireLensFacing(CameraSelector.LENS_FACING_BACK).build()
             imageAnalyzer = ImageAnalysis.Builder()
-                    .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
-                    .build()
-                    // The analyzer can then be assigned to the instance
-                    .also {
-                        it.setAnalyzer(cameraExecutor, QrCodeAnalyzer { list ->
-                            val results = mutableListOf<String>()
-                            list.forEach {
-                                it.rawValue?.let { results.add(it) }
-                            }
-                            done(results.toTypedArray())
+                .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+                .build()
+                // The analyzer can then be assigned to the instance
+                .also {
+                    it.setAnalyzer(cameraExecutor, QrCodeAnalyzer { list ->
+                        val results = mutableListOf<String>()
+                        list.forEach {
+                            it.rawValue?.let { results.add(it) }
+                        }
+                        done(results.toTypedArray())
 
-                        })
-                    }
+                    })
+                }
 
             try {
                 cameraProvider.unbindAll()
-                camera = cameraProvider.bindToLifecycle(this, cameraSelector, preview, imageAnalyzer)
+                camera =
+                    cameraProvider.bindToLifecycle(this, cameraSelector, preview, imageAnalyzer)
                 preview?.setSurfaceProvider(binding.viewFinder.createSurfaceProvider())
-            } catch(exc: Exception) {
-                Log.e("TripKit","Use case binding failed", exc)
+            } catch (exc: Exception) {
+                Log.e("TripKit", "Use case binding failed", exc)
             }
 
         }, ContextCompat.getMainExecutor(this))

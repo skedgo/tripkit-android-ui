@@ -1,7 +1,5 @@
 package com.skedgo.tripkit.ui.tripresult
 
-import android.graphics.Color
-import com.skedgo.tripkit.routing.RoadTag
 import com.skedgo.tripkit.ui.utils.DistanceFormatter
 
 data class RoadTagChart(
@@ -10,14 +8,14 @@ data class RoadTagChart(
     val items: List<RoadTagChartItem>
 ) {
     fun getMaxDistance(): String =
-        if(max > 999) {
+        if (max > 999) {
             DistanceFormatter.format(max)
         } else {
             "${max}m"
         }
 
     fun getMiddleDistance(): String =
-        if(middle > 999) {
+        if (middle > 999) {
             DistanceFormatter.format(middle)
         } else {
             "${middle}m"

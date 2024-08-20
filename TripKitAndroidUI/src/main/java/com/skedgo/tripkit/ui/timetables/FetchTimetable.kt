@@ -19,99 +19,117 @@ import skedgo.tripgo.data.timetables.ParentStopEntity
 import javax.inject.Inject
 
 open class FetchTimetable @Inject constructor(
-        private val departuresRepository: DeparturesRepository,
-        private val realtimeAlertRepository: RealtimeAlertRepository,
-        private val parentStopDao: ParentStopDao,
-        private val timetableEntriesMapper: TimetableEntriesMapper,
-        private val serviceAlertMapper: ServiceAlertMapper,
-        private val serviceAlertsDao: ServiceAlertsDao,
-        private val context: Context
+    private val departuresRepository: DeparturesRepository,
+    private val realtimeAlertRepository: RealtimeAlertRepository,
+    private val parentStopDao: ParentStopDao,
+    private val timetableEntriesMapper: TimetableEntriesMapper,
+    private val serviceAlertMapper: ServiceAlertMapper,
+    private val serviceAlertsDao: ServiceAlertsDao,
+    private val context: Context
 ) {
 
-    open fun execute(embarkationStopCodes: List<String>,
-                     disembarkationStopCodes: List<String>?,
-                     region: Region,
-                     startTimeInSecs: Long
+    open fun execute(
+        embarkationStopCodes: List<String>,
+        disembarkationStopCodes: List<String>?,
+        region: Region,
+        startTimeInSecs: Long
     ): Single<Pair<List<TimetableEntry>, Optional<ScheduledStop>>> =
-            departuresRepository.getTimetableEntries(
-                    region.name!!,
-                    embarkationStopCodes,
-                    disembarkationStopCodes,
-                    startTimeInSecs,
-                    50)
-                    .map { response ->
-                        if (response == null) {
-                            error(RuntimeException("Failed to fetch timetable"))
-                        }
+        departuresRepository.getTimetableEntries(
+            region.name!!,
+            embarkationStopCodes,
+            disembarkationStopCodes,
+            startTimeInSecs,
+            50
+        )
+            .map { response ->
+                if (response == null) {
+                    error(RuntimeException("Failed to fetch timetable"))
+                }
 
-                        // Save alerts
-                        if (!response.alerts.isNullOrEmpty()) {
-                            realtimeAlertRepository.addAlerts(response.alerts!!)
-                        }
+                // Save alerts
+                if (!response.alerts.isNullOrEmpty()) {
+                    realtimeAlertRepository.addAlerts(response.alerts!!)
+                }
 
-                        // Add real time alerts
-                        response.serviceList.orEmpty().forEach { service ->
-                            service.alertHashCodes?.let {
-                                realtimeAlertRepository.addAlertHashCodesForId(service.serviceTripId, it.toList())
-                            }
-                        }
-
-                        // set start stop from parent info
-                        response.serviceList.orEmpty().forEach { service ->
-                            service.startStop = response.parentInfo?.children?.find { it.code == service.stopCode }
-                        }
-
-                        // TODO: remove when refactoring TimetablePager
-                        response.parentInfo?.let { parent ->
-                            parentStopDao.insert(parent.children.map { ParentStopEntity(parent.code, it.code) })
-
-                            // save alerts
-                            parent.alertHashCodes?.let {
-                                realtimeAlertRepository.addAlertHashCodesForId(parent.code, it)
-                            }
-                        }
-
-                        // TODO: remove when refactoring TimetablePager
-                        val serviceValuesList = timetableEntriesMapper.toContentValues(response.serviceList.orEmpty())
-                        context.contentResolver.bulkInsert(TimetableProvider.SCHEDULED_SERVICES_URI, serviceValuesList)
-                        saveAlerts(response)
-
-                        response.serviceList.orEmpty() to Optional<ScheduledStop>(response.parentInfo)
+                // Add real time alerts
+                response.serviceList.orEmpty().forEach { service ->
+                    service.alertHashCodes?.let {
+                        realtimeAlertRepository.addAlertHashCodesForId(
+                            service.serviceTripId,
+                            it.toList()
+                        )
                     }
-                    .map {
-                        it.first.forEach { timetable ->
-                            val savedAlerts = realtimeAlertRepository.getAlerts(timetable.serviceTripId)
-                            timetable.alerts = ArrayList(savedAlerts.orEmpty())
-                        }
-                        it
+                }
+
+                // set start stop from parent info
+                response.serviceList.orEmpty().forEach { service ->
+                    service.startStop =
+                        response.parentInfo?.children?.find { it.code == service.stopCode }
+                }
+
+                // TODO: remove when refactoring TimetablePager
+                response.parentInfo?.let { parent ->
+                    parentStopDao.insert(parent.children.map {
+                        ParentStopEntity(
+                            parent.code,
+                            it.code
+                        )
+                    })
+
+                    // save alerts
+                    parent.alertHashCodes?.let {
+                        realtimeAlertRepository.addAlertHashCodesForId(parent.code, it)
                     }
+                }
+
+                // TODO: remove when refactoring TimetablePager
+                val serviceValuesList =
+                    timetableEntriesMapper.toContentValues(response.serviceList.orEmpty())
+                context.contentResolver.bulkInsert(
+                    TimetableProvider.SCHEDULED_SERVICES_URI,
+                    serviceValuesList
+                )
+                saveAlerts(response)
+
+                response.serviceList.orEmpty() to Optional<ScheduledStop>(response.parentInfo)
+            }
+            .map {
+                it.first.forEach { timetable ->
+                    val savedAlerts = realtimeAlertRepository.getAlerts(timetable.serviceTripId)
+                    timetable.alerts = ArrayList(savedAlerts.orEmpty())
+                }
+                it
+            }
 
     private fun saveAlerts(response: DeparturesResponse) {
         val alertHashCodesToAlerts = response.alerts.orEmpty()
-                .map { it.remoteHashCode() to it }
-                .toMap()
+            .map { it.remoteHashCode() to it }
+            .toMap()
 
         Observable.fromIterable(response.serviceList.orEmpty())
-                .flatMapSingle { service ->
-                    serviceAlertsDao.getAlertForService(serviceId = service.serviceTripId)
-                            .flatMapCompletable {
-                                Completable.fromAction {
-                                    serviceAlertsDao.deleteAlertByService(it)
-                                }
-                            }
-                            .andThen(Single.just(service))
-                            .map {
-                                it.alertHashCodes.orEmpty()
-                                        .map {
-                                            serviceAlertMapper.toEntity(service.serviceTripId, alertHashCodesToAlerts[it]!!)
-                                        }
-                            }
-                }
-                .flatMapCompletable {
-                    Completable.fromAction {
-                        serviceAlertsDao.insertAlerts(it)
+            .flatMapSingle { service ->
+                serviceAlertsDao.getAlertForService(serviceId = service.serviceTripId)
+                    .flatMapCompletable {
+                        Completable.fromAction {
+                            serviceAlertsDao.deleteAlertByService(it)
+                        }
                     }
+                    .andThen(Single.just(service))
+                    .map {
+                        it.alertHashCodes.orEmpty()
+                            .map {
+                                serviceAlertMapper.toEntity(
+                                    service.serviceTripId,
+                                    alertHashCodesToAlerts[it]!!
+                                )
+                            }
+                    }
+            }
+            .flatMapCompletable {
+                Completable.fromAction {
+                    serviceAlertsDao.insertAlerts(it)
                 }
-                .subscribe()
+            }
+            .subscribe()
     }
 }

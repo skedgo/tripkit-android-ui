@@ -6,10 +6,10 @@ import com.google.android.gms.maps.model.PolylineOptions
 import com.skedgo.tripkit.LineSegment
 import com.skedgo.tripkit.a2brouting.GetNonTravelledLineForTrip
 import com.skedgo.tripkit.a2brouting.GetTravelledLineForTrip
+import com.skedgo.tripkit.routing.TripSegment
 import io.reactivex.Observable
 import io.reactivex.functions.BiFunction
-import com.skedgo.tripkit.routing.TripSegment
-import java.util.*
+import java.util.LinkedList
 import javax.inject.Inject
 
 // FIXME: Create a pure domain model to represent a trip line.

@@ -18,7 +18,6 @@ import com.afollestad.materialdialogs.list.listItems
 import com.araujo.jordan.excuseme.ExcuseMe
 import com.araujo.jordan.excuseme.model.PermissionStatus
 import com.skedgo.tripkit.ui.R
-import java.lang.Exception
 
 fun Context.viewAppDetailsSettingsIntent(): Intent = Intent(
     Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
@@ -118,7 +117,7 @@ fun Context.deFocusAndHideKeyboard(focus: View?) {
 }
 
 fun Context.isPermissionGranted(permission: String): Boolean =
-    ContextCompat.checkSelfPermission(this, permission)== PackageManager.PERMISSION_GRANTED
+    ContextCompat.checkSelfPermission(this, permission) == PackageManager.PERMISSION_GRANTED
 
 fun Context.openAppInPlayStore() {
     val packageName = applicationContext.packageName

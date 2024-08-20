@@ -1,4 +1,5 @@
 package com.skedgo.tripkit.ui.map.adapter
+
 import android.view.LayoutInflater
 import android.view.View
 
@@ -10,9 +11,9 @@ import javax.inject.Inject
 class NoActionWindowAdapter @Inject internal constructor(
     private val inflater: LayoutInflater
 ) : SimpleInfoWindowAdapter() {
-  override fun getInfoContents(marker: Marker): View? =
-      SimpleCalloutView.create(inflater).apply {
-        setTitle(marker.title)
-        setSnippet(marker.snippet)
-      }
+    override fun getInfoContents(marker: Marker): View? =
+        SimpleCalloutView.create(inflater).apply {
+            setTitle(marker.title)
+            setSnippet(marker.snippet)
+        }
 }

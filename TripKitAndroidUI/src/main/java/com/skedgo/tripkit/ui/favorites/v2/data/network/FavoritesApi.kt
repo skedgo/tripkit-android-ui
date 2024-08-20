@@ -1,7 +1,6 @@
 package com.skedgo.tripkit.ui.favorites.v2.data.network
 
 import com.skedgo.tripkit.ui.favorites.v2.data.local.FavoriteV2
-import okhttp3.ResponseBody
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET

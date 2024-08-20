@@ -4,5 +4,5 @@ import com.google.android.gms.maps.CameraUpdate
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.LatLngBounds
 
-fun LatLngBounds.toCameraUpdate(padding: Int): CameraUpdate
-        = CameraUpdateFactory.newLatLngBounds(this, padding)
+fun LatLngBounds.toCameraUpdate(padding: Int): CameraUpdate =
+    CameraUpdateFactory.newLatLngBounds(this, padding)

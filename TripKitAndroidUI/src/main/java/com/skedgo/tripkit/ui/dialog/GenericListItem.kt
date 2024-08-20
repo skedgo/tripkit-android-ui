@@ -1,11 +1,11 @@
 package com.skedgo.tripkit.ui.dialog
 
+import com.skedgo.tripkit.booking.quickbooking.Fare
 import com.skedgo.tripkit.booking.quickbooking.Option
 import com.skedgo.tripkit.booking.quickbooking.Rider
-import com.skedgo.tripkit.booking.quickbooking.Fare
 import org.joda.time.format.ISODateTimeFormat
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Locale
 
 data class GenericListItem(
     val label: String,

@@ -93,7 +93,7 @@
                 android:text="@{viewModel.descriptionTitle}"
                 android:textStyle="bold"
                 android:textColor="@android:color/black"
-                tools:text="Test"/>
+                tools:text="Test" />
 
             <TextView
                 android:id="@+id/genericList_item_description"
@@ -102,7 +102,7 @@
                 android:layout_height="wrap_content"
                 android:text="@{viewModel.description}"
                 android:textColor="@android:color/black"
-                tools:text="Test"/>
+                tools:text="Test" />
 
         </LinearLayout>
 

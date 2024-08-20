@@ -4,11 +4,10 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.skedgo.tripkit.ui.databinding.ViewholderGenericListBinding
-import kotlin.collections.ArrayList
 
 @Deprecated("Use GenericListAdapter")
 class GenericListAdapterOld(private val onClickListener: OnSelectListener) :
-        RecyclerView.Adapter<GenericListViewHolder>() {
+    RecyclerView.Adapter<GenericListViewHolder>() {
     interface OnSelectListener {
         fun onSelect(selection: String)
         fun isSelected(selection: String): Boolean
@@ -24,25 +23,25 @@ class GenericListAdapterOld(private val onClickListener: OnSelectListener) :
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): GenericListViewHolder {
         val binding: ViewholderGenericListBinding =
-                ViewholderGenericListBinding.inflate(
-                        LayoutInflater.from(parent.context),
-                        parent,
-                        false
-                )
+            ViewholderGenericListBinding.inflate(
+                LayoutInflater.from(parent.context),
+                parent,
+                false
+            )
         return GenericListViewHolder(binding, onClickListener)
     }
 
     override fun getItemCount(): Int = selectionList.size
 
     override fun onBindViewHolder(holder: GenericListViewHolder, position: Int) =
-            holder.bind(selectionList[position])
+        holder.bind(selectionList[position])
 }
 
 class GenericListViewHolder(
-        private val binding: ViewholderGenericListBinding,
-        private val onSelectListener: GenericListAdapterOld.OnSelectListener
+    private val binding: ViewholderGenericListBinding,
+    private val onSelectListener: GenericListAdapterOld.OnSelectListener
 ) :
-        RecyclerView.ViewHolder(binding.root) {
+    RecyclerView.ViewHolder(binding.root) {
 
     private lateinit var selection: String
 

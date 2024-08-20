@@ -9,9 +9,9 @@ import dagger.Provides
 
 @Module
 class PreferredTransferTimeRepositoryModule {
-  @Provides fun preferredTransferTimeRepository(
-      resources: Resources,
-      prefs: SharedPreferences
-  ): PreferredTransferTimeRepository
-      = PreferredTransferTimeRepositoryImpl(resources, prefs)
+    @Provides
+    fun preferredTransferTimeRepository(
+        resources: Resources,
+        prefs: SharedPreferences
+    ): PreferredTransferTimeRepository = PreferredTransferTimeRepositoryImpl(resources, prefs)
 }

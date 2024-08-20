@@ -15,13 +15,15 @@ class TripKitTimePickerDialogFragment : DialogFragment() {
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val hour = arguments?.getInt(ARG_HOUR) ?: 9
         val minute = arguments?.getInt(ARG_MINUTE) ?: 0
-        return TimePickerDialog(activity, onTimeSetListener, hour, minute,
-                DateFormat.is24HourFormat(activity))
+        return TimePickerDialog(
+            activity, onTimeSetListener, hour, minute,
+            DateFormat.is24HourFormat(activity)
+        )
     }
 
     class Builder {
-        private var time: LocalTime = LocalTime.of(9,0)
-        fun withLocalTime(time: LocalTime) : Builder {
+        private var time: LocalTime = LocalTime.of(9, 0)
+        fun withLocalTime(time: LocalTime): Builder {
             this.time = time
             return this
         }

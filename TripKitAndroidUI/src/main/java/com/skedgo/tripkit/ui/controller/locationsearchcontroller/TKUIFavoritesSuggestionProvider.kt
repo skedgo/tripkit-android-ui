@@ -5,8 +5,6 @@ import com.skedgo.tripkit.common.model.Location
 import com.skedgo.tripkit.ui.search.LocationSearchIconProvider
 import com.skedgo.tripkit.ui.search.LocationSearchProvider
 import com.skedgo.tripkit.ui.search.SearchSuggestion
-import timber.log.Timber
-import javax.inject.Inject
 
 
 open class TKUIFavoritesSuggestionProvider : LocationSearchProvider {

@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:bind="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
@@ -95,7 +94,8 @@
             android:textColor="@color/black1"
             style="@style/TextAppearance.MaterialComponents.Caption"
             app:layout_constraintStart_toStartOf="@+id/iconLayout"
-            app:layout_constraintTop_toBottomOf="@+id/iconLayout"/>
+            app:layout_constraintTop_toBottomOf="@+id/iconLayout" />
+
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
@@ -104,7 +104,7 @@
             android:layout_marginTop="@dimen/spacing_small"
             android:visibility="@{viewModel.showExpandableMenu}"
             app:layout_constraintTop_toBottomOf="@+id/details"
-            app:layout_constraintStart_toStartOf="parent"/>
+            app:layout_constraintStart_toStartOf="parent" />
 
         <androidx.constraintlayout.motion.widget.MotionLayout
             android:layout_width="match_parent"
@@ -127,7 +127,7 @@
                 android:visibility="@{viewModel.showWheelchairAccessible}"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                tools:src="@drawable/ic_wheelchair"/>
+                tools:src="@drawable/ic_wheelchair" />
 
             <TextView
                 android:id="@+id/wheelchairLabel"
@@ -139,7 +139,7 @@
                 android:visibility="@{viewModel.showWheelchairAccessible}"
                 app:layout_constraintStart_toEndOf="@id/wheelchair"
                 app:layout_constraintTop_toTopOf="@+id/wheelchair"
-                tools:text="Label w"/>
+                tools:text="Label w" />
 
             <ImageView
                 android:id="@+id/ivBicycle"
@@ -162,7 +162,7 @@
                 app:layout_constraintStart_toEndOf="@id/ivBicycle"
                 app:layout_constraintTop_toTopOf="@+id/ivBicycle"
                 app:layout_constraintBottom_toBottomOf="@+id/ivBicycle"
-                tools:text="Label B"/>
+                tools:text="Label B" />
 
             <ImageView
                 android:id="@+id/occupancyView"
@@ -173,7 +173,7 @@
                 android:visibility="@{viewModel.showOccupancyInfo}"
                 app:layout_constraintStart_toEndOf="@id/ivBicycle"
                 app:layout_constraintTop_toTopOf="@id/ivBicycle"
-                tools:src="@drawable/ic_occupancy_25"/>
+                tools:src="@drawable/ic_occupancy_25" />
 
             <TextView
                 android:id="@+id/occupancyLabel"
@@ -185,7 +185,7 @@
                 android:visibility="@{viewModel.showOccupancyInfo}"
                 app:layout_constraintStart_toEndOf="@id/occupancyView"
                 app:layout_constraintTop_toTopOf="@+id/occupancyView"
-                tools:text="Label O"/>
+                tools:text="Label O" />
 
             <ImageView
                 android:id="@+id/expandButton"
@@ -251,7 +251,7 @@
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/bottomBarrier"
-            app:layout_constraintBottom_toBottomOf="parent"/>
+            app:layout_constraintBottom_toBottomOf="parent" />
 
         <androidx.constraintlayout.widget.Barrier
             android:id="@+id/bottomBarrier"

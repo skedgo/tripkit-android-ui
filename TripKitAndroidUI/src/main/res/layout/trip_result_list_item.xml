@@ -5,7 +5,7 @@
 
     <data>
 
-        <import type="android.text.TextUtils"/>
+        <import type="android.text.TextUtils" />
 
         <variable
             name="viewModel"
@@ -269,7 +269,7 @@
                 app:layout_constraintTop_toTopOf="@+id/moreButton"
                 app:layout_constraintEnd_toEndOf="@+id/moreButton"
                 app:layout_constraintStart_toStartOf="@+id/moreButton"
-                app:layout_constraintHorizontal_bias="0.25"/>
+                app:layout_constraintHorizontal_bias="0.25" />
 
 
         </androidx.constraintlayout.widget.ConstraintLayout>

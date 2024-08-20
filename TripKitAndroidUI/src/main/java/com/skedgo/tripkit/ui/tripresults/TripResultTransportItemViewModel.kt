@@ -9,7 +9,7 @@ import com.skedgo.tripkit.ui.core.RxViewModel
 import javax.inject.Inject
 
 
-class TripResultTransportItemViewModel  @Inject constructor(): RxViewModel() {
+class TripResultTransportItemViewModel @Inject constructor() : RxViewModel() {
     val modeId = ObservableField<String>()
     val modeIconId = ObservableField<String>()
     val checked = ObservableBoolean(false)
@@ -18,7 +18,7 @@ class TripResultTransportItemViewModel  @Inject constructor(): RxViewModel() {
 
     fun onItemClick(view: View) {
         checked.set(!checked.get())
-        clicked.accept(modeId.get()!! to checked.get() )
+        clicked.accept(modeId.get()!! to checked.get())
     }
 
     fun setup(mode: TransportMode) {

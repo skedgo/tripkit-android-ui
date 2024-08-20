@@ -8,19 +8,36 @@ fun <T> ObservableList<T>.asObservable(): Observable<ObservableList<T>> {
     return Observable.create {
         it.onNext(this)
         val callback = object : OnListChangedCallback<ObservableList<T>>() {
-            override fun onItemRangeRemoved(sender: ObservableList<T>?, positionStart: Int, itemCount: Int) {
+            override fun onItemRangeRemoved(
+                sender: ObservableList<T>?,
+                positionStart: Int,
+                itemCount: Int
+            ) {
                 it.onNext(sender!!)
             }
 
-            override fun onItemRangeInserted(sender: ObservableList<T>?, positionStart: Int, itemCount: Int) {
+            override fun onItemRangeInserted(
+                sender: ObservableList<T>?,
+                positionStart: Int,
+                itemCount: Int
+            ) {
                 it.onNext(sender!!)
             }
 
-            override fun onItemRangeMoved(sender: ObservableList<T>?, fromPosition: Int, toPosition: Int, itemCount: Int) {
+            override fun onItemRangeMoved(
+                sender: ObservableList<T>?,
+                fromPosition: Int,
+                toPosition: Int,
+                itemCount: Int
+            ) {
                 it.onNext(sender!!)
             }
 
-            override fun onItemRangeChanged(sender: ObservableList<T>?, positionStart: Int, itemCount: Int) {
+            override fun onItemRangeChanged(
+                sender: ObservableList<T>?,
+                positionStart: Int,
+                itemCount: Int
+            ) {
                 it.onNext(sender!!)
             }
 

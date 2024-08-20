@@ -27,12 +27,12 @@ class LocationPointerFragment() : BaseTripKitFragment() {
 
     @Inject
     lateinit var viewModelFactory: LocationPointerViewModelFactory
-    private val viewModel: LocationPointerViewModel by viewModels{ viewModelFactory }
+    private val viewModel: LocationPointerViewModel by viewModels { viewModelFactory }
     private var map: GoogleMap? = null
     private var geocoder: AndroidGeocoder? = null
     private var cachedMarker: Marker? = null
     private var locationField: LocationField = LocationField.NONE
-    
+
     private lateinit var binding: FragmentLocationPointerBinding
     private var listener: LocationPointerListener? = null
 
@@ -120,7 +120,7 @@ class LocationPointerFragment() : BaseTripKitFragment() {
         this.onCloseListener = listener
         closeButton?.setOnClickListener(listener)
     }
-    
+
     fun setListener(listener: LocationPointerListener) {
         this.listener = listener
     }

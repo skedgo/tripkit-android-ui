@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
+
         <variable
             name="item"
             type="com.skedgo.tripkit.common.model.RealtimeAlert" />
@@ -23,7 +24,7 @@
             android:src="@{item.severity()}"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            tools:src="@drawable/ic_action_warning"/>
+            tools:src="@drawable/ic_action_warning" />
 
         <TextView
             android:id="@+id/tvTitle"
@@ -56,7 +57,7 @@
             android:layout_marginTop="@dimen/spacing_small"
             android:text="@{item.text()}"
             app:layout_constraintTop_toBottomOf="@+id/tvTitle"
-            tools:text="Description here"/>
+            tools:text="Description here" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

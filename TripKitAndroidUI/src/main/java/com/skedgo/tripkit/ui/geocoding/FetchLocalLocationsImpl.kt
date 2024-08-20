@@ -1,19 +1,19 @@
 package com.skedgo.tripkit.ui.geocoding
 
 import com.skedgo.geocoding.agregator.GCResultInterface
+import com.skedgo.tripkit.logging.ErrorLogger
 import com.skedgo.tripkit.ui.search.FetchLocalLocations
 import com.skedgo.tripkit.ui.search.FetchLocationsParameters
 import io.reactivex.Observable
-import com.skedgo.tripkit.logging.ErrorLogger
 import javax.inject.Inject
 
 class FetchLocalLocationsImpl @Inject constructor(
 //        private val favoriteStore: FavoriteStore,
-        private val errorLogger: ErrorLogger
+    private val errorLogger: ErrorLogger
 //        private val schedulerFactory: SchedulerFactory
 ) : FetchLocalLocations {
-  override fun getLocations(parameters: FetchLocationsParameters): Observable<List<GCResultInterface>> {
-      return Observable.empty() // TODO
+    override fun getLocations(parameters: FetchLocationsParameters): Observable<List<GCResultInterface>> {
+        return Observable.empty() // TODO
 //    return favoriteStore
 //        .getFavoritesByTermAsync(parameters.term())
 //        .map { favorite -> favorite.toLocation() }
@@ -40,5 +40,5 @@ class FetchLocalLocationsImpl @Inject constructor(
 //        /* Don't let any error of one source block one another source. */
 //        .onErrorResumeNext(Observable.empty())
 //        .subscribeOn(io())
-  }
+    }
 }

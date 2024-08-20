@@ -7,8 +7,8 @@ import dagger.Provides
 
 @Module
 class ServiceAlertDataModule {
-  @Provides
-  internal fun serviceAlertsDao(tripKitDatabase: TripKitDatabase): ServiceAlertsDao {
-    return tripKitDatabase.serviceAlertsDao()
-  }
+    @Provides
+    internal fun serviceAlertsDao(tripKitDatabase: TripKitDatabase): ServiceAlertsDao {
+        return tripKitDatabase.serviceAlertsDao()
+    }
 }

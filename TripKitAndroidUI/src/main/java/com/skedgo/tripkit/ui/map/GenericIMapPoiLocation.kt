@@ -13,8 +13,13 @@ import com.squareup.picasso.Picasso
 import io.reactivex.Single
 
 
-class GenericIMapPoiLocation(private val poiLocation: PointOfInterest, private val placeId: String, private val stopInfoWindowAdapter: StopInfoWindowAdapter) : IMapPoiLocation {
+class GenericIMapPoiLocation(
+    private val poiLocation: PointOfInterest,
+    private val placeId: String,
+    private val stopInfoWindowAdapter: StopInfoWindowAdapter
+) : IMapPoiLocation {
     private val location: Location
+
     init {
         location = PoiLocation()
         location.placeId = placeId
@@ -22,7 +27,11 @@ class GenericIMapPoiLocation(private val poiLocation: PointOfInterest, private v
         location.lon = poiLocation.latLng.longitude
         location.name = poiLocation.name
     }
-    override fun createMarkerOptions(resources: Resources, picasso: Picasso): Single<MarkerOptions> {
+
+    override fun createMarkerOptions(
+        resources: Resources,
+        picasso: Picasso
+    ): Single<MarkerOptions> {
         return Single.create { MarkerOptions() }
     }
 

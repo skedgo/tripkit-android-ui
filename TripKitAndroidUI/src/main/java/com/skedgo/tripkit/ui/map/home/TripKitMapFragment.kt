@@ -13,8 +13,22 @@ import com.araujo.jordan.excuseme.ExcuseMe
 import com.google.android.gms.maps.CameraUpdate
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
-import com.google.android.gms.maps.GoogleMap.*
-import com.google.android.gms.maps.model.*
+import com.google.android.gms.maps.GoogleMap.InfoWindowAdapter
+import com.google.android.gms.maps.GoogleMap.OnCameraChangeListener
+import com.google.android.gms.maps.GoogleMap.OnCameraIdleListener
+import com.google.android.gms.maps.GoogleMap.OnInfoWindowClickListener
+import com.google.android.gms.maps.GoogleMap.OnMapLongClickListener
+import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener
+import com.google.android.gms.maps.GoogleMap.OnPoiClickListener
+import com.google.android.gms.maps.model.BitmapDescriptor
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
+import com.google.android.gms.maps.model.CameraPosition
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.LatLngBounds
+import com.google.android.gms.maps.model.MapStyleOptions
+import com.google.android.gms.maps.model.Marker
+import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.gms.maps.model.PointOfInterest
 import com.google.maps.android.collections.MarkerManager
 import com.skedgo.tripkit.AndroidGeocoder
 import com.skedgo.tripkit.TripKitConstants.Companion.PREF_NAME_APP
@@ -32,13 +46,20 @@ import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.TripKitUI
 import com.skedgo.tripkit.ui.core.addTo
 import com.skedgo.tripkit.ui.core.module.HomeMapFragmentModule
-import com.skedgo.tripkit.ui.core.permissions.*
 import com.skedgo.tripkit.ui.data.toLocation
-import com.skedgo.tripkit.ui.map.*
+import com.skedgo.tripkit.ui.map.BearingMarkerIconBuilder
+import com.skedgo.tripkit.ui.map.GenericIMapPoiLocation
+import com.skedgo.tripkit.ui.map.IMapPoiLocation
+import com.skedgo.tripkit.ui.map.LocationEnhancedMapFragment
+import com.skedgo.tripkit.ui.map.MapCameraController
+import com.skedgo.tripkit.ui.map.MapMarkerUtils
+import com.skedgo.tripkit.ui.map.StopMarkerIconFetcher
+import com.skedgo.tripkit.ui.map.TripLocationMarkerCreator
 import com.skedgo.tripkit.ui.map.adapter.CityInfoWindowAdapter
 import com.skedgo.tripkit.ui.map.adapter.NoActionWindowAdapter
 import com.skedgo.tripkit.ui.map.adapter.POILocationInfoWindowAdapter
 import com.skedgo.tripkit.ui.map.adapter.ViewableInfoWindowAdapter
+import com.skedgo.tripkit.ui.map.convertToDomainLatLngBounds
 import com.skedgo.tripkit.ui.map.home.ViewPort.CloseEnough
 import com.skedgo.tripkit.ui.map.home.ViewPort.NotCloseEnough
 import com.skedgo.tripkit.ui.model.LocationTag
@@ -54,7 +75,7 @@ import dagger.Lazy
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.functions.Consumer
 import io.reactivex.schedulers.Schedulers
-import java.util.*
+import java.util.LinkedList
 import javax.inject.Inject
 
 /**
@@ -72,7 +93,9 @@ import javax.inject.Inject
  * Your app **must** provide a TripGo API token as `R.string.skedgo_api_key`.
  *
  */
-class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListener, OnMapLongClickListener, OnPoiClickListener, OnCameraChangeListener, OnMarkerClickListener, OnCameraIdleListener {
+class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListener,
+    OnMapLongClickListener, OnPoiClickListener, OnCameraChangeListener, OnMarkerClickListener,
+    OnCameraIdleListener {
     /* TODO: Replace with RxJava-based approach. */
     @Deprecated("")
     @Inject
@@ -144,7 +167,8 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
     var pinnedDepartureLocation: Location? = null
     var pinnedOriginLocationOnClickMarker: Marker? = null
     var pinnedOriginLocation: Location? = null
-    var pinLocationSelectedListener: ((Location, Int) -> Unit)? = null //for type, 0 = from and 1 = to
+    var pinLocationSelectedListener: ((Location, Int) -> Unit)? =
+        null //for type, 0 = from and 1 = to
     var appDeactivatedListener: (() -> Unit)? = null
 
     /**
@@ -209,7 +233,10 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
             KEY_APP_PREF,
             Context.MODE_PRIVATE
         )
-        if (context?.getVersionCode() == 75L && !prefs.getBoolean(APP_PREF_CLEAR_CAR_PODS_ONCE, false)) {
+        if (context?.getVersionCode() == 75L && !prefs.getBoolean(
+                APP_PREF_CLEAR_CAR_PODS_ONCE,
+                false
+            )) {
             viewModel.clearCarPods()
             prefs.edit().putBoolean(APP_PREF_CLEAR_CAR_PODS_ONCE, true).apply()
         }
@@ -247,42 +274,50 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
     override fun onResume() {
         super.onResume()
         viewModel.getOriginPinUpdate()
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe { pinUpdate: PinUpdate -> updateDepartureMarker(pinUpdate) }
-                .addTo(autoDisposable)
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe { pinUpdate: PinUpdate -> updateDepartureMarker(pinUpdate) }
+            .addTo(autoDisposable)
         viewModel.getDestinationPinUpdate()
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe { pinUpdate: PinUpdate -> updateArrivalMarker(pinUpdate) }
-                .addTo(autoDisposable)
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe { pinUpdate: PinUpdate -> updateArrivalMarker(pinUpdate) }
+            .addTo(autoDisposable)
         viewModel.myLocation
-                .subscribeOn(AndroidSchedulers.mainThread())
-                .subscribe({ myLocation: Location -> showMyLocation(myLocation) }) { error: Throwable? -> errorLogger!!.trackError(error!!) }
-                .addTo(autoDisposable)
+            .subscribeOn(AndroidSchedulers.mainThread())
+            .subscribe({ myLocation: Location -> showMyLocation(myLocation) }) { error: Throwable? ->
+                errorLogger!!.trackError(
+                    error!!
+                )
+            }
+            .addTo(autoDisposable)
 
         viewModel.myLocationError
-                .subscribeOn(AndroidSchedulers.mainThread())
-                .subscribe({ _: Throwable? -> showMyLocationError() }) { error: Throwable? -> errorLogger!!.trackError(error!!) }
-                .addTo(autoDisposable)
+            .subscribeOn(AndroidSchedulers.mainThread())
+            .subscribe({ _: Throwable? -> showMyLocationError() }) { error: Throwable? ->
+                errorLogger!!.trackError(
+                    error!!
+                )
+            }
+            .addTo(autoDisposable)
 
         loadMarkers()
 
-        if(!requireContext().isNetworkConnected() &&
-                appPreferences.getBoolean(APP_PREF_DEACTIVATED, false)) {
+        if (!requireContext().isNetworkConnected() &&
+            appPreferences.getBoolean(APP_PREF_DEACTIVATED, false)) {
             appDeactivatedListener?.invoke()
         }
     }
 
     private fun loadMarkers() {
         viewModel.markers
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({ (first, second) ->
-                    for ((first1, second1) in first) {
-                        val marker = poiMarkers!!.addMarker(first1)
-                        marker.tag = second1
-                    }
-                }, { errorLogger.logError(it) })
-                .addTo(autoDisposable)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({ (first, second) ->
+                for ((first1, second1) in first) {
+                    val marker = poiMarkers!!.addMarker(first1)
+                    marker.tag = second1
+                }
+            }, { errorLogger.logError(it) })
+            .addTo(autoDisposable)
     }
 
     override fun onPause() { //    bus.unregister(this);
@@ -332,25 +367,25 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
         if (enablePinLocationOnClick) {
 
             geocoder.getAddress(latLng.latitude, latLng.longitude)
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .take(1)
-                    .subscribe({
-                        val location = Location(latLng.latitude, latLng.longitude).apply {
-                            address = it
-                        }
-                        if (pinForType == 0) {
-                            pinnedOriginLocation = location
-                        } else {
-                            pinnedDepartureLocation = location
-                        }
-                        pinLocationSelectedListener
-                                ?.invoke(
-                                        location,
-                                        pinForType
-                                )
-                    }, { it.printStackTrace() })
-                    .addTo(autoDisposable)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .take(1)
+                .subscribe({
+                    val location = Location(latLng.latitude, latLng.longitude).apply {
+                        address = it
+                    }
+                    if (pinForType == 0) {
+                        pinnedOriginLocation = location
+                    } else {
+                        pinnedDepartureLocation = location
+                    }
+                    pinLocationSelectedListener
+                        ?.invoke(
+                            location,
+                            pinForType
+                        )
+                }, { it.printStackTrace() })
+                .addTo(autoDisposable)
         }
     }
 
@@ -367,32 +402,35 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
         if (type == 0) {
 
             if (pinnedOriginLocationOnClickMarker != null &&
-                    pinnedOriginLocationOnClickMarker?.isVisible == true) {
+                pinnedOriginLocationOnClickMarker?.isVisible == true) {
                 removePinnedLocationMarker(listOf(pinnedOriginLocationOnClickMarker!!))
             }
 
             pinnedOriginLocationOnClickMarker = map?.addMarker(
-                    MarkerOptions()
-                            .position(LatLng(location.lat, location.lon))
-                            .icon(BitmapDescriptorFactory.fromBitmap(getMarkerBitmap(type)))
+                MarkerOptions()
+                    .position(LatLng(location.lat, location.lon))
+                    .icon(BitmapDescriptorFactory.fromBitmap(getMarkerBitmap(type)))
             )
         } else {
 
             if (pinnedDepartureLocationOnClickMarker != null &&
-                    pinnedDepartureLocationOnClickMarker?.isVisible == true) {
+                pinnedDepartureLocationOnClickMarker?.isVisible == true) {
                 removePinnedLocationMarker(listOf(pinnedDepartureLocationOnClickMarker!!))
             }
 
             pinnedDepartureLocationOnClickMarker = map?.addMarker(
-                    MarkerOptions()
-                            .position(LatLng(location.lat, location.lon))
-                            .icon(BitmapDescriptorFactory.fromBitmap(getMarkerBitmap(type)))
+                MarkerOptions()
+                    .position(LatLng(location.lat, location.lon))
+                    .icon(BitmapDescriptorFactory.fromBitmap(getMarkerBitmap(type)))
             )
         }
 
         if ((pinnedOriginLocationOnClickMarker != null && pinnedOriginLocationOnClickMarker!!.isVisible)
-                && pinnedDepartureLocationOnClickMarker != null && pinnedDepartureLocationOnClickMarker!!.isVisible) {
-            zoomOuToShowMarkers(pinnedOriginLocationOnClickMarker!!, pinnedDepartureLocationOnClickMarker!!)
+            && pinnedDepartureLocationOnClickMarker != null && pinnedDepartureLocationOnClickMarker!!.isVisible) {
+            zoomOuToShowMarkers(
+                pinnedOriginLocationOnClickMarker!!,
+                pinnedDepartureLocationOnClickMarker!!
+            )
         }
     }
 
@@ -404,7 +442,8 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
         val width = resources.displayMetrics.widthPixels
         val height = resources.displayMetrics.heightPixels
         val padding = (height * 0.2).toInt()
-        val cameraUpdate = CameraUpdateFactory.newLatLngBounds(boundsBuilder.build(), width, height, padding)
+        val cameraUpdate =
+            CameraUpdateFactory.newLatLngBounds(boundsBuilder.build(), width, height, padding)
         map?.animateCamera(cameraUpdate)
     }
 
@@ -412,7 +451,11 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
         poiMarker?.let { marker ->
             marker.title = pointOfInterest.name
             marker.position = pointOfInterest.latLng
-            marker.tag = GenericIMapPoiLocation(pointOfInterest, pointOfInterest.placeId, ViewableInfoWindowAdapter(layoutInflater))
+            marker.tag = GenericIMapPoiLocation(
+                pointOfInterest,
+                pointOfInterest.placeId,
+                ViewableInfoWindowAdapter(layoutInflater)
+            )
             if (markerManager != null) {
                 marker.showInfoWindow()
             }
@@ -465,13 +508,19 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
             }
         }
         if (zoomLevel != null) {
-            viewModel.onViewPortChanged(CloseEnough(
+            viewModel.onViewPortChanged(
+                CloseEnough(
                     position.zoom,
-                    visibleBounds.convertToDomainLatLngBounds()))
+                    visibleBounds.convertToDomainLatLngBounds()
+                )
+            )
         } else {
-            viewModel.onViewPortChanged(NotCloseEnough(
+            viewModel.onViewPortChanged(
+                NotCloseEnough(
                     position.zoom,
-                    visibleBounds.convertToDomainLatLngBounds()))
+                    visibleBounds.convertToDomainLatLngBounds()
+                )
+            )
         }
         if (position.zoom <= ZoomLevel.ZOOM_VALUE_TO_SHOW_CITIES) {
             showCities(map!!, regions)
@@ -493,9 +542,9 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
     fun animateToCity(city: Location) {
         whenSafeToUseMap(Consumer { map: GoogleMap ->
             val position = CameraPosition.Builder()
-                    .zoom(ZoomLevel.OUTER.level)
-                    .target(LatLng(city.lat, city.lon))
-                    .build()
+                .zoom(ZoomLevel.OUTER.level)
+                .target(LatLng(city.lat, city.lon))
+                .build()
             map.animateCamera(CameraUpdateFactory.newCameraPosition(position))
         })
     }
@@ -520,15 +569,15 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
     private fun updateArrivalMarker(pinUpdate: PinUpdate) {
         whenSafeToUseMap { map: GoogleMap? ->
             pinUpdate.match(
-                    { arrivalMarkers!!.clear() },
-                    { (type) ->
-                        val marker = arrivalMarkers!!.addMarker(
-                                tripLocationMarkerCreator.call(type.toLocation())
-                                        .icon(asMarkerIcon(SelectionType.ARRIVAL))
-                        )
-                        marker.tag = type
-                        marker.showInfoWindow()
-                    }
+                { arrivalMarkers!!.clear() },
+                { (type) ->
+                    val marker = arrivalMarkers!!.addMarker(
+                        tripLocationMarkerCreator.call(type.toLocation())
+                            .icon(asMarkerIcon(SelectionType.ARRIVAL))
+                    )
+                    marker.tag = type
+                    marker.showInfoWindow()
+                }
             )
         }
     }
@@ -536,15 +585,15 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
     private fun updateDepartureMarker(pinUpdate: PinUpdate) {
         whenSafeToUseMap { map: GoogleMap? ->
             pinUpdate.match(
-                    { departureMarkers!!.clear() },
-                    { (type) ->
-                        val marker = departureMarkers!!.addMarker(
-                                tripLocationMarkerCreator.call(type.toLocation())
-                                        .icon(asMarkerIcon(SelectionType.DEPARTURE))
-                        )
-                        marker.tag = type
-                        marker.showInfoWindow()
-                    }
+                { departureMarkers!!.clear() },
+                { (type) ->
+                    val marker = departureMarkers!!.addMarker(
+                        tripLocationMarkerCreator.call(type.toLocation())
+                            .icon(asMarkerIcon(SelectionType.DEPARTURE))
+                    )
+                    marker.tag = type
+                    marker.showInfoWindow()
+                }
             )
         }
     }
@@ -621,21 +670,24 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
 
     @SuppressLint("MissingPermission")
     private fun goToMyLocation() {
-        ExcuseMe.couldYouGive(this).permissionFor(android.Manifest.permission.ACCESS_FINE_LOCATION) {
-            if (it.granted.contains(android.Manifest.permission.ACCESS_FINE_LOCATION)) {
-                map?.isMyLocationEnabled = true
-                viewModel.goToMyLocation()
+        ExcuseMe.couldYouGive(this)
+            .permissionFor(android.Manifest.permission.ACCESS_FINE_LOCATION) {
+                if (it.granted.contains(android.Manifest.permission.ACCESS_FINE_LOCATION)) {
+                    map?.isMyLocationEnabled = true
+                    viewModel.goToMyLocation()
+                }
             }
-        }
     }
 
     private fun showMyLocation(myLocation: Location) { // Prepare marker for my location.
         if (myLocationMarker == null) {
             val markerOptions = tripLocationMarkerCreator!!.call(myLocation)
-            markerOptions.icon(MapMarkerUtils.createTransparentSquaredIcon(
+            markerOptions.icon(
+                MapMarkerUtils.createTransparentSquaredIcon(
                     resources,
                     R.dimen.spacing_small
-            ))
+                )
+            )
             myLocationMarker = currentLocationMarkers!!.addMarker(markerOptions)
         } else {
             myLocationMarker!!.position = LatLng(myLocation.lat, myLocation.lon)
@@ -649,8 +701,12 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
         setupMap(map)
         if (moveCamera) {
             viewModel.getInitialCameraUpdate()
-                    .subscribe({ cameraUpdate: CameraUpdate? -> map.moveCamera(cameraUpdate) }) { error: Throwable? -> errorLogger!!.trackError(error!!) }
-                    .addTo(autoDisposable)
+                .subscribe({ cameraUpdate: CameraUpdate? -> map.moveCamera(cameraUpdate) }) { error: Throwable? ->
+                    errorLogger!!.trackError(
+                        error!!
+                    )
+                }
+                .addTo(autoDisposable)
         }
 
 
@@ -658,9 +714,9 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
 
     private fun showMyLocationError() {
         Toast.makeText(
-                activity,
-                R.string.could_not_determine_your_current_location_dot,
-                Toast.LENGTH_SHORT
+            activity,
+            R.string.could_not_determine_your_current_location_dot,
+            Toast.LENGTH_SHORT
         ).show()
     }
 
@@ -704,15 +760,19 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
 
         var toBitmap = getMarkerBitmap(1)
 
-        fromMarker = map.addMarker(MarkerOptions()
+        fromMarker = map.addMarker(
+            MarkerOptions()
                 .position(LatLng(0.0, 0.0))
                 .visible(false)
-                .icon(BitmapDescriptorFactory.fromBitmap(fromBitmap)))
+                .icon(BitmapDescriptorFactory.fromBitmap(fromBitmap))
+        )
 
-        toMarker = map.addMarker(MarkerOptions()
+        toMarker = map.addMarker(
+            MarkerOptions()
                 .position(LatLng(0.0, 0.0))
                 .visible(false)
-                .icon(BitmapDescriptorFactory.fromBitmap(toBitmap)))
+                .icon(BitmapDescriptorFactory.fromBitmap(toBitmap))
+        )
 
     }
 
@@ -728,17 +788,19 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
 
         return if (type == 0) {
             builder.apply {
-                VehicleDrawables.createLightDrawable(requireContext(), R.drawable.ic_location_on)?.let {
-                    vehicleIcon(it)
-                }
+                VehicleDrawables.createLightDrawable(requireContext(), R.drawable.ic_location_on)
+                    ?.let {
+                        vehicleIcon(it)
+                    }
                 pointerIcon(R.drawable.ic_map_pin_departure)
             }.build().first
 
         } else {
             builder.apply {
-                VehicleDrawables.createLightDrawable(requireContext(), R.drawable.ic_location_on)?.let {
-                    vehicleIcon(it)
-                }
+                VehicleDrawables.createLightDrawable(requireContext(), R.drawable.ic_location_on)
+                    ?.let {
+                        vehicleIcon(it)
+                    }
                 pointerIcon(R.drawable.ic_map_pin_arrival_small)
             }.build().first
         }
@@ -804,10 +866,12 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
             alpha = 0F
         }
 
-        longPressMarker = poiMarkers.addMarker(MarkerOptions()
+        longPressMarker = poiMarkers.addMarker(
+            MarkerOptions()
                 .position(LatLng(0.0, 0.0))
                 .infoWindowAnchor(0.5f, 1f)
-                .visible(false)).apply {
+                .visible(false)
+        ).apply {
             alpha = 0F
         }
         val poiLocationInfoWindowAdapter = POILocationInfoWindowAdapter(requireContext())
@@ -833,9 +897,9 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
                 poiLocation.onMarkerClick(bus, eventTracker)
                 marker.showInfoWindow()
                 val scrollY = ((resources.getDimensionPixelSize(R.dimen.routing_card_height)
-                        + resources.getDimensionPixelSize(R.dimen.spacing_huge)
-                        + poiLocationInfoWindowAdapter.windowInfoHeightInPixel(marker))
-                        - view.height)
+                    + resources.getDimensionPixelSize(R.dimen.spacing_huge)
+                    + poiLocationInfoWindowAdapter.windowInfoHeightInPixel(marker))
+                    - view.height)
                 map.moveCamera(CameraUpdateFactory.newLatLng(marker.position))
                 if (scrollY > 0) { // center the map to 64dp above the bottom of the fragment
                     map.moveCamera(CameraUpdateFactory.scrollBy(0f, scrollY * -1.toFloat()))

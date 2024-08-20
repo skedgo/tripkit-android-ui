@@ -18,22 +18,28 @@ import retrofit2.converter.gson.GsonConverterFactory
 @Module
 class WaypointsModule {
 
-  @Provides
-  internal fun waypointsApi(httpClient: OkHttpClient): WaypointsApi {
-    val gson = GsonConverterFactory.create(GsonBuilder()
-        .registerTypeAdapter(Waypoint::class.java, WaypointsAdapter())
-        .create())
-    return Retrofit.Builder()
-        .baseUrl(ServerManager.configuration.apiTripGoUrl)
-        .addCallAdapterFactory(RxJava2CallAdapterFactory.createWithScheduler(Schedulers.io()))
-        .addConverterFactory(gson)
-        .client(httpClient)
-        .build()
-        .create(WaypointsApi::class.java)
-  }
+    @Provides
+    internal fun waypointsApi(httpClient: OkHttpClient): WaypointsApi {
+        val gson = GsonConverterFactory.create(
+            GsonBuilder()
+                .registerTypeAdapter(Waypoint::class.java, WaypointsAdapter())
+                .create()
+        )
+        return Retrofit.Builder()
+            .baseUrl(ServerManager.configuration.apiTripGoUrl)
+            .addCallAdapterFactory(RxJava2CallAdapterFactory.createWithScheduler(Schedulers.io()))
+            .addConverterFactory(gson)
+            .client(httpClient)
+            .build()
+            .create(WaypointsApi::class.java)
+    }
 
-  @Provides
-  fun getTripFromWaypoints(resources: Resources, gson: Gson, waypointsApi: WaypointsApi): GetTripFromWaypoints =
-      GetTripFromWaypointsImpl(resources, gson, waypointsApi)
+    @Provides
+    fun getTripFromWaypoints(
+        resources: Resources,
+        gson: Gson,
+        waypointsApi: WaypointsApi
+    ): GetTripFromWaypoints =
+        GetTripFromWaypointsImpl(resources, gson, waypointsApi)
 
 }

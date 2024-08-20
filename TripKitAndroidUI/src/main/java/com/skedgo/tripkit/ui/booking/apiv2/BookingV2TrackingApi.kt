@@ -3,7 +3,12 @@ package com.skedgo.tripkit.ui.booking.apiv2
 import com.haroldadmin.cnradapter.NetworkResponse
 import com.skedgo.tripkit.ApiError
 import com.skedgo.tripkit.routing.RoutingResponse
-import retrofit2.http.*
+import retrofit2.http.DELETE
+import retrofit2.http.GET
+import retrofit2.http.Path
+import retrofit2.http.Query
+import retrofit2.http.QueryMap
+import retrofit2.http.Url
 
 interface BookingV2TrackingApi {
     @GET
@@ -32,6 +37,9 @@ interface BookingV2TrackingApi {
     suspend fun deleteBooking(@Path("id") bookingId: String): NetworkResponse<Unit, Unit>
 
     @GET
-    suspend fun getTripGroup(@Url tripUrl: String, @QueryMap config: Map<String, String>): NetworkResponse<RoutingResponse, ApiError>
+    suspend fun getTripGroup(
+        @Url tripUrl: String,
+        @QueryMap config: Map<String, String>
+    ): NetworkResponse<RoutingResponse, ApiError>
 
 }

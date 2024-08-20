@@ -1,7 +1,5 @@
 package com.skedgo.tripkit.ui.utils
 
-import android.location.Location
-
 object TripSearchUtils {
 
     var dateTimeQuery: Long = 0L

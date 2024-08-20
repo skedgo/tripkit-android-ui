@@ -11,7 +11,8 @@ import javax.inject.Inject
 import javax.inject.Named
 
 class MyPersonalDataRepositoryImpl @Inject constructor(
-        @Named("MyPersonalData") private val sharedPreferences: SharedPreferences) : MyPersonalDataRepository {
+    @Named("MyPersonalData") private val sharedPreferences: SharedPreferences
+) : MyPersonalDataRepository {
 
     companion object {
         const val tripProgress = "tripProgress"
@@ -40,33 +41,33 @@ class MyPersonalDataRepositoryImpl @Inject constructor(
 
     override fun setUploadTripProgressEnabled(enabled: Boolean): Completable {
         return Completable
-                .fromAction {
-                    sharedPreferences.edit()
-                            .putBoolean(tripProgress, enabled)
-                            .apply()
-                }
+            .fromAction {
+                sharedPreferences.edit()
+                    .putBoolean(tripProgress, enabled)
+                    .apply()
+            }
     }
 
     override fun setUploadTripSelectionEnabled(enabled: Boolean): Completable {
         return Completable
-                .fromAction {
-                    sharedPreferences.edit()
-                            .putBoolean(tripSelection, enabled)
-                            .apply()
-                }
+            .fromAction {
+                sharedPreferences.edit()
+                    .putBoolean(tripSelection, enabled)
+                    .apply()
+            }
     }
 
     override fun setUploadAppUsageEnabled(enabled: Boolean): Completable {
         return Completable
-                .fromAction {
-                    sharedPreferences.edit()
-                            .putBoolean(appUsage, enabled)
-                            .apply()
-                }
+            .fromAction {
+                sharedPreferences.edit()
+                    .putBoolean(appUsage, enabled)
+                    .apply()
+            }
     }
 
     override fun onChanges(): Observable<Unit> {
         return sharedPreferences.onChanged()
-                .map { Unit }
+            .map { Unit }
     }
 }

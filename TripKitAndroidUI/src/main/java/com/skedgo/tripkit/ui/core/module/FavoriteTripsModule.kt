@@ -17,6 +17,7 @@ class FavoriteTripsModule {
     internal fun favoriteTripsDatabase(context: Context): FavoriteTripsDataBase {
         return FavoriteTripsDataBase.getInstance(context)
     }
+
     @Provides
     fun favoriteTripsRepository(db: FavoriteTripsDataBase): FavoriteTripsRepository =
         FavoriteTripsRepositoryImpl(db)

@@ -11,13 +11,20 @@ import com.skedgo.tripkit.ui.payment.PaymentData
 import com.skedgo.tripkit.ui.timetables.TimetableFragment
 import com.skedgo.tripkit.ui.trippreview.Action
 import com.skedgo.tripkit.ui.trippreview.TripPreviewPagerListener
-import com.skedgo.tripkit.ui.trippreview.standard.StandardTripPreviewItemFragment
 import com.skedgo.tripkit.ui.trippreview.directions.DirectionsTripPreviewItemFragment
 import com.skedgo.tripkit.ui.trippreview.external.ExternalActionTripPreviewItemFragment
 import com.skedgo.tripkit.ui.trippreview.nearby.ModeLocationTripPreviewItemFragment
 import com.skedgo.tripkit.ui.trippreview.nearby.NearbyTripPreviewItemFragment
 import com.skedgo.tripkit.ui.trippreview.service.ServiceTripPreviewItemFragment
-import com.skedgo.tripkit.ui.utils.*
+import com.skedgo.tripkit.ui.trippreview.standard.StandardTripPreviewItemFragment
+import com.skedgo.tripkit.ui.utils.ITEM_DIRECTIONS
+import com.skedgo.tripkit.ui.utils.ITEM_EXTERNAL_BOOKING
+import com.skedgo.tripkit.ui.utils.ITEM_MODE_LOCATION
+import com.skedgo.tripkit.ui.utils.ITEM_NEARBY
+import com.skedgo.tripkit.ui.utils.ITEM_SERVICE
+import com.skedgo.tripkit.ui.utils.ITEM_TIMETABLE
+import com.skedgo.tripkit.ui.utils.ITEM_TIMETABLE_PAYMENT
+import com.skedgo.tripkit.ui.utils.correctItemType
 import io.reactivex.subjects.PublishSubject
 
 data class TripPreviewPagerAdapterItem(val type: Int, var tripSegment: TripSegment)

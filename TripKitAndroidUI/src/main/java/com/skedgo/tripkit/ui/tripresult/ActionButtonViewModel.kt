@@ -39,7 +39,8 @@ class ActionButtonViewModel constructor(context: Context, button: ActionButton) 
         if (button.isPrimary) {
             this.iconTint.set(Color.WHITE)
             this.outlineTint.set(Color.TRANSPARENT)
-            val backgroundColorList = intArrayOf(ContextCompat.getColor(context, R.color.colorPrimary), 0)
+            val backgroundColorList =
+                intArrayOf(ContextCompat.getColor(context, R.color.colorPrimary), 0)
             this.backgroundTint.set(ColorStateList(stateList, backgroundColorList))
             this.background.set(ContextCompat.getDrawable(context, R.drawable.bg_circle_primary))
         } else {
@@ -48,7 +49,12 @@ class ActionButtonViewModel constructor(context: Context, button: ActionButton) 
             this.outlineTint.set(ContextCompat.getColor(context, R.color.black4))
             val backgroundColorList = intArrayOf(0, 0)
             this.backgroundTint.set(ColorStateList(stateList, backgroundColorList))
-            this.background.set(ContextCompat.getDrawable(context, R.drawable.bg_circle_transparent_black_border))
+            this.background.set(
+                ContextCompat.getDrawable(
+                    context,
+                    R.drawable.bg_circle_transparent_black_border
+                )
+            )
         }
     }
 

@@ -120,18 +120,19 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         viewModel.tripGroupObservable
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe { tripGroup ->
-                    /* FIXME: Check if this could be removed */
-                    tripGroup.displayTrip?.getBookingSegment()?.booking
-                            ?.externalActions?.forEach {}
-                }.addTo(autoDisposable)
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe { tripGroup ->
+                /* FIXME: Check if this could be removed */
+                tripGroup.displayTrip?.getBookingSegment()?.booking
+                    ?.externalActions?.forEach {}
+            }.addTo(autoDisposable)
     }
 
     override fun onCreateView(
-            inflater: LayoutInflater,
-            container: ViewGroup?,
-            savedInstanceState: Bundle?): View? {
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
 
         binding = TripSegmentListFragmentBinding.inflate(inflater)
         binding.viewModel = viewModel
@@ -181,30 +182,30 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
         }.addTo(autoDisposable)
 
         viewModel.segmentClicked
-                .subscribe {
-                    onTripSegmentClickListener?.tripSegmentClicked(it)
-                }.addTo(autoDisposable)
+            .subscribe {
+                onTripSegmentClickListener?.tripSegmentClicked(it)
+            }.addTo(autoDisposable)
         viewModel.externalActionClicked
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe { tripSegment ->
-                    handleExternalBooking(tripSegment)
-                }.addTo(autoDisposable)
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe { tripSegment ->
+                handleExternalBooking(tripSegment)
+            }.addTo(autoDisposable)
         viewModel.alertsClicked
-                .subscribe {
-                    var list = mutableListOf<TripSegmentAlertsItemViewModel>()
-                    it.forEach { alert ->
-                        val vm = TripSegmentAlertsItemViewModel()
-                        vm.titleText.set(alert.title())
-                        vm.descriptionText.set(alert.text())
-                        list.add(vm)
-                    }
-                    val dialog = TripSegmentAlertsSheet.newInstance(list)
-                    dialog.show(requireFragmentManager(), "alerts_sheet")
-                }.addTo(autoDisposable)
-        viewModel.updatedState
-                .observe(viewLifecycleOwner) {
-                    updateStream?.onNext(Unit)
+            .subscribe {
+                var list = mutableListOf<TripSegmentAlertsItemViewModel>()
+                it.forEach { alert ->
+                    val vm = TripSegmentAlertsItemViewModel()
+                    vm.titleText.set(alert.title())
+                    vm.descriptionText.set(alert.text())
+                    list.add(vm)
                 }
+                val dialog = TripSegmentAlertsSheet.newInstance(list)
+                dialog.show(requireFragmentManager(), "alerts_sheet")
+            }.addTo(autoDisposable)
+        viewModel.updatedState
+            .observe(viewLifecycleOwner) {
+                updateStream?.onNext(Unit)
+            }
 
         updateStream?.subscribe {
             viewModel.validateGetOffAlerts()
@@ -221,19 +222,19 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
             flow {
                 geofenceCoordinateList.forEach {
                     emit(
-                            requireContext().getGeofenceZone(
-                                    it.first.latitude,
-                                    it.first.longitude,
-                                    it.second
-                            )
+                        requireContext().getGeofenceZone(
+                            it.first.latitude,
+                            it.first.longitude,
+                            it.second
+                        )
                     )
                 }
             }.flowOn(Dispatchers.Main)
-                    .collect { circleOption ->
-                        withContext(Dispatchers.Main) {
-                            tripResultMapContributor?.addCircleToMap(circleOption)
-                        }
+                .collect { circleOption ->
+                    withContext(Dispatchers.Main) {
+                        tripResultMapContributor?.addCircleToMap(circleOption)
                     }
+                }
         }
     }
 
@@ -247,20 +248,21 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
     private fun handleExternalBooking(tripSegment: TripSegment) {
         tripSegment.booking.externalActions?.firstOrNull()?.let { action ->
             val externalActionParams = ExternalActionParams.builder()
-                    .action(action)
-                    .segment(tripSegment)
-                    .build()
+                .action(action)
+                .segment(tripSegment)
+                .build()
             bookingResolver.performExternalActionAsync(externalActionParams)
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe { bookingAction ->
-                        if (bookingAction.bookingProvider() == BookingResolver.SMS) {
-                            if (bookingAction.data().resolveActivity(requireActivity().packageManager) != null) {
-                                startAndLogActivity(tripSegment, bookingAction.data());
-                            }
-                        } else {
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe { bookingAction ->
+                    if (bookingAction.bookingProvider() == BookingResolver.SMS) {
+                        if (bookingAction.data()
+                                .resolveActivity(requireActivity().packageManager) != null) {
                             startAndLogActivity(tripSegment, bookingAction.data());
                         }
-                        //            if (bookingAction.bookingProvider() == BookingResolver.SMS) {
+                    } else {
+                        startAndLogActivity(tripSegment, bookingAction.data());
+                    }
+                    //            if (bookingAction.bookingProvider() == BookingResolver.SMS) {
 //              if (bookingAction.data().resolveActivity(fragment.getActivity().getPackageManager()) != null) {
 //                fragment.startActivity(bookingAction.data());
 //
@@ -280,7 +282,7 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
 //              fragment.startActivity(bookingAction.data());
 //            }
 
-                    }
+                }
         }
     }
 
@@ -404,8 +406,8 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
 
     private fun showMessage(info: String) {
         val builder = AlertDialog.Builder(requireActivity())
-                .setMessage(info)
-                .setPositiveButton(R.string.ok) { dialog, which -> dialog.dismiss() }
+            .setMessage(info)
+            .setPositiveButton(R.string.ok) { dialog, which -> dialog.dismiss() }
         builder.show()
     }
 

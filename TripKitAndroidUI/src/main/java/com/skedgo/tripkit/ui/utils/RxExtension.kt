@@ -8,6 +8,6 @@ import java.util.concurrent.TimeUnit
 
 fun <T> PublishSubject<T>.configureInterceptor(timeout: Long): Observable<out T> {
     return this.debounce(timeout, TimeUnit.MILLISECONDS)
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
+        .subscribeOn(Schedulers.io())
+        .observeOn(AndroidSchedulers.mainThread())
 }

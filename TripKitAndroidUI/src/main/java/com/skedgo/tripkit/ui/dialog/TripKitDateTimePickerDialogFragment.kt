@@ -18,7 +18,6 @@ import com.skedgo.tripkit.ui.TripKitUI
 import com.skedgo.tripkit.ui.databinding.DialogDateTimePickerBinding
 import com.skedgo.tripkit.ui.trip.details.viewmodel.ITimePickerViewModel
 import com.skedgo.tripkit.ui.trip.options.InterCityTimePickerViewModel
-import java.lang.Exception
 import java.lang.reflect.Field
 import java.util.*
 import javax.inject.Inject

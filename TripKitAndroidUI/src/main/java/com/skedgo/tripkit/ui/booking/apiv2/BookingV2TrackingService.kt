@@ -13,7 +13,7 @@ class BookingV2TrackingService(private var trackingApi: BookingV2TrackingApi) {
         return trackingApi.summary()
     }
 
-    suspend fun bookingList(month: String? = null): NetworkResponse<BookingV2ListResponse, Unit>{
+    suspend fun bookingList(month: String? = null): NetworkResponse<BookingV2ListResponse, Unit> {
         return trackingApi.getBookingMonth(month)
     }
 
@@ -26,7 +26,7 @@ class BookingV2TrackingService(private var trackingApi: BookingV2TrackingApi) {
         max: Int,
         valid: Boolean
     ): NetworkResponse<BookingV2ListResponse, Unit> {
-        return trackingApi.getBookings(first, max, if(valid) "true" else "false")
+        return trackingApi.getBookings(first, max, if (valid) "true" else "false")
     }
 
     suspend fun deleteBooking(bookingId: String): NetworkResponse<Unit, Unit> {

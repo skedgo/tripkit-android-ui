@@ -84,7 +84,11 @@ class ModeLocationTripPreviewItemFragment() : BaseTripKitFragment() {
         sharedViewModel.withAction(requireContext())
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
         binding = TripPreviewPagerModeLocationItemBinding.inflate(inflater)
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
@@ -102,7 +106,8 @@ class ModeLocationTripPreviewItemFragment() : BaseTripKitFragment() {
         if (!segment?.booking?.confirmation?.actions().isNullOrEmpty()) {
             segment?.booking?.confirmation?.actions()?.forEach { action ->
                 if (sharedViewModel.bookingForm.value == null && action.type() == "UNLOCK") {
-                    val newButton = MaterialButton(requireContext(), null, R.attr.materialButtonOutlinedStyle)
+                    val newButton =
+                        MaterialButton(requireContext(), null, R.attr.materialButtonOutlinedStyle)
                     newButton.text = action.title()
                     newButton.id = action.hashCode()
                     newButton.setOnClickListener {
@@ -141,7 +146,7 @@ class ModeLocationTripPreviewItemFragment() : BaseTripKitFragment() {
         if (requestCode == REQUEST_QR_SCAN && resultCode == RESULT_OK) {
             data?.let {
                 val barcodes = it.getStringArrayExtra(INTENT_KEY_BARCODES)?.firstOrNull()
-                        ?: "unknown"
+                    ?: "unknown"
                 val internalUrl = it.getStringExtra(INTENT_KEY_INTERNAL_URL)!!
                 var buttonId = it.getIntExtra(INTENT_KEY_BUTTON_ID, -1)
                 sendCode(buttonId, internalUrl, barcodes)
@@ -156,75 +161,76 @@ class ModeLocationTripPreviewItemFragment() : BaseTripKitFragment() {
 
         if (internalUrl.isNotEmpty()) {
             bookingService.postActionInputAsync(internalUrl, "qrcode", code)
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe {
-                        sharedViewModel.bookingForm.accept(it)
-                    }
-                    .addTo(autoDisposable)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe {
+                    sharedViewModel.bookingForm.accept(it)
+                }
+                .addTo(autoDisposable)
         }
     }
 
     override fun onResume() {
         super.onResume()
         sharedViewModel.bookingForm
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe { form ->
-                    form.action?.let { action ->
-                        if (action.isDone) {
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe { form ->
+                form.action?.let { action ->
+                    if (action.isDone) {
 
-                        }
                     }
-                }.addTo(autoDisposable)
+                }
+            }.addTo(autoDisposable)
 
         sharedViewModel.closeClicked.observable
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe { onCloseButtonListener?.onClick(null)
-                }.addTo(autoDisposable)
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe {
+                onCloseButtonListener?.onClick(null)
+            }.addTo(autoDisposable)
 
         sharedViewModel.locationDetails
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe {
-                    viewModel.set(it)
-                }.addTo(autoDisposable)
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe {
+                viewModel.set(it)
+            }.addTo(autoDisposable)
 
         sharedViewModel.actionChosen.observeOn(AndroidSchedulers.mainThread())
-                .subscribe {
+            .subscribe {
 
-                    val url = getExternalAction()?.firstOrNull()?: getAppUrl()
+                val url = getExternalAction()?.firstOrNull() ?: getAppUrl()
 
-                    url?.let {
-                        if(sharedViewModel.action != "getApp"){
-                            sharedViewModel.buttonText.set("Opening...")
-                            sharedViewModel.enableActionButtons.set(false)
-                        }
-                        externalActionCallback?.invoke(
-                                segment, requireContext().handleExternalAction(it)
-                        )
-                    }
-
-
-                    /*
-                    if (sharedViewModel.action == "getApp") {
-                        startActivity(
-                                Intent(
-                                        Intent.ACTION_VIEW,
-                                        Uri.parse(getAppUrl()?.checkUrl())
-                                )
-                        )
-                    } else {
+                url?.let {
+                    if (sharedViewModel.action != "getApp") {
                         sharedViewModel.buttonText.set("Opening...")
-                        sharedViewModel.enableButton.set(false)
-                        //tripPreviewPagerListener?.onExternalActionButtonClicked(getSharedVehicleIntentURI()!!)
-                        externalActionCallback?.invoke(segment, getSharedVehicleIntentURI())
+                        sharedViewModel.enableActionButtons.set(false)
                     }
-                    */
-                }.addTo(autoDisposable)
+                    externalActionCallback?.invoke(
+                        segment, requireContext().handleExternalAction(it)
+                    )
+                }
+
+
+                /*
+                if (sharedViewModel.action == "getApp") {
+                    startActivity(
+                            Intent(
+                                    Intent.ACTION_VIEW,
+                                    Uri.parse(getAppUrl()?.checkUrl())
+                            )
+                    )
+                } else {
+                    sharedViewModel.buttonText.set("Opening...")
+                    sharedViewModel.enableButton.set(false)
+                    //tripPreviewPagerListener?.onExternalActionButtonClicked(getSharedVehicleIntentURI()!!)
+                    externalActionCallback?.invoke(segment, getSharedVehicleIntentURI())
+                }
+                */
+            }.addTo(autoDisposable)
 
         sharedViewModel.externalActionChosen.observeOn(AndroidSchedulers.mainThread())
-                .subscribe {
-                    sharedViewModel.enableActionButtons.set(false)
-                    externalActionCallback?.invoke(segment, it)
-                }.addTo(autoDisposable)
+            .subscribe {
+                sharedViewModel.enableActionButtons.set(false)
+                externalActionCallback?.invoke(segment, it)
+            }.addTo(autoDisposable)
 
         setBookingAction()
 
@@ -277,7 +283,7 @@ class ModeLocationTripPreviewItemFragment() : BaseTripKitFragment() {
 
     private fun getAppUrl(): String? {
         return getSharedVehicleAppAndroidURL()
-                ?: getSharedVehicleDeepLink()
+            ?: getSharedVehicleDeepLink()
     }
 
     /*
@@ -313,8 +319,8 @@ class ModeLocationTripPreviewItemFragment() : BaseTripKitFragment() {
 
     companion object {
         fun newInstance(
-                segment: TripSegment,
-                externalActionCallback: ((TripSegment?, Action?) -> Unit)? = null
+            segment: TripSegment,
+            externalActionCallback: ((TripSegment?, Action?) -> Unit)? = null
         ): ModeLocationTripPreviewItemFragment {
             val fragment = ModeLocationTripPreviewItemFragment()
             fragment.externalActionCallback = externalActionCallback

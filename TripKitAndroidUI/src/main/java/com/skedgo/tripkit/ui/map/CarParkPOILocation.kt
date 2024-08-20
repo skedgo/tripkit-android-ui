@@ -15,25 +15,28 @@ import com.squareup.picasso.Picasso
 import io.reactivex.Single
 
 class CarParkPOILocation(val parking: Parking) : IMapPoiLocation {
-  override fun createMarkerOptions(resources: Resources, picasso: Picasso): Single<MarkerOptions> =
-    CreateMarkerForParking.execute(resources, parking)
+    override fun createMarkerOptions(
+        resources: Resources,
+        picasso: Picasso
+    ): Single<MarkerOptions> =
+        CreateMarkerForParking.execute(resources, parking)
 
-  override fun getInfoWindowAdapter(context: Context): StopInfoWindowAdapter {
-    return ViewableInfoWindowAdapter(LayoutInflater.from(context))
+    override fun getInfoWindowAdapter(context: Context): StopInfoWindowAdapter {
+        return ViewableInfoWindowAdapter(LayoutInflater.from(context))
 
-  }
+    }
 
-  override fun toLocation(): Location {
+    override fun toLocation(): Location {
 
-    val location = PodLocation(parking.location.latitude, parking.location.longitude)
-    location.podIdentifier = parking.id
-    location.name = parking.name
-    location.address = parking.address
-    return location
-  }
+        val location = PodLocation(parking.location.latitude, parking.location.longitude)
+        location.podIdentifier = parking.id
+        location.name = parking.name
+        location.address = parking.address
+        return location
+    }
 
-  override fun onMarkerClick(bus: Bus, eventTracker: EventTracker) {}
+    override fun onMarkerClick(bus: Bus, eventTracker: EventTracker) {}
 
-  override val identifier: String = parking.id
+    override val identifier: String = parking.id
 
 }

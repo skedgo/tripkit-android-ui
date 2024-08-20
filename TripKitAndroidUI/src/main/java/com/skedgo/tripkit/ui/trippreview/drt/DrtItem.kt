@@ -4,10 +4,10 @@ import androidx.annotation.StringDef
 
 @Retention(AnnotationRetention.RUNTIME)
 @StringDef(
-        DrtItem.MOBILITY_OPTIONS,
-        DrtItem.PURPOSE,
-        DrtItem.ADD_NOTE,
-        DrtItem.RETURN_TRIP
+    DrtItem.MOBILITY_OPTIONS,
+    DrtItem.PURPOSE,
+    DrtItem.ADD_NOTE,
+    DrtItem.RETURN_TRIP
 )
 annotation class DrtItem {
     companion object {

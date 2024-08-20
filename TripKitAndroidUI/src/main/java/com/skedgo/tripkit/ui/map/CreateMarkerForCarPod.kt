@@ -1,7 +1,11 @@
 package com.skedgo.tripkit.ui.map
 
 import android.content.res.Resources
-import android.graphics.*
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Paint
+import android.graphics.RectF
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
@@ -40,14 +44,18 @@ object CreateMarkerForCarPod {
         canvas.drawCircle(fillCenter, fillCenter, strokeCenter, paint)
 
         val contentPadding = resources.getDimensionPixelSize(R.dimen.map_icon_padding).toFloat()
-        TripGoStyleKit.drawIconcarshare(canvas, RectF(contentPadding, contentPadding,
-                iconSize - contentPadding, iconSize - contentPadding), ResizingBehavior.AspectFit)
+        TripGoStyleKit.drawIconcarshare(
+            canvas, RectF(
+                contentPadding, contentPadding,
+                iconSize - contentPadding, iconSize - contentPadding
+            ), ResizingBehavior.AspectFit
+        )
         return MarkerOptions()
-                .title(carPod.name)
-                .position(LatLng(carPod.lat, carPod.lng))
-                .draggable(false)
-                .snippet(carPod.address)
-                .icon(BitmapDescriptorFactory.fromBitmap(bitmap))
-                .let { Single.just(it) }
+            .title(carPod.name)
+            .position(LatLng(carPod.lat, carPod.lng))
+            .draggable(false)
+            .snippet(carPod.address)
+            .icon(BitmapDescriptorFactory.fromBitmap(bitmap))
+            .let { Single.just(it) }
     }
 }

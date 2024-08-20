@@ -1,7 +1,5 @@
 package com.skedgo.tripkit.analytics
 
-import io.reactivex.BackpressureStrategy
-import io.reactivex.Completable
 import javax.inject.Inject
 
 open class UploadUserInfo @Inject internal constructor(

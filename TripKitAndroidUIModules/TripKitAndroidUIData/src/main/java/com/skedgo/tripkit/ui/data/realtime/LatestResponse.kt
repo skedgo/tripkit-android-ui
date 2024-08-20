@@ -9,5 +9,5 @@ import org.immutables.value.Value
 @Value.Style(passAnnotations = [JsonAdapter::class])
 @JsonAdapter(GsonAdaptersLatestResponse::class)
 interface LatestResponse {
-  fun services(): Array<LatestServiceResponse>
+    fun services(): Array<LatestServiceResponse>
 }

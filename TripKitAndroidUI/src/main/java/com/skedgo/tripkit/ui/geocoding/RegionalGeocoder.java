@@ -6,15 +6,17 @@ import com.skedgo.tripkit.ui.TripKitUI;
 import java.util.List;
 
 public class RegionalGeocoder extends Geocoder {
-  public RegionalGeocoder() {}
+    public RegionalGeocoder() {
+    }
 
-  @Override public String getServiceUrl() {
-    double latitude = getNearLatitude();
-    double longitude = getNearLongitude();
-    final Region r = TripKitUI.getInstance().regionService()
-        .getRegionByLocationAsync(latitude, longitude)
-        .blockingFirst();
-    final List<String> urls = r.getURLs();
-    return urls.get(0);
-  }
+    @Override
+    public String getServiceUrl() {
+        double latitude = getNearLatitude();
+        double longitude = getNearLongitude();
+        final Region r = TripKitUI.getInstance().regionService()
+            .getRegionByLocationAsync(latitude, longitude)
+            .blockingFirst();
+        final List<String> urls = r.getURLs();
+        return urls.get(0);
+    }
 }

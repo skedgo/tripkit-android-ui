@@ -12,6 +12,7 @@ interface TripDetailsComponent {
     fun inject(fragment: TripResultPagerFragment)
     fun inject(fragment: TripSegmentListFragment)
     fun inject(contributor: TripResultMapContributor)
+
     //fun inject(fragment: com.skedgo.tripgo.sdk.trippreview.TripPreviewPagerFragment)
     fun inject(fragment: TripPreviewHeaderFragment)
 }

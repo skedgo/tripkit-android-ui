@@ -1,4 +1,5 @@
 package com.skedgo.tripkit.ui.map
+
 import android.content.Context
 import android.content.res.Resources
 import com.google.android.gms.maps.model.MarkerOptions
@@ -10,12 +11,12 @@ import com.squareup.picasso.Picasso
 import io.reactivex.Single
 
 interface IMapPoiLocation {
-  fun createMarkerOptions(resources: Resources, picasso: Picasso): Single<MarkerOptions>
-  fun getInfoWindowAdapter(context: Context): StopInfoWindowAdapter?
-  fun toLocation(): Location
-  fun onMarkerClick(bus: Bus, eventTracker: EventTracker)
+    fun createMarkerOptions(resources: Resources, picasso: Picasso): Single<MarkerOptions>
+    fun getInfoWindowAdapter(context: Context): StopInfoWindowAdapter?
+    fun toLocation(): Location
+    fun onMarkerClick(bus: Bus, eventTracker: EventTracker)
 
-  val identifier: String
+    val identifier: String
 
 //  companion object {
 //    fun handleInfoWindowClick(context: Context, location: Location, locationId: String): Intent {

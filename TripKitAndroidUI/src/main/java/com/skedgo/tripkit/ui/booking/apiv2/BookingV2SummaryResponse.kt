@@ -9,7 +9,7 @@ import org.immutables.value.Value
 @Gson.TypeAdapters
 @Value.Style(passAnnotations = [JsonAdapter::class])
 @JsonAdapter(GsonAdaptersBookingV2SummaryResponse::class)
-interface BookingV2SummaryResponse{
+interface BookingV2SummaryResponse {
     fun summary(): Array<BookingV2SummaryBookingMonth>
 }
 

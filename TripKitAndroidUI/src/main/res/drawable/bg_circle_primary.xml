@@ -6,9 +6,10 @@
 
     <corners android:radius="30dp" />
 
-    <padding android:right="@dimen/spacing_small"
+    <padding
+        android:right="@dimen/spacing_small"
         android:left="@dimen/spacing_small"
         android:top="@dimen/spacing_small"
-        android:bottom="@dimen/spacing_small"/>
+        android:bottom="@dimen/spacing_small" />
 
 </shape>

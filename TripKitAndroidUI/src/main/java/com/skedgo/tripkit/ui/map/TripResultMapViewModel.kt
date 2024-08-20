@@ -5,6 +5,9 @@ import com.gojuno.koptional.Some
 import com.google.android.gms.maps.CameraUpdate
 import com.jakewharton.rxrelay2.BehaviorRelay
 import com.skedgo.tripkit.common.model.RealtimeAlert
+import com.skedgo.tripkit.datetime.PrintTime
+import com.skedgo.tripkit.routing.Trip
+import com.skedgo.tripkit.routing.TripSegment
 import com.skedgo.tripkit.ui.core.RxViewModel
 import com.skedgo.tripkit.ui.core.SchedulerFactory
 import com.skedgo.tripkit.ui.routing.GetStopsByTravelType
@@ -15,11 +18,8 @@ import com.skedgo.tripkit.ui.routingresults.TripGroupRepository
 import com.skedgo.tripkit.ui.tripresult.toCameraUpdate
 import dagger.Lazy
 import io.reactivex.Observable
-import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
-import com.skedgo.tripkit.datetime.PrintTime
-import com.skedgo.tripkit.routing.Trip
-import com.skedgo.tripkit.routing.TripSegment
 import io.reactivex.Single
+import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.addTo
 import io.reactivex.schedulers.Schedulers
@@ -60,6 +60,7 @@ class TripResultMapViewModel @Inject internal constructor(
     val mapTilesStream = PublishSubject.create<List<String>>()
 
     private val stopMarkerViewModelsDisposable = CompositeDisposable()
+
     // This is to ensure the previous observable is cleared when a new tripGroup is selected
     private val tripGroupDisposable = CompositeDisposable()
 
@@ -69,7 +70,7 @@ class TripResultMapViewModel @Inject internal constructor(
             .observeOn(mainThread())
             .subscribe(
                 { trip ->
-                    if(currentTrip != trip) {
+                    if (currentTrip != trip) {
                         currentTrip = trip
                         with(trip) {
                             processCameraUpdate()

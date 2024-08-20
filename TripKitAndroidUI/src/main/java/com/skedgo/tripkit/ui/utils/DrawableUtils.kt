@@ -15,16 +15,16 @@ fun Drawable.tint(color: Int): Drawable {
     return mutate
 }
 
-class DrawableUtils  {
+class DrawableUtils {
     companion object {
         fun setDrawable(context: Context, modeInfo: ModeInfo?): Observable<Drawable> {
             val concatUrl = TransportModeUtils.getIconUrlForModeInfo(context.resources, modeInfo)
             var remoteIcon = Observable.empty<Drawable>()
             if (!concatUrl.isNullOrEmpty()) {
                 remoteIcon = TripKitUI.getInstance().picasso().fetchAsync(concatUrl).toObservable()
-                        .map { bitmap ->
-                            BitmapDrawable(context.resources, bitmap)
-                        }
+                    .map { bitmap ->
+                        BitmapDrawable(context.resources, bitmap)
+                    }
             }
 
             return remoteIcon

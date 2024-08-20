@@ -2,36 +2,38 @@ package com.skedgo.tripkit.ui.booking;
 
 import android.content.DialogInterface;
 import android.text.TextUtils;
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
-import androidx.fragment.app.Fragment;
-import com.skedgo.tripkit.routing.TripSegment;
+
 import com.skedgo.tripkit.bookingproviders.BookingResolver;
+import com.skedgo.tripkit.routing.TripSegment;
 
 import java.util.List;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.fragment.app.Fragment;
+
 
 public final class BookViewClickEventHandler {
-  private final Fragment fragment;
+    private final Fragment fragment;
 
-  private BookViewClickEventHandler(@NonNull Fragment fragment) {
-    this.fragment = fragment;
-  }
-
-  public static BookViewClickEventHandler create(@NonNull Fragment fragment) {
-    return new BookViewClickEventHandler(fragment);
-  }
-
-  @NonNull
-  static String[] getActionTitles(List<String> externalActions, BookingResolver bookingResolver) {
-    final String[] titles = new String[externalActions.size()];
-    for (int i = 0; i < externalActions.size(); i++) {
-      final String title = bookingResolver.getTitleForExternalAction(externalActions.get(i));
-      titles[i] = TextUtils.isEmpty(title) ? externalActions.get(i) : title;
+    private BookViewClickEventHandler(@NonNull Fragment fragment) {
+        this.fragment = fragment;
     }
 
-    return titles;
-  }
+    public static BookViewClickEventHandler create(@NonNull Fragment fragment) {
+        return new BookViewClickEventHandler(fragment);
+    }
+
+    @NonNull
+    static String[] getActionTitles(List<String> externalActions, BookingResolver bookingResolver) {
+        final String[] titles = new String[externalActions.size()];
+        for (int i = 0; i < externalActions.size(); i++) {
+            final String title = bookingResolver.getTitleForExternalAction(externalActions.get(i));
+            titles[i] = TextUtils.isEmpty(title) ? externalActions.get(i) : title;
+        }
+
+        return titles;
+    }
 //
 //  @Subscribe
 //  public void onEvent(BookViewClickEvent event) {
@@ -49,11 +51,11 @@ public final class BookViewClickEventHandler {
 //
 //  }
 
-  private void performAction(
-      @NonNull BookingResolver bookingResolver,
-      final String action,
-      @NonNull final TripSegment segment) {
-    // @TODO Do we need this in the SDK?
+    private void performAction(
+        @NonNull BookingResolver bookingResolver,
+        final String action,
+        @NonNull final TripSegment segment) {
+        // @TODO Do we need this in the SDK?
 //
 //    final ExternalActionParams params = ExternalActionParams.builder()
 //        .action(action)
@@ -84,22 +86,23 @@ public final class BookViewClickEventHandler {
 //            }
 //          }
 //        }, ErrorHandlers.errorTracker());
-  }
-
-  private void showActionsDialog(
-      @NonNull final BookingResolver bookingResolver,
-      @NonNull final TripSegment segment) {
-    final List<String> externalActions = segment.getBooking().getExternalActions();
-    if (externalActions != null) {
-      final String[] titles = getActionTitles(externalActions, bookingResolver);
-      new AlertDialog.Builder(fragment.getActivity())
-          .setItems(titles, new DialogInterface.OnClickListener() {
-            @Override public void onClick(DialogInterface dialog, int which) {
-              performAction(bookingResolver, externalActions.get(which), segment);
-            }
-          })
-          .create()
-          .show();
     }
-  }
+
+    private void showActionsDialog(
+        @NonNull final BookingResolver bookingResolver,
+        @NonNull final TripSegment segment) {
+        final List<String> externalActions = segment.getBooking().getExternalActions();
+        if (externalActions != null) {
+            final String[] titles = getActionTitles(externalActions, bookingResolver);
+            new AlertDialog.Builder(fragment.getActivity())
+                .setItems(titles, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        performAction(bookingResolver, externalActions.get(which), segment);
+                    }
+                })
+                .create()
+                .show();
+        }
+    }
 }

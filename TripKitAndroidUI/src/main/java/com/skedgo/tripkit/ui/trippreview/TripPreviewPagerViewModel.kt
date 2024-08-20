@@ -78,7 +78,7 @@ class TripPreviewPagerViewModel @Inject constructor(
             segment.createSummaryIcon(context, bitmapDrawable)
         }.subscribe({
             icon.invoke(it)
-        },{
+        }, {
             Timber.e(it)
         }).autoClear()
     }
