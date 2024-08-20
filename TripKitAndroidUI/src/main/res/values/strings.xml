@@ -550,6 +550,7 @@ We aggregate the anonymised data and provide it to researchers, regulators, and 
     <string name="from_with_colon">From:</string>
     <string name="sign_in_to_your_account">Sign in to your %s account</string>
 
+    <string name="app_account">%s account</string>
     <string name="edit_your_flavor_account">Edit your %s account</string>
     <string name="click_to_change_profile_picture">Click to change your profile picture</string>
 
