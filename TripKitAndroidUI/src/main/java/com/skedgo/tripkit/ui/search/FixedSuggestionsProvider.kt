@@ -45,9 +45,16 @@ enum class DefaultFixedSuggestionType {
 }
 
 class DefaultFixedSuggestionsProvider(
-    val showCurrentLocation: Boolean,
-    val showChooseOnMap: Boolean
+    val showChooseOnMap: Boolean,
+    showCurrentLocation: Boolean,
 ) : FixedSuggestionsProvider {
+
+    private var showCurrentLocation: Boolean = showCurrentLocation
+
+    fun setShowCurrentLocation(show: Boolean) {
+        showCurrentLocation = show
+    }
+
     override fun fixedSuggestions(
         context: Context,
         iconProvider: LocationSearchIconProvider

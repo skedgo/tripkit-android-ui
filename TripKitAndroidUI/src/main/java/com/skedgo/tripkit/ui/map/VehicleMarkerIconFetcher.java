@@ -20,7 +20,7 @@ import androidx.annotation.NonNull;
 import dagger.Lazy;
 
 public class VehicleMarkerIconFetcher {
-    private static final String URL_TEMPLATE = ServerManager.INSTANCE.getConfiguration().getApiTripGoUrl() + "modeicons/android/%s/ic_vehicle_%s.png";
+    private static final String URL_TEMPLATE = ServerManager.INSTANCE.getConfiguration().getStaticTripGoUrl() + "icons/android/%s/ic_vehicle_%s.png";
     private final Resources resources;
     private final Lazy<Picasso> picassoLazy;
 

@@ -77,7 +77,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/itemDrt_tvLabel"
-                tools:text="Tap to make selections" />
+                tools:text="@string/label_tap_to_make_selections" />
 
             <!--            android:visibility="@{viewModel.description.length() > 0}"-->
 

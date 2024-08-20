@@ -9,9 +9,9 @@ import com.skedgo.tripkit.routing.ModeInfo
 
 object StopMarkerUtils {
     private val MAP_ICON_URL_TEMPLATE_PRODUCTION =
-        ServerManager.configuration.apiTripGoUrl + "modeicons/android/%s/ic_map_%s.png"
+        ServerManager.configuration.staticTripGoUrl + "icons/android/%s/ic_map_%s.png"
     private val MAP_ICON_URL_TEMPLATE_PRODUCTION2 =
-        ServerManager.configuration.apiTripGoUrl + "modeicons/android/%s/ic_map_marker_%s.png"
+        ServerManager.configuration.staticTripGoUrl + "icons/android/%s/ic_map_marker_%s.png"
     private val MAP_ICON_URL_TEMPLATE_BETA =
         ServerManager.configuration.bigBangUrl + "modeicons/android/%s/ic_map_%s.png"
 

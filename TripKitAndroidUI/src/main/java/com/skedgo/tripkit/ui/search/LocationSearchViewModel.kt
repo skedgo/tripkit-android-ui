@@ -260,7 +260,6 @@ class LocationSearchViewModel @Inject constructor(
                     loadFromHistory()
                 } else {
                     historySuggestions.clear()
-
                     fixedSuggestionsProvider().specificSuggestions(
                         context,
                         listOf(
@@ -484,7 +483,10 @@ class LocationSearchViewModel @Inject constructor(
     private fun fixedSuggestionsProvider(): FixedSuggestionsProvider {
         if (fixedSuggestionsProvider == null) {
             fixedSuggestionsProvider =
-                DefaultFixedSuggestionsProvider(showCurrentLocation, showDropPin)
+                DefaultFixedSuggestionsProvider(showDropPin, showCurrentLocation)
+        } else if(fixedSuggestionsProvider is DefaultFixedSuggestionsProvider) {
+            (fixedSuggestionsProvider as? DefaultFixedSuggestionsProvider)
+                ?.setShowCurrentLocation(showCurrentLocation)
         }
 
         return fixedSuggestionsProvider!!
