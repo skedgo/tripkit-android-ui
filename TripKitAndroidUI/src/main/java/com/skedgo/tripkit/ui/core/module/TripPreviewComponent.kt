@@ -7,6 +7,7 @@ import com.skedgo.tripkit.ui.trippreview.nearby.ModeLocationTripPreviewItemFragm
 import com.skedgo.tripkit.ui.trippreview.nearby.NearbyTripPreviewItemFragment
 import com.skedgo.tripkit.ui.trippreview.service.ServiceTripPreviewItemFragment
 import com.skedgo.tripkit.ui.trippreview.standard.StandardTripPreviewItemFragment
+import com.skedgo.tripkit.ui.trippreview.v2.TripPreviewParentFragment
 import dagger.Subcomponent
 
 @ActivityScope
@@ -17,6 +18,5 @@ interface TripPreviewComponent {
     fun inject(fragment: NearbyTripPreviewItemFragment)
     fun inject(fragment: ExternalActionTripPreviewItemFragment)
     fun inject(fragment: ServiceTripPreviewItemFragment)
-    //fun inject(fragment: DrtFragment)
-    //fun inject(fragment: com.skedgo.tripgo.sdk.booking.TripPreviewTicketFooterFragment)
+    fun inject(fragment: TripPreviewParentFragment)
 }
