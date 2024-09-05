@@ -18,22 +18,7 @@
         android:focusable="true"
         android:focusableInTouchMode="true"
         android:importantForAccessibility="noHideDescendants"
-        android:paddingTop="@dimen/spacing_small"
-        android:paddingBottom="@dimen/spacing_small">
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rvHeaders"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            app:itemBinding="@{viewModel.itemBinding}"
-            app:items="@{viewModel.items}"
-            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:itemCount="3"
-            tools:listitem="@layout/item_trip_segment_summary" />
+        android:padding="@dimen/spacing_small">
 
         <TextView
             android:id="@+id/tvTime"
@@ -41,14 +26,67 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/shadow_height"
-            android:gravity="center"
+            android:gravity="start"
+            android:layout_marginHorizontal="@dimen/spacing_normal"
             android:text="@{viewModel.description}"
-            android:textAlignment="center"
+            android:textAlignment="textStart"
             android:textColor="@color/black1"
             android:visibility="@{viewModel.showDescription &amp;&amp; !viewModel.isHideExactTimes()}"
-            app:layout_constraintTop_toBottomOf="@+id/rvHeaders"
+            app:layout_constraintTop_toTopOf="parent"
             tools:text="8:00pm - 9:30pm"
             tools:visibility="visible" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvHeaders"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:itemBinding="@{viewModel.itemBinding}"
+            app:items="@{viewModel.items}"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tvTime"
+            app:layout_constraintEnd_toStartOf="@+id/bAction"
+            android:layout_marginEnd="@dimen/spacing_small"
+            tools:itemCount="3"
+            tools:listitem="@layout/item_trip_segment_summary" />
+
+        <Button
+            android:id="@+id/bAction"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:textColor="@android:color/white"
+            tools:text="Action"
+            android:layout_marginVertical="@dimen/spacing_small"
+            android:padding="0dp"
+            android:textSize="@dimen/font_size_small"
+            android:textAllCaps="false"
+            android:background="@drawable/bg_round_accent"
+            android:visibility="@{viewModel.quickBookingSegment != null}"
+            android:text="@{viewModel.quickBookingSegment.booking.title}"
+            app:layout_constraintTop_toBottomOf="@+id/tvTime"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+<!--        <com.google.android.material.button.MaterialButton-->
+<!--            android:id="@+id/bAction"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:textColor="@android:color/white"-->
+<!--            tools:text="Action"-->
+<!--            android:textSize="@dimen/font_size_small"-->
+<!--            app:cornerRadius="@dimen/cardview_corner_radius"-->
+<!--            android:background="@color/colorAccent"-->
+<!--            android:insetTop="0dp"-->
+<!--            android:insetBottom="0dp"-->
+<!--            android:minHeight="0dp"-->
+<!--            android:text="@{viewModel.quickBookingSegment.booking.title}"-->
+<!--            android:visibility="@{viewModel.quickBookingSegment != null}"-->
+<!--            app:layout_constraintTop_toBottomOf="@+id/tvTime"-->
+<!--            style="@style/Widget.MaterialComponents.Button.TextButton"-->
+<!--            app:layout_constraintBottom_toBottomOf="parent"-->
+<!--            app:layout_constraintEnd_toEndOf="parent" />-->
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

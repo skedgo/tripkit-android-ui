@@ -3,18 +3,30 @@ package com.skedgo.tripkit.ui.trippreview.v2
 import android.content.Context
 import android.os.Bundle
 import android.view.View
+import androidx.activity.OnBackPressedCallback
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import com.skedgo.tripkit.routing.TripSegment
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.TripKitUI
+import com.skedgo.tripkit.ui.core.BaseDialog
 import com.skedgo.tripkit.ui.core.BaseFragment
 import com.skedgo.tripkit.ui.databinding.FragmentTripPreviewParentBinding
 import com.skedgo.tripkit.ui.utils.ITEM_QUICK_BOOKING
+import com.skedgo.tripkit.ui.utils.ITEM_SERVICE
 import com.skedgo.tripkit.ui.utils.observe
 import javax.inject.Inject
 
-open class TripPreviewParentFragment : BaseFragment<FragmentTripPreviewParentBinding>() {
+open class TripPreviewParentFragment : BaseDialog<FragmentTripPreviewParentBinding>() {
+
+    override val isFullScreen: Boolean
+        get() = true
+    override val isFullWidth: Boolean
+        get() = false
+    override val isTransparentBackground: Boolean
+        get() = true
 
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
@@ -22,6 +34,12 @@ open class TripPreviewParentFragment : BaseFragment<FragmentTripPreviewParentBin
     protected val viewModel: TripPreviewParentViewModel by viewModels { viewModelFactory }
 
     protected lateinit var segment: TripSegment
+
+    private val backPressedCallback = object : OnBackPressedCallback(true) {
+        override fun handleOnBackPressed() {
+            onBackPressed()
+        }
+    }
 
     companion object {
         fun newInstance(segment: TripSegment): TripPreviewParentFragment =
@@ -38,17 +56,44 @@ open class TripPreviewParentFragment : BaseFragment<FragmentTripPreviewParentBin
     override val layoutRes: Int
         get() = R.layout.fragment_trip_preview_parent
 
-    override val observeAccessibility: Boolean
-        get() = false
+    override fun onPause() {
+        backPressedCallback.isEnabled = false
+        super.onPause()
+    }
 
-    override fun getDefaultViewForAccessibility(): View? = null
+    override fun onDestroyView() {
+        backPressedCallback.remove()
+        super.onDestroyView()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        backPressedCallback.isEnabled = true
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setStyle(STYLE_NORMAL, R.style.FullScreenDialog)
+    }
 
     override fun onCreated(savedInstance: Bundle?) {
         binding.viewModel = viewModel
         binding.lifecycleOwner = viewLifecycleOwner
         initObservers()
         viewModel.setTripSegment(segment)
+        requireActivity().onBackPressedDispatcher.addCallback(this, backPressedCallback)
+        initViews()
     }
+
+    protected fun getContainerResourceId() = R.id.content
+
+    open fun showQuickBooking() {}
+
+    open fun onClose() {}
+
+    open fun getCurrentFragmentManager(): FragmentManager = childFragmentManager
+
+    open fun goTo(fragment: Fragment) {}
 
     private fun initObservers() {
         viewModel.apply {
@@ -58,18 +103,29 @@ open class TripPreviewParentFragment : BaseFragment<FragmentTripPreviewParentBin
         }
     }
 
+    private fun initViews() {
+        binding.layoutBack.setOnClickListener { onBackPressed() }
+    }
+
     private fun handleItemType(type: Int) {
         when(type) {
-            ITEM_QUICK_BOOKING -> {
+            ITEM_QUICK_BOOKING, ITEM_SERVICE -> {
                 showQuickBooking()
             }
             else -> {
-                // Do nothing for now
+                // Do nothing for now, just navigate back
+                onBackPressed()
             }
         }
     }
 
-    protected fun getContainerResourceId() = R.id.content
+    private fun onBackPressed() {
+        val fragmentManager = getCurrentFragmentManager()
+        if(fragmentManager.backStackEntryCount > 1) {
+            fragmentManager.popBackStack()
+        } else {
+            onClose()
+        }
+    }
 
-    open fun showQuickBooking() {}
 }

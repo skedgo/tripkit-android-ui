@@ -44,7 +44,7 @@ class TripPreviewParentViewModel @Inject constructor() : RxViewModel() {
         _tripSegment.observeForever(tripSegmentObserver)
     }
 
-    fun setState(state: PreviewToolbarState) {
+    fun setToolbarState(state: PreviewToolbarState) {
         _toolbarState.postValue(state)
     }
 
