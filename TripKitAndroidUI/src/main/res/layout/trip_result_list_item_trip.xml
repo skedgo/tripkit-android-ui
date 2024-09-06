@@ -47,18 +47,36 @@
 
         <com.google.android.flexbox.FlexboxLayout
             android:id="@+id/segmentsLayout"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
             android:alpha="@{viewModel.isMissedPreBooking() ? 0.3f : 1f}"
             app:entries="@{viewModel.segments}"
             app:flexDirection="row"
             app:flexWrap="wrap"
+            android:layout_marginEnd="@dimen/spacing_small"
             app:layout="@{@layout/trip_result_segment_item}"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/bAction"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/title">
+            app:layout_constraintTop_toBottomOf="@+id/title"/>
 
-        </com.google.android.flexbox.FlexboxLayout>
+        <Button
+            android:id="@+id/bAction"
+            android:layout_width="wrap_content"
+            android:layout_height="30dp"
+            android:textColor="@android:color/white"
+            tools:text="Action"
+            android:layout_marginTop="@dimen/spacing_small"
+            android:padding="0dp"
+            android:textSize="@dimen/font_size_small"
+            android:textAllCaps="false"
+            app:backgroundTint="@color/colorAccent"
+            android:visibility="@{viewModel.getQuickBooking() != null}"
+            android:text="@{viewModel.getQuickBooking().booking.title}"
+            app:clickWithDebounce="@{() -> viewModel.onQuickBookingActionClicked()}"
+            android:background="@drawable/bg_round_accent"
+            app:layout_constraintTop_toBottomOf="@+id/subtitle"
+            app:layout_constraintEnd_toEndOf="parent" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

@@ -62,31 +62,13 @@
             android:padding="0dp"
             android:textSize="@dimen/font_size_small"
             android:textAllCaps="false"
+            android:backgroundTint="@color/colorAccent"
             android:background="@drawable/bg_round_accent"
             android:visibility="@{viewModel.quickBookingSegment != null}"
             android:text="@{viewModel.quickBookingSegment.booking.title}"
             app:layout_constraintTop_toBottomOf="@+id/tvTime"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
-
-<!--        <com.google.android.material.button.MaterialButton-->
-<!--            android:id="@+id/bAction"-->
-<!--            android:layout_width="wrap_content"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:textColor="@android:color/white"-->
-<!--            tools:text="Action"-->
-<!--            android:textSize="@dimen/font_size_small"-->
-<!--            app:cornerRadius="@dimen/cardview_corner_radius"-->
-<!--            android:background="@color/colorAccent"-->
-<!--            android:insetTop="0dp"-->
-<!--            android:insetBottom="0dp"-->
-<!--            android:minHeight="0dp"-->
-<!--            android:text="@{viewModel.quickBookingSegment.booking.title}"-->
-<!--            android:visibility="@{viewModel.quickBookingSegment != null}"-->
-<!--            app:layout_constraintTop_toBottomOf="@+id/tvTime"-->
-<!--            style="@style/Widget.MaterialComponents.Button.TextButton"-->
-<!--            app:layout_constraintBottom_toBottomOf="parent"-->
-<!--            app:layout_constraintEnd_toEndOf="parent" />-->
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
