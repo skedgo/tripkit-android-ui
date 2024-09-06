@@ -4,6 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
+
         <variable
             name="viewModel"
             type="com.skedgo.tripkit.ui.trippreview.v2.TripPreviewParentViewModel" />
@@ -63,6 +64,20 @@
                 android:textSize="@dimen/font_size_medium"
                 android:text="@{viewModel.toolbarState.title}"
                 tools:text="Title" />
+
+            <TextView
+                android:id="@+id/tvSecondaryAction"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/colorAccent"
+                android:textSize="@dimen/font_size_medium"
+                android:padding="@dimen/spacing_small"
+                android:text="@{viewModel.toolbarState.secondaryActionLabel}"
+                android:visibility="@{viewModel.toolbarState.showSecondaryAction}"
+                tools:text="Action"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent" />
 
 
         </androidx.constraintlayout.widget.ConstraintLayout>

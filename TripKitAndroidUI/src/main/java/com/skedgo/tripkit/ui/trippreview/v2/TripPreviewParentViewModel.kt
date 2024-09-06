@@ -13,17 +13,31 @@ sealed interface PreviewToolbarState {
     val showBackButton: Boolean
     val backActionLabel: String
     val title: String
+    val showSecondaryAction: Boolean
+    val secondaryActionLabel: String
 
     data class OnPreview(
         override val showBackButton: Boolean = false,
         override val backActionLabel: String,
-        override val title: String
+        override val title: String,
+        override val showSecondaryAction: Boolean = false,
+        override val secondaryActionLabel: String = ""
     ) : PreviewToolbarState
 
     data class OnBooking(
         override val showBackButton: Boolean = true,
         override val backActionLabel: String,
-        override val title: String
+        override val title: String,
+        override val showSecondaryAction: Boolean = false,
+        override val secondaryActionLabel: String = ""
+    ) : PreviewToolbarState
+
+    data class OnViewBookedTrip(
+        override val showBackButton: Boolean = true,
+        override val backActionLabel: String,
+        override val title: String,
+        override val showSecondaryAction: Boolean,
+        override val secondaryActionLabel: String
     ) : PreviewToolbarState
 }
 

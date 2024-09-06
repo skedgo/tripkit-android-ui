@@ -39,6 +39,7 @@ open class ActionButtonHandler {
         const val ACTION_TAG_REPORT = "report"
         const val ACTION_TAG_ALERT = "alert"
         const val ACTION_EXTERNAL_SHOW_TICKET = "showTicket"
+        const val ACTION_QUICK_BOOKING = "quickBooking"
     }
 
     var container: ActionButtonContainer? = null

@@ -19,6 +19,10 @@ import com.skedgo.tripkit.ui.utils.ITEM_SERVICE
 import com.skedgo.tripkit.ui.utils.observe
 import javax.inject.Inject
 
+/**
+ * To serve as a template for dialog based screens
+ * TODO rename to a more generic name
+ */
 open class TripPreviewParentFragment : BaseDialog<FragmentTripPreviewParentBinding>() {
 
     override val isFullScreen: Boolean
@@ -91,6 +95,8 @@ open class TripPreviewParentFragment : BaseDialog<FragmentTripPreviewParentBindi
 
     open fun onClose() {}
 
+    open fun onSecondaryActionClick(segment: TripSegment?) {}
+
     open fun getCurrentFragmentManager(): FragmentManager = childFragmentManager
 
     open fun goTo(fragment: Fragment) {}
@@ -105,6 +111,7 @@ open class TripPreviewParentFragment : BaseDialog<FragmentTripPreviewParentBindi
 
     private fun initViews() {
         binding.layoutBack.setOnClickListener { onBackPressed() }
+        binding.tvSecondaryAction.setOnClickListener { onSecondaryActionClick(segment) }
     }
 
     private fun handleItemType(type: Int) {
