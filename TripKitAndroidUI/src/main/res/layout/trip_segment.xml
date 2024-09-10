@@ -241,8 +241,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="@+id/content"
             app:layout_constraintTop_toBottomOf="@+id/content"
-            app:layout_goneMarginTop="0dp"
-            android:focusable="true" />
+            app:layout_goneMarginTop="0dp" />
 
         <Button
             android:id="@+id/externalActionButton"
