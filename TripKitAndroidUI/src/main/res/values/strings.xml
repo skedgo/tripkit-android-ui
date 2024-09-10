@@ -618,4 +618,6 @@ We aggregate the anonymised data and provide it to researchers, regulators, and 
     <string name="desc_expand">Expand</string>
     <string name="label_how_to_book_transportation">How to book transportation</string>
     <string name="label_tap_to_make_selections">Tap to make selections</string>
+    <string name="enter_home_address">Enter your Home address</string>
+    <string name="enter_work_address">Enter your Work address</string>
 </resources>
