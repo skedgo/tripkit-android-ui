@@ -463,6 +463,27 @@ class TripResultListViewModel @Inject constructor(
         }
     }
 
+    fun updateTripGroup(updatedTripGroup: TripGroup) {
+        var indexToUpdate = -1
+        results.forEachIndexed { index, item ->
+            if (item.group.uuid() == updatedTripGroup.uuid()) {
+                indexToUpdate = index
+                return@forEachIndexed
+            }
+        }
+
+        if (indexToUpdate != -1) {
+
+            val currentList = results.map { it }.toMutableList()
+            currentList[indexToUpdate].setTripGroup(context, updatedTripGroup, null)
+            val updatedItem = currentList[indexToUpdate]
+            currentList.removeAt(indexToUpdate)
+            currentList.add(indexToUpdate, updatedItem)
+
+            results.update(currentList)
+        }
+    }
+
     fun setHelpInfoVisibility(show: Boolean) {
         _helpInfoVisible.postValue(show)
     }

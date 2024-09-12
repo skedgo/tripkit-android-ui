@@ -141,6 +141,8 @@ class TripResultViewModel @Inject constructor(
         tripgroup: TripGroup,
         classification: TripGroupClassifier.Classification?
     ) {
+        tripResults.removeAll { true }
+        tripResults.clear()
         group = tripgroup
         trip = tripgroup.displayTrip!!
         otherTripGroups = tripgroup.trips?.filterNot { it.uuid() == trip.uuid() }
@@ -163,12 +165,14 @@ class TripResultViewModel @Inject constructor(
         setMoneyCost()
 
         if (otherTripGroups.isNullOrEmpty()) {
-            val actionButtonText =
-                actionButtonHandler?.getPrimaryAction(context, trip)
+            if(!trip.hasQuickBooking() && trip.segments.none { it.bookingHasConfirmation } ) {
+                val actionButtonText =
+                    actionButtonHandler?.getPrimaryAction(context, trip)
 
-            actionButtonText?.let {
-                moreButtonText = actionButtonText
-                moreButtonVisible.set(true)
+                actionButtonText?.let {
+                    moreButtonText = actionButtonText
+                    moreButtonVisible.set(true)
+                }
             }
         } else {
             moreButtonText.set(context.resources.getString(R.string.more))

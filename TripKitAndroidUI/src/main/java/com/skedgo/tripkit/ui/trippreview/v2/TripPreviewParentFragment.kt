@@ -1,6 +1,7 @@
 package com.skedgo.tripkit.ui.trippreview.v2
 
 import android.content.Context
+import android.content.DialogInterface
 import android.os.Bundle
 import android.view.View
 import androidx.activity.OnBackPressedCallback
@@ -52,6 +53,11 @@ open class TripPreviewParentFragment : BaseDialog<FragmentTripPreviewParentBindi
             }
     }
 
+    override fun onDismiss(dialog: DialogInterface) {
+        onDismissed()
+        super.onDismiss(dialog)
+    }
+
     override fun onAttach(context: Context) {
         TripKitUI.getInstance().tripPreviewComponent().inject(this)
         super.onAttach(context)
@@ -96,6 +102,8 @@ open class TripPreviewParentFragment : BaseDialog<FragmentTripPreviewParentBindi
     open fun onClose() {}
 
     open fun onSecondaryActionClick(segment: TripSegment?) {}
+
+    open fun onDismissed() {}
 
     open fun getCurrentFragmentManager(): FragmentManager = childFragmentManager
 
