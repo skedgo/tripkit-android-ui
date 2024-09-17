@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.skedgo.tripkit.ui.controller.homeviewcontroller.TKUIHomeViewControllerViewModel
 import com.skedgo.tripkit.ui.routing.autocompleter.RouteAutocompleteViewModel
 import com.skedgo.tripkit.ui.trippreview.TripPreviewPagerViewModel
+import com.skedgo.tripkit.ui.trippreview.v2.TripPreviewParentViewModel
 import dagger.Binds
 import dagger.Module
 import dagger.multibindings.IntoMap
@@ -31,4 +32,10 @@ abstract class ViewModelModule {
     @IntoMap
     @ViewModelKey(TKUIHomeViewControllerViewModel::class)
     internal abstract fun bindTKUIHomeViewControllerViewModel(viewModel: TKUIHomeViewControllerViewModel): ViewModel
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(TripPreviewParentViewModel::class)
+    internal abstract fun bindTripPreviewParentViewModel(viewModel: TripPreviewParentViewModel): ViewModel
+
 }

@@ -33,6 +33,7 @@ class TripResultTripViewModel : ViewModel() {
     val isHideExactTimes = ObservableField<Boolean>()
     val contentDescription = ObservableField<String>()
     var clickFlow: MutableSharedFlow<Trip>? = null
+    var quickBookingActionClickFlow: MutableSharedFlow<TripSegment>? = null
     val segments = ArrayList<TripSegmentViewModel>()
     fun onItemClicked() {
         viewModelScope.launch {
@@ -41,6 +42,14 @@ class TripResultTripViewModel : ViewModel() {
             }
         }
     }
+
+    fun onQuickBookingActionClicked() {
+        viewModelScope.launch {
+            getQuickBooking()?.let { quickBookingActionClickFlow?.emit(it) }
+        }
+    }
+
+    fun getQuickBooking() = trip?.quickBookingSegment
 
 }
 
@@ -54,6 +63,7 @@ class TripResultViewModel @Inject constructor(
     val onItemClicked: TapAction<TripResultViewModel> = TapAction.create { this }
     val onMoreButtonClicked: TapAction<TripResultViewModel> = TapAction.create { this }
     var clickFlow: MutableSharedFlow<Trip>? = null
+    var quickBookingActionClickFlow: MutableSharedFlow<TripSegment>? = null
 
     lateinit var group: TripGroup
     lateinit var trip: Trip
@@ -131,6 +141,8 @@ class TripResultViewModel @Inject constructor(
         tripgroup: TripGroup,
         classification: TripGroupClassifier.Classification?
     ) {
+        tripResults.removeAll { true }
+        tripResults.clear()
         group = tripgroup
         trip = tripgroup.displayTrip!!
         otherTripGroups = tripgroup.trips?.filterNot { it.uuid() == trip.uuid() }
@@ -153,11 +165,14 @@ class TripResultViewModel @Inject constructor(
         setMoneyCost()
 
         if (otherTripGroups.isNullOrEmpty()) {
-            val actionButtonText = actionButtonHandler?.getPrimaryAction(context, trip)
+            if(!trip.hasQuickBooking() && trip.segments.none { it.bookingHasConfirmation } ) {
+                val actionButtonText =
+                    actionButtonHandler?.getPrimaryAction(context, trip)
 
-            actionButtonText?.let {
-                moreButtonText = actionButtonText
-                moreButtonVisible.set(true)
+                actionButtonText?.let {
+                    moreButtonText = actionButtonText
+                    moreButtonVisible.set(true)
+                }
             }
         } else {
             moreButtonText.set(context.resources.getString(R.string.more))
@@ -180,6 +195,7 @@ class TripResultViewModel @Inject constructor(
         val newVm = TripResultTripViewModel()
         newVm.trip = trip
         newVm.clickFlow = clickFlow
+        newVm.quickBookingActionClickFlow = quickBookingActionClickFlow
         newVm.title.set(buildTitle(context, trip))
         newVm.subtitle.set(buildSubtitle(context, trip))
         newVm.contentDescription.set(buildContentDescription(trip))

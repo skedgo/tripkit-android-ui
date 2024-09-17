@@ -6,11 +6,13 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.skedgo.tripkit.common.model.TransportMode
+import com.skedgo.tripkit.routing.TripSegment
 import com.skedgo.tripkit.ui.BR
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.core.RxViewModel
 import com.skedgo.tripkit.ui.trippreview.segment.TripSegmentSummary
 import com.skedgo.tripkit.ui.trippreview.segment.TripSegmentSummaryItemViewModel
+import com.skedgo.tripkit.ui.trippreview.segment.TripSegmentsSummaryData
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import me.tatarka.bindingcollectionadapter2.ItemBinding
@@ -23,6 +25,9 @@ class TripPreviewHeaderViewModel @Inject constructor() : RxViewModel() {
         BR.viewModel,
         R.layout.item_trip_segment_summary
     )
+
+    private val _quickBookingSegment = MutableLiveData<TripSegment?>()
+    val quickBookingSegment: LiveData<TripSegment?> = _quickBookingSegment
 
     private val _description = MutableLiveData<String>()
     val description: LiveData<String> = _description
@@ -40,8 +45,9 @@ class TripPreviewHeaderViewModel @Inject constructor() : RxViewModel() {
         _isHideExactTimes.value = value
     }
 
-    fun setup(context: Context, segmentSummaryItems: List<TripSegmentSummary>) {
-
+    fun setup(context: Context, data: TripSegmentsSummaryData) {
+        val segmentSummaryItems = data.tripSegmentSummaryList
+        _quickBookingSegment.postValue(data.quickBookingSegment)
         val isRightToLeft = context.resources.getBoolean(R.bool.is_right_to_left)
 
         items.clear()

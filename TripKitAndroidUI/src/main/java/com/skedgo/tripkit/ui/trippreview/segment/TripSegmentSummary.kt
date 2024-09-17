@@ -1,6 +1,7 @@
 package com.skedgo.tripkit.ui.trippreview.segment
 
 import android.graphics.drawable.Drawable
+import com.skedgo.tripkit.routing.TripSegment
 
 /**
  * Renamed from [TripPreviewHeader] to [TripSegmentSummary]
@@ -22,3 +23,8 @@ data class TripSegmentSummary(
         )
     }
 }
+
+data class TripSegmentsSummaryData(
+    val tripSegmentSummaryList: List<TripSegmentSummary>,
+    val quickBookingSegment: TripSegment? = null
+)

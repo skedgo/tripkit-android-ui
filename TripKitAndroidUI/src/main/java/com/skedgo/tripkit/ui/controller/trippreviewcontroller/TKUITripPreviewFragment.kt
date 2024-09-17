@@ -28,6 +28,7 @@ import com.skedgo.tripkit.ui.trippreview.Action
 import com.skedgo.tripkit.ui.trippreview.TripPreviewPagerListener
 import com.skedgo.tripkit.ui.trippreview.TripPreviewPagerViewModel
 import com.skedgo.tripkit.ui.trippreview.segment.TripSegmentSummary
+import com.skedgo.tripkit.ui.trippreview.segment.TripSegmentsSummaryData
 import com.skedgo.tripkit.ui.tripresults.GetTransportIconTintStrategy
 import com.skedgo.tripkit.ui.utils.ITEM_SERVICE
 import com.skedgo.tripkit.ui.utils.correctItemType
@@ -52,7 +53,7 @@ class TKUITripPreviewFragment : BaseFragment<FragmentTkuiTripPreviewBinding>() {
     lateinit var adapter: TripPreviewPagerAdapter
 
     private var currentPagerIndex = 0
-    private var previewHeadersCallback: ((List<TripSegmentSummary>) -> Unit)? = null
+    private var previewHeadersCallback: ((TripSegmentsSummaryData) -> Unit)? = null
     private var pageIndexStream: PublishSubject<Pair<Long, String>>? = null
     private var paymentDataStream: PublishSubject<PaymentData>? = null
     private var ticketActionStream: PublishSubject<String>? = null
@@ -109,7 +110,7 @@ class TKUITripPreviewFragment : BaseFragment<FragmentTkuiTripPreviewBinding>() {
                 }
             }
 
-            observe(headers) {
+            observe(headersData) {
                 it?.let {
                     previewHeadersCallback?.invoke(it)
                     if (currentPagerIndex > 0 && currentPagerIndex < adapter.pages.size) {
@@ -353,7 +354,7 @@ class TKUITripPreviewFragment : BaseFragment<FragmentTkuiTripPreviewBinding>() {
             pageIndexStream: PublishSubject<Pair<Long, String>>? = null,
             paymentDataStream: PublishSubject<PaymentData>? = null,
             ticketActionStream: PublishSubject<String>? = null,
-            previewHeadersCallback: ((List<TripSegmentSummary>) -> Unit)? = null
+            previewHeadersCallback: ((TripSegmentsSummaryData) -> Unit)? = null
         ) = TKUITripPreviewFragment().apply {
             this.tripGroupId = tripGroupId
             this.tripId = tripId

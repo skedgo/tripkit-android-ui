@@ -20,6 +20,7 @@ import com.skedgo.tripkit.common.model.TimeTag
 import com.skedgo.tripkit.data.regions.RegionService
 import com.skedgo.tripkit.model.ViewTrip
 import com.skedgo.tripkit.routing.TripGroup
+import com.skedgo.tripkit.routing.TripSegment
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.TripKitUI
 import com.skedgo.tripkit.ui.core.BaseTripKitFragment
@@ -93,6 +94,11 @@ class TripResultListFragment : BaseTripKitFragment() {
                 destinationLocationClicked()
             }
         }
+    }
+
+    private var quickBookingActionCallback: (TripSegment) -> Unit = { _ -> }
+    fun setQuickBookingActionCallback(callback: (TripSegment) -> Unit) {
+        quickBookingActionCallback = callback
     }
 
     @Inject
@@ -249,6 +255,12 @@ class TripResultListFragment : BaseTripKitFragment() {
                 tripSelectedListener?.onTripSelected(viewTrip, viewModel.tripGroupList)
             }.subscribe().addTo(autoDisposable)
 
+        viewModel.onQuickBookingActionClicked
+            .observeOn(AndroidSchedulers.mainThread())
+            .doOnNext { segment ->
+                quickBookingActionCallback.invoke(segment)
+            }.subscribe().addTo(autoDisposable)
+
 //        viewModel.onMoreButtonClicked
 //                .observeOn(AndroidSchedulers.mainThread())
 //                .subscribe {
@@ -286,6 +298,11 @@ class TripResultListFragment : BaseTripKitFragment() {
                 viewModel.onShowBookARideInduction(false)
             }
         }
+    }
+
+    fun updateTripGroup(updatedTripGroup: TripGroup) {
+        viewModel.updateTripGroup(updatedTripGroup)
+        binding.recyclerView.adapter?.notifyDataSetChanged()
     }
 
     private fun showDateTimePicker(isCancelable: Boolean = true) {

@@ -33,6 +33,7 @@ import me.tatarka.bindingcollectionadapter2.collections.DiffObservableList
 import com.skedgo.tripkit.logging.ErrorLogger
 import com.skedgo.tripkit.routing.Trip
 import com.skedgo.tripkit.routing.TripGroup
+import com.skedgo.tripkit.routing.TripSegment
 import com.skedgo.tripkit.routingstatus.RoutingStatus
 import com.skedgo.tripkit.routingstatus.RoutingStatusRepository
 import com.skedgo.tripkit.routingstatus.Status
@@ -74,6 +75,7 @@ class TripResultListViewModel @Inject constructor(
     val timeLabel = ObservableField<String>()
 
     val onItemClicked = PublishRelay.create<ViewTrip>()
+    val onQuickBookingActionClicked = PublishRelay.create<TripSegment>()
     val onMoreButtonClicked = PublishRelay.create<Trip>()
     val onFinished = PublishRelay.create<Boolean>()
 
@@ -373,6 +375,11 @@ class TripResultListViewModel @Inject constructor(
             onItemClicked.accept(clickEvent)
         }.launchIn(viewModelScope)
 
+        val quickBookingActionFlow = MutableSharedFlow<TripSegment>()
+        quickBookingActionFlow.onEach {
+            onQuickBookingActionClicked.accept(it)
+        }.launchIn(viewModelScope)
+
         getSortedTripGroupsWithRoutingStatusProvider.get()
             .execute(query, 1, transportVisibilityFilter!!)
             .observeOn(AndroidSchedulers.mainThread())
@@ -398,6 +405,7 @@ class TripResultListViewModel @Inject constructor(
                             actionButtonHandlerFactory?.createHandler(this@TripResultListViewModel)
                         this.actionButtonHandler = handler
                         this.clickFlow = tripFlow
+                        this.quickBookingActionClickFlow = quickBookingActionFlow
                         this.setTripGroup(context, group, classifier.classify(group))
                         onMoreButtonClicked.observable
                             .subscribe {
@@ -452,6 +460,27 @@ class TripResultListViewModel @Inject constructor(
                 it.setTripGroup(context, newTripGroup, null)
                 return@forEach
             }
+        }
+    }
+
+    fun updateTripGroup(updatedTripGroup: TripGroup) {
+        var indexToUpdate = -1
+        results.forEachIndexed { index, item ->
+            if (item.group.uuid() == updatedTripGroup.uuid()) {
+                indexToUpdate = index
+                return@forEachIndexed
+            }
+        }
+
+        if (indexToUpdate != -1) {
+
+            val currentList = results.map { it }.toMutableList()
+            currentList[indexToUpdate].setTripGroup(context, updatedTripGroup, null)
+            val updatedItem = currentList[indexToUpdate]
+            currentList.removeAt(indexToUpdate)
+            currentList.add(indexToUpdate, updatedItem)
+
+            results.update(currentList)
         }
     }
 

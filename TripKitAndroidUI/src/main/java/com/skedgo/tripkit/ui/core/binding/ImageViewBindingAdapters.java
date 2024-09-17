@@ -27,7 +27,7 @@ public final class ImageViewBindingAdapters {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        view.setVisibility((visible) ? View.VISIBLE : View.GONE);
+        view.setVisibility(visible ? View.VISIBLE : View.GONE);
     }
 
     @BindingAdapter("fadeVisible")
