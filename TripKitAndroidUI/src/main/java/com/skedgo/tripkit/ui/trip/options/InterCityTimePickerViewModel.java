@@ -73,7 +73,7 @@ public class InterCityTimePickerViewModel implements ITimePickerViewModel {
     private ObservableBoolean showPositiveAction;
     private ObservableInt negativeActionLabel;
     private ObservableBoolean showNegativeAction;
-    private ObservableField<Date> dateTimePickerMinLimit;
+    private ObservableField<GregorianCalendar> dateTimePickerMinLimit;
     private ObservableInt timePickerMinuteInterval;
     private Integer extraSelectionCount = 0;
 
@@ -168,7 +168,10 @@ public class InterCityTimePickerViewModel implements ITimePickerViewModel {
             if (args.containsKey(ARG_DATE_TIME_PICKER_MIN_LIMIT)) {
                 long dateTimeLong = args.getLong(ARG_DATE_TIME_PICKER_MIN_LIMIT, -1L);
                 if (dateTimeLong != -1L) {
-                    dateTimePickerMinLimit.set(new Date(dateTimeLong));
+                    GregorianCalendar calendar = new GregorianCalendar();
+                    calendar.setTimeZone(getTimezone());
+                    calendar.setTimeInMillis(dateTimeLong);
+                    dateTimePickerMinLimit.set(calendar);
                 }
             }
             if (args.containsKey(ARG_TIME_PICKER_MINUTES_INTERVAL)) {
@@ -250,7 +253,7 @@ public class InterCityTimePickerViewModel implements ITimePickerViewModel {
     }
 
     @Override
-    public Date dateTimeMinLimit() {
+    public GregorianCalendar dateTimeMinLimit() {
         return dateTimePickerMinLimit.get();
     }
 
@@ -342,11 +345,15 @@ public class InterCityTimePickerViewModel implements ITimePickerViewModel {
     }
 
     private List<GregorianCalendar> getFilteredDateRange(@NonNull List<GregorianCalendar> dateRange) {
-        Date minLimit = dateTimeMinLimit();
+        GregorianCalendar minLimit = dateTimeMinLimit();
         if (minLimit != null) {
+            GregorianCalendar dateTimeMinLimitClone = (GregorianCalendar) minLimit.clone();
+            clearTime(dateTimeMinLimitClone);
             List<GregorianCalendar> result = new ArrayList<>();
             for (GregorianCalendar calendar : dateRange) {
-                if (!calendar.getTime().before(minLimit)) {
+                GregorianCalendar calendarCopy = (GregorianCalendar) calendar.clone();
+                clearTime(calendarCopy);
+                if (!calendarCopy.getTime().before(dateTimeMinLimitClone.getTime())) {
                     result.add(calendar);
                 }
             }
@@ -357,6 +364,14 @@ public class InterCityTimePickerViewModel implements ITimePickerViewModel {
             return dateRange;
         }
     }
+
+    private void clearTime(GregorianCalendar calendar) {
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+    }
+
 
     private TimeTag getTimeTagFromDateTime(@NonNull GregorianCalendar date,
                                            @NonNull GregorianCalendar time) {
@@ -387,14 +402,17 @@ public class InterCityTimePickerViewModel implements ITimePickerViewModel {
         //Set last selected position
         int date = this.timeCalendar.get(Calendar.DATE);
         GregorianCalendar temp;
+        boolean hasPreSelectedDate = false;
         for (int i = 0; i < selectedCalendars.size(); ++i) {
             temp = selectedCalendars.get(i);
             if (temp.get(Calendar.DATE) == date) {
-                //this.selectedPosition.set(i - 1);
                 this.selectedPosition.set(i);
+                hasPreSelectedDate = true;
                 break;
             }
-
+        }
+        if(!hasPreSelectedDate) {
+            this.selectedPosition.set(0);
         }
         //Set last selected calendars
         this.dates.set(formatDateTime(selectedCalendars));

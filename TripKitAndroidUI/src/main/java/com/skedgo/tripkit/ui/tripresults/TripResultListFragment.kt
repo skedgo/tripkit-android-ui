@@ -350,7 +350,19 @@ class TripResultListFragment : BaseTripKitFragment() {
             }
         }
 
-        val currentDate = Calendar.getInstance(TimeZone.getTimeZone(departureTimezone)).time
+        val currentDate = Calendar.getInstance(TimeZone.getTimeZone(departureTimezone))
+        // Convert it to GregorianCalendar
+        val gregorianCalendar = GregorianCalendar(
+            currentDate.get(Calendar.YEAR),
+            currentDate.get(Calendar.MONTH),
+            currentDate.get(Calendar.DAY_OF_MONTH),
+            currentDate.get(Calendar.HOUR_OF_DAY),
+            currentDate.get(Calendar.MINUTE),
+            currentDate.get(Calendar.SECOND)
+        )
+
+        // set the timezone for the GregorianCalendar
+        gregorianCalendar.timeZone = currentDate.timeZone
 
         try {
 
@@ -367,7 +379,7 @@ class TripResultListFragment : BaseTripKitFragment() {
                 )
                 .setLeaveAtLabel(globalConfigs.dateTimePickerConfig()?.dateTimePickerLeaveAtLabel)
                 .setArriveByLabel(globalConfigs.dateTimePickerConfig()?.dateTimePickerArriveByLabel)
-                .withDateTimeMinLimit(currentDate)
+                .withDateTimeMinLimit(gregorianCalendar)
 
             if (globalConfigs.dateTimePickerConfig()?.isWithLeaveNow == true) {
                 builder.withNegativeAction(R.string.leave_now)

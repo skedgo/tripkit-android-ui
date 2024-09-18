@@ -47,7 +47,7 @@ public interface ITimePickerViewModel {
     ObservableInt getTimePickerMinuteInterval();
 
     @Nullable
-    Date dateTimeMinLimit();
+    GregorianCalendar dateTimeMinLimit();
 
     void handleArguments(Bundle args);
 

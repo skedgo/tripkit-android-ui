@@ -161,10 +161,9 @@ class TripKitDateTimePickerDialogFragment : DialogFragment(), TimePicker.OnTimeC
         if (isTimeValid(hour, convertedMinute)) {
             timePickerViewModel.updateTime(hour, convertedMinute)
         } else {
-            var hours = timePickerViewModel.dateTimeMinLimit()?.hours
-            var minutes = timePickerViewModel.dateTimeMinLimit()?.minutes
-            timePickerViewModel.dateTimeMinLimit()?.let {
-                val calendar = getCalendarFromDateWithTimezone(it, timePickerViewModel.timezone)
+            var hours: Int? = null
+            var minutes: Int? = null
+            timePickerViewModel.dateTimeMinLimit()?.let { calendar ->
                 hours = calendar.get(Calendar.HOUR_OF_DAY)
                 minutes = calendar.get(Calendar.MINUTE)
             }
@@ -181,11 +180,7 @@ class TripKitDateTimePickerDialogFragment : DialogFragment(), TimePicker.OnTimeC
     private fun isTimeValid(hour: Int, minute: Int): Boolean {
         val selectedDateCalendar = timePickerViewModel.selectedDate
         selectedDateCalendar?.let { sDateCal ->
-            return timePickerViewModel.dateTimeMinLimit()?.let { minDateTime ->
-                val minDateTimeCalendar = getCalendarFromDateWithTimezone(
-                    minDateTime, timePickerViewModel.timezone
-                )
-
+            return timePickerViewModel.dateTimeMinLimit()?.let { minDateTimeCalendar ->
                 selectedDateCalendar.set(Calendar.HOUR_OF_DAY, hour)
                 selectedDateCalendar.set(Calendar.MINUTE, minute)
 
@@ -346,7 +341,7 @@ class TripKitDateTimePickerDialogFragment : DialogFragment(), TimePicker.OnTimeC
         private var showNegativeAction: Boolean = false
         private var isSingleSelection: Boolean = false
         private var singleLabel: String? = null
-        private var dateTimeMinLimit: Date? = null
+        private var dateTimeMinLimit: GregorianCalendar? = null
         private var timePickerMinutesInterval: Int = 1
 
         fun withTitle(title: String?): Builder {
@@ -454,7 +449,7 @@ class TripKitDateTimePickerDialogFragment : DialogFragment(), TimePicker.OnTimeC
             return this
         }
 
-        fun withDateTimeMinLimit(dateTimeMinLimit: Date): Builder {
+        fun withDateTimeMinLimit(dateTimeMinLimit: GregorianCalendar): Builder {
             this.dateTimeMinLimit = dateTimeMinLimit
             return this
         }
@@ -496,7 +491,7 @@ class TripKitDateTimePickerDialogFragment : DialogFragment(), TimePicker.OnTimeC
                 timePickerMinutesInterval
             )
             dateTimeMinLimit?.let {
-                args.putLong(InterCityTimePickerViewModel.ARG_DATE_TIME_PICKER_MIN_LIMIT, it.time)
+                args.putLong(InterCityTimePickerViewModel.ARG_DATE_TIME_PICKER_MIN_LIMIT, it.timeInMillis)
             }
             fragment.arguments = args
             return fragment
