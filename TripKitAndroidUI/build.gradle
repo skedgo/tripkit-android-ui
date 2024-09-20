@@ -4,6 +4,7 @@ apply plugin: "kotlin-android"
 apply plugin: "kotlin-kapt"
 apply plugin: 'org.jetbrains.dokka'
 apply plugin: 'kotlin-parcelize'
+apply plugin: 'io.gitlab.arturbosch.detekt'
 
 repositories {
     maven {url "https://raw.github.com/laenger/maven-releases/master/releases"}
@@ -214,6 +215,22 @@ dependencies {
     testImplementation libs.assertjCore
     testImplementation libs.coroutinesTest
     testImplementation libs.bindingCollectionAdapter
+}
+
+detekt {
+    toolVersion = "1.23.1"
+    input = files("src/main/java", "src/main/kotlin")
+    config = files("$rootDir/config/detekt/detekt.yml")  // Shared configuration
+    reports {
+        html {
+            enabled = true
+            destination = file("$buildDir/reports/detekt/tripkitandroidui/detekt.html")
+        }
+        xml {
+            enabled = true
+            destination = file("$buildDir/reports/detekt/tripkitandroidui/detekt.xml")
+        }
+    }
 }
 
 group = tripkitGroup
