@@ -3,6 +3,7 @@ package com.skedgo.tripkit.ui.tripresult
 import android.content.Context
 import android.graphics.drawable.Drawable
 import com.skedgo.tripkit.TripUpdater
+import com.skedgo.tripkit.booking.quickbooking.QuickBookingRepository
 import com.skedgo.tripkit.datetime.PrintTime
 import com.skedgo.tripkit.routing.TripSegment
 import com.skedgo.tripkit.ui.base.MockKTest
@@ -74,6 +75,9 @@ class TripSegmentsViewModelTest : MockKTest() {
     @MockK(relaxed = true)
     private lateinit var getTransportIconTintStrategy: GetTransportIconTintStrategy
 
+    @MockK
+    private lateinit var quickBookingRepository: QuickBookingRepository
+
     private lateinit var viewModel: TripSegmentsViewModel
 
     private val mockDrawable = mockk<Drawable>(relaxed = true)
@@ -98,7 +102,8 @@ class TripSegmentsViewModelTest : MockKTest() {
             getAlternativeTripForAlternativeService,
             tripUpdater,
             remindersRepository,
-            getTransportIconTintStrategy
+            getTransportIconTintStrategy,
+            quickBookingRepository
         )
     }
 
