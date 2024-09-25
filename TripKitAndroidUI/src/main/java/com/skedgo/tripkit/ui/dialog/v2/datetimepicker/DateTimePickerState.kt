@@ -4,8 +4,7 @@ sealed interface DateTimePickerState {
     data class OnError(
         val error: Throwable
     ) : DateTimePickerState
-
-    class OnShowTimePicker
-
-    class OnConfirmDateTime
+    object OnShowTimePicker : DateTimePickerState
+    object OnConfirmTime : DateTimePickerState
+    object OnConfirmDateTime: DateTimePickerState
 }

@@ -3,6 +3,7 @@ package com.skedgo.tripkit.ui.core.module
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.skedgo.tripkit.ui.controller.homeviewcontroller.TKUIHomeViewControllerViewModel
+import com.skedgo.tripkit.ui.dialog.v2.datetimepicker.TKUIDateTimePickerDialogViewModel
 import com.skedgo.tripkit.ui.routing.autocompleter.RouteAutocompleteViewModel
 import com.skedgo.tripkit.ui.trippreview.TripPreviewPagerViewModel
 import com.skedgo.tripkit.ui.trippreview.v2.TripPreviewParentViewModel
@@ -38,4 +39,8 @@ abstract class ViewModelModule {
     @ViewModelKey(TripPreviewParentViewModel::class)
     internal abstract fun bindTripPreviewParentViewModel(viewModel: TripPreviewParentViewModel): ViewModel
 
+    @Binds
+    @IntoMap
+    @ViewModelKey(TKUIDateTimePickerDialogViewModel::class)
+    internal abstract fun bindTKUIDateTimePickerDialogViewModel(viewModel: TKUIDateTimePickerDialogViewModel): ViewModel
 }
