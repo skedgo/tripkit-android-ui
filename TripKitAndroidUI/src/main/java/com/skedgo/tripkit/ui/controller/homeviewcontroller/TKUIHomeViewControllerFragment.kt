@@ -779,14 +779,14 @@ class TKUIHomeViewControllerFragment :
         val headerFragment =
             TripPreviewHeaderFragment.newInstance(
                 pageIndexStream,
-                tripSegment.trip.isHideExactTimes ||
-                    tripSegment.trip.segments.any { it.isHideExactTimes }
+                tripSegment.trip.hideExactTimes ||
+                    tripSegment.trip.segmentList.any { it.isHideExactTimes }
             )
         replaceFragment(headerFragment, TripPreviewHeaderFragment.TAG, R.id.topSheet, false)
 
         val fragment = TKUITripPreviewFragment.newInstance(
-            tripSegment.trip.group.uuid(),
-            tripSegment.trip.uuid(), segmentId,
+            tripSegment.trip.group!!.uuid(),
+            tripSegment.trip.uuid, segmentId,
             initTripPreviewPagerFragmentListener(tripSegment),
             fromTripAction,
             pageIndexStream,
@@ -906,8 +906,8 @@ class TKUIHomeViewControllerFragment :
         val fragment = bottomSheetFragment.getFragmentByTag(TKUITripPreviewFragment.TAG)
         if (fragment?.isVisible == true) {
             val tripPreviewPagerFragment = fragment as TKUITripPreviewFragment
-            tripPreviewPagerFragment.setTripSegment(tripSegment, trip.segments)
-            tripPreviewPagerFragment.updateTripSegment(trip.segments)
+            tripPreviewPagerFragment.setTripSegment(tripSegment, trip.segmentList)
+            tripPreviewPagerFragment.updateTripSegment(trip.segmentList)
             tripPreviewPagerFragment.updateListener(initTripPreviewPagerFragmentListener(tripSegment))
         }
     }

@@ -121,9 +121,9 @@ class TripResultPagerViewModel @Inject internal constructor(
                 return selectedTripGroupRepository.getSelectedTripGroup().map { listOf(it) }
                     .doOnNext { groups ->
                         args.tripId?.let { tripId ->
-                            groups.firstOrNull { it.trips?.any { it.id == tripId } == true }
+                            groups.firstOrNull { it.trips?.any { it.tripId == tripId } == true }
                                 ?.let { group ->
-                                    defaultTrip = group.trips?.firstOrNull { it.id == tripId }
+                                    defaultTrip = group.trips?.firstOrNull { it.tripId == tripId }
                                 }
                         }
                         tripGroups.accept(groups)
@@ -139,9 +139,9 @@ class TripResultPagerViewModel @Inject internal constructor(
                         .flatMapLatest { waypoints ->
                             waypointsRepository.getTripGroup(waypoints)
                         }.onEach {
-                            it?.trips?.firstOrNull { trip -> trip.uuid() == args.favoriteTripId }
+                            it?.trips?.firstOrNull { trip -> trip.uuid == args.favoriteTripId }
                                 ?.let { trip ->
-                                    it.displayTripId = trip.id
+                                    it.displayTripId = trip.tripId
                                 }
                             it?.let { group -> setInitialSelectedTripGroupId(group.uuid()) }
                         }.map {

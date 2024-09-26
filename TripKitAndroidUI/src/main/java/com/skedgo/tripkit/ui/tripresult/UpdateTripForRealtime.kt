@@ -36,7 +36,7 @@ open class UpdateTripForRealtime @Inject internal constructor(
             .subscribe({
                 tripGroupRepository.updateTrip(
                     it.second.uuid(),
-                    it.second.displayTrip?.uuid() ?: "",
+                    it.second.displayTrip?.uuid.orEmpty(),
                     it.first
                 )
                     .subscribe({}, errorLogger::trackError)
@@ -55,7 +55,7 @@ open class UpdateTripForRealtime @Inject internal constructor(
             .subscribe({
                 tripGroupRepository.updateTrip(
                     it.second.uuid(),
-                    it.second.displayTrip?.uuid() ?: "",
+                    it.second.displayTrip?.uuid.orEmpty(),
                     it.first
                 )
                     .subscribe({}, errorLogger::trackError)

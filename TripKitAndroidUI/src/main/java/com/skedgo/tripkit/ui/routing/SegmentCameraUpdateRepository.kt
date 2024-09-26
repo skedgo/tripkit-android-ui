@@ -15,7 +15,7 @@ open class SegmentCameraUpdateRepository(
         segmentRelay
             .switchMap { segment ->
                 getSelectedTrip.execute()
-                    .map { it.segments }
+                    .map { it.segmentList }
                     .filter { it.contains(segment) }
                     .map { Pair(it as List<TripSegment>, segment) }
             }

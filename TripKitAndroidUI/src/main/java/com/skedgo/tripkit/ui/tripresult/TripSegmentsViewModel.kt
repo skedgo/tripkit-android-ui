@@ -73,6 +73,7 @@ import me.tatarka.bindingcollectionadapter2.itembindings.OnItemBindClass
 import org.joda.time.DateTime
 import timber.log.Timber
 import java.util.Collections.emptyList
+import java.util.TimeZone
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Provider
@@ -166,8 +167,8 @@ class TripSegmentsViewModel @Inject internal constructor(
         get() {
             val value = tripGroupRelay.value
             val displayTrip = value?.displayTrip
-            val timeZone = displayTrip!!.from.dateTimeZone
-            return timeZone.toTimeZone().id
+            val timeZone = displayTrip!!.from?.dateTimeZone
+            return timeZone?.toTimeZone()?.id ?: TimeZone.getDefault().id
         }
 
     var tripGroup: TripGroup
@@ -274,14 +275,14 @@ class TripSegmentsViewModel @Inject internal constructor(
     }
 
     private fun setTitleAndSubtitle(tripGroup: TripGroup, tripId: Long) {
-        val trip = tripGroup.trips?.firstOrNull { it.id == tripId } ?: tripGroup.displayTrip
+        val trip = tripGroup.trips?.firstOrNull { it.tripId == tripId } ?: tripGroup.displayTrip
         if (trip == null || trip.from == null || trip.to == null) return
-        if (trip.isDepartureTimeFixed) {
+        if (trip.isDepartureTimeFixed()) {
             durationTitle.set("${printTime.print(trip.startDateTime)} - ${printTime.print(trip.endDateTime)}")
             arriveAtTitle.set(formatDuration(context, trip.startTimeInSecs, trip.endTimeInSecs))
         } else {
             durationTitle.set(formatDuration(context, trip.startTimeInSecs, trip.endTimeInSecs))
-            if (!trip.queryIsLeaveAfter()) {
+            if (!trip.queryIsLeaveAfter) {
                 arriveAtTitle.set(
                     context.resources.getString(
                         R.string.departs__pattern,
@@ -298,7 +299,7 @@ class TripSegmentsViewModel @Inject internal constructor(
             }
         }
 
-        isHideExactTimes.set(trip.isHideExactTimes || trip.segments.any { it.isHideExactTimes })
+        isHideExactTimes.set(trip.hideExactTimes || trip.segmentList.any { it.isHideExactTimes })
     }
     // TODO This function is duplicated in TripResultViewModel
     /**
@@ -534,10 +535,10 @@ class TripSegmentsViewModel @Inject internal constructor(
     private fun setTripGroup(tripGroup: TripGroup, tripId: Long, savedInstanceState: Bundle?) {
         tripGroupRelay.accept(tripGroup)
         val newItems = ArrayList<Any>()
-        val trip = tripGroup.trips?.firstOrNull { it.id == tripId } ?: tripGroup.displayTrip
+        val trip = tripGroup.trips?.firstOrNull { it.tripId == tripId } ?: tripGroup.displayTrip
         if (trip != null) {
             this.trip = trip
-            val tripSegments = trip.segments
+            val tripSegments = trip.segmentList
             segmentViewModels.clear()
 
             _mapTiles.postValue(tripSegments.firstOrNull { it.mapTiles != null }?.mapTiles)
@@ -653,7 +654,7 @@ class TripSegmentsViewModel @Inject internal constructor(
         trip: Trip
     ): TripSegmentGetOffAlertsViewModel? {
         try {
-            val isOn = GetOffAlertCache.isTripAlertStateOn(trip.tripUuid)
+            val isOn = GetOffAlertCache.isTripAlertStateOn(trip.getTripUuid())
 
             val getOffAlertsViewModel =
                 TripSegmentGetOffAlertsViewModel(trip, isOn, tripUpdater, remindersRepository)
@@ -665,10 +666,10 @@ class TripSegmentsViewModel @Inject internal constructor(
                 _updatedState.postValue(Unit)
             }
             val messageTypes =
-                trip.segments.flatMap { it.geofences.orEmpty() }.map { it.messageType }
+                trip.segmentList.flatMap { it.geofences.orEmpty() }.map { it.messageType }
 
             val startSegmentStartTimeInSecs =
-                trip.segments?.minByOrNull { it.startTimeInSecs }?.startTimeInSecs ?: 0
+                trip.segmentList?.minByOrNull { it.startTimeInSecs }?.startTimeInSecs ?: 0
 
             val reminderInMinutes =
                 runBlocking { remindersRepository.getTripNotificationReminderMinutes() }
@@ -676,7 +677,7 @@ class TripSegmentsViewModel @Inject internal constructor(
             val reminder = TimeUnit.MINUTES.toSeconds(reminderInMinutes)
 
             val currentDateTimeInSeconds = TimeUnit.MILLISECONDS.toSeconds(
-                DateTime(System.currentTimeMillis(), trip.from.dateTimeZone).millis
+                DateTime(System.currentTimeMillis(), trip.from?.dateTimeZone).millis
             )
 
             val isAboutToStart = if (startSegmentStartTimeInSecs > currentDateTimeInSeconds) {

@@ -6,7 +6,7 @@ import com.skedgo.tripkit.routing.TripSegment
 import com.skedgo.tripkit.ui.favorites.waypoints.Waypoint
 
 fun Trip.toWaypoints(): List<Waypoint> {
-    val waypoints = segments
+    val waypoints = segmentList
         .filter {
             listOf(
                 SegmentType.STATIONARY,
@@ -28,7 +28,7 @@ fun Trip.toWaypoints(): List<Waypoint> {
             )
         }
     return waypoints.plus(
-        segments.last().let { Waypoint(it.to.lat, it.to.lon, null, null) }
+        segmentList.last().let { Waypoint(it.to.lat, it.to.lon, null, null) }
     )
 }
 

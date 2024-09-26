@@ -47,7 +47,7 @@ open class ActionButtonHandler {
     var queryToLocation: Location? = null
 
     protected fun segmentSearch(trip: Trip): TripSegment? {
-        return trip.segments.find {
+        return trip.segmentList.find {
             val itemType = it.correctItemType()
             (itemType == ITEM_QUICK_BOOKING || itemType == ITEM_EXTERNAL_BOOKING)
         }

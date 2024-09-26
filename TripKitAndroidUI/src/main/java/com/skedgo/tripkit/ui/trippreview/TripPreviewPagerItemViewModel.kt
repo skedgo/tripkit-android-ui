@@ -154,7 +154,7 @@ open class TripPreviewPagerItemViewModel : RxViewModel() {
                 val date = queryDateTime.toString(DateTimeFormat.forPattern("MMM d, yyyy"))
                 val time = queryDateTime.toString(DateTimeFormat.forPattern("h:mm aa"))
                 val label = String.format(context.getString(R.string.requested_time), date, time)
-                if (segment.trip.queryIsLeaveAfter()) {
+                if (segment.trip.queryIsLeaveAfter) {
                     requestedPickUp.set(label)
                 } else {
                     requestedDropOff.set(label)
@@ -204,7 +204,7 @@ open class TripPreviewPagerItemViewModel : RxViewModel() {
     private fun getPickUpWindowMessage(trip: Trip, region: Region?) {
         val dateTime = trip.startDateTime
 
-        val timeZone: String? = region?.timezone ?: trip.segments.first().timeZone
+        val timeZone: String? = region?.timezone ?: trip.segmentList.first().timeZone
 
         val date = dateTime.toString(
             DateTimeFormat.forPattern("MMM d, yyyy")

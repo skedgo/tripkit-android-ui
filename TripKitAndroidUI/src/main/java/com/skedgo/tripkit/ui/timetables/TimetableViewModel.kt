@@ -401,7 +401,7 @@ class TimetableViewModel @Inject constructor(
         val waypoints = mutableListOf<Waypoint>()
         var segmentToShowIndex = 0
 
-        tripSegment?.trip?.segments?.filter {
+        tripSegment?.trip?.segmentList?.filter {
             !it.isContinuation && !it.isStationary
         }?.mapIndexed { index, segment ->
             if (segment == tripSegment) {
@@ -453,7 +453,7 @@ class TimetableViewModel @Inject constructor(
             val trip = tripGroup.displayTrip ?: tripGroup.trips?.first()
             if (trip != null) {
                 _showTimetableEntry.postValue(
-                    ShowTimetableEntry(tripGroup, trip, trip.segments[segmentToShowIndex])
+                    ShowTimetableEntry(tripGroup, trip, trip.segmentList[segmentToShowIndex])
                 )
             }
         }

@@ -368,9 +368,9 @@ class TripResultListViewModel @Inject constructor(
         tripFlow.onEach {
             val clickEvent = ViewTrip(
                 query = this.query,
-                tripGroupUUID = it.group.uuid(),
+                tripGroupUUID = it.group?.uuid().orEmpty(),
                 sortOrder = 1, /* TODO Proper sorting */
-                displayTripID = it.id
+                displayTripID = it.tripId
             )
             onItemClicked.accept(clickEvent)
         }.launchIn(viewModelScope)

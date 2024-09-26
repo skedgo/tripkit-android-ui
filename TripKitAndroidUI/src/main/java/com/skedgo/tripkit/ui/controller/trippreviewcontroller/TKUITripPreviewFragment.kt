@@ -27,7 +27,6 @@ import com.skedgo.tripkit.ui.timetables.TimetableFragment
 import com.skedgo.tripkit.ui.trippreview.Action
 import com.skedgo.tripkit.ui.trippreview.TripPreviewPagerListener
 import com.skedgo.tripkit.ui.trippreview.TripPreviewPagerViewModel
-import com.skedgo.tripkit.ui.trippreview.segment.TripSegmentSummary
 import com.skedgo.tripkit.ui.trippreview.segment.TripSegmentsSummaryData
 import com.skedgo.tripkit.ui.tripresults.GetTransportIconTintStrategy
 import com.skedgo.tripkit.ui.utils.ITEM_SERVICE
@@ -105,7 +104,7 @@ class TKUITripPreviewFragment : BaseFragment<FragmentTkuiTripPreviewBinding>() {
 
             observe(tripGroupFromPolling) {
                 it?.let { tripGroup ->
-                    val trip = tripGroup.trips?.find { trip -> trip.uuid() == tripId }
+                    val trip = tripGroup.trips?.find { trip -> trip.uuid == tripId }
                     trip?.let { latestTrip = trip }
                 }
             }
@@ -127,7 +126,7 @@ class TKUITripPreviewFragment : BaseFragment<FragmentTkuiTripPreviewBinding>() {
     private fun generateTripList(tripGroup: TripGroup) {
         if (fromReload) return
 
-        val trip = tripGroup.trips?.find { it.uuid() == tripId }
+        val trip = tripGroup.trips?.find { it.uuid == tripId }
         trip?.let {
             latestTrip = trip
             val list = ArrayList<TripGroup>()
@@ -143,7 +142,7 @@ class TKUITripPreviewFragment : BaseFragment<FragmentTkuiTripPreviewBinding>() {
             var activeIndex =
                 adapter.setTripSegments(
                     tripSegmentHashCode,
-                    trip.segments
+                    trip.segmentList
                         .filter {
                             !it.isContinuation
                         }
@@ -300,7 +299,7 @@ class TKUITripPreviewFragment : BaseFragment<FragmentTkuiTripPreviewBinding>() {
 
     fun setTripSegment(segment: TripSegment, tripSegments: List<TripSegment>) {
         fromReload = true
-        tripPreviewPagerListener?.reportPlannedTrip(segment.trip, listOf(segment.trip.group))
+        tripPreviewPagerListener?.reportPlannedTrip(segment.trip, listOf(segment.trip.group).filterNotNull())
 
         adapter.setTripSegments(
             segment.id,
@@ -318,7 +317,7 @@ class TKUITripPreviewFragment : BaseFragment<FragmentTkuiTripPreviewBinding>() {
             getTransportIconTintStrategy,
         )
 
-        viewModel.updateTrip(segment.trip.group.uuid(), segment.trip.uuid(), segment.trip)
+        viewModel.updateTrip(segment.trip.group?.uuid().orEmpty(), segment.trip.uuid, segment.trip)
     }
 
     fun updateTripSegment(tripSegments: List<TripSegment>) {

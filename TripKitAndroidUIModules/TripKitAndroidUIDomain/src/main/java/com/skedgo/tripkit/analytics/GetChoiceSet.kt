@@ -31,8 +31,8 @@ open class GetChoiceSet @Inject constructor() {
                 trip.carbonCost,
                 trip.hassleCost,
                 trip.caloriesCost,
-                getMiniSegments(trip.segments),
-                trip.uuid() == selectedTrip.uuid(),
+                getMiniSegments(trip.segmentList),
+                trip.uuid == selectedTrip.uuid,
                 it.second.value,
                 trip.endTimeInSecs,
                 trip.startTimeInSecs
