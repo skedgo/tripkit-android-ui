@@ -5,7 +5,7 @@ import android.database.Cursor
 import android.text.TextUtils
 import androidx.loader.content.CursorLoader
 import androidx.loader.content.Loader
-import com.skedgo.tripkit.common.model.ScheduledStop
+import com.skedgo.tripkit.common.model.stop.ScheduledStop
 import com.skedgo.tripkit.data.database.DbFields
 import com.skedgo.tripkit.ui.provider.TimetableProvider
 

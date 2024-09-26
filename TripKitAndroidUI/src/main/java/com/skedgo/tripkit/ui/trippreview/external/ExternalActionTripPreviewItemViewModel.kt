@@ -3,7 +3,7 @@ package com.skedgo.tripkit.ui.trippreview.external
 import android.content.Context
 import android.webkit.URLUtil
 import androidx.databinding.ObservableArrayList
-import com.skedgo.tripkit.common.model.Booking
+import com.skedgo.tripkit.common.model.booking.Booking
 import com.skedgo.tripkit.routing.TripSegment
 import com.skedgo.tripkit.ui.trippreview.TripPreviewPagerItemViewModel
 import me.tatarka.bindingcollectionadapter2.ItemBinding

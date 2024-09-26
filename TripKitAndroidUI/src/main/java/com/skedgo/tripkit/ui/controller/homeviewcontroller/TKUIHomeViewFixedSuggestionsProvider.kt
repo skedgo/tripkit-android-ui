@@ -2,8 +2,8 @@ package com.skedgo.tripkit.ui.controller.homeviewcontroller
 
 import android.content.Context
 import androidx.core.content.ContextCompat
-import com.skedgo.tripkit.common.model.Location
-import com.skedgo.tripkit.common.model.Region
+import com.skedgo.tripkit.common.model.location.Location
+import com.skedgo.tripkit.common.model.region.Region
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.search.DefaultFixedSuggestionType
 import com.skedgo.tripkit.ui.search.DefaultSearchSuggestion

@@ -10,7 +10,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.jakewharton.rxrelay2.PublishRelay
 import com.skedgo.tripkit.common.model.Query
-import com.skedgo.tripkit.common.model.TimeTag
+import com.skedgo.tripkit.common.model.time.TimeTag
 import com.skedgo.tripkit.RoutingError
 import com.skedgo.tripkit.TransportModeFilter
 import com.skedgo.tripkit.a2brouting.RouteService
@@ -201,7 +201,7 @@ class TripResultListViewModel @Inject constructor(
             .observeOn(AndroidSchedulers.mainThread())
             .flatMapIterable { value -> value }
             .filter {
-                transportModeFilter!!.useTransportMode(it.id)
+                transportModeFilter!!.useTransportMode(it.id.orEmpty())
             }
             .map { mode ->
                 tripResultTransportItemViewModelProvider.get().apply {
@@ -447,7 +447,7 @@ class TripResultListViewModel @Inject constructor(
     fun updateQueryTime(timeTag: TimeTag) {
         val currentQuery = query
         query = currentQuery.clone(true)
-        query.setTimeTag(timeTag)
+        query.timeTag = timeTag
         setTimeLabel()
         reload()
     }

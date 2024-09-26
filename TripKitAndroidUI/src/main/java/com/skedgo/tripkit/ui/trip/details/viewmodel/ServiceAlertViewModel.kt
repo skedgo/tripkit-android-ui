@@ -6,7 +6,7 @@ import androidx.core.content.ContextCompat
 import androidx.databinding.ObservableBoolean
 import androidx.databinding.ObservableField
 import com.jakewharton.rxrelay2.PublishRelay
-import com.skedgo.tripkit.common.model.RealtimeAlert
+import com.skedgo.tripkit.common.model.realtimealert.RealtimeAlert
 import com.skedgo.tripkit.ui.R
 import io.reactivex.Observable
 import javax.inject.Inject

@@ -2,7 +2,7 @@ package com.skedgo.tripkit.ui.trip.details.viewmodel;
 
 import android.os.Bundle;
 
-import com.skedgo.tripkit.common.model.TimeTag;
+import com.skedgo.tripkit.common.model.time.TimeTag;
 
 import java.util.Date;
 import java.util.GregorianCalendar;

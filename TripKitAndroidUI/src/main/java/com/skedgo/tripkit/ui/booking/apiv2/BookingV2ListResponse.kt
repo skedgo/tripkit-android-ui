@@ -3,11 +3,11 @@ package com.skedgo.tripkit.ui.booking.apiv2
 import androidx.annotation.StringDef
 import com.google.gson.annotations.SerializedName
 import com.skedgo.tripkit.booking.quickbooking.Fare
-import com.skedgo.tripkit.common.model.BookingConfirmationAction
-import com.skedgo.tripkit.common.model.BookingConfirmationNotes
-import com.skedgo.tripkit.common.model.BookingConfirmationStatusValue
-import com.skedgo.tripkit.common.model.BookingConfirmationStatusValue.Companion.isStatus
-import com.skedgo.tripkit.common.model.BookingConfirmationStatusValue.Companion.isStatusAccepted
+import com.skedgo.tripkit.common.model.booking.confirmation.BookingConfirmationAction
+import com.skedgo.tripkit.common.model.booking.confirmation.BookingConfirmationNotes
+import com.skedgo.tripkit.common.model.booking.confirmation.BookingConfirmationStatusValue
+import com.skedgo.tripkit.common.model.booking.confirmation.BookingConfirmationStatusValue.Companion.isStatus
+import com.skedgo.tripkit.common.model.booking.confirmation.BookingConfirmationStatusValue.Companion.isStatusAccepted
 import com.skedgo.tripkit.routing.ModeInfo
 import com.skedgo.tripkit.ui.R
 

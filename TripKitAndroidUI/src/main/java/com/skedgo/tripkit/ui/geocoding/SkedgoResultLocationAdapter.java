@@ -1,7 +1,7 @@
 package com.skedgo.tripkit.ui.geocoding;
 
 import com.skedgo.geocoding.agregator.GCSkedGoResultInterface;
-import com.skedgo.tripkit.common.model.Location;
+import com.skedgo.tripkit.common.model.location.Location;
 import com.skedgo.tripkit.ui.data.places.Place;
 
 import java.util.List;

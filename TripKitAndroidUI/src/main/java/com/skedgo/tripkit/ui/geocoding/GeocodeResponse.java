@@ -1,7 +1,7 @@
 package com.skedgo.tripkit.ui.geocoding;
 
 import com.google.gson.annotations.SerializedName;
-import com.skedgo.tripkit.common.model.Location;
+import com.skedgo.tripkit.common.model.location.Location;
 
 import java.util.List;
 

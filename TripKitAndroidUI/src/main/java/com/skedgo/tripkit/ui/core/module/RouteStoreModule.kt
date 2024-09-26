@@ -6,8 +6,8 @@ import com.skedgo.routepersistence.LocationTypeAdapterFactory
 import com.skedgo.routepersistence.RouteDatabaseHelper
 import com.skedgo.routepersistence.RouteStore
 import com.skedgo.routepersistence.RoutingStatusStore
-import com.skedgo.tripkit.common.model.GsonAdaptersBooking
-import com.skedgo.tripkit.common.model.GsonAdaptersRealtimeAlert
+import com.skedgo.tripkit.common.model.booking.GsonAdaptersBooking
+import com.skedgo.tripkit.common.model.realtimealert.GsonAdaptersRealtimeAlert
 import com.skedgo.tripkit.common.util.LowercaseEnumTypeAdapterFactory
 import com.skedgo.tripkit.data.routingstatus.RoutingStatusRepositoryImpl
 import com.skedgo.tripkit.routingstatus.RoutingStatusRepository

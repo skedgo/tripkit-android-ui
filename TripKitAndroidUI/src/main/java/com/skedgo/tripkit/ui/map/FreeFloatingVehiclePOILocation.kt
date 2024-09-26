@@ -3,7 +3,7 @@ package com.skedgo.tripkit.ui.map
 import android.content.Context
 import android.content.res.Resources
 import com.google.android.gms.maps.model.MarkerOptions
-import com.skedgo.tripkit.common.model.Location
+import com.skedgo.tripkit.common.model.location.Location
 import com.skedgo.tripkit.data.database.locations.freefloating.FreeFloatingLocationEntity
 import com.skedgo.tripkit.ui.map.adapter.FreeFloatingVehicleInfoWindowAdapter
 import com.skedgo.tripkit.ui.map.adapter.StopInfoWindowAdapter

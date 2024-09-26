@@ -1,7 +1,7 @@
 package com.skedgo.tripkit.ui.data.realtime
 
 import com.jakewharton.rxrelay2.PublishRelay
-import com.skedgo.tripkit.common.model.RealtimeAlert
+import com.skedgo.tripkit.common.model.realtimealert.RealtimeAlert
 import com.skedgo.tripkit.ui.realtime.RealtimeAlertRepository
 import io.reactivex.Observable
 import javax.inject.Inject

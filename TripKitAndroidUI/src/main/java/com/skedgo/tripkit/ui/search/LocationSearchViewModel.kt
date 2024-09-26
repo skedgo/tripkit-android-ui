@@ -12,9 +12,9 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
 import com.jakewharton.rxrelay2.PublishRelay
 import com.skedgo.tripkit.analytics.SearchResultItemSource
-import com.skedgo.tripkit.common.model.LOCATION_CLASS_SCHOOL
-import com.skedgo.tripkit.common.model.Location
-import com.skedgo.tripkit.common.model.Region
+import com.skedgo.tripkit.common.model.location.LOCATION_CLASS_SCHOOL
+import com.skedgo.tripkit.common.model.location.Location
+import com.skedgo.tripkit.common.model.region.Region
 import com.skedgo.tripkit.data.regions.RegionService
 import com.skedgo.tripkit.logging.ErrorLogger
 import com.skedgo.tripkit.ui.BR
@@ -501,7 +501,10 @@ class LocationSearchViewModel @Inject constructor(
 
     fun loadCity() {
         val center = this.center
-        val location = Location(center.latitude, center.longitude)
+        val location = Location(
+            center.latitude,
+            center.longitude
+        )
         regionService.getRegionByLocationAsync(location)
             .flatMap<Region.City> { region ->
                 val cities = region.cities
@@ -544,7 +547,8 @@ class LocationSearchViewModel @Inject constructor(
         is Place.WithoutLocation -> placeSearchRepository
             .getPlaceDetails(place.prediction.placeId)
             .map { (name: String, lat: Double, lng: Double, address: String) ->
-                val location = Location(lat, lng)
+                val location =
+                    Location(lat, lng)
                 location.address = address
                 location.name = name
                 location.source = Location.GOOGLE

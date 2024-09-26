@@ -3,7 +3,7 @@ package com.skedgo.tripkit.ui.map;
 import android.content.res.Resources;
 
 import com.google.android.gms.maps.model.Marker;
-import com.skedgo.tripkit.common.model.RealtimeAlert;
+import com.skedgo.tripkit.common.model.realtimealert.RealtimeAlert;
 import com.skedgo.tripkit.configuration.ServerManager;
 import com.squareup.picasso.Picasso;
 

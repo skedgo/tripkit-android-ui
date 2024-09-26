@@ -1,6 +1,6 @@
 package com.skedgo.tripkit.ui.geocoding;
 
-import com.skedgo.tripkit.common.model.Region;
+import com.skedgo.tripkit.common.model.region.Region;
 import com.skedgo.tripkit.ui.TripKitUI;
 
 import java.util.List;

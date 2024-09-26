@@ -11,8 +11,8 @@ import androidx.databinding.DataBindingUtil
 import androidx.databinding.Observable
 import androidx.fragment.app.DialogFragment
 import com.jakewharton.rxrelay2.PublishRelay
-import com.skedgo.tripkit.common.model.Location
-import com.skedgo.tripkit.common.model.TimeTag
+import com.skedgo.tripkit.common.model.location.Location
+import com.skedgo.tripkit.common.model.time.TimeTag
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.TripKitUI
 import com.skedgo.tripkit.ui.databinding.DialogDateTimePickerBinding

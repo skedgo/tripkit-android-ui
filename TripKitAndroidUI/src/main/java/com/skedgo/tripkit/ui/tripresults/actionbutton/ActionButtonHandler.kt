@@ -3,7 +3,7 @@ package com.skedgo.tripkit.ui.tripresults.actionbutton
 import android.content.Context
 import androidx.annotation.DrawableRes
 import androidx.databinding.ObservableField
-import com.skedgo.tripkit.common.model.Location
+import com.skedgo.tripkit.common.model.location.Location
 import com.skedgo.tripkit.routing.Trip
 import com.skedgo.tripkit.routing.TripSegment
 import com.skedgo.tripkit.routing.getMainTripSegment

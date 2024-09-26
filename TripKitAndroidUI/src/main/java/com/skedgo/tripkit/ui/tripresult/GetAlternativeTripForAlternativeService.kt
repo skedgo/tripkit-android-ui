@@ -1,7 +1,7 @@
 package com.skedgo.tripkit.ui.tripresult
 
 import android.content.Context
-import com.skedgo.tripkit.common.model.Region
+import com.skedgo.tripkit.common.model.region.Region
 import com.skedgo.tripkit.data.regions.RegionService
 import com.skedgo.tripkit.ui.model.TimetableEntry
 import com.skedgo.tripkit.ui.routingresults.TripGroupRepository

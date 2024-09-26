@@ -15,7 +15,7 @@ import androidx.core.content.ContextCompat
 import androidx.databinding.ObservableBoolean
 import androidx.databinding.ObservableField
 import com.google.android.gms.common.util.CollectionUtils
-import com.skedgo.tripkit.common.model.RealtimeAlert
+import com.skedgo.tripkit.common.model.realtimealert.RealtimeAlert
 import com.skedgo.tripkit.common.model.TransportMode
 import com.skedgo.tripkit.common.util.TimeUtils
 import com.skedgo.tripkit.common.util.TransportModeUtils

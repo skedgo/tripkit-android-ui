@@ -7,10 +7,10 @@ import android.util.SparseArray;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.google.maps.android.PolyUtil;
-import com.skedgo.tripkit.common.model.Location;
-import com.skedgo.tripkit.common.model.RealTimeStatus;
-import com.skedgo.tripkit.common.model.ScheduledStop;
-import com.skedgo.tripkit.common.model.ServiceStop;
+import com.skedgo.tripkit.common.model.location.Location;
+import com.skedgo.tripkit.common.model.realtimealert.RealTimeStatus;
+import com.skedgo.tripkit.common.model.stop.ScheduledStop;
+import com.skedgo.tripkit.common.model.stop.ServiceStop;
 import com.skedgo.tripkit.ui.model.StopInfo;
 import com.skedgo.tripkit.ui.utils.ServiceLineOverlayTask;
 

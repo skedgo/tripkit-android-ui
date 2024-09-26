@@ -4,8 +4,8 @@ import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentStatePagerAdapter
-import com.skedgo.tripkit.common.model.ScheduledStop
-import com.skedgo.tripkit.common.model.StopType
+import com.skedgo.tripkit.common.model.stop.ScheduledStop
+import com.skedgo.tripkit.common.model.stop.StopType
 import com.skedgo.tripkit.routing.TripSegment
 import com.skedgo.tripkit.ui.payment.PaymentData
 import com.skedgo.tripkit.ui.timetables.TimetableFragment
@@ -96,13 +96,14 @@ class TripPreviewPagerAdapter(fragmentManager: FragmentManager) :
             }
 
             ITEM_TIMETABLE -> {
-                val scheduledStop = ScheduledStop(page.tripSegment.to)
+                val scheduledStop =
+                    ScheduledStop(page.tripSegment.to)
                 scheduledStop.code = page.tripSegment.startStopCode
                 scheduledStop.endStopCode = page.tripSegment.endStopCode
                 scheduledStop.modeInfo = page.tripSegment.modeInfo
 
 
-                scheduledStop.type = StopType.from(page.tripSegment.modeInfo?.localIconName)
+                scheduledStop.type = StopType.from(page.tripSegment.modeInfo?.localIconName.orEmpty())
                 val timetableFragment = TimetableFragment.Builder()
                     .withStop(scheduledStop)
                     .withBookingAction(page.tripSegment.booking?.externalActions)

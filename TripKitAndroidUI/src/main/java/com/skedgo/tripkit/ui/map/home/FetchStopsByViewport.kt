@@ -1,6 +1,6 @@
 package com.skedgo.tripkit.ui.map.home
 
-import com.skedgo.tripkit.common.model.Region
+import com.skedgo.tripkit.common.model.region.Region
 import com.skedgo.tripkit.data.locations.StopsFetcher
 import com.skedgo.tripkit.data.regions.RegionService
 import com.skedgo.tripkit.ui.utils.ignoreNetworkErrors

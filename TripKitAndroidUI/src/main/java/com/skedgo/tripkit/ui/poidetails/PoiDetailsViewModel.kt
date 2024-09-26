@@ -7,8 +7,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.skedgo.TripKit
 import com.skedgo.tripkit.LocationInfoService
-import com.skedgo.tripkit.common.model.Location
-import com.skedgo.tripkit.common.model.PoiLocation
+import com.skedgo.tripkit.common.model.location.Location
+import com.skedgo.tripkit.common.model.location.PoiLocation
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.core.RxViewModel
 import com.skedgo.tripkit.ui.data.places.PlaceSearchRepository

@@ -2,7 +2,7 @@ package com.skedgo.tripkit.ui.controller.routeviewcontroller
 
 import androidx.lifecycle.MutableLiveData
 import com.jakewharton.rxrelay2.PublishRelay
-import com.skedgo.tripkit.common.model.Location
+import com.skedgo.tripkit.common.model.location.Location
 import com.skedgo.tripkit.ui.core.RxViewModel
 
 

@@ -8,8 +8,8 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.reflect.TypeToken;
-import com.skedgo.tripkit.common.model.Location;
-import com.skedgo.tripkit.common.model.ScheduledStop;
+import com.skedgo.tripkit.common.model.location.Location;
+import com.skedgo.tripkit.common.model.stop.ScheduledStop;
 import com.skedgo.tripkit.common.util.ListUtils;
 
 import java.lang.reflect.Type;

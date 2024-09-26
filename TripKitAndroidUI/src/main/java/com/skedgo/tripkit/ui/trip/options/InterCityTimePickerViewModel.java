@@ -5,7 +5,7 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.text.format.DateFormat;
 
-import com.skedgo.tripkit.common.model.TimeTag;
+import com.skedgo.tripkit.common.model.time.TimeTag;
 import com.skedgo.tripkit.time.GetNow;
 import com.skedgo.tripkit.ui.R;
 import com.skedgo.tripkit.ui.trip.details.viewmodel.ITimePickerViewModel;

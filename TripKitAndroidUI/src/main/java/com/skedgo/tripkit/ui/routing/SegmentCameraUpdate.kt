@@ -1,6 +1,6 @@
 package com.skedgo.tripkit.ui.routing
 
-import com.skedgo.tripkit.common.model.Location
+import com.skedgo.tripkit.common.model.location.Location
 
 sealed class SegmentCameraUpdate {
     abstract fun tripSegmentId(): Long

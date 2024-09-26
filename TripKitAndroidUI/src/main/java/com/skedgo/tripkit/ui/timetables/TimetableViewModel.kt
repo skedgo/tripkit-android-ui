@@ -10,9 +10,9 @@ import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.DiffUtil
 import com.jakewharton.rxrelay2.BehaviorRelay
 import com.jakewharton.rxrelay2.PublishRelay
-import com.skedgo.tripkit.common.model.RealtimeAlert
-import com.skedgo.tripkit.common.model.Region
-import com.skedgo.tripkit.common.model.ScheduledStop
+import com.skedgo.tripkit.common.model.realtimealert.RealtimeAlert
+import com.skedgo.tripkit.common.model.region.Region
+import com.skedgo.tripkit.common.model.stop.ScheduledStop
 import com.skedgo.tripkit.data.regions.RegionService
 import com.skedgo.tripkit.routing.Trip
 import com.skedgo.tripkit.routing.TripGroup

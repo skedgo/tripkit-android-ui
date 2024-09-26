@@ -1,8 +1,8 @@
 package com.skedgo.tripkit.ui.timetables
 
 import android.content.Context
-import com.skedgo.tripkit.common.model.Region
-import com.skedgo.tripkit.common.model.ScheduledStop
+import com.skedgo.tripkit.common.model.region.Region
+import com.skedgo.tripkit.common.model.stop.ScheduledStop
 import com.skedgo.tripkit.data.database.timetables.ServiceAlertMapper
 import com.skedgo.tripkit.data.database.timetables.ServiceAlertsDao
 import com.skedgo.tripkit.ui.model.DeparturesResponse

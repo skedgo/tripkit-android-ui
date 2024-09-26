@@ -9,7 +9,7 @@ import androidx.core.content.ContextCompat
 import androidx.databinding.ObservableBoolean
 import androidx.databinding.ObservableField
 import com.jakewharton.rxrelay2.PublishRelay
-import com.skedgo.tripkit.common.model.Region
+import com.skedgo.tripkit.common.model.region.Region
 import com.skedgo.tripkit.common.model.TransportMode
 import com.skedgo.tripkit.common.util.TransportModeUtils
 import com.skedgo.tripkit.common.util.TripSegmentUtils
@@ -31,7 +31,6 @@ import org.joda.time.DateTimeZone
 import org.joda.time.format.DateTimeFormat
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
-import javax.inject.Inject
 
 open class TripPreviewPagerItemViewModel : RxViewModel() {
     var title = ObservableField<String>()

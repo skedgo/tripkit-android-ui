@@ -8,8 +8,8 @@ import android.util.Pair
 import android.util.SparseArray
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.PolyUtil
-import com.skedgo.tripkit.common.model.Location
-import com.skedgo.tripkit.common.model.ScheduledStop
+import com.skedgo.tripkit.common.model.location.Location
+import com.skedgo.tripkit.common.model.stop.ScheduledStop
 import com.skedgo.tripkit.common.util.TimeUtils
 import com.skedgo.tripkit.data.database.DbFields
 import com.skedgo.tripkit.ui.TripKitUI

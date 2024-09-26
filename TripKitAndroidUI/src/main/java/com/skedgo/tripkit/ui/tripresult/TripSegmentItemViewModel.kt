@@ -21,7 +21,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.jakewharton.rxrelay2.BehaviorRelay
 import com.skedgo.tripkit.common.model.ImmutableStreet
-import com.skedgo.tripkit.common.model.RealtimeAlert
+import com.skedgo.tripkit.common.model.realtimealert.RealtimeAlert
 import com.skedgo.tripkit.common.model.TransportMode
 import com.skedgo.tripkit.datetime.PrintTime
 import com.skedgo.tripkit.routing.RemoteIcon

@@ -4,7 +4,7 @@ import com.gojuno.koptional.None
 import com.gojuno.koptional.Some
 import com.google.android.gms.maps.CameraUpdate
 import com.jakewharton.rxrelay2.BehaviorRelay
-import com.skedgo.tripkit.common.model.RealtimeAlert
+import com.skedgo.tripkit.common.model.realtimealert.RealtimeAlert
 import com.skedgo.tripkit.datetime.PrintTime
 import com.skedgo.tripkit.routing.Trip
 import com.skedgo.tripkit.routing.TripSegment

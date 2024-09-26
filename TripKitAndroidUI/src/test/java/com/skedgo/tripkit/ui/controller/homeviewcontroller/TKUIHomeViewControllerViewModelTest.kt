@@ -6,7 +6,7 @@ import androidx.lifecycle.Observer
 import com.skedgo.rxtry.Failure
 import com.skedgo.rxtry.Success
 import com.skedgo.rxtry.Try
-import com.skedgo.tripkit.common.model.Location
+import com.skedgo.tripkit.common.model.location.Location
 import com.skedgo.tripkit.location.GeoPoint
 import com.skedgo.tripkit.location.UserGeoPointRepository
 import com.skedgo.tripkit.ui.R
@@ -156,7 +156,8 @@ class TKUIHomeViewControllerViewModelTest : MockKTest() {
 
     @Test
     fun `handleFixedSuggestionAction HOME publishes OnLocationChosen event with home location`() {
-        val homeLocation = Location(1.0, 2.0)
+        val homeLocation =
+            Location(1.0, 2.0)
         every { ControllerDataProvider.getFavoritesHome() } returns homeLocation
 
         // Call the function with HOME
@@ -175,7 +176,8 @@ class TKUIHomeViewControllerViewModelTest : MockKTest() {
 
     @Test
     fun `handleFixedSuggestionAction WORK publishes OnLocationChosen event with work location`() {
-        val workLocation = Location(1.0, 2.0)
+        val workLocation =
+            Location(1.0, 2.0)
         every { ControllerDataProvider.getFavoritesWork() } returns workLocation
 
         // Call the function with WORK

@@ -19,8 +19,8 @@ import com.jakewharton.rxrelay2.PublishRelay
 import com.skedgo.tripkit.TripUpdater
 import com.skedgo.tripkit.booking.BookingForm
 import com.skedgo.tripkit.booking.quickbooking.QuickBookingRepository
-import com.skedgo.tripkit.common.model.Location
-import com.skedgo.tripkit.common.model.RealtimeAlert
+import com.skedgo.tripkit.common.model.location.Location
+import com.skedgo.tripkit.common.model.realtimealert.RealtimeAlert
 import com.skedgo.tripkit.common.util.TimeUtils
 import com.skedgo.tripkit.datetime.PrintTime
 import com.skedgo.tripkit.routing.GetOffAlertCache

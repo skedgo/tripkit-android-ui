@@ -3,9 +3,9 @@ package com.skedgo.tripkit.ui.controller.tripresultcontroller
 import android.content.Context
 import android.os.Bundle
 import android.view.View
-import com.skedgo.tripkit.common.model.Location
+import com.skedgo.tripkit.common.model.location.Location
 import com.skedgo.tripkit.common.model.Query
-import com.skedgo.tripkit.common.model.TimeTag
+import com.skedgo.tripkit.common.model.time.TimeTag
 import com.skedgo.tripkit.model.ViewTrip
 import com.skedgo.tripkit.routing.TripGroup
 import com.skedgo.tripkit.ui.R
@@ -94,7 +94,7 @@ class TKUITripResultsFragment : BaseFragment<FragmentTkuiTripResultsBinding>() {
                 hassleWeight = config.weightingProfile.conveniencePriority.value
                 budgetWeight = config.weightingProfile.budgetPriority.value
                 timeWeight = config.weightingProfile.timePriority.value
-                setTimeTag(TimeTag.createForLeaveNow())
+                timeTag = TimeTag.createForLeaveNow()
             }
 
             tripResultsCardFragment = TripResultListFragment.Builder().withQuery(query)

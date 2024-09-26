@@ -4,7 +4,7 @@ import android.content.Context
 import android.content.res.Resources
 import android.view.LayoutInflater
 import com.google.android.gms.maps.model.MarkerOptions
-import com.skedgo.tripkit.common.model.Location
+import com.skedgo.tripkit.common.model.location.Location
 import com.skedgo.tripkit.locations.CarPod
 import com.skedgo.tripkit.ui.map.adapter.StopInfoWindowAdapter
 import com.skedgo.tripkit.ui.map.adapter.ViewableInfoWindowAdapter

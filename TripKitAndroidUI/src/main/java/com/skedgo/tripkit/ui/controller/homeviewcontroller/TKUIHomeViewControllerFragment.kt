@@ -25,8 +25,8 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.skedgo.geocoding.LatLng
 import com.skedgo.rxtry.Failure
 import com.skedgo.rxtry.Success
-import com.skedgo.tripkit.common.model.Location
-import com.skedgo.tripkit.common.model.ScheduledStop
+import com.skedgo.tripkit.common.model.location.Location
+import com.skedgo.tripkit.common.model.stop.ScheduledStop
 import com.skedgo.tripkit.model.ViewTrip
 import com.skedgo.tripkit.routing.Trip
 import com.skedgo.tripkit.routing.TripGroup

@@ -6,9 +6,9 @@ import com.gojuno.koptional.Optional
 import com.gojuno.koptional.Some
 import com.google.android.gms.maps.model.MarkerOptions
 import com.jakewharton.rxrelay2.BehaviorRelay
-import com.skedgo.tripkit.common.model.RealTimeStatus
-import com.skedgo.tripkit.common.model.Region
-import com.skedgo.tripkit.common.model.ScheduledStop
+import com.skedgo.tripkit.common.model.realtimealert.RealTimeStatus
+import com.skedgo.tripkit.common.model.region.Region
+import com.skedgo.tripkit.common.model.stop.ScheduledStop
 import com.skedgo.tripkit.data.regions.RegionService
 import com.skedgo.tripkit.routing.RealTimeVehicle
 import com.skedgo.tripkit.tripplanner.DiffTransformer

@@ -33,9 +33,9 @@ import com.google.maps.android.collections.MarkerManager
 import com.skedgo.tripkit.AndroidGeocoder
 import com.skedgo.tripkit.TripKitConstants.Companion.PREF_NAME_APP
 import com.skedgo.tripkit.account.data.Polygon
-import com.skedgo.tripkit.common.model.Location
-import com.skedgo.tripkit.common.model.Region
-import com.skedgo.tripkit.common.model.Region.City
+import com.skedgo.tripkit.common.model.location.Location
+import com.skedgo.tripkit.common.model.region.Region
+import com.skedgo.tripkit.common.model.region.Region.City
 import com.skedgo.tripkit.common.model.TransportMode
 import com.skedgo.tripkit.data.regions.RegionService
 import com.skedgo.tripkit.routing.ModeInfo
@@ -371,7 +371,10 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
                 .observeOn(AndroidSchedulers.mainThread())
                 .take(1)
                 .subscribe({
-                    val location = Location(latLng.latitude, latLng.longitude).apply {
+                    val location = Location(
+                        latLng.latitude,
+                        latLng.longitude
+                    ).apply {
                         address = it
                     }
                     if (pinForType == 0) {
