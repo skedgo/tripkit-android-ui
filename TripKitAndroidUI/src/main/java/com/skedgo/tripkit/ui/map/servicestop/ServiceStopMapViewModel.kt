@@ -133,7 +133,7 @@ class ServiceStopMapViewModel @Inject constructor(
         if (stop.code == service.stopCode || stop.children == null) {
             return stop
         }
-        for (child in stop.children) {
+        for (child in stop.children.orEmpty()) {
             if (child.code == service.stopCode) {
                 return child
             }

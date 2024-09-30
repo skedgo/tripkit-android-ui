@@ -215,8 +215,8 @@ class LocationSearchViewModel @Inject constructor(
                         initialSuggestions.forEach { item ->
                             if (item.location.locationClass != "SchoolLocation" && schoolItems.none { school ->
                                     LocationUtil.getRelevancePoint(
-                                        school.location.name,
-                                        item.location.name
+                                        school.location.displayName,
+                                        item.location.displayName
                                     ) > 0.7
                                 }) {
                                 uniqueItemsToAdd.add(item)
@@ -444,7 +444,7 @@ class LocationSearchViewModel @Inject constructor(
                 it.forEach { region ->
                     region.cities?.let { list ->
                         list.forEach { city ->
-                            if (city.name.contains(query, true)) {
+                            if (city.displayName.contains(query, true)) {
                                 newList.add(city)
                             }
                         }

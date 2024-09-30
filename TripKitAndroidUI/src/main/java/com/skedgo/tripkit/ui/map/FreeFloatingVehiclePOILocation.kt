@@ -31,11 +31,11 @@ class FreeFloatingVehiclePOILocation(
         location.podIdentifier = freeFloatingLocationEntity.identifier
         location.phoneNumber = freeFloatingLocationEntity.vehicle.operator.phone
         location.name = freeFloatingLocationEntity.vehicle.operator.name
-        location.address = freeFloatingLocationEntity.address
+        location.address = freeFloatingLocationEntity.address.orEmpty()
         location.url = freeFloatingLocationEntity.vehicle.operator.website
         location.locationType = Location.TYPE_E_BIKE
         location.appUrl = freeFloatingLocationEntity.vehicle.operator.appInfo?.appURLAndroid
-        location.isWithExternalApp =
+        location.withExternalApp =
             !freeFloatingLocationEntity.vehicle.operator.appInfo?.appURLAndroid.isNullOrEmpty()
         return location
     }

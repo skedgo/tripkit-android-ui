@@ -9,10 +9,10 @@ open class LocationHistoryMapper @Inject constructor() {
             .map {
                 LocationHistoryEntity(
                     name = it.name,
-                    address = it.address,
+                    address = it.displayAddress,
                     lat = it.lat,
                     lon = it.lon,
-                    exact = it.isExact,
+                    exact = it.exact,
                     bearing = it.bearing,
                     phone = it.phoneNumber ?: "",
                     url = it.url ?: "",
@@ -35,7 +35,7 @@ open class LocationHistoryMapper @Inject constructor() {
                     location.address = it.address
                     location.lat = it.lat
                     location.lon = it.lon
-                    location.isExact = it.exact
+                    location.exact = it.exact
                     location.bearing = it.bearing
                     location.phoneNumber = it.phone
                     location.url = it.url
