@@ -77,4 +77,6 @@
     <dimen name="trip_preview_service_item_margin_bottom">150dp</dimen>
 
     <dimen name="drt_ticket_action_icon_size">24dp</dimen>
+
+    <dimen name="button_size_normal">35dp</dimen>
 </resources>
