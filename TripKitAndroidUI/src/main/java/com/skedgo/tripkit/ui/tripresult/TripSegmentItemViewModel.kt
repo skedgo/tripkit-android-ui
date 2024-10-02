@@ -420,7 +420,7 @@ class TripSegmentItemViewModel @Inject internal constructor(
     }
 
     private fun showSegmentIcon(segment: TripSegment, tintWhite: Boolean) {
-        if (segment.type == SegmentType.ARRIVAL || segment.type == SegmentType.DEPARTURE) {
+        if (segment.getType() == SegmentType.ARRIVAL || segment.getType() == SegmentType.DEPARTURE) {
             icon.set(ContextCompat.getDrawable(context, R.drawable.v4_ic_map_location))
         } else {
             if (segment.modeInfo == null || segment.modeInfo!!.modeCompat == null) {

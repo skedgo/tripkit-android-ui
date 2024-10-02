@@ -115,7 +115,7 @@ class TKUITripPreviewFragment : BaseFragment<FragmentTkuiTripPreviewBinding>() {
                     if (currentPagerIndex > 0 && currentPagerIndex < adapter.pages.size) {
                         adapter.getSegmentByPosition(currentPagerIndex).let {
                             fromPageListener = true
-                            pageIndexStream?.onNext(Pair(it.id, it.transportModeId.toString()))
+                            pageIndexStream?.onNext(Pair(it.segmentId, it.transportModeId.toString()))
                         }
                     }
                 }
@@ -147,8 +147,8 @@ class TKUITripPreviewFragment : BaseFragment<FragmentTkuiTripPreviewBinding>() {
                             !it.isContinuation
                         }
                         .filter {
-                            it.type != SegmentType.DEPARTURE &&
-                                it.type != SegmentType.ARRIVAL
+                            it.getType() != SegmentType.DEPARTURE &&
+                                it.getType() != SegmentType.ARRIVAL
                         },
                     fromTripAction
                 )
@@ -276,7 +276,7 @@ class TKUITripPreviewFragment : BaseFragment<FragmentTkuiTripPreviewBinding>() {
                 currentPagerIndex = position
                 adapter.getSegmentByPosition(position).let {
                     fromPageListener = true
-                    pageIndexStream?.onNext(Pair(it.id, it.transportModeId.toString()))
+                    pageIndexStream?.onNext(Pair(it.segmentId, it.transportModeId.toString()))
 
                     /*
                     TripGoEventBus.publish(
@@ -299,25 +299,27 @@ class TKUITripPreviewFragment : BaseFragment<FragmentTkuiTripPreviewBinding>() {
 
     fun setTripSegment(segment: TripSegment, tripSegments: List<TripSegment>) {
         fromReload = true
-        tripPreviewPagerListener?.reportPlannedTrip(segment.trip, listOf(segment.trip.group).filterNotNull())
+        tripPreviewPagerListener?.reportPlannedTrip(segment.trip, listOf(segment.trip?.group).filterNotNull())
 
         adapter.setTripSegments(
-            segment.id,
+            segment.segmentId,
             tripSegments
                 .filter {
                     !it.isContinuation
                 }.filter {
-                    it.type != SegmentType.DEPARTURE && it.type != SegmentType.ARRIVAL
+                    it.getType() != SegmentType.DEPARTURE && it.getType() != SegmentType.ARRIVAL
                 }
         )
 
-        viewModel.generatePreviewHeaders(
-            requireContext(),
-            segment.trip.getSummarySegments(),
-            getTransportIconTintStrategy,
-        )
+        segment.trip?.let { trip ->
+            viewModel.generatePreviewHeaders(
+                requireContext(),
+                trip.getSummarySegments(),
+                getTransportIconTintStrategy,
+            )
 
-        viewModel.updateTrip(segment.trip.group?.uuid().orEmpty(), segment.trip.uuid, segment.trip)
+            viewModel.updateTrip(trip.group?.uuid().orEmpty(), trip.uuid, trip)
+        }
     }
 
     fun updateTripSegment(tripSegments: List<TripSegment>) {

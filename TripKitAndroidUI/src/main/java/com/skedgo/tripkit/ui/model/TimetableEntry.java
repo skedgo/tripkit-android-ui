@@ -233,6 +233,11 @@ public class TimetableEntry implements Parcelable, IRealTimeElement, ITimeRange,
     }
 
     @Override
+    public long getStartTimeInSeconds() {
+        return serializedStartSecs;
+    }
+
+    @Override
     public long getEndTimeInSecs() {
         return serializedEndSecs;
     }

@@ -170,12 +170,12 @@ class ServiceDetailViewModel @Inject constructor(
             .subscribe({
                 setup(
                     it.name!!,
-                    segment.serviceTripId,
+                    segment.serviceTripId.orEmpty(),
                     segment.serviceName,
                     segment.serviceNumber,
                     segment.serviceColor,
                     segment.serviceOperator,
-                    segment.startStopCode,
+                    segment.startStopCode.orEmpty(),
                     segment.endStopCode,
                     segment.timetableStartTime,
                     segment.realTimeVehicle,

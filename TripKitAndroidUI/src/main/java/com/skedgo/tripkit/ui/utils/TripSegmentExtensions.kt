@@ -16,15 +16,15 @@ const val ITEM_TIMETABLE_PAYMENT = 8
 fun TripSegment.correctItemType(): Int {
     return if (this.turnByTurn != null) {
         ITEM_DIRECTIONS
-    } else if (this.type == SegmentType.SCHEDULED) {
+    } else if (this.getType() == SegmentType.SCHEDULED) {
         ITEM_SERVICE
-    } else if (this.type == null && !startStopCode.isNullOrEmpty()) {
+    } else if (this.getType() == null && !startStopCode.isNullOrEmpty()) {
         ITEM_SERVICE
     } else if (this.modeInfo?.id == "stationary_vehicle-collect" || this.hasCarParks()) {
         ITEM_NEARBY
     } else if (this.booking?.quickBookingsUrl != null || this.booking?.confirmation != null) {
         ITEM_QUICK_BOOKING
-    } else if (this.booking?.externalActions != null && this.booking.externalActions!!.count() > 0) {
+    } else if (this.booking?.externalActions != null && this.booking?.externalActions!!.count() > 0) {
         ITEM_EXTERNAL_BOOKING
     } else {
         ITEM_DEFAULT

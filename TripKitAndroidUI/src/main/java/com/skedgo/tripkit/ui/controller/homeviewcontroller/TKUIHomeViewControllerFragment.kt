@@ -583,7 +583,7 @@ class TKUIHomeViewControllerFragment :
 
             listen(ViewControllerEvent.OnTripSegmentClicked::class.java)
                 .subscribe {
-                    loadTripPreview(it.tripSegment, it.tripSegment.id)
+                    loadTripPreview(it.tripSegment, it.tripSegment.segmentId)
                 }.addTo(autoDisposable)
 
             listen(ViewControllerEvent.OnTripSegmentDataSetChange::class.java)
@@ -593,7 +593,7 @@ class TKUIHomeViewControllerFragment :
 
             listen(ViewControllerEvent.OnTripPrimaryActionClick::class.java)
                 .subscribe {
-                    loadTripPreview(it.tripSegment, it.tripSegment.id)
+                    loadTripPreview(it.tripSegment, it.tripSegment.segmentId)
                 }.addTo(autoDisposable)
 
             listen(ViewControllerEvent.OnViewPoiDetails::class.java)
@@ -779,14 +779,14 @@ class TKUIHomeViewControllerFragment :
         val headerFragment =
             TripPreviewHeaderFragment.newInstance(
                 pageIndexStream,
-                tripSegment.trip.hideExactTimes ||
-                    tripSegment.trip.segmentList.any { it.isHideExactTimes }
+                tripSegment.trip?.hideExactTimes == true ||
+                    tripSegment.trip?.segmentList?.any { it.isHideExactTimes } ?: false
             )
         replaceFragment(headerFragment, TripPreviewHeaderFragment.TAG, R.id.topSheet, false)
 
         val fragment = TKUITripPreviewFragment.newInstance(
-            tripSegment.trip.group!!.uuid(),
-            tripSegment.trip.uuid, segmentId,
+            tripSegment.trip?.group!!.uuid(),
+            tripSegment.trip!!.uuid, segmentId,
             initTripPreviewPagerFragmentListener(tripSegment),
             fromTripAction,
             pageIndexStream,

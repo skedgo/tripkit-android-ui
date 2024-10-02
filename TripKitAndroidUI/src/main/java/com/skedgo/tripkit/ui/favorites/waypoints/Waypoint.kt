@@ -42,8 +42,8 @@ data class Waypoint(
                 endTime = endTime.toString(),
                 serviceTripId = entry.serviceTripId,
                 operator = entry.operator,
-                region = segment.from.region,
-                disembarkationRegion = segment.to.region
+                region = segment.from?.region,
+                disembarkationRegion = segment.to?.region
             )
         }
 
@@ -57,8 +57,8 @@ data class Waypoint(
 
                 return mode.first?.let {
                     Waypoint(
-                        start = segment.from.coordinateString,
-                        end = segment.to.coordinateString,
+                        start = segment.from?.coordinateString,
+                        end = segment.to?.coordinateString,
                         mode = it,
                         modes = listOf(it),
                         vehicleUUID = vehicleUUID,
