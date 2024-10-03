@@ -2,15 +2,13 @@ package com.skedgo.tripkit.ui.map
 
 import android.os.Bundle
 import android.view.View
-import com.gojuno.koptional.None
-import com.gojuno.koptional.Optional
-import com.gojuno.koptional.Some
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.SupportMapFragment
 import com.jakewharton.rxrelay2.BehaviorRelay
 import com.skedgo.tripkit.ui.core.AutoDisposable
 import com.skedgo.tripkit.ui.core.afterMeasured
 import com.skedgo.tripkit.ui.core.filterSome
+import com.skedgo.tripkit.utils.OptionalCompat
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
 import io.reactivex.FlowableOnSubscribe
@@ -24,7 +22,7 @@ abstract class BaseMapFragment : SupportMapFragment() {
         autoDisposable.bindTo(this.lifecycle)
     }
 
-    private val whenViewIsMeasured: BehaviorRelay<Optional<Unit>> = BehaviorRelay.create()
+    private val whenViewIsMeasured: BehaviorRelay<OptionalCompat<Unit>> = BehaviorRelay.create()
     private var subscription: CompositeDisposable = CompositeDisposable()
 
     /**
@@ -51,14 +49,14 @@ abstract class BaseMapFragment : SupportMapFragment() {
 
         subscription.add(
             view.afterMeasured().subscribe { _: Unit ->
-                whenViewIsMeasured.accept(Some(Unit))
+                whenViewIsMeasured.accept(OptionalCompat.ofNullable(Unit))
             }
         )
     }
 
     override fun onDestroyView() {
         subscription.clear()
-        whenViewIsMeasured.accept(None)
+        whenViewIsMeasured.accept(OptionalCompat.empty())
         super.onDestroyView()
     }
 }

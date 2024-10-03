@@ -90,7 +90,6 @@ dependencies {
     coreLibraryDesugaring libs.desugar
 
     implementation libs.supportDesign
-    implementation libs.koptional
     implementation libs.appCompat
     implementation libs.constraintLayout
     implementation libs.places
