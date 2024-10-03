@@ -3,12 +3,12 @@ package com.skedgo.tripkit.ui.data.routingresults
 import com.jakewharton.rxrelay2.PublishRelay
 import com.skedgo.routepersistence.GroupQueries
 import com.skedgo.routepersistence.RouteStore
-import com.skedgo.routepersistence.WhereClauses.getSegmentsTable
-import com.skedgo.routepersistence.WhereClauses.getTripGroupsTable
-import com.skedgo.routepersistence.WhereClauses.getTripsTable
 import com.skedgo.routepersistence.WhereClauses.removeSegmentsWithNoTrip
 import com.skedgo.routepersistence.WhereClauses.removeTripGroupsHappenedBefore
 import com.skedgo.routepersistence.WhereClauses.removeTripsWithNoTripGroup
+import com.skedgo.routepersistence.WhereClauses.segmentsTable
+import com.skedgo.routepersistence.WhereClauses.tripGroupsTable
+import com.skedgo.routepersistence.WhereClauses.tripsTable
 import com.skedgo.tripkit.routing.Trip
 import com.skedgo.tripkit.routing.TripGroup
 import com.skedgo.tripkit.routing.TripSegment
@@ -119,9 +119,9 @@ class TripGroupRepositoryImpl(
     //  to clean up routes db for the SDK users.
     override fun deletePastRoutesAsync(): Observable<Int> = routeStore.deleteByTableAsync(
         listOf(
-            getTripGroupsTable(),
-            getTripsTable(),
-            getSegmentsTable(),
+            tripGroupsTable,
+            tripsTable,
+            segmentsTable,
         ),
         listOf(
             removeTripGroupsHappenedBefore(
