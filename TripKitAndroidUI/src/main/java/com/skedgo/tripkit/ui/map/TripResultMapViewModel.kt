@@ -1,7 +1,5 @@
 package com.skedgo.tripkit.ui.map
 
-import com.gojuno.koptional.None
-import com.gojuno.koptional.Some
 import com.google.android.gms.maps.CameraUpdate
 import com.jakewharton.rxrelay2.BehaviorRelay
 import com.skedgo.tripkit.common.model.RealtimeAlert
@@ -167,9 +165,10 @@ class TripResultMapViewModel @Inject internal constructor(
         segmentCameraUpdateRepository.getSegmentCameraUpdate()
             .flatMap {
                 val x = segmentCameraUpdateMapper.toCameraUpdate(it)
-                when (x) {
-                    is Some -> Observable.just(Pair(x.value, it.tripSegmentId()))
-                    is None -> Observable.empty()
+                if (x.isPresent()) {
+                    Observable.just(Pair(x.get(), it.tripSegmentId())) // Get the value from OptionalCompat
+                } else {
+                    Observable.empty() // Handle empty OptionalCompat
                 }
             }
             .subscribeOn(schedulers.ioScheduler)

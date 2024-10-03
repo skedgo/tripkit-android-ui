@@ -7,7 +7,6 @@ import android.view.View
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProviders
-import com.gojuno.koptional.Some
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
@@ -143,10 +142,10 @@ class TimetableMapContributor(val fragment: Fragment) : TripKitMapContributor {
 
         autoDisposable.add(viewModel.realtimeVehicle
             .subscribe { realTimeVehicleOptional ->
-                if (realTimeVehicleOptional is Some<*>) {
-                    setRealTimeVehicle((realTimeVehicleOptional as Some<RealTimeVehicle>).value)
+                if (realTimeVehicleOptional.isPresent()) { // Check if the value is present
+                    setRealTimeVehicle(realTimeVehicleOptional.get()) // Get the value from OptionalCompat
                 } else {
-                    setRealTimeVehicle(null)
+                    setRealTimeVehicle(null) // Handle empty OptionalCompat
                 }
             })
     }
