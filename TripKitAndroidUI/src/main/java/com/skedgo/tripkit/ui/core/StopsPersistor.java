@@ -98,37 +98,37 @@ public class StopsPersistor implements StopsFetcher.IStopsPersistor {
                     .nextInt(Integer.MAX_VALUE) : existingId;
 
                 final ContentValues parentStopValues = new ContentValues(8);
-                parentStopValues.put(DbFields.ID.getName(), parentStopId);
-                parentStopValues.put(DbFields.STOP_TYPE.getName(), stop
+                parentStopValues.put(DbFields.ID.name, parentStopId);
+                parentStopValues.put(DbFields.STOP_TYPE.name, stop
                     .getType() == null ? null : stop.getType().toString());
-                parentStopValues.put(DbFields.CELL_CODE.getName(), cellCode);
-                parentStopValues.put(DbFields.CODE.getName(), stop.getCode());
-                parentStopValues.put(DbFields.SHORT_NAME.getName(),
+                parentStopValues.put(DbFields.CELL_CODE.name, cellCode);
+                parentStopValues.put(DbFields.CODE.name, stop.getCode());
+                parentStopValues.put(DbFields.SHORT_NAME.name,
                     stop.getShortName());
-                parentStopValues.put(DbFields.SERVICES.getName(),
+                parentStopValues.put(DbFields.SERVICES.name,
                     stop.getServices());
-                parentStopValues.put(DbFields.MODE_INFO.getName(),
+                parentStopValues.put(DbFields.MODE_INFO.name,
                     gson.toJson(stop.getModeInfo()));
-                parentStopValues.put(DbFields.IS_PARENT.getName(),
+                parentStopValues.put(DbFields.IS_PARENT.name,
                     stop.hasChildren() ? 1 : 0);
 
                 scheduledStopValues.add(parentStopValues);
 
                 final ContentValues parentLocationValues = new ContentValues(9);
-                parentLocationValues.put(DbFields.SCHEDULED_STOP_CODE.getName(),
+                parentLocationValues.put(DbFields.SCHEDULED_STOP_CODE.name,
                     stop.getCode());
                 parentLocationValues
-                    .put(DbFields.NAME.getName(), stop.getName());
-                parentLocationValues.put(DbFields.ADDRESS.getName(),
+                    .put(DbFields.NAME.name, stop.getName());
+                parentLocationValues.put(DbFields.ADDRESS.name,
                     stop.getAddress());
-                parentLocationValues.put(DbFields.LAT.getName(), stop.getLat());
-                parentLocationValues.put(DbFields.LON.getName(), stop.getLon());
-                parentLocationValues.put(DbFields.BEARING.getName(),
+                parentLocationValues.put(DbFields.LAT.name, stop.getLat());
+                parentLocationValues.put(DbFields.LON.name, stop.getLon());
+                parentLocationValues.put(DbFields.BEARING.name,
                     stop.getBearing());
-                parentLocationValues.put(DbFields.LOCATION_TYPE.getName(),
+                parentLocationValues.put(DbFields.LOCATION_TYPE.name,
                     Location.TYPE_SCHEDULED_STOP);
-                parentLocationValues.put(DbFields.EXACT.getName(), 1);
-                parentLocationValues.put(DbFields.IS_DYNAMIC.getName(), 0);
+                parentLocationValues.put(DbFields.EXACT.name, 1);
+                parentLocationValues.put(DbFields.IS_DYNAMIC.name, 0);
 
                 locationValues.add(parentLocationValues);
 
@@ -141,20 +141,20 @@ public class StopsPersistor implements StopsFetcher.IStopsPersistor {
 
                         final ContentValues childStopValues = new ContentValues(
                             9);
-                        childStopValues.put(DbFields.ID.getName(), childStopId);
-                        childStopValues.put(DbFields.PARENT_ID.getName(),
+                        childStopValues.put(DbFields.ID.name, childStopId);
+                        childStopValues.put(DbFields.PARENT_ID.name,
                             parentStopId);
-                        childStopValues.put(DbFields.IS_PARENT.getName(), 0);
-                        childStopValues.put(DbFields.STOP_TYPE.getName(), child
+                        childStopValues.put(DbFields.IS_PARENT.name, 0);
+                        childStopValues.put(DbFields.STOP_TYPE.name, child
                             .getType() == null ? null : child.getType()
                             .toString());
-                        childStopValues.put(DbFields.CELL_CODE.getName(),
+                        childStopValues.put(DbFields.CELL_CODE.name,
                             cellCode);
-                        childStopValues.put(DbFields.CODE.getName(),
+                        childStopValues.put(DbFields.CODE.name,
                             child.getCode());
-                        childStopValues.put(DbFields.SHORT_NAME.getName(),
+                        childStopValues.put(DbFields.SHORT_NAME.name,
                             child.getShortName());
-                        childStopValues.put(DbFields.SERVICES.getName(),
+                        childStopValues.put(DbFields.SERVICES.name,
                             child.getServices());
 
                         scheduledStopValues.add(childStopValues);
@@ -162,24 +162,24 @@ public class StopsPersistor implements StopsFetcher.IStopsPersistor {
                         final ContentValues childLocationValues = new ContentValues(
                             9);
                         childLocationValues.put(
-                            DbFields.SCHEDULED_STOP_CODE.getName(),
+                            DbFields.SCHEDULED_STOP_CODE.name,
                             child.getCode());
-                        childLocationValues.put(DbFields.NAME.getName(),
+                        childLocationValues.put(DbFields.NAME.name,
                             child.getName());
-                        childLocationValues.put(DbFields.ADDRESS.getName(),
+                        childLocationValues.put(DbFields.ADDRESS.name,
                             child.getAddress());
-                        childLocationValues.put(DbFields.LAT.getName(),
+                        childLocationValues.put(DbFields.LAT.name,
                             child.getLat());
-                        childLocationValues.put(DbFields.LON.getName(),
+                        childLocationValues.put(DbFields.LON.name,
                             child.getLon());
-                        childLocationValues.put(DbFields.BEARING.getName(),
+                        childLocationValues.put(DbFields.BEARING.name,
                             child.getBearing());
                         childLocationValues.put(
-                            DbFields.LOCATION_TYPE.getName(),
+                            DbFields.LOCATION_TYPE.name,
                             Location.TYPE_SCHEDULED_STOP);
-                        childLocationValues.put(DbFields.EXACT.getName(), 1);
+                        childLocationValues.put(DbFields.EXACT.name, 1);
                         childLocationValues
-                            .put(DbFields.IS_DYNAMIC.getName(), 0);
+                            .put(DbFields.IS_DYNAMIC.name, 0);
 
                         locationValues.add(childLocationValues);
                     }
@@ -237,8 +237,8 @@ public class StopsPersistor implements StopsFetcher.IStopsPersistor {
         try {
             c = appContext.getContentResolver()
                 .query(ScheduledStopsProvider.CONTENT_URI,
-                    new String[]{DbFields.CODE.getName(),
-                        DbFields.ID.getName()},
+                    new String[]{DbFields.CODE.name,
+                        DbFields.ID.name},
                     DbFields.CELL_CODE + " = ? AND " + DbFields.CODE
                         + " IS NOT NULL",
                     new String[]{cellCode}, null);

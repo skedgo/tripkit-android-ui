@@ -55,7 +55,7 @@ public class ProviderUtils {
             boolean containsAllFieldsToMatch = true;
             if (fieldsToMatch != null && fieldsToMatch.length > 0) {
                 for (DatabaseField field : fieldsToMatch) {
-                    if (!values.containsKey(field.getName())) {
+                    if (!values.containsKey(field.name)) {
                         containsAllFieldsToMatch = false;
                         break;
                     }
@@ -95,12 +95,12 @@ public class ProviderUtils {
                             sb.append(" = ");
 
                             final String val = values
-                                .getAsString(fieldsToMatch[j].getName());
+                                .getAsString(fieldsToMatch[j].name);
                             if (val == null) {
                                 sb.append(val);
                             } else {
                                 sb.append(DatabaseUtils.sqlEscapeString(values
-                                    .getAsString(fieldsToMatch[j].getName())));
+                                    .getAsString(fieldsToMatch[j].name)));
                             }
                         }
 

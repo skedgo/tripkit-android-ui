@@ -88,8 +88,8 @@ public class CellsLoader implements StopsFetcher.ICellsLoader {
             .map(new Function<Cursor, LocationsResponse.Group>() {
                 @Override
                 public LocationsResponse.Group apply(Cursor cursor) {
-                    final long hashCode = cursor.getLong(cursor.getColumnIndexOrThrow(DbFields.HASH_CODE_2.getName()));
-                    final String cellId = cursor.getString(cursor.getColumnIndexOrThrow(DbFields.CELL_CODE.getName()));
+                    final long hashCode = cursor.getLong(cursor.getColumnIndexOrThrow(DbFields.HASH_CODE_2.name));
+                    final String cellId = cursor.getString(cursor.getColumnIndexOrThrow(DbFields.CELL_CODE.name));
                     return new LocationsResponse.Group(
                         hashCode,
                         cellId
