@@ -8,6 +8,8 @@ import androidx.databinding.ObservableField
 import com.jakewharton.rxrelay2.BehaviorRelay
 import com.jakewharton.rxrelay2.PublishRelay
 import com.skedgo.tripkit.booking.BookingForm
+import com.skedgo.tripkit.common.model.location.Location.Companion.ZERO_LAT
+import com.skedgo.tripkit.common.model.location.Location.Companion.ZERO_LON
 import com.skedgo.tripkit.common.util.SphericalUtil
 import com.skedgo.tripkit.data.database.stops.toModeInfo
 import com.skedgo.tripkit.data.locations.LocationsApi
@@ -57,10 +59,10 @@ class SharedNearbyTripPreviewItemViewModel @Inject constructor(
             loadedSegment = segment
 
             val details = NearbyLocation(
-                lat = segment.singleLocation.lat,
-                lng = segment.singleLocation.lon,
+                lat = segment.singleLocation?.lat ?: ZERO_LAT,
+                lng = segment.singleLocation?.lon ?: ZERO_LON,
                 title = segment.operator,
-                address = segment.singleLocation.address,
+                address = segment.singleLocation?.address,
                 website = null,
                 modeInfo = segment.modeInfo
             )
@@ -82,8 +84,8 @@ class SharedNearbyTripPreviewItemViewModel @Inject constructor(
 
                     locationsApi.fetchLocationsAsync(
                         url.toString(),
-                        segment.singleLocation.lat,
-                        segment.singleLocation.lon,
+                        segment.singleLocation?.lat ?: ZERO_LAT,
+                        segment.singleLocation?.lon ?: ZERO_LON,
                         1000, // Limit
                         1124, // Radius
                         listOf(mode)
@@ -168,8 +170,8 @@ class SharedNearbyTripPreviewItemViewModel @Inject constructor(
                                     )
                                 }
                             }
-                            val compareLat = segment.singleLocation.lat
-                            val compareLng = segment.singleLocation.lon
+                            val compareLat = segment.singleLocation?.lat ?: ZERO_LAT
+                            val compareLng = segment.singleLocation?.lon ?: ZERO_LON
 
                             val comparator = compareBy<NearbyLocation> {
                                 SphericalUtil.computeDistanceBetween(

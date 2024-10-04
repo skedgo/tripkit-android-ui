@@ -38,7 +38,7 @@ class RealTimeRepositoryImpl @Inject constructor(
                         .serviceTripID(it.serviceTripId)
                         .startStopCode(it.startStopCode)
                         .endStopCode(it.endStopCode)
-                        .startTime(it.startTimeInSecs)
+                        .startTime(it.startTimeInSeconds)
                         .build()
                 }
 

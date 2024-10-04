@@ -71,8 +71,8 @@ open class ActionButtonHandler {
             return result
         } else {
             val mainSegment = trip.getMainTripSegment()
-            if (mainSegment != null && mainSegment.miniInstruction != null && mainSegment.miniInstruction.instruction != null) {
-                result.set(mainSegment.miniInstruction.instruction)
+            if (mainSegment != null && mainSegment.miniInstruction != null && mainSegment.miniInstruction?.instruction != null) {
+                result.set(mainSegment.miniInstruction?.instruction)
                 return result
             }
         }

@@ -316,7 +316,9 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
                     val marker = poiMarkers!!.addMarker(first1)
                     marker.tag = second1
                 }
-            }, { errorLogger.logError(it) })
+            }, {
+                errorLogger.logError(it)
+            })
             .addTo(autoDisposable)
     }
 
@@ -666,7 +668,7 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
     private fun addCityMarker(city: City): Marker {
         val markerOptions = MapMarkerUtils.createCityMarker(city, cityIcon)
         val marker = cityMarkers!!.addMarker(markerOptions)
-        cityMarkerMap[city.name] = marker
+        cityMarkerMap[city.displayName] = marker
         marker.tag = city
         return marker
     }

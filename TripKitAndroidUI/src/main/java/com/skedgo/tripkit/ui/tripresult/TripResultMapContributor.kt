@@ -37,7 +37,6 @@ import com.squareup.picasso.Picasso
 import dagger.Lazy
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.functions.Consumer
 import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
 import java.net.MalformedURLException
@@ -410,7 +409,7 @@ class TripResultMapContributor : TripKitMapContributor {
             map.animateCamera(cameraUpdate)
         } else if (segment.singleLocation != null) {
             val cameraUpdate =
-                CameraUpdateFactory.newLatLngZoom(segment.singleLocation.toLatLng(), 20f)
+                CameraUpdateFactory.newLatLngZoom(segment.singleLocation?.toLatLng(), 20f)
             map.animateCamera(cameraUpdate)
         }
     }
@@ -483,7 +482,7 @@ class TripResultMapContributor : TripKitMapContributor {
     private fun createVehicleMarker(context: Context, segment: TripSegment) {
         val vehicleMarkerOptions = vehicleMarkerCreatorLazy.get()?.call(context.resources, segment)
         val marker = vehicleMarkers?.addMarker(vehicleMarkerOptions)
-        vehicleMarkerIconFetcherLazy.get()?.call(marker, segment.realTimeVehicle)
+        vehicleMarkerIconFetcherLazy.get()?.call(marker, segment.realTimeVehicle!!)
     }
 
     private fun showAlertMarkers(
@@ -562,7 +561,7 @@ class TripResultMapContributor : TripKitMapContributor {
     private fun showMarkerForSegment(map: GoogleMap, segmentId: Long) {
         val entrySet: Set<Map.Entry<Marker, TripSegment>> = marker2SegmentCache.entries
         for ((marker, markerSegment) in entrySet) {
-            if (markerSegment.id == segmentId) {
+            if (markerSegment.segmentId == segmentId) {
                 marker.showInfoWindow()
                 map.animateCamera(CameraUpdateFactory.newLatLngZoom(marker.position, 15.0f))
             }

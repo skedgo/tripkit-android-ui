@@ -65,7 +65,7 @@ class PoiDetailsViewModel @Inject constructor(
         this.address.set(location.address)
         this.website.set(location.url)
         this.type.set(location.locationType)
-        this.withExternalApp.set(location.isWithExternalApp)
+        this.withExternalApp.set(location.withExternalApp)
 
         openAppButtonText.set(
             if (location.appUrl?.isAppInstalled(context.packageManager) == true) {

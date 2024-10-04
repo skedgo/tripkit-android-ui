@@ -164,7 +164,9 @@ class ServiceTripPreviewItemFragment : BaseTripKitPagerFragment() {
                 prefs.edit().remove("${positionInAdapter}_$ARGS_TRIP_SEGMENT_TRIP").apply()
             }
             trip?.group = tripSegmentGroup
-            segment?.trip = trip
+            if(trip != null) {
+                segment?.trip = trip
+            }
             segment?.let {
                 this@ServiceTripPreviewItemFragment.segment = it
                 viewModel.setup(it)

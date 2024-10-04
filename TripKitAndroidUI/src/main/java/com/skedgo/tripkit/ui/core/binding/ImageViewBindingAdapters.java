@@ -79,7 +79,7 @@ public final class ImageViewBindingAdapters {
         }
 
         final VehicleMode mode = modeInfo.getModeCompat();
-        int placeHolder = mode != null ? mode.getIconRes() : R.drawable.ic_public_transport;
+        int placeHolder = mode != null ? mode.iconRes : R.drawable.ic_public_transport;
         final String url = TransportModeUtils.getIconUrlForModeInfo(view.getResources(), modeInfo);
         TripKitUI.getInstance().picasso()
             .load(url)

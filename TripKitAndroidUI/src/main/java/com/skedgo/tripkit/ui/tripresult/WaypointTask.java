@@ -67,7 +67,7 @@ public class WaypointTask implements SingleOnSubscribe<List<TripGroup>> {
 
         JsonArray jsonSegments = new JsonArray();
         for (TripSegment segment : segments) {
-            if (segment.getId() == prototypeSegment.getId()) {
+            if (segment.getSegmentId() == prototypeSegment.getSegmentId()) {
                 JsonObject jsonSegment = new JsonObject();
                 if (isGetOn) {
                     // The waypoint now becomes the departure.
@@ -84,9 +84,9 @@ public class WaypointTask implements SingleOnSubscribe<List<TripGroup>> {
                     changeNextDeparture = true;
                 }
 
-                if (!TextUtils.isEmpty(segment.getTransportModeId())) {
+                if (!TextUtils.isEmpty(segment.transportModeId)) {
                     JsonArray jsonModes = new JsonArray();
-                    jsonModes.add(new JsonPrimitive(segment.getTransportModeId()));
+                    jsonModes.add(new JsonPrimitive(segment.transportModeId));
                     jsonSegment.add(KEY_MODES, jsonModes);
                 }
 
@@ -129,9 +129,9 @@ public class WaypointTask implements SingleOnSubscribe<List<TripGroup>> {
         jsonSegment.addProperty(KEY_START, segment.getFrom().getCoordinateString());
         jsonSegment.addProperty(KEY_END, segment.getTo().getCoordinateString());
 
-        if (!TextUtils.isEmpty(segment.getTransportModeId())) {
+        if (!TextUtils.isEmpty(segment.transportModeId)) {
             JsonArray jsonModes = new JsonArray();
-            jsonModes.add(new JsonPrimitive(segment.getTransportModeId()));
+            jsonModes.add(new JsonPrimitive(segment.transportModeId));
             jsonSegment.add(KEY_MODES, jsonModes);
         }
 
@@ -223,7 +223,7 @@ public class WaypointTask implements SingleOnSubscribe<List<TripGroup>> {
                                             TimetableEntry service) {
         JsonArray jsonSegments = new JsonArray();
         for (TripSegment segment : segments) {
-            if (segment.getId() == prototypeSegment.getId()) {
+            if (segment.getSegmentId() == prototypeSegment.getSegmentId()) {
                 JsonObject jsonSegment = convertServiceToJson(region, service);
                 jsonSegments.add(jsonSegment);
             } else if ((segment.getType() != SegmentType.STATIONARY)

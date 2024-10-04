@@ -12,23 +12,23 @@ fun Trip.toWaypoints(): List<Waypoint> {
                 SegmentType.STATIONARY,
                 SegmentType.DEPARTURE,
                 SegmentType.ARRIVAL
-            ).contains(it.type).not()
+            ).contains(it.getType()).not()
         }
         .mapIndexed { index, segment ->
             val mode = segment.getModeForWayPoint()
             Waypoint.parseFromSegment(segment, index) ?: Waypoint(
-                lat = segment.from.lat,
-                lng = segment.from.lon,
+                lat = segment.from?.lat,
+                lng = segment.from?.lon,
                 mode = mode.first,
                 modes = mode.first?.run { listOf(this) },
                 modeTitle = mode.second,
-                start = segment.from.coordinateString,
-                end = segment.to.coordinateString,
+                start = segment.from?.coordinateString,
+                end = segment.to?.coordinateString,
                 order = index
             )
         }
     return waypoints.plus(
-        segmentList.last().let { Waypoint(it.to.lat, it.to.lon, null, null) }
+        segmentList.last().let { Waypoint(it.to?.lat, it.to?.lon, null, null) }
     )
 }
 

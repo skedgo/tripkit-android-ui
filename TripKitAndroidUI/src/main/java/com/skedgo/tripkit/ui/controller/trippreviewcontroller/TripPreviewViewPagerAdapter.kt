@@ -136,7 +136,7 @@ class TripPreviewPagerAdapter(fragmentManager: FragmentManager) :
     }
 
     fun getSegmentPositionById(pair: Pair<Long, String>): Int {
-        return pages.indexOfFirst { it.tripSegment.id == pair.first }
+        return pages.indexOfFirst { it.tripSegment.segmentId == pair.first }
     }
 
     override fun getCount(): Int {
@@ -155,7 +155,7 @@ class TripPreviewPagerAdapter(fragmentManager: FragmentManager) :
             val itemType = segment.correctItemType()
 
             if (itemType == ITEM_SERVICE) {
-                if (activeTripSegmentId == segment.id && itemType == ITEM_SERVICE
+                if (activeTripSegmentId == segment.segmentId && itemType == ITEM_SERVICE
                     && activeTripSegmentPosition <= 0
                 ) {
                     activeTripSegmentPosition = index + addedCards
@@ -167,7 +167,7 @@ class TripPreviewPagerAdapter(fragmentManager: FragmentManager) :
             }
 
             if (itemType == ITEM_NEARBY) {
-                if (activeTripSegmentId == segment.id && itemType == ITEM_NEARBY
+                if (activeTripSegmentId == segment.segmentId && itemType == ITEM_NEARBY
                     && activeTripSegmentPosition <= 0
                 ) {
                     activeTripSegmentPosition = index + addedCards
@@ -187,7 +187,7 @@ class TripPreviewPagerAdapter(fragmentManager: FragmentManager) :
                 }
             }
 
-            if (activeTripSegmentId == segment.id && activeTripSegmentPosition <= 0) {
+            if (activeTripSegmentId == segment.segmentId && activeTripSegmentPosition <= 0) {
                 activeTripSegmentPosition = index + addedCards
             }
         }

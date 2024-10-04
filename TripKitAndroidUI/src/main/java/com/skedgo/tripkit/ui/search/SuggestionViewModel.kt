@@ -106,11 +106,11 @@ class GoogleAndTripGoSuggestionViewModel(
     override val title: String by lazy {
 
         if (!location.name.isNullOrEmpty()) {
-            return@lazy location.name
+            return@lazy location.name!!
         }
 
         if (!location.address.isNullOrEmpty()) {
-            return@lazy location.address
+            return@lazy location.address!!
         }
 
         return@lazy context.getString(R.string.unknown_location)
@@ -121,7 +121,7 @@ class GoogleAndTripGoSuggestionViewModel(
 
         if (place is Place.TripGoPOI && location is ScheduledStop) {
             val scheduledStop = location as ScheduledStop
-            if (!scheduledStop.services.isEmpty()) {
+            if (!scheduledStop.services.isNullOrEmpty()) {
                 subtitle = scheduledStop.services
             }
 

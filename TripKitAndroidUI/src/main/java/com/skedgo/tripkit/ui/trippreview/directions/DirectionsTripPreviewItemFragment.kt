@@ -68,7 +68,7 @@ class DirectionsTripPreviewItemFragment : BaseTripKitFragment() {
                     "driving"
                 }
                 val uri =
-                    Uri.parse("https://www.google.com/maps/dir/?api=1&origin=${it.from.lat},${it.from.lon}&destination=${it.to.lat},${it.to.lon}&travelmode=$mode")
+                    Uri.parse("https://www.google.com/maps/dir/?api=1&origin=${it.from?.lat},${it.from?.lon}&destination=${it.to?.lat},${it.to?.lon}&travelmode=$mode")
                 val mapIntent = Intent(Intent.ACTION_VIEW, uri)
                 //mapIntent.setPackage("com.google.android.apps.maps")
                 if (mapIntent.resolveActivity(requireActivity().packageManager) != null) {

@@ -96,7 +96,7 @@ class NearbyTripPreviewItemViewModel : RxViewModel() {
                 vm.title.set(it.title)
                 vm.location.set(it.address)
                 if (it.modeInfo != null && it.modeInfo.modeCompat != null) {
-                    vm.icon.set(it.modeInfo.modeCompat.iconRes)
+                    vm.icon.set(it.modeInfo.modeCompat?.iconRes ?: -1)
                 }
                 items.add(vm)
             }

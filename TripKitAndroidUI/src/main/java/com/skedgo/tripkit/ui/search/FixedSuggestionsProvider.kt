@@ -101,8 +101,8 @@ class DefaultFixedSuggestionsProvider(
         locations.forEach {
             list.add(
                 DefaultSearchSuggestion(
-                    it.address,
-                    it.name ?: it.address,
+                    it.displayAddress,
+                    it.name ?: it.displayAddress,
                     it.address,
                     R.color.title_text,
                     R.color.description_text,
@@ -127,8 +127,8 @@ class DefaultFixedSuggestionsProvider(
         locations.forEach {
             list.add(
                 DefaultSearchSuggestion(
-                    it.address ?: it.name,
-                    it.name,
+                    it.address ?: it.displayName,
+                    it.displayName,
                     it.address ?: null,
                     R.color.title_text,
                     R.color.description_text,

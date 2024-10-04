@@ -86,8 +86,8 @@ class TKUIHomeViewFixedSuggestionsProvider : FixedSuggestionsProvider {
         locations.forEach {
             list.add(
                 DefaultSearchSuggestion(
-                    it.address,
-                    it.name ?: it.address,
+                    it.address ?: it.displayAddress,
+                    it.name ?: it.address ?: it.displayAddress,
                     it.address,
                     R.color.title_text,
                     R.color.description_text,
@@ -112,9 +112,9 @@ class TKUIHomeViewFixedSuggestionsProvider : FixedSuggestionsProvider {
         locations.forEach {
             list.add(
                 DefaultSearchSuggestion(
-                    it.address ?: it.name,
-                    it.name,
-                    it.address ?: null,
+                    it.name ?: it.displayAddress,
+                    it.displayName,
+                    it.address,
                     R.color.title_text,
                     R.color.description_text,
                     ContextCompat.getDrawable(

@@ -238,14 +238,14 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
     }
 
     private fun startAndLogActivity(tripSegment: TripSegment, intent: Intent) {
-        tripSegment.booking?.virtualBookingUrl ?: tripSegment.trip.logURL?.let {
+        tripSegment.booking?.virtualBookingUrl ?: tripSegment.trip?.logURL?.let {
             lifecycleScope.launch { bookingService.logTrip(it) }
         }
         startActivity(intent)
     }
 
     private fun handleExternalBooking(tripSegment: TripSegment) {
-        tripSegment.booking.externalActions?.firstOrNull()?.let { action ->
+        tripSegment.booking?.externalActions?.firstOrNull()?.let { action ->
             val externalActionParams = ExternalActionParams.builder()
                 .action(action)
                 .segment(tripSegment)

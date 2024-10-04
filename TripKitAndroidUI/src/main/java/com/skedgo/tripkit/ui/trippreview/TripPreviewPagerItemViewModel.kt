@@ -68,7 +68,7 @@ open class TripPreviewPagerItemViewModel : RxViewModel() {
         var title = segment.miniInstruction?.instruction ?: title.get()
         title = try {
             title?.replace(Templates.TEMPLATE_PLATFORM, segment.platform ?: "")?.replace(
-                SegmentActionTemplates.TEMPLATE_NUMBER, segment.serviceNumber
+                SegmentActionTemplates.TEMPLATE_NUMBER, segment.serviceNumber.orEmpty()
             )
         } catch (e: Exception) {
             title
@@ -103,7 +103,7 @@ open class TripPreviewPagerItemViewModel : RxViewModel() {
         val url = TransportModeUtils.getIconUrlForModeInfo(context.resources, segment.modeInfo)
         modeIconUrl.set(url)
         var remoteIcon = Observable.empty<Drawable>()
-        if (segment.type == SegmentType.ARRIVAL || segment.type == SegmentType.DEPARTURE) {
+        if (segment.getType() == SegmentType.ARRIVAL || segment.getType() == SegmentType.DEPARTURE) {
             icon.set(ContextCompat.getDrawable(context, R.drawable.v4_ic_map_location))
         } else {
             if (segment.modeInfo == null || segment.modeInfo!!.modeCompat == null) {
@@ -149,12 +149,12 @@ open class TripPreviewPagerItemViewModel : RxViewModel() {
         requestedPickUp.set("")
         requestedDropOff.set("")
         if (segment.isHideExactTimes) {
-            if (segment.trip.queryTime > 0) {
-                val queryDateTime = segment.trip.queryDateTime
-                val date = queryDateTime.toString(DateTimeFormat.forPattern("MMM d, yyyy"))
-                val time = queryDateTime.toString(DateTimeFormat.forPattern("h:mm aa"))
+            if ((segment.trip?.queryTime ?: 0L) > 0) {
+                val queryDateTime = segment.trip?.queryDateTime
+                val date = queryDateTime?.toString(DateTimeFormat.forPattern("MMM d, yyyy"))
+                val time = queryDateTime?.toString(DateTimeFormat.forPattern("h:mm aa"))
                 val label = String.format(context.getString(R.string.requested_time), date, time)
-                if (segment.trip.queryIsLeaveAfter) {
+                if (segment.trip?.queryIsLeaveAfter == true) {
                     requestedPickUp.set(label)
                 } else {
                     requestedDropOff.set(label)
@@ -177,8 +177,8 @@ open class TripPreviewPagerItemViewModel : RxViewModel() {
             requestedDropOff.set("$endDate $endTime")
         }
 
-        if (segment.trip.queryTime > 0) {
-            fetchRegionAndSetupPickUpMessage(segment.trip)
+        if ((segment.trip?.queryTime ?: 0L) > 0) {
+            fetchRegionAndSetupPickUpMessage(segment.trip!!)
         }
 
         hasPickUpWindow.set(
@@ -220,18 +220,11 @@ open class TripPreviewPagerItemViewModel : RxViewModel() {
 
     fun getModeTitle(segment: TripSegment): String {
         return when {
-            !TextUtils.isEmpty(segment.serviceNumber) -> {
-                segment.serviceNumber
-            }
-            !segment.modeInfo?.description.isNullOrBlank() -> {
-                segment.modeInfo?.description ?: ""
-            }
-            segment.transportModeId != TransportMode.ID_WALK -> {
+            !TextUtils.isEmpty(segment.serviceNumber) -> segment.serviceNumber.orEmpty()
+            !segment.modeInfo?.description.isNullOrBlank() -> segment.modeInfo?.description ?: ""
+            segment.transportModeId != TransportMode.ID_WALK ->
                 DistanceFormatter.format(segment.metres)
-            }
-            else -> {
-                ""
-            }
+            else -> ""
         }
     }
 

@@ -17,7 +17,9 @@ import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.list.listItems
 import com.araujo.jordan.excuseme.ExcuseMe
 import com.araujo.jordan.excuseme.model.PermissionStatus
+import com.skedgo.tripkit.ui.BuildConfig
 import com.skedgo.tripkit.ui.R
+import timber.log.Timber
 
 fun Context.viewAppDetailsSettingsIntent(): Intent = Intent(
     Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
@@ -196,4 +198,11 @@ fun Context.talkBackSpeak(message: String) {
     event.packageName = packageName
     event.text.add(message)
     accessibilityManager.sendAccessibilityEvent(event)
+}
+
+fun Throwable.logError() {
+    Timber.e(this)
+    if(BuildConfig.DEBUG) {
+        this.printStackTrace()
+    }
 }

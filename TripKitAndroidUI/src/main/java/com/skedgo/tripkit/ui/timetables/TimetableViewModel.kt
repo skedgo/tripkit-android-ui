@@ -318,6 +318,7 @@ class TimetableViewModel @Inject constructor(
                 serviceNumbers.set(tmpServiceList.distinctBy { it.serviceNumber }
                     .sortedBy { it.serviceNumber })
             }, {
+                if(BuildConfig.DEBUG) it.printStackTrace()
                 Timber.e(it)
                 onError.accept(
                     it.message
@@ -331,7 +332,9 @@ class TimetableViewModel @Inject constructor(
             .take(1)
             .subscribe({
                 scrollToNow.accept(getFirstNowPosition(it))
-            }, {}).autoClear()
+            }, {
+                if(BuildConfig.DEBUG) it.printStackTrace()
+            }).autoClear()
     }
 
     fun withBookingActions(bookingActions: ArrayList<String>?, segment: TripSegment?) {

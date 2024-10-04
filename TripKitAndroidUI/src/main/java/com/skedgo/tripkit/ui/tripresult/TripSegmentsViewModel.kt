@@ -317,7 +317,7 @@ class TripSegmentsViewModel @Inject internal constructor(
         for (i in segmentViewModels.indices) {
             val viewModel = segmentViewModels[i]
             val segment = viewModel.tripSegment
-            if (segment?.id == tripSegment.id) {
+            if (segment?.segmentId == tripSegment.segmentId) {
                 return i
             }
         }
@@ -357,7 +357,7 @@ class TripSegmentsViewModel @Inject internal constructor(
         previousSegment: TripSegment? = null,
         nextSegment: TripSegment? = null
     ) {
-        val time = when (tripSegment.type) {
+        val time = when (tripSegment.getType()) {
             SegmentType.DEPARTURE -> printTime.print(tripSegment.startDateTime)
             SegmentType.ARRIVAL -> printTime.print(tripSegment.endDateTime)
             else -> null
@@ -366,16 +366,16 @@ class TripSegmentsViewModel @Inject internal constructor(
         var topConnectionColor: Int = Color.TRANSPARENT
         var bottomConnectionColor: Int = Color.TRANSPARENT
 
-        val connectionColor = if (tripSegment.type == SegmentType.DEPARTURE) {
+        val connectionColor = if (tripSegment.getType() == SegmentType.DEPARTURE) {
             nextSegment?.lineColor() ?: Color.TRANSPARENT
         } else {
             previousSegment?.lineColor() ?: Color.TRANSPARENT
         }
 
-        if (tripSegment.type == SegmentType.DEPARTURE) {
+        if (tripSegment.getType() == SegmentType.DEPARTURE) {
             bottomConnectionColor = connectionColor
         }
-        if (tripSegment.type == SegmentType.ARRIVAL) {
+        if (tripSegment.getType() == SegmentType.ARRIVAL) {
             topConnectionColor = connectionColor
         }
         viewModel.setupSegment(
@@ -428,12 +428,11 @@ class TripSegmentsViewModel @Inject internal constructor(
         }
 
         var location = context.resources.getString(R.string.location)
-        if (tripSegment.singleLocation != null && !tripSegment.singleLocation.address.isNullOrEmpty()) {
-            location = tripSegment.singleLocation.displayAddress
-                ?: tripSegment.singleLocation.address
+        if (tripSegment.singleLocation != null && !tripSegment.singleLocation?.address.isNullOrEmpty()) {
+            location = tripSegment.singleLocation?.address ?: tripSegment.singleLocation?.displayAddress.orEmpty()
         }
         if (!tripSegment.sharedVehicle?.garage()?.address.isNullOrEmpty()) {
-            location = tripSegment.sharedVehicle.garage()?.address!!
+            location = tripSegment.sharedVehicle?.garage()?.address!!
         }
         if (!nextSegment?.from?.address.isNullOrEmpty()) {
             location = nextSegment?.from?.address!!
@@ -574,12 +573,12 @@ class TripSegmentsViewModel @Inject internal constructor(
 
                 viewModel.tripSegment = segment
 
-                if (segment.type == SegmentType.ARRIVAL || segment.type == SegmentType.DEPARTURE) {
+                if (segment.getType() == SegmentType.ARRIVAL || segment.getType() == SegmentType.DEPARTURE) {
                     addTerminalItem(viewModel, segment, previousSegment, nextSegment)
-                } else if (segment.isStationary && ((segment.type == null && segment.startStopCode == null) || segment.type == SegmentType.STATIONARY)) {
+                } else if (segment.isStationary && ((segment.getType() == null && segment.startStopCode == null) || segment.getType() == SegmentType.STATIONARY)) {
                     addStationaryItem(viewModel, segment, previousSegment, nextSegment)
                 } else {
-                    if (nextSegment != null && !nextSegment.isStationary && nextSegment.type != SegmentType.ARRIVAL) {
+                    if (nextSegment != null && !nextSegment.isStationary && nextSegment.getType() != SegmentType.ARRIVAL) {
                         val bridgeModel = segmentViewModelProvider.get()
                         bridgeModel.tripSegment = segment
                         addMovingItem(bridgeModel, segment)
@@ -633,7 +632,7 @@ class TripSegmentsViewModel @Inject internal constructor(
             ).map { bitmapDrawable ->
                 segment.createSummaryIcon(context, bitmapDrawable)
             }.subscribe({ drawable ->
-                if (tripSegmentSummaryItem.none { it.id.get() == segment.id }) {
+                if (tripSegmentSummaryItem.none { it.id.get() == segment.segmentId }) {
                     tripSegmentSummaryItem.add(
                         segment.generateTripPreviewHeader(context, drawable, printTime)
                             .getSummaryItem()
