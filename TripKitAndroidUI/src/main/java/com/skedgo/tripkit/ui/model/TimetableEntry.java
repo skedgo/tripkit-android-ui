@@ -2,8 +2,6 @@ package com.skedgo.tripkit.ui.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.util.Log;
-
 import com.google.gson.annotations.SerializedName;
 import com.skedgo.tripkit.common.agenda.IRealTimeElement;
 import com.skedgo.tripkit.common.model.BicycleAccessible;
@@ -12,7 +10,6 @@ import com.skedgo.tripkit.common.model.realtimealert.RealTimeStatus;
 import com.skedgo.tripkit.common.model.realtimealert.RealtimeAlert;
 import com.skedgo.tripkit.common.model.stop.ScheduledStop;
 import com.skedgo.tripkit.common.model.WheelchairAccessible;
-import com.skedgo.tripkit.common.rx.Var;
 import com.skedgo.tripkit.routing.ModeInfo;
 import com.skedgo.tripkit.routing.RealTimeVehicle;
 import com.skedgo.tripkit.routing.ServiceColor;
@@ -25,7 +22,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import androidx.annotation.Nullable;
+import io.reactivex.BackpressureStrategy;
 import io.reactivex.functions.Consumer;
+import io.reactivex.subjects.BehaviorSubject;
+import timber.log.Timber;
 
 /**
  * (Aka Service)
@@ -71,7 +71,7 @@ public class TimetableEntry implements Parcelable, IRealTimeElement, ITimeRange,
             return new TimetableEntry[size];
         }
     };
-    public final transient Var<List<StopInfo>> stops = Var.create();
+    public final transient BehaviorSubject<List<StopInfo>> stops = BehaviorSubject.create();
     /**
      * For A2B-timetable-related stuff.
      */
@@ -154,12 +154,9 @@ public class TimetableEntry implements Parcelable, IRealTimeElement, ITimeRange,
     public TimetableEntry() {
         // For debug purpose only.
         if (BuildConfig.DEBUG) {
-            stops.observe().subscribe(new Consumer<List<StopInfo>>() {
-                @Override
-                public void accept(List<StopInfo> stops) {
-                    Log.w("LoadStops", "Got " + stops.size() + " stops for: " + serviceNumber + " - " + TimetableEntry.this);
-                }
-            });
+            stops.toFlowable(BackpressureStrategy.BUFFER).subscribe(stops ->
+                Timber.w("LoadStops", "Got " + stops.size() + " stops for: " + serviceNumber + " - " + TimetableEntry.this)
+            );
         }
     }
 
