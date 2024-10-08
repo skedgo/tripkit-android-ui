@@ -9,7 +9,7 @@ import androidx.core.content.ContextCompat
 import androidx.databinding.ObservableBoolean
 import androidx.databinding.ObservableField
 import com.jakewharton.rxrelay2.PublishRelay
-import com.skedgo.tripkit.common.model.Region
+import com.skedgo.tripkit.common.model.region.Region
 import com.skedgo.tripkit.common.model.TransportMode
 import com.skedgo.tripkit.common.util.TransportModeUtils
 import com.skedgo.tripkit.common.util.TripSegmentUtils
@@ -31,7 +31,6 @@ import org.joda.time.DateTimeZone
 import org.joda.time.format.DateTimeFormat
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
-import javax.inject.Inject
 
 open class TripPreviewPagerItemViewModel : RxViewModel() {
     var title = ObservableField<String>()
@@ -69,7 +68,7 @@ open class TripPreviewPagerItemViewModel : RxViewModel() {
         var title = segment.miniInstruction?.instruction ?: title.get()
         title = try {
             title?.replace(Templates.TEMPLATE_PLATFORM, segment.platform ?: "")?.replace(
-                SegmentActionTemplates.TEMPLATE_NUMBER, segment.serviceNumber
+                SegmentActionTemplates.TEMPLATE_NUMBER, segment.serviceNumber.orEmpty()
             )
         } catch (e: Exception) {
             title
@@ -104,7 +103,7 @@ open class TripPreviewPagerItemViewModel : RxViewModel() {
         val url = TransportModeUtils.getIconUrlForModeInfo(context.resources, segment.modeInfo)
         modeIconUrl.set(url)
         var remoteIcon = Observable.empty<Drawable>()
-        if (segment.type == SegmentType.ARRIVAL || segment.type == SegmentType.DEPARTURE) {
+        if (segment.getType() == SegmentType.ARRIVAL || segment.getType() == SegmentType.DEPARTURE) {
             icon.set(ContextCompat.getDrawable(context, R.drawable.v4_ic_map_location))
         } else {
             if (segment.modeInfo == null || segment.modeInfo!!.modeCompat == null) {
@@ -150,12 +149,12 @@ open class TripPreviewPagerItemViewModel : RxViewModel() {
         requestedPickUp.set("")
         requestedDropOff.set("")
         if (segment.isHideExactTimes) {
-            if (segment.trip.queryTime > 0) {
-                val queryDateTime = segment.trip.queryDateTime
-                val date = queryDateTime.toString(DateTimeFormat.forPattern("MMM d, yyyy"))
-                val time = queryDateTime.toString(DateTimeFormat.forPattern("h:mm aa"))
+            if ((segment.trip?.queryTime ?: 0L) > 0) {
+                val queryDateTime = segment.trip?.queryDateTime
+                val date = queryDateTime?.toString(DateTimeFormat.forPattern("MMM d, yyyy"))
+                val time = queryDateTime?.toString(DateTimeFormat.forPattern("h:mm aa"))
                 val label = String.format(context.getString(R.string.requested_time), date, time)
-                if (segment.trip.queryIsLeaveAfter()) {
+                if (segment.trip?.queryIsLeaveAfter == true) {
                     requestedPickUp.set(label)
                 } else {
                     requestedDropOff.set(label)
@@ -178,8 +177,8 @@ open class TripPreviewPagerItemViewModel : RxViewModel() {
             requestedDropOff.set("$endDate $endTime")
         }
 
-        if (segment.trip.queryTime > 0) {
-            fetchRegionAndSetupPickUpMessage(segment.trip)
+        if ((segment.trip?.queryTime ?: 0L) > 0) {
+            fetchRegionAndSetupPickUpMessage(segment.trip!!)
         }
 
         hasPickUpWindow.set(
@@ -205,7 +204,7 @@ open class TripPreviewPagerItemViewModel : RxViewModel() {
     private fun getPickUpWindowMessage(trip: Trip, region: Region?) {
         val dateTime = trip.startDateTime
 
-        val timeZone: String? = region?.timezone ?: trip.segments.first().timeZone
+        val timeZone: String? = region?.timezone ?: trip.segmentList.first().timeZone
 
         val date = dateTime.toString(
             DateTimeFormat.forPattern("MMM d, yyyy")
@@ -221,18 +220,11 @@ open class TripPreviewPagerItemViewModel : RxViewModel() {
 
     fun getModeTitle(segment: TripSegment): String {
         return when {
-            !TextUtils.isEmpty(segment.serviceNumber) -> {
-                segment.serviceNumber
-            }
-            !segment.modeInfo?.description.isNullOrBlank() -> {
-                segment.modeInfo?.description ?: ""
-            }
-            segment.transportModeId != TransportMode.ID_WALK -> {
+            !TextUtils.isEmpty(segment.serviceNumber) -> segment.serviceNumber.orEmpty()
+            !segment.modeInfo?.description.isNullOrBlank() -> segment.modeInfo?.description ?: ""
+            segment.transportModeId != TransportMode.ID_WALK ->
                 DistanceFormatter.format(segment.metres)
-            }
-            else -> {
-                ""
-            }
+            else -> ""
         }
     }
 

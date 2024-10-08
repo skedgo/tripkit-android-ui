@@ -3,7 +3,7 @@ package com.skedgo.tripkit.ui.map
 import android.content.Context
 import android.content.res.Resources
 import com.google.android.gms.maps.model.MarkerOptions
-import com.skedgo.tripkit.common.model.Location
+import com.skedgo.tripkit.common.model.location.Location
 import com.skedgo.tripkit.data.database.locations.freefloating.FreeFloatingLocationEntity
 import com.skedgo.tripkit.ui.map.adapter.FreeFloatingVehicleInfoWindowAdapter
 import com.skedgo.tripkit.ui.map.adapter.StopInfoWindowAdapter
@@ -31,11 +31,11 @@ class FreeFloatingVehiclePOILocation(
         location.podIdentifier = freeFloatingLocationEntity.identifier
         location.phoneNumber = freeFloatingLocationEntity.vehicle.operator.phone
         location.name = freeFloatingLocationEntity.vehicle.operator.name
-        location.address = freeFloatingLocationEntity.address
+        location.address = freeFloatingLocationEntity.address.orEmpty()
         location.url = freeFloatingLocationEntity.vehicle.operator.website
         location.locationType = Location.TYPE_E_BIKE
         location.appUrl = freeFloatingLocationEntity.vehicle.operator.appInfo?.appURLAndroid
-        location.isWithExternalApp =
+        location.withExternalApp =
             !freeFloatingLocationEntity.vehicle.operator.appInfo?.appURLAndroid.isNullOrEmpty()
         return location
     }

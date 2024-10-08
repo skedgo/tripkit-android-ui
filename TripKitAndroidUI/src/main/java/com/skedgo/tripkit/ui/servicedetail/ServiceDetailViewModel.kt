@@ -13,9 +13,9 @@ import com.jakewharton.rxrelay2.PublishRelay
 import com.skedgo.TripKit
 import com.skedgo.tripkit.ServiceApi
 import com.skedgo.tripkit.ServiceResponse
-import com.skedgo.tripkit.common.model.RealtimeAlert
-import com.skedgo.tripkit.common.model.ScheduledStop
-import com.skedgo.tripkit.common.model.ServiceStop
+import com.skedgo.tripkit.common.model.realtimealert.RealtimeAlert
+import com.skedgo.tripkit.common.model.stop.ScheduledStop
+import com.skedgo.tripkit.common.model.stop.ServiceStop
 import com.skedgo.tripkit.data.regions.RegionService
 import com.skedgo.tripkit.logging.ErrorLogger
 import com.skedgo.tripkit.routing.*
@@ -170,12 +170,12 @@ class ServiceDetailViewModel @Inject constructor(
             .subscribe({
                 setup(
                     it.name!!,
-                    segment.serviceTripId,
+                    segment.serviceTripId.orEmpty(),
                     segment.serviceName,
                     segment.serviceNumber,
                     segment.serviceColor,
                     segment.serviceOperator,
-                    segment.startStopCode,
+                    segment.startStopCode.orEmpty(),
                     segment.endStopCode,
                     segment.timetableStartTime,
                     segment.realTimeVehicle,

@@ -1,6 +1,6 @@
 package com.skedgo.tripkit.ui.dialog.v2.datetimepicker
 
-import com.skedgo.tripkit.common.model.TimeTag
+import com.skedgo.tripkit.common.model.time.TimeTag
 import java.util.TimeZone
 
 data class DateTimePickerConfig(

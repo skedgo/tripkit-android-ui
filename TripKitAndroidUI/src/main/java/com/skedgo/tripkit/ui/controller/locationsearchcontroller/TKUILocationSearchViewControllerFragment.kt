@@ -7,8 +7,8 @@ import androidx.fragment.app.viewModels
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
 import com.skedgo.TripKit
-import com.skedgo.tripkit.common.model.Location
-import com.skedgo.tripkit.common.model.ScheduledStop
+import com.skedgo.tripkit.common.model.location.Location
+import com.skedgo.tripkit.common.model.stop.ScheduledStop
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.TripKitUI
 import com.skedgo.tripkit.ui.controller.ControllerDataProvider

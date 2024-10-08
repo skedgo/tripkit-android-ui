@@ -1,6 +1,6 @@
 package com.skedgo.tripkit.ui.data.realtime
 
-import com.skedgo.tripkit.common.model.RealtimeAlert
+import com.skedgo.tripkit.common.model.realtimealert.RealtimeAlert
 import com.skedgo.tripkit.routing.RealTimeVehicle
 
 fun LatestServiceResponse.toRealTimeVehicle() =

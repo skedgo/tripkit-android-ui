@@ -2,7 +2,7 @@ package com.skedgo.tripkit.ui.routing.autocompleter
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.skedgo.tripkit.common.model.Location
+import com.skedgo.tripkit.common.model.location.Location
 import com.skedgo.tripkit.regionrouting.RegionRoutingAutoCompleter
 import com.skedgo.tripkit.regionrouting.data.RegionRoute
 import com.skedgo.tripkit.ui.TripKitUI
@@ -22,7 +22,8 @@ class RouteAutocompleteViewModel @Inject constructor(
     private val _error = MutableLiveData<Throwable>()
     val error: LiveData<Throwable> = _error
 
-    private var location: Location? = Location(-33.9504502, 151.0309)
+    private var location: Location? =
+        Location(-33.9504502, 151.0309)
 
     private val regionRoutingAutoCompleter: RegionRoutingAutoCompleter by lazy {
         TripKitUI.getInstance().regionRoutingAutoCompleter()

@@ -2,7 +2,7 @@ package com.skedgo.tripkit.ui.locationhelper
 
 import android.content.Context
 import com.google.android.gms.location.FusedLocationProviderClient
-import com.skedgo.tripkit.common.model.Location
+import com.skedgo.tripkit.common.model.location.Location
 import com.skedgo.tripkit.AndroidGeocoder
 import io.reactivex.android.schedulers.AndroidSchedulers
 
@@ -81,7 +81,8 @@ class LocationHelper constructor(private var context: Context) {
         geocoder.getAddress(lat, lon)
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({
-                var location = Location()
+                var location =
+                    Location()
                 location.lat = lat
                 location.lon = lon
                 location.address = it

@@ -61,7 +61,7 @@ class TripPreviewPagerViewModel @Inject constructor(
         tripSegments.filter { it.visibility == Visibilities.VISIBILITY_IN_SUMMARY }
             .forEach { segment ->
                 getSegmentIcon(context, segment, getTransportIconTintStrategy) {
-                    if (previewHeaders.none { it.id == segment.id }) {
+                    if (previewHeaders.none { it.id == segment.segmentId }) {
                         previewHeaders.add(segment.generateTripPreviewHeader(it))
                     }
                     tripSummaryStream.onNext(previewHeaders)

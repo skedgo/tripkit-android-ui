@@ -1,7 +1,7 @@
 package com.skedgo.tripkit.ui.data.places
 
 import android.graphics.drawable.Drawable
-import com.skedgo.tripkit.common.model.Location
+import com.skedgo.tripkit.common.model.location.Location
 
 sealed class Place {
     abstract fun source(): String?

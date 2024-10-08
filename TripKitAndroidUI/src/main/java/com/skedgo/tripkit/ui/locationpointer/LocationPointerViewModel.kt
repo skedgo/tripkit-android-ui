@@ -1,19 +1,14 @@
 package com.skedgo.tripkit.ui.locationpointer
 
 import android.content.Context
-import androidx.databinding.ObservableBoolean
-import androidx.databinding.ObservableField
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.google.android.gms.maps.model.LatLng
-import com.jakewharton.rxrelay2.PublishRelay
 import com.skedgo.tripkit.AndroidGeocoder
-import com.skedgo.tripkit.common.model.Location
+import com.skedgo.tripkit.common.model.location.Location
 import com.skedgo.tripkit.ui.core.RxViewModel
-import com.skedgo.tripkit.ui.core.addTo
 import com.skedgo.tripkit.ui.database.location_history.LocationHistoryRepository
 import com.skedgo.tripkit.ui.utils.TapAction
-import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.rxkotlin.addTo
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.PublishSubject

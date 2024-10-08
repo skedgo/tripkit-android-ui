@@ -1,6 +1,6 @@
 package com.skedgo.tripkit.analytics
 
-import com.skedgo.tripkit.common.model.Location
+import com.skedgo.tripkit.common.model.location.Location
 
 fun String?.toSearchResultItemSource(): SearchResultItemSource = when (this) {
     Location.GOOGLE -> SearchResultItemSource.GoogleLocation

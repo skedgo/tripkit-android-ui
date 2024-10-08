@@ -1,7 +1,7 @@
 package com.skedgo.tripkit.ui.controller.locationsearchcontroller
 
 import android.content.Context
-import com.skedgo.tripkit.common.model.Location
+import com.skedgo.tripkit.common.model.location.Location
 import com.skedgo.tripkit.ui.search.LocationSearchIconProvider
 import com.skedgo.tripkit.ui.search.LocationSearchProvider
 import com.skedgo.tripkit.ui.search.SearchSuggestion

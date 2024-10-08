@@ -3,7 +3,7 @@ package com.skedgo.tripkit.ui.map.home;
 import android.util.Pair;
 
 import com.google.android.gms.maps.model.LatLngBounds;
-import com.skedgo.tripkit.common.model.Region;
+import com.skedgo.tripkit.common.model.region.Region;
 import com.skedgo.tripkit.common.util.StringUtils;
 import com.skedgo.tripkit.data.database.DbFields;
 import com.skedgo.tripkit.location.GeoPoint;

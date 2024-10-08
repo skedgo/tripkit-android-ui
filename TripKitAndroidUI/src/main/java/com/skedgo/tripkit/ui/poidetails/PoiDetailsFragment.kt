@@ -9,7 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.ViewModelProviders
 import com.jakewharton.rxrelay2.PublishRelay
-import com.skedgo.tripkit.common.model.Location
+import com.skedgo.tripkit.common.model.location.Location
 import com.skedgo.tripkit.ui.ARG_IS_DEPARTURE
 import com.skedgo.tripkit.ui.ARG_IS_FAVORITE
 import com.skedgo.tripkit.ui.ARG_IS_ROUTING

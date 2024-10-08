@@ -15,14 +15,14 @@ open class SegmentCameraUpdateRepository(
         segmentRelay
             .switchMap { segment ->
                 getSelectedTrip.execute()
-                    .map { it.segments }
+                    .map { it.segmentList }
                     .filter { it.contains(segment) }
                     .map { Pair(it as List<TripSegment>, segment) }
             }
             .map { (segments, selectedSegment) ->
                 // See the requirement in https://redmine.buzzhives.com/issues/8816#note-4.
                 when {
-                    selectedSegment.type != SegmentType.STATIONARY -> selectedSegment
+                    selectedSegment.getType() != SegmentType.STATIONARY -> selectedSegment
                     else -> {
                         val index = segments.indexOf(selectedSegment)
                         when {
@@ -42,15 +42,15 @@ open class SegmentCameraUpdateRepository(
         )
         return when {
             locations.size >= 2 -> return SegmentCameraUpdate.HasTwoLocations(
-                segment.id,
-                segment.from,
-                segment.to
+                segment.segmentId,
+                segment.from!!,
+                segment.to!!
             )
             locations.size == 1 -> SegmentCameraUpdate.HasOneLocation(
-                segment.id,
+                segment.segmentId,
                 locations.first()
             )
-            else -> SegmentCameraUpdate.HasEmptyLocations(segment.id)
+            else -> SegmentCameraUpdate.HasEmptyLocations(segment.segmentId)
         }
     }
 

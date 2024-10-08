@@ -1,6 +1,6 @@
 package com.skedgo.tripkit.ui.search
 
-import com.skedgo.tripkit.common.model.Location
+import com.skedgo.tripkit.common.model.location.Location
 import com.skedgo.tripkit.ui.data.places.Place
 
 sealed class SearchSuggestionChoice {

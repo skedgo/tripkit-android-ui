@@ -1,8 +1,8 @@
 package com.skedgo.tripkit.ui.model;
 
 import com.google.gson.annotations.SerializedName;
-import com.skedgo.tripkit.common.model.RealtimeAlert;
-import com.skedgo.tripkit.common.model.ScheduledStop;
+import com.skedgo.tripkit.common.model.realtimealert.RealtimeAlert;
+import com.skedgo.tripkit.common.model.stop.ScheduledStop;
 
 import java.util.ArrayList;
 import java.util.List;

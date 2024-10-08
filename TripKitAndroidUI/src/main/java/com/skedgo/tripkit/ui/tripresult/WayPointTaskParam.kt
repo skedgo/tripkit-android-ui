@@ -1,7 +1,7 @@
 package com.skedgo.tripkit.ui.tripresult
 
-import com.skedgo.tripkit.common.model.Location
-import com.skedgo.tripkit.common.model.Region
+import com.skedgo.tripkit.common.model.location.Location
+import com.skedgo.tripkit.common.model.region.Region
 import com.skedgo.tripkit.ui.model.TimetableEntry
 import com.skedgo.tripkit.routing.TripSegment
 import java.util.*

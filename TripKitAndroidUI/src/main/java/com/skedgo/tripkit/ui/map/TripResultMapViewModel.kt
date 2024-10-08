@@ -4,7 +4,7 @@ import com.gojuno.koptional.None
 import com.gojuno.koptional.Some
 import com.google.android.gms.maps.CameraUpdate
 import com.jakewharton.rxrelay2.BehaviorRelay
-import com.skedgo.tripkit.common.model.RealtimeAlert
+import com.skedgo.tripkit.common.model.realtimealert.RealtimeAlert
 import com.skedgo.tripkit.datetime.PrintTime
 import com.skedgo.tripkit.routing.Trip
 import com.skedgo.tripkit.routing.TripSegment
@@ -87,7 +87,7 @@ class TripResultMapViewModel @Inject internal constructor(
     }
 
     private fun Trip.processCameraUpdate() {
-        this.segments?.let { tripSegments ->
+        this.segmentList?.let { tripSegments ->
             Observable.timer(DELAY_MAP_CAMERA_UPDATE, TimeUnit.MILLISECONDS, Schedulers.io())
                 .subscribe({
                     // Run after the delay to make sure markers and segments will be drawn first
@@ -101,7 +101,7 @@ class TripResultMapViewModel @Inject internal constructor(
     }
 
     private fun Trip.processSegments() {
-        segmentsStream.onNext(this.segments)
+        segmentsStream.onNext(this.segmentList)
     }
 
     private fun Trip.processTravelledStopMarkerViewModels() {
@@ -131,7 +131,7 @@ class TripResultMapViewModel @Inject internal constructor(
     }
 
     private fun Trip.processMarkerViewModels() {
-        val tripSegments = this.segments
+        val tripSegments = this.segmentList
         alertMarkerViewModelsStream.onNext(
             tripSegments.flatMap { segment ->
                 (segment.alerts ?: emptyList<RealtimeAlert>())
@@ -147,7 +147,7 @@ class TripResultMapViewModel @Inject internal constructor(
     }
 
     private fun Trip.processMapTiles() {
-        val tripSegments = this.segments
+        val tripSegments = this.segmentList
         val segmentWithMapTiles = tripSegments.firstOrNull { it.mapTiles != null }
         mapTilesStream.onNext(segmentWithMapTiles?.mapTiles?.urlTemplates ?: emptyList())
     }
@@ -157,7 +157,7 @@ class TripResultMapViewModel @Inject internal constructor(
         tripGroupRepository.getTripGroup(tripGroupId)
             .subscribe { tripGroup ->
                 val trip = tripId?.let { id ->
-                    tripGroup.trips?.firstOrNull { it.id == id } ?: tripGroup.displayTrip
+                    tripGroup.trips?.firstOrNull { it.tripId == id } ?: tripGroup.displayTrip
                 } ?: tripGroup.displayTrip
                 trip?.let { selectedTrip.accept(it) }
             }.addTo(tripGroupDisposable)
@@ -184,7 +184,7 @@ class TripResultMapViewModel @Inject internal constructor(
     private fun toStopMarkerViewModels(
         trip: Trip,
         travelled: Boolean
-    ): Observable<StopMarkerViewModel> = Observable.fromIterable(trip.segments)
+    ): Observable<StopMarkerViewModel> = Observable.fromIterable(trip.segmentList)
         .flatMap { segment ->
             getStopsByTravelTypeLazy.get()
                 .execute(segment, travelled)

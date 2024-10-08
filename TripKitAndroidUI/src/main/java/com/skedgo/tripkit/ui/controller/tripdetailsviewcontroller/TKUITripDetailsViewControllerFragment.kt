@@ -175,7 +175,7 @@ class TKUITripDetailsViewControllerFragment :
     private fun viewTripSegment(tripGroupId: String) {
         CoroutineScope(Dispatchers.IO).launch {
             val tripGroup = tripGroupRepository.getTripGroup(tripGroupId).awaitFirstOrNull()
-            tripGroup?.trips?.first()?.segments?.first()?.let {
+            tripGroup?.trips?.first()?.segmentList?.first()?.let {
                 eventBus.publish(ViewControllerEvent.OnTripSegmentClicked(it))
             }
         }

@@ -3,7 +3,7 @@ package com.skedgo.tripkit.ui.map
 import android.content.Context
 import android.content.res.Resources
 import com.google.android.gms.maps.model.MarkerOptions
-import com.skedgo.tripkit.common.model.Location
+import com.skedgo.tripkit.common.model.location.Location
 import com.skedgo.tripkit.data.database.locations.bikepods.BikePodLocationEntity
 import com.skedgo.tripkit.ui.map.adapter.BikePodInfoWindowAdapter
 import com.skedgo.tripkit.ui.map.adapter.StopInfoWindowAdapter
@@ -32,10 +32,10 @@ class BikePodPOILocation(
         location.podIdentifier = bikePodEntity.identifier
         location.phoneNumber = bikePodEntity.bikePod.operator.phone
         location.name = bikePodEntity.bikePod.operator.name
-        location.address = bikePodEntity.address
+        location.address = bikePodEntity.address.orEmpty()
         location.url = bikePodEntity.bikePod.operator.website
         location.appUrl = bikePodEntity.bikePod.operator.appInfo?.appURLAndroid
-        location.isWithExternalApp =
+        location.withExternalApp =
             !bikePodEntity.bikePod.operator.appInfo?.appURLAndroid.isNullOrEmpty()
         return location
     }

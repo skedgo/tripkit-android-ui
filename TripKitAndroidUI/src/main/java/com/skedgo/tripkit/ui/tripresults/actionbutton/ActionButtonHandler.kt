@@ -3,7 +3,7 @@ package com.skedgo.tripkit.ui.tripresults.actionbutton
 import android.content.Context
 import androidx.annotation.DrawableRes
 import androidx.databinding.ObservableField
-import com.skedgo.tripkit.common.model.Location
+import com.skedgo.tripkit.common.model.location.Location
 import com.skedgo.tripkit.routing.Trip
 import com.skedgo.tripkit.routing.TripSegment
 import com.skedgo.tripkit.routing.getMainTripSegment
@@ -47,7 +47,7 @@ open class ActionButtonHandler {
     var queryToLocation: Location? = null
 
     protected fun segmentSearch(trip: Trip): TripSegment? {
-        return trip.segments.find {
+        return trip.segmentList.find {
             val itemType = it.correctItemType()
             (itemType == ITEM_QUICK_BOOKING || itemType == ITEM_EXTERNAL_BOOKING)
         }
@@ -71,8 +71,8 @@ open class ActionButtonHandler {
             return result
         } else {
             val mainSegment = trip.getMainTripSegment()
-            if (mainSegment != null && mainSegment.miniInstruction != null && mainSegment.miniInstruction.instruction != null) {
-                result.set(mainSegment.miniInstruction.instruction)
+            if (mainSegment != null && mainSegment.miniInstruction != null && mainSegment.miniInstruction?.instruction != null) {
+                result.set(mainSegment.miniInstruction?.instruction)
                 return result
             }
         }

@@ -79,7 +79,7 @@ class DirectionsTripPreviewItemViewModel : TripPreviewPagerItemViewModel() {
             }
             vm.roadTags = it.roadTags()?.map {
                 try {
-                    RoadTag.valueOf(it.replace("-", "_"))
+                    RoadTag.valueOf(it?.replace("-", "_").orEmpty())
                 } catch (e: Exception) {
                     RoadTag.UNKNOWN
                 }

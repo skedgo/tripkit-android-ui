@@ -94,7 +94,7 @@ internal class GetTripFromWaypointsImpl(
             )
         )
         if (response is NetworkResponse.Success) {
-            tg = response.body.tripGroupList.first()
+            tg = response.body.tripGroupList?.first()
         }
         return tg
     }

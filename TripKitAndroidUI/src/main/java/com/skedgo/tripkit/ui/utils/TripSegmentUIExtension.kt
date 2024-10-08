@@ -4,10 +4,9 @@ import android.content.Context
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.LayerDrawable
-import android.text.TextUtils
 import androidx.core.content.ContextCompat
 import com.google.android.gms.common.util.CollectionUtils
-import com.skedgo.tripkit.common.model.RealtimeAlert
+import com.skedgo.tripkit.common.model.realtimealert.RealtimeAlert
 import com.skedgo.tripkit.common.model.TransportMode
 import com.skedgo.tripkit.common.util.TimeUtils
 import com.skedgo.tripkit.common.util.TransportModeUtils
@@ -103,15 +102,15 @@ private fun TripSegment.shouldAttachAlertIconToSubtitle(): Boolean {
 fun TripSegment.generateTripPreviewHeader(icon: Drawable): TripSegmentSummary {
     val dateTimeFormatter = DateTimeFormat.forPattern("hh:mm a")
     return TripSegmentSummary(
-        id = this.id,
+        id = this.segmentId,
         title = this.getTitle(),
         subTitle = this.endDateTime.toString(dateTimeFormatter),
         icon = icon,
         description = "${
-            this.trip.startDateTime.toString(
+            this.trip?.startDateTime?.toString(
                 dateTimeFormatter
             )
-        } - ${this.trip.endDateTime.toString(dateTimeFormatter)}",
+        } - ${this.trip?.endDateTime?.toString(dateTimeFormatter)}",
         modeId = this.transportModeId,
         isHideExactTimes = this.isHideExactTimes
     )
@@ -124,21 +123,21 @@ fun TripSegment.generateTripPreviewHeader(
 ): TripSegmentSummary {
     val dateTimeFormatter = DateTimeFormat.forPattern("hh:mm a")
     return TripSegmentSummary(
-        id = this.id,
+        id = this.segmentId,
         title = this.getTitle(),
         subTitle = this.getSubtitle(context, this.trip, printTime),
         icon = icon,
         description = "${
-            this.trip.startDateTime.toString(
+            this.trip?.startDateTime?.toString(
                 dateTimeFormatter
             )
-        } - ${this.trip.endDateTime.toString(dateTimeFormatter)}",
+        } - ${this.trip?.endDateTime?.toString(dateTimeFormatter)}",
         modeId = this.transportModeId,
         isHideExactTimes = this.isHideExactTimes
     )
 }
 
-private fun TripSegment.getSubtitle(context: Context, trip: Trip, printTime: PrintTime): String? {
+private fun TripSegment.getSubtitle(context: Context, trip: Trip?, printTime: PrintTime): String? {
     when {
         this.isRealTime -> {
             return if (this.hasTimeTable()) {
@@ -152,7 +151,7 @@ private fun TripSegment.getSubtitle(context: Context, trip: Trip, printTime: Pri
             }
         }
 
-        trip.isMixedModal(false) && !this.hasTimeTable() -> {
+        trip?.isMixedModal(false) == true && !this.hasTimeTable() -> {
             return TimeUtils.getDurationInHoursMins(
                 context,
                 (this.endTimeInSecs - this.startTimeInSecs).toInt()
@@ -185,8 +184,8 @@ private fun TripSegment.getSubtitle(context: Context, trip: Trip, printTime: Pri
 
 private fun TripSegment.getTitle(): String {
     return when {
-        !TextUtils.isEmpty(this.serviceNumber) -> {
-            this.serviceNumber
+        !this.serviceNumber.isNullOrEmpty() -> {
+            this.serviceNumber!!
         }
 
         !this.modeInfo?.description.isNullOrBlank() -> {

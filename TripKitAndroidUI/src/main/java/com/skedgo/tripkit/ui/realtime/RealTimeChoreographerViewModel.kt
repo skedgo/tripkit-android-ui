@@ -3,7 +3,7 @@ package com.skedgo.tripkit.ui.realtime
 import androidx.lifecycle.ViewModel
 import com.jakewharton.rxrelay2.PublishRelay
 import com.skedgo.tripkit.common.agenda.IRealTimeElement
-import com.skedgo.tripkit.common.model.Region
+import com.skedgo.tripkit.common.model.region.Region
 import com.skedgo.tripkit.routing.RealTimeVehicle
 import io.reactivex.Observable
 import io.reactivex.schedulers.Schedulers

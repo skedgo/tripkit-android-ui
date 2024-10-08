@@ -124,10 +124,10 @@ class TripResultViewModel @Inject constructor(
         if (other == null
             || other !is TripResultViewModel
             || other.group.uuid() != group.uuid()
-            || other.trip.segments.size != trip.segments.size)
+            || other.trip.segmentList.size != trip.segmentList.size)
             return false
-        trip.segments.forEachIndexed { index, value ->
-            if (value.bookingHashCode != other.trip.segments[index].bookingHashCode) return false
+        trip.segmentList.forEachIndexed { index, value ->
+            if (value.bookingHashCode != other.trip.segmentList[index].bookingHashCode) return false
         }
 
         if (moreButtonText.get() != other.moreButtonText.get()) {
@@ -145,7 +145,7 @@ class TripResultViewModel @Inject constructor(
         tripResults.clear()
         group = tripgroup
         trip = tripgroup.displayTrip!!
-        otherTripGroups = tripgroup.trips?.filterNot { it.uuid() == trip.uuid() }
+        otherTripGroups = tripgroup.trips?.filterNot { it.uuid == trip.uuid }
         alternateTrip = otherTripGroups?.firstOrNull()
 
         if (classification != null && classification != TripGroupClassifier.Classification.NONE) {
@@ -157,7 +157,7 @@ class TripResultViewModel @Inject constructor(
         alternateTrip?.let {
             addTripToList(it)
             val otherTrips = otherTripGroups?.toMutableList()
-            otherTrips?.removeAll { otherTrip -> otherTrip.id == it.id }
+            otherTrips?.removeAll { otherTrip -> otherTrip.tripId == it.tripId }
             otherTripGroups = otherTrips
         }
 
@@ -165,7 +165,7 @@ class TripResultViewModel @Inject constructor(
         setMoneyCost()
 
         if (otherTripGroups.isNullOrEmpty()) {
-            if(!trip.hasQuickBooking() && trip.segments.none { it.bookingHasConfirmation } ) {
+            if(!trip.hasQuickBooking() && trip.segmentList.none { it.bookingHasConfirmation } ) {
                 val actionButtonText =
                     actionButtonHandler?.getPrimaryAction(context, trip)
 
@@ -180,7 +180,7 @@ class TripResultViewModel @Inject constructor(
         }
 
         trip.availabilityInfo?.let { _availabilityInfo.postValue(it) }
-        _isActionEnabled.postValue(trip.availability == Availability.Available)
+        _isActionEnabled.postValue(trip.getAvailability() == Availability.Available)
     }
 
     private fun addTripToList(trip: Trip) {
@@ -199,8 +199,8 @@ class TripResultViewModel @Inject constructor(
         newVm.title.set(buildTitle(context, trip))
         newVm.subtitle.set(buildSubtitle(context, trip))
         newVm.contentDescription.set(buildContentDescription(trip))
-        newVm.isMissedPreBooking.set(trip.segments?.first()?.availability.equals(Availability.MissedPrebookingWindow.value))
-        newVm.isHideExactTimes.set(trip.isHideExactTimes || trip.segments.any { it.isHideExactTimes })
+        newVm.isMissedPreBooking.set(trip.segmentList?.first()?.availability.equals(Availability.MissedPrebookingWindow.value))
+        newVm.isHideExactTimes.set(trip.hideExactTimes || trip.segmentList.any { it.isHideExactTimes })
         accessibilityLabel.set(getAccessibilityLabel() ?: context.getString(R.string.book))
         setSegments(newVm.segments, trip)
 
@@ -209,7 +209,7 @@ class TripResultViewModel @Inject constructor(
 
     private fun getAccessibilityLabel(): String? {
         var mAccessibilityLabel: String? = null
-        trip.segments?.forEach {
+        trip.segmentList?.forEach {
             if (!it.booking?.accessibilityLabel.isNullOrEmpty()) {
                 mAccessibilityLabel = it.booking?.accessibilityLabel
             }
@@ -219,7 +219,7 @@ class TripResultViewModel @Inject constructor(
 
     private fun buildContentDescription(trip: Trip): String? {
         val contentDescBuilder = StringBuilder()
-        trip.segments.forEach {
+        trip.segmentList.forEach {
             if (it.modeInfo != null) {
                 contentDescBuilder.append(it.modeInfo?.alternativeText).append(" ")
                 contentDescBuilder.append(it.modeInfo?.description).append(" ")
@@ -230,7 +230,7 @@ class TripResultViewModel @Inject constructor(
                     )
                 ).append(". ")
             }
-            if (it == trip.segments.last()) {
+            if (it == trip.segmentList.last()) {
                 contentDescBuilder.append(buildSubtitle(context, trip))
             }
         }
@@ -292,7 +292,7 @@ class TripResultViewModel @Inject constructor(
 
 
     private fun buildTitle(context: Context, _trip: Trip): String {
-        return if (_trip.isDepartureTimeFixed) {
+        return if (_trip.isDepartureTimeFixed()) {
             showTimeRange(_trip.startDateTime, _trip.endDateTime)
         } else {
             formatDuration(context, _trip.startTimeInSecs, _trip.endTimeInSecs)
@@ -321,9 +321,9 @@ class TripResultViewModel @Inject constructor(
         TimeUtils.getDurationInDaysHoursMins(context, (endTimeInSecs - startTimeInSecs).toInt())
 
     private fun buildSubtitle(context: Context, _trip: Trip): String {
-        return if (_trip.isDepartureTimeFixed) {
+        return if (_trip.isDepartureTimeFixed()) {
             formatDuration(context, _trip.startTimeInSecs, _trip.endTimeInSecs)
-        } else if (!_trip.queryIsLeaveAfter()) {
+        } else if (!_trip.queryIsLeaveAfter) {
             resources.getString(
                 R.string.departs__pattern,
                 printTime.printLocalTime(_trip.startDateTime.toLocalTime())
@@ -348,8 +348,8 @@ class TripResultViewModel @Inject constructor(
 
     private fun setCost() {
         var displayCost = trip.getDisplayCost(resources.getString(R.string.free))
-        var displayCarbon = trip.displayCarbonCost
-        var displayCalories = trip.displayCalories
+        var displayCarbon = trip.getDisplayCarbonCost()
+        var displayCalories = trip.getDisplayCalories()
         var builder = StringBuilder()
 
         displayCost?.let {
@@ -380,7 +380,7 @@ class TripResultViewModel @Inject constructor(
             return
         }
 
-        trip.displayCostUsd?.let {
+        trip.getDisplayCostUsd()?.let {
             _isMoneyCostVisible.postValue(true)
             _moneyCost.postValue(it)
         }

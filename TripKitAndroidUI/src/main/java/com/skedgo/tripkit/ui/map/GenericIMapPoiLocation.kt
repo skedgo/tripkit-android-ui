@@ -4,8 +4,8 @@ import android.content.Context
 import android.content.res.Resources
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.maps.model.PointOfInterest
-import com.skedgo.tripkit.common.model.Location
-import com.skedgo.tripkit.common.model.PoiLocation
+import com.skedgo.tripkit.common.model.location.Location
+import com.skedgo.tripkit.common.model.location.PoiLocation
 import com.skedgo.tripkit.ui.map.adapter.StopInfoWindowAdapter
 import com.skedgo.tripkit.ui.tracking.EventTracker
 import com.squareup.otto.Bus

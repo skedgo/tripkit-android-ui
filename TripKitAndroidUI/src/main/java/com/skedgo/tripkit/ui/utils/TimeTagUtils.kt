@@ -1,7 +1,7 @@
 package com.skedgo.tripkit.ui.utils
 
 import android.content.Context
-import com.skedgo.tripkit.common.model.TimeTag
+import com.skedgo.tripkit.common.model.time.TimeTag
 import com.skedgo.tripkit.ui.R
 import java.text.SimpleDateFormat
 import java.util.Date

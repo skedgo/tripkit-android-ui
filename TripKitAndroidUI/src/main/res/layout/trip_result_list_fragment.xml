@@ -266,6 +266,7 @@
                 android:background="@color/grey2"
                 app:itemBinding="@{viewModel.itemBinding}"
                 app:items="@{viewModel.mergedList}"
+                android:scrollbars="none"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 
         </com.skedgo.tripkit.ui.views.MultiStateView>

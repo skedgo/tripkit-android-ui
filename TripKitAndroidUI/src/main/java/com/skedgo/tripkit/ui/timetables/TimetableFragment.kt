@@ -20,7 +20,7 @@ import androidx.recyclerview.widget.LinearSmoothScroller
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.flexbox.FlexDirection
 import com.google.android.flexbox.FlexboxLayoutManager
-import com.skedgo.tripkit.common.model.ScheduledStop
+import com.skedgo.tripkit.common.model.stop.ScheduledStop
 import com.skedgo.tripkit.common.util.TimeUtils
 import com.skedgo.tripkit.routing.TripSegment
 import com.skedgo.tripkit.ui.BuildConfig

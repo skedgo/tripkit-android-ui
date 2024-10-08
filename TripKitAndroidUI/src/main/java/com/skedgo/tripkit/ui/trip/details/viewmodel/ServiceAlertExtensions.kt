@@ -1,6 +1,6 @@
 package com.skedgo.tripkit.ui.trip.details.viewmodel
 
-import com.skedgo.tripkit.common.model.RealtimeAlert
+import com.skedgo.tripkit.common.model.realtimealert.RealtimeAlert
 
 fun List<RealtimeAlert>?.getMostSevereAlert(): RealtimeAlert? {
     return this.orEmpty()

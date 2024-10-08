@@ -1,7 +1,7 @@
 package com.skedgo.tripkit.ui.search
 
 import androidx.annotation.DrawableRes
-import com.skedgo.tripkit.common.model.StopType
+import com.skedgo.tripkit.common.model.stop.StopType
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.utils.BindingConversions
 

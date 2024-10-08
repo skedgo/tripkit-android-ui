@@ -1,6 +1,6 @@
 package com.skedgo.tripkit.ui.geocoding;
 
-import com.skedgo.tripkit.common.model.Location;
+import com.skedgo.tripkit.common.model.location.Location;
 import com.skedgo.tripkit.ui.utils.HttpUtils;
 
 import java.io.IOException;

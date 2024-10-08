@@ -25,8 +25,8 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.skedgo.geocoding.LatLng
 import com.skedgo.rxtry.Failure
 import com.skedgo.rxtry.Success
-import com.skedgo.tripkit.common.model.Location
-import com.skedgo.tripkit.common.model.ScheduledStop
+import com.skedgo.tripkit.common.model.location.Location
+import com.skedgo.tripkit.common.model.stop.ScheduledStop
 import com.skedgo.tripkit.model.ViewTrip
 import com.skedgo.tripkit.routing.Trip
 import com.skedgo.tripkit.routing.TripGroup
@@ -583,7 +583,7 @@ class TKUIHomeViewControllerFragment :
 
             listen(ViewControllerEvent.OnTripSegmentClicked::class.java)
                 .subscribe {
-                    loadTripPreview(it.tripSegment, it.tripSegment.id)
+                    loadTripPreview(it.tripSegment, it.tripSegment.segmentId)
                 }.addTo(autoDisposable)
 
             listen(ViewControllerEvent.OnTripSegmentDataSetChange::class.java)
@@ -593,7 +593,7 @@ class TKUIHomeViewControllerFragment :
 
             listen(ViewControllerEvent.OnTripPrimaryActionClick::class.java)
                 .subscribe {
-                    loadTripPreview(it.tripSegment, it.tripSegment.id)
+                    loadTripPreview(it.tripSegment, it.tripSegment.segmentId)
                 }.addTo(autoDisposable)
 
             listen(ViewControllerEvent.OnViewPoiDetails::class.java)
@@ -779,14 +779,14 @@ class TKUIHomeViewControllerFragment :
         val headerFragment =
             TripPreviewHeaderFragment.newInstance(
                 pageIndexStream,
-                tripSegment.trip.isHideExactTimes ||
-                    tripSegment.trip.segments.any { it.isHideExactTimes }
+                tripSegment.trip?.hideExactTimes == true ||
+                    tripSegment.trip?.segmentList?.any { it.isHideExactTimes } ?: false
             )
         replaceFragment(headerFragment, TripPreviewHeaderFragment.TAG, R.id.topSheet, false)
 
         val fragment = TKUITripPreviewFragment.newInstance(
-            tripSegment.trip.group.uuid(),
-            tripSegment.trip.uuid(), segmentId,
+            tripSegment.trip?.group!!.uuid(),
+            tripSegment.trip!!.uuid, segmentId,
             initTripPreviewPagerFragmentListener(tripSegment),
             fromTripAction,
             pageIndexStream,
@@ -906,8 +906,8 @@ class TKUIHomeViewControllerFragment :
         val fragment = bottomSheetFragment.getFragmentByTag(TKUITripPreviewFragment.TAG)
         if (fragment?.isVisible == true) {
             val tripPreviewPagerFragment = fragment as TKUITripPreviewFragment
-            tripPreviewPagerFragment.setTripSegment(tripSegment, trip.segments)
-            tripPreviewPagerFragment.updateTripSegment(trip.segments)
+            tripPreviewPagerFragment.setTripSegment(tripSegment, trip.segmentList)
+            tripPreviewPagerFragment.updateTripSegment(trip.segmentList)
             tripPreviewPagerFragment.updateListener(initTripPreviewPagerFragmentListener(tripSegment))
         }
     }

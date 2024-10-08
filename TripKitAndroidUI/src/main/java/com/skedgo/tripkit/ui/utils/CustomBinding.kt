@@ -17,8 +17,8 @@ import androidx.databinding.BindingAdapter
 import com.bumptech.glide.load.model.GlideUrl
 import com.bumptech.glide.load.model.LazyHeaders
 import com.bumptech.glide.request.RequestOptions
-import com.skedgo.tripkit.common.model.AlertSeverity
-import com.skedgo.tripkit.common.model.RealtimeAlert
+import com.skedgo.tripkit.common.model.alert.AlertSeverity
+import com.skedgo.tripkit.common.model.realtimealert.RealtimeAlert
 import com.skedgo.tripkit.ui.GlideApp
 import com.skedgo.tripkit.ui.R
 

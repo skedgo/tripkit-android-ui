@@ -6,7 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.skedgo.tripkit.common.model.Location;
+import com.skedgo.tripkit.common.model.location.Location;
 import com.skedgo.tripkit.logging.ErrorLogger;
 import com.skedgo.tripkit.model.ViewTrip;
 import com.skedgo.tripkit.routing.Trip;

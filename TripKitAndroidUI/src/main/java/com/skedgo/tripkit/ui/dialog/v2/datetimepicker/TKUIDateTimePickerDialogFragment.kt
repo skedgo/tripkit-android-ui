@@ -4,7 +4,7 @@ import android.content.Context
 import android.os.Build
 import android.os.Bundle
 import androidx.fragment.app.viewModels
-import com.skedgo.tripkit.common.model.TimeTag
+import com.skedgo.tripkit.common.model.time.TimeTag
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.TripKitUI
 import com.skedgo.tripkit.ui.core.BaseDialog

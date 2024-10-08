@@ -6,8 +6,8 @@ import android.database.Cursor;
 
 import com.google.android.gms.common.util.CollectionUtils;
 import com.google.gson.Gson;
-import com.skedgo.tripkit.common.model.Location;
-import com.skedgo.tripkit.common.model.ScheduledStop;
+import com.skedgo.tripkit.common.model.location.Location;
+import com.skedgo.tripkit.common.model.stop.ScheduledStop;
 import com.skedgo.tripkit.data.database.DbFields;
 import com.skedgo.tripkit.data.locations.LocationsResponse;
 import com.skedgo.tripkit.data.locations.StopsFetcher;

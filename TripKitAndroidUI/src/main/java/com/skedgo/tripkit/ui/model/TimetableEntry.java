@@ -7,10 +7,10 @@ import android.util.Log;
 import com.google.gson.annotations.SerializedName;
 import com.skedgo.tripkit.common.agenda.IRealTimeElement;
 import com.skedgo.tripkit.common.model.BicycleAccessible;
-import com.skedgo.tripkit.common.model.ITimeRange;
-import com.skedgo.tripkit.common.model.RealTimeStatus;
-import com.skedgo.tripkit.common.model.RealtimeAlert;
-import com.skedgo.tripkit.common.model.ScheduledStop;
+import com.skedgo.tripkit.common.model.time.ITimeRange;
+import com.skedgo.tripkit.common.model.realtimealert.RealTimeStatus;
+import com.skedgo.tripkit.common.model.realtimealert.RealtimeAlert;
+import com.skedgo.tripkit.common.model.stop.ScheduledStop;
 import com.skedgo.tripkit.common.model.WheelchairAccessible;
 import com.skedgo.tripkit.common.rx.Var;
 import com.skedgo.tripkit.routing.ModeInfo;
@@ -230,6 +230,11 @@ public class TimetableEntry implements Parcelable, IRealTimeElement, ITimeRange,
     @Override
     public void setStartTimeInSecs(long startTimeInSecs) {
         this.serializedStartSecs = startTimeInSecs;
+    }
+
+    @Override
+    public long getStartTimeInSeconds() {
+        return serializedStartSecs;
     }
 
     @Override

@@ -3,7 +3,7 @@ package com.skedgo.tripkit.ui.data;
 import android.database.Cursor;
 
 import com.google.gson.Gson;
-import com.skedgo.tripkit.common.model.RealTimeStatus;
+import com.skedgo.tripkit.common.model.realtimealert.RealTimeStatus;
 import com.skedgo.tripkit.data.database.DbFields;
 import com.skedgo.tripkit.routing.ModeInfo;
 import com.skedgo.tripkit.routing.ServiceColor;

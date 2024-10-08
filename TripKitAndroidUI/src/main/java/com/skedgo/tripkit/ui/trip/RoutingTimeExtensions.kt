@@ -1,6 +1,6 @@
 package com.skedgo.tripkit.ui.trip
 
-import com.skedgo.tripkit.common.model.TimeTag
+import com.skedgo.tripkit.common.model.time.TimeTag
 import com.skedgo.tripkit.routing.toSeconds
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone

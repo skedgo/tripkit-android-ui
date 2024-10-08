@@ -8,8 +8,8 @@ import android.util.Pair
 import android.util.SparseArray
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.PolyUtil
-import com.skedgo.tripkit.common.model.Location
-import com.skedgo.tripkit.common.model.ScheduledStop
+import com.skedgo.tripkit.common.model.location.Location
+import com.skedgo.tripkit.common.model.stop.ScheduledStop
 import com.skedgo.tripkit.common.util.TimeUtils
 import com.skedgo.tripkit.data.database.DbFields
 import com.skedgo.tripkit.ui.TripKitUI
@@ -178,11 +178,11 @@ class FetchService @Inject constructor(
                         stopItem.type = stop.type
                     }
 
-                    if (mIdToLatLngArray.get(stopItem.id.toInt()) == null) {
+                    if (mIdToLatLngArray.get(stopItem.mId.toInt()) == null) {
                         val waypointEncoding: String = shape.encodedWaypoints
                         if (waypointEncoding.isNotEmpty()) {
                             mIdToLatLngArray.put(
-                                stopItem.id.toInt(),
+                                stopItem.mId.toInt(),
                                 Pair<Int, List<LatLng>>(
                                     shape.serviceColor.color,
                                     PolyUtil.decode(waypointEncoding)
@@ -193,7 +193,7 @@ class FetchService @Inject constructor(
 
                     stopInfoList.add(
                         StopInfo(
-                            stopItem.id.toInt(),
+                            stopItem.mId.toInt(),
                             null,
                             sortByArrive,
                             stopItem,
@@ -224,7 +224,7 @@ class FetchService @Inject constructor(
         if (TextUtils.equals(stop.code, code)) {
             return stop
         } else if (stop.hasChildren()) {
-            for (stopChild in stop.children) {
+            for (stopChild in stop.children.orEmpty()) {
                 if (TextUtils.equals(stopChild.code, code)) {
                     return stopChild
                 }

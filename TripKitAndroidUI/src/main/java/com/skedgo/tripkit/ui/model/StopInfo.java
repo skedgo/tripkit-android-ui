@@ -1,7 +1,7 @@
 package com.skedgo.tripkit.ui.model;
 
-import com.skedgo.tripkit.common.model.RealTimeStatus;
-import com.skedgo.tripkit.common.model.ServiceStop;
+import com.skedgo.tripkit.common.model.realtimealert.RealTimeStatus;
+import com.skedgo.tripkit.common.model.stop.ServiceStop;
 
 /**
  * Thuy's remark: This should have been {@link ServiceStop}.

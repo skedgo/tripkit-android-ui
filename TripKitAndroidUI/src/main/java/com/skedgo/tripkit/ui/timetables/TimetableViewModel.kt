@@ -10,9 +10,9 @@ import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.DiffUtil
 import com.jakewharton.rxrelay2.BehaviorRelay
 import com.jakewharton.rxrelay2.PublishRelay
-import com.skedgo.tripkit.common.model.RealtimeAlert
-import com.skedgo.tripkit.common.model.Region
-import com.skedgo.tripkit.common.model.ScheduledStop
+import com.skedgo.tripkit.common.model.realtimealert.RealtimeAlert
+import com.skedgo.tripkit.common.model.region.Region
+import com.skedgo.tripkit.common.model.stop.ScheduledStop
 import com.skedgo.tripkit.data.regions.RegionService
 import com.skedgo.tripkit.routing.Trip
 import com.skedgo.tripkit.routing.TripGroup
@@ -318,6 +318,7 @@ class TimetableViewModel @Inject constructor(
                 serviceNumbers.set(tmpServiceList.distinctBy { it.serviceNumber }
                     .sortedBy { it.serviceNumber })
             }, {
+                if(BuildConfig.DEBUG) it.printStackTrace()
                 Timber.e(it)
                 onError.accept(
                     it.message
@@ -331,7 +332,9 @@ class TimetableViewModel @Inject constructor(
             .take(1)
             .subscribe({
                 scrollToNow.accept(getFirstNowPosition(it))
-            }, {}).autoClear()
+            }, {
+                if(BuildConfig.DEBUG) it.printStackTrace()
+            }).autoClear()
     }
 
     fun withBookingActions(bookingActions: ArrayList<String>?, segment: TripSegment?) {
@@ -401,7 +404,7 @@ class TimetableViewModel @Inject constructor(
         val waypoints = mutableListOf<Waypoint>()
         var segmentToShowIndex = 0
 
-        tripSegment?.trip?.segments?.filter {
+        tripSegment?.trip?.segmentList?.filter {
             !it.isContinuation && !it.isStationary
         }?.mapIndexed { index, segment ->
             if (segment == tripSegment) {
@@ -453,7 +456,7 @@ class TimetableViewModel @Inject constructor(
             val trip = tripGroup.displayTrip ?: tripGroup.trips?.first()
             if (trip != null) {
                 _showTimetableEntry.postValue(
-                    ShowTimetableEntry(tripGroup, trip, trip.segments[segmentToShowIndex])
+                    ShowTimetableEntry(tripGroup, trip, trip.segmentList[segmentToShowIndex])
                 )
             }
         }

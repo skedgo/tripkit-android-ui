@@ -6,7 +6,7 @@ import android.graphics.drawable.Drawable;
 
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.Marker;
-import com.skedgo.tripkit.common.model.Location;
+import com.skedgo.tripkit.common.model.location.Location;
 import com.skedgo.tripkit.configuration.ServerManager;
 import com.skedgo.tripkit.routing.RealTimeVehicle;
 import com.squareup.picasso.Picasso;

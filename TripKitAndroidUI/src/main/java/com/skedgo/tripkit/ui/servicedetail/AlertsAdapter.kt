@@ -5,7 +5,7 @@ import android.view.ViewGroup
 import androidx.databinding.BindingAdapter
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.RecyclerView
-import com.skedgo.tripkit.common.model.RealtimeAlert
+import com.skedgo.tripkit.common.model.realtimealert.RealtimeAlert
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.databinding.ItemServiceAlertBinding
 import com.skedgo.tripkit.ui.utils.AutoUpdatableAdapter

@@ -1,6 +1,6 @@
 package com.skedgo.tripkit.ui.database.location_history
 
-import com.skedgo.tripkit.common.model.Location
+import com.skedgo.tripkit.common.model.location.Location
 import io.reactivex.Completable
 import io.reactivex.Single
 

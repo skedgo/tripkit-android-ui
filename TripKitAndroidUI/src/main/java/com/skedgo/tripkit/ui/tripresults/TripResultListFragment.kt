@@ -2,8 +2,6 @@ package com.skedgo.tripkit.ui.tripresults
 
 import android.content.Context
 import android.os.Bundle
-import android.text.format.DateUtils
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,11 +10,10 @@ import androidx.lifecycle.ViewModelProviders
 import com.google.android.flexbox.FlexDirection
 import com.google.android.flexbox.FlexboxLayoutManager
 import com.skedgo.TripKit
-import com.skedgo.tripkit.Configs
 import com.skedgo.tripkit.TransportModeFilter
 import com.skedgo.tripkit.common.model.Query
-import com.skedgo.tripkit.common.model.Region
-import com.skedgo.tripkit.common.model.TimeTag
+import com.skedgo.tripkit.common.model.region.Region
+import com.skedgo.tripkit.common.model.time.TimeTag
 import com.skedgo.tripkit.data.regions.RegionService
 import com.skedgo.tripkit.model.ViewTrip
 import com.skedgo.tripkit.routing.TripGroup

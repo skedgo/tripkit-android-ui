@@ -1,7 +1,7 @@
 package com.skedgo.tripkit.ui.tripresult
 
 import android.content.Context
-import com.skedgo.tripkit.common.model.Region
+import com.skedgo.tripkit.common.model.region.Region
 import com.skedgo.tripkit.data.regions.RegionService
 import com.skedgo.tripkit.ui.model.TimetableEntry
 import com.skedgo.tripkit.ui.routingresults.TripGroupRepository
@@ -31,7 +31,7 @@ open class GetAlternativeTripForAlternativeService
             .singleOrError()
             .zipWith(tripGroupRepository.getTripSegmentByIdAndTripId(
                 segmentId = tripSegmentId,
-                tripId = trip.uuid()
+                tripId = trip.uuid
             ),
                 BiFunction<Region, TripSegment, Pair<Region, TripSegment>> { region, segment -> region to segment })
             .flatMap { (region, segment) ->
@@ -40,7 +40,7 @@ open class GetAlternativeTripForAlternativeService
                         context, configRepository,
                         WayPointTaskParam.ForChangingService(
                             region,
-                            trip.segments,
+                            trip.segmentList,
                             segment,
                             selectedService
                         )

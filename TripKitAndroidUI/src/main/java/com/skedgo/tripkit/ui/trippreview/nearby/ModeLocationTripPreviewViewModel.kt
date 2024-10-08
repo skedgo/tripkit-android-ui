@@ -48,24 +48,24 @@ class ModeLocationTripPreviewViewModel @Inject constructor(private val locationI
             val vehicle = segment.sharedVehicle
             val vehicleVm = InfoGroupViewModel()
             vehicleVm.title.set(
-                vehicle.vehicleType()?.title()
-                    ?: getSharedVehicleType(vehicle.vehicleTypeInfo()?.formFactor ?: "")?.title()
+                vehicle?.vehicleType()?.title()
+                    ?: getSharedVehicleType(vehicle?.vehicleTypeInfo()?.formFactor ?: "")?.title()
                     ?: R.string.car
             )
-            vehicleVm.value.set(vehicle.name())
+            vehicleVm.value.set(vehicle?.name())
             vehicleVm.icon.set(
-                vehicle.vehicleType()?.iconId
-                    ?: getSharedVehicleType(vehicle.vehicleTypeInfo()?.formFactor ?: "")?.iconId
+                vehicle?.vehicleType()?.iconId
+                    ?: getSharedVehicleType(vehicle?.vehicleTypeInfo()?.formFactor ?: "")?.iconId
             )
             infoGroups.add(vehicleVm)
 
-            if (vehicle.batteryRange() != null) {
+            if (vehicle?.batteryRange() != null) {
                 val batteryVm = InfoGroupViewModel()
                 batteryVm.title.set(R.string.battery)
                 batteryVm.value.set(DistanceFormatter.format(vehicle.batteryRange()!! * 1000))
                 batteryVm.icon.set(R.drawable.ic_battery)
                 infoGroups.add(batteryVm)
-            } else if (vehicle.batteryLevel() != null) {
+            } else if (vehicle?.batteryLevel() != null) {
                 val batteryLevelVm = InfoGroupViewModel()
                 batteryLevelVm.title.set(R.string.battery)
                 batteryLevelVm.value.set(String.format("%d%%", vehicle.batteryLevel()))
@@ -81,7 +81,7 @@ class ModeLocationTripPreviewViewModel @Inject constructor(private val locationI
                 infoGroups.add(batteryLevelVm)
             }
 
-            (segment.sharedVehicle.operator()?.website ?: segment.sharedVehicle.deepLink())?.let {
+            (segment.sharedVehicle?.operator()?.website ?: segment.sharedVehicle?.deepLink())?.let {
                 website.set(it.checkUrl())
                 showWebsite.set(true)
             }

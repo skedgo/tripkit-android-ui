@@ -4,8 +4,8 @@ import android.content.Context
 import android.graphics.drawable.Drawable
 import androidx.core.content.ContextCompat
 import androidx.databinding.ObservableField
-import com.skedgo.tripkit.common.model.Location
-import com.skedgo.tripkit.common.model.ScheduledStop
+import com.skedgo.tripkit.common.model.location.Location
+import com.skedgo.tripkit.common.model.stop.ScheduledStop
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.data.places.Place
 import com.skedgo.tripkit.ui.utils.TapAction
@@ -93,7 +93,8 @@ class GoogleAndTripGoSuggestionViewModel(
             place.location
         } else {
             val prediction = (place as Place.WithoutLocation).prediction
-            val location = Location(-1.0, -1.0)
+            val location =
+                Location(-1.0, -1.0)
             location.source = place.source()
             location.locationType = place.locationType()
             location.name = prediction.primaryText
@@ -105,11 +106,11 @@ class GoogleAndTripGoSuggestionViewModel(
     override val title: String by lazy {
 
         if (!location.name.isNullOrEmpty()) {
-            return@lazy location.name
+            return@lazy location.name!!
         }
 
         if (!location.address.isNullOrEmpty()) {
-            return@lazy location.address
+            return@lazy location.address!!
         }
 
         return@lazy context.getString(R.string.unknown_location)
@@ -120,7 +121,7 @@ class GoogleAndTripGoSuggestionViewModel(
 
         if (place is Place.TripGoPOI && location is ScheduledStop) {
             val scheduledStop = location as ScheduledStop
-            if (!scheduledStop.services.isEmpty()) {
+            if (!scheduledStop.services.isNullOrEmpty()) {
                 subtitle = scheduledStop.services
             }
 

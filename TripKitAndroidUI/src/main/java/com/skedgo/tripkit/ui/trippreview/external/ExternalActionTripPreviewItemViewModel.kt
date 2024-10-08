@@ -3,7 +3,7 @@ package com.skedgo.tripkit.ui.trippreview.external
 import android.content.Context
 import android.webkit.URLUtil
 import androidx.databinding.ObservableArrayList
-import com.skedgo.tripkit.common.model.Booking
+import com.skedgo.tripkit.common.model.booking.Booking
 import com.skedgo.tripkit.routing.TripSegment
 import com.skedgo.tripkit.ui.trippreview.TripPreviewPagerItemViewModel
 import me.tatarka.bindingcollectionadapter2.ItemBinding
@@ -24,7 +24,7 @@ class ExternalActionTripPreviewItemViewModel : TripPreviewPagerItemViewModel() {
         super.setSegment(context, segment)
         items.clear()
         segment.booking?.externalActions?.forEach {
-            generateTitle(context, it, segment.booking)?.let { title ->
+            generateTitle(context, it, segment.booking!!)?.let { title ->
                 val vm = ExternalActionViewModel()
                 vm.title.set(title)
                 vm.action = it

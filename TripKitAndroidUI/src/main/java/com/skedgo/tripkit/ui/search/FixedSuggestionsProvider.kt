@@ -2,8 +2,8 @@ package com.skedgo.tripkit.ui.search
 
 import android.content.Context
 import androidx.core.content.ContextCompat
-import com.skedgo.tripkit.common.model.Location
-import com.skedgo.tripkit.common.model.Region
+import com.skedgo.tripkit.common.model.location.Location
+import com.skedgo.tripkit.common.model.region.Region
 import com.skedgo.tripkit.ui.R
 
 
@@ -101,8 +101,8 @@ class DefaultFixedSuggestionsProvider(
         locations.forEach {
             list.add(
                 DefaultSearchSuggestion(
-                    it.address,
-                    it.name ?: it.address,
+                    it.displayAddress,
+                    it.name ?: it.displayAddress,
                     it.address,
                     R.color.title_text,
                     R.color.description_text,
@@ -127,8 +127,8 @@ class DefaultFixedSuggestionsProvider(
         locations.forEach {
             list.add(
                 DefaultSearchSuggestion(
-                    it.address ?: it.name,
-                    it.name,
+                    it.address ?: it.displayName,
+                    it.displayName,
                     it.address ?: null,
                     R.color.title_text,
                     R.color.description_text,
