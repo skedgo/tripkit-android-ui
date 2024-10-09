@@ -175,7 +175,7 @@ class ModeLocationTripPreviewItemFragment() : BaseTripKitFragment() {
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe { form ->
                 form.action?.let { action ->
-                    if (action.isDone) {
+                    if (action.done) {
 
                     }
                 }
