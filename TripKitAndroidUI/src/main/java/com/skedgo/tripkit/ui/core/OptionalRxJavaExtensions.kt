@@ -1,13 +1,12 @@
 package com.skedgo.tripkit.ui.core
 
-import com.gojuno.koptional.None
-import com.gojuno.koptional.Optional
-import com.gojuno.koptional.Some
+import com.skedgo.tripkit.utils.OptionalCompat
 import io.reactivex.Observable
 
-@Suppress("UNCHECKED_CAST")
-fun <T : Any> Observable<out Optional<T>>.filterSome(): Observable<T> =
-    ofType(Some::class.java).map { it.value as T }
+fun <T : Any> Observable<out OptionalCompat<T>>.filterSome(): Observable<T> =
+    this.filter { it.isPresent() } // Check if OptionalCompat contains a value
+        .map { it.get() } // Extract the value from OptionalCompat
 
-fun <T : Any> Observable<out Optional<T>>.filterNone(): Observable<Unit> =
-    ofType(None::class.java).map { Unit }
+fun <T : Any> Observable<out OptionalCompat<T>>.filterNone(): Observable<Unit> =
+    this.filter { !it.isPresent() } // Check if OptionalCompat is empty
+        .map { Unit } // Emit Unit when OptionalCompat is empty

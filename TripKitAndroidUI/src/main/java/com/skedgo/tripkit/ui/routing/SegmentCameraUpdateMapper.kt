@@ -1,8 +1,5 @@
 package com.skedgo.tripkit.ui.routing
 
-import com.gojuno.koptional.None
-import com.gojuno.koptional.Optional
-import com.gojuno.koptional.Some
 import com.google.android.gms.maps.CameraUpdate
 import com.google.android.gms.maps.CameraUpdateFactory.newLatLngBounds
 import com.google.android.gms.maps.CameraUpdateFactory.newLatLngZoom
@@ -13,21 +10,22 @@ import com.skedgo.tripkit.ui.tripresult.CameraUpdatePadding
 import com.skedgo.tripkit.ui.tripresult.OneKilometers
 import com.skedgo.tripkit.ui.tripresult.ZoomOnSingleLocation
 import com.skedgo.tripkit.ui.tripresult.ZoomToCoverFirstOneKilometers
+import com.skedgo.tripkit.utils.OptionalCompat
 import javax.inject.Inject
 
 open class SegmentCameraUpdateMapper @Inject internal constructor() {
-    open fun toCameraUpdate(segmentCameraUpdate: SegmentCameraUpdate): Optional<CameraUpdate> =
+    open fun toCameraUpdate(segmentCameraUpdate: SegmentCameraUpdate): OptionalCompat<CameraUpdate> =
         when (segmentCameraUpdate) {
             is SegmentCameraUpdate.HasTwoLocations ->
                 if (segmentCameraUpdate.getDistanceInMeters() > OneKilometers) {
-                    Some(
+                    OptionalCompat.ofNullable(
                         newLatLngZoom(
                             segmentCameraUpdate.start.toLatLng(),
                             ZoomToCoverFirstOneKilometers
                         )
                     )
                 } else {
-                    Some(
+                    OptionalCompat.ofNullable(
                         newLatLngBounds(
                             LatLngBounds.builder()
                                 .include(segmentCameraUpdate.start.toLatLng())
@@ -37,13 +35,13 @@ open class SegmentCameraUpdateMapper @Inject internal constructor() {
                         )
                     )
                 }
-            is SegmentCameraUpdate.HasOneLocation -> Some(
+            is SegmentCameraUpdate.HasOneLocation -> OptionalCompat.ofNullable(
                 newLatLngZoom(
                     segmentCameraUpdate.location.toLatLng(),
                     ZoomOnSingleLocation
                 )
             )
-            is SegmentCameraUpdate.HasEmptyLocations -> None
+            is SegmentCameraUpdate.HasEmptyLocations -> OptionalCompat.empty()
         }
 
     private fun SegmentCameraUpdate.HasTwoLocations.getDistanceInMeters(): Double =
