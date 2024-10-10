@@ -15,20 +15,22 @@ open class QueryLocationResolver @Inject constructor(
             return provider.get()
                 .firstOrError()
                 .map { location ->
-                    query.fromLocation = com.skedgo.tripkit.common.model.Location(
-                        location.latitude,
-                        location.longitude
-                    )
+                    query.fromLocation =
+                        com.skedgo.tripkit.common.model.location.Location(
+                            location.latitude,
+                            location.longitude
+                        )
                     query
                 }.toObservable()
         } else if (query.originIsCurrentLocation().not() && query.destinationIsCurrentLocation()) {
             return provider.get()
                 .firstOrError()
                 .map { location ->
-                    query.toLocation = com.skedgo.tripkit.common.model.Location(
-                        location.latitude,
-                        location.longitude
-                    )
+                    query.toLocation =
+                        com.skedgo.tripkit.common.model.location.Location(
+                            location.latitude,
+                            location.longitude
+                        )
                     query
                 }.toObservable()
         } else if (!query.originIsCurrentLocation() && !query.destinationIsCurrentLocation()) {

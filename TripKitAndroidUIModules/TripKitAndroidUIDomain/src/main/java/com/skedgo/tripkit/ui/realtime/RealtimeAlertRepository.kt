@@ -1,6 +1,6 @@
 package com.skedgo.tripkit.ui.realtime
 
-import com.skedgo.tripkit.common.model.RealtimeAlert
+import com.skedgo.tripkit.common.model.realtimealert.RealtimeAlert
 import io.reactivex.Observable
 
 interface RealtimeAlertRepository {

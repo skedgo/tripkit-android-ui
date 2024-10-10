@@ -1,6 +1,7 @@
 package com.skedgo.tripkit.ui.utils
 
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
 
 //For generic fragment replace use
 fun Fragment.replaceFragment(
@@ -44,4 +45,8 @@ fun Fragment.replaceFragment(
         transaction.addToBackStack(tag)
     }
     transaction.commit()
+}
+
+fun Fragment.popSpecificWithTag(tag: String) {
+    childFragmentManager.popBackStack(tag, FragmentManager.POP_BACK_STACK_INCLUSIVE)
 }

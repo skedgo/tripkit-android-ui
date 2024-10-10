@@ -6,10 +6,9 @@ import android.graphics.drawable.NinePatchDrawable
 import androidx.core.content.ContextCompat
 import androidx.databinding.ObservableField
 import androidx.databinding.ObservableInt
-import com.skedgo.tripkit.common.model.ServiceStop
+import com.skedgo.tripkit.common.model.stop.ServiceStop
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.core.RxViewModel
-import com.skedgo.tripkit.ui.model.StopInfo
 import com.skedgo.tripkit.ui.utils.TapAction
 import io.reactivex.android.schedulers.AndroidSchedulers
 import timber.log.Timber

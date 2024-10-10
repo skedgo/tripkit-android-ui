@@ -1,6 +1,6 @@
 package com.skedgo.tripkit.ui.generic.action_list
 
-import com.skedgo.tripkit.common.model.BookingConfirmationAction
+import com.skedgo.tripkit.common.model.booking.confirmation.BookingConfirmationAction
 
 data class Action(
     val label: String,

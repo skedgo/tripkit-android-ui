@@ -1,14 +1,11 @@
 package com.skedgo.tripkit.ui.map.servicestop
 
 import android.content.Context
-import com.gojuno.koptional.None
-import com.gojuno.koptional.Optional
-import com.gojuno.koptional.Some
 import com.google.android.gms.maps.model.MarkerOptions
 import com.jakewharton.rxrelay2.BehaviorRelay
-import com.skedgo.tripkit.common.model.RealTimeStatus
-import com.skedgo.tripkit.common.model.Region
-import com.skedgo.tripkit.common.model.ScheduledStop
+import com.skedgo.tripkit.common.model.realtimealert.RealTimeStatus
+import com.skedgo.tripkit.common.model.region.Region
+import com.skedgo.tripkit.common.model.stop.ScheduledStop
 import com.skedgo.tripkit.data.regions.RegionService
 import com.skedgo.tripkit.routing.RealTimeVehicle
 import com.skedgo.tripkit.tripplanner.DiffTransformer
@@ -20,6 +17,7 @@ import com.skedgo.tripkit.ui.realtime.RealTimeChoreographerViewModel
 import com.skedgo.tripkit.ui.servicedetail.FetchAndLoadServices
 import com.skedgo.tripkit.ui.servicedetail.GetStopDisplayText
 import com.skedgo.tripkit.ui.utils.ServiceLineOverlayTask
+import com.skedgo.tripkit.utils.OptionalCompat
 import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -69,9 +67,9 @@ class ServiceStopMapViewModel @Inject constructor(
         .switchMap {
             if (it.realTimeStatus in listOf(RealTimeStatus.IS_REAL_TIME, RealTimeStatus.CAPABLE)) {
                 realtimeViewModel.realTimeVehicleObservable(it)
-                    .map { Some(it) }
+                    .map { OptionalCompat.ofNullable(it) }
             } else {
-                Observable.just(None)
+                Observable.just(OptionalCompat.empty())
             }
         }
         .observeOn(AndroidSchedulers.mainThread())
@@ -115,9 +113,9 @@ class ServiceStopMapViewModel @Inject constructor(
     val viewPort by lazy {
         Observables
             .combineLatest(realtimeVehicle, serviceStop)
-            { realtimeVehicle: Optional<RealTimeVehicle>, stop: ScheduledStop ->
-                if (realtimeVehicle is Some) {
-                    with(realtimeVehicle.value.location) {
+            { realtimeVehicle: OptionalCompat<RealTimeVehicle>, stop: ScheduledStop ->
+                if (realtimeVehicle.isPresent()) {
+                    with(realtimeVehicle.get().location) {
                         if (this != null) {
                             return@combineLatest listOf(this.toLatLng(), stop.toLatLng())
                         }
@@ -133,7 +131,7 @@ class ServiceStopMapViewModel @Inject constructor(
         if (stop.code == service.stopCode || stop.children == null) {
             return stop
         }
-        for (child in stop.children) {
+        for (child in stop.children.orEmpty()) {
             if (child.code == service.stopCode) {
                 return child
             }

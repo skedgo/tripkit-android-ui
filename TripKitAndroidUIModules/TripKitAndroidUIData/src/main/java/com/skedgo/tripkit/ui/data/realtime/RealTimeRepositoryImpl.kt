@@ -22,7 +22,7 @@ class RealTimeRepositoryImpl @Inject constructor(
     ): Single<List<RealTimeVehicle>> =
         regionService.getRegionByNameAsync(region)
             .flatMap {
-                Observable.fromIterable(it.urLs)
+                Observable.fromIterable(it.getURLs())
             }
             .map {
                 it.toHttpUrlOrNull()!!
@@ -38,7 +38,7 @@ class RealTimeRepositoryImpl @Inject constructor(
                         .serviceTripID(it.serviceTripId)
                         .startStopCode(it.startStopCode)
                         .endStopCode(it.endStopCode)
-                        .startTime(it.startTimeInSecs)
+                        .startTime(it.startTimeInSeconds)
                         .build()
                 }
 

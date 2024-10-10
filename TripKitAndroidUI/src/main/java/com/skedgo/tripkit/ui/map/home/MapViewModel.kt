@@ -14,7 +14,7 @@ import com.skedgo.rxtry.Success
 import com.skedgo.rxtry.Try
 import com.skedgo.tripkit.camera.GetInitialMapCameraPosition
 import com.skedgo.tripkit.camera.PutMapCameraPosition
-import com.skedgo.tripkit.common.model.Location
+import com.skedgo.tripkit.common.model.location.Location
 import com.skedgo.tripkit.common.model.TransportMode
 import com.skedgo.tripkit.location.GeoPoint
 import com.skedgo.tripkit.location.GoToMyLocationRepository
@@ -110,7 +110,7 @@ class MapViewModel @Inject internal constructor(
     private fun hidePoi(identifier: String): Boolean {
         var _toRemove = false
         transportModes?.forEach {
-            if (identifier.contains(it.id) && !_toRemove) {
+            if (identifier.contains(it.id ?: "") && !_toRemove) {
                 _toRemove = true
             }
         }
@@ -174,7 +174,10 @@ class MapViewModel @Inject internal constructor(
         pinUpdateRepository.getDestinationPinUpdate()
 
     private fun createMyLocationViewModel(result: Success<GeoPoint>): Location =
-        Location(result().latitude, result().longitude).also {
+        Location(
+            result().latitude,
+            result().longitude
+        ).also {
             it.name = resources.getString(R.string.current_location)
         }
 

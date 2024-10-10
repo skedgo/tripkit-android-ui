@@ -27,7 +27,7 @@ import com.skedgo.tripkit.ui.timetables.TimetableFragment
 import com.skedgo.tripkit.ui.trippreview.Action
 import com.skedgo.tripkit.ui.trippreview.TripPreviewPagerListener
 import com.skedgo.tripkit.ui.trippreview.TripPreviewPagerViewModel
-import com.skedgo.tripkit.ui.trippreview.segment.TripSegmentSummary
+import com.skedgo.tripkit.ui.trippreview.segment.TripSegmentsSummaryData
 import com.skedgo.tripkit.ui.tripresults.GetTransportIconTintStrategy
 import com.skedgo.tripkit.ui.utils.ITEM_SERVICE
 import com.skedgo.tripkit.ui.utils.correctItemType
@@ -52,7 +52,7 @@ class TKUITripPreviewFragment : BaseFragment<FragmentTkuiTripPreviewBinding>() {
     lateinit var adapter: TripPreviewPagerAdapter
 
     private var currentPagerIndex = 0
-    private var previewHeadersCallback: ((List<TripSegmentSummary>) -> Unit)? = null
+    private var previewHeadersCallback: ((TripSegmentsSummaryData) -> Unit)? = null
     private var pageIndexStream: PublishSubject<Pair<Long, String>>? = null
     private var paymentDataStream: PublishSubject<PaymentData>? = null
     private var ticketActionStream: PublishSubject<String>? = null
@@ -104,18 +104,18 @@ class TKUITripPreviewFragment : BaseFragment<FragmentTkuiTripPreviewBinding>() {
 
             observe(tripGroupFromPolling) {
                 it?.let { tripGroup ->
-                    val trip = tripGroup.trips?.find { trip -> trip.uuid() == tripId }
+                    val trip = tripGroup.trips?.find { trip -> trip.uuid == tripId }
                     trip?.let { latestTrip = trip }
                 }
             }
 
-            observe(headers) {
+            observe(headersData) {
                 it?.let {
                     previewHeadersCallback?.invoke(it)
                     if (currentPagerIndex > 0 && currentPagerIndex < adapter.pages.size) {
                         adapter.getSegmentByPosition(currentPagerIndex).let {
                             fromPageListener = true
-                            pageIndexStream?.onNext(Pair(it.id, it.transportModeId.toString()))
+                            pageIndexStream?.onNext(Pair(it.segmentId, it.transportModeId.toString()))
                         }
                     }
                 }
@@ -126,7 +126,7 @@ class TKUITripPreviewFragment : BaseFragment<FragmentTkuiTripPreviewBinding>() {
     private fun generateTripList(tripGroup: TripGroup) {
         if (fromReload) return
 
-        val trip = tripGroup.trips?.find { it.uuid() == tripId }
+        val trip = tripGroup.trips?.find { it.uuid == tripId }
         trip?.let {
             latestTrip = trip
             val list = ArrayList<TripGroup>()
@@ -142,13 +142,13 @@ class TKUITripPreviewFragment : BaseFragment<FragmentTkuiTripPreviewBinding>() {
             var activeIndex =
                 adapter.setTripSegments(
                     tripSegmentHashCode,
-                    trip.segments
+                    trip.segmentList
                         .filter {
                             !it.isContinuation
                         }
                         .filter {
-                            it.type != SegmentType.DEPARTURE &&
-                                it.type != SegmentType.ARRIVAL
+                            it.getType() != SegmentType.DEPARTURE &&
+                                it.getType() != SegmentType.ARRIVAL
                         },
                     fromTripAction
                 )
@@ -276,7 +276,7 @@ class TKUITripPreviewFragment : BaseFragment<FragmentTkuiTripPreviewBinding>() {
                 currentPagerIndex = position
                 adapter.getSegmentByPosition(position).let {
                     fromPageListener = true
-                    pageIndexStream?.onNext(Pair(it.id, it.transportModeId.toString()))
+                    pageIndexStream?.onNext(Pair(it.segmentId, it.transportModeId.toString()))
 
                     /*
                     TripGoEventBus.publish(
@@ -299,25 +299,27 @@ class TKUITripPreviewFragment : BaseFragment<FragmentTkuiTripPreviewBinding>() {
 
     fun setTripSegment(segment: TripSegment, tripSegments: List<TripSegment>) {
         fromReload = true
-        tripPreviewPagerListener?.reportPlannedTrip(segment.trip, listOf(segment.trip.group))
+        tripPreviewPagerListener?.reportPlannedTrip(segment.trip, listOf(segment.trip?.group).filterNotNull())
 
         adapter.setTripSegments(
-            segment.id,
+            segment.segmentId,
             tripSegments
                 .filter {
                     !it.isContinuation
                 }.filter {
-                    it.type != SegmentType.DEPARTURE && it.type != SegmentType.ARRIVAL
+                    it.getType() != SegmentType.DEPARTURE && it.getType() != SegmentType.ARRIVAL
                 }
         )
 
-        viewModel.generatePreviewHeaders(
-            requireContext(),
-            segment.trip.getSummarySegments(),
-            getTransportIconTintStrategy,
-        )
+        segment.trip?.let { trip ->
+            viewModel.generatePreviewHeaders(
+                requireContext(),
+                trip.getSummarySegments(),
+                getTransportIconTintStrategy,
+            )
 
-        viewModel.updateTrip(segment.trip.group.uuid(), segment.trip.uuid(), segment.trip)
+            viewModel.updateTrip(trip.group?.uuid().orEmpty(), trip.uuid, trip)
+        }
     }
 
     fun updateTripSegment(tripSegments: List<TripSegment>) {
@@ -353,7 +355,7 @@ class TKUITripPreviewFragment : BaseFragment<FragmentTkuiTripPreviewBinding>() {
             pageIndexStream: PublishSubject<Pair<Long, String>>? = null,
             paymentDataStream: PublishSubject<PaymentData>? = null,
             ticketActionStream: PublishSubject<String>? = null,
-            previewHeadersCallback: ((List<TripSegmentSummary>) -> Unit)? = null
+            previewHeadersCallback: ((TripSegmentsSummaryData) -> Unit)? = null
         ) = TKUITripPreviewFragment().apply {
             this.tripGroupId = tripGroupId
             this.tripId = tripId

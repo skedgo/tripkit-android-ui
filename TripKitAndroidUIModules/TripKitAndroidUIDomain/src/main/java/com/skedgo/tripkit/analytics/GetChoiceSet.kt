@@ -31,8 +31,8 @@ open class GetChoiceSet @Inject constructor() {
                 trip.carbonCost,
                 trip.hassleCost,
                 trip.caloriesCost,
-                getMiniSegments(trip.segments),
-                trip.uuid() == selectedTrip.uuid(),
+                getMiniSegments(trip.segmentList),
+                trip.uuid == selectedTrip.uuid,
                 it.second.value,
                 trip.endTimeInSecs,
                 trip.startTimeInSecs
@@ -73,7 +73,7 @@ open class GetChoiceSet @Inject constructor() {
             MiniSegment(segmentType, it.endTimeInSecs - it.startTimeInSecs)
         }
 
-    private fun getSegmentMode(segment: TripSegment): String = when (segment.type) {
+    private fun getSegmentMode(segment: TripSegment): String = when (segment.getType()) {
         SegmentType.STATIONARY -> segment.modeInfo?.localIconName ?: "wait"
         else -> segment.transportModeId!!
     }

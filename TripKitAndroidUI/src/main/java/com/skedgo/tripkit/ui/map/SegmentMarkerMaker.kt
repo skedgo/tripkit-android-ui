@@ -35,7 +35,7 @@ class SegmentMarkerMaker @Inject internal constructor(
     }
 
     private fun getSnippet(segment: TripSegment): String? {
-        return if (segment.type === SegmentType.SCHEDULED) {
+        return if (segment.getType() === SegmentType.SCHEDULED) {
             val locationName = TripSegmentUtils.getLocationName(
                 TripSegmentUtils.getFirstNonNullLocation(
                     segment.from,
@@ -43,7 +43,7 @@ class SegmentMarkerMaker @Inject internal constructor(
                 )
             )
             String.format(context.resources.getString(R.string.from__pattern), locationName)
-        } else if (segment.type === SegmentType.UNSCHEDULED) {
+        } else if (segment.getType() === SegmentType.UNSCHEDULED) {
             val locationName = TripSegmentUtils.getLocationName(
                 TripSegmentUtils.getFirstNonNullLocation(
                     segment.to,

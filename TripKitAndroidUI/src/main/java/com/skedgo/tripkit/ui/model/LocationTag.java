@@ -3,7 +3,7 @@ package com.skedgo.tripkit.ui.model;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.skedgo.tripkit.common.model.Location;
+import com.skedgo.tripkit.common.model.location.Location;
 import com.skedgo.tripkit.ui.trip.options.SelectionType;
 
 import androidx.annotation.Nullable;

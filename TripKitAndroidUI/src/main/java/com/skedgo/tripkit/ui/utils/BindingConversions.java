@@ -1,7 +1,7 @@
 package com.skedgo.tripkit.ui.utils;
 
-import com.skedgo.tripkit.common.model.Location;
-import com.skedgo.tripkit.common.model.StopType;
+import com.skedgo.tripkit.common.model.location.Location;
+import com.skedgo.tripkit.common.model.stop.StopType;
 import com.skedgo.tripkit.ui.R;
 
 import androidx.annotation.DrawableRes;

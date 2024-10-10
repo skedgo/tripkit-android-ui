@@ -1,7 +1,6 @@
 package com.skedgo.tripkit.ui.database.location_history
 
-import com.skedgo.tripkit.common.model.Location
-import java.util.*
+import com.skedgo.tripkit.common.model.location.Location
 import javax.inject.Inject
 
 open class LocationHistoryMapper @Inject constructor() {
@@ -10,10 +9,10 @@ open class LocationHistoryMapper @Inject constructor() {
             .map {
                 LocationHistoryEntity(
                     name = it.name,
-                    address = it.address,
+                    address = it.displayAddress,
                     lat = it.lat,
                     lon = it.lon,
-                    exact = it.isExact,
+                    exact = it.exact,
                     bearing = it.bearing,
                     phone = it.phoneNumber ?: "",
                     url = it.url ?: "",
@@ -30,12 +29,13 @@ open class LocationHistoryMapper @Inject constructor() {
     fun toLocation(entities: List<LocationHistoryEntity>): List<Location> {
         return entities
             .map {
-                val result = Location().also { location ->
+                val result = Location()
+                    .also { location ->
                     location.name = it.name
                     location.address = it.address
                     location.lat = it.lat
                     location.lon = it.lon
-                    location.isExact = it.exact
+                    location.exact = it.exact
                     location.bearing = it.bearing
                     location.phoneNumber = it.phone
                     location.url = it.url

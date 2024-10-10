@@ -2,7 +2,7 @@ package com.skedgo.tripkit.ui.map
 
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
-import com.skedgo.tripkit.common.model.ScheduledStop
+import com.skedgo.tripkit.common.model.stop.ScheduledStop
 import com.skedgo.tripkit.data.regions.RegionService
 import com.skedgo.tripkit.ui.data.CursorToStopConverter
 import com.skedgo.tripkit.ui.map.home.GetCellIdsFromViewPort

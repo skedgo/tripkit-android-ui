@@ -1,13 +1,13 @@
 package com.skedgo.tripkit.tripplanner
 
-import com.gojuno.koptional.Optional
+import com.skedgo.tripkit.utils.OptionalCompat
 import io.reactivex.Observable
 
 interface PinUpdateRepository {
     fun getDestinationPinUpdate(): Observable<PinUpdate>
     fun getOriginPinUpdate(): Observable<PinUpdate>
-    fun setDestinationPinUpdate(type: Optional<NonCurrentType>)
-    fun setOriginPinUpdate(type: Optional<NonCurrentType>)
+    fun setDestinationPinUpdate(type: OptionalCompat<NonCurrentType>)
+    fun setOriginPinUpdate(type: OptionalCompat<NonCurrentType>)
     fun selectDestination()
     fun selectOrigin()
 }

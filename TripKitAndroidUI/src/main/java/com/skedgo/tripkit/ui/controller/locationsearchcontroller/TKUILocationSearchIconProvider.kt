@@ -1,6 +1,6 @@
 package com.skedgo.tripkit.ui.controller.locationsearchcontroller
 
-import com.skedgo.tripkit.common.model.StopType
+import com.skedgo.tripkit.common.model.stop.StopType
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.search.LocationSearchIconProvider
 

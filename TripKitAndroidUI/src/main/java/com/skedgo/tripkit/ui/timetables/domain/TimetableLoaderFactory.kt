@@ -5,7 +5,7 @@ import android.database.Cursor
 import android.text.TextUtils
 import androidx.loader.content.CursorLoader
 import androidx.loader.content.Loader
-import com.skedgo.tripkit.common.model.ScheduledStop
+import com.skedgo.tripkit.common.model.stop.ScheduledStop
 import com.skedgo.tripkit.data.database.DbFields
 import com.skedgo.tripkit.ui.provider.TimetableProvider
 
@@ -60,8 +60,8 @@ class TimetableLoaderFactory {
                     // We show nothing
                     selectionBuilder.append(" AND 0=1")
                 } else {
-                    val stopCodes = stop.children.map { it.code }.plus(stop.code).map { "\'$it\'" }
-                        .joinToString(separator = ",")
+                    val stopCodes = stop.children?.map { it.code }?.plus(stop.code)?.map { "\'$it\'" }
+                        ?.joinToString(separator = ",")
                     selectionBuilder.append(" AND ").append(DbFields.STOP_CODE)
                         .append(" IN ($stopCodes)")
                 }
@@ -83,7 +83,7 @@ class TimetableLoaderFactory {
                 } else {
                     args = arrayOf(
                         sinceSecs.toString(),
-                        stop.code,
+                        stop.code.orEmpty(),
                         wildcard,
                         wildcard,
                         wildcard,
@@ -93,7 +93,7 @@ class TimetableLoaderFactory {
             } else if (stop.isParent) {
                 args = arrayOf(sinceSecs.toString())
             } else {
-                args = arrayOf(sinceSecs.toString(), stop.code)
+                args = arrayOf(sinceSecs.toString(), stop.code.orEmpty())
             }
 
             val selection = selectionBuilder.toString()

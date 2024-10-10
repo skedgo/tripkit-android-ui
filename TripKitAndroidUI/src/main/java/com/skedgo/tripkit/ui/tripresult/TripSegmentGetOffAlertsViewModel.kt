@@ -68,7 +68,7 @@ class TripSegmentGetOffAlertsViewModel @Inject internal constructor(
     internal var showGeofencesOnMap: (List<Pair<LatLng, Double>>) -> Unit = { _ -> }
 
     init {
-        val isOn = GetOffAlertCache.isTripAlertStateOn(trip.tripUuid)
+        val isOn = GetOffAlertCache.isTripAlertStateOn(trip.getTripUuid())
         _getOffAlertStateOn.postValue(isOn)
         _isVisible.postValue(configs.hasGetOffAlerts())
     }
@@ -82,7 +82,7 @@ class TripSegmentGetOffAlertsViewModel @Inject internal constructor(
     )
 
     fun validate() {
-        _getOffAlertStateOn.postValue(GetOffAlertCache.isTripAlertStateOn(trip.tripUuid))
+        _getOffAlertStateOn.postValue(GetOffAlertCache.isTripAlertStateOn(trip.getTripUuid()))
     }
 
     fun setup(context: Context, details: List<TripSegmentGetOffAlertDetailViewModel>) {
@@ -97,7 +97,7 @@ class TripSegmentGetOffAlertsViewModel @Inject internal constructor(
     fun onAlertChange(context: Context, isOn: Boolean) {
         trip.let {
             GetOffAlertCache.setTripAlertOnState(
-                it.tripUuid, it.group.uuid(), isOn
+                it.getTripUuid(), it.group?.uuid().orEmpty(), isOn
             )
         }
 
@@ -245,7 +245,7 @@ class TripSegmentGetOffAlertsViewModel @Inject internal constructor(
             val reminderInMinutes =
                 runBlocking { remindersRepository.getTripNotificationReminderMinutes() }
 
-            trip.segments?.minByOrNull { it.startTimeInSecs }?.let { startSegment ->
+            trip.segmentList?.minByOrNull { it.startTimeInSecs }?.let { startSegment ->
                 startSegmentStartTimeInSecs = startSegment.startTimeInSecs
                 val alarmIntent = Intent(context, TripAlarmBroadcastReceiver::class.java)
                 alarmIntent.putExtra(TripAlarmBroadcastReceiver.ACTION_START_TRIP_EVENT, true)
@@ -294,7 +294,7 @@ class TripSegmentGetOffAlertsViewModel @Inject internal constructor(
                 val reminder = TimeUnit.MINUTES.toSeconds(reminderInMinutes)
 
                 val currentDateTimeInSeconds = TimeUnit.MILLISECONDS.toSeconds(
-                    DateTime(System.currentTimeMillis(), trip.from.dateTimeZone).millis
+                    DateTime(System.currentTimeMillis(), trip.from?.dateTimeZone).millis
                 )
 
                 if (startSegmentStartTimeInSecs > currentDateTimeInSeconds &&
@@ -309,7 +309,7 @@ class TripSegmentGetOffAlertsViewModel @Inject internal constructor(
                         )
                     }
                 }
-                trip.segments?.mapNotNull { it.geofences }?.flatten()?.let { geofences ->
+                trip.segmentList?.mapNotNull { it.geofences }?.flatten()?.let { geofences ->
                     GeoLocation.createGeoFences(
                         trip,
                         geofences.map { geofence ->

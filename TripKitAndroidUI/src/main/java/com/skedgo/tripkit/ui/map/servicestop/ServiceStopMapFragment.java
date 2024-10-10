@@ -10,7 +10,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
 
-import com.gojuno.koptional.Some;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -20,8 +19,8 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
-import com.skedgo.tripkit.common.model.ScheduledStop;
-import com.skedgo.tripkit.common.model.ServiceStop;
+import com.skedgo.tripkit.common.model.stop.ScheduledStop;
+import com.skedgo.tripkit.common.model.stop.ServiceStop;
 import com.skedgo.tripkit.common.util.DateTimeFormats;
 import com.skedgo.tripkit.common.util.StringUtils;
 import com.skedgo.tripkit.data.regions.RegionService;
@@ -142,10 +141,10 @@ public class ServiceStopMapFragment
 
         getAutoDisposable().add(viewModel.getRealtimeVehicle()
             .subscribe(realTimeVehicleOptional -> {
-                if (realTimeVehicleOptional instanceof Some) {
-                    setRealTimeVehicle(((Some<RealTimeVehicle>) realTimeVehicleOptional).getValue());
+                if (realTimeVehicleOptional.isPresent()) { // Check if the value is present
+                    setRealTimeVehicle(realTimeVehicleOptional.get()); // Get the value from OptionalCompat
                 } else {
-                    setRealTimeVehicle(null);
+                    setRealTimeVehicle(null); // Handle empty OptionalCompat
                 }
             }));
     }

@@ -20,8 +20,7 @@ import com.skedgo.tripkit.routing.getBookingSegment
 import com.skedgo.tripkit.ui.ARG_SHOW_CLOSE_BUTTON
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.TripKitUI
-import com.skedgo.tripkit.ui.*
-import com.skedgo.tripkit.common.model.Location
+import com.skedgo.tripkit.common.model.location.Location
 import com.skedgo.tripkit.ui.booking.apiv2.BookingV2TrackingService
 import com.skedgo.tripkit.ui.core.BaseTripKitFragment
 import com.skedgo.tripkit.ui.core.addTo
@@ -239,14 +238,14 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
     }
 
     private fun startAndLogActivity(tripSegment: TripSegment, intent: Intent) {
-        tripSegment.booking?.virtualBookingUrl ?: tripSegment.trip.logURL?.let {
+        tripSegment.booking?.virtualBookingUrl ?: tripSegment.trip?.logURL?.let {
             lifecycleScope.launch { bookingService.logTrip(it) }
         }
         startActivity(intent)
     }
 
     private fun handleExternalBooking(tripSegment: TripSegment) {
-        tripSegment.booking.externalActions?.firstOrNull()?.let { action ->
+        tripSegment.booking?.externalActions?.firstOrNull()?.let { action ->
             val externalActionParams = ExternalActionParams.builder()
                 .action(action)
                 .segment(tripSegment)

@@ -10,7 +10,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.jakewharton.rxrelay2.PublishRelay
 import com.skedgo.tripkit.common.model.Query
-import com.skedgo.tripkit.common.model.TimeTag
+import com.skedgo.tripkit.common.model.time.TimeTag
 import com.skedgo.tripkit.RoutingError
 import com.skedgo.tripkit.TransportModeFilter
 import com.skedgo.tripkit.a2brouting.RouteService
@@ -33,6 +33,7 @@ import me.tatarka.bindingcollectionadapter2.collections.DiffObservableList
 import com.skedgo.tripkit.logging.ErrorLogger
 import com.skedgo.tripkit.routing.Trip
 import com.skedgo.tripkit.routing.TripGroup
+import com.skedgo.tripkit.routing.TripSegment
 import com.skedgo.tripkit.routingstatus.RoutingStatus
 import com.skedgo.tripkit.routingstatus.RoutingStatusRepository
 import com.skedgo.tripkit.routingstatus.Status
@@ -74,6 +75,7 @@ class TripResultListViewModel @Inject constructor(
     val timeLabel = ObservableField<String>()
 
     val onItemClicked = PublishRelay.create<ViewTrip>()
+    val onQuickBookingActionClicked = PublishRelay.create<TripSegment>()
     val onMoreButtonClicked = PublishRelay.create<Trip>()
     val onFinished = PublishRelay.create<Boolean>()
 
@@ -199,7 +201,7 @@ class TripResultListViewModel @Inject constructor(
             .observeOn(AndroidSchedulers.mainThread())
             .flatMapIterable { value -> value }
             .filter {
-                transportModeFilter!!.useTransportMode(it.id)
+                transportModeFilter!!.useTransportMode(it.id.orEmpty())
             }
             .map { mode ->
                 tripResultTransportItemViewModelProvider.get().apply {
@@ -366,11 +368,16 @@ class TripResultListViewModel @Inject constructor(
         tripFlow.onEach {
             val clickEvent = ViewTrip(
                 query = this.query,
-                tripGroupUUID = it.group.uuid(),
+                tripGroupUUID = it.group?.uuid().orEmpty(),
                 sortOrder = 1, /* TODO Proper sorting */
-                displayTripID = it.id
+                displayTripID = it.tripId
             )
             onItemClicked.accept(clickEvent)
+        }.launchIn(viewModelScope)
+
+        val quickBookingActionFlow = MutableSharedFlow<TripSegment>()
+        quickBookingActionFlow.onEach {
+            onQuickBookingActionClicked.accept(it)
         }.launchIn(viewModelScope)
 
         getSortedTripGroupsWithRoutingStatusProvider.get()
@@ -398,6 +405,7 @@ class TripResultListViewModel @Inject constructor(
                             actionButtonHandlerFactory?.createHandler(this@TripResultListViewModel)
                         this.actionButtonHandler = handler
                         this.clickFlow = tripFlow
+                        this.quickBookingActionClickFlow = quickBookingActionFlow
                         this.setTripGroup(context, group, classifier.classify(group))
                         onMoreButtonClicked.observable
                             .subscribe {
@@ -439,7 +447,7 @@ class TripResultListViewModel @Inject constructor(
     fun updateQueryTime(timeTag: TimeTag) {
         val currentQuery = query
         query = currentQuery.clone(true)
-        query.setTimeTag(timeTag)
+        query.timeTag = timeTag
         setTimeLabel()
         reload()
     }
@@ -452,6 +460,27 @@ class TripResultListViewModel @Inject constructor(
                 it.setTripGroup(context, newTripGroup, null)
                 return@forEach
             }
+        }
+    }
+
+    fun updateTripGroup(updatedTripGroup: TripGroup) {
+        var indexToUpdate = -1
+        results.forEachIndexed { index, item ->
+            if (item.group.uuid() == updatedTripGroup.uuid()) {
+                indexToUpdate = index
+                return@forEachIndexed
+            }
+        }
+
+        if (indexToUpdate != -1) {
+
+            val currentList = results.map { it }.toMutableList()
+            currentList[indexToUpdate].setTripGroup(context, updatedTripGroup, null)
+            val updatedItem = currentList[indexToUpdate]
+            currentList.removeAt(indexToUpdate)
+            currentList.add(indexToUpdate, updatedItem)
+
+            results.update(currentList)
         }
     }
 

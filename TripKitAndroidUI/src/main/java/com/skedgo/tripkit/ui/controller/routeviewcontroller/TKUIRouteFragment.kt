@@ -17,7 +17,7 @@ import com.skedgo.rxtry.Failure
 import com.skedgo.rxtry.Success
 import com.skedgo.rxtry.Try
 import com.skedgo.rxtry.toTry
-import com.skedgo.tripkit.common.model.Location
+import com.skedgo.tripkit.common.model.location.Location
 import com.skedgo.tripkit.location.GeoPoint
 import com.skedgo.tripkit.location.UserGeoPointRepository
 import com.skedgo.tripkit.ui.R
@@ -135,7 +135,10 @@ class TKUIRouteFragment : BaseFragment<FragmentTkuiRouteBinding>() {
             .map<Try<Location>> { tried: Try<GeoPoint> ->
                 when (tried) {
                     is Success -> {
-                        val l = Location(tried.invoke().latitude, tried.invoke().longitude).also {
+                        val l = Location(
+                            tried.invoke().latitude,
+                            tried.invoke().longitude
+                        ).also {
                             it.name = resources.getString(R.string.current_location)
                         }
                         Success(l)
@@ -438,7 +441,8 @@ class TKUIRouteFragment : BaseFragment<FragmentTkuiRouteBinding>() {
         if (it is FixedSuggestions) {
             when (it) {
                 FixedSuggestions.CURRENT_LOCATION -> {
-                    val fixedLocation = Location().apply {
+                    val fixedLocation = Location()
+                        .apply {
                         locationType = Location.TYPE_CURRENT_LOCATION
                         name = getString(R.string.current_location)
                         lat = 0.0

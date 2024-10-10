@@ -9,7 +9,7 @@ import com.skedgo.rxtry.Failure
 import com.skedgo.rxtry.Success
 import com.skedgo.rxtry.Try
 import com.skedgo.rxtry.toTry
-import com.skedgo.tripkit.common.model.Location
+import com.skedgo.tripkit.common.model.location.Location
 import com.skedgo.tripkit.location.GeoPoint
 import com.skedgo.tripkit.location.UserGeoPointRepository
 import com.skedgo.tripkit.ui.R
@@ -44,7 +44,10 @@ class TKUIHomeViewControllerViewModel @Inject constructor(
                 when (tried) {
                     is Success -> {
                         val location =
-                            Location(tried.invoke().latitude, tried.invoke().longitude).also {
+                            Location(
+                                tried.invoke().latitude,
+                                tried.invoke().longitude
+                            ).also {
                                 it.name = context.resources.getString(R.string.current_location)
                             }
                         Success(location)

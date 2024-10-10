@@ -1,7 +1,7 @@
 package com.skedgo.tripkit.ui.realtime
 
 import com.skedgo.tripkit.common.agenda.IRealTimeElement
-import com.skedgo.tripkit.common.model.Region
+import com.skedgo.tripkit.common.model.region.Region
 import com.skedgo.tripkit.common.util.TimeUtils
 import com.skedgo.tripkit.routing.RealTimeVehicle
 import io.reactivex.Observable

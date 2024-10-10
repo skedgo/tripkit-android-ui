@@ -1,17 +1,17 @@
 package com.skedgo.tripkit.ui.map
 
-import com.gojuno.koptional.Optional
 import com.jakewharton.rxrelay2.BehaviorRelay
 import com.skedgo.tripkit.tripplanner.NonCurrentType
 import com.skedgo.tripkit.tripplanner.PinUpdate
 import com.skedgo.tripkit.tripplanner.PinUpdateRepository
 import com.skedgo.tripkit.ui.core.filterSome
+import com.skedgo.tripkit.utils.OptionalCompat
 import io.reactivex.Observable
 import javax.inject.Inject
 
 class PinUpdateRepositoryImpl @Inject internal constructor() : PinUpdateRepository {
-    private val destination = BehaviorRelay.create<Optional<NonCurrentType>>()
-    private val origin = BehaviorRelay.create<Optional<NonCurrentType>>()
+    private val destination = BehaviorRelay.create<OptionalCompat<NonCurrentType>>()
+    private val origin = BehaviorRelay.create<OptionalCompat<NonCurrentType>>()
 
     override fun getDestinationPinUpdate(): Observable<PinUpdate> =
         destination.hide()
@@ -23,7 +23,7 @@ class PinUpdateRepositoryImpl @Inject internal constructor() : PinUpdateReposito
                     .startWith(PinUpdate.Delete)
             }
 
-    override fun setDestinationPinUpdate(type: Optional<NonCurrentType>) {
+    override fun setDestinationPinUpdate(type: OptionalCompat<NonCurrentType>) {
         destination.accept(type)
     }
 
@@ -43,7 +43,7 @@ class PinUpdateRepositoryImpl @Inject internal constructor() : PinUpdateReposito
                     .startWith(PinUpdate.Delete)
             }
 
-    override fun setOriginPinUpdate(type: Optional<NonCurrentType>) {
+    override fun setOriginPinUpdate(type: OptionalCompat<NonCurrentType>) {
         origin.accept(type)
     }
 

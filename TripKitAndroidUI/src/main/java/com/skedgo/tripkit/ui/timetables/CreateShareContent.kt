@@ -1,7 +1,7 @@
 package com.skedgo.tripkit.ui.timetables
 
-import com.skedgo.tripkit.common.model.RealTimeStatus
-import com.skedgo.tripkit.common.model.ScheduledStop
+import com.skedgo.tripkit.common.model.realtimealert.RealTimeStatus
+import com.skedgo.tripkit.common.model.stop.ScheduledStop
 import com.skedgo.tripkit.common.util.TimeUtils
 import com.skedgo.tripkit.data.regions.RegionService
 import com.skedgo.tripkit.ui.model.TimetableEntry

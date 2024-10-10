@@ -7,7 +7,7 @@
 
         <import type="android.view.View" />
 
-        <import type="com.skedgo.tripkit.common.model.Location" />
+        <import type="com.skedgo.tripkit.common.model.location.Location" />
 
         <variable
             name="viewModel"

@@ -3,9 +3,9 @@ package com.skedgo.tripkit.ui.tripresults;
 import android.content.Context;
 import android.content.res.Resources;
 
-import com.skedgo.tripkit.common.model.Location;
-import com.skedgo.tripkit.common.model.RealtimeAlert;
-import com.skedgo.tripkit.common.model.RealtimeAlerts;
+import com.skedgo.tripkit.common.model.location.Location;
+import com.skedgo.tripkit.common.model.realtimealert.RealtimeAlert;
+import com.skedgo.tripkit.common.model.realtimealert.RealtimeAlerts;
 import com.skedgo.tripkit.common.util.TransportModeUtils;
 import com.skedgo.tripkit.common.util.TripSegmentUtils;
 import com.skedgo.tripkit.routing.ModeInfo;

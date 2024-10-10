@@ -1,8 +1,8 @@
 package com.skedgo.tripkit.ui.timetables
 
 import android.content.Context
-import com.skedgo.tripkit.common.model.Region
-import com.skedgo.tripkit.common.model.ScheduledStop
+import com.skedgo.tripkit.common.model.region.Region
+import com.skedgo.tripkit.common.model.stop.ScheduledStop
 import com.skedgo.tripkit.data.database.timetables.ServiceAlertMapper
 import com.skedgo.tripkit.data.database.timetables.ServiceAlertsDao
 import com.skedgo.tripkit.ui.model.DeparturesResponse
@@ -69,16 +69,16 @@ open class FetchTimetable @Inject constructor(
 
                 // TODO: remove when refactoring TimetablePager
                 response.parentInfo?.let { parent ->
-                    parentStopDao.insert(parent.children.map {
+                    parentStopDao.insert(parent.children?.map {
                         ParentStopEntity(
-                            parent.code,
-                            it.code
+                            parent.code.orEmpty(),
+                            it.code.orEmpty()
                         )
-                    })
+                    }.orEmpty())
 
                     // save alerts
                     parent.alertHashCodes?.let {
-                        realtimeAlertRepository.addAlertHashCodesForId(parent.code, it)
+                        realtimeAlertRepository.addAlertHashCodesForId(parent.code.orEmpty(), it)
                     }
                 }
 

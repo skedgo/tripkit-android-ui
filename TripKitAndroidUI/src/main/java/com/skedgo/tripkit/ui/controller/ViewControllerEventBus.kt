@@ -1,7 +1,7 @@
 package com.skedgo.tripkit.ui.controller
 
 import com.skedgo.geocoding.LatLng
-import com.skedgo.tripkit.common.model.Location
+import com.skedgo.tripkit.common.model.location.Location
 import com.skedgo.tripkit.model.ViewTrip
 import com.skedgo.tripkit.routing.Trip
 import com.skedgo.tripkit.routing.TripGroup

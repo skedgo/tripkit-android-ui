@@ -4,7 +4,7 @@ import android.content.Context
 import android.content.res.Resources
 import android.view.LayoutInflater
 import com.google.android.gms.maps.model.MarkerOptions
-import com.skedgo.tripkit.common.model.Location
+import com.skedgo.tripkit.common.model.location.Location
 import com.skedgo.tripkit.locations.CarPod
 import com.skedgo.tripkit.ui.map.adapter.StopInfoWindowAdapter
 import com.skedgo.tripkit.ui.map.adapter.ViewableInfoWindowAdapter
@@ -31,11 +31,11 @@ class CarPodPOILocation(private val carPod: CarPod) : IMapPoiLocation {
         val location = PodLocation(carPod.lat, carPod.lng)
         location.podIdentifier = carPod.id
         location.name = carPod.name
-        location.address = carPod.address
+        location.address = carPod.address.orEmpty()
         location.phoneNumber = carPod.operator.phone
         location.url = carPod.operator.website
         location.appUrl = carPod.operator.appInfo?.appURLAndroid
-        location.isWithExternalApp = !carPod.operator.appInfo?.appURLAndroid.isNullOrEmpty()
+        location.withExternalApp = !carPod.operator.appInfo?.appURLAndroid.isNullOrEmpty()
         return location
     }
 

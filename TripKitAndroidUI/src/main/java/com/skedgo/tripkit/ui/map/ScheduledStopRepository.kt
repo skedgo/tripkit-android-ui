@@ -5,7 +5,7 @@ import android.database.Cursor
 import android.database.sqlite.SQLiteQueryBuilder
 import com.jakewharton.rxrelay2.PublishRelay
 import com.skedgo.sqlite.Cursors
-import com.skedgo.tripkit.common.model.ScheduledStop
+import com.skedgo.tripkit.common.model.stop.ScheduledStop
 import com.skedgo.tripkit.data.database.DbFields
 import com.skedgo.tripkit.data.database.DbHelper
 import com.skedgo.tripkit.data.database.DbTables

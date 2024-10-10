@@ -2,7 +2,7 @@ package com.skedgo.tripkit.ui.geocoding;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.skedgo.tripkit.common.model.Location;
+import com.skedgo.tripkit.common.model.location.Location;
 import com.skedgo.tripkit.common.util.Gsons;
 import com.skedgo.tripkit.ui.utils.HttpUtils;
 

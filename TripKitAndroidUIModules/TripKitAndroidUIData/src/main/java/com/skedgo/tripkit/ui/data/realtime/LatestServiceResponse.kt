@@ -1,7 +1,7 @@
 package com.skedgo.tripkit.ui.data.realtime
 
 import com.google.gson.annotations.JsonAdapter
-import com.skedgo.tripkit.common.model.RealtimeAlert
+import com.skedgo.tripkit.common.model.realtimealert.RealtimeAlert
 import com.skedgo.tripkit.routing.RealTimeVehicle
 import org.immutables.gson.Gson
 import org.immutables.value.Value

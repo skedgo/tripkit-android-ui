@@ -2,7 +2,7 @@ package com.skedgo.tripkit.ui.search
 
 import android.graphics.drawable.Drawable
 import androidx.annotation.ColorRes
-import com.skedgo.tripkit.common.model.Location
+import com.skedgo.tripkit.common.model.location.Location
 
 interface SearchSuggestion {
     fun id(): Any

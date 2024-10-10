@@ -3,8 +3,8 @@ package com.skedgo.tripkit.ui.data;
 import android.database.Cursor;
 
 import com.google.gson.Gson;
-import com.skedgo.tripkit.common.model.ScheduledStop;
-import com.skedgo.tripkit.common.model.StopType;
+import com.skedgo.tripkit.common.model.stop.ScheduledStop;
+import com.skedgo.tripkit.common.model.stop.StopType;
 import com.skedgo.tripkit.data.database.DbFields;
 import com.skedgo.tripkit.data.database.DbTables;
 import com.skedgo.tripkit.routing.ModeInfo;
@@ -51,7 +51,7 @@ public class CursorToStopConverter implements CursorToEntityConverter<ScheduledS
     public ScheduledStop apply(Cursor cursor) {
         final ScheduledStop stop = new ScheduledStop();
         stop.setCode(cursor.getString(cursor.getColumnIndex(DbFields.CODE.getName())));
-        stop.setId(cursor.getLong(cursor.getColumnIndex(DbFields.ID.getName())));
+        stop.setMId(cursor.getLong(cursor.getColumnIndex(DbFields.ID.getName())));
         stop.setStopId(cursor.getLong(cursor.getColumnIndex("stop_id")));
         stop.setShortName(cursor.getString(cursor.getColumnIndex(DbFields.SHORT_NAME.getName())));
         stop.setLat(cursor.getDouble(cursor.getColumnIndex(DbFields.LAT.getName())));

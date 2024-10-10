@@ -4,7 +4,7 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
-import com.skedgo.tripkit.common.model.RealtimeAlert;
+import com.skedgo.tripkit.common.model.realtimealert.RealtimeAlert;
 import com.skedgo.tripkit.ui.BR;
 import com.skedgo.tripkit.ui.views.TripSegmentAlertView;
 

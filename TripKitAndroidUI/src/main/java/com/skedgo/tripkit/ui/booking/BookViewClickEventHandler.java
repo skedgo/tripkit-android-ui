@@ -91,7 +91,7 @@ public final class BookViewClickEventHandler {
     private void showActionsDialog(
         @NonNull final BookingResolver bookingResolver,
         @NonNull final TripSegment segment) {
-        final List<String> externalActions = segment.getBooking().getExternalActions();
+        final List<String> externalActions = segment.booking.getExternalActions();
         if (externalActions != null) {
             final String[] titles = getActionTitles(externalActions, bookingResolver);
             new AlertDialog.Builder(fragment.getActivity())

@@ -1,7 +1,7 @@
 package com.skedgo.tripkit.ui.servicedetail
 
 import android.util.Pair
-import com.skedgo.tripkit.common.model.ScheduledStop
+import com.skedgo.tripkit.common.model.stop.ScheduledStop
 import com.skedgo.tripkit.ui.model.StopInfo
 import com.skedgo.tripkit.ui.model.TimetableEntry
 import com.skedgo.tripkit.ui.timetables.ServiceRepository

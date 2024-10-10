@@ -1,7 +1,7 @@
 package com.skedgo.tripkit.ui.map.home
 
 import com.skedgo.tripkit.OutOfRegionsException
-import com.skedgo.tripkit.common.model.Region
+import com.skedgo.tripkit.common.model.region.Region
 import io.reactivex.Observable
 
 fun Observable<Region>.ignoreOutOfRegionsException(): Observable<Region> {

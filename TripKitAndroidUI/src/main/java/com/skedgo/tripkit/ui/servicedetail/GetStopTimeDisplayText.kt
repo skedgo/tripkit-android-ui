@@ -1,7 +1,7 @@
 package com.skedgo.tripkit.ui.servicedetail
 
-import com.skedgo.tripkit.common.model.Region
-import com.skedgo.tripkit.common.model.ServiceStop
+import com.skedgo.tripkit.common.model.region.Region
+import com.skedgo.tripkit.common.model.stop.ServiceStop
 import com.skedgo.tripkit.data.regions.RegionService
 import io.reactivex.Observable
 import io.reactivex.functions.BiFunction

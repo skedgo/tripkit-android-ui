@@ -1,7 +1,7 @@
 package com.skedgo.tripkit.ui.data
 
-import com.skedgo.tripkit.common.model.Location
-import com.skedgo.tripkit.common.model.ScheduledStop
+import com.skedgo.tripkit.common.model.location.Location
+import com.skedgo.tripkit.common.model.stop.ScheduledStop
 import com.skedgo.tripkit.routing.dateTimeZone
 import com.skedgo.tripkit.tripplanner.NonCurrentType
 

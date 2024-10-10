@@ -7,8 +7,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.skedgo.TripKit
 import com.skedgo.tripkit.LocationInfoService
-import com.skedgo.tripkit.common.model.Location
-import com.skedgo.tripkit.common.model.PoiLocation
+import com.skedgo.tripkit.common.model.location.Location
+import com.skedgo.tripkit.common.model.location.PoiLocation
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.core.RxViewModel
 import com.skedgo.tripkit.ui.data.places.PlaceSearchRepository
@@ -65,7 +65,7 @@ class PoiDetailsViewModel @Inject constructor(
         this.address.set(location.address)
         this.website.set(location.url)
         this.type.set(location.locationType)
-        this.withExternalApp.set(location.isWithExternalApp)
+        this.withExternalApp.set(location.withExternalApp)
 
         openAppButtonText.set(
             if (location.appUrl?.isAppInstalled(context.packageManager) == true) {

@@ -26,15 +26,16 @@ class SegmentMarkerIconMaker @Inject internal constructor(
         remoteSegmentMarkerIcon: BitmapDrawable? = null
     ): Pair<Bitmap, Float> {
         val hasBearing =
-            segment.type !== SegmentType.DEPARTURE && segment.type !== SegmentType.ARRIVAL
+            segment.getType() !== SegmentType.DEPARTURE && segment.getType() !== SegmentType.ARRIVAL
         val hasBearingVehicleIcon = segment.mode == VehicleMode.WALK
             || segment.mode == VehicleMode.BICYCLE
             || segment.mode == VehicleMode.CAR
             || segment.mode == VehicleMode.MOTORBIKE
-        val hasTime = segment.type === SegmentType.ARRIVAL || segment.type === SegmentType.SCHEDULED
+        val hasTime = segment.getType() === SegmentType.ARRIVAL || segment.getType() === SegmentType.SCHEDULED
 
         val timezone = segment.timeZone
-        val vehicleIcon = remoteSegmentMarkerIcon ?: segment.getLightTransportIcon(context)
+        val vehicleIcon =
+            remoteSegmentMarkerIcon ?: segment.getLightTransportIcon(context)
         val modeInfo = segment.modeInfo
         if (modeInfo != null) {
             getTransportIconTintStrategy()
@@ -43,7 +44,7 @@ class SegmentMarkerIconMaker @Inject internal constructor(
                         remoteIconIsTemplate = modeInfo.remoteIconIsTemplate,
                         remoteIconIsBranding = modeInfo.remoteIconIsBranding,
                         serviceColor = modeInfo.color,
-                        drawable = vehicleIcon
+                        drawable = vehicleIcon!!
                     )
                 }
         }
@@ -53,7 +54,7 @@ class SegmentMarkerIconMaker @Inject internal constructor(
             .vehicleIcon(vehicleIcon)
             .vehicleIconScale(ModeInfo.MAP_LIST_SIZE_RATIO)
             .baseIcon(R.drawable.ic_map_pin_base)
-            .pointerIcon(getPointerBitmapResource(segment.type))
+            .pointerIcon(getPointerBitmapResource(segment.getType()))
             .hasBearingVehicleIcon(hasBearingVehicleIcon)
             .hasTime(hasTime)
             .time(segment.startTimeInSecs * 1000, timezone)

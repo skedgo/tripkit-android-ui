@@ -54,7 +54,6 @@ dependencies {
     kapt libs.value
     compileOnly libs.valueAnnotations
 
-    implementation libs.koptional
 
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'

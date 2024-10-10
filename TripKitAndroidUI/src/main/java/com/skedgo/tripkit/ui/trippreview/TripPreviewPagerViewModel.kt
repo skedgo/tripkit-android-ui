@@ -11,6 +11,7 @@ import com.skedgo.tripkit.routing.Visibilities
 import com.skedgo.tripkit.ui.core.RxViewModel
 import com.skedgo.tripkit.ui.routingresults.TripGroupRepository
 import com.skedgo.tripkit.ui.trippreview.segment.TripSegmentSummary
+import com.skedgo.tripkit.ui.trippreview.segment.TripSegmentsSummaryData
 import com.skedgo.tripkit.ui.tripresults.GetTransportIconTintStrategy
 import com.skedgo.tripkit.ui.utils.*
 import io.reactivex.Observable
@@ -25,8 +26,8 @@ class TripPreviewPagerViewModel @Inject constructor(
     private val tripGroupRepository: TripGroupRepository
 ) : RxViewModel() {
 
-    private val _headers = MutableLiveData<List<TripSegmentSummary>>()
-    val headers: LiveData<List<TripSegmentSummary>> = _headers
+    private val _headersData = MutableLiveData<TripSegmentsSummaryData>()
+    val headersData: LiveData<TripSegmentsSummaryData> = _headersData
 
     private val tripSummaryStream = PublishSubject.create<List<TripSegmentSummary>>()
 
@@ -46,7 +47,9 @@ class TripPreviewPagerViewModel @Inject constructor(
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({ headers ->
-                _headers.value = headers.sortedBy { it.id }
+                _headersData.value = TripSegmentsSummaryData(
+                    headers.sortedBy { it.id }, tripSegments.firstOrNull { it.isQuickBooking }
+                )
             }, {
                 //This will prevent app from crashing due to OnErrorNotImplementedException
                 it.printStackTrace()
@@ -58,7 +61,7 @@ class TripPreviewPagerViewModel @Inject constructor(
         tripSegments.filter { it.visibility == Visibilities.VISIBILITY_IN_SUMMARY }
             .forEach { segment ->
                 getSegmentIcon(context, segment, getTransportIconTintStrategy) {
-                    if (previewHeaders.none { it.id == segment.id }) {
+                    if (previewHeaders.none { it.id == segment.segmentId }) {
                         previewHeaders.add(segment.generateTripPreviewHeader(it))
                     }
                     tripSummaryStream.onNext(previewHeaders)
