@@ -5,6 +5,7 @@ on:
     branches:
       - develop
       - feature/**
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -34,6 +35,17 @@ jobs:
 
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
+
+      - name: Create dummy keystore
+        run: |
+          keytool -genkeypair -alias mrwa -keyalg RSA -keystore /home/runner/work/traffic-wa-android/traffic-wa-android/mrwa.jks -keysize 2048 -validity 10000 -storepass dummypass -keypass dummypass -dname "CN=Dummy, OU=Dummy, O=Dummy, L=Dummy, S=Dummy, C=US"
+
+      - name: Create local.properties
+        run: |
+          echo "keystorePassword=dummypass" >> /home/runner/work/traffic-wa-android/traffic-wa-android/local.properties
+          echo "keystoreFile=/home/runner/work/traffic-wa-android/traffic-wa-android/mrwa.jks" >> /home/runner/work/traffic-wa-android/traffic-wa-android/local.properties
+          echo "googleMapsApiKey=dummyGoogleMapsApiKey" >> /home/runner/work/traffic-wa-android/traffic-wa-android/local.properties
+          echo "telemetryDeckAnalyticsKey=dummyTelemetryDeckKey" >> /home/runner/work/traffic-wa-android/traffic-wa-android/local.properties
 
       - name: Build with Gradle
         run: ./gradlew build
@@ -67,11 +79,23 @@ jobs:
             
             @${{ github.event.pull_request.assignee.login || github.event.pull_request.user.login }}, there was an issue with the workflow execution. Please check the logs and resolve the issue.
 
-      - name: Comment on Pull Request on Success
+      - name: Comment on Pull Request (With Reviewers)
         if: success() && github.event_name == 'pull_request'
         uses: thollander/actions-comment-pull-request@v2.5.0
         with:
           message: |
             :white_check_mark: Unit tests passed successfully!
             
-            @${{ github.event.pull_request.requested_reviewers.*.login }}, the tests have passed. The code is ready for review.
+            Please ensure the code is reviewed before proceeding with the merge.
+
+#      - name: Comment on Pull Request
+#        run: |
+#          if [[ "${{ github.event.pull_request.requested_reviewers[2].login }}" != "" ]]; then
+#            REVIEWERS="@${{ github.event.pull_request.requested_reviewers[0].login }}, @${{ github.event.pull_request.requested_reviewers[1].login }}, @${{ github.event.pull_request.requested_reviewers[2].login }}"
+#          elif [[ "${{ github.event.pull_request.requested_reviewers[1].login }}" != "" ]]; then
+#            REVIEWERS="@${{ github.event.pull_request.requested_reviewers[0].login }}, @${{ github.event.pull_request.requested_reviewers[1].login }}"
+#          else
+#            REVIEWERS="@${{ github.event.pull_request.requested_reviewers[0].login || github.event.pull_request.user.login }}"
+#          fi
+#
+#          echo "The code is ready for review." | gh pr comment ${{ github.event.pull_request.number }} --body "${REVIEWERS}, the tests have passed. The code is ready for review."
