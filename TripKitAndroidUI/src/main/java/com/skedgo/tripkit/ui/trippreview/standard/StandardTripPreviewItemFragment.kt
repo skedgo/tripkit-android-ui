@@ -102,7 +102,7 @@ class StandardTripPreviewItemFragment : BaseTripKitFragment() {
     }
 
     private fun runAction(formField: LinkFormField) {
-        formField.value?.let {
+        formField.getValue()?.let {
             // This should actually be a post, though.
             bookingService.getFormAsync(it)
                 .observeOn(mainThread())
