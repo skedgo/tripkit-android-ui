@@ -144,6 +144,7 @@ class TripResultMapContributor : TripKitMapContributor {
                 tileOverlays.add(
                     map.addTileOverlay(
                         TileOverlayOptions()
+                            .fadeIn(false)
                             .tileProvider(it)
                     )
                 )
