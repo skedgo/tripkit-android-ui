@@ -26,19 +26,19 @@ public class LoadServiceTaskCursorCols {
     public static int wheelchairAccessible = -1;
 
     public static void init(Cursor cursor) {
-        id = cursor.getColumnIndex(DbFields.ID.getName());
-        waypoints = cursor.getColumnIndex(DbFields.WAYPOINT_ENCODING.getName());
-        travelled = cursor.getColumnIndex(DbFields.TRAVELLED.getName());
-        lat = cursor.getColumnIndex(DbFields.LAT.getName());
-        lon = cursor.getColumnIndex(DbFields.LON.getName());
-        bearing = cursor.getColumnIndex(DbFields.BEARING.getName());
-        address = cursor.getColumnIndex(DbFields.ADDRESS.getName());
-        name = cursor.getColumnIndex(DbFields.NAME.getName());
-        departureTime = cursor.getColumnIndex(DbFields.DEPARTURE_TIME.getName());
-        arrivalTime = cursor.getColumnIndex(DbFields.ARRIVAL_TIME.getName());
-        stopCode = cursor.getColumnIndex(DbFields.STOP_CODE.getName());
-        realTimeStatus = cursor.getColumnIndex(DbFields.REAL_TIME_STATUS.getName());
-        serviceColor = cursor.getColumnIndex(DbFields.SERVICE_COLOR.getName());
-        wheelchairAccessible = cursor.getColumnIndex(DbFields.WHEELCHAIR_ACCESSIBLE.getName());
+        id = cursor.getColumnIndex(DbFields.ID.name);
+        waypoints = cursor.getColumnIndex(DbFields.WAYPOINT_ENCODING.name);
+        travelled = cursor.getColumnIndex(DbFields.TRAVELLED.name);
+        lat = cursor.getColumnIndex(DbFields.LAT.name);
+        lon = cursor.getColumnIndex(DbFields.LON.name);
+        bearing = cursor.getColumnIndex(DbFields.BEARING.name);
+        address = cursor.getColumnIndex(DbFields.ADDRESS.name);
+        name = cursor.getColumnIndex(DbFields.NAME.name);
+        departureTime = cursor.getColumnIndex(DbFields.DEPARTURE_TIME.name);
+        arrivalTime = cursor.getColumnIndex(DbFields.ARRIVAL_TIME.name);
+        stopCode = cursor.getColumnIndex(DbFields.STOP_CODE.name);
+        realTimeStatus = cursor.getColumnIndex(DbFields.REAL_TIME_STATUS.name);
+        serviceColor = cursor.getColumnIndex(DbFields.SERVICE_COLOR.name);
+        wheelchairAccessible = cursor.getColumnIndex(DbFields.WHEELCHAIR_ACCESSIBLE.name);
     }
 }

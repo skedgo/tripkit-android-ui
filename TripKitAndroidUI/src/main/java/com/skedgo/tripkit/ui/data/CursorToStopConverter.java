@@ -50,20 +50,20 @@ public class CursorToStopConverter implements CursorToEntityConverter<ScheduledS
     @Override
     public ScheduledStop apply(Cursor cursor) {
         final ScheduledStop stop = new ScheduledStop();
-        stop.setCode(cursor.getString(cursor.getColumnIndex(DbFields.CODE.getName())));
-        stop.setMId(cursor.getLong(cursor.getColumnIndex(DbFields.ID.getName())));
+        stop.setCode(cursor.getString(cursor.getColumnIndex(DbFields.CODE.name)));
+        stop.setMId(cursor.getLong(cursor.getColumnIndex(DbFields.ID.name)));
         stop.setStopId(cursor.getLong(cursor.getColumnIndex("stop_id")));
-        stop.setShortName(cursor.getString(cursor.getColumnIndex(DbFields.SHORT_NAME.getName())));
-        stop.setLat(cursor.getDouble(cursor.getColumnIndex(DbFields.LAT.getName())));
-        stop.setLon(cursor.getDouble(cursor.getColumnIndex(DbFields.LON.getName())));
-        stop.isFavourite(cursor.getInt(cursor.getColumnIndex(DbFields.FAVOURITE.getName())) > 0);
-        stop.setName(cursor.getString(cursor.getColumnIndex(DbFields.NAME.getName())));
-        stop.setAddress(cursor.getString(cursor.getColumnIndex(DbFields.ADDRESS.getName())));
-        stop.setServices(cursor.getString(cursor.getColumnIndex(DbFields.SERVICES.getName())));
-        stop.setType(StopType.from(cursor.getString(cursor.getColumnIndex(DbFields.STOP_TYPE.getName()))));
-        stop.setModeInfo(gson.fromJson(cursor.getString(cursor.getColumnIndex(DbFields.MODE_INFO.getName())), ModeInfo.class));
-        stop.setCurrentFilter(cursor.getString(cursor.getColumnIndex(DbFields.FILTER.getName())));
-        stop.setFavouriteSortOrderIndex(cursor.getInt(cursor.getColumnIndex(DbFields.FAVOURITE_SORT_ORDER_POSITION.getName())));
+        stop.setShortName(cursor.getString(cursor.getColumnIndex(DbFields.SHORT_NAME.name)));
+        stop.setLat(cursor.getDouble(cursor.getColumnIndex(DbFields.LAT.name)));
+        stop.setLon(cursor.getDouble(cursor.getColumnIndex(DbFields.LON.name)));
+        stop.isFavourite(cursor.getInt(cursor.getColumnIndex(DbFields.FAVOURITE.name)) > 0);
+        stop.setName(cursor.getString(cursor.getColumnIndex(DbFields.NAME.name)));
+        stop.setAddress(cursor.getString(cursor.getColumnIndex(DbFields.ADDRESS.name)));
+        stop.setServices(cursor.getString(cursor.getColumnIndex(DbFields.SERVICES.name)));
+        stop.setType(StopType.from(cursor.getString(cursor.getColumnIndex(DbFields.STOP_TYPE.name))));
+        stop.setModeInfo(gson.fromJson(cursor.getString(cursor.getColumnIndex(DbFields.MODE_INFO.name)), ModeInfo.class));
+        stop.setCurrentFilter(cursor.getString(cursor.getColumnIndex(DbFields.FILTER.name)));
+        stop.setFavouriteSortOrderIndex(cursor.getInt(cursor.getColumnIndex(DbFields.FAVOURITE_SORT_ORDER_POSITION.name)));
         return stop;
     }
 }

@@ -32,9 +32,9 @@ public class CellsPersistor implements StopsFetcher.ICellsPersistor {
             }
 
             final ContentValues values = new ContentValues(3);
-            values.put(DbFields.CELL_CODE.getName(), cell.getKey());
-            values.put(DbFields.HASH_CODE_2.getName(), cell.getHashCode());
-            values.put(DbFields.DOWNLOAD_TIME.getName(), System.currentTimeMillis());
+            values.put(DbFields.CELL_CODE.name, cell.getKey());
+            values.put(DbFields.HASH_CODE_2.name, cell.getHashCode());
+            values.put(DbFields.DOWNLOAD_TIME.name, System.currentTimeMillis());
 
             valuesArray[i++] = values;
         }

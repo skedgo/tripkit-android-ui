@@ -88,15 +88,15 @@ public class CursorToServiceConverter implements CursorToEntityConverter<Timetab
         service.setWheelchairAccessible(getWheelchairAccessible());
         service.setBicycleAccessible(getBicycleAccessible());
         service.setStartStopShortName(getStartStopShortName());
-        final String modeInfoJson = cursor.getString(cursor.getColumnIndex(DbFields.MODE_INFO.getName()));
+        final String modeInfoJson = cursor.getString(cursor.getColumnIndex(DbFields.MODE_INFO.name));
         if (modeInfoJson != null) {
             final ModeInfo modeInfo = gson.fromJson(modeInfoJson, ModeInfo.class);
             service.setModeInfo(modeInfo);
         }
 
         // TODO: What about hasAlerts()?
-        service.setServiceDirection(cursor.getString(cursor.getColumnIndex(DbFields.SERVICE_DIRECTION.getName())));
-        service.setStartPlatform(cursor.getString(cursor.getColumnIndex(DbFields.START_PLATFORM.getName())));
+        service.setServiceDirection(cursor.getString(cursor.getColumnIndex(DbFields.SERVICE_DIRECTION.name)));
+        service.setStartPlatform(cursor.getString(cursor.getColumnIndex(DbFields.START_PLATFORM.name)));
         return service;
     }
 
@@ -250,31 +250,31 @@ public class CursorToServiceConverter implements CursorToEntityConverter<Timetab
                 return;
             }
 
-            idIndex = cursor.getColumnIndex(ID.getName());
-            pairIdentifierIndex = cursor.getColumnIndex(PAIR_IDENTIFIER.getName());
-            stopCodeIndex = cursor.getColumnIndex(STOP_CODE.getName());
-            endStopCodeIndex = cursor.getColumnIndex(END_STOP_CODE.getName());
-            modeIndex = cursor.getColumnIndex(MODE.getName());
-            startTimeIndex = cursor.getColumnIndex(START_TIME.getName());
-            endTimeIndex = cursor.getColumnIndex(END_TIME.getName());
-            julianDayIndex = cursor.getColumnIndex(JULIAN_DAY.getName());
-            frequencyIndex = cursor.getColumnIndex(FREQUENCY.getName());
-            serviceNumberIndex = cursor.getColumnIndex(SERVICE_NUMBER.getName());
-            serviceNameIndex = cursor.getColumnIndex(SERVICE_NAME.getName());
-            serviceTripIdIndex = cursor.getColumnIndex(SERVICE_TRIP_ID.getName());
-            serviceColorRedIndex = cursor.getColumnIndex(SERVICE_COLOR_RED.getName());
-            serviceColorBlueIndex = cursor.getColumnIndex(SERVICE_COLOR_BLUE.getName());
-            serviceColorGreenIndex = cursor.getColumnIndex(SERVICE_COLOR_GREEN.getName());
-            realTimeStatusIndex = cursor.getColumnIndex(REAL_TIME_STATUS.getName());
-            favouriteIndex = cursor.getColumnIndex(FAVOURITE.getName());
-            hasAlertsIndex = cursor.getColumnIndex(HAS_ALERTS.getName());
-            searchStringIndex = cursor.getColumnIndex(SEARCH_STRING.getName());
-            serviceTimeIndex = cursor.getColumnIndex(SERVICE_TIME.getName());
-            serviceOperator = cursor.getColumnIndex(SERVICE_OPERATOR.getName());
-            wheelchairAccessible = cursor.getColumnIndex(WHEELCHAIR_ACCESSIBLE.getName());
-            bicycleAccessible = cursor.getColumnIndex(BICYCLE_ACCESSIBLE.getName());
-            startStopShortName = cursor.getColumnIndex(START_STOP_SHORT_NAME.getName());
-            startPlatform = cursor.getColumnIndex(START_PLATFORM.getName());
+            idIndex = cursor.getColumnIndex(ID.name);
+            pairIdentifierIndex = cursor.getColumnIndex(PAIR_IDENTIFIER.name);
+            stopCodeIndex = cursor.getColumnIndex(STOP_CODE.name);
+            endStopCodeIndex = cursor.getColumnIndex(END_STOP_CODE.name);
+            modeIndex = cursor.getColumnIndex(MODE.name);
+            startTimeIndex = cursor.getColumnIndex(START_TIME.name);
+            endTimeIndex = cursor.getColumnIndex(END_TIME.name);
+            julianDayIndex = cursor.getColumnIndex(JULIAN_DAY.name);
+            frequencyIndex = cursor.getColumnIndex(FREQUENCY.name);
+            serviceNumberIndex = cursor.getColumnIndex(SERVICE_NUMBER.name);
+            serviceNameIndex = cursor.getColumnIndex(SERVICE_NAME.name);
+            serviceTripIdIndex = cursor.getColumnIndex(SERVICE_TRIP_ID.name);
+            serviceColorRedIndex = cursor.getColumnIndex(SERVICE_COLOR_RED.name);
+            serviceColorBlueIndex = cursor.getColumnIndex(SERVICE_COLOR_BLUE.name);
+            serviceColorGreenIndex = cursor.getColumnIndex(SERVICE_COLOR_GREEN.name);
+            realTimeStatusIndex = cursor.getColumnIndex(REAL_TIME_STATUS.name);
+            favouriteIndex = cursor.getColumnIndex(FAVOURITE.name);
+            hasAlertsIndex = cursor.getColumnIndex(HAS_ALERTS.name);
+            searchStringIndex = cursor.getColumnIndex(SEARCH_STRING.name);
+            serviceTimeIndex = cursor.getColumnIndex(SERVICE_TIME.name);
+            serviceOperator = cursor.getColumnIndex(SERVICE_OPERATOR.name);
+            wheelchairAccessible = cursor.getColumnIndex(WHEELCHAIR_ACCESSIBLE.name);
+            bicycleAccessible = cursor.getColumnIndex(BICYCLE_ACCESSIBLE.name);
+            startStopShortName = cursor.getColumnIndex(START_STOP_SHORT_NAME.name);
+            startPlatform = cursor.getColumnIndex(START_PLATFORM.name);
         }
     }
 }

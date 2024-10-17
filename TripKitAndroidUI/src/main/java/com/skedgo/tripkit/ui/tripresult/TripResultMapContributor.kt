@@ -207,6 +207,7 @@ class TripResultMapContributor : TripKitMapContributor {
 
     private fun setupObservers(context: Context) {
         autoDisposable.add(viewModel.vehicleMarkerViewModelsStream
+            .observeOn(AndroidSchedulers.mainThread())
             .subscribe(
                 { it: List<VehicleMarkerViewModel> ->
                     showVehicleMarkers(context, it)
@@ -216,6 +217,7 @@ class TripResultMapContributor : TripKitMapContributor {
             }
         )
         autoDisposable.add(viewModel.alertMarkerViewModelsStream
+            .observeOn(AndroidSchedulers.mainThread())
             .subscribe(
                 { it: List<AlertMarkerViewModel> ->
                     showAlertMarkers(it, alertMarkers!!)
@@ -225,6 +227,7 @@ class TripResultMapContributor : TripKitMapContributor {
             }
         )
         autoDisposable.add(viewModel.travelledStopMarkerViewModelsStream
+            .observeOn(AndroidSchedulers.mainThread())
             .subscribe(
                 { it: List<StopMarkerViewModel> ->
                     showStopMarkers(it, travelledStopMarkers!!)
@@ -234,6 +237,7 @@ class TripResultMapContributor : TripKitMapContributor {
             }
         )
         autoDisposable.add(viewModel.nonTravelledStopMarkerViewModelsStream
+            .observeOn(AndroidSchedulers.mainThread())
             .subscribe(
                 { it: List<StopMarkerViewModel> ->
                     showStopMarkers(it, nonTravelledStopMarkers!!)
