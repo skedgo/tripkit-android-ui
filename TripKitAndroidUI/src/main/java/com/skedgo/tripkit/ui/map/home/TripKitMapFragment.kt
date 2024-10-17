@@ -251,6 +251,7 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
 
         whenSafeToUseMap(Consumer { map: GoogleMap ->
             this.map = map
+            map.uiSettings.isCompassEnabled = true
             initMarkerCollections(map)
             initMap(map)
             contributor?.safeToUseMap(requireContext(), map)
