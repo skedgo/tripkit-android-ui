@@ -12,10 +12,7 @@ import com.skedgo.tripkit.ui.favorites.waypoints.Waypoint
 import java.util.UUID
 
 enum class FavoriteType {
-    @Deprecated("type from server will be just location, do not pass on POST requests")
     home,
-
-    @Deprecated("type from server will be just location, do not pass on POST requests")
     work,
     location,
     stop,
