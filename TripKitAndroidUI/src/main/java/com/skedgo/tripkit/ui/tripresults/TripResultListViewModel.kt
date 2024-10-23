@@ -8,6 +8,7 @@ import androidx.databinding.ObservableField
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import androidx.recyclerview.widget.DiffUtil
 import com.jakewharton.rxrelay2.PublishRelay
 import com.skedgo.tripkit.common.model.Query
 import com.skedgo.tripkit.common.model.time.TimeTag
@@ -44,6 +45,7 @@ import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButtonHandler
 import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButtonHandlerFactory
 import com.skedgo.tripkit.ui.views.MultiStateView
 import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.subjects.BehaviorSubject
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -82,7 +84,6 @@ class TripResultListViewModel @Inject constructor(
     val stateChange = PublishRelay.create<MultiStateView.ViewState>()
     val onError = PublishRelay.create<String>()
 
-    //    val itemBinding = ItemBinding.of<TripResultViewModel>(BR.viewModel, R.layout.trip_result_list_item)
     val itemBinding =
         ItemBinding.of(
             OnItemBindClass<Any>()
@@ -95,6 +96,8 @@ class TripResultListViewModel @Inject constructor(
         )
 
     val results = DiffObservableList<TripResultViewModel>(GroupDiffCallback)
+    val tripResultListStream = BehaviorSubject.create<List<TripResultViewModel>>()
+
     private val loadingList = ObservableArrayList<LoaderPlaceholder>()
     val mergedList = MergeObservableList<Any>().insertList(loadingList).insertList(results)
 
@@ -131,6 +134,7 @@ class TripResultListViewModel @Inject constructor(
                 { load() },
                 { errorLogger.trackError(it) })
             .autoClear()
+
     }
 
     fun transportLayoutClicked(view: View) {
@@ -359,7 +363,7 @@ class TripResultListViewModel @Inject constructor(
 
     fun reload() {
         networkRequests.clear()
-        results.update(emptyList())
+        updateResultList(emptyList())
         load()
     }
 
@@ -424,7 +428,7 @@ class TripResultListViewModel @Inject constructor(
                 Pair(it, results.calculateDiff(it))
             }
             .subscribe {
-                results.update(it.first, it.second)
+                updateResultList(it.first, it.second)
                 if (results.isEmpty() && !mergedList.contains(loadingItem) && !isError.get()) {
                     stateChange.accept(MultiStateView.ViewState.EMPTY)
                 }
@@ -433,7 +437,7 @@ class TripResultListViewModel @Inject constructor(
     }
 
     fun changeQuery(newQuery: Query) {
-        results.update(emptyList())
+        updateResultList(emptyList())
         networkRequests.clear()
         setup(
             newQuery,
@@ -480,7 +484,7 @@ class TripResultListViewModel @Inject constructor(
             currentList.removeAt(indexToUpdate)
             currentList.add(indexToUpdate, updatedItem)
 
-            results.update(currentList)
+            updateResultList(currentList)
         }
     }
 
@@ -490,6 +494,11 @@ class TripResultListViewModel @Inject constructor(
 
     fun onShowBookARideInduction(show: Boolean) {
         _showHelpInfo.postValue(show)
+    }
+
+    private fun updateResultList(list: List<TripResultViewModel>, diffResult: DiffUtil.DiffResult? = null) {
+        diffResult?.let { results.update(list, it) } ?: run { results.update(list) }
+        tripResultListStream.onNext(list)
     }
 
 }
