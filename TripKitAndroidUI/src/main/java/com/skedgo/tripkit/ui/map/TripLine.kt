@@ -15,6 +15,12 @@ import javax.inject.Inject
 // FIXME: Create a pure domain model to represent a trip line.
 typealias TripLine = List<SegmentsPolyLineOptions>
 
+data class PolylineConfig(
+    val inActiveColor: Int,
+    val activeColor: Int,
+    val activeTripUuid: String? = null
+)
+
 open class GetTripLine @Inject internal constructor(
     private val getNonTravelledLineForTrip: GetNonTravelledLineForTrip,
     private val getTravelledLineForTrip: GetTravelledLineForTrip
@@ -32,6 +38,10 @@ open class GetTripLine @Inject internal constructor(
                     it.second
                 )
             }
+
+    open fun executeForTravelledLine(polylineConfig: PolylineConfig, segments: List<TripSegment>) =
+        getTravelledLineForTrip.execute(segments).toList().toObservable()
+            .map { createPolylineListForTravelledLines(polylineConfig, it) }
 
     private fun createPolylineListForNonTravelledLines(nonTravelledLinesToDraw: List<List<LineSegment>>?): List<SegmentsPolyLineOptions> {
         val polylineOptionsList = mutableListOf<PolylineOptions>()
@@ -91,6 +101,47 @@ open class GetTripLine @Inject internal constructor(
         }
         return listOf(
             SegmentsPolyLineOptions(polylineOptionsList, true)
+        )
+    }
+
+    private fun createPolylineListForTravelledLines(
+        config: PolylineConfig,
+        results: List<List<LineSegment>>?
+    ): List<SegmentsPolyLineOptions> {
+        val polylineOptionsList = mutableListOf<PolylineOptions>()
+        if (!results.isNullOrEmpty()) {
+            val lines = LinkedList<LatLng>()
+            results.forEachIndexed { index, list ->
+                list.forEach {
+                    val color: Int
+                    val zIndex: Float
+                    if(config.activeTripUuid != null &&
+                        config.activeTripUuid == it.tripUuid) {
+                        color = config.activeColor
+                        zIndex = 5.0f
+                    } else {
+                        color = config.inActiveColor
+                        zIndex = 2.0f
+                    }
+
+                    lines.clear()
+                    lines.add(LatLng(it.start.latitude, it.start.longitude))
+                    lines.add(LatLng(it.end.latitude, it.end.longitude))
+
+                    polylineOptionsList.add(
+                        PolylineOptions()
+                            .addAll(lines)
+                            .color(color)
+                            .width((if (it.color != Color.BLACK) 14 else 15).toFloat())
+                            .zIndex(zIndex)
+                    )
+                }
+            }
+        }
+        return listOf(
+            SegmentsPolyLineOptions(
+                polylineOptionsList, true
+            )
         )
     }
 }
