@@ -145,7 +145,7 @@
     <!--Text for attributing data sources. The list of providers will be used instead of '%@'-->
     <string name="data_provided_by__pattern">Data provided by %1$s</string>
     <!--Distances preference-->
-    <string name="distances">Distances</string>
+    <string name="distances">Distance Units</string>
     <!--Empty docks that are available to return a shared bicycle.-->
     <string name="empty_docks">Empty docks</string>
     <!--Title for the time an event ends (without date information)-->
