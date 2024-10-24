@@ -88,7 +88,7 @@ class TripSegmentItemViewModelTest : MockKTest() {
         mockTripSegment.realTimeVehicle = realTimeVehicle
         viewModel.initOccupancy(mockTripSegment)
 
-        verify { occupancyViewModel.setOccupancy(mockTripSegment.realTimeVehicle, any()) }
+        verify { occupancyViewModel.setOccupancy(mockTripSegment.realTimeVehicle!!, any()) }
     }
 
     @Test
