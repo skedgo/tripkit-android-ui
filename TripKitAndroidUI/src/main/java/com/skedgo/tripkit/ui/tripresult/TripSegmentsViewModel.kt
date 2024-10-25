@@ -72,6 +72,8 @@ import me.tatarka.bindingcollectionadapter2.ItemBinding
 import me.tatarka.bindingcollectionadapter2.itembindings.OnItemBindClass
 import org.joda.time.DateTime
 import timber.log.Timber
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
 import java.util.Collections.emptyList
 import java.util.TimeZone
 import java.util.concurrent.TimeUnit
@@ -770,10 +772,15 @@ class TripSegmentsViewModel @Inject internal constructor(
                                 ?.showSpinner(false)
                             val tickets = result.data
 
-                            tickets.firstOrNull()?.let {
+                            val formatter = DateTimeFormatter.ISO_DATE_TIME
+                            tickets.maxByOrNull { ticket ->
+                                // Parse the ticket expiration string to a LocalDateTime
+                                ZonedDateTime.parse(ticket.ticketExpirationTimestamp, formatter)
+                                    .toInstant().toEpochMilli()
+                            }?.let { ticket ->
                                 actionButtonHandler?.handleCustomAction(
                                     ActionButtonHandler.ACTION_EXTERNAL_SHOW_TICKET,
-                                    it
+                                    ticket
                                 )
                             }
                         }

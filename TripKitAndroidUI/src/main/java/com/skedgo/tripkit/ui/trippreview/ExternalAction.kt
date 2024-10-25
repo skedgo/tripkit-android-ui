@@ -7,6 +7,21 @@ import com.skedgo.tripkit.ui.utils.checkUrl
 import com.skedgo.tripkit.ui.utils.getPackageNameFromStoreUrl
 import com.skedgo.tripkit.ui.utils.isAppInstalledById
 
+enum class ExternalAction(val action: String) {
+    SHOW_TICKET("showTicket"),
+    BOOK("book");
+
+    override fun toString(): String {
+        return action
+    }
+
+    companion object {
+        fun fromString(value: String): ExternalAction? {
+            return values().find { it.action.equals(value, ignoreCase = true) }
+        }
+    }
+}
+
 data class Action(
     var data: String?, //url or package
     var appInstalled: Boolean,

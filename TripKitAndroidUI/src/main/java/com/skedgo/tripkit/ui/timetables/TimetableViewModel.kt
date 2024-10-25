@@ -10,6 +10,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.DiffUtil
 import com.jakewharton.rxrelay2.BehaviorRelay
 import com.jakewharton.rxrelay2.PublishRelay
+import com.skedgo.TripKit
 import com.skedgo.tripkit.common.model.realtimealert.RealtimeAlert
 import com.skedgo.tripkit.common.model.region.Region
 import com.skedgo.tripkit.common.model.stop.ScheduledStop
@@ -32,6 +33,7 @@ import com.skedgo.tripkit.ui.model.TimetableHeaderLineItem
 import com.skedgo.tripkit.ui.realtime.RealTimeChoreographer
 import com.skedgo.tripkit.ui.routing.GetRoutingConfig
 import com.skedgo.tripkit.ui.routingresults.TripGroupRepository
+import com.skedgo.tripkit.ui.trippreview.ExternalAction
 import com.skedgo.tripkit.ui.utils.Optional
 import com.skedgo.tripkit.ui.utils.ignoreNetworkErrors
 import com.skedgo.tripkit.ui.views.MultiStateView
@@ -338,14 +340,18 @@ class TimetableViewModel @Inject constructor(
     }
 
     fun withBookingActions(bookingActions: ArrayList<String>?, segment: TripSegment?) {
+        if (!TripKit.getInstance().configs().showSegmentExternalActions()) {
+            return
+        }
+
         bookingActions?.let { actions ->
             when {
-                actions.contains("showTicket") -> {
-                    action = "showTicket"
+                actions.contains(ExternalAction.SHOW_TICKET.action) -> {
+                    action = ExternalAction.SHOW_TICKET.action
                     buttonText.set("Show Ticket")
                 }
-                actions.contains("book") -> {
-                    action = "book"
+                actions.contains(ExternalAction.BOOK.action) -> {
+                    action = ExternalAction.BOOK.action
                     buttonText.set("Book")
                 }
             }
