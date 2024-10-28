@@ -10,17 +10,17 @@ class TripSegmentMock {
     companion object {
 
         val tripSegmentScheduled = TripSegment().apply {
-            type = SegmentType.SCHEDULED
+            setType(SegmentType.SCHEDULED)
             modeInfo = createModeInfo()
         }
 
         val tripSegmentArrival = TripSegment().apply {
-            type = SegmentType.ARRIVAL
+            setType(SegmentType.ARRIVAL)
             modeInfo = createModeInfo()
         }
 
         val tripSegmentDeparture = TripSegment().apply {
-            type = SegmentType.DEPARTURE
+            setType(SegmentType.DEPARTURE)
             modeInfo = createModeInfo()
         }
 
