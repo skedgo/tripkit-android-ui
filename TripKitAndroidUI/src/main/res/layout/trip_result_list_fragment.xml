@@ -190,7 +190,7 @@
             android:id="@+id/transportItemsView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@android:color/white"
+            android:background="@color/grey2"
             android:nestedScrollingEnabled="false"
             android:overScrollMode="never"
             android:paddingStart="16dp"
