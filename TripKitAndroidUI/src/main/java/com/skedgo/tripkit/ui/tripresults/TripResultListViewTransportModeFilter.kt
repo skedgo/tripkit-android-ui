@@ -18,9 +18,8 @@ class TripResultListViewTransportModeFilter(
     private var replacementModes: List<UserMode> = listOf()
 
     override fun useTransportMode(mode: String): Boolean {
-        return transportModeFilter.useTransportMode(mode) && (transportViewFilter.isSelected(mode) || transportViewFilter.isMinimized(
-            mode
-        ))
+        return transportModeFilter.useTransportMode(mode)
+            && (transportViewFilter.isSelected(mode) || transportViewFilter.isMinimized(mode))
     }
 
     override fun avoidTransportMode(mode: String): Boolean {

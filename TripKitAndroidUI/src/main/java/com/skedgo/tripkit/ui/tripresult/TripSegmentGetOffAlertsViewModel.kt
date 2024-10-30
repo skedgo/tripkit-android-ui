@@ -90,11 +90,16 @@ class TripSegmentGetOffAlertsViewModel @Inject internal constructor(
         items.update(details)
     }
 
-    fun setAlertState(isOn: Boolean) {
-        _getOffAlertStateOn.postValue(isOn)
+    fun setAlertState(context: Context, isOn: Boolean) {
+        onAlertChange(context, isOn)
     }
 
     fun onAlertChange(context: Context, isOn: Boolean) {
+
+        if(_getOffAlertStateOn.value == isOn) {
+            return
+        }
+
         trip.let {
             GetOffAlertCache.setTripAlertOnState(
                 it.getTripUuid(), it.group?.uuid().orEmpty(), isOn

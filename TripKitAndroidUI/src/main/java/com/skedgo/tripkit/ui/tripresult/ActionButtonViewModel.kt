@@ -12,7 +12,7 @@ import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButton
 
 
 interface ActionButtonClickListener {
-    fun onItemClick(tag: String, viewModel: ActionButtonViewModel)
+    fun onItemClick(tag: String, viewModel: ActionButtonViewModel, context: Context)
 }
 
 class ActionButtonViewModel constructor(context: Context, button: ActionButton) {
