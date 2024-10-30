@@ -616,4 +616,6 @@ We aggregate the anonymised data and provide it to researchers, regulators, and 
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="select_time">Select Time</string>
     <string name="edit_favorite">Edit Favourite</string>
+    <string name="confirmation_allow_background_location_title">Background location access</string>
+    <string name="confirmation_allow_background_location_message">"To enable background location, we'll redirect you to the app settings. Once there, go to: Permissions > Location > Allow all the time, then try again."</string>
 </resources>
