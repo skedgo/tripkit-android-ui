@@ -222,10 +222,6 @@ class TripResultListViewModel @Inject constructor(
                             toggleTransportModeChecked(TransportMode.ID_WHEEL_CHAIR, !type.second)
                         } else if (type.first == TransportMode.ID_WHEEL_CHAIR) {
                             toggleTransportModeChecked(TransportMode.ID_WALK, !type.second)
-                            if (!type.second) {
-                                toggleTransportModeChecked(TransportMode.ID_BICYCLE, true)
-                                toggleTransportModeChecked(TransportMode.ID_MOTORBIKE, true)
-                            }
                         }
 
                         transportVisibilityFilter!!.setSelected(type.first, type.second)
