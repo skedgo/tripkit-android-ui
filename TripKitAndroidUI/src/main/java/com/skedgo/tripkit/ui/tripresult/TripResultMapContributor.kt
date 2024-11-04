@@ -284,7 +284,7 @@ class TripResultMapContributor : TripKitMapContributor {
         )
     }
 
-    private fun processMapTiles(tripKitMapTiles: List<String>) {
+    fun processMapTiles(tripKitMapTiles: List<String>) {
         if (tripKitMapTiles.isNotEmpty()) {
             setTileProvider(tripKitMapTiles)
         } else {

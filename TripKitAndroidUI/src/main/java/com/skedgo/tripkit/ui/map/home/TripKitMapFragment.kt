@@ -300,7 +300,9 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
             }
             .addTo(autoDisposable)
 
-        loadMarkers()
+        if(viewModel.showMarkers.get()) {
+            loadMarkers()
+        }
 
         if (!requireContext().isNetworkConnected() &&
             appPreferences.getBoolean(APP_PREF_DEACTIVATED, false)) {

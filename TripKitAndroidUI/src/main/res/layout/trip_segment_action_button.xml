@@ -22,7 +22,7 @@
         android:contentDescription="@{viewModel.title}"
         android:focusable="true"
         android:clickable="@{!viewModel.showSpinner}"
-        android:onClick="@{() -> listener.onItemClick(viewModel.tag, viewModel)}"
+        android:onClick="@{() -> listener.onItemClick(viewModel.tag, viewModel, context)}"
         android:importantForAccessibility="yes"
         android:padding="@dimen/spacing_small">
 
@@ -33,7 +33,7 @@
             android:focusable="true"
             android:foreground="?selectableItemBackground"
             android:visibility="@{!viewModel.showSpinner}"
-            android:onClick="@{() -> listener.onItemClick(viewModel.tag, viewModel)}"
+            android:onClick="@{() -> listener.onItemClick(viewModel.tag, viewModel, context)}"
             android:background="@{viewModel.background}"
             android:importantForAccessibility="no"
             tools:visibility="visible">

@@ -6,7 +6,9 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.graphics.drawable.Drawable
+import android.net.Uri
 import android.os.Build
+import android.provider.Settings
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.recyclerview.widget.DiffUtil
@@ -90,11 +92,16 @@ class TripSegmentGetOffAlertsViewModel @Inject internal constructor(
         items.update(details)
     }
 
-    fun setAlertState(isOn: Boolean) {
-        _getOffAlertStateOn.postValue(isOn)
+    fun setAlertState(context: Context, isOn: Boolean) {
+        onAlertChange(context, isOn)
     }
 
     fun onAlertChange(context: Context, isOn: Boolean) {
+
+        if(_getOffAlertStateOn.value == isOn) {
+            return
+        }
+
         trip.let {
             GetOffAlertCache.setTripAlertOnState(
                 it.getTripUuid(), it.group?.uuid().orEmpty(), isOn
@@ -287,8 +294,24 @@ class TripSegmentGetOffAlertsViewModel @Inject internal constructor(
             }
 
             if (it.denied.isNotEmpty()) {
+
                 _getOffAlertStateOn.postValue(false)
                 pendingIntent?.let { intent -> alarmManager.cancel(intent) }
+
+                context.showConfirmationPopUpDialog(
+                    title = context.getString(R.string.confirmation_allow_background_location_title),
+                    message = context.getString(R.string.confirmation_allow_background_location_message),
+                    positiveLabel = context.getString(R.string.continue_),
+                    positiveCallback = {
+                        val intent = Intent(
+                            Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                            Uri.fromParts("package", context.packageName, null)
+                        )
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        context.startActivity(intent)
+                    },
+                    negativeLabel = context.getString(R.string.cancel)
+                )
             } else {
 
                 val reminder = TimeUnit.MINUTES.toSeconds(reminderInMinutes)

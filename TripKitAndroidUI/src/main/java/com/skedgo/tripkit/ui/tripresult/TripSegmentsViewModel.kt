@@ -741,17 +741,21 @@ class TripSegmentsViewModel @Inject internal constructor(
         setupButtons(newTripGroup)
     }
 
-    override fun onItemClick(tag: String, viewModel: ActionButtonViewModel) {
-        if (tag == ActionButtonHandler.ACTION_TAG_ALERT) {
-            tripSegmentGetOffAlertsViewModel?.apply {
-                setAlertState(getOffAlertStateOn.value?.not() ?: false)
+    override fun onItemClick(tag: String, viewModel: ActionButtonViewModel, context: Context) {
+        when (tag) {
+            ActionButtonHandler.ACTION_TAG_ALERT -> {
+                tripSegmentGetOffAlertsViewModel?.apply {
+                    setAlertState(context, getOffAlertStateOn.value?.not() ?: false)
+                }
             }
-        } else if (tag == ActionButtonHandler.ACTION_EXTERNAL_SHOW_TICKET) {
-            getTicket()
-        } else {
-            actionButtonHandler?.actionClicked(
-                context, tag, this.trip ?: tripGroup.displayTrip!!, viewModel
-            )
+            ActionButtonHandler.ACTION_EXTERNAL_SHOW_TICKET -> {
+                getTicket()
+            }
+            else -> {
+                actionButtonHandler?.actionClicked(
+                    context, tag, this.trip ?: tripGroup.displayTrip!!, viewModel
+                )
+            }
         }
     }
 
