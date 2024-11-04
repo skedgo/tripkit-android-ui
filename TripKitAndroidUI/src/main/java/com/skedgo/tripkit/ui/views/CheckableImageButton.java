@@ -34,6 +34,8 @@ public class CheckableImageButton extends AppCompatImageButton implements Checka
     public CheckableImageButton(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
 
+        setAlpha(checked ? 1.0f : 0.25f);
+
         ViewCompat.setAccessibilityDelegate(
             this,
             new AccessibilityDelegateCompat() {
@@ -65,6 +67,7 @@ public class CheckableImageButton extends AppCompatImageButton implements Checka
             refreshDrawableState();
             sendAccessibilityEvent(AccessibilityEventCompat.TYPE_WINDOW_CONTENT_CHANGED);
         }
+        setAlpha(checked ? 1.0f : 0.25f);
     }
 
     @Override

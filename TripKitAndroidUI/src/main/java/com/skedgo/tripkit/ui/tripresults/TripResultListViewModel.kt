@@ -223,13 +223,9 @@ class TripResultListViewModel @Inject constructor(
                         // The transportVisibilityFilter will save walking vs wheelchair automatically,
                         // but we need to manually fix the display, as walking and wheelchair are mutually exclusive.
                         if (type.first == TransportMode.ID_WALK) {
-                            toggleTransportModeChecked(TransportMode.ID_WHEEL_CHAIR, false)
+                            toggleTransportModeChecked(TransportMode.ID_WHEEL_CHAIR, !type.second)
                         } else if (type.first == TransportMode.ID_WHEEL_CHAIR) {
-                            toggleTransportModeChecked(TransportMode.ID_WALK, false)
-                            if (!type.second) {
-                                toggleTransportModeChecked(TransportMode.ID_BICYCLE, true)
-                                toggleTransportModeChecked(TransportMode.ID_MOTORBIKE, true)
-                            }
+                            toggleTransportModeChecked(TransportMode.ID_WALK, !type.second)
                         }
 
                         transportVisibilityFilter!!.setSelected(type.first, type.second)

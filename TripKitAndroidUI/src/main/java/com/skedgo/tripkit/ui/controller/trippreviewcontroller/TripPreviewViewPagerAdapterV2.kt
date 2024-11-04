@@ -4,6 +4,7 @@ import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
+import com.skedgo.TripKit
 import com.skedgo.tripkit.common.model.stop.ScheduledStop
 import com.skedgo.tripkit.common.model.stop.StopType
 import com.skedgo.tripkit.routing.TripSegment
@@ -94,14 +95,22 @@ class TripPreviewViewPagerAdapterV2(
                     modeInfo = page.tripSegment.modeInfo
                     type = StopType.from(page.tripSegment.modeInfo?.localIconName.orEmpty())
                 }
-                val timetableFragment = TimetableFragment.Builder()
+
+                val config = TripKit.getInstance().configs()
+
+                val timetableFragmentBuilder = TimetableFragment.Builder()
                     .withStop(scheduledStop)
-                    .withBookingAction(page.tripSegment.booking?.externalActions)
                     .withSegmentActionStream(segmentActionStream)
                     .withTripSegment(page.tripSegment)
                     .hideSearchBar()
                     .showCloseButton()
                     .isFromPreview(true)
+
+                if(config.showSegmentExternalActions()) {
+                    timetableFragmentBuilder.withBookingAction(page.tripSegment.booking?.externalActions)
+                }
+
+                val timetableFragment = timetableFragmentBuilder
                     .build().apply {
                         _tripSegment = page.tripSegment
                         onNextPage = {
