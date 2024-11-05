@@ -20,6 +20,6 @@ class GoogleResultLocationAdapter(
     override val lng: Double?
         get() = resultInterface.lng
 
-    override val address: String
+    override val address: String?
         get() = resultInterface.address
 }
