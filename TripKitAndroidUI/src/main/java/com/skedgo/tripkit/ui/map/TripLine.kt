@@ -40,7 +40,7 @@ open class GetTripLine @Inject internal constructor(
             }
 
     open fun executeForTravelledLine(polylineConfig: PolylineConfig, segments: List<TripSegment>) =
-        getTravelledLineForTrip.execute(segments).toList().toObservable()
+        getTravelledLineForTrip.execute(segments, 50.0).toList().toObservable()
             .map { createPolylineListForTravelledLines(polylineConfig, it) }
 
     private fun createPolylineListForNonTravelledLines(nonTravelledLinesToDraw: List<List<LineSegment>>?): List<SegmentsPolyLineOptions> {

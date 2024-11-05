@@ -23,9 +23,12 @@ import com.skedgo.tripkit.ui.map.home.TripKitMapContributor
 import com.skedgo.tripkit.ui.map.home.getFromAndToMarkerBitmap
 import com.skedgo.tripkit.ui.tripresults.TripResultListViewModel
 import io.reactivex.Observable
+import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.addTo
+import io.reactivex.schedulers.Schedulers
 import java.util.Collections
+import java.util.concurrent.TimeUnit.MILLISECONDS
 import javax.inject.Inject
 
 class TripResultListMapContributor(
@@ -97,6 +100,9 @@ class TripResultListMapContributor(
             showCachedMapElements()
         }
         viewModel.tripResultListStream
+            .debounce(200, MILLISECONDS)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
             .map {
                 if(!isFromInitialization) {
                     clearLinesCache()
