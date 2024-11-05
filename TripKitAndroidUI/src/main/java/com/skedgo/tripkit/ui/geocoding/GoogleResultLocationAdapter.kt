@@ -1,42 +1,25 @@
-package com.skedgo.tripkit.ui.geocoding;
+package com.skedgo.tripkit.ui.geocoding
 
-import com.skedgo.geocoding.agregator.GCGoogleResultInterface;
-import com.skedgo.tripkit.ui.data.places.Place;
+import com.skedgo.geocoding.agregator.GCGoogleResultInterface
+import com.skedgo.tripkit.ui.data.places.Place.WithoutLocation
 
-import androidx.annotation.NonNull;
-
-public final class GoogleResultLocationAdapter implements GCGoogleResultInterface, ResultLocationAdapter<Place.WithoutLocation> {
-    private final GCGoogleResultInterface resultInterface;
-    private Place.WithoutLocation location;
-
-    public GoogleResultLocationAdapter(Place.WithoutLocation withoutLocation, GCGoogleResultInterface resultInterface) {
-        this.location = withoutLocation;
-        this.resultInterface = resultInterface;
+class GoogleResultLocationAdapter(
+    private val location: WithoutLocation,
+    private val resultInterface: GCGoogleResultInterface
+) : GCGoogleResultInterface, ResultLocationAdapter<WithoutLocation?> {
+    override fun getPlace(): WithoutLocation {
+        return location
     }
 
-    @Override
-    public Place.WithoutLocation getPlace() {
-        return location;
-    }
+    override val name: String
+        get() = resultInterface.name
 
-    @NonNull
-    @Override
-    public String getName() {
-        return resultInterface.getName();
-    }
+    override val lat: Double?
+        get() = resultInterface.lat
 
-    @Override
-    public Double getLat() {
-        return resultInterface.getLat();
-    }
+    override val lng: Double?
+        get() = resultInterface.lng
 
-    @Override
-    public Double getLng() {
-        return resultInterface.getLng();
-    }
-
-    @Override
-    public String getAddress() {
-        return resultInterface.getAddress();
-    }
+    override val address: String
+        get() = resultInterface.address
 }

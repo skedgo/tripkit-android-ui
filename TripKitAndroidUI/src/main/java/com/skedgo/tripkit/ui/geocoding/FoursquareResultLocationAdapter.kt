@@ -1,47 +1,29 @@
-package com.skedgo.tripkit.ui.geocoding;
+package com.skedgo.tripkit.ui.geocoding
 
-import com.skedgo.geocoding.agregator.GCFoursquareResultInterface;
-import com.skedgo.tripkit.common.model.location.Location;
-import com.skedgo.tripkit.ui.data.places.Place;
+import com.skedgo.geocoding.agregator.GCFoursquareResultInterface
+import com.skedgo.tripkit.common.model.location.Location
+import com.skedgo.tripkit.ui.data.places.Place.TripGoPOI
 
-import java.util.List;
-
-public final class FoursquareResultLocationAdapter implements GCFoursquareResultInterface, ResultLocationAdapter<Place.TripGoPOI> {
-    private final GCFoursquareResultInterface resultInterface;
-    private final Location location;
-
-    public FoursquareResultLocationAdapter(Location location, GCFoursquareResultInterface resultInterface) {
-        this.location = location;
-        this.resultInterface = resultInterface;
+class FoursquareResultLocationAdapter(
+    private val location: Location,
+    private val resultInterface: GCFoursquareResultInterface
+) : GCFoursquareResultInterface, ResultLocationAdapter<TripGoPOI?> {
+    override fun getPlace(): TripGoPOI {
+        return TripGoPOI(location)
     }
 
-    @Override
-    public Place.TripGoPOI getPlace() {
-        return new Place.TripGoPOI(location);
-    }
+    override val isVerified: Boolean
+        get() = resultInterface.isVerified
 
-    @Override
-    public boolean isVerified() {
-        return resultInterface.isVerified();
-    }
+    override val categories: List<String>
+        get() = resultInterface.categories
 
-    @Override
-    public List<String> getCategories() {
-        return resultInterface.getCategories();
-    }
+    override val name: String
+        get() = resultInterface.name
 
-    @Override
-    public String getName() {
-        return resultInterface.getName();
-    }
+    override val lat: Double?
+        get() = resultInterface.lat
 
-    @Override
-    public Double getLat() {
-        return resultInterface.getLat();
-    }
-
-    @Override
-    public Double getLng() {
-        return resultInterface.getLng();
-    }
+    override val lng: Double?
+        get() = resultInterface.lng
 }

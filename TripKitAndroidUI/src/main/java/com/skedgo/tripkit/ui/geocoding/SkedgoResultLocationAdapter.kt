@@ -1,57 +1,32 @@
-package com.skedgo.tripkit.ui.geocoding;
+package com.skedgo.tripkit.ui.geocoding
 
-import com.skedgo.geocoding.agregator.GCSkedGoResultInterface;
-import com.skedgo.tripkit.common.model.location.Location;
-import com.skedgo.tripkit.ui.data.places.Place;
+import com.skedgo.geocoding.agregator.GCSkedGoResultInterface
+import com.skedgo.tripkit.common.model.location.Location
+import com.skedgo.tripkit.ui.data.places.Place.TripGoPOI
 
-import java.util.List;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-
-public final class SkedgoResultLocationAdapter implements GCSkedGoResultInterface, ResultLocationAdapter<Place.TripGoPOI> {
-    private final Location location;
-    private final GCSkedGoResultInterface resultInterface;
-
-    public SkedgoResultLocationAdapter(Location location, GCSkedGoResultInterface resultInterface) {
-        this.location = location;
-        this.resultInterface = resultInterface;
+class SkedgoResultLocationAdapter(
+    private val location: Location,
+    private val resultInterface: GCSkedGoResultInterface
+) : GCSkedGoResultInterface, ResultLocationAdapter<TripGoPOI?> {
+    override fun getPlace(): TripGoPOI {
+        return TripGoPOI(location)
     }
 
-    @Override
-    public Place.TripGoPOI getPlace() {
-        return new Place.TripGoPOI(location);
-    }
+    override val name: String
+        get() = resultInterface.name
 
-    @NonNull
-    @Override
-    public String getName() {
-        return resultInterface.getName();
-    }
+    override val lat: Double?
+        get() = resultInterface.lat
 
-    @Override
-    public Double getLat() {
-        return resultInterface.getLat();
-    }
+    override val lng: Double?
+        get() = resultInterface.lng
 
-    @Override
-    public Double getLng() {
-        return resultInterface.getLng();
-    }
+    override val resultClass: String
+        get() = resultInterface.resultClass
 
-    @Override
-    public String getResultClass() {
-        return resultInterface.getResultClass();
-    }
+    override val popularity: Int
+        get() = resultInterface.popularity
 
-    @Override
-    public int getPopularity() {
-        return resultInterface.getPopularity();
-    }
-
-    @Nullable
-    @Override
-    public List<String> getModeIdentifiers() {
-        return resultInterface.getModeIdentifiers();
-    }
+    override val modeIdentifiers: List<String>?
+        get() = resultInterface.modeIdentifiers
 }

@@ -1,53 +1,33 @@
-package com.skedgo.tripkit.ui.geocoding;
+package com.skedgo.tripkit.ui.geocoding
 
-import com.skedgo.geocoding.agregator.GCAppResultInterface;
-import com.skedgo.tripkit.common.model.location.Location;
-import com.skedgo.tripkit.ui.data.places.Place;
+import com.skedgo.geocoding.agregator.GCAppResultInterface
+import com.skedgo.geocoding.agregator.GCAppResultInterface.Source
+import com.skedgo.tripkit.common.model.location.Location
+import com.skedgo.tripkit.ui.data.places.Place.TripGoPOI
 
-import org.jetbrains.annotations.NotNull;
-
-public final class AppResultLocationAdapter implements ResultLocationAdapter<Place.TripGoPOI>, GCAppResultInterface {
-    private final GCAppResultInterface resultInterface;
-    private final Location location;
-
-    public AppResultLocationAdapter(Location location, GCAppResultInterface resultInterface) {
-        this.location = location;
-        this.resultInterface = resultInterface;
+class AppResultLocationAdapter(
+    private val location: Location,
+    private val resultInterface: GCAppResultInterface
+) : ResultLocationAdapter<TripGoPOI?>, GCAppResultInterface {
+    override fun getPlace(): TripGoPOI {
+        return TripGoPOI(location)
     }
 
-    @Override
-    public Place.TripGoPOI getPlace() {
-        return new Place.TripGoPOI(location);
-    }
+    override val subtitle: String
+        get() = resultInterface.subtitle
 
-    @Override
-    public String getSubtitle() {
-        return resultInterface.getSubtitle();
-    }
+    override val appResultSource: Source
+        get() = resultInterface.appResultSource
 
-    @Override
-    public GCAppResultInterface.Source getAppResultSource() {
-        return resultInterface.getAppResultSource();
-    }
+    override val isFavourite: Boolean
+        get() = resultInterface.isFavourite
 
-    @Override
-    public boolean isFavourite() {
-        return resultInterface.isFavourite();
-    }
+    override val name: String
+        get() = resultInterface.name
 
-    @NotNull
-    @Override
-    public String getName() {
-        return resultInterface.getName();
-    }
+    override val lat: Double?
+        get() = resultInterface.lat
 
-    @Override
-    public Double getLat() {
-        return resultInterface.getLat();
-    }
-
-    @Override
-    public Double getLng() {
-        return resultInterface.getLng();
-    }
+    override val lng: Double?
+        get() = resultInterface.lng
 }
