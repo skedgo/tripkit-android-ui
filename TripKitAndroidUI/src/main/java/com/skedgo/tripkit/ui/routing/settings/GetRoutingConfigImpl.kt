@@ -20,8 +20,8 @@ internal class GetRoutingConfigImpl @Inject constructor(
             walkingSpeed = walkingSpeedRepository.getWalkingSpeed(),
             unit = unitsRepository.getUnit(),
             cyclingSpeed = cyclingSpeedRepository.getCyclingSpeed(),
-            shouldUseConcessionPricing = tripPreferences.isConcessionPricingPreferred,
-            isOnWheelchair = tripPreferences.isWheelchairPreferred,
+            shouldUseConcessionPricing = tripPreferences.isConcessionPricingPreferred(),
+            isOnWheelchair = tripPreferences.isWheelchairPreferred(),
             weightingProfile = WeightingProfile(
                 budgetPriority = prioritiesRepository.getBudgetPriority(),
                 environmentPriority = prioritiesRepository.getEnvironmentPriority(),
