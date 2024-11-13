@@ -59,8 +59,8 @@ data class FavoriteV2(
 
     data class LocationFavorite(
         val address: String,
-        val lat: Double,
-        val lng: Double,
+        val lat: Double? = 0.0,
+        val lng: Double? = 0.0,
         val name: String?
     ) {
         companion object {
@@ -76,8 +76,8 @@ data class FavoriteV2(
     fun getFavoriteLocation(): Location? =
         location?.let {
             Location().apply {
-                lat = location.lat
-                lon = location.lng
+                lat = location.lat ?: 0.0
+                lon = location.lng ?: 0.0
                 address = location.address
                 name = location.name
             }
@@ -86,8 +86,8 @@ data class FavoriteV2(
     fun getStart(): Location? =
         startLocation?.let {
             Location().apply {
-                lat = startLocation.lat
-                lon = startLocation.lng
+                lat = startLocation.lat ?: 0.0
+                lon = startLocation.lng ?: 0.0
                 address = startLocation.address
                 name = startLocation.name
             }
@@ -96,8 +96,8 @@ data class FavoriteV2(
     fun getEnd(): Location? =
         endLocation?.let {
             Location().apply {
-                lat = endLocation.lat
-                lon = endLocation.lng
+                lat = endLocation.lat ?: 0.0
+                lon = endLocation.lng ?: 0.0
                 address = endLocation.address
                 name = endLocation.name
             }
