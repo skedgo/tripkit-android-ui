@@ -58,7 +58,7 @@ data class FavoriteV2(
 ) {
 
     data class LocationFavorite(
-        val address: String,
+        val address: String?,
         val lat: Double? = 0.0,
         val lng: Double? = 0.0,
         val name: String?
