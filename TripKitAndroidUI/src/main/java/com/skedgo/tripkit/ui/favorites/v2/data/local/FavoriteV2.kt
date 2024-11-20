@@ -103,6 +103,12 @@ data class FavoriteV2(
             }
         }
 
+    fun hasLocation() = if(type == FavoriteType.stop) {
+        true
+    } else {
+        startLocation != null || endLocation != null || location != null
+    }
+
     class Builder(
         private val type: FavoriteType
     ) {

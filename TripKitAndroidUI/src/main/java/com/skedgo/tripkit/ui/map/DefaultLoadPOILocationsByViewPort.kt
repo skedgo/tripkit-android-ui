@@ -1,5 +1,6 @@
 package com.skedgo.tripkit.ui.map
 
+import com.skedgo.tripkit.ui.BuildConfig
 import com.skedgo.tripkit.ui.map.adapter.StopInfoWindowAdapter
 import com.skedgo.tripkit.ui.map.home.ViewPort
 import io.reactivex.Observable
@@ -33,6 +34,11 @@ class DefaultLoadPOILocationsByViewPort @Inject constructor(
             )
             .toList()
             .toObservable()
+            .doOnError { throwable: Throwable ->
+                if (BuildConfig.DEBUG) {
+                    throwable.printStackTrace()
+                }
+            }
             .flatMap { items ->
                 Observable.combineLatest(items) { results ->
                     val bikePods = results[0] as List<IMapPoiLocation>
