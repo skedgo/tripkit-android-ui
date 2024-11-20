@@ -165,8 +165,8 @@ interface FavoritesRepository {
                 safeCall<Boolean> {
                     val userId = configs.userIdentifier()?.call()
                     emit(Resource.success(data = userId?.let {
-                        favoriteDao.favoriteLocationExistsForUser(location.address, userId)
-                    } ?: run { favoriteDao.favoriteLocationExists(location.address) }))
+                        favoriteDao.favoriteLocationExistsForUser(location.address.orEmpty(), userId)
+                    } ?: run { favoriteDao.favoriteLocationExists(location.address.orEmpty()) }))
                 }
             }.flowOn(Dispatchers.IO)
 
