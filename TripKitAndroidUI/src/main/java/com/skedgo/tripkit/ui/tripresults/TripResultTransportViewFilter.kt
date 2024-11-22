@@ -4,6 +4,8 @@ import android.content.Context
 import android.content.SharedPreferences
 import com.skedgo.TripKit
 import com.skedgo.tripkit.common.model.TransportMode
+import com.skedgo.tripkit.ui.utils.PREF_KEY_TRANSPORT_MODE
+import com.skedgo.tripkit.ui.utils.TransportModeDefaults
 
 
 /**
@@ -21,20 +23,15 @@ const val PREF_KEY_IS_DEFAULT_CONFIG_SET = "pref_key_is_set_default_config"
 class PrefsBasedTransportViewFilter(val context: Context) : TripResultTransportViewFilter {
 
     val prefs: SharedPreferences =
-        context.getSharedPreferences("TransportPreferences", Context.MODE_PRIVATE)
+        context.getSharedPreferences(PREF_KEY_TRANSPORT_MODE, Context.MODE_PRIVATE)
 
 
     init {
         if (!prefs.getBoolean(PREF_KEY_IS_DEFAULT_CONFIG_SET, false)) {
-            val globalTransportModeConfigs = TripKit.getInstance().configs().transportModeConfig()
-            globalTransportModeConfigs?.apply {
-                defaultSelectedModesIds.forEach {
-                    prefs.edit().putBoolean(it, true).apply()
-                }
-                defaultUnSelectedModesIds.forEach {
-                    prefs.edit().putBoolean(it, false).apply()
-                }
+            TransportModeDefaults.getDefaultTransportModes().forEach {
+                prefs.edit().putBoolean(it, true).apply()
             }
+
             prefs.edit().putBoolean(PREF_KEY_IS_DEFAULT_CONFIG_SET, true).apply()
         }
 
@@ -45,7 +42,7 @@ class PrefsBasedTransportViewFilter(val context: Context) : TripResultTransportV
             return !prefs.getBoolean(TransportMode.ID_WALK, true)
         }
 
-        return prefs.getBoolean(mode, true)
+        return prefs.getBoolean(mode, false)
     }
 
     override fun isMinimized(mode: String): Boolean {
