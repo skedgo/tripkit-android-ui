@@ -120,12 +120,13 @@ fun setImageFromUrl(imageView: ImageView, source: String?) {
     }
 }
 
-@BindingAdapter("sourceUrl", "placeholder", "tripGoKey", "userToken")
+@BindingAdapter("sourceUrl", "placeholder", "tripGoKey", "tripGoClientId", "userToken")
 fun setImageFromUrlWithPlaceholder(
     imageView: ImageView,
     source: String?,
     placeholder: Int,
     tripGoKey: String,
+    tripGoClientId: String?,
     userToken: String?
 ) {
     source?.let {
@@ -133,6 +134,9 @@ fun setImageFromUrlWithPlaceholder(
             val headersBuilder = LazyHeaders.Builder()
                 .addHeader("X-TripGo-Key", tripGoKey)
                 .addHeader("Accept", "image/*")
+            tripGoClientId?.let {
+                headersBuilder.addHeader("X-TripGo-Client-Id", it)
+            }
             userToken?.let {
                 headersBuilder.addHeader("userToken", userToken)
             }
