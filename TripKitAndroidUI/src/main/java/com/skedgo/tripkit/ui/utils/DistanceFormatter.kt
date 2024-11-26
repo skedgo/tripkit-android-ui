@@ -1,8 +1,10 @@
 package com.skedgo.tripkit.ui.utils
 
+import com.skedgo.tripkit.ui.routing.settings.UnitsRepository
 import java.text.DecimalFormat
 import java.text.NumberFormat
 import java.util.Locale
+import javax.inject.Inject
 import kotlin.math.floor
 
 /**
@@ -15,9 +17,16 @@ import kotlin.math.floor
  *
  */
 object DistanceFormatter {
+
     enum class DistanceUnits {
         MILES,
         KILOMETERS
+    }
+
+    private lateinit var unitsRepository: UnitsRepository
+
+    fun initialize(unitsRepository: UnitsRepository) {
+        this.unitsRepository = unitsRepository
     }
 
     private const val METERS_IN_ONE_MILE = 1609.0
@@ -56,11 +65,7 @@ object DistanceFormatter {
      * @return distance string formatted according to the rules of the formatter.
      */
     fun format(distanceInMeters: Int, locale: Locale): String {
-        return if (useMiles(locale)) {
-            format(distanceInMeters, locale, DistanceUnits.MILES)
-        } else {
-            format(distanceInMeters, locale, DistanceUnits.KILOMETERS)
-        }
+        return format(distanceInMeters, locale, getDistanceUnit(locale))
     }
 
     /**
@@ -129,5 +134,22 @@ object DistanceFormatter {
 
     private fun roundDownToNearestTen(distance: Double): Int {
         return floor(distance / 10).toInt() * 10
+    }
+
+    private fun getDistanceUnit(locale: Locale): DistanceUnits {
+        return if (
+            !this::unitsRepository.isInitialized ||
+            (this::unitsRepository.isInitialized && unitsRepository.getUnit() == "auto")
+        ) {
+            if (useMiles(locale)) {
+                DistanceUnits.MILES
+            } else {
+                DistanceUnits.KILOMETERS
+            }
+        } else if (unitsRepository.getUnit() == "metric") {
+            DistanceUnits.KILOMETERS
+        } else {
+            DistanceUnits.MILES
+        }
     }
 }

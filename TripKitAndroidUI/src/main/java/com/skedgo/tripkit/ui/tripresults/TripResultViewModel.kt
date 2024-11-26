@@ -102,6 +102,10 @@ class TripResultViewModel @Inject constructor(
     private val _isActionEnabled = MutableLiveData<Boolean>()
     val isActionEnabled: LiveData<Boolean> = _isActionEnabled
 
+    private val globalConfigs by lazy {
+        TripKit.getInstance().configs()
+    }
+
     fun toggleShowMore() {
         showMoreTrips.set(!showMoreTrips.get())
 
@@ -369,7 +373,6 @@ class TripResultViewModel @Inject constructor(
 
         cost.set(builder.toString())
 
-        val globalConfigs = TripKit.getInstance().configs()
         costVisible.set(!globalConfigs.hideTripMetrics())
         hasTripLabels.set(globalConfigs.hasTripLabels())
     }
@@ -381,7 +384,7 @@ class TripResultViewModel @Inject constructor(
         }
 
         trip.getDisplayCostUsd()?.let {
-            _isMoneyCostVisible.postValue(true)
+            _isMoneyCostVisible.postValue(globalConfigs.hideTripMetrics())
             _moneyCost.postValue(it)
         }
     }
