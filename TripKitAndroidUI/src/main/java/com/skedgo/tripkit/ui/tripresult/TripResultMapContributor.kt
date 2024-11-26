@@ -29,7 +29,19 @@ import com.skedgo.tripkit.ui.TripKitUI
 import com.skedgo.tripkit.ui.core.UnableToFetchBitmapError
 import com.skedgo.tripkit.ui.core.fetchAsync
 import com.skedgo.tripkit.ui.data.location.toLatLng
-import com.skedgo.tripkit.ui.map.*
+import com.skedgo.tripkit.ui.map.AlertMarkerIconFetcher
+import com.skedgo.tripkit.ui.map.AlertMarkerViewModel
+import com.skedgo.tripkit.ui.map.CreateSegmentMarkers
+import com.skedgo.tripkit.ui.map.GetTripLine
+import com.skedgo.tripkit.ui.map.SegmentMarkerIconMaker
+import com.skedgo.tripkit.ui.map.SegmentStopMarkerMaker
+import com.skedgo.tripkit.ui.map.SegmentsPolyLineOptions
+import com.skedgo.tripkit.ui.map.ServiceAlertMarkerMaker
+import com.skedgo.tripkit.ui.map.StopMarkerViewModel
+import com.skedgo.tripkit.ui.map.TripResultMapViewModel
+import com.skedgo.tripkit.ui.map.TripVehicleMarkerCreator
+import com.skedgo.tripkit.ui.map.VehicleMarkerIconFetcher
+import com.skedgo.tripkit.ui.map.VehicleMarkerViewModel
 import com.skedgo.tripkit.ui.map.adapter.SegmentInfoWindowAdapter
 import com.skedgo.tripkit.ui.map.adapter.ServiceStopInfoWindowAdapter
 import com.skedgo.tripkit.ui.map.home.TripKitMapContributor
@@ -41,7 +53,7 @@ import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
 import java.net.MalformedURLException
 import java.net.URL
-import java.util.*
+import java.util.Collections
 import javax.inject.Inject
 
 class TripResultMapContributor : TripKitMapContributor {
@@ -380,18 +392,19 @@ class TripResultMapContributor : TripKitMapContributor {
             it.color = it.color.removeAlpha()
         }
 
-        val builder = LatLngBounds.Builder()
-        tripLinesTravelled.forEach {
-            for (point in it.points) {
-                builder.include(point)
+        val bounds = tripLinesTravelled
+            .flatMap { it.points }
+            .takeIf { it.isNotEmpty() }
+            ?.let { points ->
+                LatLngBounds.builder().apply { points.forEach(::include) }.build()
             }
+
+        if (bounds != null) {
+            val cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, 50)
+            map.animateCamera(cameraUpdate)
+        } else {
+            Timber.e("resetTripLineTravelled: No points available for LatLngBounds.")
         }
-
-        val bounds = builder.build()
-
-        // Move the camera to focus on the bounds
-        val cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, 50)
-        map.animateCamera(cameraUpdate)
     }
 
     fun focusTripLine(segment: TripSegment) {
@@ -399,23 +412,21 @@ class TripResultMapContributor : TripKitMapContributor {
 
         updateTravelledPolyLinesHighlight(segmentPolyLines)
 
-        if (segmentPolyLines.isNotEmpty()) {
-            val builder = LatLngBounds.Builder()
-            segmentPolyLines.forEach {
-                for (point in it.points) {
-                    builder.include(point)
-                }
+        val bounds = segmentPolyLines
+            .flatMap { it.points }
+            .takeIf { it.isNotEmpty() }
+            ?.let { points ->
+                LatLngBounds.builder().apply { points.forEach(::include) }.build()
             }
 
-            val bounds = builder.build()
-
-            // Move the camera to focus on the bounds
+        if (bounds != null) {
             val cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, 50)
             map.animateCamera(cameraUpdate)
         } else if (segment.singleLocation != null) {
-            val cameraUpdate =
-                CameraUpdateFactory.newLatLngZoom(segment.singleLocation?.toLatLng(), 20f)
+            val cameraUpdate = CameraUpdateFactory.newLatLngZoom(segment.singleLocation?.toLatLng(), 20f)
             map.animateCamera(cameraUpdate)
+        } else {
+            Timber.e("focusTripLine: No polyline points or single location available.")
         }
     }
 

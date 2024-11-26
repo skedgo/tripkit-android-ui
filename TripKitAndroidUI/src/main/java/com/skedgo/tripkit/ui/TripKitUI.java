@@ -13,6 +13,7 @@ import com.skedgo.DaggerTripKit;
 import com.skedgo.TripKit;
 import com.skedgo.routepersistence.RouteStore;
 import com.skedgo.tripkit.*;
+import com.skedgo.tripkit.data.TripKitKeys;
 import com.skedgo.tripkit.data.database.DbHelper;
 import com.skedgo.tripkit.data.regions.RegionService;
 import com.skedgo.tripkit.notification.NotificationKt;
@@ -218,8 +219,8 @@ public abstract class TripKitUI {
             }
 
             if (!Places.isInitialized()) {
-                String placesApiKey = context.getString(R.string.google_places_api_key);
-                if (!placesApiKey.equals("GOOGLE_PLACES_API_KEY")) {
+                String placesApiKey = TripKitKeys.INSTANCE.getGooglePlacesApiKey();
+                if (placesApiKey != null && !placesApiKey.isEmpty()) {
                     Places.initialize(context, placesApiKey);
                 }
             }

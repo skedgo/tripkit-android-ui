@@ -1,8 +1,8 @@
 <resources>
-    <string name="skedgo_api_key">SKEDGO_API_KEY</string>
-    <string name="google_places_api_key">GOOGLE_PLACES_API_KEY</string>
-    <string name="stripe_api_key">STRIPE_API_KEY</string>
-    <string name="stripe_api_key_sandbox">STRIPE_API_KEY_SANDBOX</string>
+<!--    <string name="skedgo_api_key">SKEDGO_API_KEY</string>-->
+<!--    <string name="google_places_api_key">GOOGLE_PLACES_API_KEY</string>-->
+<!--    <string name="stripe_api_key">STRIPE_API_KEY</string>-->
+<!--    <string name="stripe_api_key_sandbox">STRIPE_API_KEY_SANDBOX</string>-->
     <string name="stationName">Station name</string>
     <string name="no_realtime_available">No realtime available</string>
     <string name="more">More</string>
@@ -618,4 +618,5 @@ We aggregate the anonymised data and provide it to researchers, regulators, and 
     <string name="edit_favorite">Edit Favourite</string>
     <string name="confirmation_allow_background_location_title">Background location access</string>
     <string name="confirmation_allow_background_location_message">"To enable background location, we'll redirect you to the app settings. Once there, go to: Permissions > Location > Allow all the time, then try again."</string>
+    <string name="terms_of_use">Terms of Use</string>
 </resources>

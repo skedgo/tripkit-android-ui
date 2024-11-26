@@ -67,7 +67,8 @@ interface FavoritesRepository {
                 ) {
                     if (configs.favoritesServerSyncEnabled() && syncFromServer && !userId.isNullOrEmpty()) {
                         val response = api.getFavorites()
-                        val favoritesFromResponse = response.result
+                        val favoritesFromResponse =
+                            response.result?.filter { it.hasLocation() }
                         favoritesFromResponse?.let {
                             favoriteDao.insertAllFavorites(
                                 it.map { favorite ->
@@ -82,7 +83,9 @@ interface FavoritesRepository {
                             favoriteDao.getAllFavoritesWithEmptyUserId(userId.orEmpty())
 
                         val localFavoritesToUpload = localFavorites.filterNot { localFavorite ->
-                            favoritesFromResponse?.any { it.uuid == localFavorite.uuid } == true
+                            favoritesFromResponse?.any {
+                                it.uuid == localFavorite.uuid || it.name == localFavorite.name
+                            } == true
                         }
                         localFavoritesToUpload.forEach { favorite -> api.addFavorite(favorite) }
                         if (localFavoritesToUpload.isNotEmpty()) {
@@ -165,8 +168,11 @@ interface FavoritesRepository {
                 safeCall<Boolean> {
                     val userId = configs.userIdentifier()?.call()
                     emit(Resource.success(data = userId?.let {
-                        favoriteDao.favoriteLocationExistsForUser(location.address, userId)
-                    } ?: run { favoriteDao.favoriteLocationExists(location.address) }))
+                        favoriteDao.favoriteLocationExistsForUser(
+                            location.address.orEmpty(),
+                            userId
+                        )
+                    } ?: run { favoriteDao.favoriteLocationExists(location.address.orEmpty()) }))
                 }
             }.flowOn(Dispatchers.IO)
 

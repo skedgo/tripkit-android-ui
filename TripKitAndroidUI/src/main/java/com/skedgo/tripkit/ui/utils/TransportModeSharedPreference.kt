@@ -7,6 +7,27 @@ import javax.inject.Inject
 
 const val PREF_KEY_TRANSPORT_MODE = "TransportPreferences"
 
+object TransportModeDefaults {
+    private var defaultTransportModes = listOf(
+        TransportMode.ID_PUBLIC_TRANSPORT,
+        TransportMode.ID_SCHOOL_BUS,
+        TransportMode.ID_BICYCLE,
+        TransportMode.ID_TAXI,
+        TransportMode.ID_CAR,
+        TransportMode.ID_MOTORBIKE,
+        TransportMode.ID_WALK,
+    )
+
+    fun getDefaultTransportModes() = defaultTransportModes
+
+    fun setSetDefaultModes(vararg modeIds: String) {
+        defaultTransportModes = modeIds.toList()
+    }
+
+    fun isModeInDefaultModes(modeId: String) =
+        defaultTransportModes.contains(modeId)
+}
+
 // TODO convert "TransportPreferences" usage to use this class instead
 class TransportModeSharedPreference @Inject constructor(private val context: Context) {
 
@@ -26,11 +47,5 @@ class TransportModeSharedPreference @Inject constructor(private val context: Con
     fun hasTransportMode(modeId: String): Boolean = sharedPreferences.contains(modeId)
 
     private fun getModeDefaultValue(modeId: String): Boolean =
-        modeId == TransportMode.ID_PUBLIC_TRANSPORT ||
-            modeId == TransportMode.ID_SCHOOL_BUS ||
-            modeId == TransportMode.ID_BICYCLE ||
-            modeId == TransportMode.ID_TAXI ||
-            modeId == TransportMode.ID_CAR ||
-            modeId == TransportMode.ID_MOTORBIKE ||
-            modeId == TransportMode.ID_WALK
+        TransportModeDefaults.isModeInDefaultModes(modeId)
 }

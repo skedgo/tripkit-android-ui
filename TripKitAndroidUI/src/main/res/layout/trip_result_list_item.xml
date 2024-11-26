@@ -111,7 +111,7 @@
                 android:maxLines="2"
                 android:paddingHorizontal="@dimen/spacing_small"
                 android:text="@{viewModel.moneyCost}"
-                android:visibility="gone"
+                android:visibility="@{viewModel.isMoneyCostVisible()}"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintHorizontal_weight="1.5"
                 app:layout_constraintStart_toEndOf="@+id/cost"
