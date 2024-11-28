@@ -1,47 +1,37 @@
-package com.skedgo.tripkit.ui.data;
+package com.skedgo.tripkit.ui.data
 
-import com.google.gson.annotations.JsonAdapter;
-
-import org.immutables.gson.Gson.TypeAdapters;
-import org.immutables.value.Value.Immutable;
-import org.immutables.value.Value.Parameter;
-import org.immutables.value.Value.Style;
-import org.jetbrains.annotations.Nullable;
-
-import static org.immutables.value.Value.Style.ImplementationVisibility.PACKAGE;
+import com.google.gson.annotations.JsonAdapter
+import org.immutables.gson.Gson.TypeAdapters
+import org.immutables.value.Value.Immutable
+import org.immutables.value.Value.Parameter
+import org.immutables.value.Value.Style
+import org.immutables.value.Value.Style.ImplementationVisibility.PACKAGE
 
 @Immutable
 @TypeAdapters
-@Style(
-    visibility = PACKAGE,
-    passAnnotations = JsonAdapter.class
+@Style(visibility = PACKAGE, passAnnotations = [JsonAdapter::class])
+@JsonAdapter(
+    GsonAdaptersConfigDto::class
 )
-@JsonAdapter(GsonAdaptersConfigDto.class)
-public interface ConfigDto {
+interface ConfigDto {
     @Parameter
-    String v();
+    fun v(): String
 
     @Parameter
-    @Nullable
-    Integer tt();
+    fun tt(): Int?
 
     @Parameter
-    @Nullable
-    Integer ws();
+    fun ws(): Int?
 
     @Parameter
-    @Nullable
-    Integer cs();
+    fun cs(): Int?
 
     @Parameter
-    @Nullable
-    Boolean conc();
+    fun conc(): Boolean?
 
     @Parameter
-    @Nullable
-    Boolean wheelchair();
+    fun wheelchair(): Boolean?
 
     @Parameter
-    @Nullable
-    String wp();
+    fun wp(): String?
 }

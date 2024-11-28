@@ -1,11 +1,8 @@
-package com.skedgo.tripkit.ui.core.module;
+package com.skedgo.tripkit.ui.core.module
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-
-import javax.inject.Scope;
+import javax.inject.Scope
+import kotlin.annotation.AnnotationRetention.RUNTIME
 
 @Scope
-@Retention(RetentionPolicy.RUNTIME)
-public @interface ActivityScope {
-}
+@Retention(RUNTIME)
+annotation class ActivityScope 

@@ -1,8 +1,6 @@
-package com.skedgo.tripkit.ui.data;
+package com.skedgo.tripkit.ui.data
 
-import android.database.Cursor;
+import android.database.Cursor
+import io.reactivex.functions.Function
 
-import io.reactivex.functions.Function;
-
-public interface CursorToEntityConverter<E> extends Function<Cursor, E> {
-}
+interface CursorToEntityConverter<E> : Function<Cursor, E>

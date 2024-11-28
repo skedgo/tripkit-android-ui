@@ -1,130 +1,130 @@
-package com.skedgo.tripkit.ui.core.binding;
+package com.skedgo.tripkit.ui.core.binding
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
-import android.graphics.PorterDuff;
-import android.text.TextUtils;
-import android.view.View;
-import android.widget.ImageView;
+import android.animation.Animator
+import android.animation.AnimatorListenerAdapter
+import android.graphics.PorterDuff.Mode.SRC_IN
+import android.text.TextUtils
+import android.view.View
+import android.widget.ImageView
+import androidx.databinding.BindingAdapter
+import com.skedgo.tripkit.common.model.TransportMode.Companion.getLocalIconResId
+import com.skedgo.tripkit.common.util.TransportModeUtils.getIconUrlForId
+import com.skedgo.tripkit.common.util.TransportModeUtils.getIconUrlForModeInfo
+import com.skedgo.tripkit.routing.ModeInfo
+import com.skedgo.tripkit.ui.R
+import com.skedgo.tripkit.ui.TripKitUI
 
-import com.skedgo.tripkit.common.model.TransportMode;
-import com.skedgo.tripkit.common.util.TransportModeUtils;
-import com.skedgo.tripkit.routing.ModeInfo;
-import com.skedgo.tripkit.routing.VehicleMode;
-import com.skedgo.tripkit.ui.R;
-import com.skedgo.tripkit.ui.TripKitUI;
-
-import androidx.annotation.Nullable;
-import androidx.databinding.BindingAdapter;
-
-import static com.skedgo.tripkit.common.util.TransportModeUtils.getIconUrlForId;
-
-public final class ImageViewBindingAdapters {
+object ImageViewBindingAdapters {
+    @JvmStatic
     @BindingAdapter("android:visibility")
-    public static void setVisibility(View view, boolean visible) {
+    fun setVisibility(view: View, visible: Boolean) {
         try {
-            view.animate().cancel();
-        } catch (Exception e) {
-            e.printStackTrace();
+            view.animate().cancel()
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
-        view.setVisibility(visible ? View.VISIBLE : View.GONE);
+        view.visibility = if (visible) View.VISIBLE else View.GONE
     }
 
+    @JvmStatic
     @BindingAdapter("fadeVisible")
-    public static void setFadeVisible(final View view, boolean visible) {
-        if (view.getTag() == null) {
-            view.setTag(true);
-            view.setVisibility(visible ? View.VISIBLE : View.GONE);
+    fun setFadeVisible(view: View, visible: Boolean) {
+        if (view.tag == null) {
+            view.tag = true
+            view.visibility = if (visible) View.VISIBLE else View.GONE
         } else {
-            view.animate().cancel();
+            view.animate().cancel()
 
             if (visible) {
-                view.setVisibility(View.VISIBLE);
-                view.setAlpha(0);
-                view.animate().alpha(1).setListener(new AnimatorListenerAdapter() {
-                    @Override
-                    public void onAnimationEnd(Animator animation) {
-                        view.setAlpha(1);
+                view.visibility = View.VISIBLE
+                view.alpha = 0f
+                view.animate().alpha(1f).setListener(object : AnimatorListenerAdapter() {
+                    override fun onAnimationEnd(animation: Animator) {
+                        view.alpha = 1f
                     }
-                });
+                })
             } else {
-                view.animate().alpha(0).setListener(new AnimatorListenerAdapter() {
-                    @Override
-                    public void onAnimationEnd(Animator animation) {
-                        view.setAlpha(1);
-                        view.setVisibility(View.GONE);
+                view.animate().alpha(0f).setListener(object : AnimatorListenerAdapter() {
+                    override fun onAnimationEnd(animation: Animator) {
+                        view.alpha = 1f
+                        view.visibility = View.GONE
                     }
-                });
+                })
             }
         }
     }
 
 
+    @JvmStatic
     @BindingAdapter("android:src")
-    public static void setModeInfo(ImageView view, @Nullable ModeInfo modeInfo) {
-        loadModeInfo(view, modeInfo);
+    fun setModeInfo(view: ImageView, modeInfo: ModeInfo?) {
+        loadModeInfo(view, modeInfo)
     }
 
+    @JvmStatic
     @BindingAdapter("app:srcCompat")
-    public static void setCompatModeInfo(ImageView view, @Nullable ModeInfo modeInfo) {
-        loadModeInfo(view, modeInfo);
+    fun setCompatModeInfo(view: ImageView, modeInfo: ModeInfo?) {
+        loadModeInfo(view, modeInfo)
     }
 
-    private static void loadModeInfo(ImageView view, @Nullable ModeInfo modeInfo) {
+    private fun loadModeInfo(view: ImageView, modeInfo: ModeInfo?) {
         if (modeInfo == null) {
             TripKitUI.getInstance().picasso()
                 .load(R.drawable.ic_public_transport)
-                .into(view);
-            return;
+                .into(view)
+            return
         }
 
-        final VehicleMode mode = modeInfo.getModeCompat();
-        int placeHolder = mode != null ? mode.iconRes : R.drawable.ic_public_transport;
-        final String url = TransportModeUtils.getIconUrlForModeInfo(view.getResources(), modeInfo);
+        val mode = modeInfo.modeCompat
+        val placeHolder = mode?.iconRes ?: R.drawable.ic_public_transport
+        val url = getIconUrlForModeInfo(view.resources, modeInfo)
         TripKitUI.getInstance().picasso()
             .load(url)
             .placeholder(placeHolder)
             .error(placeHolder)
-            .into(view);
+            .into(view)
     }
 
+    @JvmStatic
     @BindingAdapter("modeId")
-    public static void bindModeId(ImageView iconView, String modeId) {
-        int resId = TransportMode.getLocalIconResId(modeId);
+    fun bindModeId(iconView: ImageView, modeId: String?) {
+        val resId = getLocalIconResId(modeId)
         if (resId != 0) {
-            iconView.setImageResource(resId);
+            iconView.setImageResource(resId)
         }
     }
 
+    @JvmStatic
     @BindingAdapter("android:src")
-    public static void setImageResource(ImageView imageView, int resource) {
-        imageView.setImageResource(resource);
+    fun setImageResource(imageView: ImageView, resource: Int) {
+        imageView.setImageResource(resource)
     }
 
+    @JvmStatic
     @BindingAdapter("modeIconId")
-    public static void bindModeIconId(ImageView view, String modeIconId) {
-        final int resId = TransportMode.getLocalIconResId(modeIconId);
+    fun bindModeIconId(view: ImageView, modeIconId: String?) {
+        val resId = getLocalIconResId(modeIconId)
         if (resId == 0) {
             if (!TextUtils.isEmpty(modeIconId)) {
-                final String url = getIconUrlForId(view.getResources(), modeIconId);
+                val url = getIconUrlForId(view.resources, modeIconId)
                 TripKitUI.getInstance().picasso()
                     .load(url)
                     .placeholder(R.drawable.ic_car_ride_share)
                     .error(R.drawable.ic_car_ride_share)
-                    .into(view);
+                    .into(view)
             } else {
-                view.setImageResource(R.drawable.ic_car_ride_share);
+                view.setImageResource(R.drawable.ic_car_ride_share)
             }
         }
     }
 
+    @JvmStatic
     @BindingAdapter("app:tint")
-    public static void setTint(ImageView view, Integer color) {
+    fun setTint(view: ImageView, color: Int?) {
         if (color != null) {
-            view.setColorFilter(color, PorterDuff.Mode.SRC_IN);
+            view.setColorFilter(color, SRC_IN)
         } else {
-            view.clearColorFilter();
+            view.clearColorFilter()
         }
     }
-
 }
