@@ -75,13 +75,13 @@ class CursorToServiceConverter @Inject constructor(private val gson: Gson) :
         get() = mCursor.getInt(mServiceColumnIndices.idIndex).toLong()
 
     val pairIdentifier: String
-        get() = mCursor.getString(mServiceColumnIndices.pairIdentifierIndex)
+        get() = mCursor.getString(mServiceColumnIndices.pairIdentifierIndex) ?: ""
 
     val stopCode: String
-        get() = mCursor.getString(mServiceColumnIndices.stopCodeIndex)
+        get() = mCursor.getString(mServiceColumnIndices.stopCodeIndex) ?: ""
 
     val endStopCode: String
-        get() = mCursor.getString(mServiceColumnIndices.endStopCodeIndex)
+        get() = mCursor.getString(mServiceColumnIndices.endStopCodeIndex) ?: ""
 
     val mode: VehicleMode?
         get() = VehicleMode.from(mCursor.getString(mServiceColumnIndices.modeIndex))
@@ -96,13 +96,13 @@ class CursorToServiceConverter @Inject constructor(private val gson: Gson) :
         get() = mCursor.getInt(mServiceColumnIndices.frequencyIndex)
 
     val serviceNumber: String
-        get() = mCursor.getString(mServiceColumnIndices.serviceNumberIndex)
+        get() = mCursor.getString(mServiceColumnIndices.serviceNumberIndex) ?: ""
 
     val serviceName: String
-        get() = mCursor.getString(mServiceColumnIndices.serviceNameIndex)
+        get() = mCursor.getString(mServiceColumnIndices.serviceNameIndex) ?: ""
 
     val serviceTripId: String
-        get() = mCursor.getString(mServiceColumnIndices.serviceTripIdIndex)
+        get() = mCursor.getString(mServiceColumnIndices.serviceTripIdIndex) ?: ""
 
     val serviceColorRed: Int
         get() = mCursor.getInt(mServiceColumnIndices.serviceColorRedIndex)
@@ -120,10 +120,10 @@ class CursorToServiceConverter @Inject constructor(private val gson: Gson) :
         get() = mCursor.getInt(mServiceColumnIndices.favouriteIndex) > 0
 
     val searchString: String
-        get() = mCursor.getString(mServiceColumnIndices.searchStringIndex)
+        get() = mCursor.getString(mServiceColumnIndices.searchStringIndex) ?: ""
 
     val serviceOperator: String
-        get() = mCursor.getString(mServiceColumnIndices.serviceOperator)
+        get() = mCursor.getString(mServiceColumnIndices.serviceOperator) ?: ""
 
     val serviceTime: Long
         get() = mCursor.getLong(mServiceColumnIndices.serviceTimeIndex)
@@ -149,7 +149,7 @@ class CursorToServiceConverter @Inject constructor(private val gson: Gson) :
         }
 
     val startStopShortName: String
-        get() = mCursor.getString(mServiceColumnIndices.startStopShortName)
+        get() = mCursor.getString(mServiceColumnIndices.startStopShortName) ?: ""
 
     /**
      * NOTE: Don't hard code column indices

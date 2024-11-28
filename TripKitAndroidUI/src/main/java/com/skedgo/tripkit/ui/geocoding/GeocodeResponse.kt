@@ -1,22 +1,11 @@
-package com.skedgo.tripkit.ui.geocoding;
+package com.skedgo.tripkit.ui.geocoding
 
-import com.google.gson.annotations.SerializedName;
-import com.skedgo.tripkit.common.model.location.Location;
+import com.google.gson.annotations.SerializedName
+import com.skedgo.tripkit.common.model.location.Location
 
-import java.util.List;
-
-public class GeocodeResponse {
+data class GeocodeResponse(
     @SerializedName("query")
-    private String mQuery;
-
+    val query: String,
     @SerializedName("choices")
-    private List<Location> mChoiceList;
-
-    public List<Location> getChoiceList() {
-        return mChoiceList;
-    }
-
-    public String getQuery() {
-        return mQuery;
-    }
-}
+    val choiceList: List<Location>
+)

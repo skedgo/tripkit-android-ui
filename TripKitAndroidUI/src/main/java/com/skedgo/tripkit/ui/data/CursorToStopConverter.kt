@@ -1,69 +1,68 @@
-package com.skedgo.tripkit.ui.data;
+package com.skedgo.tripkit.ui.data
 
-import android.database.Cursor;
+import android.database.Cursor
+import com.google.gson.Gson
+import com.skedgo.tripkit.common.model.stop.ScheduledStop
+import com.skedgo.tripkit.common.model.stop.StopType.Companion.from
+import com.skedgo.tripkit.data.database.DbFields
+import com.skedgo.tripkit.data.database.DbTables
+import com.skedgo.tripkit.routing.ModeInfo
+import javax.inject.Inject
 
-import com.google.gson.Gson;
-import com.skedgo.tripkit.common.model.stop.ScheduledStop;
-import com.skedgo.tripkit.common.model.stop.StopType;
-import com.skedgo.tripkit.data.database.DbFields;
-import com.skedgo.tripkit.data.database.DbTables;
-import com.skedgo.tripkit.routing.ModeInfo;
-
-import javax.inject.Inject;
-
-public class CursorToStopConverter implements CursorToEntityConverter<ScheduledStop> {
-    public static final String REPLACE_WITH_VAR_ARGS = "<REPLACE_WITH_VAR_ARGS>";
-    public static final String SELECTION_ALL = DbTables.SCHEDULED_STOPS + "." + DbFields.CELL_CODE +
-        " IN (" + REPLACE_WITH_VAR_ARGS + ")" +
-        " AND " + DbFields.PARENT_ID + " IS NULL";
-    public static final String[] PROJECTION = new String[]{
-        DbTables.LOCATIONS + "." + DbFields.ID,
-        DbTables.SCHEDULED_STOPS + "." + DbFields.ID + " as stop_id",
-        DbTables.SCHEDULED_STOPS + "." + DbFields.CODE,
-        DbTables.SCHEDULED_STOPS + "." + DbFields.CELL_CODE,
-        DbTables.SCHEDULED_STOPS + "." + DbFields.SHORT_NAME,
-        DbTables.SCHEDULED_STOPS + "." + DbFields.STOP_TYPE,
-        DbTables.SCHEDULED_STOPS + "." + DbFields.SERVICES,
-        DbTables.LOCATIONS + "." + DbFields.LAT,
-        DbTables.LOCATIONS + "." + DbFields.LON,
-        DbTables.LOCATIONS + "." + DbFields.FAVOURITE,
-        DbTables.LOCATIONS + "." + DbFields.NAME,
-        DbTables.LOCATIONS + "." + DbFields.ADDRESS,
-        DbTables.SCHEDULED_STOPS + "." + DbFields.IS_PARENT,
-        DbTables.SCHEDULED_STOPS + "." + DbFields.FILTER,
-        DbTables.SCHEDULED_STOP_DOWNLOAD_HISTORY + "." + DbFields.DOWNLOAD_TIME,
-        DbTables.LOCATIONS + "." + DbFields.FAVOURITE_SORT_ORDER_POSITION,
-        DbTables.LOCATIONS + "." + DbFields.HAS_CAR,
-        DbTables.LOCATIONS + "." + DbFields.HAS_MOTORBIKE,
-        DbTables.LOCATIONS + "." + DbFields.HAS_TAXI,
-        DbTables.LOCATIONS + "." + DbFields.HAS_BICYCLE,
-        DbTables.LOCATIONS + "." + DbFields.HAS_PUB_TRANS,
-        DbTables.SCHEDULED_STOPS + "." + DbFields.MODE_INFO
-    };
-    private final Gson gson;
-
-    @Inject
-    public CursorToStopConverter(Gson gson) {
-        this.gson = gson;
+class CursorToStopConverter @Inject constructor(private val gson: Gson) :
+    CursorToEntityConverter<ScheduledStop> {
+    override fun apply(cursor: Cursor): ScheduledStop {
+        val stop = ScheduledStop()
+        stop.code = cursor.getString(cursor.getColumnIndex(DbFields.CODE.name))
+        stop.mId = cursor.getLong(cursor.getColumnIndex(DbFields.ID.name))
+        stop.stopId = cursor.getLong(cursor.getColumnIndex("stop_id"))
+        stop.shortName = cursor.getString(cursor.getColumnIndex(DbFields.SHORT_NAME.name))
+        stop.lat = cursor.getDouble(cursor.getColumnIndex(DbFields.LAT.name))
+        stop.lon = cursor.getDouble(cursor.getColumnIndex(DbFields.LON.name))
+        stop.isFavourite(cursor.getInt(cursor.getColumnIndex(DbFields.FAVOURITE.name)) > 0)
+        stop.name = cursor.getString(cursor.getColumnIndex(DbFields.NAME.name))
+        stop.address = cursor.getString(cursor.getColumnIndex(DbFields.ADDRESS.name))
+        stop.services = cursor.getString(cursor.getColumnIndex(DbFields.SERVICES.name))
+        stop.type = from(cursor.getString(cursor.getColumnIndex(DbFields.STOP_TYPE.name)))
+        stop.modeInfo = gson.fromJson(
+            cursor.getString(cursor.getColumnIndex(DbFields.MODE_INFO.name)),
+            ModeInfo::class.java
+        )
+        stop.currentFilter = cursor.getString(cursor.getColumnIndex(DbFields.FILTER.name))
+        stop.favouriteSortOrderIndex =
+            cursor.getInt(cursor.getColumnIndex(DbFields.FAVOURITE_SORT_ORDER_POSITION.name))
+        return stop
     }
 
-    @Override
-    public ScheduledStop apply(Cursor cursor) {
-        final ScheduledStop stop = new ScheduledStop();
-        stop.setCode(cursor.getString(cursor.getColumnIndex(DbFields.CODE.name)));
-        stop.setMId(cursor.getLong(cursor.getColumnIndex(DbFields.ID.name)));
-        stop.setStopId(cursor.getLong(cursor.getColumnIndex("stop_id")));
-        stop.setShortName(cursor.getString(cursor.getColumnIndex(DbFields.SHORT_NAME.name)));
-        stop.setLat(cursor.getDouble(cursor.getColumnIndex(DbFields.LAT.name)));
-        stop.setLon(cursor.getDouble(cursor.getColumnIndex(DbFields.LON.name)));
-        stop.isFavourite(cursor.getInt(cursor.getColumnIndex(DbFields.FAVOURITE.name)) > 0);
-        stop.setName(cursor.getString(cursor.getColumnIndex(DbFields.NAME.name)));
-        stop.setAddress(cursor.getString(cursor.getColumnIndex(DbFields.ADDRESS.name)));
-        stop.setServices(cursor.getString(cursor.getColumnIndex(DbFields.SERVICES.name)));
-        stop.setType(StopType.from(cursor.getString(cursor.getColumnIndex(DbFields.STOP_TYPE.name))));
-        stop.setModeInfo(gson.fromJson(cursor.getString(cursor.getColumnIndex(DbFields.MODE_INFO.name)), ModeInfo.class));
-        stop.setCurrentFilter(cursor.getString(cursor.getColumnIndex(DbFields.FILTER.name)));
-        stop.setFavouriteSortOrderIndex(cursor.getInt(cursor.getColumnIndex(DbFields.FAVOURITE_SORT_ORDER_POSITION.name)));
-        return stop;
+    companion object {
+        const val REPLACE_WITH_VAR_ARGS: String = "<REPLACE_WITH_VAR_ARGS>"
+        @JvmField
+        val SELECTION_ALL: String = DbTables.SCHEDULED_STOPS.toString() + "." + DbFields.CELL_CODE +
+            " IN (" + REPLACE_WITH_VAR_ARGS + ")" +
+            " AND " + DbFields.PARENT_ID + " IS NULL"
+        val PROJECTION: Array<String> = arrayOf(
+            DbTables.LOCATIONS.toString() + "." + DbFields.ID,
+            DbTables.SCHEDULED_STOPS.toString() + "." + DbFields.ID + " as stop_id",
+            DbTables.SCHEDULED_STOPS.toString() + "." + DbFields.CODE,
+            DbTables.SCHEDULED_STOPS.toString() + "." + DbFields.CELL_CODE,
+            DbTables.SCHEDULED_STOPS.toString() + "." + DbFields.SHORT_NAME,
+            DbTables.SCHEDULED_STOPS.toString() + "." + DbFields.STOP_TYPE,
+            DbTables.SCHEDULED_STOPS.toString() + "." + DbFields.SERVICES,
+            DbTables.LOCATIONS.toString() + "." + DbFields.LAT,
+            DbTables.LOCATIONS.toString() + "." + DbFields.LON,
+            DbTables.LOCATIONS.toString() + "." + DbFields.FAVOURITE,
+            DbTables.LOCATIONS.toString() + "." + DbFields.NAME,
+            DbTables.LOCATIONS.toString() + "." + DbFields.ADDRESS,
+            DbTables.SCHEDULED_STOPS.toString() + "." + DbFields.IS_PARENT,
+            DbTables.SCHEDULED_STOPS.toString() + "." + DbFields.FILTER,
+            DbTables.SCHEDULED_STOP_DOWNLOAD_HISTORY.toString() + "." + DbFields.DOWNLOAD_TIME,
+            DbTables.LOCATIONS.toString() + "." + DbFields.FAVOURITE_SORT_ORDER_POSITION,
+            DbTables.LOCATIONS.toString() + "." + DbFields.HAS_CAR,
+            DbTables.LOCATIONS.toString() + "." + DbFields.HAS_MOTORBIKE,
+            DbTables.LOCATIONS.toString() + "." + DbFields.HAS_TAXI,
+            DbTables.LOCATIONS.toString() + "." + DbFields.HAS_BICYCLE,
+            DbTables.LOCATIONS.toString() + "." + DbFields.HAS_PUB_TRANS,
+            DbTables.SCHEDULED_STOPS.toString() + "." + DbFields.MODE_INFO
+        )
     }
 }

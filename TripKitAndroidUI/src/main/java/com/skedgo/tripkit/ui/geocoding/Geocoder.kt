@@ -1,77 +1,62 @@
-package com.skedgo.tripkit.ui.geocoding;
+package com.skedgo.tripkit.ui.geocoding
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.skedgo.tripkit.common.model.location.Location;
-import com.skedgo.tripkit.common.util.Gsons;
-import com.skedgo.tripkit.ui.utils.HttpUtils;
+import androidx.core.util.Pair
+import com.google.gson.Gson
+import com.google.gson.GsonBuilder
+import com.skedgo.tripkit.common.model.location.Location
+import com.skedgo.tripkit.common.util.Gsons.createForLowercaseEnum
+import com.skedgo.tripkit.ui.utils.HttpUtils
+import java.io.IOException
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+open class Geocoder {
+    open var nearLatitude: Double = Double.MAX_VALUE
+        protected set
+    open var nearLongitude: Double = Double.MAX_VALUE
+        protected set
+    @JvmField
+    protected var mGson: Gson = GsonBuilder()
+        .registerTypeAdapter(Location::class.java, GeocodeResultAdapter(createForLowercaseEnum()))
+        .create()
+    open val serviceUrl: String? = null
+    private val mAllowGoogle = false
 
-import androidx.core.util.Pair;
-
-public class Geocoder {
-    protected static final String PARAM_QUERY = "q";
-    protected static final String PARAM_NEAR = "near";
-    protected static final String PARAM_ALLOW_YELP = "allowYelp";
-    protected static final String PARAM_ALLOW_GOOGLE = "allowGoogle"; //allowGoogle=false
-    protected static final String GEOCODE_METHOD = "/geocode.json";
-    protected double mNearLatitude = Double.MAX_VALUE;
-    protected double mNearLongitude = Double.MAX_VALUE;
-    protected Gson mGson;
-    private String mServiceUrl;
-    private boolean mAllowGoogle;
-
-    public Geocoder() {
-        mGson = new GsonBuilder()
-            .registerTypeAdapter(Location.class, new GeocodeResultAdapter(Gsons.createForLowercaseEnum()))
-            .create();
+    open fun setNearLatitude(nearLatitude: Double): Geocoder {
+        this.nearLatitude = nearLatitude
+        return this
     }
 
-    public double getNearLatitude() {
-        return mNearLatitude;
+    open fun setNearLongitude(nearLongitude: Double): Geocoder {
+        this.nearLongitude = nearLongitude
+        return this
     }
 
-    public Geocoder setNearLatitude(double nearLatitude) {
-        mNearLatitude = nearLatitude;
-        return this;
+    @Throws(IOException::class)
+    open fun query(query: String): List<Location>? {
+        val response = HttpUtils.get(serviceUrl + GEOCODE_METHOD, asParams(query))
+        val geocodeResponse = mGson.fromJson(response, GeocodeResponse::class.java)
+        return geocodeResponse.choiceList
     }
 
-    public double getNearLongitude() {
-        return mNearLongitude;
-    }
-
-    public Geocoder setNearLongitude(double nearLongitude) {
-        mNearLongitude = nearLongitude;
-        return this;
-    }
-
-    public String getServiceUrl() {
-        return mServiceUrl;
-    }
-
-    public List<Location> query(String query) throws IOException {
-        String response = HttpUtils.get(getServiceUrl() + GEOCODE_METHOD, asParams(query));
-        GeocodeResponse geocodeResponse = mGson.fromJson(response, GeocodeResponse.class);
-        if (geocodeResponse == null) {
-            return null;
-        } else {
-            return geocodeResponse.getChoiceList();
+    protected fun asParams(query: String): List<Pair<String, Any>> {
+        val params: MutableList<Pair<String, Any>> = ArrayList()
+        params.add(Pair(PARAM_QUERY, query))
+        params.add(Pair(PARAM_ALLOW_YELP, true))
+        params.add(Pair(PARAM_ALLOW_GOOGLE, mAllowGoogle))
+        if (java.lang.Double.compare(nearLatitude, Double.MAX_VALUE) != 0
+            && java.lang.Double.compare(nearLongitude, Double.MAX_VALUE) != 0
+        ) {
+            val nearAddress = "(" + nearLatitude + "," + nearLongitude + ")"
+            params.add(Pair(PARAM_NEAR, nearAddress))
         }
+        return params
     }
 
-    protected List<Pair<String, Object>> asParams(String query) {
-        List<Pair<String, Object>> params = new ArrayList<>();
-        params.add(new Pair<>(PARAM_QUERY, query));
-        params.add(new Pair<>(PARAM_ALLOW_YELP, true));
-        params.add(new Pair<>(PARAM_ALLOW_GOOGLE, mAllowGoogle));
-        if (Double.compare(mNearLatitude, Double.MAX_VALUE) != 0
-            && Double.compare(mNearLongitude, Double.MAX_VALUE) != 0) {
-            String nearAddress = "(" + mNearLatitude + "," + mNearLongitude + ")";
-            params.add(new Pair<>(PARAM_NEAR, nearAddress));
-        }
-        return params;
+    companion object {
+        protected const val PARAM_QUERY: String = "q"
+        protected const val PARAM_NEAR: String = "near"
+        protected const val PARAM_ALLOW_YELP: String = "allowYelp"
+        protected const val PARAM_ALLOW_GOOGLE: String = "allowGoogle" //allowGoogle=false
+        @JvmStatic
+        protected val GEOCODE_METHOD: String = "/geocode.json"
     }
 }

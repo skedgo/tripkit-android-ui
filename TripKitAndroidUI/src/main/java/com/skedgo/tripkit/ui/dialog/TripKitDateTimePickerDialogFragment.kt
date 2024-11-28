@@ -304,7 +304,7 @@ class TripKitDateTimePickerDialogFragment : DialogFragment(), TimePicker.OnTimeC
         val adapter = DateSpinnerAdapter(
             activity,
             android.R.layout.simple_spinner_item,
-            timePickerViewModel.dates().get()
+            timePickerViewModel.dates().get() ?: mutableListOf()
         )
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         val dateSpinner = binding!!.dateSpinner
@@ -324,7 +324,7 @@ class TripKitDateTimePickerDialogFragment : DialogFragment(), TimePicker.OnTimeC
         timePickerViewModel.dates()
             .addOnPropertyChangedCallback(object : Observable.OnPropertyChangedCallback() {
                 override fun onPropertyChanged(sender: Observable, propertyId: Int) {
-                    adapter.setDates(timePickerViewModel.dates().get())
+                    adapter.setDates(timePickerViewModel.dates().get() ?: mutableListOf())
                 }
             })
     }

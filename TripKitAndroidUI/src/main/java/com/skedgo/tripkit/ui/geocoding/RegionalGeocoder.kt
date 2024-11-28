@@ -1,22 +1,16 @@
-package com.skedgo.tripkit.ui.geocoding;
+package com.skedgo.tripkit.ui.geocoding
 
-import com.skedgo.tripkit.common.model.region.Region;
-import com.skedgo.tripkit.ui.TripKitUI;
+import com.skedgo.tripkit.ui.TripKitUI
 
-import java.util.List;
-
-public class RegionalGeocoder extends Geocoder {
-    public RegionalGeocoder() {
-    }
-
-    @Override
-    public String getServiceUrl() {
-        double latitude = getNearLatitude();
-        double longitude = getNearLongitude();
-        final Region r = TripKitUI.getInstance().regionService()
-            .getRegionByLocationAsync(latitude, longitude)
-            .blockingFirst();
-        final List<String> urls = r.getURLs();
-        return urls.get(0);
-    }
+open class RegionalGeocoder : Geocoder() {
+    override val serviceUrl: String
+        get() {
+            val latitude = nearLatitude
+            val longitude = nearLongitude
+            val region = TripKitUI.getInstance().regionService()
+                .getRegionByLocationAsync(latitude, longitude)
+                .blockingFirst()
+            val urls: List<String> = region.getURLs().orEmpty()
+            return urls.firstOrNull().orEmpty()
+        }
 }

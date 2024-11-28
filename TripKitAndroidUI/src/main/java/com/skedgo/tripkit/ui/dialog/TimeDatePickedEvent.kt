@@ -1,26 +1,16 @@
-package com.skedgo.tripkit.ui.dialog;
+package com.skedgo.tripkit.ui.dialog
 
-import android.text.format.Time;
+import android.text.format.Time
 
-import org.jetbrains.annotations.NotNull;
-
-public class TimeDatePickedEvent {
-    /* To avoid cross dependency between EventsDetailsFragment and TimeDatePickerFragment,
+class TimeDatePickedEvent(var timeType: Int, val initiatorId: String, var time: Time) {
+    companion object {
+        /* To avoid cross dependency between EventsDetailsFragment and TimeDatePickerFragment,
     those constants are tucked away here
      */
-    public static final String DATE_FORMAT_STRING = "EE, MMM d yyyy 'at' hh:mm a";
-    public static final String DATE_FORMAT_STRING_NO_TIME = "EE, MMM d yyyy";
-    public static final int TIME_TYPE_BEGIN = 1;
-    public static final int TIME_TYPE_END = 2;
-    public static final int TIME_TYPE_OTHER = 200;
-    public final String initiatorId;
-
-    public int timeType;
-    public Time time;
-
-    public TimeDatePickedEvent(int timeType, String initiatorId, @NotNull Time time) {
-        this.timeType = timeType;
-        this.initiatorId = initiatorId;
-        this.time = time;
+        const val DATE_FORMAT_STRING: String = "EE, MMM d yyyy 'at' hh:mm a"
+        const val DATE_FORMAT_STRING_NO_TIME: String = "EE, MMM d yyyy"
+        const val TIME_TYPE_BEGIN: Int = 1
+        const val TIME_TYPE_END: Int = 2
+        const val TIME_TYPE_OTHER: Int = 200
     }
 }

@@ -1,81 +1,83 @@
-package com.skedgo.tripkit.ui.geocoding;
+package com.skedgo.tripkit.ui.geocoding
 
-import com.google.gson.Gson;
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonDeserializer;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParseException;
-import com.google.gson.JsonPrimitive;
-import com.google.gson.reflect.TypeToken;
-import com.skedgo.tripkit.common.model.location.Location;
-import com.skedgo.tripkit.common.model.stop.ScheduledStop;
-import com.skedgo.tripkit.common.util.ListUtils;
+import com.google.gson.Gson
+import com.google.gson.JsonDeserializationContext
+import com.google.gson.JsonDeserializer
+import com.google.gson.JsonElement
+import com.google.gson.JsonObject
+import com.google.gson.JsonParseException
+import com.google.gson.reflect.TypeToken
+import com.skedgo.tripkit.common.model.location.Location
+import com.skedgo.tripkit.common.model.stop.ScheduledStop
+import com.skedgo.tripkit.common.util.ListUtils
+import java.lang.reflect.Type
 
-import java.lang.reflect.Type;
-import java.util.List;
+class GeocodeResultAdapter(private val mGson: Gson?) : JsonDeserializer<Location> {
+    private val mSourceListTypeToken: TypeToken<List<String>> =
+        object : TypeToken<List<String>>() {
+        }
+    private val mReviewSummaryListTypeToken: TypeToken<List<ReviewSummary>> =
+        object : TypeToken<List<ReviewSummary>>() {
+        }
 
-public class GeocodeResultAdapter implements JsonDeserializer<Location> {
-
-    private static final String KEY_REVIEW_SUMMARIES = "reviewSummaries";
-    private static final String KEY_CLASS = "class";
-    private static final String KEY_SOURCES = "sources";
-    private static final String VALUE_CLASS_STOP_LOCATION = "StopLocation";
-
-    private Gson mGson;
-    private TypeToken<List<String>> mSourceListTypeToken = new TypeToken<List<String>>() {
-    };
-    private TypeToken<List<ReviewSummary>> mReviewSummaryListTypeToken = new TypeToken<List<ReviewSummary>>() {
-    };
-
-    public GeocodeResultAdapter(Gson gson) {
-        mGson = gson;
-    }
-
-    @Override
-    public Location deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+    @Throws(JsonParseException::class)
+    override fun deserialize(
+        json: JsonElement,
+        typeOfT: Type,
+        context: JsonDeserializationContext
+    ): Location? {
         if (mGson == null) {
-            return null;
+            return null
         }
 
-        JsonObject locationJson = json.getAsJsonObject();
+        val locationJson = json.asJsonObject
 
-        JsonPrimitive locationClass = locationJson.getAsJsonPrimitive(KEY_CLASS);
-        if (locationClass != null && VALUE_CLASS_STOP_LOCATION.equals(locationClass.getAsString())) {
-            return mGson.fromJson(locationJson, ScheduledStop.class);
+        val locationClass = locationJson.getAsJsonPrimitive(KEY_CLASS)
+        return if (locationClass != null && VALUE_CLASS_STOP_LOCATION == locationClass.asString) {
+            mGson.fromJson(locationJson, ScheduledStop::class.java)
         } else {
-            return parseNormalLocation(locationJson);
+            parseNormalLocation(locationJson)
         }
     }
 
-    private Location parseNormalLocation(JsonObject locationJson) {
-        Location location = mGson.fromJson(locationJson, Location.class);
+    private fun parseNormalLocation(locationJson: JsonObject): Location {
+        val location = mGson!!.fromJson(locationJson, Location::class.java)
         if (location != null) {
-            JsonElement sourceListJson = locationJson.get(KEY_SOURCES);
-            extractFirstSource(sourceListJson, location);
+            val sourceListJson = locationJson[KEY_SOURCES]
+            extractFirstSource(sourceListJson, location)
 
-            JsonElement reviewSummaryListJson = locationJson.get(KEY_REVIEW_SUMMARIES);
-            extractFirstReviewSummary(reviewSummaryListJson, location);
+            val reviewSummaryListJson = locationJson[KEY_REVIEW_SUMMARIES]
+            extractFirstReviewSummary(reviewSummaryListJson, location)
         }
 
-        return location;
+        return location
     }
 
-    private void extractFirstSource(JsonElement sourceListJson, Location location) {
-        List<String> sourceList = mGson.fromJson(sourceListJson, mSourceListTypeToken.getType());
+    private fun extractFirstSource(sourceListJson: JsonElement, location: Location) {
+        val sourceList = mGson?.fromJson<List<String>>(sourceListJson, mSourceListTypeToken.type).orEmpty()
         if (!ListUtils.isEmpty(sourceList)) {
-            String firstSource = sourceList.get(0);
-            location.setSource(firstSource);
+            val firstSource = sourceList[0]
+            location.source = firstSource
         }
     }
 
-    private void extractFirstReviewSummary(JsonElement reviewSummaryListJson, Location location) {
-        List<ReviewSummary> reviewSummaryList = mGson.fromJson(reviewSummaryListJson, mReviewSummaryListTypeToken.getType());
+    private fun extractFirstReviewSummary(reviewSummaryListJson: JsonElement, location: Location) {
+        val reviewSummaryList = mGson?.fromJson<List<ReviewSummary>>(
+            reviewSummaryListJson,
+            mReviewSummaryListTypeToken.type
+        ).orEmpty()
         if (!ListUtils.isEmpty(reviewSummaryList)) {
-            ReviewSummary firstReviewSummary = reviewSummaryList.get(0);
-            location.setAverageRating(firstReviewSummary.averageRating);
-            location.setRatingCount(firstReviewSummary.reviewCount);
-            location.setRatingImageUrl(firstReviewSummary.ratingImageURL);
+            val firstReviewSummary = reviewSummaryList[0]
+            location.averageRating = firstReviewSummary.averageRating
+            location.ratingCount = firstReviewSummary.reviewCount
+            location.ratingImageUrl = firstReviewSummary.ratingImageURL
         }
+    }
+
+    companion object {
+        private const val KEY_REVIEW_SUMMARIES = "reviewSummaries"
+        private const val KEY_CLASS = "class"
+        private const val KEY_SOURCES = "sources"
+        private const val VALUE_CLASS_STOP_LOCATION = "StopLocation"
     }
 }
