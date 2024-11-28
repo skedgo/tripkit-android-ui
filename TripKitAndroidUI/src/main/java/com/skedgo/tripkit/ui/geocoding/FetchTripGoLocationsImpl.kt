@@ -24,8 +24,8 @@ class FetchTripGoLocationsImpl @Inject internal constructor(
         Observable
             .create(ObservableOnSubscribe<List<GCResultInterface>> { subscriber ->
                 try {
-                    geocoder.nearLatitude = parameters.nearbyLat()
-                    geocoder.nearLongitude = parameters.nearbyLon()
+                    geocoder.setNearLatitude(parameters.nearbyLat())
+                    geocoder.setNearLongitude(parameters.nearbyLon())
                     val results = getLocationsFromTripGo(parameters.term())
                     subscriber.onNext(results)
                     subscriber.onComplete()
