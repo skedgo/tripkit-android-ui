@@ -15,11 +15,15 @@
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:scrollbars="none"
+        android:scrollIndicators="none"
         android:layout_marginBottom="8dp">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:scrollbars="none"
+            android:scrollIndicators="none"
             android:importantForAccessibility="no">
 
             <LinearLayout
@@ -67,6 +71,7 @@
                 android:orientation="vertical"
                 android:showDividers="middle"
                 android:scrollbars="none"
+                android:scrollIndicators="none"
                 app:entries="@{viewModel.tripResults}"
                 app:layout="@{@layout/trip_result_list_item_trip}"
                 app:layout_constraintStart_toStartOf="parent"

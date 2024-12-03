@@ -125,7 +125,7 @@ public abstract class TripKitUI {
             "TripKit", Context.MODE_PRIVATE));
         boolean isDebuggable = (0 != (context.getApplicationInfo().flags
             & ApplicationInfo.FLAG_DEBUGGABLE) || BuildConfig.DEBUG);
-        return TripKitConfigs.builder().context(context)
+        return TripKitConfigs.Companion.builder().context(context)
 
             .debuggable(isDebuggable)
             .baseUrlAdapterFactory(new Callable<String>() {
@@ -150,7 +150,7 @@ public abstract class TripKitUI {
             "TripKit", Context.MODE_PRIVATE));
         boolean isDebuggable = (0 != (context.getApplicationInfo().flags
             & ApplicationInfo.FLAG_DEBUGGABLE) || BuildConfig.DEBUG);
-        return TripKitConfigs.builder().context(context)
+        return TripKitConfigs.Companion.builder().context(context)
             .debuggable(isDebuggable)
             .baseUrlAdapterFactory(
                 (customUrlAdapterFactory != null) ?
