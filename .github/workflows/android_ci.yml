@@ -37,7 +37,7 @@ jobs:
 
       - name: Run unit tests
         id: unit_tests
-        run: ./gradlew test -x tripkituisample:test
+        run: ./gradlew test -x tripkituisample:test --stacktrace
 
       - name: Archive test results
         if: always()
