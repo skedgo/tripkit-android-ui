@@ -264,7 +264,6 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
         contributor = newContributor
         contributor?.let {
             whenSafeToUseMap(Consumer { map: GoogleMap ->
-                Log.i("mapContributor", "safe to use")
                 contributor?.safeToUseMap(requireContext(), map)
             })
         }
@@ -417,7 +416,11 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
             pinnedOriginLocationOnClickMarker = map?.addMarker(
                 MarkerOptions()
                     .position(LatLng(location.lat, location.lon))
-                    .icon(BitmapDescriptorFactory.fromBitmap(getMarkerBitmap(type)))
+                    .icon(
+                        BitmapDescriptorFactory.fromBitmap(
+                            requireContext().getFromAndToMarkerBitmap(type)
+                        )
+                    )
             )
         } else {
 
@@ -429,7 +432,11 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
             pinnedDepartureLocationOnClickMarker = map?.addMarker(
                 MarkerOptions()
                     .position(LatLng(location.lat, location.lon))
-                    .icon(BitmapDescriptorFactory.fromBitmap(getMarkerBitmap(type)))
+                    .icon(
+                        BitmapDescriptorFactory.fromBitmap(
+                            requireContext().getFromAndToMarkerBitmap(type)
+                        )
+                    )
             )
         }
 
@@ -764,9 +771,9 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
     }
 
     private fun initFromAndToMarkers(map: GoogleMap) {
-        val fromBitmap = getMarkerBitmap(0)
+        val fromBitmap = requireContext().getFromAndToMarkerBitmap(0)
 
-        var toBitmap = getMarkerBitmap(1)
+        val toBitmap = requireContext().getFromAndToMarkerBitmap(1)
 
         fromMarker = map.addMarker(
             MarkerOptions()
@@ -782,36 +789,6 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
                 .icon(BitmapDescriptorFactory.fromBitmap(toBitmap))
         )
 
-    }
-
-    //0 = from/origin, 1 = to/destination
-    fun getMarkerBitmap(type: Int): Bitmap {
-
-        val builder = BearingMarkerIconBuilder(requireContext(), null)
-            .hasBearing(false)
-            .vehicleIconScale(ModeInfo.MAP_LIST_SIZE_RATIO)
-            .baseIcon(R.drawable.ic_map_pin_base)
-            .hasBearingVehicleIcon(false)
-            .hasTime(false)
-
-        return if (type == 0) {
-            builder.apply {
-                VehicleDrawables.createLightDrawable(requireContext(), R.drawable.ic_location_on)
-                    ?.let {
-                        vehicleIcon(it)
-                    }
-                pointerIcon(R.drawable.ic_map_pin_departure)
-            }.build().first
-
-        } else {
-            builder.apply {
-                VehicleDrawables.createLightDrawable(requireContext(), R.drawable.ic_location_on)
-                    ?.let {
-                        vehicleIcon(it)
-                    }
-                pointerIcon(R.drawable.ic_map_pin_arrival_small)
-            }.build().first
-        }
     }
 
     private fun setUpCurrentLocationMarkers(markerManager: MarkerManager) {

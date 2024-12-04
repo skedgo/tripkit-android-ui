@@ -25,7 +25,9 @@ import com.skedgo.tripkit.ui.core.OnResultStateListener
 import com.skedgo.tripkit.ui.core.addTo
 import com.skedgo.tripkit.ui.databinding.TripResultListFragmentBinding
 import com.skedgo.tripkit.ui.dialog.TripKitDateTimePickerDialogFragment
+import com.skedgo.tripkit.ui.map.home.TripKitMapFragment
 import com.skedgo.tripkit.ui.model.UserMode
+import com.skedgo.tripkit.ui.tripresult.TripResultListMapContributor
 import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButtonHandlerFactory
 import com.skedgo.tripkit.ui.utils.TripSearchUtils
 import com.skedgo.tripkit.ui.views.MultiStateView
@@ -100,12 +102,21 @@ class TripResultListFragment : BaseTripKitFragment() {
 
     @Inject
     lateinit var viewModelProviderFactory: TripResultListViewModelFactory
-    private lateinit var viewModel: TripResultListViewModel
+    private val viewModel: TripResultListViewModel by lazy {
+        ViewModelProviders.of(this, viewModelProviderFactory).get(TripResultListViewModel::class.java)
+    }
     lateinit var binding: TripResultListFragmentBinding
     private var query: Query? = null
     private var transportModeFilter: TransportModeFilter? = null
     var actionButtonHandlerFactory: ActionButtonHandlerFactory? = null
     private var showTransportSelectionView = true
+    private var tripKitMapFragment: TripKitMapFragment? = null
+    private val mapContributor: TripResultListMapContributor by lazy {
+        val contributor = TripResultListMapContributor(viewModel)
+        tripKitMapFragment?.setContributor(contributor)
+        contributor
+    }
+
 
     var userModes: List<UserMode>? = null
 
@@ -137,20 +148,20 @@ class TripResultListFragment : BaseTripKitFragment() {
     }
 
     override fun onAttach(context: Context) {
-        TripKitUI.getInstance().routesComponent().inject(this);
+        TripKitUI.getInstance().routesComponent().inject(this)
+        mapContributor.initialize()
         super.onAttach(context)
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        viewModel = ViewModelProviders.of(this, viewModelProviderFactory)
-            .get(TripResultListViewModel::class.java)
+    override fun onDestroyView() {
+        mapContributor.cleanup()
+        super.onDestroyView()
     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
 
         previouslyInitialized = ::binding.isInitialized
 
@@ -199,6 +210,11 @@ class TripResultListFragment : BaseTripKitFragment() {
         accessibilityDefaultViewManager.setDefaultViewForAccessibility(binding.toLocation)
 
         return binding.root
+    }
+
+    override fun onStart() {
+        super.onStart()
+        mapContributor.setup(requireContext())
     }
 
     fun View?.modifyLeaveNowAccessibility(timeTag: TimeTag?, region: Region) {
@@ -391,6 +407,7 @@ class TripResultListFragment : BaseTripKitFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         query = arguments?.getParcelable<Query>(ARG_QUERY) as Query
+        mapContributor.setOriginDestinationLocations(query?.fromLocation, query?.toLocation)
         arguments?.getParcelable<TransportModeFilter>(ARG_TRANSPORT_MODE_FILTER)?.let {
             transportModeFilter = it
         }
@@ -425,6 +442,7 @@ class TripResultListFragment : BaseTripKitFragment() {
         private var actionButtonHandlerFactory: ActionButtonHandlerFactory? = null
         private var userModes: List<UserMode>? = null
         private var bookRideHelpCallback: () -> Unit = {}
+        private var tripKitMapFragment: TripKitMapFragment? = null
 
         fun withQuery(query: Query): Builder {
             this.query = query
@@ -461,6 +479,11 @@ class TripResultListFragment : BaseTripKitFragment() {
             return this
         }
 
+        fun withTripKitMapFragment(tripKitMapFragment: TripKitMapFragment?) : Builder {
+            this.tripKitMapFragment = tripKitMapFragment
+            return this
+        }
+
         fun build(): TripResultListFragment {
             val args = Bundle()
             val fragment = TripResultListFragment()
@@ -472,6 +495,7 @@ class TripResultListFragment : BaseTripKitFragment() {
             fragment.userModes = userModes
             fragment.actionButtonHandlerFactory = actionButtonHandlerFactory
             fragment.bookRideHelpCallback = bookRideHelpCallback
+            fragment.tripKitMapFragment = tripKitMapFragment
             return fragment
         }
     }
