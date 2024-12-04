@@ -1,21 +1,18 @@
-package com.skedgo.tripkit.ui.core;
+package com.skedgo.tripkit.ui.core
 
-import android.view.View;
+import android.view.View
+import androidx.databinding.BindingConversion
 
-import androidx.databinding.BindingConversion;
-import androidx.databinding.ObservableBoolean;
-
-public final class Converters {
-    private Converters() {
-    }
+object Converters {
 
     /**
-     * Binds a boolean into {@link View#setVisibility(int)}.
-     * Sample: `android:visibility="@{viewModel.isBusy}`
-     * `isBusy` can be an {@link ObservableBoolean}.
+     * Binds a boolean into [View.setVisibility].
+     * Sample: `android:visibility="@{viewModel.isBusy}"`
+     * `isBusy` can be an [ObservableBoolean].
      */
     @BindingConversion
-    public static int convertBooleanToViewVisibility(boolean value) {
-        return value ? View.VISIBLE : View.GONE;
+    @JvmStatic
+    fun convertBooleanToViewVisibility(value: Boolean): Int {
+        return if (value) View.VISIBLE else View.GONE
     }
 }

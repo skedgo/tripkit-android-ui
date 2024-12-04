@@ -1,46 +1,45 @@
-package com.skedgo.tripkit.ui.core.module;
+package com.skedgo.tripkit.ui.core.module
 
-import android.content.Context;
-
-import com.squareup.picasso.OkHttp3Downloader;
-import com.squareup.picasso.Picasso;
-
-import java.io.File;
-
-import javax.inject.Singleton;
-
-import dagger.Module;
-import dagger.Provides;
-import okhttp3.Cache;
-import okhttp3.OkHttpClient;
+import android.content.Context
+import com.squareup.picasso.OkHttp3Downloader
+import com.squareup.picasso.Picasso
+import com.squareup.picasso.Picasso.Builder
+import dagger.Module
+import dagger.Provides
+import okhttp3.Cache
+import okhttp3.OkHttpClient
+import java.io.File
+import javax.inject.Singleton
 
 /**
  * Defines components fetching and loading images.
  */
 @Module
-public class PicassoModule {
-    static Cache createCache(Context context) {
-        final File imagesCacheDir = new File(context.getCacheDir(), "picasso-images");
-        final int cacheSize = 10 * 1024 * 1024; // 10 MB.
-        return new Cache(imagesCacheDir, cacheSize);
-    }
-
+class PicassoModule {
     @Provides
     @Singleton
-    Picasso picasso(
-        Context context,
-        OkHttpClient httpClient
-    ) {
+    fun picasso(
+        context: Context,
+        httpClient: OkHttpClient
+    ): Picasso {
         // Use an own HttpClient in order not to
         // interfere w/ other sorts of requests.
-        OkHttpClient.Builder builder = httpClient.newBuilder();
-        builder.interceptors().clear();
-        builder.networkInterceptors().clear();
-        final OkHttpClient downloader = builder
+        val builder: OkHttpClient.Builder = httpClient.newBuilder()
+        builder.interceptors().clear()
+        builder.networkInterceptors().clear()
+        val downloader: OkHttpClient = builder
             .cache(createCache(context))
-            .build();
-        return new Picasso.Builder(context)
-            .downloader(new OkHttp3Downloader(downloader))
-            .build();
+            .build()
+        return Builder(context)
+            .downloader(OkHttp3Downloader(downloader))
+            .build()
+    }
+
+    companion object {
+        fun createCache(context: Context): Cache {
+            val imagesCacheDir = File(context.cacheDir, "picasso-images")
+            val cacheSize = 10 * 1024 * 1024 // 10 MB.
+            return Cache(imagesCacheDir, cacheSize.toLong())
+        }
     }
 }

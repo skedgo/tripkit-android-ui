@@ -10,11 +10,11 @@ class DefaultStopInfoWindowAdapter @Inject constructor(
     private val viewableInfoWindowAdapter: ViewableInfoWindowAdapter
 ) : StopInfoWindowAdapter {
 
-    override fun getInfoContents(marker: Marker?): View {
+    override fun getInfoContents(marker: Marker): View {
         return viewableInfoWindowAdapter.getInfoContents(marker)
     }
 
-    override fun getInfoWindow(marker: Marker?): View? {
+    override fun getInfoWindow(marker: Marker): View? {
         return viewableInfoWindowAdapter.getInfoWindow(marker)
     }
 

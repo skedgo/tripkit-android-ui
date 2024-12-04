@@ -1,24 +1,18 @@
-package com.skedgo.tripkit.ui.map.home;
+package com.skedgo.tripkit.ui.map.home
 
-import androidx.annotation.Nullable;
-
-public enum ZoomLevel {
+enum class ZoomLevel(val level: Float) {
     INNER(15.2f), OUTER(13f);
-    public static final float ZOOM_VALUE_TO_SHOW_CITIES = -7f;
 
-    public final float level;
+    companion object {
+        const val ZOOM_VALUE_TO_SHOW_CITIES: Float = -7f
 
-    ZoomLevel(float level) {
-        this.level = level;
-    }
-
-    @Nullable
-    public static ZoomLevel fromLevel(float level) {
-        for (ZoomLevel zoomLevel : ZoomLevel.values()) {
-            if (Float.compare(level, zoomLevel.level) >= 0) {
-                return zoomLevel;
+        fun fromLevel(level: Float): ZoomLevel? {
+            for (zoomLevel in values()) {
+                if (java.lang.Float.compare(level, zoomLevel.level) >= 0) {
+                    return zoomLevel
+                }
             }
+            return null
         }
-        return null;
     }
 }

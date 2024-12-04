@@ -1,15 +1,14 @@
-package com.skedgo.tripkit.ui.geocoding;
+package com.skedgo.tripkit.ui.geocoding
 
-import com.google.gson.annotations.SerializedName;
+import com.google.gson.annotations.SerializedName
 
-public class ReviewSummary {
-
+class ReviewSummary {
     @SerializedName("averageRating")
-    public float averageRating;
+    var averageRating: Float = 0f
 
     @SerializedName("reviewCount")
-    public int reviewCount;
+    var reviewCount: Int = 0
 
     @SerializedName("ratingImageURL")
-    public String ratingImageURL;
+    var ratingImageURL: String? = null
 }

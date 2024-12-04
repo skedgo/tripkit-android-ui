@@ -1,23 +1,23 @@
-package com.skedgo.tripkit.ui.map.home;
+package com.skedgo.tripkit.ui.map.home
+
+import com.skedgo.tripkit.ui.map.home.ZoomLevel.INNER
+import com.skedgo.tripkit.ui.map.home.ZoomLevel.OUTER
 
 
 /**
  * Zoom level that is compatible with the locations.json API
  */
-public final class ApiZoomLevels {
+object ApiZoomLevels {
     /**
      * Only non-parent stops (e.g, bus) are returned at this level.
      */
-    public static final int LOCAL = 50;
+    const val LOCAL: Int = 50
 
     /**
      * Only parent stops (e.g, train) are returned at this level.
      */
-    public static final int REGION = 1;
-    public static final int UNKNOWN = 0;
-
-    private ApiZoomLevels() {
-    }
+    const val REGION: Int = 1
+    const val UNKNOWN: Int = 0
 
     /**
      * Converts zoom level defined by Google map into
@@ -25,14 +25,14 @@ public final class ApiZoomLevels {
      *
      * @param zoomLevel Zoom level defined by Google map.
      */
-    public static int fromMapZoomLevel(ZoomLevel zoomLevel) {
-        if (zoomLevel == ZoomLevel.INNER) {
-            return LOCAL;
+    fun fromMapZoomLevel(zoomLevel: ZoomLevel?): Int {
+        if (zoomLevel == INNER) {
+            return LOCAL
         }
-        if (zoomLevel == ZoomLevel.OUTER) {
-            return REGION;
+        return if (zoomLevel == OUTER) {
+            REGION
         } else {
-            return UNKNOWN;
+            UNKNOWN
         }
     }
 }

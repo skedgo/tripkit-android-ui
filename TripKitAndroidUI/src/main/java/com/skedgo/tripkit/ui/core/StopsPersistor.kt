@@ -1,55 +1,42 @@
-package com.skedgo.tripkit.ui.core;
+package com.skedgo.tripkit.ui.core
 
-import android.content.ContentValues;
-import android.content.Context;
-import android.database.Cursor;
+import android.content.ContentValues
+import android.content.Context
+import android.database.Cursor
+import com.google.android.gms.common.util.CollectionUtils
+import com.google.gson.Gson
+import com.skedgo.tripkit.common.model.location.Location
+import com.skedgo.tripkit.common.model.stop.ScheduledStop
+import com.skedgo.tripkit.data.database.DbFields
+import com.skedgo.tripkit.data.locations.LocationsResponse
+import com.skedgo.tripkit.data.locations.LocationsResponse.Group
+import com.skedgo.tripkit.data.locations.StopsFetcher
+import com.skedgo.tripkit.data.locations.StopsFetcher.IStopsPersistor
+import com.skedgo.tripkit.ui.map.ScheduledStopRepository
+import com.skedgo.tripkit.ui.provider.ScheduledStopsProvider
+import timber.log.Timber
+import java.util.Arrays
+import java.util.Random
 
-import com.google.android.gms.common.util.CollectionUtils;
-import com.google.gson.Gson;
-import com.skedgo.tripkit.common.model.location.Location;
-import com.skedgo.tripkit.common.model.stop.ScheduledStop;
-import com.skedgo.tripkit.data.database.DbFields;
-import com.skedgo.tripkit.data.locations.LocationsResponse;
-import com.skedgo.tripkit.data.locations.StopsFetcher;
-import com.skedgo.tripkit.ui.map.ScheduledStopRepository;
-import com.skedgo.tripkit.ui.provider.ScheduledStopsProvider;
+class StopsPersistor(
+    private val appContext: Context,
+    private val gson: Gson,
+    private val scheduledStopRepository: ScheduledStopRepository
+) : StopsFetcher.IStopsPersistor {
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-
-import androidx.annotation.NonNull;
-import timber.log.Timber;
-
-public class StopsPersistor implements StopsFetcher.IStopsPersistor {
-    private static final int INSERT_BATCH_SIZE = 300;
-
-    private final Context appContext;
-    private final Gson gson;
-    private ScheduledStopRepository scheduledStopRepository;
-
-    public StopsPersistor(@NonNull Context appContext,
-                          @NonNull Gson gson,
-                          @NonNull ScheduledStopRepository scheduledStopRepository) {
-        this.appContext = appContext;
-        this.gson = gson;
-        this.scheduledStopRepository = scheduledStopRepository;
+    companion object {
+        private const val INSERT_BATCH_SIZE = 300
     }
 
-    @Override
-    public void saveStopsSync(@NonNull List<LocationsResponse.Group> cells) {
-        final List<ContentValues> stopValuesList = new ArrayList<>();
-        final List<ContentValues> locationValuesList = new ArrayList<>();
+    override fun saveStopsSync(cells: List<LocationsResponse.Group>) {
+        val stopValuesList = mutableListOf<ContentValues>()
+        val locationValuesList = mutableListOf<ContentValues>()
 
-        for (LocationsResponse.Group cell : cells) {
-            final String cellId = cell.getKey();
-            final List<ScheduledStop> stops = cell.getStops();
-            if (cellId == null || CollectionUtils.isEmpty(stops)) {
-                continue;
+        for (cell in cells) {
+            val cellId = cell.key
+            val stops = cell.stops
+            if (cellId.isNullOrEmpty() || stops.isNullOrEmpty()) {
+                continue
             }
 
             createContentValues(
@@ -58,201 +45,154 @@ public class StopsPersistor implements StopsFetcher.IStopsPersistor {
                 stops,
                 stopValuesList,
                 locationValuesList
-            );
+            )
         }
 
-        final int coreCount = Runtime.getRuntime().availableProcessors();
-        final long sleepTime;
-        if (coreCount >= 4) {
-            // Quad-core phones can handle it!
-            sleepTime = 0;
-        } else if (coreCount >= 2) {
-            // Getting weaker.
-            sleepTime = 200;
-        } else {
-            // OMG, single core devices still exist?!
-            sleepTime = 600;
+        val coreCount = Runtime.getRuntime().availableProcessors()
+        val sleepTime = when {
+            coreCount >= 4 -> 0L
+            coreCount >= 2 -> 200L
+            else -> 600L
         }
 
-        if (stopValuesList.size() == locationValuesList.size()) {
-            insertInBatches(stopValuesList, locationValuesList, sleepTime);
-            stopValuesList.clear();
-            locationValuesList.clear();
+        if (stopValuesList.size == locationValuesList.size) {
+            insertInBatches(stopValuesList, locationValuesList, sleepTime)
+            stopValuesList.clear()
+            locationValuesList.clear()
         }
     }
 
-    private void createContentValues(String cellCode,
-                                     Map<String, Integer> codeToIdMap, List<ScheduledStop> stops,
-                                     List<ContentValues> scheduledStopValues,
-                                     List<ContentValues> locationValues) {
-        if (cellCode != null && stops != null) {
-            Iterator<ScheduledStop> iter = stops.iterator();
+    private fun createContentValues(
+        cellCode: String?,
+        codeToIdMap: Map<String, Int>?,
+        stops: MutableList<ScheduledStop>,
+        scheduledStopValues: MutableList<ContentValues>,
+        locationValues: MutableList<ContentValues>
+    ) {
+        if (cellCode != null && stops.isNotEmpty()) {
+            val random = Random(System.currentTimeMillis())
+            val iterator = stops.iterator()
 
-            final Random r = new Random(System.currentTimeMillis());
-            while (iter.hasNext()) {
-                ScheduledStop stop = iter.next();
+            while (iterator.hasNext()) {
+                val stop = iterator.next()
+                val existingId = codeToIdMap?.get(stop.code)
+                val parentStopId = existingId ?: random.nextInt(Int.MAX_VALUE)
 
-                Integer existingId = codeToIdMap == null ? null : codeToIdMap
-                    .get(stop.getCode());
-                final int parentStopId = existingId == null ? r
-                    .nextInt(Integer.MAX_VALUE) : existingId;
+                val parentStopValues = ContentValues(8).apply {
+                    put(DbFields.ID.name, parentStopId)
+                    put(DbFields.STOP_TYPE.name, stop.type?.toString())
+                    put(DbFields.CELL_CODE.name, cellCode)
+                    put(DbFields.CODE.name, stop.code)
+                    put(DbFields.SHORT_NAME.name, stop.shortName)
+                    put(DbFields.SERVICES.name, stop.services)
+                    put(DbFields.MODE_INFO.name, gson.toJson(stop.modeInfo))
+                    put(DbFields.IS_PARENT.name, if (stop.hasChildren()) 1 else 0)
+                }
+                scheduledStopValues.add(parentStopValues)
 
-                final ContentValues parentStopValues = new ContentValues(8);
-                parentStopValues.put(DbFields.ID.name, parentStopId);
-                parentStopValues.put(DbFields.STOP_TYPE.name, stop
-                    .getType() == null ? null : stop.getType().toString());
-                parentStopValues.put(DbFields.CELL_CODE.name, cellCode);
-                parentStopValues.put(DbFields.CODE.name, stop.getCode());
-                parentStopValues.put(DbFields.SHORT_NAME.name,
-                    stop.getShortName());
-                parentStopValues.put(DbFields.SERVICES.name,
-                    stop.getServices());
-                parentStopValues.put(DbFields.MODE_INFO.name,
-                    gson.toJson(stop.getModeInfo()));
-                parentStopValues.put(DbFields.IS_PARENT.name,
-                    stop.hasChildren() ? 1 : 0);
-
-                scheduledStopValues.add(parentStopValues);
-
-                final ContentValues parentLocationValues = new ContentValues(9);
-                parentLocationValues.put(DbFields.SCHEDULED_STOP_CODE.name,
-                    stop.getCode());
-                parentLocationValues
-                    .put(DbFields.NAME.name, stop.getName());
-                parentLocationValues.put(DbFields.ADDRESS.name,
-                    stop.getAddress());
-                parentLocationValues.put(DbFields.LAT.name, stop.getLat());
-                parentLocationValues.put(DbFields.LON.name, stop.getLon());
-                parentLocationValues.put(DbFields.BEARING.name,
-                    stop.getBearing());
-                parentLocationValues.put(DbFields.LOCATION_TYPE.name,
-                    Location.TYPE_SCHEDULED_STOP);
-                parentLocationValues.put(DbFields.EXACT.name, 1);
-                parentLocationValues.put(DbFields.IS_DYNAMIC.name, 0);
-
-                locationValues.add(parentLocationValues);
+                val parentLocationValues = ContentValues(9).apply {
+                    put(DbFields.SCHEDULED_STOP_CODE.name, stop.code)
+                    put(DbFields.NAME.name, stop.name)
+                    put(DbFields.ADDRESS.name, stop.address)
+                    put(DbFields.LAT.name, stop.lat)
+                    put(DbFields.LON.name, stop.lon)
+                    put(DbFields.BEARING.name, stop.bearing)
+                    put(DbFields.LOCATION_TYPE.name, Location.TYPE_SCHEDULED_STOP)
+                    put(DbFields.EXACT.name, 1)
+                    put(DbFields.IS_DYNAMIC.name, 0)
+                }
+                locationValues.add(parentLocationValues)
 
                 if (stop.hasChildren()) {
-                    for (ScheduledStop child : stop.getChildren()) {
-                        existingId = codeToIdMap == null ? null : codeToIdMap
-                            .get(child.getCode());
-                        final int childStopId = existingId == null ? r
-                            .nextInt(Integer.MAX_VALUE) : existingId;
+                    for (child in stop.children.orEmpty()) {
+                        val childExistingId = codeToIdMap?.get(child.code)
+                        val childStopId = childExistingId ?: random.nextInt(Int.MAX_VALUE)
 
-                        final ContentValues childStopValues = new ContentValues(
-                            9);
-                        childStopValues.put(DbFields.ID.name, childStopId);
-                        childStopValues.put(DbFields.PARENT_ID.name,
-                            parentStopId);
-                        childStopValues.put(DbFields.IS_PARENT.name, 0);
-                        childStopValues.put(DbFields.STOP_TYPE.name, child
-                            .getType() == null ? null : child.getType()
-                            .toString());
-                        childStopValues.put(DbFields.CELL_CODE.name,
-                            cellCode);
-                        childStopValues.put(DbFields.CODE.name,
-                            child.getCode());
-                        childStopValues.put(DbFields.SHORT_NAME.name,
-                            child.getShortName());
-                        childStopValues.put(DbFields.SERVICES.name,
-                            child.getServices());
+                        val childStopValues = ContentValues(9).apply {
+                            put(DbFields.ID.name, childStopId)
+                            put(DbFields.PARENT_ID.name, parentStopId)
+                            put(DbFields.IS_PARENT.name, 0)
+                            put(DbFields.STOP_TYPE.name, child.type?.toString())
+                            put(DbFields.CELL_CODE.name, cellCode)
+                            put(DbFields.CODE.name, child.code)
+                            put(DbFields.SHORT_NAME.name, child.shortName)
+                            put(DbFields.SERVICES.name, child.services)
+                        }
+                        scheduledStopValues.add(childStopValues)
 
-                        scheduledStopValues.add(childStopValues);
-
-                        final ContentValues childLocationValues = new ContentValues(
-                            9);
-                        childLocationValues.put(
-                            DbFields.SCHEDULED_STOP_CODE.name,
-                            child.getCode());
-                        childLocationValues.put(DbFields.NAME.name,
-                            child.getName());
-                        childLocationValues.put(DbFields.ADDRESS.name,
-                            child.getAddress());
-                        childLocationValues.put(DbFields.LAT.name,
-                            child.getLat());
-                        childLocationValues.put(DbFields.LON.name,
-                            child.getLon());
-                        childLocationValues.put(DbFields.BEARING.name,
-                            child.getBearing());
-                        childLocationValues.put(
-                            DbFields.LOCATION_TYPE.name,
-                            Location.TYPE_SCHEDULED_STOP);
-                        childLocationValues.put(DbFields.EXACT.name, 1);
-                        childLocationValues
-                            .put(DbFields.IS_DYNAMIC.name, 0);
-
-                        locationValues.add(childLocationValues);
+                        val childLocationValues = ContentValues(9).apply {
+                            put(DbFields.SCHEDULED_STOP_CODE.name, child.code)
+                            put(DbFields.NAME.name, child.name)
+                            put(DbFields.ADDRESS.name, child.address)
+                            put(DbFields.LAT.name, child.lat)
+                            put(DbFields.LON.name, child.lon)
+                            put(DbFields.BEARING.name, child.bearing)
+                            put(DbFields.LOCATION_TYPE.name, Location.TYPE_SCHEDULED_STOP)
+                            put(DbFields.EXACT.name, 1)
+                            put(DbFields.IS_DYNAMIC.name, 0)
+                        }
+                        locationValues.add(childLocationValues)
                     }
                 }
 
-                // Dont need this anymore, lets save some memory..
-                iter.remove();
+                iterator.remove()
             }
         }
     }
 
-    private void insertInBatches(List<ContentValues> scheduledStopValues,
-                                 List<ContentValues> locationValues, long sleep) {
-        int counter = 0;
+    private fun insertInBatches(
+        scheduledStopValues: List<ContentValues>,
+        locationValues: List<ContentValues>,
+        sleep: Long
+    ) {
+        var counter = 0
+        var continueLoop = true
 
-        boolean continueLoop = true;
         do {
-            int startIndex = counter * INSERT_BATCH_SIZE;
-            int endIndex = (++counter) * INSERT_BATCH_SIZE;
-            if (endIndex > scheduledStopValues.size()) {
-                continueLoop = false;
-                endIndex = scheduledStopValues.size();
+            val startIndex = counter * INSERT_BATCH_SIZE
+            var endIndex = (++counter) * INSERT_BATCH_SIZE
+            if (endIndex > scheduledStopValues.size) {
+                continueLoop = false
+                endIndex = scheduledStopValues.size
             }
 
-            List<ContentValues> subList = scheduledStopValues.subList(
-                startIndex, endIndex);
-            ContentValues[] valArr = new ContentValues[subList.size()];
-            subList.toArray(valArr);
+            val stopSubList = scheduledStopValues.subList(startIndex, endIndex).toTypedArray()
+            scheduledStopRepository.bulkInsert(stopSubList)
 
-            int rowCount = scheduledStopRepository.bulkInsert(valArr);
-
-            Arrays.fill(valArr, null);
-            subList = locationValues.subList(startIndex, endIndex);
-            valArr = new ContentValues[subList.size()];
-            subList.toArray(valArr);
-            rowCount = appContext.getContentResolver().bulkInsert(
+            val locationSubList = locationValues.subList(startIndex, endIndex).toTypedArray()
+            appContext.contentResolver.bulkInsert(
                 ScheduledStopsProvider.LOCATIONS_BY_SCHEDULED_STOP_URI,
-                valArr);
+                locationSubList
+            )
 
             if (sleep > 0) {
                 try {
-                    Thread.sleep(sleep);
-                } catch (InterruptedException e) {
-                    Timber.e("Error whilst sleeping for batch insert");
+                    Thread.sleep(sleep)
+                } catch (e: InterruptedException) {
+                    Timber.e("Error while sleeping for batch insert")
                 }
             }
-        } while (continueLoop);
+        } while (continueLoop)
     }
 
-    //Tung: this query the SCHEDULED_STOPS table, getting out a map of <stop_code, local_id> of the stops which
-    //match the cell code and and got stop_code!=null
-    private Map<String, Integer> getCodeToIdMapping(final String cellCode) {
-        Cursor c = null;
-        Map<String, Integer> retval = new HashMap<String, Integer>();
-        try {
-            c = appContext.getContentResolver()
-                .query(ScheduledStopsProvider.CONTENT_URI,
-                    new String[]{DbFields.CODE.name,
-                        DbFields.ID.name},
-                    DbFields.CELL_CODE + " = ? AND " + DbFields.CODE
-                        + " IS NOT NULL",
-                    new String[]{cellCode}, null);
-            if (c != null && c.moveToFirst()) {
+    private fun getCodeToIdMapping(cellCode: String): Map<String, Int> {
+        val resultMap = mutableMapOf<String, Int>()
+        val cursor = appContext.contentResolver.query(
+            ScheduledStopsProvider.CONTENT_URI,
+            arrayOf(DbFields.CODE.name, DbFields.ID.name),
+            "${DbFields.CELL_CODE} = ? AND ${DbFields.CODE} IS NOT NULL",
+            arrayOf(cellCode),
+            null
+        )
+
+        cursor?.use {
+            if (it.moveToFirst()) {
                 do {
-                    retval.put(c.getString(0), c.getInt(1));
-                } while (c.moveToNext());
-            }
-        } finally {
-            if (c != null && !c.isClosed()) {
-                c.close();
+                    resultMap[it.getString(0)] = it.getInt(1)
+                } while (it.moveToNext())
             }
         }
 
-        return retval;
+        return resultMap
     }
 }
