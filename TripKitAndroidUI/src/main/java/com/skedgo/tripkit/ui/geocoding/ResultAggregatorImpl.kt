@@ -34,7 +34,7 @@ class ResultAggregatorImpl @Inject internal constructor() : ResultAggregator {
         results: List<MGAResultInterface<GCResultInterface>>
     ): List<Place> {
         val places = ArrayList<Place>(results.size)
-        results.mapTo(places) { (it.result as ResultLocationAdapter<*>).place }
+        results.mapTo(places) { (it.result as ResultLocationAdapter<*>).getPlace()!! }
         return places
     }
 }
