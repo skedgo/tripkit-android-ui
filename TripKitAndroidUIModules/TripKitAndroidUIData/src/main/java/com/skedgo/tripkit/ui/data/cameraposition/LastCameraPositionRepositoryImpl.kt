@@ -4,6 +4,8 @@ import android.content.SharedPreferences
 import android.content.res.Resources
 import com.skedgo.tripkit.camera.LastCameraPositionRepository
 import com.skedgo.tripkit.camera.MapCameraPosition
+import com.skedgo.tripkit.common.model.region.Region
+import com.skedgo.tripkit.data.regions.RegionService
 import com.skedgo.tripkit.ui.data.R
 import io.reactivex.Observable
 import io.reactivex.schedulers.Schedulers
@@ -22,7 +24,8 @@ internal const val LON_US = -97.3880223557353f
 open class LastCameraPositionRepositoryImpl(
     private val resources: Resources,
     private val preferences: SharedPreferences,
-    private val locale: Locale
+    private val locale: Locale,
+    private val regionService: RegionService
 ) : LastCameraPositionRepository {
     override fun putMapCameraPosition(mapCameraPosition: MapCameraPosition?): Observable<MapCameraPosition?> {
         // FIXME: Remove nullity of `mapCameraPosition`.
@@ -72,11 +75,53 @@ open class LastCameraPositionRepositoryImpl(
             .subscribeOn(Schedulers.computation())
 
     private fun getDefaultMapCameraPositionSync(): MapCameraPosition {
-        return if (resources.getBoolean(R.bool.trip_kit_map_override_default_latlon)) {
-            getOverriddenMapCameraPosition()
+        return if (!resources.getBoolean(R.bool.trip_kit_map_override_default_latlon)) {
+            // First, try to get a matching region based on the city name
+            val matchingRegion = executeWithCityString(resources.getString(R.string.default_city)).blockingFirst()
+            if (matchingRegion != null) {
+                // Return the map position based on the matching city's lat/lng
+                val matchingCity = matchingRegion.cities?.firstOrNull {
+                    it.name?.contains(resources.getString(R.string.default_city), ignoreCase = true) == true
+                }
+                // Fetch zoom from resources, falling back to default if empty
+                var zoom = resources.getString(R.string.trip_kit_map_default_zoom)
+                if (zoom.isEmpty()) zoom = "3"
+                // Return the map position based on the matching city's lat/lng and zoom
+                MapCameraPosition(
+                    matchingCity?.lat ?: LAT_US.toDouble(),
+                    matchingCity?.lon ?: LON_US.toDouble(),
+                    zoom.toFloat(),
+                    0f,
+                    0f
+                )
+            } else {
+                // If no match, fallback to overridden position
+                getOverriddenMapCameraPosition()
+            }
         } else {
             getMapCameraPositionByLocaleSync()
         }
+    }
+    // Method to get the single region that matches the city name closest
+    private fun executeWithCityString(defaultCity: String): Observable<Region> {
+        return regionService.getRegionsAsync()
+            .flatMap { regions ->
+                val matchingRegion = regions.firstOrNull { region ->
+                    region.hasCityMatching(defaultCity)
+                }
+                if (matchingRegion != null) {
+                    Observable.just(matchingRegion)
+                } else {
+                    // Fallback to getOverriddenMapCameraPosition()
+                    Observable.empty()
+                }
+            }
+    }
+    // Extension function to check if the region has a city that matches the city name
+    private fun Region.hasCityMatching(cityName: String): Boolean {
+        return cities?.firstOrNull {
+            it.name?.contains(cityName, ignoreCase = true) == true
+        } != null
     }
 
     override fun getDefaultMapCameraPosition(): Observable<MapCameraPosition> =
