@@ -68,7 +68,7 @@ class TripGroupClassifier constructor(tripGroups: List<TripGroup>) {
 
     fun classify(tripGroup: TripGroup): Classification {
         val trip = tripGroup.displayTrip ?: return Classification.NONE
-        return when {
+        val classification = when {
             matches(
                 weighted.first,
                 weighted.second,
@@ -89,6 +89,7 @@ class TripGroupClassifier constructor(tripGroups: List<TripGroup>) {
             matches(carbons.first, carbons.second, trip.carbonCost) -> Classification.GREENEST
             else -> Classification.NONE
         }
+        return classification
     }
 
     private fun matches(min: Float, max: Float, value: Float): Boolean =

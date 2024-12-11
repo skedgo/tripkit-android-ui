@@ -137,6 +137,11 @@ class TripKitDateTimePickerDialogFragment : DialogFragment(), TimePicker.OnTimeC
         return dialog
     }
 
+    override fun onResume() {
+        super.onResume()
+        System.gc()
+    }
+
     /**
      * @suppress
      */
@@ -293,7 +298,8 @@ class TripKitDateTimePickerDialogFragment : DialogFragment(), TimePicker.OnTimeC
             minuteSpinner.maxValue = (60 / timePickerViewModel.timePickerMinuteInterval.get()) - 1
             val displayedValues = mutableListOf<String>()
             for (i in 0..60 step timePickerViewModel.timePickerMinuteInterval.get()) {
-                displayedValues.add(String.format("%02d", i))
+                //displayedValues.add(String.format("%02d", i))
+                displayedValues.add(i.toString().padStart(2, '0'))
             }
             minuteSpinner.displayedValues = displayedValues.toTypedArray()
         }

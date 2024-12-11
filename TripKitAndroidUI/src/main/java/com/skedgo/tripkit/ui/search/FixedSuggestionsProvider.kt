@@ -5,9 +5,13 @@ import androidx.core.content.ContextCompat
 import com.skedgo.tripkit.common.model.location.Location
 import com.skedgo.tripkit.common.model.region.Region
 import com.skedgo.tripkit.ui.R
+import com.skedgo.tripkit.ui.favorites.v2.data.network.FavoritesRepository
 
 
 interface FixedSuggestionsProvider {
+
+    fun setup(favoritesRepository: FavoritesRepository)
+
     fun fixedSuggestions(
         context: Context,
         iconProvider: LocationSearchIconProvider
@@ -50,6 +54,8 @@ class DefaultFixedSuggestionsProvider(
 ) : FixedSuggestionsProvider {
 
     private var showCurrentLocation: Boolean = showCurrentLocation
+
+    override fun setup(favoritesRepository: FavoritesRepository) {}
 
     fun setShowCurrentLocation(show: Boolean) {
         showCurrentLocation = show

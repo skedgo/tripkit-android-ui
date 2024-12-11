@@ -244,6 +244,7 @@ class TripResultListFragment : BaseTripKitFragment() {
 
     override fun onResume() {
         super.onResume()
+        autoDisposable.clear()
         viewModel.onFinished.observeOn(AndroidSchedulers.mainThread()).subscribe {
             binding.recyclerView.layoutManager?.scrollToPosition(0)
         }.addTo(autoDisposable)
@@ -274,17 +275,6 @@ class TripResultListFragment : BaseTripKitFragment() {
                 quickBookingActionCallback.invoke(segment)
             }.subscribe().addTo(autoDisposable)
 
-//        viewModel.onMoreButtonClicked
-//                .observeOn(AndroidSchedulers.mainThread())
-//                .subscribe {
-//                    trip ->
-//                    if (actionButtonHandler?.actionClicked(trip) == true) {
-//                        // We should monitor this trip for changes, likely due to booking
-////                        viewModel.monitorTrip(trip)
-//                        Timber.d("Triggering updates")
-//                        updateTripRelay.accept(trip.group)
-//                    }
-//                }.addTo(autoDisposable)
         viewModel.stateChange.observeOn(AndroidSchedulers.mainThread()).subscribe {
             binding.multiStateView?.let { msv ->
                 if (it == MultiStateView.ViewState.EMPTY) {

@@ -29,6 +29,8 @@ interface TripGroupRepository {
     fun setTripGroup(tripGroup: TripGroup): Completable
     fun onManualTripChanges(): Observable<Unit>
     fun deletePastRoutesAsync(): Observable<Int>
+    fun deletePastRoutesAsync(hours: Long): Observable<Int>
+    fun clearPastRoutesAsync(): Observable<Int>
     fun onNewTripGroupsAvailable(): Observable<String>
     fun whenTripGroupIsUpdated(): Observable<TripGroupId>
     fun updateTrip(tripGroupId: String, oldTripUuid: String, trip: Trip): Completable

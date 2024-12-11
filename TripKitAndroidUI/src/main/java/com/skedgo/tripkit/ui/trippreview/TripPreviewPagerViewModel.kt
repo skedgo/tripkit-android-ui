@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.drawable.Drawable
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import com.skedgo.tripkit.datetime.PrintTime
 import com.skedgo.tripkit.routing.Trip
 import com.skedgo.tripkit.routing.TripGroup
 import com.skedgo.tripkit.routing.TripSegment
@@ -23,7 +24,8 @@ import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 class TripPreviewPagerViewModel @Inject constructor(
-    private val tripGroupRepository: TripGroupRepository
+    private val tripGroupRepository: TripGroupRepository,
+    private val printTime: PrintTime,
 ) : RxViewModel() {
 
     private val _headersData = MutableLiveData<TripSegmentsSummaryData>()
@@ -62,7 +64,7 @@ class TripPreviewPagerViewModel @Inject constructor(
             .forEach { segment ->
                 getSegmentIcon(context, segment, getTransportIconTintStrategy) {
                     if (previewHeaders.none { it.id == segment.segmentId }) {
-                        previewHeaders.add(segment.generateTripPreviewHeader(it))
+                        previewHeaders.add(segment.generateTripPreviewHeader(context, it, printTime))
                     }
                     tripSummaryStream.onNext(previewHeaders)
                 }

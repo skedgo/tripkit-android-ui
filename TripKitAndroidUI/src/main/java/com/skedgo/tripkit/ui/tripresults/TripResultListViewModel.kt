@@ -10,45 +10,51 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.DiffUtil
 import com.jakewharton.rxrelay2.PublishRelay
-import com.skedgo.tripkit.common.model.Query
-import com.skedgo.tripkit.common.model.time.TimeTag
 import com.skedgo.tripkit.RoutingError
 import com.skedgo.tripkit.TransportModeFilter
 import com.skedgo.tripkit.a2brouting.RouteService
+import com.skedgo.tripkit.common.model.Query
 import com.skedgo.tripkit.common.model.TransportMode
+import com.skedgo.tripkit.common.model.time.TimeTag
 import com.skedgo.tripkit.data.regions.RegionService
-import com.skedgo.tripkit.model.ViewTrip
-import com.skedgo.tripkit.ui.BR
-import com.skedgo.tripkit.ui.R
-import com.skedgo.tripkit.ui.core.RxViewModel
-import com.skedgo.tripkit.ui.routing.GetSortedTripGroupsWithRoutingStatus
-import com.skedgo.tripkit.ui.routingresults.TripGroupRepository
-import com.skedgo.tripkit.ui.trip.options.RoutingTimeViewModelMapper
-import com.skedgo.tripkit.ui.trip.toRoutingTime
-import dagger.Lazy
-import io.reactivex.Observable
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.subjects.PublishSubject
-import me.tatarka.bindingcollectionadapter2.ItemBinding
-import me.tatarka.bindingcollectionadapter2.collections.DiffObservableList
 import com.skedgo.tripkit.logging.ErrorLogger
+import com.skedgo.tripkit.model.ViewTrip
 import com.skedgo.tripkit.routing.Trip
 import com.skedgo.tripkit.routing.TripGroup
 import com.skedgo.tripkit.routing.TripSegment
 import com.skedgo.tripkit.routingstatus.RoutingStatus
 import com.skedgo.tripkit.routingstatus.RoutingStatusRepository
 import com.skedgo.tripkit.routingstatus.Status
+import com.skedgo.tripkit.ui.BR
+import com.skedgo.tripkit.ui.R
+import com.skedgo.tripkit.ui.core.RxViewModel
 import com.skedgo.tripkit.ui.model.UserMode
+import com.skedgo.tripkit.ui.routing.GetSortedTripGroupsWithRoutingStatus
 import com.skedgo.tripkit.ui.routing.SimpleTransportModeFilter
+import com.skedgo.tripkit.ui.routingresults.TripGroupRepository
+import com.skedgo.tripkit.ui.trip.options.RoutingTimeViewModelMapper
+import com.skedgo.tripkit.ui.trip.toRoutingTime
 import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButtonContainer
 import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButtonHandler
 import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButtonHandlerFactory
 import com.skedgo.tripkit.ui.views.MultiStateView
+import dagger.Lazy
+import io.reactivex.Observable
+import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.BehaviorSubject
+import io.reactivex.subjects.PublishSubject
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
+import me.tatarka.bindingcollectionadapter2.ItemBinding
+import me.tatarka.bindingcollectionadapter2.collections.DiffObservableList
 import me.tatarka.bindingcollectionadapter2.collections.MergeObservableList
 import me.tatarka.bindingcollectionadapter2.itembindings.OnItemBindClass
 import org.joda.time.DateTimeZone
@@ -84,6 +90,8 @@ class TripResultListViewModel @Inject constructor(
     val stateChange = PublishRelay.create<MultiStateView.ViewState>()
     val onError = PublishRelay.create<String>()
 
+    val customAdapter = TripResultListCustomRecyclerViewAdapter<Any>()
+
     val itemBinding =
         ItemBinding.of(
             OnItemBindClass<Any>()
@@ -112,6 +120,7 @@ class TripResultListViewModel @Inject constructor(
     val isError = ObservableBoolean(false)
     val showCloseButton = ObservableBoolean(false)
     private val transportModeChangeThrottle = PublishSubject.create<Unit>()
+    private val resultListUpdateThrottle = PublishSubject.create<Unit>()
 
     val tripGroupList = ObservableArrayList<TripGroup>()
     var tripGroupWithUrlList = arrayListOf<TripGroup>()
@@ -135,6 +144,12 @@ class TripResultListViewModel @Inject constructor(
                 { errorLogger.trackError(it) })
             .autoClear()
 
+        resultListUpdateThrottle.debounce(800, TimeUnit.MILLISECONDS)
+            .subscribeOn(AndroidSchedulers.mainThread())
+            .subscribe(
+                { customAdapter.notifyDataSetChanged() },
+                { errorLogger.trackError(it) })
+            .autoClear()
     }
 
     fun transportLayoutClicked(view: View) {
@@ -313,32 +328,38 @@ class TripResultListViewModel @Inject constructor(
             .doOnSubscribe {
                 setLoading(true)
                 stateChange.accept(MultiStateView.ViewState.CONTENT)
-                routingStatusRepositoryLazy.get().putRoutingStatus(
-                    RoutingStatus(
-                        query.uuid(),
-                        Status.InProgress()
-                    )
-                ).subscribe()
+                networkRequests.add(
+                    routingStatusRepositoryLazy.get().putRoutingStatus(
+                        RoutingStatus(
+                            query.uuid(),
+                            Status.InProgress()
+                        )
+                    ).subscribe()
+                )
                 loadFromStore()
             }.doOnError {
                 val message = when (it) {
                     is RoutingError -> it.message
                     else -> context.getString(R.string.error_encountered)
                 }
-                routingStatusRepositoryLazy.get().putRoutingStatus(
-                    RoutingStatus(
-                        query.uuid(),
-                        Status.Error(message)
-                    )
-                ).subscribe()
+                networkRequests.add(
+                    routingStatusRepositoryLazy.get().putRoutingStatus(
+                        RoutingStatus(
+                            query.uuid(),
+                            Status.Error(message)
+                        )
+                    ).subscribe()
+                )
             }
             .doOnComplete {
-                routingStatusRepositoryLazy.get().putRoutingStatus(
-                    RoutingStatus(
-                        query.uuid(),
-                        Status.Completed()
-                    )
-                ).subscribe()
+                networkRequests.add(
+                    routingStatusRepositoryLazy.get().putRoutingStatus(
+                        RoutingStatus(
+                            query.uuid(),
+                            Status.Completed()
+                        )
+                    ).subscribe()
+                )
             }
             .doFinally {
                 onFinished.accept(true)
@@ -358,6 +379,17 @@ class TripResultListViewModel @Inject constructor(
     }
 
     fun reload() {
+        tripGroupRepository.clearPastRoutesAsync()
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribeOn(Schedulers.io())
+            .subscribe({
+                proceedReload()
+            }, {
+                proceedReload()
+            }).autoClear()
+    }
+
+    private fun proceedReload() {
         networkRequests.clear()
         updateResultList(emptyList())
         load()
@@ -380,11 +412,11 @@ class TripResultListViewModel @Inject constructor(
             onQuickBookingActionClicked.accept(it)
         }.launchIn(viewModelScope)
 
-        getSortedTripGroupsWithRoutingStatusProvider.get()
+        val requestDisposable = getSortedTripGroupsWithRoutingStatusProvider.get()
             .execute(query, 1, transportVisibilityFilter!!)
             .observeOn(AndroidSchedulers.mainThread())
             .map {
-                var list = it.first
+                val list = it.first
 
                 tripGroupList.clear()
 
@@ -418,7 +450,7 @@ class TripResultListViewModel @Inject constructor(
                     }
 
                     vm
-                }.sortedByDescending { it.classification.ordinal }
+                }.sortedBy { it.group.trips?.minOf { it.weightedScore } }
             }
             .map {
                 Pair(it, results.calculateDiff(it))
@@ -428,8 +460,8 @@ class TripResultListViewModel @Inject constructor(
                 if (results.isEmpty() && !mergedList.contains(loadingItem) && !isError.get()) {
                     stateChange.accept(MultiStateView.ViewState.EMPTY)
                 }
-            }.autoClear()
-
+            }
+        networkRequests.add(requestDisposable)
     }
 
     fun changeQuery(newQuery: Query) {
@@ -492,9 +524,26 @@ class TripResultListViewModel @Inject constructor(
         _showHelpInfo.postValue(show)
     }
 
-    private fun updateResultList(list: List<TripResultViewModel>, diffResult: DiffUtil.DiffResult? = null) {
-        diffResult?.let { results.update(list, it) } ?: run { results.update(list) }
-        tripResultListStream.onNext(list)
+    private var updateJob: Job? = null
+
+    private fun updateResultList(
+        list: List<TripResultViewModel>,
+        diffResult: DiffUtil.DiffResult? = null
+    ) {
+        diffResult?.let {
+            results.update(list, it)
+        } ?: run {
+            results.update(list)
+        }
+
+        // Cancel the previous job if it's still active
+        updateJob?.cancel()
+
+        // Launch a new job with a debounce delay
+        updateJob = CoroutineScope(Dispatchers.Main).launch {
+            delay(1000)
+            customAdapter.notifyDataSetChanged()
+        }
     }
 
 }

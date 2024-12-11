@@ -21,12 +21,17 @@ import com.skedgo.tripkit.datetime.PrintTime
 import com.skedgo.tripkit.routing.*
 import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButtonHandler
 import com.skedgo.tripkit.ui.utils.*
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class TripResultTripViewModel : ViewModel() {
     var trip: Trip? = null
+        set(value) {
+            field = value
+            checkQuickBooking() // Recalculate visibility whenever trip is updated
+        }
     val title = ObservableField<String>()
     val subtitle = ObservableField<String>()
     val isMissedPreBooking = ObservableField<Boolean>()
@@ -35,6 +40,11 @@ class TripResultTripViewModel : ViewModel() {
     var clickFlow: MutableSharedFlow<Trip>? = null
     var quickBookingActionClickFlow: MutableSharedFlow<TripSegment>? = null
     val segments = ArrayList<TripSegmentViewModel>()
+    val weightedScore = ObservableField<String>()
+
+    private val _hasQuickBooking = MutableLiveData<Boolean>(false)
+    val hasQuickBooking: LiveData<Boolean> = _hasQuickBooking
+
     fun onItemClicked() {
         viewModelScope.launch {
             trip?.let {
@@ -45,12 +55,13 @@ class TripResultTripViewModel : ViewModel() {
 
     fun onQuickBookingActionClicked() {
         viewModelScope.launch {
-            getQuickBooking()?.let { quickBookingActionClickFlow?.emit(it) }
+            trip?.quickBookingSegment?.let { quickBookingActionClickFlow?.emit(it) }
         }
     }
 
-    fun getQuickBooking() = trip?.quickBookingSegment
-
+    private fun checkQuickBooking() {
+        _hasQuickBooking.value = trip?.quickBookingSegment != null
+    }
 }
 
 class TripResultViewModel @Inject constructor(
@@ -70,10 +81,22 @@ class TripResultViewModel @Inject constructor(
     private var alternateTrip: Trip? = null
 
     // Badge
-    val badgeDrawable = ObservableField<Drawable>()
-    val badgeText = ObservableField<String>()
-    val badgeTextColor = ObservableInt()
-    val badgeVisible = ObservableBoolean(false)
+    private val _badgeDrawable = MutableLiveData<Drawable?>()
+    val badgeDrawable: LiveData<Drawable?> = _badgeDrawable
+    //val badgeDrawable = ObservableField<Drawable>()
+
+    private val _badgeText = MutableLiveData<String?>()
+    val badgeText: LiveData<String?> = _badgeText
+    //val badgeText = ObservableField<String>()
+
+    private val _badgeTextColor = MutableLiveData<Int?>()
+    val badgeTextColor: LiveData<Int?> = _badgeTextColor
+    //val badgeTextColor = ObservableInt()
+
+    private val _badgeVisible = MutableLiveData<Boolean>(false)
+    val badgeVisible: LiveData<Boolean> = _badgeVisible
+    //val badgeVisible = ObservableBoolean(false)
+
     val tripResults = ObservableArrayList<TripResultTripViewModel>()
     val showMoreTrips = ObservableBoolean(false)
     val hasTripLabels = ObservableBoolean(true)
@@ -154,6 +177,11 @@ class TripResultViewModel @Inject constructor(
 
         if (classification != null && classification != TripGroupClassifier.Classification.NONE) {
             setBadge(classification)
+        } else {
+            _badgeDrawable.value = null
+            _badgeText.value = null
+            _badgeTextColor.value = null
+            _badgeVisible.value = false
         }
 
         addTripToList(trip)
@@ -201,6 +229,7 @@ class TripResultViewModel @Inject constructor(
         newVm.clickFlow = clickFlow
         newVm.quickBookingActionClickFlow = quickBookingActionClickFlow
         newVm.title.set(buildTitle(context, trip))
+        newVm.weightedScore.set(trip.weightedScore.toString())
         newVm.subtitle.set(buildSubtitle(context, trip))
         newVm.contentDescription.set(buildContentDescription(trip))
         newVm.isMissedPreBooking.set(trip.segmentList?.first()?.availability.equals(Availability.MissedPrebookingWindow.value))
@@ -287,10 +316,14 @@ class TripResultViewModel @Inject constructor(
             }
         }
         if (drawableRes != -1) {
-            badgeDrawable.set(ContextCompat.getDrawable(context, drawableRes))
-            badgeText.set(context.getString(textRes))
-            badgeTextColor.set(ContextCompat.getColor(context, textColor))
-            badgeVisible.set(true)
+            // badgeDrawable.set(ContextCompat.getDrawable(context, drawableRes))
+            _badgeDrawable.value = ContextCompat.getDrawable(context, drawableRes)
+            // badgeText.set(context.getString(textRes))
+            _badgeText.value = context.getString(textRes)
+            // badgeTextColor.set(ContextCompat.getColor(context, textColor))
+            _badgeTextColor.value = ContextCompat.getColor(context, textColor)
+            //badgeVisible.set(true)
+            _badgeVisible.value = true
         }
     }
 
