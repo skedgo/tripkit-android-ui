@@ -267,3 +267,11 @@ fun clearTag(view: View, clear: Boolean) {
         view.tag = ""
     }
 }
+
+@BindingAdapter("dynamicHeight")
+fun setDynamicHeight(view: View, heightInDp: Int) {
+    val params = view.layoutParams
+    val scale = view.context.resources.displayMetrics.density // Convert dp to pixels
+    params.height = if (heightInDp > 0) (heightInDp * scale).toInt() else 0
+    view.layoutParams = params
+}

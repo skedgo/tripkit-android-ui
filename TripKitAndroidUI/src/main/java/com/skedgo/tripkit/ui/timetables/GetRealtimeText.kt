@@ -27,7 +27,7 @@ open class GetRealtimeText @Inject constructor(
 
         val isRightToLeft = context.resources.getBoolean(R.bool.is_right_to_left)
 
-        val dateTimeFormatter = DateTimeFormat.forPattern("HH:mm a")
+        val dateTimeFormatter = DateTimeFormat.forPattern("HH:mm")
         val startTime = realTimeDeparture(service, service.realtimeVehicle)
         val endTime = realTimeArrival(service, service.realtimeVehicle)
         val startDateTime = DateTime(TimeUnit.SECONDS.toMillis(startTime))

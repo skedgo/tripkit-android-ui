@@ -5,6 +5,7 @@ import androidx.core.content.ContextCompat
 import com.skedgo.tripkit.common.model.location.Location
 import com.skedgo.tripkit.common.model.region.Region
 import com.skedgo.tripkit.ui.R
+import com.skedgo.tripkit.ui.favorites.v2.data.network.FavoritesRepository
 import com.skedgo.tripkit.ui.search.DefaultFixedSuggestionType
 import com.skedgo.tripkit.ui.search.DefaultSearchSuggestion
 import com.skedgo.tripkit.ui.search.FixedSuggestions
@@ -17,6 +18,8 @@ class TKUIHomeViewFixedSuggestionsProvider : FixedSuggestionsProvider {
 
     var showCurrentLocation = true
     var hideFavorites = true
+
+    override fun setup(favoritesRepository: FavoritesRepository) {}
 
     override fun fixedSuggestions(
         context: Context,

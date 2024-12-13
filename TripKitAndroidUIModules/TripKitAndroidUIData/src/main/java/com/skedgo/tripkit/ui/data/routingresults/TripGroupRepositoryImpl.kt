@@ -133,6 +133,42 @@ class TripGroupRepositoryImpl(
         )
     )
 
+    override fun deletePastRoutesAsync(hours: Long): Observable<Int> = routeStore.deleteByTableAsync(
+        listOf(
+            tripGroupsTable,
+            tripsTable,
+            segmentsTable,
+        ),
+        listOf(
+            removeTripGroupsHappenedBefore(
+                hours,
+                getNow.execute().millis
+            ),
+            removeTripsWithNoTripGroup(),
+            removeSegmentsWithNoTrip()
+        )
+    )
+
+    override fun clearPastRoutesAsync(): Observable<Int> {
+        val recordCount = routeStore.countRecords(segmentsTable)
+        return if (recordCount > 1000) {
+            routeStore.deleteByTableAsync(
+                listOf(
+                    tripGroupsTable,
+                    tripsTable,
+                    segmentsTable,
+                ),
+                listOf(
+                    android.util.Pair<String?, Array<String>?>(null, null),
+                    android.util.Pair<String?, Array<String>?>(null, null),
+                    android.util.Pair<String?, Array<String>?>(null, null)
+                )
+            )
+        } else {
+            Observable.just(0)
+        }
+    }
+
     override fun addTripGroups(requestId: String?, groups: List<TripGroup>): Completable {
         return routeStore.saveAsync(requestId, groups)
             .ignoreElements()

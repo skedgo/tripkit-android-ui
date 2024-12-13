@@ -27,6 +27,7 @@ import com.skedgo.tripkit.ui.core.rxproperty.asObservable
 import com.skedgo.tripkit.ui.data.places.Place
 import com.skedgo.tripkit.ui.data.places.PlaceSearchRepository
 import com.skedgo.tripkit.ui.database.location_history.LocationHistoryRepository
+import com.skedgo.tripkit.ui.favorites.v2.data.network.FavoritesRepository
 import com.skedgo.tripkit.ui.geocoding.AutoCompleteResult
 import com.skedgo.tripkit.ui.geocoding.HasResults
 import com.skedgo.tripkit.ui.geocoding.NoConnection
@@ -62,7 +63,7 @@ class LocationSearchViewModel @Inject constructor(
     private val schedulerFactory: SchedulerFactory,
     private val locationHistoryRepository: LocationHistoryRepository,
     val errorViewModel: LocationSearchErrorViewModel,
-    private val transportModeSharedPreference: TransportModeSharedPreference
+    private val favoritesRepository: FavoritesRepository,
 ) : RxViewModel() {
 
     companion object {
@@ -488,7 +489,7 @@ class LocationSearchViewModel @Inject constructor(
             (fixedSuggestionsProvider as? DefaultFixedSuggestionsProvider)
                 ?.setShowCurrentLocation(showCurrentLocation)
         }
-
+        fixedSuggestionsProvider?.setup(favoritesRepository)
         return fixedSuggestionsProvider!!
     }
 
