@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import com.skedgo.tripkit.camera.CachingDateTimeOfMapCameraPositionRepository
 import com.skedgo.tripkit.camera.LastCameraPositionRepository
+import com.skedgo.tripkit.data.regions.RegionService
 import com.skedgo.tripkit.ui.data.cameraposition.CachingDateTimeOfMapCameraPositionRepositoryImpl
 import com.skedgo.tripkit.ui.data.cameraposition.LastCameraPositionRepositoryImpl
 import dagger.Module
@@ -13,11 +14,12 @@ import java.util.Locale
 @Module
 class CameraPositionDataModule {
     @Provides
-    fun lastCameraPositionRepository(context: Context): LastCameraPositionRepository =
+    fun lastCameraPositionRepository(context: Context, regionService: RegionService): LastCameraPositionRepository =
         LastCameraPositionRepositoryImpl(
             context.resources,
             getMapPrefs(context),
-            Locale.getDefault()
+            Locale.getDefault(),
+            regionService
         )
 
     @Provides
