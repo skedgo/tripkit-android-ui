@@ -3,6 +3,8 @@
     <color name="colorPrimary">#23b15e</color>
     <color name="colorPrimaryDark">#00574B</color>
     <color name="colorAccent">#2B7EED</color>
+    <color name="colorAccent20">#332B7EED</color>
+    <color name="colorAccent50">#802B7EED</color>
 
     <!-- "New" colors from design mockups-->
     <color name="tripKitPrimary">#23b15e</color>

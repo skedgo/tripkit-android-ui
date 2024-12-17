@@ -7,7 +7,7 @@ import com.skedgo.tripkit.common.util.decimalFormatWithCurrencySymbol
 import com.skedgo.tripkit.common.util.factor100
 import com.skedgo.tripkit.common.util.nonDecimalFormatWithCurrencySymbol
 import com.skedgo.tripkit.ui.generic.transport.TransportDetails
-import com.skedgo.tripkit.ui.utils.getCurrencySymbol
+import com.skedgo.tripkit.common.util.getCurrencySymbol
 
 data class PaymentData(
     val drtFragmentHashCode: Int,
