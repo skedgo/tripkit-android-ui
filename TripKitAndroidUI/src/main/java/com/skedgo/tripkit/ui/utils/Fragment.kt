@@ -50,3 +50,13 @@ fun Fragment.replaceFragment(
 fun Fragment.popSpecificWithTag(tag: String) {
     childFragmentManager.popBackStack(tag, FragmentManager.POP_BACK_STACK_INCLUSIVE)
 }
+
+fun FragmentManager.isFragmentInBackStack(fragmentTag: String): Boolean {
+    for (i in 0 until backStackEntryCount) {
+        val backStackEntry = getBackStackEntryAt(i)
+        if (backStackEntry.name == fragmentTag) {
+            return true
+        }
+    }
+    return false
+}

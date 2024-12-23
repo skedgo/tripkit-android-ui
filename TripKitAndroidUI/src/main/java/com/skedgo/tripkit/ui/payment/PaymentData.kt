@@ -19,9 +19,9 @@ data class PaymentData(
     val total: Double,
     val currency: String,
     val paymentOptions: List<PaymentOption>?,
-    val review: List<Review>?,
-    val publishableApiKey: String?,
-    val ephemeralKey: EphemeralKey?,
+    var review: List<Review>?,
+    var publishableApiKey: String?,
+    var ephemeralKey: EphemeralKey?,
     val areInputsValid: Boolean,
     val billingEnabled: Boolean,
     val hasTickets: Boolean
