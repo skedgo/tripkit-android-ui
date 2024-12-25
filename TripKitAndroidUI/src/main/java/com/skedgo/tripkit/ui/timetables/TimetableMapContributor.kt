@@ -38,6 +38,7 @@ import com.skedgo.tripkit.ui.realtime.RealTimeViewModelFactory
 import com.skedgo.tripkit.ui.servicedetail.GetStopDisplayText
 import dagger.Lazy
 import io.reactivex.disposables.CompositeDisposable
+import timber.log.Timber
 import java.util.Collections
 import javax.inject.Inject
 
@@ -158,8 +159,20 @@ class TimetableMapContributor(val fragment: Fragment) : TripKitMapContributor {
         stopCodesToMarkerMap.forEach { it.value.remove() }
         serviceLines.forEach { it.remove() }
         autoDisposable.clear()
+        cleanupServiceDetailVehicleUpdates()
     }
 
+    private fun cleanupServiceDetailVehicleUpdates() {
+        // Stop real-time updates
+        viewModel.stopRealtimeUpdates()
+
+        // Safely remove the real-time vehicle marker if it exists
+        realTimeVehicleMarker?.let { marker ->
+            marker.remove()
+            realTimeVehicleMarker = null // Clear the reference to avoid memory leaks
+            Timber.d("Real-time vehicle marker removed")
+        }
+    }
 
     fun setService(service: TimetableEntry?) {
         viewModel.service.accept(service)
