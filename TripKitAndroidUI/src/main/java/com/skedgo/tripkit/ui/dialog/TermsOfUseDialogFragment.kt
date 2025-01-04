@@ -8,11 +8,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.Window
+import android.widget.Toast
 import androidx.fragment.app.DialogFragment
-import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.databinding.DialogPdfDisplayBinding
 
-class TermsOfUseDialogFragment(private val listener: Listener) : DialogFragment() {
+class TermsOfUseDialogFragment(
+    private val assetName: String,
+    private val listener: Listener
+) : DialogFragment() {
 
     private lateinit var binding: DialogPdfDisplayBinding
 
@@ -48,7 +51,14 @@ class TermsOfUseDialogFragment(private val listener: Listener) : DialogFragment(
     }
 
     private fun setupWebView() {
-        binding.pdfView.fromAsset(getString(R.string.terms_of_use_file_name))
+        binding.pdfView.fromAsset(assetName)
+            .onError {
+                Toast.makeText(
+                    requireContext(),
+                    "Error loading Terms of Use, Please restart the app to try again.",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
             .onPageScroll { _, positionOffset ->
                 if (positionOffset >= 1) {
                     binding.btnAccept.isEnabled = true
