@@ -79,4 +79,6 @@
     <dimen name="drt_ticket_action_icon_size">24dp</dimen>
 
     <dimen name="button_size_normal">35dp</dimen>
+
+    <dimen name="image_size_small">120dp</dimen>
 </resources>

@@ -208,9 +208,12 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
         viewModel.stateChange.observeOn(AndroidSchedulers.mainThread()).subscribe {
             binding.multiStateView.let { msv ->
                 if (it == MultiStateView.ViewState.EMPTY) {
-                    if (activity is OnResultStateListener) {
+                    if (
+                        activity is OnResultStateListener &&
+                        (activity as OnResultStateListener).provideEmptyView() != null
+                    ) {
                         msv.setViewForState(
-                            (activity as OnResultStateListener).provideEmptyView(),
+                            (activity as OnResultStateListener).provideEmptyView()!!,
                             MultiStateView.ViewState.EMPTY,
                             true
                         )

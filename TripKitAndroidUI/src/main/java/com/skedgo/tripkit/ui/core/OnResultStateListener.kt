@@ -8,5 +8,5 @@ import android.view.View
  */
 interface OnResultStateListener {
     fun provideErrorView(message: String): View
-    fun provideEmptyView(): View
+    fun provideEmptyView(): View?
 }

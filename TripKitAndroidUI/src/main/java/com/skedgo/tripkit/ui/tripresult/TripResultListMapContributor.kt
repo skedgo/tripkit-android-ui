@@ -70,6 +70,7 @@ class TripResultListMapContributor(
     override fun setup() {
         if (isSafeToUse) {
             context?.let {
+                showCachedMapElements()
                 setupObservers(it)
             }
         }
@@ -146,6 +147,34 @@ class TripResultListMapContributor(
         destinationMarkerOptions?.let {
             destinationMarker = map.addMarker(it)
         }
+
+        if(originMarker == null && destinationMarker == null) {
+            setOriginDestinationLocations(origin, destination)
+        } else {
+            var hasBounds = false
+            val boundsBuilder = LatLngBounds.Builder()
+            origin?.let {
+                boundsBuilder.include(LatLng(it.lat, it.lon))
+                hasBounds = true
+            }
+            destination?.let {
+                boundsBuilder.include(LatLng(it.lat, it.lon))
+                hasBounds = true
+            }
+
+            if (hasBounds) {
+                var padding = 50
+                context?.let {
+                    val displayMetrics = it.resources.displayMetrics
+                    val screenWidth = displayMetrics.widthPixels
+                    val screenHeight = displayMetrics.heightPixels
+                    // Calculate padding as a percentage of the smaller screen dimension
+                    padding = (0.15 * screenWidth.coerceAtMost(screenHeight)).toInt()
+                }
+                val cameraUpdate = CameraUpdateFactory.newLatLngBounds(boundsBuilder.build(), padding)
+                map.moveCamera(cameraUpdate)
+            }
+        }
     }
 
     private fun clearLinesCache() {
@@ -160,34 +189,34 @@ class TripResultListMapContributor(
     ) {
         // To remove old lines before adding new ones.
 
-        tripLines.forEach {
-            context?.let { context ->
-                it.color = ContextCompat.getColor(context, R.color.trip_line_inactive)
-            }
-        }
-
-        val boundsBuilder = LatLngBounds.Builder()
-        var hasPoints = false
-        segmentsPolyLineOptions.forEach { segment ->
-            segment.polyLineOptions.forEachIndexed { index, polylineOption ->
-                if(polylineOption.zIndex == 0f) {
-                    polylineOption.zIndex(2.0f)
-                }
-                val polyLine = map.addPolyline(polylineOption)
-                tripLinesOptions.add(polylineOption)
-                tripLines.add(polyLine)
-                for (point in polyLine.points) {
-                    boundsBuilder.include(point)
-                    hasPoints = true
-                }
-            }
-        }
-
-        // Move the camera to focus on the bounds
-        if (hasPoints) {
-            val cameraUpdate = CameraUpdateFactory.newLatLngBounds(boundsBuilder.build(), 30)
-            map.moveCamera(cameraUpdate)
-        }
+//        tripLines.forEach {
+//            context?.let { context ->
+//                it.color = ContextCompat.getColor(context, R.color.trip_line_inactive)
+//            }
+//        }
+//
+//        val boundsBuilder = LatLngBounds.Builder()
+//        var hasPoints = false
+//        segmentsPolyLineOptions.forEach { segment ->
+//            segment.polyLineOptions.forEachIndexed { index, polylineOption ->
+//                if(polylineOption.zIndex == 0f) {
+//                    polylineOption.zIndex(2.0f)
+//                }
+//                val polyLine = map.addPolyline(polylineOption)
+//                tripLinesOptions.add(polylineOption)
+//                tripLines.add(polyLine)
+//                for (point in polyLine.points) {
+//                    boundsBuilder.include(point)
+//                    hasPoints = true
+//                }
+//            }
+//        }
+//
+//        // Move the camera to focus on the bounds
+//        if (hasPoints) {
+//            val cameraUpdate = CameraUpdateFactory.newLatLngBounds(boundsBuilder.build(), 30)
+//            map.moveCamera(cameraUpdate)
+//        }
 
         if(originMarker == null && destinationMarker == null) {
             setOriginDestinationLocations(origin, destination)
@@ -222,6 +251,31 @@ class TripResultListMapContributor(
                     .icon(bitmap)
                 destinationMarker = map.addMarker(destinationMarkerOptions)
             }
+        }
+
+        var hasBounds = false
+
+        val boundsBuilder = LatLngBounds.Builder()
+        origin?.let {
+            boundsBuilder.include(LatLng(it.lat, it.lon))
+            hasBounds = true
+        }
+        destination?.let {
+            boundsBuilder.include(LatLng(it.lat, it.lon))
+            hasBounds = true
+        }
+
+        if (hasBounds) {
+            var padding = 50
+            context?.let {
+                val displayMetrics = it.resources.displayMetrics
+                val screenWidth = displayMetrics.widthPixels
+                val screenHeight = displayMetrics.heightPixels
+                // Calculate padding as a percentage of the smaller screen dimension
+                padding = (0.15 * screenWidth.coerceAtMost(screenHeight)).toInt()
+            }
+            val cameraUpdate = CameraUpdateFactory.newLatLngBounds(boundsBuilder.build(), padding)
+            map.moveCamera(cameraUpdate)
         }
     }
 }
