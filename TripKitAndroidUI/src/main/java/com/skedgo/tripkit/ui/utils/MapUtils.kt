@@ -9,8 +9,13 @@ import com.google.android.gms.maps.model.GroundOverlay
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import android.animation.ValueAnimator
+import androidx.core.animation.addListener
+import kotlin.math.pow
 
 object MapUtils {
+
+    private var pulseAnimator: ValueAnimator? = null
+    private var hideAnimator: ValueAnimator? = null
 
     /**
      * Converts a drawable resource to a bitmap with specified width, height, and color.
@@ -65,21 +70,70 @@ object MapUtils {
      * Animates a GroundOverlay to create a pulsing effect by changing its dimensions.
      *
      * @param overlay The overlay to animate.
-     * @param minSize The minimum size of the overlay in meters.
-     * @param maxSize The maximum size of the overlay in meters.
+     * @param zoomLevel The current zoom level of the map.
+     * @param baseMinSize The base minimum size of the overlay in meters (at reference zoom level).
+     * @param baseMaxSize The base maximum size of the overlay in meters (at reference zoom level).
      * @param duration The duration of the pulse animation in milliseconds.
      */
-    fun animatePulseOverlay(overlay: GroundOverlay?, minSize: Float = 100f, maxSize: Float = 300f, duration: Long = 2500L) {
+    fun animatePulseOverlay(
+        overlay: GroundOverlay?,
+        zoomLevel: Float,
+        baseMinSize: Float = 150f,
+        baseMaxSize: Float = 350f,
+        duration: Long = 2500L
+    ) {
         overlay?.let { groundOverlay ->
-            val animator = ValueAnimator.ofFloat(minSize, maxSize)
-            animator.duration = duration
-            animator.repeatCount = ValueAnimator.INFINITE
-            animator.repeatMode = ValueAnimator.RESTART // Ensures it restarts instead of reversing
-            animator.addUpdateListener { animation ->
-                val animatedSize = animation.animatedValue as Float
-                groundOverlay.setDimensions(animatedSize) // Dynamically update size
+            // Stop any existing animation
+            pulseAnimator?.cancel()
+
+            // Adjust min and max sizes based on zoom level
+            val baselineZoom = 15f
+            val scaleFactor = 2.0.pow((baselineZoom - zoomLevel).toDouble()).toFloat()
+            val adjustedMinSize = baseMinSize * scaleFactor // Use / instead of * for reversed scaling
+            val adjustedMaxSize = baseMaxSize * scaleFactor
+
+            // Debugging log to verify sizes
+            println("Zoom Level: $zoomLevel, Min Size: $adjustedMinSize, Max Size: $adjustedMaxSize")
+
+            pulseAnimator = ValueAnimator.ofFloat(adjustedMinSize, adjustedMaxSize).apply {
+                this.duration = duration
+                this.repeatCount = ValueAnimator.INFINITE
+                this.repeatMode = ValueAnimator.RESTART // Ensures it restarts instead of reversing
+                addUpdateListener { animation ->
+                    val animatedSize = animation.animatedValue as Float
+                    groundOverlay.setDimensions(animatedSize) // Dynamically update size
+                }
+                start()
             }
-            animator.start()
         }
     }
+
+    /**
+     * Animates hiding of a GroundOverlay by fading out and then removing it.
+     *
+     * @param overlay The GroundOverlay to hide and remove.
+     * @param duration The duration of the fade-out animation in milliseconds.
+     */
+    fun hidePulseOverlay(overlay: GroundOverlay?, duration: Long = 500L) {
+        overlay?.let { groundOverlay ->
+            // Stop any existing animations
+            pulseAnimator?.cancel()
+            hideAnimator?.cancel()
+
+            // Animate the transparency to fade out
+            hideAnimator = ValueAnimator.ofFloat(0.5f, 1.0f).apply {
+                this.duration = duration
+                addUpdateListener { animation ->
+                    val transparency = animation.animatedValue as Float
+                    groundOverlay.transparency = transparency
+                }
+                addListener(onEnd = {
+                    // Remove the overlay after the animation ends
+                    groundOverlay.remove()
+                })
+                start()
+            }
+        }
+    }
+
 }

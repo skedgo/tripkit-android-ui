@@ -1,16 +1,10 @@
 package com.skedgo.tripkit.ui.timetables
 
-import android.animation.TypeEvaluator
-import android.animation.ValueAnimator
 import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.Canvas
 import android.graphics.Color
 import android.text.TextUtils
-import android.util.Log
 import android.view.View
 import android.widget.TextView
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProviders
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -47,6 +41,7 @@ import com.skedgo.tripkit.ui.servicedetail.GetStopDisplayText
 import com.skedgo.tripkit.ui.utils.MapUtils.animateMarkerToPosition
 import com.skedgo.tripkit.ui.utils.MapUtils.animatePulseOverlay
 import com.skedgo.tripkit.ui.utils.MapUtils.getBitmapFromDrawable
+import com.skedgo.tripkit.ui.utils.MapUtils.hidePulseOverlay
 import dagger.Lazy
 import io.reactivex.disposables.CompositeDisposable
 import timber.log.Timber
@@ -61,16 +56,22 @@ class TimetableMapContributor(val fragment: Fragment) : TripKitMapContributor {
 
     @Inject
     lateinit var regionService: RegionService
+
     @Inject
     lateinit var vehicleMarkerIconCreatorLazy: Lazy<VehicleMarkerIconCreator>
+
     @Inject
     lateinit var realTimeViewModelFactory: RealTimeViewModelFactory
+
     @Inject
     lateinit var getStopDisplayText: GetStopDisplayText
+
     @Inject
     lateinit var errorLogger: ErrorLogger
+
     @Inject
     lateinit var viewModel: ServiceStopMapViewModel
+
     @Inject
     lateinit var serviceStopCalloutAdapter: ServiceStopInfoWindowAdapter
 
@@ -112,19 +113,25 @@ class TimetableMapContributor(val fragment: Fragment) : TripKitMapContributor {
         googleMap = map
         previousCameraPosition = map.cameraPosition
 
+        googleMap?.setOnCameraIdleListener {
+            val zoomLevel = googleMap?.cameraPosition?.zoom ?: return@setOnCameraIdleListener
+            animatePulseOverlay(pulseOverlay, zoomLevel)
+        }
+
         //map.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(mStop!!.lat, mStop!!.lon), 15.0f))
 
-        autoDisposable.add(viewModel.drawStops
-            .subscribe({ (newMarkerOptions, removedStopIds) ->
-                for (id in removedStopIds) {
-                    stopCodesToMarkerMap[id]!!.remove()
-                    stopCodesToMarkerMap.remove(id)
-                }
-                for ((first, second) in newMarkerOptions) {
-                    val marker = map.addMarker(first)
-                    stopCodesToMarkerMap[second!!] = marker
-                }
-            }, {})
+        autoDisposable.add(
+            viewModel.drawStops
+                .subscribe({ (newMarkerOptions, removedStopIds) ->
+                    for (id in removedStopIds) {
+                        stopCodesToMarkerMap[id]!!.remove()
+                        stopCodesToMarkerMap.remove(id)
+                    }
+                    for ((first, second) in newMarkerOptions) {
+                        val marker = map.addMarker(first)
+                        stopCodesToMarkerMap[second!!] = marker
+                    }
+                }, {})
         )
 
 
@@ -179,6 +186,10 @@ class TimetableMapContributor(val fragment: Fragment) : TripKitMapContributor {
         // Stop real-time updates
         viewModel.stopRealtimeUpdates()
 
+        // Cleanup pulse animation
+        hidePulseOverlay(pulseOverlay)
+        pulseOverlay = null
+
         // Safely remove the real-time vehicle marker if it exists
         realTimeVehicleMarker?.let { marker ->
             marker.remove()
@@ -222,9 +233,13 @@ class TimetableMapContributor(val fragment: Fragment) : TripKitMapContributor {
             realTimeVehicleMarker?.let { marker ->
                 // Animate existing marker if it already exists
                 if (realTimeVehicle != null && realTimeVehicle.hasLocationInformation()) {
-                    animateMarkerToPosition(marker, LatLng(realTimeVehicle.location.lat, realTimeVehicle.location.lon))
+                    animateMarkerToPosition(
+                        marker,
+                        LatLng(realTimeVehicle.location.lat, realTimeVehicle.location.lon)
+                    )
                     marker.rotation = realTimeVehicle.location.bearing.toFloat()
-                    pulseOverlay?.position = LatLng(realTimeVehicle.location.lat, realTimeVehicle.location.lon)
+                    pulseOverlay?.position =
+                        LatLng(realTimeVehicle.location.lat, realTimeVehicle.location.lon)
                 }
                 return
             }
@@ -234,7 +249,8 @@ class TimetableMapContributor(val fragment: Fragment) : TripKitMapContributor {
                 if (service != null && TextUtils.equals(
                         realTimeVehicle.serviceTripId,
                         service!!.serviceTripId
-                    )) {
+                    )
+                ) {
                     service!!.realtimeVehicle = realTimeVehicle
                     createVehicleMarker(realTimeVehicle)
                 }
@@ -287,12 +303,18 @@ class TimetableMapContributor(val fragment: Fragment) : TripKitMapContributor {
                     .draggable(false)
             )
 
-            // Remove old pulse overlay (if any)
-            pulseOverlay?.remove()
+            // Cleanup pulse animation
+            hidePulseOverlay(pulseOverlay)
             pulseOverlay = null
 
             // Create the pulse overlay
-            val bitmap = getBitmapFromDrawable(fragment.requireContext(), R.drawable.pulse_circle, 125, 125, color) // Convert drawable to Bitmap
+            val bitmap = getBitmapFromDrawable(
+                fragment.requireContext(),
+                R.drawable.pulse_circle,
+                125,
+                125,
+                color
+            ) // Convert drawable to Bitmap
             val overlayOptions = GroundOverlayOptions()
                 .position(location, 100f) // Initial size in meters
                 .image(BitmapDescriptorFactory.fromBitmap(bitmap))
@@ -300,8 +322,11 @@ class TimetableMapContributor(val fragment: Fragment) : TripKitMapContributor {
 
             pulseOverlay = map.addGroundOverlay(overlayOptions)
 
-            // Start the pulse animation
-            animatePulseOverlay(pulseOverlay)
+            // Get the current zoom level
+            val zoomLevel = map.cameraPosition.zoom
+
+            // Start the pulse animation with zoom level
+            animatePulseOverlay(pulseOverlay, zoomLevel)
         }
     }
 
