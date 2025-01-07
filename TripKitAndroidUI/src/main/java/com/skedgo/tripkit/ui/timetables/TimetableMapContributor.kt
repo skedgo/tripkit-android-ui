@@ -1,5 +1,7 @@
 package com.skedgo.tripkit.ui.timetables
 
+import android.animation.TypeEvaluator
+import android.animation.ValueAnimator
 import android.content.Context
 import android.graphics.Color
 import android.text.TextUtils
@@ -205,21 +207,47 @@ class TimetableMapContributor(val fragment: Fragment) : TripKitMapContributor {
     }
 
     private fun setRealTimeVehicle(realTimeVehicle: RealTimeVehicle?) {
-        realTimeVehicleMarker?.remove()
         if (realTimeVehicle == null) {
             return
         }
-        googleMap?.let {
-            if (realTimeVehicle.hasLocationInformation()) {
-                if (service != null && TextUtils.equals(
-                        realTimeVehicle.serviceTripId,
-                        service!!.serviceTripId
-                    )) {
-                    service!!.realtimeVehicle = realTimeVehicle
-                    createVehicleMarker(realTimeVehicle)
-                }
+
+        realTimeVehicleMarker?.let { marker ->
+            // Animate existing marker if it already exists
+            if (realTimeVehicle != null && realTimeVehicle.hasLocationInformation()) {
+                animateMarkerToPosition(marker, LatLng(realTimeVehicle.location.lat, realTimeVehicle.location.lon))
+                marker.rotation = realTimeVehicle.location.bearing.toFloat()
+            }
+            return
+        }
+
+        // Create a new marker if it doesn't exist
+        if (realTimeVehicle.hasLocationInformation()) {
+            if (service != null && TextUtils.equals(
+                    realTimeVehicle.serviceTripId,
+                    service!!.serviceTripId
+                )) {
+                service!!.realtimeVehicle = realTimeVehicle
+                createVehicleMarker(realTimeVehicle)
             }
         }
+    }
+
+    private fun animateMarkerToPosition(marker: Marker, toPosition: LatLng) {
+        val startLatLng = marker.position
+        val latLngEvaluator = TypeEvaluator<LatLng> { fraction, startValue, endValue ->
+            LatLng(
+                startValue.latitude + fraction * (endValue.latitude - startValue.latitude),
+                startValue.longitude + fraction * (endValue.longitude - startValue.longitude)
+            )
+        }
+
+        val animator = ValueAnimator.ofObject(latLngEvaluator, startLatLng, toPosition)
+        animator.duration = 1000 // Animation duration in milliseconds
+        animator.addUpdateListener { animation ->
+            val animatedValue = animation.animatedValue as LatLng
+            marker.position = animatedValue
+        }
+        animator.start()
     }
 
     private fun createVehicleMarker(vehicle: RealTimeVehicle) {
