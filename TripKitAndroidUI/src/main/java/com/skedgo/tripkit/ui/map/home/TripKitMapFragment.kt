@@ -4,9 +4,7 @@ import android.annotation.SuppressLint
 import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
-import android.graphics.Bitmap
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.widget.Toast
 import com.araujo.jordan.excuseme.ExcuseMe
@@ -38,8 +36,6 @@ import com.skedgo.tripkit.common.model.region.Region
 import com.skedgo.tripkit.common.model.region.Region.City
 import com.skedgo.tripkit.common.model.TransportMode
 import com.skedgo.tripkit.data.regions.RegionService
-import com.skedgo.tripkit.routing.ModeInfo
-import com.skedgo.tripkit.routing.VehicleDrawables
 import com.skedgo.tripkit.tripplanner.NonCurrentType
 import com.skedgo.tripkit.tripplanner.PinUpdate
 import com.skedgo.tripkit.ui.R
@@ -47,7 +43,6 @@ import com.skedgo.tripkit.ui.TripKitUI
 import com.skedgo.tripkit.ui.core.addTo
 import com.skedgo.tripkit.ui.core.module.HomeMapFragmentModule
 import com.skedgo.tripkit.ui.data.toLocation
-import com.skedgo.tripkit.ui.map.BearingMarkerIconBuilder
 import com.skedgo.tripkit.ui.map.GenericIMapPoiLocation
 import com.skedgo.tripkit.ui.map.IMapPoiLocation
 import com.skedgo.tripkit.ui.map.LocationEnhancedMapFragment
