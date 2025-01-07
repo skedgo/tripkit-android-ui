@@ -3,16 +3,22 @@ package com.skedgo.tripkit.ui.timetables
 import android.animation.TypeEvaluator
 import android.animation.ValueAnimator
 import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.Canvas
 import android.graphics.Color
 import android.text.TextUtils
+import android.util.Log
 import android.view.View
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProviders
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.CameraPosition
+import com.google.android.gms.maps.model.GroundOverlay
+import com.google.android.gms.maps.model.GroundOverlayOptions
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.gms.maps.model.Marker
@@ -38,6 +44,9 @@ import com.skedgo.tripkit.ui.model.TimetableEntry
 import com.skedgo.tripkit.ui.realtime.RealTimeChoreographerViewModel
 import com.skedgo.tripkit.ui.realtime.RealTimeViewModelFactory
 import com.skedgo.tripkit.ui.servicedetail.GetStopDisplayText
+import com.skedgo.tripkit.ui.utils.MapUtils.animateMarkerToPosition
+import com.skedgo.tripkit.ui.utils.MapUtils.animatePulseOverlay
+import com.skedgo.tripkit.ui.utils.MapUtils.getBitmapFromDrawable
 import dagger.Lazy
 import io.reactivex.disposables.CompositeDisposable
 import timber.log.Timber
@@ -73,6 +82,8 @@ class TimetableMapContributor(val fragment: Fragment) : TripKitMapContributor {
     private var googleMap: GoogleMap? = null
 
     private var previousCameraPosition: CameraPosition? = null
+
+    private var pulseOverlay: GroundOverlay? = null
 
     override fun initialize() {
         TripKitUI.getInstance()
@@ -207,47 +218,28 @@ class TimetableMapContributor(val fragment: Fragment) : TripKitMapContributor {
     }
 
     private fun setRealTimeVehicle(realTimeVehicle: RealTimeVehicle?) {
-        if (realTimeVehicle == null) {
-            return
-        }
+        googleMap?.let { map ->
+            realTimeVehicleMarker?.let { marker ->
+                // Animate existing marker if it already exists
+                if (realTimeVehicle != null && realTimeVehicle.hasLocationInformation()) {
+                    animateMarkerToPosition(marker, LatLng(realTimeVehicle.location.lat, realTimeVehicle.location.lon))
+                    marker.rotation = realTimeVehicle.location.bearing.toFloat()
+                    pulseOverlay?.position = LatLng(realTimeVehicle.location.lat, realTimeVehicle.location.lon)
+                }
+                return
+            }
 
-        realTimeVehicleMarker?.let { marker ->
-            // Animate existing marker if it already exists
+            // Create a new marker and pulse overlay if it doesn't exist
             if (realTimeVehicle != null && realTimeVehicle.hasLocationInformation()) {
-                animateMarkerToPosition(marker, LatLng(realTimeVehicle.location.lat, realTimeVehicle.location.lon))
-                marker.rotation = realTimeVehicle.location.bearing.toFloat()
-            }
-            return
-        }
-
-        // Create a new marker if it doesn't exist
-        if (realTimeVehicle.hasLocationInformation()) {
-            if (service != null && TextUtils.equals(
-                    realTimeVehicle.serviceTripId,
-                    service!!.serviceTripId
-                )) {
-                service!!.realtimeVehicle = realTimeVehicle
-                createVehicleMarker(realTimeVehicle)
+                if (service != null && TextUtils.equals(
+                        realTimeVehicle.serviceTripId,
+                        service!!.serviceTripId
+                    )) {
+                    service!!.realtimeVehicle = realTimeVehicle
+                    createVehicleMarker(realTimeVehicle)
+                }
             }
         }
-    }
-
-    private fun animateMarkerToPosition(marker: Marker, toPosition: LatLng) {
-        val startLatLng = marker.position
-        val latLngEvaluator = TypeEvaluator<LatLng> { fraction, startValue, endValue ->
-            LatLng(
-                startValue.latitude + fraction * (endValue.latitude - startValue.latitude),
-                startValue.longitude + fraction * (endValue.longitude - startValue.longitude)
-            )
-        }
-
-        val animator = ValueAnimator.ofObject(latLngEvaluator, startLatLng, toPosition)
-        animator.duration = 1000 // Animation duration in milliseconds
-        animator.addUpdateListener { animation ->
-            val animatedValue = animation.animatedValue as LatLng
-            marker.position = animatedValue
-        }
-        animator.start()
     }
 
     private fun createVehicleMarker(vehicle: RealTimeVehicle) {
@@ -277,8 +269,8 @@ class TimetableMapContributor(val fragment: Fragment) : TripKitMapContributor {
         googleMap?.let { map: GoogleMap ->
             val millis = vehicle.lastUpdateTime * 1000
             val time = DateTimeFormats.printTime(fragment.context, millis, null)
-            val snippet: String
-            snippet = if (TextUtils.isEmpty(vehicle.label)) {
+            val location = LatLng(vehicle.location.lat, vehicle.location.lon)
+            val snippet: String = if (TextUtils.isEmpty(vehicle.label)) {
                 "Real-time location as at $time"
             } else {
                 "Vehicle " + vehicle.label + " location as at " + time
@@ -291,9 +283,25 @@ class TimetableMapContributor(val fragment: Fragment) : TripKitMapContributor {
                     .anchor(0.5f, 0.5f)
                     .title(markerTitle)
                     .snippet(snippet)
-                    .position(LatLng(vehicle.location.lat, vehicle.location.lon))
+                    .position(location)
                     .draggable(false)
             )
+
+            // Remove old pulse overlay (if any)
+            pulseOverlay?.remove()
+            pulseOverlay = null
+
+            // Create the pulse overlay
+            val bitmap = getBitmapFromDrawable(fragment.requireContext(), R.drawable.pulse_circle, 125, 125, color) // Convert drawable to Bitmap
+            val overlayOptions = GroundOverlayOptions()
+                .position(location, 100f) // Initial size in meters
+                .image(BitmapDescriptorFactory.fromBitmap(bitmap))
+                .transparency(0.5f)
+
+            pulseOverlay = map.addGroundOverlay(overlayOptions)
+
+            // Start the pulse animation
+            animatePulseOverlay(pulseOverlay)
         }
     }
 
