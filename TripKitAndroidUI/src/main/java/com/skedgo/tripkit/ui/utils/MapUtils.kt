@@ -1,16 +1,16 @@
 package com.skedgo.tripkit.ui.utils
 
 import android.animation.TypeEvaluator
+import android.animation.ValueAnimator
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
+import androidx.core.animation.addListener
 import androidx.core.content.ContextCompat
 import com.google.android.gms.maps.model.GroundOverlay
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
-import android.animation.ValueAnimator
-import android.annotation.SuppressLint
-import androidx.core.animation.addListener
 import com.skedgo.tripkit.routing.RealTimeVehicle
 import kotlin.math.pow
 
@@ -29,7 +29,13 @@ object MapUtils {
      * @param color The color to apply as a tint.
      * @return The generated bitmap.
      */
-    fun getBitmapFromDrawable(context: Context, drawableRes: Int, width: Int, height: Int, color: Int): Bitmap {
+    fun getBitmapFromDrawable(
+        context: Context,
+        drawableRes: Int,
+        width: Int,
+        height: Int,
+        color: Int
+    ): Bitmap {
         val drawable = ContextCompat.getDrawable(context, drawableRes)
             ?: return Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
         val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
@@ -91,7 +97,8 @@ object MapUtils {
             // Adjust min and max sizes based on zoom level
             val baselineZoom = 15f
             val scaleFactor = 2.0.pow((baselineZoom - zoomLevel).toDouble()).toFloat()
-            val adjustedMinSize = baseMinSize * scaleFactor // Use / instead of * for reversed scaling
+            val adjustedMinSize =
+                baseMinSize * scaleFactor // Use / instead of * for reversed scaling
             val adjustedMaxSize = baseMaxSize * scaleFactor
 
             // Debugging log to verify sizes
@@ -149,13 +156,13 @@ object MapUtils {
     }
 
     /**
-     * Updates the overlay's transparency based on the fade level.
+     * Updates the overlay's transparency based directly on the fade level.
      *
      * @param overlay The overlay to update.
-     * @param fadeLevel The calculated fade level (0.3 to 1.0).
+     * @param fadeLevel The calculated fade level (0.1 to 0.5).
      */
     fun updateOverlayTransparency(overlay: GroundOverlay?, fadeLevel: Float) {
-        overlay?.transparency = (1f - fadeLevel).coerceIn(0.0f, 0.7f) // Adjusts transparency
+        overlay?.transparency = 1 - (fadeLevel / 2)
     }
 
     /**
@@ -176,7 +183,12 @@ object MapUtils {
             if (seconds == 0L) {
                 "Vehicle ${vehicle.label} updated ${formatTimeUnit(minutes, "minute")} ago"
             } else {
-                "Vehicle ${vehicle.label} updated ${formatTimeUnit(minutes, "minute")} and ${formatTimeUnit(seconds, "second")} ago"
+                "Vehicle ${vehicle.label} updated ${
+                    formatTimeUnit(
+                        minutes,
+                        "minute"
+                    )
+                } and ${formatTimeUnit(seconds, "second")} ago"
             }
         }
     }
@@ -193,17 +205,27 @@ object MapUtils {
     }
 
     /**
-     * Calculates the age factor based on the elapsed time and a maximum duration.
+     * Calculates the age factor based on the elapsed time.
      *
      * @param ageInSeconds The elapsed time in seconds.
-     * @param maxDuration The maximum duration, in seconds, after which the factor becomes 0.
+     * @param startFadeDuration The duration (in seconds) before fading starts (e.g., 120 seconds).
+     * @param maxFadeDuration The duration (in seconds) after which the factor becomes 0 (e.g., 180 seconds).
      * @return The calculated age factor, clamped between 0.0 and 1.0.
      */
-    fun calculateAgeFactor(ageInSeconds: Long, maxDuration: Int = 15): Float {
-        return if (ageInSeconds >= maxDuration) {
-            0.0f // Fully aged at or beyond maxDuration
-        } else {
-            1 - (ageInSeconds / maxDuration.toFloat()) // Linearly decreases from 1 to 0
+    fun calculateAgeFactor(
+        ageInSeconds: Long,
+        startFadeDuration: Int = 120,
+        maxFadeDuration: Int = 180
+    ): Float {
+        return when {
+            ageInSeconds <= startFadeDuration -> 1.0f // Fully visible
+            ageInSeconds >= maxFadeDuration -> 0.0f // Fully aged out
+            else -> {
+                // Linearly decrease from 1.0 to 0.0 between startFadeDuration and maxFadeDuration
+                val fadeRange = (maxFadeDuration - startFadeDuration).toFloat()
+                val fadeStart = startFadeDuration.toFloat()
+                1.0f - ((ageInSeconds - fadeStart) / fadeRange)
+            }
         }
     }
 
@@ -211,11 +233,11 @@ object MapUtils {
      * Calculates the fade level based on the age factor.
      *
      * @param ageFactor The age factor, clamped between 0.0 and 1.0.
-     * @param maxFade The maximum fade level (e.g., 0.3F for 30% visibility).
-     * @return The fade level, clamped between maxFade and 1.0.
+     * @param minFade The minimum fade level (e.g., 0.3 for 30% visibility).
+     * @return The fade level, clamped between minFade and 1.0.
      */
-    fun calculateFadeFromAgeFactor(ageFactor: Float, maxFade: Float = 0.3f): Float {
-        return (maxFade + (1 - maxFade) * ageFactor).coerceIn(maxFade, 1.0f)
+    fun calculateFadeFromAgeFactor(ageFactor: Float, minFade: Float = 0.3f): Float {
+        return (minFade + (1.0f - minFade) * ageFactor).coerceIn(minFade, 1.0f)
     }
 
 }

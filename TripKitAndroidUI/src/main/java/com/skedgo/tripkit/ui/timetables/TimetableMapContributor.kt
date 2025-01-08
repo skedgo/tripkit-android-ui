@@ -119,7 +119,7 @@ class TimetableMapContributor(val fragment: Fragment) : TripKitMapContributor {
     private val fadeRunnable = object : Runnable {
         override fun run() {
             updateVehicleMarkerAppearance()
-            handler.postDelayed(this, 1000) // Schedule next update after 3 seconds
+            handler.postDelayed(this, 1000) // Schedule next update after 1 second
         }
     }
 
@@ -322,6 +322,7 @@ class TimetableMapContributor(val fragment: Fragment) : TripKitMapContributor {
                     .rotation(bearing.toFloat())
                     .flat(true)
                     .anchor(0.5f, 0.5f)
+                    .infoWindowAnchor(0.5f, 0.0f)
                     .title(markerTitle)
                     .snippet(snippet)
                     .position(location)
@@ -332,7 +333,20 @@ class TimetableMapContributor(val fragment: Fragment) : TripKitMapContributor {
             hidePulseOverlay(pulseOverlay)
             pulseOverlay = null
 
-            showPulseOverlay(color, location, map)
+            // Create the pulse overlay
+            val bitmap = getBitmapFromDrawable(
+                fragment.requireContext(),
+                R.drawable.pulse_circle,
+                125,
+                125,
+                color
+            ) // Convert drawable to Bitmap
+            val overlayOptions = GroundOverlayOptions()
+                .position(location, 100f) // Initial size in meters
+                .image(BitmapDescriptorFactory.fromBitmap(bitmap))
+                .transparency(0.5f)
+
+            pulseOverlay = map.addGroundOverlay(overlayOptions)
 
             // Get the current zoom level
             val zoomLevel = map.cameraPosition.zoom
@@ -340,23 +354,6 @@ class TimetableMapContributor(val fragment: Fragment) : TripKitMapContributor {
             // Start the pulse animation with zoom level
             animatePulseOverlay(pulseOverlay, zoomLevel)
         }
-    }
-
-    private fun showPulseOverlay(color: Int, location: LatLng, map: GoogleMap) {
-        // Create the pulse overlay
-        val bitmap = getBitmapFromDrawable(
-            fragment.requireContext(),
-            R.drawable.pulse_circle,
-            125,
-            125,
-            color
-        ) // Convert drawable to Bitmap
-        val overlayOptions = GroundOverlayOptions()
-            .position(location, 100f) // Initial size in meters
-            .image(BitmapDescriptorFactory.fromBitmap(bitmap))
-            .transparency(0.5f)
-
-        pulseOverlay = map.addGroundOverlay(overlayOptions)
     }
 
     private fun updateVehicleMarkerAppearance() {
