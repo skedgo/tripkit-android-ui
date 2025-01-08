@@ -9,7 +9,9 @@ import com.google.android.gms.maps.model.GroundOverlay
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import android.animation.ValueAnimator
+import android.annotation.SuppressLint
 import androidx.core.animation.addListener
+import com.skedgo.tripkit.routing.RealTimeVehicle
 import kotlin.math.pow
 
 object MapUtils {
@@ -134,6 +136,86 @@ object MapUtils {
                 start()
             }
         }
+    }
+
+    /**
+     * Updates the marker's opacity based on the fade level.
+     *
+     * @param marker The marker to update.
+     * @param fadeLevel The calculated fade level (0.3 to 1.0).
+     */
+    fun updateMarkerOpacity(marker: Marker?, fadeLevel: Float) {
+        marker?.alpha = fadeLevel.coerceIn(0.3f, 1.0f) // Adjusts alpha based on fade level
+    }
+
+    /**
+     * Updates the overlay's transparency based on the fade level.
+     *
+     * @param overlay The overlay to update.
+     * @param fadeLevel The calculated fade level (0.3 to 1.0).
+     */
+    fun updateOverlayTransparency(overlay: GroundOverlay?, fadeLevel: Float) {
+        overlay?.transparency = (1f - fadeLevel).coerceIn(0.0f, 0.7f) // Adjusts transparency
+    }
+
+    /**
+     * Formats elapsed time into a human-readable string (e.g., "15 seconds ago" or "1 minute and 15 seconds ago").
+     *
+     * @param ageInSeconds The age of the data in seconds.
+     * @param vehicle The RealTimeVehicle object to include its label in the message.
+     * @return The formatted elapsed time string.
+     */
+    @SuppressLint("DefaultLocale")
+    fun formatElapsedTime(ageInSeconds: Long, vehicle: RealTimeVehicle): String {
+        return if (ageInSeconds < 60) {
+            "Vehicle ${vehicle.label} updated ${formatTimeUnit(ageInSeconds, "second")} ago"
+        } else {
+            val minutes = ageInSeconds / 60
+            val seconds = ageInSeconds % 60
+
+            if (seconds == 0L) {
+                "Vehicle ${vehicle.label} updated ${formatTimeUnit(minutes, "minute")} ago"
+            } else {
+                "Vehicle ${vehicle.label} updated ${formatTimeUnit(minutes, "minute")} and ${formatTimeUnit(seconds, "second")} ago"
+            }
+        }
+    }
+
+    /**
+     * Formats a time unit with proper pluralization.
+     *
+     * @param value The value of the time unit (e.g., 1, 15).
+     * @param unit The time unit (e.g., "second", "minute").
+     * @return A formatted string with singular or plural unit (e.g., "1 second", "15 seconds").
+     */
+    private fun formatTimeUnit(value: Long, unit: String): String {
+        return "$value $unit${if (value != 1L) "s" else ""}"
+    }
+
+    /**
+     * Calculates the age factor based on the elapsed time and a maximum duration.
+     *
+     * @param ageInSeconds The elapsed time in seconds.
+     * @param maxDuration The maximum duration, in seconds, after which the factor becomes 0.
+     * @return The calculated age factor, clamped between 0.0 and 1.0.
+     */
+    fun calculateAgeFactor(ageInSeconds: Long, maxDuration: Int = 15): Float {
+        return if (ageInSeconds >= maxDuration) {
+            0.0f // Fully aged at or beyond maxDuration
+        } else {
+            1 - (ageInSeconds / maxDuration.toFloat()) // Linearly decreases from 1 to 0
+        }
+    }
+
+    /**
+     * Calculates the fade level based on the age factor.
+     *
+     * @param ageFactor The age factor, clamped between 0.0 and 1.0.
+     * @param maxFade The maximum fade level (e.g., 0.3F for 30% visibility).
+     * @return The fade level, clamped between maxFade and 1.0.
+     */
+    fun calculateFadeFromAgeFactor(ageFactor: Float, maxFade: Float = 0.3f): Float {
+        return (maxFade + (1 - maxFade) * ageFactor).coerceIn(maxFade, 1.0f)
     }
 
 }
