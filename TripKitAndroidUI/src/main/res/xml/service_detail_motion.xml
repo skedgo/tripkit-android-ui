@@ -23,6 +23,9 @@
                 android:alpha="0"
                 app:visibilityMode="ignore" />
         </Constraint>
+        <Constraint android:id="@+id/tvLastUpdatedLabel">
+            <PropertySet android:visibility="gone" />
+        </Constraint>
         <Constraint
             android:id="@+id/occupancyView"
             app:visibilityMode="ignore">
@@ -71,6 +74,9 @@
         </Constraint>
         <Constraint android:id="@+id/occupancyLabel">
             <PropertySet android:alpha="1" />
+        </Constraint>
+        <Constraint android:id="@+id/tvLastUpdatedLabel">
+            <PropertySet android:visibility="visible" />
         </Constraint>
         <Constraint android:id="@+id/occupancyView">
             <Layout

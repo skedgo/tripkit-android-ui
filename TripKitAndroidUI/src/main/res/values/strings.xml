@@ -619,5 +619,6 @@ We aggregate the anonymised data and provide it to researchers, regulators, and 
     <string name="confirmation_allow_background_location_title">Background location access</string>
     <string name="confirmation_allow_background_location_message">"To enable background location, we'll redirect you to the app settings. Once there, go to: Permissions > Location > Allow all the time, then try again."</string>
     <string name="terms_of_use">Terms of Use</string>
+    <string name="label_last_updated">Last Updated:</string>
     <string name="route_not_supported">Routing from %s to %s is not yet supported</string>
 </resources>

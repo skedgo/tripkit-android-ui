@@ -7,6 +7,8 @@ import android.util.Log
 import android.view.View
 import android.widget.TextView
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModelProviders
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -80,6 +82,9 @@ class TimetableMapContributor(val fragment: Fragment) : TripKitMapContributor {
 
     @Inject
     lateinit var serviceStopCalloutAdapter: ServiceStopInfoWindowAdapter
+
+    private val _formattedElapsedTime = MutableLiveData<String>()
+    val formattedElapsedTime: LiveData<String> get() = _formattedElapsedTime
 
     private var mStop: ScheduledStop? = null
     private var service: TimetableEntry? = null
@@ -365,7 +370,7 @@ class TimetableMapContributor(val fragment: Fragment) : TripKitMapContributor {
                 val currentTimeMillis = System.currentTimeMillis()
                 val lastUpdateTimeMillis = realTimeVehicle.lastUpdateTime // Already in milliseconds
                 val ageInSeconds =
-                    ((currentTimeMillis - lastUpdateTimeMillis) / 1000).coerceAtLeast(1) // Start from 1 second
+                    ((currentTimeMillis - lastUpdateTimeMillis) / 1000) // Start from 1 second
 
                 // Calculate age factor and fade level
                 val ageFactor = calculateAgeFactor(ageInSeconds)
@@ -373,6 +378,10 @@ class TimetableMapContributor(val fragment: Fragment) : TripKitMapContributor {
 
                 // Update marker opacity and snippet
                 updateMarkerOpacity(marker, fadeLevel)
+
+                // Post the formatted elapsed time
+                _formattedElapsedTime.postValue(formatElapsedTime(ageInSeconds))
+
                 marker.snippet = formatElapsedTime(ageInSeconds, realTimeVehicle)
 
                 if (ageFactor < 0.1f) {

@@ -115,6 +115,18 @@
                 app:layout_constraintTop_toTopOf="@+id/occupancyView"
                 tools:text="Label O" />
 
+            <TextView
+                android:id="@+id/tvLastUpdatedLabel"
+                style="@style/TextAppearance.MaterialComponents.Caption"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@{viewModel.lastUpdatedText}"
+                android:textColor="@color/black1"
+                android:layout_marginTop="4dp"
+                app:layout_constraintStart_toStartOf="@id/occupancyLabel"
+                app:layout_constraintTop_toBottomOf="@+id/occupancyLabel"
+                tools:text="Label O" />
+
             <ImageView
                 android:id="@+id/expandButton"
                 android:layout_width="@dimen/icon_medium"

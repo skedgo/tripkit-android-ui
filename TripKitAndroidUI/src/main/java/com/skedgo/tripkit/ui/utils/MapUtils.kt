@@ -169,26 +169,21 @@ object MapUtils {
      * Formats elapsed time into a human-readable string (e.g., "15 seconds ago" or "1 minute and 15 seconds ago").
      *
      * @param ageInSeconds The age of the data in seconds.
-     * @param vehicle The RealTimeVehicle object to include its label in the message.
+     * @param vehicle Optional RealTimeVehicle object. If provided, its label will be included in the message.
      * @return The formatted elapsed time string.
      */
     @SuppressLint("DefaultLocale")
-    fun formatElapsedTime(ageInSeconds: Long, vehicle: RealTimeVehicle): String {
+    fun formatElapsedTime(ageInSeconds: Long, vehicle: RealTimeVehicle? = null): String {
+        val prefix = vehicle?.label?.let { "Vehicle $it updated" } ?: "Last updated:"
         return if (ageInSeconds < 60) {
-            "Vehicle ${vehicle.label} updated ${formatTimeUnit(ageInSeconds, "second")} ago"
+            "$prefix ${formatTimeUnit(ageInSeconds, "second")} ago"
         } else {
             val minutes = ageInSeconds / 60
             val seconds = ageInSeconds % 60
-
             if (seconds == 0L) {
-                "Vehicle ${vehicle.label} updated ${formatTimeUnit(minutes, "minute")} ago"
+                "$prefix ${formatTimeUnit(minutes, "minute")} ago"
             } else {
-                "Vehicle ${vehicle.label} updated ${
-                    formatTimeUnit(
-                        minutes,
-                        "minute"
-                    )
-                } and ${formatTimeUnit(seconds, "second")} ago"
+                "$prefix ${formatTimeUnit(minutes, "minute")} and ${formatTimeUnit(seconds, "second")} ago"
             }
         }
     }
@@ -201,7 +196,7 @@ object MapUtils {
      * @return A formatted string with singular or plural unit (e.g., "1 second", "15 seconds").
      */
     private fun formatTimeUnit(value: Long, unit: String): String {
-        return "$value $unit${if (value != 1L) "s" else ""}"
+        return "$value $unit${if (value > 1L) "s" else ""}"
     }
 
     /**
