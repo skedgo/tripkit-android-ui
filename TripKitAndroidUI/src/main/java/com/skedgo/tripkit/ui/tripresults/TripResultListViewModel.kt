@@ -10,6 +10,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.DiffUtil
 import com.jakewharton.rxrelay2.PublishRelay
+import com.skedgo.tripkit.LOCATION_NOT_SUPPORTED_ERROR
 import com.skedgo.tripkit.RoutingError
 import com.skedgo.tripkit.TransportModeFilter
 import com.skedgo.tripkit.a2brouting.RouteService
@@ -256,11 +257,7 @@ class TripResultListViewModel @Inject constructor(
                 }
             }, {
                 Timber.e(it)
-                if (it.message != null) {
-                    onError.accept(it.message)
-                } else {
-                    onError.accept("Invalid Response")
-                }
+                handleError(it)
             })
             .autoClear()
     }
@@ -291,11 +288,7 @@ class TripResultListViewModel @Inject constructor(
                             timeLabel.set(str)
                         }, { error ->
                             isError.set(true)
-                            if (error.message.isNullOrBlank()) {
-                                onError.accept(context.getString(R.string.unknown_error))
-                            } else {
-                                onError.accept(error.message)
-                            }
+                            handleError(error)
                             Timber.e(error, "An error in routing occurred ${error.message}")
                         }).autoClear()
 
@@ -303,6 +296,24 @@ class TripResultListViewModel @Inject constructor(
                 }
             } catch (_: Exception) {
             }
+        }
+    }
+
+    private fun handleError(error: Throwable) {
+        if (error.message.isNullOrBlank()) {
+            onError.accept(context.getString(R.string.unknown_error))
+        } else if(error.message == LOCATION_NOT_SUPPORTED_ERROR) {
+            val fromLocation = query.fromLocation?.displayName.toString()
+            val toLocation = query.toLocation?.displayName.toString()
+            onError.accept(
+                context.getString(
+                    R.string.route_not_supported,
+                    fromLocation,
+                    toLocation
+                )
+            )
+        } else {
+            onError.accept(error.message)
         }
     }
 
@@ -366,11 +377,7 @@ class TripResultListViewModel @Inject constructor(
                 setLoading(false)
             }.subscribe({}, { error ->
                 isError.set(true)
-                if (error.message.isNullOrBlank()) {
-                    onError.accept(context.getString(R.string.unknown_error))
-                } else {
-                    onError.accept(error.message)
-                }
+                handleError(error)
                 Timber.e(error, "An error in routing occurred ${error.message}")
             })
 

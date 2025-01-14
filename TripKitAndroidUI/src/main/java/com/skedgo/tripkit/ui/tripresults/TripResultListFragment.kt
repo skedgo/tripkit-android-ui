@@ -30,6 +30,7 @@ import com.skedgo.tripkit.ui.model.UserMode
 import com.skedgo.tripkit.ui.tripresult.TripResultListMapContributor
 import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButtonHandlerFactory
 import com.skedgo.tripkit.ui.utils.TripSearchUtils
+import com.skedgo.tripkit.ui.utils.highlightTexts
 import com.skedgo.tripkit.ui.views.MultiStateView
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
@@ -253,6 +254,14 @@ class TripResultListFragment : BaseTripKitFragment() {
             binding.multiStateView?.let { msv ->
                 if (activity is OnResultStateListener) {
                     val view = (activity as OnResultStateListener).provideErrorView(error)
+                    view.findViewById<TextView>(R.id.errorMessageView)?.let {
+                        it.highlightTexts(
+                            matcher = listOf(
+                                query?.fromLocation?.displayName.orEmpty(),
+                                query?.toLocation?.displayName.orEmpty(),
+                            )
+                        )
+                    }
                     msv.setViewForState(view, MultiStateView.ViewState.ERROR, true)
                 } else {
                     val view =
@@ -278,9 +287,11 @@ class TripResultListFragment : BaseTripKitFragment() {
         viewModel.stateChange.observeOn(AndroidSchedulers.mainThread()).subscribe {
             binding.multiStateView?.let { msv ->
                 if (it == MultiStateView.ViewState.EMPTY) {
-                    if (activity is OnResultStateListener) {
+                    if (activity is OnResultStateListener &&
+                        (activity as OnResultStateListener).provideEmptyView() != null
+                    ) {
                         msv.setViewForState(
-                            (activity as OnResultStateListener).provideEmptyView(),
+                            (activity as OnResultStateListener).provideEmptyView()!!,
                             MultiStateView.ViewState.EMPTY,
                             true
                         )
