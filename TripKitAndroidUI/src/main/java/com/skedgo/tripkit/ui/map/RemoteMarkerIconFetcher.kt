@@ -4,14 +4,21 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
+import android.graphics.PorterDuff
 import android.graphics.PorterDuff.Mode.SRC_IN
 import android.graphics.PorterDuffColorFilter
 import android.graphics.drawable.Drawable
+import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.MarkerOptions
+import com.skedgo.tripkit.common.model.stop.ScheduledStop
+import com.skedgo.tripkit.common.model.stop.StopType
 import com.skedgo.tripkit.routing.ModeInfo
+import com.skedgo.tripkit.ui.BuildConfig
+import com.skedgo.tripkit.ui.utils.BindingConversions
 import com.skedgo.tripkit.ui.utils.DeviceInfo
-import com.skedgo.tripkit.ui.utils.StopMarkerUtils.getStaticMapIconUrlForModeInfo
+import com.skedgo.tripkit.ui.utils.StopMarkerUtils.getLocalMapIconUrlForModeInfo
+import com.skedgo.tripkit.ui.utils.StopMarkerUtils.getRemoteMapIconUrlForModeInfo
 import com.squareup.picasso.Picasso
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -23,19 +30,25 @@ class RemoteMarkerIconFetcher @Inject constructor(
 ) {
 
     companion object {
-        const val SIZE_CIRCULAR_BITMAP = 60
+        const val SIZE_CIRCULAR_BITMAP = 30
         const val TINT_BITMAP_RGB = 255
     }
 
     fun call(markerOptions: MarkerOptions, modeInfo: ModeInfo?) {
         modeInfo?.let {
-            val url = getStaticMapIconUrlForModeInfo(DeviceInfo.getDensityDpiName(), it)
+            val url = getRemoteMapIconUrlForModeInfo(DeviceInfo.getDensityDpiName(), it)
             picasso.load(url).into(MarkerOptionsTarget(WeakReference(markerOptions)))
         }
     }
 
-    fun callAsync(markerOptions: MarkerOptions, modeInfo: ModeInfo?): Single<MarkerOptions> {
-        val iconUrl = getStaticMapIconUrlForModeInfo(DeviceInfo.getDensityDpiName(), modeInfo)
+    fun callAsync(markerOptions: MarkerOptions, stop: ScheduledStop): Single<MarkerOptions> {
+        val modeInfo = stop.modeInfo
+        val iconUrl =
+            if(modeInfo?.remoteIconIsTemplate == true) {
+                getRemoteMapIconUrlForModeInfo(DeviceInfo.getDensityDpiName(), modeInfo)
+            } else {
+                getLocalMapIconUrlForModeInfo(DeviceInfo.getDensityDpiName(), modeInfo)
+            }
         return Single.defer {
             Single.create { emitter ->
                 picasso.load(iconUrl)
@@ -53,12 +66,7 @@ class RemoteMarkerIconFetcher @Inject constructor(
                                     SIZE_CIRCULAR_BITMAP
                                 )
 
-                                val scaledBitmap = Bitmap.createScaledBitmap(
-                                    circularBitmap,
-                                    SIZE_CIRCULAR_BITMAP, SIZE_CIRCULAR_BITMAP, false
-                                )
-
-                                val icon = BitmapDescriptorFactory.fromBitmap(scaledBitmap)
+                                val icon = BitmapDescriptorFactory.fromBitmap(circularBitmap)
                                 markerOptions.icon(icon)
                                 emitter.onSuccess(markerOptions)
                             } ?: run {
@@ -67,19 +75,34 @@ class RemoteMarkerIconFetcher @Inject constructor(
                         }
 
                         override fun onBitmapFailed(e: Exception?, errorDrawable: Drawable?) {
-                            e?.printStackTrace()
-                            val fallbackIcon =
-                                BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW)
-                            markerOptions.icon(fallbackIcon)
-                            emitter.onSuccess(markerOptions)
+                            if(BuildConfig.DEBUG) {
+                                e?.printStackTrace()
+                            }
+                            emitter.onError(e ?: Throwable("Bitmap failed to load"))
                         }
 
                         override fun onPrepareLoad(placeHolderDrawable: Drawable?) {
                             // Placeholder if needed
                         }
                     })
+            }.onErrorResumeNext {
+                // Fallback to local resource-based marker icon
+                getMapIconFromResource(markerOptions, stop.type)
             }
         }.subscribeOn(AndroidSchedulers.mainThread())
+    }
+
+    private fun getMapIconFromResource(markerOptions: MarkerOptions, type: StopType?): Single<MarkerOptions> {
+        return Single.fromCallable {
+            val iconRes = BindingConversions.convertStopTypeToMapIconRes(type)
+            val icon: BitmapDescriptor = if (iconRes == 0) {
+                BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW)
+            } else {
+                BitmapDescriptorFactory.fromResource(iconRes)
+            }
+            markerOptions.icon(icon)
+            markerOptions
+        }
     }
 
     private fun createCircularMarkerBitmap(
@@ -88,31 +111,60 @@ class RemoteMarkerIconFetcher @Inject constructor(
         circleColor: Int,
         circleRadius: Int
     ): Bitmap {
+        // Create a new bitmap for the output
         val output = Bitmap.createBitmap(circleRadius * 2, circleRadius * 2, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(output)
 
-        // Draw the circular background
-        val paint = Paint().apply {
+        // Draw the white border
+        val borderPaint = Paint().apply {
+            isAntiAlias = true
+            color = Color.WHITE
+            style = Paint.Style.STROKE
+            strokeWidth = circleRadius * 0.1f // Border thickness is 10% of the radius
+        }
+        canvas.drawCircle(circleRadius.toFloat(), circleRadius.toFloat(), circleRadius.toFloat() - (borderPaint.strokeWidth / 2), borderPaint)
+
+        // Draw the circular background inside the border
+        val backgroundPaint = Paint().apply {
             isAntiAlias = true
             color = circleColor
         }
-        canvas.drawCircle(circleRadius.toFloat(), circleRadius.toFloat(), circleRadius.toFloat(), paint)
+        canvas.drawCircle(circleRadius.toFloat(), circleRadius.toFloat(), circleRadius.toFloat() - borderPaint.strokeWidth, backgroundPaint)
 
         // Apply tint to the bitmap
         val tintedBitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true)
         val bitmapCanvas = Canvas(tintedBitmap)
         val tintPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            colorFilter = PorterDuffColorFilter(tintColor, SRC_IN)
+            colorFilter = PorterDuffColorFilter(tintColor, PorterDuff.Mode.SRC_IN)
         }
         bitmapCanvas.drawBitmap(tintedBitmap, 0f, 0f, tintPaint)
 
-        // Draw the tinted bitmap onto the circular background
+        // Scale the bitmap to fit inside the circle while maintaining the aspect ratio
+        val aspectRatio = bitmap.width.toFloat() / bitmap.height.toFloat()
+        val targetWidth: Int
+        val targetHeight: Int
+
+        if (aspectRatio > 1) {
+            // Landscape orientation: Width is greater than height
+            targetWidth = circleRadius * 2
+            targetHeight = (targetWidth / aspectRatio).toInt()
+        } else if(aspectRatio == 1f) {
+            targetHeight = circleRadius
+            targetWidth = circleRadius
+        } else {
+            // Portrait orientation: Height is greater than or equal to width
+            targetHeight = circleRadius * 2
+            targetWidth = (targetHeight * aspectRatio).toInt()
+        }
+
         val scaledBitmap = Bitmap.createScaledBitmap(
             tintedBitmap,
-            circleRadius,
-            circleRadius,
+            targetWidth,
+            targetHeight,
             true
         )
+
+        // Draw the scaled bitmap at the center of the circular background
         val left = (output.width - scaledBitmap.width) / 2f
         val top = (output.height - scaledBitmap.height) / 2f
         canvas.drawBitmap(scaledBitmap, left, top, null)

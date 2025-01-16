@@ -38,20 +38,9 @@ fun ScheduledStop.createStopMarkerOptions(picasso: Picasso): Single<MarkerOption
         .snippet(stop.services)
         .position(LatLng(stop.lat, stop.lon))
         .draggable(false)
-    return if (stop.modeInfo?.remoteIconIsTemplate == true) {
+    return kotlin.run {
         val remoteMarkerIconFetcher = RemoteMarkerIconFetcher(picasso)
-        remoteMarkerIconFetcher.callAsync(markerOptions, stop.modeInfo)
-    } else {
-        Single.fromCallable {
-            val iconRes = BindingConversions.convertStopTypeToMapIconRes(stop.type)
-            val icon: BitmapDescriptor = if (iconRes == 0) {
-                BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW)
-            } else {
-                BitmapDescriptorFactory.fromResource(iconRes)
-            }
-            markerOptions.icon(icon)
-            markerOptions
-        }
+        remoteMarkerIconFetcher.callAsync(markerOptions, stop)
     }
 }
 

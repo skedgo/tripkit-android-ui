@@ -32,7 +32,19 @@ object StopMarkerUtils {
         )
     }
 
-    fun getStaticMapIconUrlForModeInfo(densityDpiName: String, modeInfo: ModeInfo?): String? {
+    fun getLocalMapIconUrlForModeInfo(densityDpiName: String, modeInfo: ModeInfo?): String? {
+        if (modeInfo?.localIconName == null) {
+            return null
+        }
+
+        return String.format(
+            MAP_ICON_URL_TEMPLATE_STATIC,
+            densityDpiName,
+            modeInfo.localIconName
+        )
+    }
+
+    fun getRemoteMapIconUrlForModeInfo(densityDpiName: String, modeInfo: ModeInfo?): String? {
         if (modeInfo?.remoteIconName == null) {
             return null
         }
