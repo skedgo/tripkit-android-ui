@@ -2,6 +2,7 @@ package com.skedgo.tripkit.ui.tripresult;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,6 +24,7 @@ import com.squareup.otto.Bus;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.Map;
 
 import javax.inject.Inject;
 
@@ -101,22 +103,7 @@ public class TripResultPagerFragment extends BaseTripKitFragment implements View
 
         getAutoDisposable().add(viewModel.observeTripGroups()
             .subscribe(
-                        /*
-                        groups -> {
-                            if (!groups.isEmpty()) {
-                                Map<String, Long> idsMap = tripGroupsPagerAdapter.getTripIds();
-                                Map.Entry<String, Long> entry = idsMap.entrySet().iterator().next();
-                                int index = 0;
-                                for (TripGroup group : groups) {
-                                    if (group.uuid().equals(entry.getKey())) {
-                                        currentPage = index;
-                                        binding.tripGroupsPager.setCurrentItem(currentPage);
-                                    }
-                                    index++;
-                                }
-                            }
-                        }
-                        */
+                groups -> tripGroupsPagerAdapter.notifyDataSetChanged()
             ));
 
         getAutoDisposable().add(viewModel.observeInitialPage()

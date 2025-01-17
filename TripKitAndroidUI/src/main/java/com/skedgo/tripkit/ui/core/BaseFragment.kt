@@ -83,6 +83,12 @@ abstract class BaseFragment<V : ViewDataBinding> : BaseTripKitPagerFragment() {
         focusAccessibilityDefaultView(false)
     }
 
+    protected fun showMessage(message: String, positive: Boolean, neutral: Boolean = false) {
+        activity?.let {
+            (it as BaseActivity<*>).showMessage(message, positive, neutral)
+        }
+    }
+
     protected fun focusAccessibilityDefaultView(withDelay: Boolean) {
         try {
             Handler().postDelayed({

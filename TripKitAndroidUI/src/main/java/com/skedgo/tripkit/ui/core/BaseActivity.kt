@@ -1,6 +1,7 @@
 package com.skedgo.tripkit.ui.core
 
 import android.os.Bundle
+import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
@@ -10,10 +11,13 @@ import androidx.annotation.LayoutRes
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.core.content.ContextCompat
 import androidx.core.view.children
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
+import com.google.android.material.snackbar.Snackbar
 import com.google.gson.Gson
+import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.dialog.GenericLoadingDialog
 
 /**
@@ -124,5 +128,39 @@ abstract class BaseActivity<V : ViewDataBinding> : AppCompatActivity() {
             }
         }
         return null
+    }
+
+    fun showMessage(message: String, positive: Boolean, neutral: Boolean = false) {
+        val snackbar = Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG)
+
+        val sbView = snackbar.view
+        when {
+            neutral -> sbView.setBackgroundColor(
+                ContextCompat.getColor(
+                    this,
+                    android.R.color.holo_blue_dark
+                )
+            )
+            !positive -> {
+                sbView.setBackgroundColor(
+                    ContextCompat.getColor(
+                        this,
+                        android.R.color.holo_red_dark
+                    )
+                )
+            }
+            else -> sbView.setBackgroundColor(
+                ContextCompat.getColor(
+                    this,
+                    android.R.color.holo_green_dark
+                )
+            )
+        }
+
+        val textValue =
+            sbView.findViewById<TextView>(R.id.snackbar_text)
+        textValue.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12f)
+
+        snackbar.show()
     }
 }

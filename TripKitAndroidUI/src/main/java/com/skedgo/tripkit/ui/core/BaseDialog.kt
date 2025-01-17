@@ -41,7 +41,12 @@ abstract class BaseDialog<V : ViewDataBinding> : DialogFragment() {
             ViewGroup.LayoutParams.MATCH_PARENT
         )
 
-        val dialog = super.onCreateDialog(savedInstanceState)
+        val dialog = object: Dialog(requireActivity(), theme) {
+            override fun onBackPressed() {
+                this@BaseDialog.onBackPressed()
+            }
+        }
+
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
         dialog.setContentView(root)
         dialog.setCancelable(false)
@@ -74,4 +79,8 @@ abstract class BaseDialog<V : ViewDataBinding> : DialogFragment() {
     }
 
     protected abstract fun onCreated(savedInstanceState: Bundle?)
+
+    open fun onBackPressed() {}
+
+    open fun onClose() {}
 }

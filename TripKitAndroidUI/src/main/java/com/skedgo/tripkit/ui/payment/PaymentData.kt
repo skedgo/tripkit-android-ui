@@ -7,7 +7,7 @@ import com.skedgo.tripkit.common.util.decimalFormatWithCurrencySymbol
 import com.skedgo.tripkit.common.util.factor100
 import com.skedgo.tripkit.common.util.nonDecimalFormatWithCurrencySymbol
 import com.skedgo.tripkit.ui.generic.transport.TransportDetails
-import com.skedgo.tripkit.ui.utils.getCurrencySymbol
+import com.skedgo.tripkit.common.util.getCurrencySymbol
 
 data class PaymentData(
     val drtFragmentHashCode: Int,
@@ -19,9 +19,9 @@ data class PaymentData(
     val total: Double,
     val currency: String,
     val paymentOptions: List<PaymentOption>?,
-    val review: List<Review>?,
-    val publishableApiKey: String?,
-    val ephemeralKey: EphemeralKey?,
+    var review: List<Review>?,
+    var publishableApiKey: String?,
+    var ephemeralKey: EphemeralKey?,
     val areInputsValid: Boolean,
     val billingEnabled: Boolean,
     val hasTickets: Boolean

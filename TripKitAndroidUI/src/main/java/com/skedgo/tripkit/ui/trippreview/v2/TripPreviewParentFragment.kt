@@ -40,12 +40,6 @@ open class TripPreviewParentFragment : BaseDialog<FragmentTripPreviewParentBindi
 
     protected lateinit var segment: TripSegment
 
-    private val backPressedCallback = object : OnBackPressedCallback(true) {
-        override fun handleOnBackPressed() {
-            onBackPressed()
-        }
-    }
-
     companion object {
         fun newInstance(segment: TripSegment): TripPreviewParentFragment =
             TripPreviewParentFragment().apply {
@@ -66,21 +60,6 @@ open class TripPreviewParentFragment : BaseDialog<FragmentTripPreviewParentBindi
     override val layoutRes: Int
         get() = R.layout.fragment_trip_preview_parent
 
-    override fun onPause() {
-        backPressedCallback.isEnabled = false
-        super.onPause()
-    }
-
-    override fun onDestroyView() {
-        backPressedCallback.remove()
-        super.onDestroyView()
-    }
-
-    override fun onResume() {
-        super.onResume()
-        backPressedCallback.isEnabled = true
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setStyle(STYLE_NORMAL, R.style.FullScreenDialog)
@@ -91,7 +70,7 @@ open class TripPreviewParentFragment : BaseDialog<FragmentTripPreviewParentBindi
         binding.lifecycleOwner = viewLifecycleOwner
         initObservers()
         viewModel.setTripSegment(segment)
-        requireActivity().onBackPressedDispatcher.addCallback(this, backPressedCallback)
+        //
         initViews()
     }
 
@@ -99,7 +78,16 @@ open class TripPreviewParentFragment : BaseDialog<FragmentTripPreviewParentBindi
 
     open fun showQuickBooking() {}
 
-    open fun onClose() {}
+    override fun onClose() {}
+
+    override fun onBackPressed() {
+        val fragmentManager = getCurrentFragmentManager()
+        if(fragmentManager.backStackEntryCount > 1) {
+            fragmentManager.popBackStack()
+        } else {
+            onClose()
+        }
+    }
 
     open fun onSecondaryActionClick(segment: TripSegment?) {}
 
@@ -131,15 +119,6 @@ open class TripPreviewParentFragment : BaseDialog<FragmentTripPreviewParentBindi
                 // Do nothing for now, just navigate back
                 onBackPressed()
             }
-        }
-    }
-
-    private fun onBackPressed() {
-        val fragmentManager = getCurrentFragmentManager()
-        if(fragmentManager.backStackEntryCount > 1) {
-            fragmentManager.popBackStack()
-        } else {
-            onClose()
         }
     }
 

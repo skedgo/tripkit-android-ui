@@ -2,7 +2,7 @@ package com.skedgo.tripkit.ui.payment
 
 import com.skedgo.tripkit.booking.quickbooking.Fare
 import com.skedgo.tripkit.ui.R
-import com.skedgo.tripkit.ui.utils.getCurrencySymbol
+import com.skedgo.tripkit.common.util.getCurrencySymbol
 
 data class PaymentSummaryDetails(
     val id: String,

@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.lifecycleScope
 import com.google.android.flexbox.FlexDirection
 import com.google.android.flexbox.FlexboxLayoutManager
 import com.skedgo.TripKit
@@ -34,6 +35,9 @@ import com.skedgo.tripkit.ui.utils.highlightTexts
 import com.skedgo.tripkit.ui.views.MultiStateView
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import org.joda.time.format.DateTimeFormat
@@ -429,7 +433,11 @@ class TripResultListFragment : BaseTripKitFragment() {
         }
 
         if (!previouslyInitialized && showDateTimePopUpOnOpen) {
-            showDateTimePicker(showDateTimePopUpOnOpen)
+            lifecycleScope.launch {
+                // Added delay, for some reason, it does not show if no delay
+                delay(800)
+                runBlocking { showDateTimePicker(showDateTimePopUpOnOpen) }
+            }
         }
 
         viewModel.setHelpInfoVisibility(globalConfigs.hasInductionCards())

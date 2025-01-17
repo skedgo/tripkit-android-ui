@@ -25,6 +25,7 @@ import com.skedgo.tripkit.ui.routingresults.TripGroupRepository
 import com.skedgo.tripkit.ui.tripprogress.UpdateTripProgressWithUserLocation
 import com.skedgo.tripkit.ui.tripresults.PermissiveTransportViewFilter
 import io.reactivex.Observable
+import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.functions.BiFunction
 import io.reactivex.rxkotlin.Observables
@@ -180,8 +181,8 @@ class TripResultPagerViewModel @Inject internal constructor(
 
     fun observeTripGroups(): Observable<List<TripGroup>> {
         return tripGroups
+            .subscribeOn(AndroidSchedulers.mainThread())
             .doOnNext {
-                Log.i("viewModel", "tripGroupsBinding set")
                 tripGroupsBinding.set(it)
             }
     }
