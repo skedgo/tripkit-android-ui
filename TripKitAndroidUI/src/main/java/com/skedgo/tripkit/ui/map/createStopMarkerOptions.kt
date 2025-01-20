@@ -7,27 +7,40 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.skedgo.tripkit.common.model.stop.ScheduledStop
 import com.skedgo.tripkit.ui.utils.BindingConversions
+import com.squareup.picasso.Picasso
 import io.reactivex.Single
 
 fun ScheduledStop.createStopMarkerOptions(): Single<MarkerOptions> {
+    val stop = this
+    val title = stop.getStopDisplayName()
+    val markerOptions = MarkerOptions()
+        .title(title)
+        .snippet(stop.services)
+        .position(LatLng(stop.lat, stop.lon))
+        .draggable(false)
+
     return Single.fromCallable {
-        val stop = this
-        val title = stop.getStopDisplayName()
-
-        val markerOptions = MarkerOptions()
-        markerOptions.title(title)
-        markerOptions.snippet(stop.services)
-        markerOptions.position(LatLng(stop.lat, stop.lon))
-        markerOptions.draggable(false)
-
         val iconRes = BindingConversions.convertStopTypeToMapIconRes(stop.type)
-        val icon: BitmapDescriptor
-        if (iconRes == 0) {
-            icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW)
+        val icon: BitmapDescriptor = if (iconRes == 0) {
+            BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW)
         } else {
-            icon = BitmapDescriptorFactory.fromResource(iconRes)
+            BitmapDescriptorFactory.fromResource(iconRes)
         }
         markerOptions.icon(icon)
+        markerOptions
+    }
+}
+fun ScheduledStop.createStopMarkerOptions(picasso: Picasso): Single<MarkerOptions> {
+    val stop = this
+    val title = stop.getStopDisplayName()
+    val markerOptions = MarkerOptions()
+        .title(title)
+        .snippet(stop.services)
+        .position(LatLng(stop.lat, stop.lon))
+        .draggable(false)
+    return kotlin.run {
+        val remoteMarkerIconFetcher = RemoteMarkerIconFetcher(picasso)
+        remoteMarkerIconFetcher.callAsync(markerOptions, stop)
     }
 }
 

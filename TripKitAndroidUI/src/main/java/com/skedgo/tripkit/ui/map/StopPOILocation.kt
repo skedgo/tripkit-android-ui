@@ -5,6 +5,7 @@ import android.content.res.Resources
 import com.google.android.gms.maps.model.MarkerOptions
 import com.skedgo.tripkit.common.model.location.Location
 import com.skedgo.tripkit.common.model.stop.ScheduledStop
+import com.skedgo.tripkit.data.locations.StopsFetcher
 import com.skedgo.tripkit.ui.map.adapter.StopInfoWindowAdapter
 import com.skedgo.tripkit.ui.tracking.EventTracker
 import com.squareup.otto.Bus
@@ -20,7 +21,7 @@ class StopPOILocation(
         resources: Resources,
         picasso: Picasso
     ): Single<MarkerOptions> {
-        return scheduledStop.createStopMarkerOptions()
+        return scheduledStop.createStopMarkerOptions(picasso)
     }
 
     override fun getInfoWindowAdapter(context: Context): StopInfoWindowAdapter? {

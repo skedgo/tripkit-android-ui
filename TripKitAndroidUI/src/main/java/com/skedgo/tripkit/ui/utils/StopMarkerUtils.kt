@@ -7,6 +7,7 @@ import com.skedgo.tripkit.configuration.ServerManager
 
 import com.skedgo.tripkit.routing.ModeInfo
 
+//
 object StopMarkerUtils {
     private val MAP_ICON_URL_TEMPLATE_PRODUCTION =
         ServerManager.configuration.staticTripGoUrl + "icons/android/%s/ic_map_%s.png"
@@ -14,6 +15,8 @@ object StopMarkerUtils {
         ServerManager.configuration.staticTripGoUrl + "icons/android/%s/ic_map_marker_%s.png"
     private val MAP_ICON_URL_TEMPLATE_BETA =
         ServerManager.configuration.bigBangUrl + "modeicons/android/%s/ic_map_%s.png"
+    private val MAP_ICON_URL_TEMPLATE_STATIC =
+        ServerManager.configuration.staticTripGoUrl + "icons/android/%s/ic_transport_%s.png"
 
     fun getMapIconUrlForModeInfo(resources: Resources, modeInfo: ModeInfo?): String? {
         if (modeInfo == null || modeInfo.remoteIconName == null) {
@@ -24,6 +27,30 @@ object StopMarkerUtils {
             TransportModeUtils.getDensityDpiName(resources.displayMetrics.densityDpi)
         return String.format(
             MAP_ICON_URL_TEMPLATE_PRODUCTION,
+            densityDpiName,
+            modeInfo.remoteIconName
+        )
+    }
+
+    fun getLocalMapIconUrlForModeInfo(densityDpiName: String, modeInfo: ModeInfo?): String? {
+        if (modeInfo?.localIconName == null) {
+            return null
+        }
+
+        return String.format(
+            MAP_ICON_URL_TEMPLATE_STATIC,
+            densityDpiName,
+            modeInfo.localIconName
+        )
+    }
+
+    fun getRemoteMapIconUrlForModeInfo(densityDpiName: String, modeInfo: ModeInfo?): String? {
+        if (modeInfo?.remoteIconName == null) {
+            return null
+        }
+
+        return String.format(
+            MAP_ICON_URL_TEMPLATE_STATIC,
             densityDpiName,
             modeInfo.remoteIconName
         )
