@@ -1,8 +1,10 @@
 package com.skedgo.tripkit.ui.map.servicestop
 
+import android.annotation.SuppressLint
 import android.content.Context
 import com.google.android.gms.maps.model.MarkerOptions
 import com.jakewharton.rxrelay2.BehaviorRelay
+import com.jakewharton.rxrelay2.PublishRelay
 import com.skedgo.tripkit.common.model.realtimealert.RealTimeStatus
 import com.skedgo.tripkit.common.model.region.Region
 import com.skedgo.tripkit.common.model.stop.ScheduledStop
@@ -24,8 +26,10 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.functions.BiFunction
 import io.reactivex.rxkotlin.Observables
 import io.reactivex.schedulers.Schedulers
+import timber.log.Timber
 import javax.inject.Inject
 
+@SuppressLint("CheckResult")
 class ServiceStopMapViewModel @Inject constructor(
     val context: Context,
     val fetchAndLoadServices: FetchAndLoadServices,
@@ -34,8 +38,9 @@ class ServiceStopMapViewModel @Inject constructor(
 ) : RxViewModel() {
 
     val service = BehaviorRelay.create<TimetableEntry>()
-
     val stop = BehaviorRelay.create<ScheduledStop>()
+
+    private val stopRealtimeRelay = PublishRelay.create<Unit>() // To stop real-time updates
 
     private val serviceStop = Observable
         .combineLatest(
@@ -48,6 +53,43 @@ class ServiceStopMapViewModel @Inject constructor(
 
     lateinit var realtimeViewModel: RealTimeChoreographerViewModel
     lateinit var serviceStopMarkerCreator: ServiceStopMarkerCreator
+
+    init {
+        Observables.combineLatest(
+            service,
+            serviceStop.hide().flatMap { regionService.getRegionByLocationAsync(it) }
+        ) { service, region -> service to region }
+            .distinctUntilChanged()
+            .observeOn(Schedulers.io())
+            .switchMap { (service, region) ->
+                if (service.realTimeStatus in listOf(
+                        RealTimeStatus.IS_REAL_TIME,
+                        RealTimeStatus.CAPABLE
+                    )
+                ) {
+                    realtimeViewModel.getRealTimeVehicles(region, listOf(service))
+                        .takeUntil(stopRealtimeRelay) // Stop when stopRealtimeRelay emits
+                        .doOnNext { vehicles ->
+                            Timber.d("Fetched real-time vehicles: $vehicles")
+                        }
+                        .onErrorResumeNext { throwable: Throwable ->
+                            Timber.e(throwable, "Error fetching real-time vehicles")
+                            Observable.empty() // Emit nothing in case of an error
+                        }
+                } else {
+                    Timber.d("Service not real-time capable")
+                    Observable.just(service to region)
+                }
+            }
+            .replay(1)
+            .refCount()
+            .subscribe()
+            .autoClear()
+    }
+
+    fun stopRealtimeUpdates() {
+        stopRealtimeRelay.accept(Unit)
+    }
 
     private val serviceStopsAndLines =
         Observable.combineLatest(
@@ -138,4 +180,5 @@ class ServiceStopMapViewModel @Inject constructor(
         }
         return stop
     }
+
 }

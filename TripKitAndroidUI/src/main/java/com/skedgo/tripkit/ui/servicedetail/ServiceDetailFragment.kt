@@ -105,6 +105,19 @@ class ServiceDetailFragment : BaseTripKitFragment() {
             mapContributor.setStop(stop)
             mapContributor.setService(timetableEntry)
         }
+
+        (mapContributor as? TimetableMapContributor)?.let { contributor ->
+            contributor.formattedElapsedTime.observe(viewLifecycleOwner) { formattedTime ->
+                // Handle the formatted time in the fragment
+                handleFormattedElapsedTime(formattedTime)
+            }
+        }
+    }
+
+    private fun handleFormattedElapsedTime(formattedTime: String) {
+        viewModel.apply {
+            lastUpdatedText.set(formattedTime)
+        }
     }
 
     class Builder {

@@ -66,6 +66,8 @@ class ServiceDetailViewModel @Inject constructor(
 
     val showOccupancyInfo = ObservableBoolean(false)
 
+    val lastUpdatedText = ObservableField<String>()
+
     val itemBinding = ItemBinding.of<ServiceDetailItemViewModel>(
         BR.viewModel,
         R.layout.service_detail_fragment_list_item
