@@ -5,6 +5,7 @@ import android.view.View
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.SupportMapFragment
 import com.jakewharton.rxrelay2.BehaviorRelay
+import com.skedgo.rxtry.subscribeWithErrorHandling
 import com.skedgo.tripkit.ui.core.AutoDisposable
 import com.skedgo.tripkit.ui.core.afterMeasured
 import com.skedgo.tripkit.ui.core.filterSome
@@ -48,7 +49,7 @@ abstract class BaseMapFragment : SupportMapFragment() {
         super.onViewCreated(view, savedInstanceState)
 
         subscription.add(
-            view.afterMeasured().subscribe { _: Unit ->
+            view.afterMeasured().subscribeWithErrorHandling { _: Unit ->
                 whenViewIsMeasured.accept(OptionalCompat.ofNullable(Unit))
             }
         )

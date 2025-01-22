@@ -10,6 +10,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.DiffUtil
 import com.jakewharton.rxrelay2.PublishRelay
+import com.skedgo.rxtry.subscribeWithErrorHandling
 import com.skedgo.tripkit.LOCATION_NOT_SUPPORTED_ERROR
 import com.skedgo.tripkit.RoutingError
 import com.skedgo.tripkit.TransportModeFilter
@@ -235,7 +236,7 @@ class TripResultListViewModel @Inject constructor(
             .map {
                 it.clicked
                     .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe { type ->
+                    .subscribeWithErrorHandling { type ->
                         // The transportVisibilityFilter will save walking vs wheelchair automatically,
                         // but we need to manually fix the display, as walking and wheelchair are mutually exclusive.
                         if (type.first == TransportMode.ID_WALK) {
@@ -447,7 +448,7 @@ class TripResultListViewModel @Inject constructor(
                         this.quickBookingActionClickFlow = quickBookingActionFlow
                         this.setTripGroup(context, group, classifier.classify(group))
                         onMoreButtonClicked.observable
-                            .subscribe {
+                            .subscribeWithErrorHandling {
                                 if (it.otherTripGroups.isNullOrEmpty()) {
                                     actionButtonHandler?.primaryActionClicked(it.trip)
                                 } else {
@@ -462,7 +463,7 @@ class TripResultListViewModel @Inject constructor(
             .map {
                 Pair(it, results.calculateDiff(it))
             }
-            .subscribe {
+            .subscribeWithErrorHandling {
                 updateResultList(it.first, it.second)
                 if (results.isEmpty() && !mergedList.contains(loadingItem) && !isError.get()) {
                     stateChange.accept(MultiStateView.ViewState.EMPTY)

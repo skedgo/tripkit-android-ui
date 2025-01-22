@@ -11,6 +11,7 @@ import androidx.lifecycle.lifecycleScope
 import com.google.android.flexbox.FlexDirection
 import com.google.android.flexbox.FlexboxLayoutManager
 import com.skedgo.TripKit
+import com.skedgo.rxtry.subscribeWithErrorHandling
 import com.skedgo.tripkit.TransportModeFilter
 import com.skedgo.tripkit.common.model.Query
 import com.skedgo.tripkit.common.model.region.Region
@@ -250,11 +251,11 @@ class TripResultListFragment : BaseTripKitFragment() {
     override fun onResume() {
         super.onResume()
         autoDisposable.clear()
-        viewModel.onFinished.observeOn(AndroidSchedulers.mainThread()).subscribe {
+        viewModel.onFinished.observeOn(AndroidSchedulers.mainThread()).subscribeWithErrorHandling {
             binding.recyclerView.layoutManager?.scrollToPosition(0)
         }.addTo(autoDisposable)
 
-        viewModel.onError.observeOn(AndroidSchedulers.mainThread()).subscribe { error ->
+        viewModel.onError.observeOn(AndroidSchedulers.mainThread()).subscribeWithErrorHandling { error ->
             binding.multiStateView?.let { msv ->
                 if (activity is OnResultStateListener) {
                     val view = (activity as OnResultStateListener).provideErrorView(error)
@@ -288,7 +289,7 @@ class TripResultListFragment : BaseTripKitFragment() {
                 quickBookingActionCallback.invoke(segment)
             }.subscribe().addTo(autoDisposable)
 
-        viewModel.stateChange.observeOn(AndroidSchedulers.mainThread()).subscribe {
+        viewModel.stateChange.observeOn(AndroidSchedulers.mainThread()).subscribeWithErrorHandling {
             binding.multiStateView?.let { msv ->
                 if (it == MultiStateView.ViewState.EMPTY) {
                     if (activity is OnResultStateListener &&

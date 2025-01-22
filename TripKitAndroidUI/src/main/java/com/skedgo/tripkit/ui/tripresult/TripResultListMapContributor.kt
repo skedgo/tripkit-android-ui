@@ -141,9 +141,11 @@ class TripResultListMapContributor(
                 tripLines.add(map.addPolyline(it))
             }
         }
+        originMarker?.remove()
         originMarkerOptions?.let {
             originMarker = map.addMarker(it)
         }
+        destinationMarker?.remove()
         destinationMarkerOptions?.let {
             destinationMarker = map.addMarker(it)
         }
@@ -237,6 +239,7 @@ class TripResultListMapContributor(
                 originMarkerOptions = MarkerOptions()
                     .position(LatLng(location.lat, location.lon))
                     .icon(bitmap)
+                originMarker?.remove()
                 originMarker = map.addMarker(originMarkerOptions)
             }
         }
@@ -249,6 +252,7 @@ class TripResultListMapContributor(
                 destinationMarkerOptions = MarkerOptions()
                     .position(LatLng(location.lat, location.lon))
                     .icon(bitmap)
+                destinationMarker?.remove()
                 destinationMarker = map.addMarker(destinationMarkerOptions)
             }
         }

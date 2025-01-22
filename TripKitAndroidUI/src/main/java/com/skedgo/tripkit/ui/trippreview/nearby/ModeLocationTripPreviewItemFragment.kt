@@ -17,6 +17,7 @@ import com.google.android.flexbox.FlexWrap
 import com.google.android.flexbox.FlexboxLayoutManager
 import com.google.android.flexbox.JustifyContent
 import com.google.android.material.button.MaterialButton
+import com.skedgo.rxtry.subscribeWithErrorHandling
 import com.skedgo.tripkit.booking.BookingService
 import com.skedgo.tripkit.routing.TripSegment
 import com.skedgo.tripkit.ui.R
@@ -173,7 +174,7 @@ class ModeLocationTripPreviewItemFragment() : BaseTripKitFragment() {
         super.onResume()
         sharedViewModel.bookingForm
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe { form ->
+            .subscribeWithErrorHandling { form ->
                 form.action?.let { action ->
                     if (action.done) {
 
@@ -183,18 +184,18 @@ class ModeLocationTripPreviewItemFragment() : BaseTripKitFragment() {
 
         sharedViewModel.closeClicked.observable
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe {
+            .subscribeWithErrorHandling {
                 onCloseButtonListener?.onClick(null)
             }.addTo(autoDisposable)
 
         sharedViewModel.locationDetails
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe {
+            .subscribeWithErrorHandling {
                 viewModel.set(it)
             }.addTo(autoDisposable)
 
         sharedViewModel.actionChosen.observeOn(AndroidSchedulers.mainThread())
-            .subscribe {
+            .subscribeWithErrorHandling {
 
                 val url = getExternalAction()?.firstOrNull() ?: getAppUrl()
 
@@ -227,7 +228,7 @@ class ModeLocationTripPreviewItemFragment() : BaseTripKitFragment() {
             }.addTo(autoDisposable)
 
         sharedViewModel.externalActionChosen.observeOn(AndroidSchedulers.mainThread())
-            .subscribe {
+            .subscribeWithErrorHandling {
                 sharedViewModel.enableActionButtons.set(false)
                 externalActionCallback?.invoke(segment, it)
             }.addTo(autoDisposable)

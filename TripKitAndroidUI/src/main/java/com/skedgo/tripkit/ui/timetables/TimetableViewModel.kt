@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.DiffUtil
 import com.jakewharton.rxrelay2.BehaviorRelay
 import com.jakewharton.rxrelay2.PublishRelay
 import com.skedgo.TripKit
+import com.skedgo.rxtry.subscribeWithErrorHandling
 import com.skedgo.tripkit.common.model.realtimealert.RealtimeAlert
 import com.skedgo.tripkit.common.model.region.Region
 import com.skedgo.tripkit.common.model.stop.ScheduledStop
@@ -237,7 +238,7 @@ class TimetableViewModel @Inject constructor(
             serviceViewModelProvider.get().apply {
                 this.setService(_currentServiceTripId ?: "", it, timeZone)
                 this.onItemClick.observable.observeOn(AndroidSchedulers.mainThread())
-                    .subscribe { entry ->
+                    .subscribeWithErrorHandling { entry ->
 //                            if (action.isNotEmpty()) {
 //
 //                            } else {

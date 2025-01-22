@@ -10,6 +10,7 @@ import androidx.fragment.app.viewModels
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.GoogleMap.OnCameraMoveStartedListener.REASON_GESTURE
 import com.google.android.gms.maps.model.Marker
+import com.skedgo.rxtry.subscribeWithErrorHandling
 import com.skedgo.tripkit.AndroidGeocoder
 import com.skedgo.tripkit.common.model.location.Location
 import com.skedgo.tripkit.ui.R
@@ -102,7 +103,7 @@ class LocationPointerFragment() : BaseTripKitFragment() {
 
     override fun onResume() {
         super.onResume()
-        viewModel.doneClicked.observable.subscribe {
+        viewModel.doneClicked.observable.subscribeWithErrorHandling {
             if (viewModel.currentLatLng.latitude != 0.0 && viewModel.currentLatLng.longitude != 0.0) {
                 val newLocation = Location(
                     viewModel.currentLatLng.latitude,

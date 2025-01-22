@@ -11,6 +11,7 @@ import androidx.lifecycle.viewModelScope
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
 import com.jakewharton.rxrelay2.PublishRelay
+import com.skedgo.rxtry.subscribeWithErrorHandling
 import com.skedgo.tripkit.analytics.SearchResultItemSource
 import com.skedgo.tripkit.common.model.location.LOCATION_CLASS_SCHOOL
 import com.skedgo.tripkit.common.model.location.Location
@@ -172,7 +173,7 @@ class LocationSearchViewModel @Inject constructor(
                 else -> VisibilityState.HasSuggestions
             }
         }
-            .subscribe {
+            .subscribeWithErrorHandling {
                 showMiddleProgressBar.set(it == VisibilityState.FetchingPlaceDetails)
                 showRefreshing.set(it == VisibilityState.HasSuggestionsAndFetchingSuggestions)
                 showError.set(it == VisibilityState.Error)

@@ -6,6 +6,7 @@ import android.graphics.Bitmap
 import android.graphics.drawable.BitmapDrawable
 import android.util.Pair
 import androidx.annotation.DrawableRes
+import com.skedgo.rxtry.subscribeWithErrorHandling
 import com.skedgo.tripkit.routing.ModeInfo
 import com.skedgo.tripkit.routing.SegmentType
 import com.skedgo.tripkit.routing.TripSegment
@@ -39,7 +40,7 @@ class SegmentMarkerIconMaker @Inject internal constructor(
         val modeInfo = segment.modeInfo
         if (modeInfo != null) {
             getTransportIconTintStrategy()
-                .subscribe { strategy ->
+                .subscribeWithErrorHandling { strategy ->
                     strategy.apply(
                         remoteIconIsTemplate = modeInfo.remoteIconIsTemplate,
                         remoteIconIsBranding = modeInfo.remoteIconIsBranding,

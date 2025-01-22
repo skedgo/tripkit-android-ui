@@ -9,6 +9,7 @@ import androidx.databinding.ObservableField
 import androidx.databinding.ObservableFloat
 import androidx.databinding.ObservableInt
 import com.skedgo.TripKit
+import com.skedgo.rxtry.subscribeWithErrorHandling
 import com.skedgo.tripkit.logging.ErrorLogger
 import com.skedgo.tripkit.routing.ModeInfo
 import com.skedgo.tripkit.ui.R
@@ -170,7 +171,7 @@ internal class ServiceViewModelImpl @Inject constructor(
         }
         serviceAlertViewModel.setAlerts(service.alerts)
         serviceAlertViewModel.showAlertsObservable
-            .subscribe { onAlertsClick.perform() }
+            .subscribeWithErrorHandling { onAlertsClick.perform() }
             .autoClear()
     }
 }

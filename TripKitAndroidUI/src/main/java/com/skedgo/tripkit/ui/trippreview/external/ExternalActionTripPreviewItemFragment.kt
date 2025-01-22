@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.viewModels
 import com.skedgo.TripKit
+import com.skedgo.rxtry.subscribeWithErrorHandling
 import com.skedgo.tripkit.ExternalActionParams
 import com.skedgo.tripkit.routing.TripSegment
 import com.skedgo.tripkit.ui.TripKitUI
@@ -40,11 +41,11 @@ class ExternalActionTripPreviewItemFragment : BaseTripKitFragment() {
         super.onResume()
         viewModel.closeClicked.observable
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe {
+            .subscribeWithErrorHandling {
                 onCloseButtonListener?.onClick(null)
             }.addTo(autoDisposable)
         viewModel.externalActionChosen.observeOn(AndroidSchedulers.mainThread())
-            .subscribe {
+            .subscribeWithErrorHandling {
                 viewModel.enableActionButtons.set(false)
                 //tripPreviewPagerListener?.onExternalActionButtonClicked(it)
                 externalActionCallback?.invoke(tripSegment, it)
@@ -78,7 +79,7 @@ class ExternalActionTripPreviewItemFragment : BaseTripKitFragment() {
             .build()
         bookingResolver.performExternalActionAsync(params)
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe {
+            .subscribeWithErrorHandling {
                 startActivity(it.data())
             }.addTo(autoDisposable)
     }

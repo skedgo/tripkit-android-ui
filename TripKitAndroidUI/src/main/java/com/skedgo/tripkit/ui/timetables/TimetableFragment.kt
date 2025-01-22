@@ -20,6 +20,7 @@ import androidx.recyclerview.widget.LinearSmoothScroller
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.flexbox.FlexDirection
 import com.google.android.flexbox.FlexboxLayoutManager
+import com.skedgo.rxtry.subscribeWithErrorHandling
 import com.skedgo.tripkit.common.model.stop.ScheduledStop
 import com.skedgo.tripkit.common.util.TimeUtils
 import com.skedgo.tripkit.routing.TripSegment
@@ -185,11 +186,11 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
         filterThrottle
             .debounce(500, TimeUnit.MILLISECONDS)
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe {
+            .subscribeWithErrorHandling {
                 viewModel.filter.accept(it)
             }.addTo(autoDisposable)
 
-        viewModel.onError.observeOn(AndroidSchedulers.mainThread()).subscribe { error ->
+        viewModel.onError.observeOn(AndroidSchedulers.mainThread()).subscribeWithErrorHandling { error ->
             binding.multiStateView.let { msv ->
                 if (activity is OnResultStateListener) {
                     msv.setViewForState(
@@ -205,7 +206,7 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
             }
         }.addTo(autoDisposable)
 
-        viewModel.stateChange.observeOn(AndroidSchedulers.mainThread()).subscribe {
+        viewModel.stateChange.observeOn(AndroidSchedulers.mainThread()).subscribeWithErrorHandling {
             binding.multiStateView.let { msv ->
                 if (it == MultiStateView.ViewState.EMPTY) {
                     if (
@@ -232,7 +233,7 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
                 TimeUnit.MILLISECONDS
             ) // 500 ms is a guess, wait for the data to be set to the adapter.
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe { integer ->
+            .subscribeWithErrorHandling { integer ->
                 val smoothScroller = object : LinearSmoothScroller(context) {
                     override fun getVerticalSnapPreference(): Int {
                         return SNAP_TO_START
@@ -254,7 +255,7 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
         )
 
         viewModel.actionChosen.observeOn(AndroidSchedulers.mainThread())
-            .subscribe {
+            .subscribeWithErrorHandling {
                 if (viewModel.action == "book") {
                     viewModel.buttonText.set("Booking...")
                     viewModel.enableButton.set(false)
@@ -265,7 +266,7 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
                 )
             }.addTo(autoDisposable)
 
-        viewModel.timetableEntryChosen.observeOn(AndroidSchedulers.mainThread()).subscribe {
+        viewModel.timetableEntryChosen.observeOn(AndroidSchedulers.mainThread()).subscribeWithErrorHandling {
             if (viewModel.action.isNotEmpty() || fromPreview) {
                 tripSegment?.let { segmentActionStream?.onNext(it) }
                 if (BuildConfig.TRIPKIT_UI_VERSION < 2) {
@@ -285,7 +286,7 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
                     viewModel.stopRelay,
                     viewModel.startTimeRelay
                 ) { one: ScheduledStop, two: Long -> one to two }
-                    .take(1).subscribe { pair ->
+                    .take(1).subscribeWithErrorHandling { pair ->
                         timetableEntrySelectedListener.forEach { listener ->
                             listener.onTimetableEntrySelected(
                                 tripSegment,
@@ -543,7 +544,7 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
         val fragment = TimeDatePickerFragment.newInstance(getString(R.string.set_time))
         fragment.timeRelay
             .skip(1)
-            .subscribe {
+            .subscribeWithErrorHandling {
                 viewModel.stopRealtime()
                 viewModel.services.update(listOf())
                 viewModel.onDateChanged.accept(it)
