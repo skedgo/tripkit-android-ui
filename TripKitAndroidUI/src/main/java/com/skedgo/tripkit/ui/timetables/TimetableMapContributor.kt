@@ -22,6 +22,7 @@ import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.maps.model.Polyline
 import com.google.android.gms.maps.model.PolylineOptions
+import com.skedgo.rxtry.subscribeWithErrorHandling
 import com.skedgo.tripkit.common.model.stop.ScheduledStop
 import com.skedgo.tripkit.common.model.stop.ServiceStop
 import com.skedgo.tripkit.common.util.DateTimeFormats
@@ -159,10 +160,10 @@ class TimetableMapContributor(val fragment: Fragment) : TripKitMapContributor {
 
 
         autoDisposable.add(viewModel.viewPort
-            .subscribe { coordinates: List<LatLng>? -> this.centerMapOver(map, coordinates) })
+            .subscribeWithErrorHandling { coordinates: List<LatLng>? -> this.centerMapOver(map, coordinates) })
 
         autoDisposable.add(viewModel.drawServiceLine
-            .subscribe { polylineOptions: List<PolylineOptions?> ->
+            .subscribeWithErrorHandling { polylineOptions: List<PolylineOptions?> ->
                 for (line in serviceLines) {
                     line.remove()
                 }
@@ -185,7 +186,7 @@ class TimetableMapContributor(val fragment: Fragment) : TripKitMapContributor {
             })
 
         autoDisposable.add(viewModel.realtimeVehicle
-            .subscribe { realTimeVehicleOptional ->
+            .subscribeWithErrorHandling { realTimeVehicleOptional ->
                 if (realTimeVehicleOptional.isPresent()) { // Check if the value is present
                     setRealTimeVehicle(realTimeVehicleOptional.get()) // Get the value from OptionalCompat
                 } else {

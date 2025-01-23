@@ -2,6 +2,7 @@ package com.skedgo.tripkit.ui.map
 
 import com.google.android.gms.maps.CameraUpdate
 import com.jakewharton.rxrelay2.BehaviorRelay
+import com.skedgo.rxtry.subscribeWithErrorHandling
 import com.skedgo.tripkit.common.model.realtimealert.RealtimeAlert
 import com.skedgo.tripkit.datetime.PrintTime
 import com.skedgo.tripkit.routing.Trip
@@ -153,7 +154,7 @@ class TripResultMapViewModel @Inject internal constructor(
     fun setTripGroupId(tripGroupId: String, tripId: Long? = null) {
         tripGroupDisposable.clear()
         tripGroupRepository.getTripGroup(tripGroupId)
-            .subscribe { tripGroup ->
+            .subscribeWithErrorHandling { tripGroup ->
                 val trip = tripId?.let { id ->
                     tripGroup.trips?.firstOrNull { it.tripId == id } ?: tripGroup.displayTrip
                 } ?: tripGroup.displayTrip

@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.ViewModelProviders
 import com.google.android.material.button.MaterialButton
+import com.skedgo.rxtry.subscribeWithErrorHandling
 import com.skedgo.tripkit.booking.BookingForm
 import com.skedgo.tripkit.booking.BookingService
 import com.skedgo.tripkit.booking.FormField
@@ -68,9 +69,9 @@ class StandardTripPreviewItemFragment : BaseTripKitFragment() {
     override fun onResume() {
         super.onResume()
         vm.closeClicked.observable.observeOn(AndroidSchedulers.mainThread())
-            .subscribe { onCloseButtonListener?.onClick(null) }.addTo(autoDisposable)
+            .subscribeWithErrorHandling { onCloseButtonListener?.onClick(null) }.addTo(autoDisposable)
         sharedViewModel.bookingForm.observeOn(AndroidSchedulers.mainThread())
-            .subscribe {
+            .subscribeWithErrorHandling {
                 binding.actionButtonLayout.removeAllViews()
                 processForm(it)
             }

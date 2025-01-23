@@ -9,6 +9,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.skedgo.rxtry.subscribeWithErrorHandling
 import com.skedgo.tripkit.routing.TripSegment
 import com.skedgo.tripkit.ui.databinding.FragmentTripPreviewHeaderBinding
 import com.skedgo.tripkit.ui.trippreview.segment.TripSegmentSummary
@@ -63,7 +64,7 @@ class TripPreviewHeaderFragment : Fragment() {
 
     private fun initObserver() {
         pageIndexStream?.subscribeOn(AndroidSchedulers.mainThread())
-            ?.subscribe {
+            ?.subscribeWithErrorHandling {
                 viewModel.setSelectedById(it.first, it.second)
                 checkSelectedItemOnLoadedHeaders(binding.rvHeaders.layoutManager as LinearLayoutManager)
             }?.addTo(disposeBag)

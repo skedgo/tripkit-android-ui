@@ -10,6 +10,7 @@ import android.view.ViewGroup
 import androidx.lifecycle.ViewModelProviders
 import com.google.android.flexbox.FlexDirection
 import com.google.android.flexbox.FlexboxLayoutManager
+import com.skedgo.rxtry.subscribeWithErrorHandling
 import com.skedgo.tripkit.routing.TripSegment
 import com.skedgo.tripkit.ui.TripKitUI
 import com.skedgo.tripkit.ui.core.BaseTripKitFragment
@@ -39,7 +40,7 @@ class NearbyTripPreviewItemFragment() : BaseTripKitFragment() {
         sharedViewModel = ViewModelProviders.of(requireParentFragment(), sharedViewModelFactory)
             .get("sharedNearbyViewModel", SharedNearbyTripPreviewItemViewModel::class.java)
         sharedViewModel.closeClicked.observable.observeOn(AndroidSchedulers.mainThread())
-            .subscribe { onCloseButtonListener?.onClick(null) }.addTo(autoDisposable)
+            .subscribeWithErrorHandling { onCloseButtonListener?.onClick(null) }.addTo(autoDisposable)
         //sharedViewModel.setSegment(context!!, segment)
         segment?.let {
             sharedViewModel.setSegment(requireContext(), it)
@@ -67,7 +68,7 @@ class NearbyTripPreviewItemFragment() : BaseTripKitFragment() {
 
         sharedViewModel.locationList
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe {
+            .subscribeWithErrorHandling {
                 viewModel.setLocations(it)
             }.addTo(autoDisposable)
         sharedViewModel.locationList
@@ -76,7 +77,7 @@ class NearbyTripPreviewItemFragment() : BaseTripKitFragment() {
             .filter { it.modeInfo != null }
             .map { location -> location.modeInfo!! }
             .distinct { it.id }
-            .subscribe { mode -> viewModel.addMode(mode) }
+            .subscribeWithErrorHandling { mode -> viewModel.addMode(mode) }
             .addTo(autoDisposable)
 
     }

@@ -28,6 +28,7 @@ import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.maps.model.PointOfInterest
 import com.google.maps.android.collections.MarkerManager
+import com.skedgo.rxtry.subscribeWithErrorHandling
 import com.skedgo.tripkit.AndroidGeocoder
 import com.skedgo.tripkit.TripKitConstants.Companion.PREF_NAME_APP
 import com.skedgo.tripkit.account.data.Polygon
@@ -270,11 +271,11 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
         super.onResume()
         viewModel.getOriginPinUpdate()
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe { pinUpdate: PinUpdate -> updateDepartureMarker(pinUpdate) }
+            .subscribeWithErrorHandling { pinUpdate: PinUpdate -> updateDepartureMarker(pinUpdate) }
             .addTo(autoDisposable)
         viewModel.getDestinationPinUpdate()
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe { pinUpdate: PinUpdate -> updateArrivalMarker(pinUpdate) }
+            .subscribeWithErrorHandling { pinUpdate: PinUpdate -> updateArrivalMarker(pinUpdate) }
             .addTo(autoDisposable)
         viewModel.myLocation
             .subscribeOn(AndroidSchedulers.mainThread())

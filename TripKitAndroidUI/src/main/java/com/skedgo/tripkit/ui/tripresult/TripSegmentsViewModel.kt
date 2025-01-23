@@ -16,6 +16,7 @@ import androidx.lifecycle.viewModelScope
 import com.google.android.gms.maps.model.LatLng
 import com.jakewharton.rxrelay2.BehaviorRelay
 import com.jakewharton.rxrelay2.PublishRelay
+import com.skedgo.rxtry.subscribeWithErrorHandling
 import com.skedgo.tripkit.TripUpdater
 import com.skedgo.tripkit.booking.BookingForm
 import com.skedgo.tripkit.booking.quickbooking.QuickBookingRepository
@@ -553,21 +554,21 @@ class TripSegmentsViewModel @Inject internal constructor(
                 val nextSegment = tripSegments.elementAtOrNull(index + 1)
 
                 val viewModel = segmentViewModelProvider.get()
-                viewModel.alertsClicked.subscribe {
+                viewModel.alertsClicked.subscribeWithErrorHandling {
                     alertsClicked.accept(it)
                 }.autoClear()
 
-                viewModel.externalActionClicked.subscribe {
+                viewModel.externalActionClicked.subscribeWithErrorHandling {
                     externalActionClicked.accept(it)
                 }.autoClear()
 
-                viewModel.onClick.observable.subscribe {
+                viewModel.onClick.observable.subscribeWithErrorHandling {
                     it.tripSegment?.let { segment ->
                         segmentClicked.accept(segment)
                     }
                 }.autoClear()
 
-                viewModel.onTicketInfoClicked.observable.subscribe {
+                viewModel.onTicketInfoClicked.observable.subscribeWithErrorHandling {
                     it.tripSegment?.ticketURL.let { ticketUrl ->
                         ticketInfoClicked.accept(ticketUrl)
                     }
@@ -584,12 +585,12 @@ class TripSegmentsViewModel @Inject internal constructor(
                         val bridgeModel = segmentViewModelProvider.get()
                         bridgeModel.tripSegment = segment
                         addMovingItem(bridgeModel, segment)
-                        bridgeModel.onClick.observable.subscribe {
+                        bridgeModel.onClick.observable.subscribeWithErrorHandling {
                             it.tripSegment?.let { segment ->
                                 segmentClicked.accept(segment)
                             }
                         }.autoClear()
-                        bridgeModel.onTicketInfoClicked.observable.subscribe {
+                        bridgeModel.onTicketInfoClicked.observable.subscribeWithErrorHandling {
                             it.tripSegment?.ticketURL.let { ticketUrl ->
                                 ticketInfoClicked.accept(ticketUrl)
                             }

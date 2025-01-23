@@ -12,6 +12,7 @@ import me.tatarka.bindingcollectionadapter2.ItemBinding
 import javax.inject.Inject
 import androidx.databinding.library.baseAdapters.BR
 import com.jakewharton.rxrelay2.PublishRelay
+import com.skedgo.rxtry.subscribeWithErrorHandling
 import com.skedgo.tripkit.routing.ModeInfo
 import com.skedgo.tripkit.ui.tripresults.LoaderPlaceholder
 import com.skedgo.tripkit.ui.tripresults.TripResultTransportItemViewModel
@@ -77,7 +78,7 @@ class NearbyTripPreviewItemViewModel : RxViewModel() {
         val vm = NearbyTripPreviewModeItemViewModel()
         vm.modeId.set(modeInfo.id)
         vm.clicked.observeOn(mainThread())
-            .subscribe { loadLocations(true) }
+            .subscribeWithErrorHandling { loadLocations(true) }
             .autoClear()
         modeInfo.modeCompat?.let {
             vm.modeIconId.set(it.iconRes)

@@ -12,6 +12,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProviders
 import androidx.lifecycle.lifecycleScope
 import com.google.gson.Gson
+import com.skedgo.rxtry.subscribeWithErrorHandling
 import com.skedgo.tripkit.routing.TripSegment
 import com.skedgo.tripkit.ui.core.BaseTripKitFragment
 import com.skedgo.tripkit.ui.core.addTo
@@ -47,7 +48,7 @@ class DirectionsTripPreviewItemFragment : BaseTripKitFragment() {
     override fun onResume() {
         super.onResume()
         viewModel.closeClicked.observable.observeOn(AndroidSchedulers.mainThread())
-            .subscribe { onCloseButtonListener?.onClick(null) }.addTo(autoDisposable)
+            .subscribeWithErrorHandling { onCloseButtonListener?.onClick(null) }.addTo(autoDisposable)
         viewModel.showLaunchInMapsClicked.observable.onEach {
             it.segment?.let {
                 /*

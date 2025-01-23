@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.skedgo.rxtry.subscribeWithErrorHandling
 import com.skedgo.tripkit.common.model.stop.ScheduledStop
 import com.skedgo.tripkit.common.model.stop.ServiceStop
 import com.skedgo.tripkit.ui.ARG_SHOW_CLOSE_BUTTON
@@ -75,7 +76,7 @@ class ServiceDetailFragment : BaseTripKitFragment() {
         super.onResume()
         viewModel.onItemClicked
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe { stop ->
+            .subscribeWithErrorHandling { stop ->
                 this.clickListener.forEach {
                     it.onScheduledStopClicked(stop)
                 }

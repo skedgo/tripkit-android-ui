@@ -11,6 +11,7 @@ import android.view.ViewGroup
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.lifecycleScope
 import com.google.android.gms.maps.model.LatLng
+import com.skedgo.rxtry.subscribeWithErrorHandling
 import com.skedgo.tripkit.ExternalActionParams
 import com.skedgo.tripkit.bookingproviders.BookingResolver
 import com.skedgo.tripkit.logging.ErrorLogger
@@ -173,7 +174,7 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
 
     override fun onResume() {
         super.onResume()
-        viewModel.ticketInfoClicked.subscribe { url ->
+        viewModel.ticketInfoClicked.subscribeWithErrorHandling { url ->
             val intent = Intent(Intent.ACTION_VIEW).apply {
                 data = Uri.parse(url)
             }
@@ -181,16 +182,16 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
         }.addTo(autoDisposable)
 
         viewModel.segmentClicked
-            .subscribe {
+            .subscribeWithErrorHandling {
                 onTripSegmentClickListener?.tripSegmentClicked(it)
             }.addTo(autoDisposable)
         viewModel.externalActionClicked
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe { tripSegment ->
+            .subscribeWithErrorHandling { tripSegment ->
                 handleExternalBooking(tripSegment)
             }.addTo(autoDisposable)
         viewModel.alertsClicked
-            .subscribe {
+            .subscribeWithErrorHandling {
                 var list = mutableListOf<TripSegmentAlertsItemViewModel>()
                 it.forEach { alert ->
                     val vm = TripSegmentAlertsItemViewModel()
@@ -206,7 +207,7 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
                 updateStream?.onNext(Unit)
             }
 
-        updateStream?.subscribe {
+        updateStream?.subscribeWithErrorHandling {
             viewModel.validateGetOffAlerts()
         }?.addTo(autoDisposable)
 
@@ -252,7 +253,7 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
                 .build()
             bookingResolver.performExternalActionAsync(externalActionParams)
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe { bookingAction ->
+                .subscribeWithErrorHandling { bookingAction ->
                     if (bookingAction.bookingProvider() == BookingResolver.SMS) {
                         if (bookingAction.data()
                                 .resolveActivity(requireActivity().packageManager) != null) {

@@ -1,6 +1,7 @@
 package com.skedgo.tripkit.ui.routingresults
 
 import com.jakewharton.rxrelay2.BehaviorRelay
+import com.skedgo.rxtry.subscribeWithErrorHandling
 import io.reactivex.Observable
 
 open class FetchingRealtimeStatusRepository {
@@ -15,7 +16,7 @@ open class FetchingRealtimeStatusRepository {
     fun put(tripGroupId: String, isFetching: Boolean) {
         cache.firstOrError()
             .map { it.plus(Pair(tripGroupId, isFetching)) }
-            .subscribe { success ->
+            .subscribeWithErrorHandling { success ->
                 cache.accept(success)
             }
     }
