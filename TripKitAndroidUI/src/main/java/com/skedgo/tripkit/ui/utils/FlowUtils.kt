@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.flow.flattenMerge
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.rx2.await
 import retrofit2.HttpException
 
 
@@ -44,12 +45,13 @@ suspend fun <T> FlowCollector<Resource<T>>.safeCall(
     }
 }
 
+
 fun <T> Single<T>.toFlow(): Flow<T> {
     return flow {
         try {
-            emit(this@toFlow.blockingGet())
+            emit(this@toFlow.await()) // Use await to suspend instead of blocking
         } catch (e: Exception) {
-            throw e
+            throw e // Rethrow the exception
         }
     }
 }
