@@ -185,10 +185,6 @@ class TripResultListFragment : BaseTripKitFragment() {
         binding.toLocation.setOnClickListener {
             locationClickListener?.onDestinationLocationClicked()
         }
-        binding.from.setOnClickListener {
-            locationClickListener?.onStartLocationClicked()
-        }
-
         binding.leaveNowLayout.setOnClickListener { showDateTimePicker() }
         binding.leaveNowLayout.accessibilityDelegate = object : View.AccessibilityDelegate() {
             override fun sendAccessibilityEvent(host: View, eventType: Int) {
@@ -316,6 +312,10 @@ class TripResultListFragment : BaseTripKitFragment() {
                 bookRideHelpCallback.invoke()
                 viewModel.onShowBookARideInduction(false)
             }
+        }
+
+        viewModel.startLocationListener.observe(viewLifecycleOwner){
+            locationClickListener?.onStartLocationClicked()
         }
     }
 

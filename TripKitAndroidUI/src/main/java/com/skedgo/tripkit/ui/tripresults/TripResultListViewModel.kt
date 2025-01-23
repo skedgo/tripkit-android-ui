@@ -139,6 +139,9 @@ class TripResultListViewModel @Inject constructor(
     private val _showHelpInfo = MutableLiveData<Boolean>()
     val showHelpInfo: LiveData<Boolean> = _showHelpInfo
 
+    private val _startLocationListener = MutableLiveData<Boolean>()
+    val startLocationListener: LiveData<Boolean> get() = _startLocationListener
+
     init {
         transportModeChangeThrottle.debounce(500, TimeUnit.MILLISECONDS)
             .subscribe(
@@ -152,6 +155,10 @@ class TripResultListViewModel @Inject constructor(
                 { customAdapter.notifyDataSetChanged() },
                 { errorLogger.trackError(it) })
             .autoClear()
+    }
+
+    fun onStartLocationClicked() {
+        _startLocationListener.value = true // Notify View
     }
 
     fun transportLayoutClicked(view: View) {

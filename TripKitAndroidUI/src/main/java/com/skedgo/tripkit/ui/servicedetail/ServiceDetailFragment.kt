@@ -27,6 +27,16 @@ class ServiceDetailFragment : BaseTripKitFragment() {
         fun onScheduledStopClicked(stop: ServiceStop)
     }
 
+    interface OnServiceDetailViewCreatedListener {
+        fun onServiceDetailViewCreated(isTriggered: Boolean)
+    }
+
+    private var viewCreatedListener: OnServiceDetailViewCreatedListener? = null
+
+    fun setOnServiceDetailViewCreatedListener(listener: OnServiceDetailViewCreatedListener?) {
+        this.viewCreatedListener = listener
+    }
+
     private var clickListener: MutableList<OnScheduledStopClickListener> = mutableListOf()
     fun addOnScheduledStopClickListener(callback: OnScheduledStopClickListener) {
         if (!clickListener.contains(callback)) {
@@ -97,6 +107,9 @@ class ServiceDetailFragment : BaseTripKitFragment() {
         viewModel.showCloseButton.set(showCloseButton)
         binding.closeButton.setOnClickListener(onCloseButtonListener)
         viewModel.setAlerts(timetableEntry?.alerts)
+
+        // Notify listener that onViewCreated is triggered
+        viewCreatedListener?.onServiceDetailViewCreated(true)
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
@@ -125,6 +138,8 @@ class ServiceDetailFragment : BaseTripKitFragment() {
         private var stop: ScheduledStop? = null
         private var timetableEntry: TimetableEntry? = null
         private var showCloseButton = false
+        private var viewCreatedListener: ServiceDetailFragment.OnServiceDetailViewCreatedListener? = null
+
         fun withTimetableEntry(timetableEntry: TimetableEntry?): Builder {
             this.timetableEntry = timetableEntry
             return this
@@ -140,6 +155,11 @@ class ServiceDetailFragment : BaseTripKitFragment() {
             return this
         }
 
+        fun withViewCreatedListener(listener: ServiceDetailFragment.OnServiceDetailViewCreatedListener): Builder {
+            this.viewCreatedListener = listener
+            return this
+        }
+
         fun build(): ServiceDetailFragment {
             val args = Bundle()
             val fragment = ServiceDetailFragment()
@@ -147,6 +167,8 @@ class ServiceDetailFragment : BaseTripKitFragment() {
             args.putParcelable(ARG_TIMETABLE_ENTRY, timetableEntry)
             args.putBoolean(ARG_SHOW_CLOSE_BUTTON, showCloseButton)
             fragment.arguments = args
+            // Set the listener in the fragment
+            fragment.setOnServiceDetailViewCreatedListener(viewCreatedListener)
             return fragment
         }
     }
