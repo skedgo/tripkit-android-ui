@@ -1,186 +1,186 @@
-package com.skedgo.tripkit.ui.map.servicestop;
+package com.skedgo.tripkit.ui.map.servicestop
 
-import android.annotation.SuppressLint;
-import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.Color;
-import android.os.Bundle;
-import android.text.TextUtils;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.widget.TextView;
+import android.annotation.SuppressLint
+import android.graphics.Color
+import android.os.Bundle
+import android.text.TextUtils
+import android.view.LayoutInflater
+import android.view.View
+import android.widget.TextView
+import androidx.lifecycle.ViewModelProviders
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.GoogleMap.InfoWindowAdapter
+import com.google.android.gms.maps.GoogleMap.OnInfoWindowClickListener
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.LatLngBounds.Builder
+import com.google.android.gms.maps.model.Marker
+import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.gms.maps.model.Polyline
+import com.google.android.gms.maps.model.PolylineOptions
+import com.skedgo.rxtry.subscribeWithErrorHandling
+import com.skedgo.tripkit.common.model.stop.ScheduledStop
+import com.skedgo.tripkit.common.model.stop.ServiceStop
+import com.skedgo.tripkit.common.util.DateTimeFormats
+import com.skedgo.tripkit.common.util.StringUtils.capitalizeFirst
+import com.skedgo.tripkit.data.regions.RegionService
+import com.skedgo.tripkit.routing.RealTimeVehicle
+import com.skedgo.tripkit.routing.TripSegment
+import com.skedgo.tripkit.ui.R
+import com.skedgo.tripkit.ui.TripKitUI
+import com.skedgo.tripkit.ui.map.LocationEnhancedMapFragment
+import com.skedgo.tripkit.ui.map.SimpleCalloutView
+import com.skedgo.tripkit.ui.map.TimeLabelMaker
+import com.skedgo.tripkit.ui.map.VehicleMarkerIconCreator
+import com.skedgo.tripkit.ui.model.TimetableEntry
+import com.skedgo.tripkit.ui.realtime.RealTimeChoreographerViewModel
+import com.skedgo.tripkit.ui.realtime.RealTimeViewModelFactory
+import com.skedgo.tripkit.ui.servicedetail.GetStopDisplayText
+import com.skedgo.tripkit.ui.servicedetail.ServiceDetailFragment.OnScheduledStopClickListener
+import com.skedgo.tripkit.ui.timetables.TimetableFragment.OnTimetableEntrySelectedListener
+import com.skedgo.tripkit.utils.OptionalCompat
+import com.squareup.otto.Bus
+import dagger.Lazy
+import javax.inject.Inject
 
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.LatLngBounds;
-import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.maps.model.Polyline;
-import com.google.android.gms.maps.model.PolylineOptions;
-import com.skedgo.tripkit.common.model.stop.ScheduledStop;
-import com.skedgo.tripkit.common.model.stop.ServiceStop;
-import com.skedgo.tripkit.common.util.DateTimeFormats;
-import com.skedgo.tripkit.common.util.StringUtils;
-import com.skedgo.tripkit.data.regions.RegionService;
-import com.skedgo.tripkit.logging.ErrorLogger;
-import com.skedgo.tripkit.routing.RealTimeVehicle;
-import com.skedgo.tripkit.routing.TripSegment;
-import com.skedgo.tripkit.ui.R;
-import com.skedgo.tripkit.ui.TripKitUI;
-import com.skedgo.tripkit.ui.map.LocationEnhancedMapFragment;
-import com.skedgo.tripkit.ui.map.SimpleCalloutView;
-import com.skedgo.tripkit.ui.map.TimeLabelMaker;
-import com.skedgo.tripkit.ui.map.VehicleMarkerIconCreator;
-import com.skedgo.tripkit.ui.model.TimetableEntry;
-import com.skedgo.tripkit.ui.realtime.RealTimeChoreographerViewModel;
-import com.skedgo.tripkit.ui.realtime.RealTimeViewModelFactory;
-import com.skedgo.tripkit.ui.servicedetail.GetStopDisplayText;
-import com.skedgo.tripkit.ui.servicedetail.ServiceDetailFragment;
-import com.skedgo.tripkit.ui.timetables.TimetableFragment;
-import com.squareup.otto.Bus;
-
-import org.jetbrains.annotations.NotNull;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Set;
-
-import javax.inject.Inject;
-
-import androidx.annotation.Nullable;
-import androidx.lifecycle.ViewModelProviders;
-import dagger.Lazy;
-import kotlin.Pair;
-
-
-public class ServiceStopMapFragment
-    extends LocationEnhancedMapFragment
-    implements GoogleMap.OnInfoWindowClickListener, GoogleMap.InfoWindowAdapter,
-    TimetableFragment.OnTimetableEntrySelectedListener, ServiceDetailFragment.OnScheduledStopClickListener {
-    private static final int LOADER_ID_STOPS = 0x01;
-
+class ServiceStopMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListener, InfoWindowAdapter,
+    OnTimetableEntrySelectedListener, OnScheduledStopClickListener {
+    @JvmField
     @Inject
-    RegionService regionService;
+    var regionService: RegionService? = null
+
+    @JvmField
     @Inject
-    Lazy<VehicleMarkerIconCreator> vehicleMarkerIconCreatorLazy;
+    var vehicleMarkerIconCreatorLazy: Lazy<VehicleMarkerIconCreator>? = null
+
+    @JvmField
     @Inject
-    RealTimeViewModelFactory realTimeViewModelFactory;
+    var realTimeViewModelFactory: RealTimeViewModelFactory? = null
+
+    @JvmField
     @Inject
-    GetStopDisplayText getStopDisplayText;
-    @Inject
-    ErrorLogger errorLogger;
-    @Inject
-    ServiceStopMapViewModel viewModel;
+    var getStopDisplayText: GetStopDisplayText? = null
+
+    lateinit var viewModel: ServiceStopMapViewModel
 
     /* TODO: Replace with RxJava-based approach. */
-    @Deprecated
+    @JvmField
+    @Deprecated("")
     @Inject
-    Bus bus;
-    private ScheduledStop mStop;
-    private TimetableEntry service;
-    private Marker realTimeVehicleMarker;
-    private HashMap<String, Marker> stopCodesToMarkerMap = new HashMap<>();
+    var bus: Bus? = null
+    private var mStop: ScheduledStop? = null
+    private var service: TimetableEntry? = null
+    private var realTimeVehicleMarker: Marker? = null
+    private val stopCodesToMarkerMap = HashMap<String, Marker>()
 
-    @Override
-    public void onCreate(final Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
         TripKitUI.getInstance()
             .serviceStopMapComponent()
-            .inject(this);
+            .inject(this)
 
-        final RealTimeChoreographerViewModel realTimeViewModel = ViewModelProviders.of(getActivity(), realTimeViewModelFactory)
-            .get(RealTimeChoreographerViewModel.class);
+        val realTimeViewModel = ViewModelProviders.of(
+            requireActivity(), realTimeViewModelFactory
+        )
+            .get(RealTimeChoreographerViewModel::class.java)
 
-        viewModel.setRealtimeViewModel(realTimeViewModel);
-        TextView timeTextView = (TextView) getActivity().getLayoutInflater().inflate(R.layout.view_time_label, null);
-        TimeLabelMaker timeLabelMaker = new TimeLabelMaker(timeTextView);
-        ServiceStopMarkerCreator serviceStopMarkerCreator = new ServiceStopMarkerCreator(getActivity(), timeLabelMaker);
-        viewModel.setServiceStopMarkerCreator(serviceStopMarkerCreator);
+        viewModel.realtimeViewModel = realTimeViewModel
+        val timeTextView =
+            requireActivity().layoutInflater.inflate(R.layout.view_time_label, null) as TextView
+        val timeLabelMaker = TimeLabelMaker(timeTextView)
+        val serviceStopMarkerCreator = ServiceStopMarkerCreator(requireActivity(), timeLabelMaker)
+        viewModel.serviceStopMarkerCreator = serviceStopMarkerCreator
 
-        setMyLocationEnabled();
+        setMyLocationEnabled()
+        throw RuntimeException("error here")
     }
 
-    @Override
-    public void onStart() {
-        super.onStart();
-        bus.register(this);
-        getAutoDisposable().add(viewModel.getDrawStops()
-            .subscribe((newMarkerOptionsAndRemovedStopIdsPair) -> {
-                List<Pair<MarkerOptions, String>> newMarkerOptions = newMarkerOptionsAndRemovedStopIdsPair.getFirst();
-                Set<String> removedStopIds = newMarkerOptionsAndRemovedStopIdsPair.getSecond();
-                for (String id : removedStopIds) {
-                    stopCodesToMarkerMap.get(id).remove();
-                    stopCodesToMarkerMap.remove(id);
-                }
-                whenSafeToUseMap(googleMap -> {
-                    for (Pair<MarkerOptions, String> markerOptionsAndStopCodes : newMarkerOptions) {
-                        Marker marker = googleMap.addMarker(markerOptionsAndStopCodes.getFirst());
-                        stopCodesToMarkerMap.put(markerOptionsAndStopCodes.getSecond(), marker);
+    override fun onStart() {
+        super.onStart()
+        bus!!.register(this)
+        autoDisposable.add(
+            viewModel!!.drawStops
+                .subscribe { newMarkerOptionsAndRemovedStopIdsPair: Pair<List<Pair<MarkerOptions, String>>, Set<String>> ->
+                    val newMarkerOptions = newMarkerOptionsAndRemovedStopIdsPair.first
+                    val removedStopIds = newMarkerOptionsAndRemovedStopIdsPair.second
+                    for (id in removedStopIds) {
+                        stopCodesToMarkerMap[id]!!.remove()
+                        stopCodesToMarkerMap.remove(id)
                     }
-                });
-            }));
+                    whenSafeToUseMap { googleMap: GoogleMap ->
+                        for ((first, second) in newMarkerOptions) {
+                            val marker = googleMap.addMarker(first)
+                            stopCodesToMarkerMap[second] = marker
+                        }
+                    }
+                })
 
-        getAutoDisposable().add(viewModel.getViewPort()
-            .subscribe(this::centerMapOver));
+        autoDisposable.add(
+            viewModel!!.viewPort
+                .subscribe { coordinates: List<LatLng>? -> this.centerMapOver(coordinates) })
 
-        List<Polyline> serviceLines = new ArrayList<>();
+        val serviceLines: MutableList<Polyline> = ArrayList()
 
-        getAutoDisposable().add(viewModel.getDrawServiceLine()
-            .subscribe(polylineOptions -> whenSafeToUseMap(googleMap -> {
-                for (Polyline line : serviceLines) {
-                    line.remove();
+        autoDisposable.add(
+            viewModel!!.drawServiceLine
+                .subscribe { polylineOptions: List<PolylineOptions?> ->
+                    whenSafeToUseMap { googleMap: GoogleMap ->
+                        for (line in serviceLines) {
+                            line.remove()
+                        }
+                        serviceLines.clear()
+                        for (polylineOption in polylineOptions) {
+                            serviceLines.add(googleMap.addPolyline(polylineOption))
+                        }
+                    }
+                })
+
+        autoDisposable.add(
+            viewModel.realtimeVehicle
+                .subscribeWithErrorHandling { realTimeVehicleOptional: OptionalCompat<RealTimeVehicle> ->
+                    if (realTimeVehicleOptional.isPresent()) { // Check if the value is present
+                        setRealTimeVehicle(realTimeVehicleOptional.get()) // Get the value from OptionalCompat
+                    } else {
+                        setRealTimeVehicle(null) // Handle empty OptionalCompat
+                    }
                 }
-                serviceLines.clear();
-                for (PolylineOptions polylineOption : polylineOptions) {
-                    serviceLines.add(googleMap.addPolyline(polylineOption));
-                }
-            })));
-
-        getAutoDisposable().add(viewModel.getRealtimeVehicle()
-            .subscribe(realTimeVehicleOptional -> {
-                if (realTimeVehicleOptional.isPresent()) { // Check if the value is present
-                    setRealTimeVehicle(realTimeVehicleOptional.get()); // Get the value from OptionalCompat
-                } else {
-                    setRealTimeVehicle(null); // Handle empty OptionalCompat
-                }
-            }));
+        )
     }
 
-    @Override
-    public void onStop() {
-        super.onStop();
-        bus.unregister(this);
+    override fun onStop() {
+        super.onStop()
+        bus!!.unregister(this)
     }
 
-    @Override
-    public void onActivityCreated(final Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        setupMap();
-        whenSafeToUseMap(map -> {
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+        setupMap()
+        whenSafeToUseMap { map: GoogleMap ->
             if (mStop != null) {
-                map.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(mStop.getLat(), mStop.getLon()), 15.0f));
+                map.moveCamera(
+                    CameraUpdateFactory.newLatLngZoom(
+                        LatLng(
+                            mStop!!.lat, mStop!!.lon
+                        ), 15.0f
+                    )
+                )
             }
-        });
+        }
     }
 
-    @Override
-    public View getInfoWindow(final Marker marker) {
-        return null;
+    override fun getInfoWindow(marker: Marker): View? {
+        return null
     }
 
-    @Override
-    public View getInfoContents(final Marker marker) {
-        final SimpleCalloutView view = SimpleCalloutView.create(LayoutInflater.from(getActivity()));
-        view.setTitle(marker.getTitle());
-        view.setSnippet(marker.getSnippet());
-        return view;
+    override fun getInfoContents(marker: Marker): View {
+        val view = SimpleCalloutView.create(LayoutInflater.from(activity))
+        view.setTitle(marker.title)
+        view.setSnippet(marker.snippet)
+        return view
     }
 
-    @Override
-    public void onInfoWindowClick(final Marker marker) {
+    override fun onInfoWindowClick(marker: Marker) {
 //    startActivity(StreetViewActivity.Intents.viewLocation(
 //        getActivity(),
 //        marker.getPosition().latitude,
@@ -189,99 +189,105 @@ public class ServiceStopMapFragment
 //    ));
     }
 
-    private void setRealTimeVehicle(@Nullable RealTimeVehicle realTimeVehicle) {
+    private fun setRealTimeVehicle(realTimeVehicle: RealTimeVehicle?) {
         if (realTimeVehicleMarker != null) {
-            realTimeVehicleMarker.remove();
+            realTimeVehicleMarker!!.remove()
         }
 
         if (realTimeVehicle == null) {
-            return;
+            return
         }
 
-        whenSafeToUseMap(map -> {
+        whenSafeToUseMap { map: GoogleMap? ->
             if (realTimeVehicle.hasLocationInformation()) {
-                if (service != null && TextUtils.equals(realTimeVehicle.getServiceTripId(), service.getServiceTripId())) {
-
-                    service.setRealtimeVehicle(realTimeVehicle);
-                    createVehicleMarker(realTimeVehicle);
+                if (service != null && TextUtils.equals(
+                        realTimeVehicle.serviceTripId,
+                        service!!.serviceTripId
+                    )
+                ) {
+                    service!!.realtimeVehicle = realTimeVehicle
+                    createVehicleMarker(realTimeVehicle)
                 }
             }
-        });
+        }
     }
 
-    public void setService(TimetableEntry service) {
-        viewModel.getService().accept(service);
-        this.service = service;
+    fun setService(service: TimetableEntry?) {
+        viewModel!!.service.accept(service)
+        this.service = service
     }
 
-    public void setStop(ScheduledStop stop) {
-        this.mStop = stop;
-        this.viewModel.getStop().accept(stop);
+    fun setStop(stop: ScheduledStop?) {
+        this.mStop = stop
+        viewModel!!.stop.accept(stop)
     }
 
-    private void createVehicleMarker(final RealTimeVehicle vehicle) {
-        String title = null;
-        if (TextUtils.isEmpty(service.getServiceNumber())) {
-            title = "Your upcoming service";
+    private fun createVehicleMarker(vehicle: RealTimeVehicle) {
+        var title: String? = null
+        if (TextUtils.isEmpty(service!!.serviceNumber)) {
+            title = "Your upcoming service"
         } else {
-            if (mStop != null && mStop.getType() != null) {
-                title = StringUtils.capitalizeFirst(mStop.getType().toString()) + " " + service.getServiceNumber();
+            if (mStop != null && mStop!!.type != null) {
+                title = capitalizeFirst(mStop!!.type.toString()) + " " + service!!.serviceNumber
             }
 
             if (TextUtils.isEmpty(title)) {
-                title = "Service " + service.getServiceNumber();
+                title = "Service " + service!!.serviceNumber
             }
         }
 
-        final int bearing = vehicle.getLocation() == null ? 0 : vehicle.getLocation().getBearing();
-        final int color = service.getServiceColor() == null || service.getServiceColor().getColor() == Color.BLACK ? getResources().getColor(R.color.v4_color) : service.getServiceColor().getColor();
-        final String text = TextUtils.isEmpty(service.getServiceNumber()) ? (mStop == null || mStop.getType() == null ? "" : StringUtils.capitalizeFirst(mStop.getType().toString())) : service.getServiceNumber();
+        val bearing = if (vehicle.location == null) 0 else vehicle.location.bearing
+        val color =
+            if (service!!.serviceColor == null || service!!.serviceColor.color == Color.BLACK) resources.getColor(
+                R.color.v4_color
+            ) else service!!.serviceColor.color
+        val text =
+            if (TextUtils.isEmpty(service!!.serviceNumber)) (if (mStop == null || mStop!!.type == null) "" else capitalizeFirst(
+                mStop!!.type.toString()
+            )) else service!!.serviceNumber!!
 
-        final Bitmap icon = vehicleMarkerIconCreatorLazy.get().call(bearing, color, text);
-        final String markerTitle = title;
+        val icon = vehicleMarkerIconCreatorLazy!!.get().call(bearing, color, text)
+        val markerTitle = title
 
-        final Context context = getActivity().getApplicationContext();
-        whenSafeToUseMap(map -> {
-            final long millis = vehicle.getLastUpdateTime() * 1000;
-            final String time = DateTimeFormats.printTime(context, millis, null);
-            final String snippet;
-            if (TextUtils.isEmpty(vehicle.getLabel())) {
-                snippet = "Real-time location as at " + time;
+        val context = requireActivity().applicationContext
+        whenSafeToUseMap { map: GoogleMap ->
+            val millis = vehicle.lastUpdateTime * 1000
+            val time = DateTimeFormats.printTime(context, millis, null)
+            val snippet = if (TextUtils.isEmpty(vehicle.label)) {
+                "Real-time location as at $time"
             } else {
-                snippet = "Vehicle " + vehicle.getLabel() + " location as at " + time;
+                "Vehicle " + vehicle.label + " location as at " + time
             }
             realTimeVehicleMarker = map.addMarker(
-                new MarkerOptions()
+                MarkerOptions()
                     .icon(BitmapDescriptorFactory.fromBitmap(icon))
-                    .rotation(bearing)
+                    .rotation(bearing.toFloat())
                     .flat(true)
                     .anchor(0.5f, 0.5f)
                     .title(markerTitle)
                     .snippet(snippet)
-                    .position(new LatLng(vehicle.getLocation().getLat(), vehicle.getLocation().getLon()))
+                    .position(LatLng(vehicle.location.lat, vehicle.location.lon))
                     .draggable(false)
-            );
-        });
+            )
+        }
     }
 
     /**
      * To zoom in/out to view the whole trip or the whole service line.
      */
-    private void centerMapOver(final List<LatLng> coordinates) {
-        if (coordinates != null && coordinates.size() > 0) {
-            whenSafeToUseMap(map -> {
-                final LatLngBounds.Builder builder = new LatLngBounds.Builder();
-                for (LatLng coordinate : coordinates) {
-                    builder.include(coordinate);
+    private fun centerMapOver(coordinates: List<LatLng>?) {
+        if (coordinates != null && coordinates.size > 0) {
+            whenSafeToUseMap { map: GoogleMap ->
+                val builder = Builder()
+                for (coordinate in coordinates) {
+                    builder.include(coordinate)
                 }
-
-                map.animateCamera(CameraUpdateFactory.newLatLngBounds(builder.build(), 320));
-            });
+                map.animateCamera(CameraUpdateFactory.newLatLngBounds(builder.build(), 320))
+            }
         }
     }
 
-    @SuppressWarnings("MissingPermission")
-    private void setMyLocationEnabled() {
+    private fun setMyLocationEnabled() {
 //    ((BaseActivity) getActivity())
 //        .checkSelfPermissionReactively(Manifest.permission.ACCESS_FINE_LOCATION)
 //        .filter(result -> result)
@@ -289,37 +295,39 @@ public class ServiceStopMapFragment
     }
 
     @SuppressLint("MissingPermission")
-    private void setupMap() {
-        whenSafeToUseMap(map -> {
-            map.setOnInfoWindowClickListener(ServiceStopMapFragment.this);
-            map.setInfoWindowAdapter(ServiceStopMapFragment.this);
-            map.setIndoorEnabled(false);
+    private fun setupMap() {
+        whenSafeToUseMap { map: GoogleMap ->
+            map.setOnInfoWindowClickListener(this@ServiceStopMapFragment)
+            map.setInfoWindowAdapter(this@ServiceStopMapFragment)
+            map.setIndoorEnabled(false)
 
-            map.getUiSettings().setRotateGesturesEnabled(false);
-            getActivity().supportInvalidateOptionsMenu();
-        });
+            map.uiSettings.isRotateGesturesEnabled = false
+            requireActivity().supportInvalidateOptionsMenu()
+        }
     }
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        viewModel.onCleared();
+    override fun onDestroy() {
+        super.onDestroy()
+        viewModel!!.onCleared()
     }
 
-    @Override
-    public void onTimetableEntrySelected(TripSegment segment, @NotNull TimetableEntry service, @NotNull ScheduledStop stop, long minStartTime) {
-        setService(service);
+    override fun onTimetableEntrySelected(
+        segment: TripSegment?,
+        service: TimetableEntry,
+        stop: ScheduledStop,
+        minStartTime: Long
+    ) {
+        setService(service)
     }
 
-    @Override
-    public void onScheduledStopClicked(@NotNull ServiceStop stop) {
-        if (!TextUtils.isEmpty(stop.getCode())) {
-            final Marker marker = stopCodesToMarkerMap.get(stop.getCode());
+    override fun onScheduledStopClicked(stop: ServiceStop) {
+        if (!TextUtils.isEmpty(stop.code)) {
+            val marker = stopCodesToMarkerMap[stop.code]
             if (marker != null) {
-                whenSafeToUseMap(googleMap -> {
-                    googleMap.animateCamera(CameraUpdateFactory.newLatLng(marker.getPosition()));
-                    marker.showInfoWindow();
-                });
+                whenSafeToUseMap { googleMap: GoogleMap ->
+                    googleMap.animateCamera(CameraUpdateFactory.newLatLng(marker.position))
+                    marker.showInfoWindow()
+                }
             }
         }
     }

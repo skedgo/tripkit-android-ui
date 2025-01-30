@@ -37,7 +37,7 @@ public class VehicleMarkerIconFetcher {
         if (icon != null) {
             // If a marker was removed from a map, mutating its icon is unnecessary.
             final WeakReference<Marker> markerWeakReference = new WeakReference<>(marker);
-            picassoLazy.get().load(IconUtils.asUrl(resources, icon, URL_TEMPLATE))
+            picassoLazy.get().load(IconUtils.INSTANCE.asUrl(resources, icon, URL_TEMPLATE))
                 .into(new Target() {
                     @Override
                     public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {

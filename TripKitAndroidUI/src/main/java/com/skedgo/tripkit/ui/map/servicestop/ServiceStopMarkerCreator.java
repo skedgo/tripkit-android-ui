@@ -25,6 +25,7 @@ import java.util.concurrent.TimeUnit;
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 
+// TODO for future checking, when converted to kotlin, not working anymore
 public class ServiceStopMarkerCreator {
     private final Context context;
     private final TimeLabelMaker timeLabelMaker;
