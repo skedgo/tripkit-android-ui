@@ -557,6 +557,7 @@ We aggregate the anonymised data and provide it to researchers, regulators, and 
     <string name="review_booking">Review Booking</string>
     <string name="confirm_booking">Confirm booking</string>
     <string name="continue_to_payment">Continue to payment</string>
+    <string name="continue_to_checkout">Continue to Checkout</string>
 
     <!--For phone number-->
     <string name="phone">Phone</string>
