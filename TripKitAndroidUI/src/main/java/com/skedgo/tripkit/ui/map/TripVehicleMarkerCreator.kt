@@ -1,94 +1,84 @@
-package com.skedgo.tripkit.ui.map;
+package com.skedgo.tripkit.ui.map
 
-import android.content.Context;
-import android.content.res.Resources;
-import android.graphics.Bitmap;
-import android.graphics.Color;
-import android.text.TextUtils;
+import android.content.Context
+import android.content.res.Resources
+import android.graphics.Color
+import android.text.TextUtils
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MarkerOptions
+import com.skedgo.tripkit.common.util.DateTimeFormats
+import com.skedgo.tripkit.common.util.StringUtils.capitalizeFirst
+import com.skedgo.tripkit.common.util.StringUtils.firstNonEmpty
+import com.skedgo.tripkit.routing.TripSegment
+import com.skedgo.tripkit.routing.VehicleMode.BUS
+import com.skedgo.tripkit.ui.R
+import dagger.Lazy
+import javax.inject.Inject
 
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
-import com.skedgo.tripkit.common.util.DateTimeFormats;
-import com.skedgo.tripkit.common.util.StringUtils;
-import com.skedgo.tripkit.routing.RealTimeVehicle;
-import com.skedgo.tripkit.routing.TripSegment;
-import com.skedgo.tripkit.routing.VehicleMode;
-import com.skedgo.tripkit.ui.R;
-
-import javax.inject.Inject;
-
-import dagger.Lazy;
-
-public class TripVehicleMarkerCreator {
-    private final Context context;
-    private final Lazy<VehicleMarkerIconCreator> vehicleMarkerIconCreatorLazy;
-
-    @Inject
-    TripVehicleMarkerCreator(
-        Context context,
-        Lazy<VehicleMarkerIconCreator> vehicleMarkerIconCreatorLazy) {
-        this.context = context;
-        this.vehicleMarkerIconCreatorLazy = vehicleMarkerIconCreatorLazy;
-    }
-
-    public MarkerOptions call(Resources resources, TripSegment segment) {
-        final RealTimeVehicle vehicle = segment.getRealTimeVehicle();
-        final long millis = vehicle.getLastUpdateTime() * 1000;
-        final String time = DateTimeFormats.printTime(context, millis, segment.getTimeZone());
-        String title = null;
-        String snippet;
-        if (segment.getMode() == VehicleMode.BUS) {
-            if (TextUtils.isEmpty(segment.getServiceNumber())) {
-                title = "Your upcoming service"; // TODO: i18n
+class TripVehicleMarkerCreator @Inject internal constructor(
+    private val context: Context,
+    private val vehicleMarkerIconCreatorLazy: Lazy<VehicleMarkerIconCreator>
+) {
+    fun call(resources: Resources, segment: TripSegment): MarkerOptions {
+        val vehicle = segment.realTimeVehicle
+        val millis = vehicle!!.lastUpdateTime * 1000
+        val time = DateTimeFormats.printTime(context, millis, segment.timeZone)
+        var title: String? = null
+        val snippet: String
+        if (segment.mode == BUS) {
+            if (TextUtils.isEmpty(segment.serviceNumber)) {
+                title = "Your upcoming service" // TODO: i18n
             } else {
-                if (segment.getMode() != null && segment.getMode().isPublicTransport()) {
-                    title = StringUtils.capitalizeFirst(segment.getMode().toString()) + " " + segment.getServiceNumber();
+                if (segment.mode != null && segment.mode!!.isPublicTransport) {
+                    title = capitalizeFirst(segment.mode.toString()) + " " + segment.serviceNumber
                 }
 
                 if (TextUtils.isEmpty(title)) {
-                    title = "Service " + segment.getServiceNumber();
+                    title = "Service " + segment.serviceNumber
                 }
             }
 
-            snippet = (TextUtils.isEmpty(vehicle.getLabel())
-                ? "Real-time"
-                : "Vehicle " + vehicle.getLabel()) + " location as at " + time;
+            snippet = (if (TextUtils.isEmpty(vehicle.label)
+            ) "Real-time"
+            else "Vehicle " + vehicle.label) + " location as at " + time
         } else {
-            title = StringUtils.firstNonEmpty(
-                segment.getServiceName(),
-                vehicle.getLabel(),
+            title = firstNonEmpty(
+                segment.serviceName,
+                vehicle.label,
                 "Your upcoming service"
-            );
-            snippet = (segment.getMode() == null
-                ? "Location"
-                : StringUtils.capitalizeFirst(segment.getMode().toString()) + " location")
-                + " as at " + time;
+            )
+            snippet = ((if (segment.mode == null
+            ) "Location"
+            else capitalizeFirst(segment.mode.toString()) + " location")
+                + " as at " + time)
         }
 
-        final int bearing = vehicle.getLocation() == null
-            ? 0
-            : vehicle.getLocation().getBearing();
-        final int color = segment.getServiceColor() == null || segment.getServiceColor().getColor() == Color.BLACK
-            ? resources.getColor(R.color.v4_color)
-            : segment.getServiceColor().getColor();
+        val bearing = if (vehicle.location == null
+        ) 0
+        else vehicle.location.bearing
+        val color = if (segment.serviceColor == null || segment.serviceColor!!.color == Color.BLACK
+        ) resources.getColor(R.color.v4_color)
+        else segment.serviceColor!!.color
 
-        final String text = TextUtils.isEmpty(segment.getServiceNumber())
-            ? (segment.getMode() == null ? "" : StringUtils.capitalizeFirst(segment.getMode().toString()))
-            : segment.getServiceNumber();
+        val text = if (TextUtils.isEmpty(segment.serviceNumber)
+        ) (if (segment.mode == null) "" else capitalizeFirst(segment.mode.toString()))
+        else segment.serviceNumber!!
 
-        final Bitmap icon = vehicleMarkerIconCreatorLazy.get().call(bearing, color, text);
-        return new MarkerOptions()
+        val icon = vehicleMarkerIconCreatorLazy.get().call(bearing, color, text)
+        return MarkerOptions()
             .icon(BitmapDescriptorFactory.fromBitmap(icon))
-            .rotation(bearing)
+            .rotation(bearing.toFloat())
             .flat(true)
             .anchor(0.5f, 0.5f)
             .title(title)
             .snippet(snippet)
-            .position(new LatLng(
-                vehicle.getLocation().getLat(),
-                vehicle.getLocation().getLon()
-            ))
-            .draggable(false);
+            .position(
+                LatLng(
+                    vehicle.location.lat,
+                    vehicle.location.lon
+                )
+            )
+            .draggable(false)
     }
 }

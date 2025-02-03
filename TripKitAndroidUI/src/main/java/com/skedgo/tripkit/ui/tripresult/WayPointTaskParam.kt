@@ -11,7 +11,7 @@ sealed class WayPointTaskParam(val region: Region) {
 
     class ForChangingService(
         region: Region,
-        val segments: ArrayList<TripSegment>,
+        val segments: List<TripSegment>,
         val prototypeSegment: TripSegment,
         val service: TimetableEntry
     ) : WayPointTaskParam(region)
@@ -19,7 +19,7 @@ sealed class WayPointTaskParam(val region: Region) {
 
     class ForChangingStop(
         region: Region,
-        val segments: ArrayList<TripSegment>,
+        val segments: List<TripSegment>,
         val prototypeSegment: TripSegment,
         val waypoint: Location,
         val isGetOn: Boolean

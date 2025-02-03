@@ -1,71 +1,61 @@
-package com.skedgo.tripkit.ui.map;
+package com.skedgo.tripkit.ui.map
 
-import android.content.res.Resources;
-import android.graphics.Bitmap;
-import android.graphics.drawable.Drawable;
+import android.content.res.Resources
+import android.graphics.Bitmap
+import android.graphics.drawable.Drawable
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
+import com.google.android.gms.maps.model.Marker
+import com.skedgo.rxtry.printThrowableStackTrace
+import com.skedgo.tripkit.configuration.ServerManager.configuration
+import com.skedgo.tripkit.routing.RealTimeVehicle
+import com.skedgo.tripkit.ui.map.IconUtils.asUrl
+import com.squareup.picasso.Picasso
+import com.squareup.picasso.Picasso.LoadedFrom
+import com.squareup.picasso.Target
+import dagger.Lazy
+import java.lang.ref.WeakReference
+import javax.inject.Inject
 
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.Marker;
-import com.skedgo.tripkit.common.model.location.Location;
-import com.skedgo.tripkit.configuration.ServerManager;
-import com.skedgo.tripkit.routing.RealTimeVehicle;
-import com.squareup.picasso.Picasso;
-import com.squareup.picasso.Target;
-
-import java.lang.ref.WeakReference;
-
-import javax.inject.Inject;
-
-import androidx.annotation.NonNull;
-import dagger.Lazy;
-
-public class VehicleMarkerIconFetcher {
-    private static final String URL_TEMPLATE = ServerManager.INSTANCE.getConfiguration().getStaticTripGoUrl() + "icons/android/%s/ic_vehicle_%s.png";
-    private final Resources resources;
-    private final Lazy<Picasso> picassoLazy;
-
-    @Inject
-    VehicleMarkerIconFetcher(
-        Resources resources,
-        Lazy<Picasso> picassoLazy) {
-        this.resources = resources;
-        this.picassoLazy = picassoLazy;
-    }
-
-    public void call(Marker marker, @NonNull RealTimeVehicle vehicle) {
-        final String icon = vehicle.getIcon();
+class VehicleMarkerIconFetcher @Inject internal constructor(
+    private val resources: Resources,
+    private val picassoLazy: Lazy<Picasso>
+) {
+    fun call(marker: Marker, vehicle: RealTimeVehicle) {
+        val icon = vehicle.icon
         if (icon != null) {
             // If a marker was removed from a map, mutating its icon is unnecessary.
-            final WeakReference<Marker> markerWeakReference = new WeakReference<>(marker);
-            picassoLazy.get().load(IconUtils.INSTANCE.asUrl(resources, icon, URL_TEMPLATE))
-                .into(new Target() {
-                    @Override
-                    public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+            val markerWeakReference = WeakReference(marker)
+            picassoLazy.get().load(asUrl(resources, icon, URL_TEMPLATE))
+                .into(object : Target {
+                    override fun onBitmapLoaded(bitmap: Bitmap, from: LoadedFrom) {
                         try {
-                            final Marker actualMarker = markerWeakReference.get();
+                            val actualMarker = markerWeakReference.get()
                             if (actualMarker != null) {
-                                actualMarker.setIcon(BitmapDescriptorFactory.fromBitmap(bitmap));
+                                actualMarker.setIcon(BitmapDescriptorFactory.fromBitmap(bitmap))
 
                                 // By default, the icon provided by server is rotated
                                 // to the left by 90 degrees.
                                 // So we gotta plus 90 to make it North aligned again.
-                                final Location location = vehicle.getLocation();
-                                final int bearing = location != null ? location.getBearing() : 0;
-                                actualMarker.setRotation(bearing + 90);
+                                val location = vehicle.location
+                                val bearing = location?.bearing ?: 0
+                                actualMarker.rotation = (bearing + 90).toFloat()
                             }
-                        } catch (Exception e) {
+                        } catch (e: Exception) {
+                            e.printThrowableStackTrace()
                         }
                     }
 
-                    @Override
-                    public void onBitmapFailed(Exception e, Drawable errorDrawable) {
-
+                    override fun onBitmapFailed(e: Exception, errorDrawable: Drawable) {
                     }
 
-                    @Override
-                    public void onPrepareLoad(Drawable placeHolderDrawable) {
+                    override fun onPrepareLoad(placeHolderDrawable: Drawable) {
                     }
-                });
+                })
         }
+    }
+
+    companion object {
+        private val URL_TEMPLATE =
+            configuration.staticTripGoUrl + "icons/android/%s/ic_vehicle_%s.png"
     }
 }

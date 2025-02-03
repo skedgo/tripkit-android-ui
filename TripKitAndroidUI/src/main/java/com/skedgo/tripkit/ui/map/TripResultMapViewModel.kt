@@ -1,5 +1,6 @@
 package com.skedgo.tripkit.ui.map
 
+import androidx.annotation.VisibleForTesting
 import com.google.android.gms.maps.CameraUpdate
 import com.jakewharton.rxrelay2.BehaviorRelay
 import com.skedgo.rxtry.subscribeWithErrorHandling
@@ -41,7 +42,8 @@ class TripResultMapViewModel @Inject internal constructor(
         const val DELAY_MAP_CAMERA_UPDATE = 400L
     }
 
-    private val selectedTrip: BehaviorRelay<Trip> = BehaviorRelay.create()
+    @VisibleForTesting
+    val selectedTrip: BehaviorRelay<Trip> = BehaviorRelay.create()
 
     private var currentTrip: Trip? = null
 
@@ -85,7 +87,8 @@ class TripResultMapViewModel @Inject internal constructor(
             ).autoClear()
     }
 
-    private fun Trip.processCameraUpdate() {
+    @VisibleForTesting
+    fun Trip.processCameraUpdate() {
         this.segmentList?.let { tripSegments ->
             Observable.timer(DELAY_MAP_CAMERA_UPDATE, TimeUnit.MILLISECONDS, Schedulers.io())
                 .subscribe({
@@ -99,11 +102,13 @@ class TripResultMapViewModel @Inject internal constructor(
         }
     }
 
-    private fun Trip.processSegments() {
+    @VisibleForTesting
+    fun Trip.processSegments() {
         segmentsStream.onNext(this.segmentList)
     }
 
-    private fun Trip.processTravelledStopMarkerViewModels() {
+    @VisibleForTesting
+    fun Trip.processTravelledStopMarkerViewModels() {
         // to ensure previous observer is cleared before executing a new one
         stopMarkerViewModelsDisposable.clear()
 
@@ -129,7 +134,8 @@ class TripResultMapViewModel @Inject internal constructor(
         }).addTo(stopMarkerViewModelsDisposable)
     }
 
-    private fun Trip.processMarkerViewModels() {
+    @VisibleForTesting
+    fun Trip.processMarkerViewModels() {
         val tripSegments = this.segmentList
         alertMarkerViewModelsStream.onNext(
             tripSegments.flatMap { segment ->
@@ -145,7 +151,8 @@ class TripResultMapViewModel @Inject internal constructor(
         )
     }
 
-    private fun Trip.processMapTiles() {
+    @VisibleForTesting
+    fun Trip.processMapTiles() {
         val tripSegments = this.segmentList
         val segmentWithMapTiles = tripSegments.firstOrNull { it.mapTiles != null }
         mapTilesStream.onNext(segmentWithMapTiles?.mapTiles?.urlTemplates ?: emptyList())
