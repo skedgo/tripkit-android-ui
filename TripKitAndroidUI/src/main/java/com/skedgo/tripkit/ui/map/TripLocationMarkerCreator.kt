@@ -1,36 +1,29 @@
-package com.skedgo.tripkit.ui.map;
+package com.skedgo.tripkit.ui.map
 
-import android.text.TextUtils;
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MarkerOptions
+import com.skedgo.tripkit.common.model.location.Location
+import javax.inject.Inject
 
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
-import com.skedgo.tripkit.common.model.location.Location;
+class TripLocationMarkerCreator @Inject constructor() {
+    fun call(location: Location): MarkerOptions {
+        var title: String? = location.name
+        var snippet: String? = null
 
-import javax.inject.Inject;
-
-public class TripLocationMarkerCreator {
-    @Inject
-    public TripLocationMarkerCreator() {
-    }
-
-    public MarkerOptions call(Location location) {
-        String title = location.getName();
-        String snippet = null;
-
-        if (TextUtils.isEmpty(title)) {
-            title = location.getAddress();
-            if (TextUtils.isEmpty(title)) {
-                title = location.getCoordinateString();
+        if (title.isNullOrEmpty()) {
+            title = location.address
+            if (title.isNullOrEmpty()) {
+                title = location.coordinateString
             }
         } else {
-            snippet = location.getAddress();
+            snippet = location.address
         }
 
-        LatLng markerPosition = new LatLng(location.getLat(), location.getLon());
-        return new MarkerOptions()
+        val markerPosition = LatLng(location.lat, location.lon)
+        return MarkerOptions()
             .title(title)
             .snippet(snippet)
             .draggable(false)
-            .position(markerPosition);
+            .position(markerPosition)
     }
 }
