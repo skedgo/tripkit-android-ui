@@ -1,6 +1,8 @@
 package com.skedgo.tripkit.ui.utils
 
 import android.content.res.Resources.NotFoundException
+import android.graphics.PorterDuff
+import android.graphics.PorterDuffColorFilter
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.StateListDrawable
 import android.os.SystemClock
@@ -274,4 +276,18 @@ fun setDynamicHeight(view: View, heightInDp: Int) {
     val scale = view.context.resources.displayMetrics.density // Convert dp to pixels
     params.height = if (heightInDp > 0) (heightInDp * scale).toInt() else 0
     view.layoutParams = params
+}
+
+@BindingAdapter("android:drawableTint")
+fun TextView.setDrawableTint(color: Int) {
+    compoundDrawables.filterNotNull().forEach {
+        if (color != 0) {
+            it.colorFilter = PorterDuffColorFilter(
+                ContextCompat.getColor(context, color),
+                PorterDuff.Mode.SRC_IN
+            )
+        } else {
+            it.clearColorFilter()
+        }
+    }
 }
