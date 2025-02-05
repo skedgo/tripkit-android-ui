@@ -1,79 +1,73 @@
-package com.skedgo.tripkit.ui.map;
+package com.skedgo.tripkit.ui.map
 
-import android.content.res.Resources;
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
+import android.content.res.Resources
+import android.graphics.Bitmap
+import android.graphics.Bitmap.Config.ARGB_8888
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Paint
+import android.graphics.Paint.Cap.ROUND
+import android.graphics.Paint.Style.FILL_AND_STROKE
+import androidx.annotation.DimenRes
+import com.google.android.gms.maps.model.BitmapDescriptor
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MarkerOptions
+import com.skedgo.tripkit.common.model.region.Region.City
 
-import com.google.android.gms.maps.model.BitmapDescriptor;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
-import com.skedgo.tripkit.common.model.region.Region;
-
-import androidx.annotation.DimenRes;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-
-public final class MapMarkerUtils {
-    private static Paint circlePaint;
-
-    static {
-        circlePaint = new Paint();
-        circlePaint.setAntiAlias(true);
-        circlePaint.setFilterBitmap(true);
-        circlePaint.setStyle(Paint.Style.FILL_AND_STROKE);
-        circlePaint.setStrokeCap(Paint.Cap.ROUND);
+object MapMarkerUtils {
+    private val circlePaint = Paint().apply {
+        isAntiAlias = true
+        isFilterBitmap = true
+        style = Paint.Style.FILL_AND_STROKE
+        strokeCap = Paint.Cap.ROUND
     }
 
-    private MapMarkerUtils() {
-    }
+    fun createStopMarkerIcon(
+        diameter: Int,
+        strokeColor: Int,
+        fillColor: Int,
+        showOutline: Boolean
+    ): Bitmap {
+        var adjustedDiameter = diameter
+        val icon = Bitmap.createBitmap(adjustedDiameter, adjustedDiameter, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(icon)
+        val circleCenter = adjustedDiameter / 2
 
-    public static Bitmap createStopMarkerIcon(
-        int diameter,
-        int strokeColor,
-        int fillColor,
-        boolean showOutline) {
-        final Bitmap icon = Bitmap.createBitmap(diameter, diameter, Bitmap.Config.ARGB_8888);
-        final Canvas canvas = new Canvas(icon);
-        final int circleCenter = diameter / 2;
         if (showOutline) {
-            circlePaint.setColor(Color.BLACK);
-            canvas.drawCircle(circleCenter, circleCenter, diameter / 2, circlePaint);
-
-            diameter = (int) (diameter * 0.9);
+            circlePaint.color = Color.BLACK
+            canvas.drawCircle(circleCenter.toFloat(), circleCenter.toFloat(), (adjustedDiameter / 2).toFloat(), circlePaint)
+            adjustedDiameter = (adjustedDiameter * 0.9).toInt()
         }
 
-        circlePaint.setColor(strokeColor);
-        canvas.drawCircle(circleCenter, circleCenter, diameter / 2, circlePaint);
+        circlePaint.color = strokeColor
+        canvas.drawCircle(circleCenter.toFloat(), circleCenter.toFloat(), (adjustedDiameter / 2).toFloat(), circlePaint)
 
-        final int innerDiameter = (int) (diameter * 0.7);
-        circlePaint.setColor(fillColor);
-        canvas.drawCircle(circleCenter, circleCenter, innerDiameter / 2, circlePaint);
-        return icon;
+        val innerDiameter = (adjustedDiameter * 0.7).toInt()
+        circlePaint.color = fillColor
+        canvas.drawCircle(circleCenter.toFloat(), circleCenter.toFloat(), (innerDiameter / 2).toFloat(), circlePaint)
+
+        return icon
     }
 
     /**
-     * This replaces the old solution that use a transparent bitmap contained in the drawable/ folder.
-     * The advantage is that, this creates a bitmap that looks more consistent over various DPIs.
+     * This replaces the old solution that used a transparent bitmap contained in the drawable/ folder.
+     * The advantage is that this creates a bitmap that looks more consistent over various DPIs.
      */
-    public static BitmapDescriptor createTransparentSquaredIcon(@NonNull Resources res,
-                                                                @DimenRes int sizeResId) {
-        final int size = res.getDimensionPixelSize(sizeResId);
-        return BitmapDescriptorFactory.fromBitmap(Bitmap.createBitmap(
-            size,
-            size,
-            Bitmap.Config.ARGB_8888
-        ));
+    fun createTransparentSquaredIcon(res: Resources, @DimenRes sizeResId: Int): BitmapDescriptor {
+        val size = res.getDimensionPixelSize(sizeResId)
+        return BitmapDescriptorFactory.fromBitmap(
+            Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
+        )
     }
 
-    @Nullable
-    public static MarkerOptions createCityMarker(Region.City city, BitmapDescriptor cityIcon) {
-        return new MarkerOptions()
-            .title(city.getName())
-            .position(new LatLng(city.getLat(), city.getLon()))
-            .icon(cityIcon)
-            .draggable(false);
+    fun createCityMarker(city: City, cityIcon: BitmapDescriptor?): MarkerOptions? {
+        return cityIcon?.let {
+            MarkerOptions()
+                .title(city.name)
+                .position(LatLng(city.lat, city.lon))
+                .icon(it)
+                .draggable(false)
+        }
     }
 }

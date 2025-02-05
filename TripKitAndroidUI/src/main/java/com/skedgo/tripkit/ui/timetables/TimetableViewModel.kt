@@ -266,7 +266,7 @@ class TimetableViewModel @Inject constructor(
     }.replay(1).refCount()
 
 
-    val onAlertClicks: Observable<ArrayList<RealtimeAlert>> = services
+    val onAlertClicks: Observable<List<RealtimeAlert>> = services
         .asObservable()
         .switchMap {
             it.map { it.onAlertsClick.observable }
@@ -313,7 +313,7 @@ class TimetableViewModel @Inject constructor(
                 it.forEach {
                     tmpServiceList.add(
                         TimetableHeaderLineItem(
-                            it.serviceNumber.get(),
+                            it.serviceNumber.get().orEmpty(),
                             it.serviceColor.get()
                         )
                     )

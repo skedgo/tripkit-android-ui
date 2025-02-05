@@ -37,30 +37,33 @@ class CursorToServiceConverter @Inject constructor(private val gson: Gson) :
         )
         service.operator = serviceOperator
         service.realTimeStatus = realTimeStatus
-        if (cursor.getColumnIndex("realTimeDeparture") != -1) {
-            service.realTimeDeparture = cursor.getInt(cursor.getColumnIndex("realTimeDeparture"))
+        val realTimeDeparture = cursor.getColumnIndex("realTimeDeparture")
+        if (realTimeDeparture != -1) {
+            service.realTimeDeparture = cursor.getInt(realTimeDeparture)
         }
 
-        if (cursor.getColumnIndex("realTimeArrival") != -1) {
-            service.realTimeArrival = cursor.getInt(cursor.getColumnIndex("realTimeArrival"))
+        val realTimeArrival = cursor.getColumnIndex("realTimeArrival")
+        if (realTimeArrival != -1) {
+            service.realTimeArrival = cursor.getInt(realTimeArrival)
         }
-        service.isFavourite(isFavourite)
+        service.isFavourite = isFavourite
         service.searchString = searchString
         service.serviceTime = serviceTime
-        service.setWheelchairAccessible(wheelchairAccessible)
-        service.setBicycleAccessible(bicycleAccessible)
+        service.wheelchairAccessible = wheelchairAccessible
+        service.bicycleAccessible = bicycleAccessible
         service.startStopShortName = startStopShortName
-        val modeInfoJson = cursor.getString(cursor.getColumnIndex(DbFields.MODE_INFO.name))
+        val modeInfo = cursor.getColumnIndex(DbFields.MODE_INFO.name)
+        val modeInfoJson = cursor.getString(modeInfo)
         if (modeInfoJson != null) {
             val modeInfo = gson.fromJson(modeInfoJson, ModeInfo::class.java)
             service.modeInfo = modeInfo
         }
 
         // TODO: What about hasAlerts()?
-        service.serviceDirection =
-            cursor.getString(cursor.getColumnIndex(DbFields.SERVICE_DIRECTION.name))
-        service.startPlatform =
-            cursor.getString(cursor.getColumnIndex(DbFields.START_PLATFORM.name))
+        val serviceDirection = cursor.getColumnIndex(DbFields.SERVICE_DIRECTION.name)
+        service.serviceDirection = cursor.getString(serviceDirection)
+        val startPlatform = cursor.getColumnIndex(DbFields.START_PLATFORM.name)
+        service.startPlatform = cursor.getString(startPlatform)
         return service
     }
 

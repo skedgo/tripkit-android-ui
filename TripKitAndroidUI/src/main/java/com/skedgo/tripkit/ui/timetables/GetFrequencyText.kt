@@ -15,7 +15,7 @@ open class GetFrequencyText @Inject constructor(
     open fun execute(service: TimetableEntry): String {
         val firstString = when {
             service.serviceNumber.isNullOrEmpty().not() -> service.serviceNumber
-            service.startStop?.name?.isNotEmpty() == true -> service.startStop.name
+            service.startStop?.name?.isNotEmpty() == true -> service.startStop?.name
             else -> ""
         }
         val frequencyText = "${service.frequency} ${StyleManager.FORMAT_TIME_SPAN_MIN}"

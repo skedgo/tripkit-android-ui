@@ -1,479 +1,280 @@
-package com.skedgo.tripkit.ui.model;
+package com.skedgo.tripkit.ui.model
 
-import android.os.Parcel;
-import android.os.Parcelable;
-import com.google.gson.annotations.SerializedName;
-import com.skedgo.tripkit.common.agenda.IRealTimeElement;
-import com.skedgo.tripkit.common.model.BicycleAccessible;
-import com.skedgo.tripkit.common.model.time.ITimeRange;
-import com.skedgo.tripkit.common.model.realtimealert.RealTimeStatus;
-import com.skedgo.tripkit.common.model.realtimealert.RealtimeAlert;
-import com.skedgo.tripkit.common.model.stop.ScheduledStop;
-import com.skedgo.tripkit.common.model.WheelchairAccessible;
-import com.skedgo.tripkit.routing.ModeInfo;
-import com.skedgo.tripkit.routing.RealTimeVehicle;
-import com.skedgo.tripkit.routing.ServiceColor;
-import com.skedgo.tripkit.routing.VehicleMode;
-import com.skedgo.tripkit.ui.BuildConfig;
-
-import org.jetbrains.annotations.NotNull;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import androidx.annotation.Nullable;
-import io.reactivex.BackpressureStrategy;
-import io.reactivex.functions.Consumer;
-import io.reactivex.subjects.BehaviorSubject;
-import timber.log.Timber;
+import android.os.Parcel
+import android.os.Parcelable
+import android.os.Parcelable.Creator
+import com.google.gson.annotations.SerializedName
+import com.skedgo.tripkit.common.agenda.IRealTimeElement
+import com.skedgo.tripkit.common.model.BicycleAccessible
+import com.skedgo.tripkit.common.model.WheelchairAccessible
+import com.skedgo.tripkit.common.model.realtimealert.RealTimeStatus
+import com.skedgo.tripkit.common.model.realtimealert.RealtimeAlert
+import com.skedgo.tripkit.common.model.stop.ScheduledStop
+import com.skedgo.tripkit.common.model.time.ITimeRange
+import com.skedgo.tripkit.routing.ModeInfo
+import com.skedgo.tripkit.routing.RealTimeVehicle
+import com.skedgo.tripkit.routing.ServiceColor
+import com.skedgo.tripkit.routing.VehicleMode
+import com.skedgo.tripkit.ui.BuildConfig
+import io.reactivex.BackpressureStrategy.BUFFER
+import io.reactivex.subjects.BehaviorSubject
+import timber.log.Timber
 
 /**
  * (Aka Service)
  */
-public class TimetableEntry implements Parcelable, IRealTimeElement, ITimeRange, WheelchairAccessible, BicycleAccessible {
-    public static final Creator<TimetableEntry> CREATOR = new Creator<TimetableEntry>() {
-        public TimetableEntry createFromParcel(Parcel in) {
-            TimetableEntry service = new TimetableEntry();
+class TimetableEntry : Parcelable, IRealTimeElement, ITimeRange, WheelchairAccessible,
+    BicycleAccessible {
+    @Transient
+    val stops: BehaviorSubject<List<StopInfo>> = BehaviorSubject.create()
 
-            service.id = in.readLong();
-            service.stopCode = in.readString();
-            service.serviceTripId = in.readString();
-            service.serviceNumber = in.readString();
-            service.serviceName = in.readString();
-            service.realTimeStatus = RealTimeStatus.from(in.readString());
-            service.serializedStartSecs = in.readLong();
-            service.serializedEndSecs = in.readLong();
-            service.serviceColor = in.readParcelable(ServiceColor.class.getClassLoader());
-            service.frequency = in.readInt();
-            service.isFavourite = in.readInt() == 1;
-            service.alerts = in.readArrayList(RealtimeAlert.class.getClassLoader());
-            service.searchString = in.readString();
-            service.endStopCode = in.readString();
-            service.startStop = in.readParcelable(ScheduledStop.class.getClassLoader());
-            service.endStop = in.readParcelable(ScheduledStop.class.getClassLoader());
-            service.mode = VehicleMode.from(in.readString());
-            service.pairIdentifier = in.readString();
-            service.operator = in.readString();
-            service.realtimeVehicle = in.readParcelable(RealTimeVehicle.class.getClassLoader());
-            service.serviceTime = in.readLong();
-            service.modeInfo = in.readParcelable(ModeInfo.class.getClassLoader());
-            service.serviceDirection = in.readString();
-            service.wheelchairAccessible = (Boolean) in.readValue(Boolean.class.getClassLoader());
-            service.bicycleAccessible = (Boolean) in.readValue(Boolean.class.getClassLoader());
-            service.startStopShortName = in.readString();
-            service.alertHashCodes = in.readArrayList(Long.class.getClassLoader());
-            service.serviceColor = in.readParcelable(ServiceColor.class.getClassLoader());
-            service.startPlatform = in.readString();
-            return service;
-        }
+    /**
+     * For A2B-timetable-related stuff.
+     */
+    @Transient
+    var startStop: ScheduledStop? = null
 
-        public TimetableEntry[] newArray(int size) {
-            return new TimetableEntry[size];
-        }
-    };
-    public final transient BehaviorSubject<List<StopInfo>> stops = BehaviorSubject.create();
     /**
      * For A2B-timetable-related stuff.
      */
-    public transient ScheduledStop startStop;
+    @Transient
+    var endStop: ScheduledStop? = null
+
     /**
      * For A2B-timetable-related stuff.
      */
-    public transient ScheduledStop endStop;
-    /**
-     * For A2B-timetable-related stuff.
-     */
-    public String pairIdentifier;
-    private transient long id;
-    private transient boolean isFavourite;
+    var pairIdentifier: String? = null
+
+    @Transient
+    var id: Long = 0
+
+    @Transient
+    var isFavourite: Boolean = false
+
     @SerializedName("realtimeVehicle")
-    private RealTimeVehicle realtimeVehicle;
+    var realtimeVehicle: RealTimeVehicle? = null
+
     @SerializedName("stopCode")
-    private String stopCode;
+    var stopCode: String? = null
+
     @SerializedName("modeInfo")
-    private ModeInfo modeInfo;
+    var modeInfo: ModeInfo? = null
+
     @SerializedName("operator")
-    private String operator;
+    override var operator: String? = null
+
     @SerializedName("endStopCode")
-    private String endStopCode;
+    override var endStopCode: String? = null
+
     @SerializedName("serviceTripID")
-    private String serviceTripId;
+    override var serviceTripId: String? = null
+
     @SerializedName("serviceNumber")
-    private String serviceNumber;
+    var serviceNumber: String? = null
+
     @SerializedName("serviceName")
-    private String serviceName;
+    var serviceName: String? = null
+
     @SerializedName("serviceDirection")
-    private String serviceDirection;
+    var serviceDirection: String? = null
+
     @SerializedName("realTimeStatus")
-    private RealTimeStatus realTimeStatus;
+    var realTimeStatus: RealTimeStatus? = null
+
     @SerializedName("realTimeDeparture")
-    private int realTimeDeparture = -1;
+    var realTimeDeparture: Int = -1
+
     @SerializedName("realTimeArrival")
-    private int realTimeArrival = -1;
+    var realTimeArrival: Int = -1
 
     @SerializedName("alerts")
-    private ArrayList<RealtimeAlert> alerts;
+    var alerts: List<RealtimeAlert>? = null
+
     @SerializedName("serviceColor")
-    private ServiceColor serviceColor;
+    var serviceColor: ServiceColor? = null
+
     @SerializedName("frequency")
-    private int frequency;
+    var frequency = 0
+
     @SerializedName("searchString")
-    private String searchString;
+    var searchString: String? = null
+
     @SerializedName("alertHashCodes")
-    private @Nullable ArrayList<Long> alertHashCodes;
+    var alertHashCodes: ArrayList<Long>? = null
+
     @SerializedName("wheelchairAccessible")
-    private @Nullable Boolean wheelchairAccessible;
+    override var wheelchairAccessible: Boolean? = null
+
     @SerializedName("bicycleAccessible")
-    private @Nullable Boolean bicycleAccessible;
+    override var bicycleAccessible: Boolean? = null
+
     @SerializedName("start_stop_short_name")
-    private String startStopShortName;
+    var startStopShortName: String? = null
+
     @SerializedName("startPlatform")
-    private String startPlatform;
+    var startPlatform: String? = null
+
     /**
-     * Replacement: {@link #modeInfo}.
+     * Replacement: [.modeInfo].
      */
-    @Deprecated
+    @Deprecated("")
     @SerializedName("mode")
-    private VehicleMode mode;
+    var mode: VehicleMode? = null
+
     /**
      * This field is primarily used to interact with Gson or Parcel.
      */
     @SerializedName("startTime")
-    private long serializedStartSecs;
+    private var serializedStartSecs: Long = 0
+
     /**
      * This field is primarily used to interact with Gson or Parcel.
      */
     @SerializedName("endTime")
-    private long serializedEndSecs;
+    private var serializedEndSecs: Long = 0
+
     /**
      * Service time is initially the same as "startTime". If is a realtime service, here we save the
      * service time, while startTime will have the real arriving time.
      */
-    private long serviceTime;
+    var serviceTime: Long = 0
 
-    public TimetableEntry() {
+    override var startStopCode: String?
+        get() = stopCode
+        set(value) {
+            stopCode = value
+        }
+    override val startTimeInSeconds: Long
+        get() = serializedStartSecs
+    override var startTimeInSecs: Long
+        get() = serializedStartSecs
+        set(value) {
+            serializedStartSecs = value
+        }
+    override var endTimeInSecs: Long
+        get() = serializedEndSecs
+        set(value) {
+            serializedEndSecs = value
+        }
+
+    init {
         // For debug purpose only.
         if (BuildConfig.DEBUG) {
-            stops.toFlowable(BackpressureStrategy.BUFFER).subscribe(stops ->
-                Timber.w("LoadStops", "Got " + stops.size() + " stops for: " + serviceNumber + " - " + TimetableEntry.this)
-            );
+            stops.toFlowable(BUFFER).subscribe { stops: List<StopInfo> ->
+                Timber.w(
+                    "LoadStops",
+                    "Got " + stops.size + " stops for: " + serviceNumber + " - " + this@TimetableEntry
+                )
+            }
         }
     }
 
-    @Nullable
-    public String getServiceDirection() {
-        return serviceDirection;
+    val isFrequencyBased: Boolean
+        get() = frequency > 0
+
+    fun hasAlerts(): Boolean {
+        return alerts?.isNotEmpty() == true
     }
 
-    public void setServiceDirection(String serviceDirection) {
-        this.serviceDirection = serviceDirection;
+    override fun describeContents(): Int {
+        return 0
     }
 
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
-
-    public String getStopCode() {
-        return stopCode;
-    }
-
-    public void setStopCode(String stopCode) {
-        this.stopCode = stopCode;
-    }
-
-    public String getServiceTripId() {
-        return serviceTripId;
-    }
-
-    public void setServiceTripId(String serviceTripId) {
-        this.serviceTripId = serviceTripId;
-    }
-
-    @Nullable
-    public String getServiceNumber() {
-        return serviceNumber;
-    }
-
-    public void setServiceNumber(String serviceNumber) {
-        this.serviceNumber = serviceNumber;
-    }
-
-    @Nullable
-    public String getServiceName() {
-        return serviceName;
-    }
-
-    public void setServiceName(String serviceName) {
-        this.serviceName = serviceName;
-    }
-
-    public RealTimeStatus getRealTimeStatus() {
-        return realTimeStatus;
-    }
-
-    public void setRealTimeStatus(RealTimeStatus realTimeStatus) {
-        this.realTimeStatus = realTimeStatus;
-    }
-
-    @Override
-    public long getStartTimeInSecs() {
-        return serializedStartSecs;
-    }
-
-    @Override
-    public void setStartTimeInSecs(long startTimeInSecs) {
-        this.serializedStartSecs = startTimeInSecs;
-    }
-
-    @Override
-    public long getStartTimeInSeconds() {
-        return serializedStartSecs;
-    }
-
-    @Override
-    public long getEndTimeInSecs() {
-        return serializedEndSecs;
-    }
-
-    @Override
-    public void setEndTimeInSecs(long endTimeInSecs) {
-        this.serializedEndSecs = endTimeInSecs;
-    }
-
-    public ServiceColor getServiceColor() {
-        return serviceColor;
-    }
-
-    public void setServiceColor(ServiceColor serviceColor) {
-        this.serviceColor = serviceColor;
-    }
-
-    public int getFrequency() {
-        return frequency;
-    }
-
-    public void setFrequency(int freq) {
-        frequency = freq;
-    }
-
-    public boolean isFrequencyBased() {
-        return frequency > 0;
-    }
-
-    @Override
-    public String getStartStopCode() {
-        return stopCode;
-    }
-
-    @Override
-    public void setStartStopCode(String startStopCode) {
-        stopCode = startStopCode;
-    }
-
-    public boolean isFavourite() {
-        return isFavourite;
-    }
-
-    public void isFavourite(boolean isFavourite) {
-        this.isFavourite = isFavourite;
-    }
-
-    public ArrayList<RealtimeAlert> getAlerts() {
-        return alerts;
-    }
-
-    public void setAlerts(ArrayList<RealtimeAlert> alerts) {
-        this.alerts = alerts;
-    }
-
-    public boolean hasAlerts() {
-        return alerts != null && !alerts.isEmpty();
-    }
-
-    @Override
-    public String getEndStopCode() {
-        return endStopCode;
-    }
-
-    @Override
-    public void setEndStopCode(String endStopCode) {
-        this.endStopCode = endStopCode;
-    }
-
-    public String getSearchString() {
-        return searchString;
-    }
-
-    public void setSearchString(String searchString) {
-        this.searchString = searchString;
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    /**
-     * In secs.
-     */
-    public long getServiceTime() {
-        return serviceTime;
-    }
-
-    public void setServiceTime(long serviceTime) {
-        this.serviceTime = serviceTime;
-    }
-
-    @Nullable
-    public ArrayList<Long> getAlertHashCodes() {
-        return alertHashCodes;
-    }
-
-    public void setAlertHashCodes(@Nullable ArrayList<Long> alertHashCodes) {
-        this.alertHashCodes = alertHashCodes;
-    }
-
-    @Override
-    public void writeToParcel(Parcel out, int flags) {
-        out.writeLong(id);
-        out.writeString(stopCode);
-        out.writeString(serviceTripId);
-        out.writeString(serviceNumber);
-        out.writeString(serviceName);
-        out.writeString(realTimeStatus != null ? realTimeStatus.name() : null);
-        out.writeLong(serializedStartSecs);
-        out.writeLong(serializedEndSecs);
-        out.writeParcelable(serviceColor, 0);
-        out.writeInt(frequency);
-        out.writeInt(isFavourite ? 1 : 0);
-        out.writeList(alerts);
-        out.writeString(searchString);
-        out.writeString(endStopCode);
-        out.writeParcelable(startStop, 0);
-        out.writeParcelable(endStop, 0);
-        out.writeString(mode == null ? null : mode.toString());
-        out.writeString(pairIdentifier);
-        out.writeString(operator);
-        out.writeParcelable(realtimeVehicle, 0);
-        out.writeLong(serviceTime);
-        out.writeParcelable(modeInfo, 0);
-        out.writeString(serviceDirection);
-        out.writeValue(wheelchairAccessible);
-        out.writeValue(bicycleAccessible);
-        out.writeValue(startStopShortName);
-        out.writeList(alertHashCodes);
-        out.writeString(startPlatform);
-    }
-
-    @Deprecated
-    public VehicleMode getMode() {
-        return mode;
-    }
-
-    @Deprecated
-    public void setMode(VehicleMode mode) {
-        this.mode = mode;
-    }
-
-    public String getOperator() {
-        return operator;
-    }
-
-    public void setOperator(String operator) {
-        this.operator = operator;
+    override fun writeToParcel(out: Parcel, flags: Int) {
+        out.writeLong(id)
+        out.writeString(stopCode)
+        out.writeString(serviceTripId)
+        out.writeString(serviceNumber)
+        out.writeString(serviceName)
+        out.writeString(if (realTimeStatus != null) realTimeStatus!!.name else null)
+        out.writeLong(startTimeInSecs)
+        out.writeLong(endTimeInSecs)
+        out.writeParcelable(serviceColor, 0)
+        out.writeInt(frequency)
+        out.writeInt(if (isFavourite) 1 else 0)
+        out.writeList(alerts)
+        out.writeString(searchString)
+        out.writeString(endStopCode)
+        out.writeParcelable(startStop, 0)
+        out.writeParcelable(endStop, 0)
+        out.writeString(if (mode == null) null else mode.toString())
+        out.writeString(pairIdentifier)
+        out.writeString(operator)
+        out.writeParcelable(realtimeVehicle, 0)
+        out.writeLong(serviceTime)
+        out.writeParcelable(modeInfo, 0)
+        out.writeString(serviceDirection)
+        out.writeValue(wheelchairAccessible)
+        out.writeValue(bicycleAccessible)
+        out.writeValue(startStopShortName)
+        out.writeList(alertHashCodes)
+        out.writeString(startPlatform)
     }
 
     /**
      * For example, in order to determine a past service trip.
      */
-    public boolean isBefore(long pointSecs) {
-        if (serializedEndSecs > 0) {
-            return serializedEndSecs < pointSecs;
+    fun isBefore(pointSecs: Long): Boolean {
+        return if (serializedEndSecs > 0) {
+            serializedEndSecs < pointSecs
         } else {
             // Some services don't have arrival time.
-            return serializedStartSecs < pointSecs;
+            serializedStartSecs < pointSecs
         }
     }
 
     /**
      * For debug purpose only.
      */
-    @NotNull
-    @Override
-    public String toString() {
+    override fun toString(): String {
         // Trim the package part to print out something less verbal.
-        return TimetableEntry.class.getSimpleName() + hashCode();
+        return TimetableEntry::class.java.simpleName + hashCode()
     }
 
-    public RealTimeVehicle getRealtimeVehicle() {
-        return realtimeVehicle;
-    }
+    companion object {
+        @JvmField
+        val CREATOR: Creator<TimetableEntry> = object : Creator<TimetableEntry> {
+            override fun createFromParcel(`in`: Parcel): TimetableEntry {
+                val service = TimetableEntry()
 
-    public void setRealtimeVehicle(RealTimeVehicle realtimeVehicle) {
-        this.realtimeVehicle = realtimeVehicle;
-    }
+                service.id = `in`.readLong()
+                service.stopCode = `in`.readString()
+                service.serviceTripId = `in`.readString()
+                service.serviceNumber = `in`.readString()
+                service.serviceName = `in`.readString()
+                service.realTimeStatus = RealTimeStatus.from(`in`.readString())
+                service.startTimeInSecs = `in`.readLong()
+                service.endTimeInSecs = `in`.readLong()
+                service.serviceColor = `in`.readParcelable(ServiceColor::class.java.classLoader)
+                service.frequency = `in`.readInt()
+                service.isFavourite = `in`.readInt() == 1
+                service.alerts = `in`.readArrayList(RealtimeAlert::class.java.classLoader) as ArrayList<RealtimeAlert>?
+                service.searchString = `in`.readString()
+                service.endStopCode = `in`.readString()
+                service.startStop = `in`.readParcelable(ScheduledStop::class.java.classLoader)
+                service.endStop = `in`.readParcelable(ScheduledStop::class.java.classLoader)
+                service.mode = VehicleMode.from(`in`.readString())
+                service.pairIdentifier = `in`.readString()
+                service.operator = `in`.readString()
+                service.realtimeVehicle =
+                    `in`.readParcelable(RealTimeVehicle::class.java.classLoader)
+                service.serviceTime = `in`.readLong()
+                service.modeInfo = `in`.readParcelable(ModeInfo::class.java.classLoader)
+                service.serviceDirection = `in`.readString()
+                service.wheelchairAccessible =
+                    `in`.readValue(Boolean::class.java.classLoader) as Boolean?
+                service.bicycleAccessible =
+                    `in`.readValue(Boolean::class.java.classLoader) as Boolean?
+                service.startStopShortName = `in`.readString()
+                service.alertHashCodes = `in`.readArrayList(Long::class.java.classLoader) as ArrayList<Long>?
+                service.serviceColor = `in`.readParcelable(ServiceColor::class.java.classLoader)
+                service.startPlatform = `in`.readString()
+                return service
+            }
 
-    @Nullable
-    public Boolean getWheelchairAccessible() {
-        return wheelchairAccessible;
-    }
-
-    public void setWheelchairAccessible(@Nullable Boolean wheelchairAccessible) {
-        this.wheelchairAccessible = wheelchairAccessible;
-    }
-
-    @Nullable
-    @Override
-    public Boolean getBicycleAccessible() {
-        return bicycleAccessible;
-    }
-
-    public void setBicycleAccessible(@Nullable Boolean bicycleAccessible) {
-        this.bicycleAccessible = bicycleAccessible;
-    }
-
-    public String getStartStopShortName() {
-        return startStopShortName;
-    }
-
-    public void setStartStopShortName(String startStopShortName) {
-        this.startStopShortName = startStopShortName;
-    }
-
-    @Nullable
-    public ModeInfo getModeInfo() {
-        return modeInfo;
-    }
-
-    public void setModeInfo(@Nullable ModeInfo modeInfo) {
-        this.modeInfo = modeInfo;
-    }
-
-    public int getRealTimeDeparture() {
-        return realTimeDeparture;
-    }
-
-    public void setRealTimeDeparture(int realTimeDeparture) {
-        this.realTimeDeparture = realTimeDeparture;
-    }
-
-    public int getRealTimeArrival() {
-        return realTimeArrival;
-    }
-
-    public void setRealTimeArrival(int realTimeArrival) {
-        this.realTimeArrival = realTimeArrival;
-    }
-
-    public String getStartPlatform() {
-        return startPlatform;
-    }
-
-    public void setStartPlatform(String startPlatform) {
-        this.startPlatform = startPlatform;
+            override fun newArray(size: Int): Array<TimetableEntry?> {
+                return arrayOfNulls(size)
+            }
+        }
     }
 }

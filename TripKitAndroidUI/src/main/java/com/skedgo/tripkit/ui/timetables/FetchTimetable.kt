@@ -55,7 +55,7 @@ open class FetchTimetable @Inject constructor(
                 response.serviceList.orEmpty().forEach { service ->
                     service.alertHashCodes?.let {
                         realtimeAlertRepository.addAlertHashCodesForId(
-                            service.serviceTripId,
+                            service.serviceTripId.orEmpty(),
                             it.toList()
                         )
                     }
@@ -95,7 +95,7 @@ open class FetchTimetable @Inject constructor(
             }
             .map {
                 it.first.forEach { timetable ->
-                    val savedAlerts = realtimeAlertRepository.getAlerts(timetable.serviceTripId)
+                    val savedAlerts = realtimeAlertRepository.getAlerts(timetable.serviceTripId.orEmpty())
                     timetable.alerts = ArrayList(savedAlerts.orEmpty())
                 }
                 it
@@ -108,7 +108,7 @@ open class FetchTimetable @Inject constructor(
 
         Observable.fromIterable(response.serviceList.orEmpty())
             .flatMapSingle { service ->
-                serviceAlertsDao.getAlertForService(serviceId = service.serviceTripId)
+                serviceAlertsDao.getAlertForService(serviceId = service.serviceTripId.orEmpty())
                     .flatMapCompletable {
                         Completable.fromAction {
                             serviceAlertsDao.deleteAlertByService(it)
@@ -119,7 +119,7 @@ open class FetchTimetable @Inject constructor(
                         it.alertHashCodes.orEmpty()
                             .map {
                                 serviceAlertMapper.toEntity(
-                                    service.serviceTripId,
+                                    service.serviceTripId.orEmpty(),
                                     alertHashCodesToAlerts[it]!!
                                 )
                             }

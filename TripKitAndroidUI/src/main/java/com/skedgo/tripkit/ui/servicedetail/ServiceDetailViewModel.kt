@@ -197,23 +197,23 @@ class ServiceDetailViewModel @Inject constructor(
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({
                 setup(
-                    it.name ?: "",
-                    _entry.serviceTripId,
-                    if (!_entry.serviceName.isNullOrEmpty())
+                    region = it.name ?: "",
+                    serviceId = _entry.serviceTripId.orEmpty(),
+                    serviceName = if (!_entry.serviceName.isNullOrEmpty())
                         _entry.serviceName!!
                     else
                         getServiceTertiaryText.execute(_entry),
-                    _entry.serviceNumber,
-                    _entry.serviceColor,
-                    _entry.operator,
-                    _entry.startStopCode,
-                    null,
-                    _entry.startTimeInSecs,
-                    _entry.realtimeVehicle,
-                    _entry.wheelchairAccessible,
-                    _entry.bicycleAccessible,
-                    getRealtimeText.execute(_stop.dateTimeZone, _entry, _entry.realtimeVehicle),
-                    _entry.modeInfo
+                    serviceNumber = _entry.serviceNumber,
+                    serviceColor = _entry.serviceColor,
+                    operator = _entry.operator,
+                    startStopCode = _entry.startStopCode.orEmpty(),
+                    endStopCode = null,
+                    embarkation = _entry.startTimeInSecs,
+                    realTimeVehicle = _entry.realtimeVehicle,
+                    wheelchairAccessible = _entry.wheelchairAccessible,
+                    bicycleAccessible = _entry.bicycleAccessible,
+                    schedule = getRealtimeText.execute(_stop.dateTimeZone, _entry, _entry.realtimeVehicle),
+                    modeInfo = _entry.modeInfo
                 )
             }, {
                 it.printStackTrace()

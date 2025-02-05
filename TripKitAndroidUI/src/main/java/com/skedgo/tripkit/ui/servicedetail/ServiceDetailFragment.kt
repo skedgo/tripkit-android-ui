@@ -106,7 +106,7 @@ class ServiceDetailFragment : BaseTripKitFragment() {
                 ?: false
         viewModel.showCloseButton.set(showCloseButton)
         binding.closeButton.setOnClickListener(onCloseButtonListener)
-        viewModel.setAlerts(timetableEntry?.alerts)
+        viewModel.setAlerts(timetableEntry?.alerts?.filterNotNull())
 
         // Notify listener that onViewCreated is triggered
         viewCreatedListener?.onServiceDetailViewCreated(true)

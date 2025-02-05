@@ -1,80 +1,60 @@
-package com.skedgo.tripkit.ui.map;
+package com.skedgo.tripkit.ui.map
 
-import android.annotation.TargetApi;
-import android.content.Context;
-import android.os.Build;
-import android.util.AttributeSet;
-import android.view.LayoutInflater;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.TextView;
-
-import com.google.android.gms.maps.GoogleMap.InfoWindowAdapter;
-import com.skedgo.tripkit.ui.R;
-import com.skedgo.tripkit.ui.utils.ViewUtils;
-
-import androidx.annotation.DrawableRes;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+import android.annotation.TargetApi
+import android.content.Context
+import android.os.Build.VERSION_CODES
+import android.util.AttributeSet
+import android.view.LayoutInflater
+import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.TextView
+import androidx.annotation.DrawableRes
+import com.skedgo.tripkit.ui.R
+import com.skedgo.tripkit.ui.utils.ViewUtils
 
 /**
- * View to create custom callout in {@link InfoWindowAdapter},
+ * View to create custom callout in [InfoWindowAdapter],
  * simply including a title, a snippet, a left image and a right image.
  */
-public final class SimpleCalloutView extends LinearLayout {
-    private TextView titleView;
-    private TextView snippetView;
-    private ImageView rightImageView;
-    private ImageView leftImageView;
+class SimpleCalloutView @JvmOverloads constructor(
+    context: Context,
+    attrs: AttributeSet? = null,
+    defStyleAttr: Int = 0,
+    defStyleRes: Int = 0
+) : LinearLayout(context, attrs, defStyleAttr, defStyleRes) {
 
-    /**
-     * Should not invoke this constructor directly.
-     * Use {@link #create(LayoutInflater)} instead.
-     */
-    public SimpleCalloutView(Context context) {
-        super(context);
+    private lateinit var titleView: TextView
+    private lateinit var snippetView: TextView
+    private lateinit var rightImageView: ImageView
+    private lateinit var leftImageView: ImageView
+
+    companion object {
+        fun create(inflater: LayoutInflater): SimpleCalloutView {
+            return inflater.inflate(R.layout.view_simple_callout, null) as SimpleCalloutView
+        }
     }
 
-    public SimpleCalloutView(Context context, AttributeSet attrs) {
-        super(context, attrs);
+    fun setTitle(title: String?) {
+        ViewUtils.setText(titleView, title)
     }
 
-    public SimpleCalloutView(Context context, AttributeSet attrs, int defStyleAttr) {
-        super(context, attrs, defStyleAttr);
+    fun setSnippet(snippet: String?) {
+        ViewUtils.setText(snippetView, snippet)
     }
 
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    public SimpleCalloutView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
-        super(context, attrs, defStyleAttr, defStyleRes);
+    fun setLeftImage(@DrawableRes res: Int) {
+        ViewUtils.setImage(leftImageView, res)
     }
 
-    public static SimpleCalloutView create(@NonNull LayoutInflater inflater) {
-        return (SimpleCalloutView) inflater.inflate(R.layout.view_simple_callout, null);
+    fun setRightImage(@DrawableRes res: Int) {
+        ViewUtils.setImage(rightImageView, res)
     }
 
-    public void setTitle(@Nullable String title) {
-        ViewUtils.setText(titleView, title);
-    }
-
-    public void setSnippet(@Nullable String snippet) {
-        ViewUtils.setText(snippetView, snippet);
-    }
-
-    public void setLeftImage(@DrawableRes int res) {
-        ViewUtils.setImage(leftImageView, res);
-    }
-
-    public void setRightImage(@DrawableRes int res) {
-        ViewUtils.setImage(rightImageView, res);
-    }
-
-    @Override
-    protected void onFinishInflate() {
-        super.onFinishInflate();
-
-        titleView = findViewById(R.id.titleView);
-        snippetView = findViewById(R.id.snippetView);
-        rightImageView = findViewById(R.id.rightImageView);
-        leftImageView = findViewById(R.id.leftImageView);
+    override fun onFinishInflate() {
+        super.onFinishInflate()
+        titleView = findViewById(R.id.titleView)
+        snippetView = findViewById(R.id.snippetView)
+        rightImageView = findViewById(R.id.rightImageView)
+        leftImageView = findViewById(R.id.leftImageView)
     }
 }

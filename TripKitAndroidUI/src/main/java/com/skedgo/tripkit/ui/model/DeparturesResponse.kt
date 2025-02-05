@@ -1,119 +1,91 @@
-package com.skedgo.tripkit.ui.model;
+package com.skedgo.tripkit.ui.model
 
-import com.google.gson.annotations.SerializedName;
-import com.skedgo.tripkit.common.model.realtimealert.RealtimeAlert;
-import com.skedgo.tripkit.common.model.stop.ScheduledStop;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import androidx.annotation.Nullable;
+import com.google.gson.annotations.SerializedName
+import com.skedgo.tripkit.common.model.realtimealert.RealtimeAlert
+import com.skedgo.tripkit.common.model.stop.ScheduledStop
 
 /**
- * @see <a href="https://redmine.buzzhives.com/projects/buzzhives/wiki/RealTime_API#DepartureServlet-new-servlet-departuresjson">departures.json API</a>
+ * @see [departures.json API](https://redmine.buzzhives.com/projects/buzzhives/wiki/RealTime_API.DepartureServlet-new-servlet-departuresjson)
  */
-public class DeparturesResponse {
+class DeparturesResponse {
     /**
      * (Optional)
      */
     @SerializedName("error")
-    public String error;
+    var error: String? = null
 
     /**
      * (Optional)
      */
     @SerializedName("usererror")
-    public boolean hasError;
+    var hasError: Boolean = false
 
     @SerializedName("embarkationStops")
-    public List<ServicesResponse> embarkationStopList;
+    var embarkationStopList: List<ServicesResponse>? = null
 
     /**
      * (Optional)
      */
     @SerializedName("stops")
-    public List<ScheduledStop> stopList;
+    var stopList: List<ScheduledStop>? = null
 
     /**
      * (Optional)
      */
     @SerializedName("parentInfo")
-    private ScheduledStop parentInfo;
+    val parentInfo: ScheduledStop? = null
 
     /**
      * (Optional)
      */
     @SerializedName("alerts")
-    private List<RealtimeAlert> alerts;
+    var alerts: List<RealtimeAlert>? = null
 
-    private List<TimetableEntry> mServiceList;
-
-    @Nullable
-    public ScheduledStop getParentInfo() {
-        return parentInfo;
-    }
+    private var mServiceList: List<TimetableEntry>? = null
 
     /**
      * Assigns stop code into corresponding service
-     * <p/>
+     *
+     *
      * NOTE: Must call this method after parsing the response
      */
-    public void processEmbarkationStopList() {
-        if (embarkationStopList != null) {
-            for (DeparturesResponse.ServicesResponse servicesResponse : embarkationStopList) {
-                if (servicesResponse.serviceList != null) {
-                    for (TimetableEntry service : servicesResponse.serviceList) {
-                        if (service != null) {
-                            service.setStopCode(servicesResponse.stopCode);
-                        }
-                    }
-                }
+    fun processEmbarkationStopList() {
+        embarkationStopList?.forEach { servicesResponse ->
+            servicesResponse.serviceList?.forEach { service ->
+                service.stopCode = servicesResponse.stopCode
             }
         }
     }
 
-    @Nullable
-    public List<TimetableEntry> getServiceList() {
-        if (mServiceList == null) {
-            mServiceList = extractServiceList();
+    val serviceList: List<TimetableEntry>?
+        get() {
+            if (mServiceList == null) {
+                mServiceList = extractServiceList()
+            }
+
+            return mServiceList
         }
-
-        return mServiceList;
-    }
-
-    @Nullable
-    public List<RealtimeAlert> getAlerts() {
-        return alerts;
-    }
-
-    public void setAlerts(List<RealtimeAlert> alerts) {
-        this.alerts = alerts;
-    }
 
     /**
      * Extracts services from the embarkation stops
      */
-    @Nullable
-    private List<TimetableEntry> extractServiceList() {
+    private fun extractServiceList(): List<TimetableEntry>? {
         if (embarkationStopList == null) {
-            return null;
+            return null
         }
 
-        List<TimetableEntry> serviceList = new ArrayList<TimetableEntry>();
-        for (ServicesResponse servicesResponse : embarkationStopList) {
+        val serviceList: MutableList<TimetableEntry> = ArrayList()
+        for (servicesResponse in embarkationStopList!!) {
             if (servicesResponse.serviceList != null) {
-                serviceList.addAll(servicesResponse.serviceList);
+                serviceList.addAll(servicesResponse.serviceList!!)
             }
         }
 
-        return serviceList;
+        return serviceList
     }
 
-    public static class ServicesResponse {
-        @SerializedName("stopCode")
-        public String stopCode;
-
-        @SerializedName("services")
-        public List<TimetableEntry> serviceList;
-    }
+    data class ServicesResponse(
+        @SerializedName("stopCode") val stopCode: String,
+        @SerializedName("services") val serviceList: List<TimetableEntry>?
+    )
 }

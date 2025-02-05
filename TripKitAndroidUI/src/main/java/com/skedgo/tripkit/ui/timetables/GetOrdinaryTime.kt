@@ -22,7 +22,7 @@ open class GetOrdinaryTime @Inject constructor(
             printTime.print(DateTime(realTimeDeparture(service, vehicle) * 1000, dateTimeZone))
         val serviceTitle = when {
             service.serviceNumber?.isNotEmpty() ?: false -> service.serviceNumber
-            service.startStop?.type != null -> service.startStop.type.toString().capitalize()
+            service.startStop?.type != null -> service.startStop?.type.toString().capitalize()
             else -> context.getString(R.string.service)
         }
         return context.getString(R.string._pattern_at__pattern, serviceTitle, departureTime)

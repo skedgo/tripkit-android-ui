@@ -304,9 +304,9 @@ class TimetableMapContributor(val fragment: Fragment) : TripKitMapContributor {
         }
         val bearing = if (vehicle.location == null) 0 else vehicle.location.bearing
         val color =
-            if (service!!.serviceColor == null || service!!.serviceColor.color == Color.BLACK) fragment.resources.getColor(
+            if (service!!.serviceColor == null || service!!.serviceColor?.color == Color.BLACK) fragment.resources.getColor(
                 R.color.v4_color
-            ) else service!!.serviceColor.color
+            ) else service!!.serviceColor?.color!!
         val text =
             (if (TextUtils.isEmpty(service!!.serviceNumber)) if (mStop == null || mStop!!.type == null) "" else StringUtils.capitalizeFirst(
                 mStop!!.type.toString()
