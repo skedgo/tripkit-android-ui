@@ -145,6 +145,12 @@ class TripResultViewModel @Inject constructor(
             moreButtonText.set(context.resources.getString(R.string.more))
             moreButtonVisible.set(true)
         }
+
+        sortTripResults()
+    }
+
+    private fun sortTripResults() {
+        tripResults.sortBy { it.trip?.startTimeInSecs ?: Long.MAX_VALUE }
     }
 
     override fun equals(other: Any?): Boolean {
