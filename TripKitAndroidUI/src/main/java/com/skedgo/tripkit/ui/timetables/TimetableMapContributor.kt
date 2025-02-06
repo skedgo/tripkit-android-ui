@@ -307,10 +307,13 @@ class TimetableMapContributor(val fragment: Fragment) : TripKitMapContributor {
             if (service!!.serviceColor == null || service!!.serviceColor?.color == Color.BLACK) fragment.resources.getColor(
                 R.color.v4_color
             ) else service!!.serviceColor?.color!!
+        val maxLength = 3
         val text =
-            (if (TextUtils.isEmpty(service!!.serviceNumber)) if (mStop == null || mStop!!.type == null) "" else StringUtils.capitalizeFirst(
-                mStop!!.type.toString()
-            ) else service!!.serviceNumber)!!
+            (if (TextUtils.isEmpty(service!!.serviceNumber)) {
+                if (mStop == null || mStop!!.type == null) "" else StringUtils.capitalizeFirst(mStop!!.type.toString())
+            } else service!!.serviceNumber)!!.let {
+                if (it.length > maxLength) it.take(maxLength - 1) + "…" else it
+            }
         val icon = vehicleMarkerIconCreatorLazy.get().call(bearing, color, text)
         val markerTitle = title
         googleMap?.let { map: GoogleMap ->
