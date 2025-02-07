@@ -1,19 +1,18 @@
 package com.skedgo.tripkit.ui.map
 
 import android.content.Context
+import android.content.res.Resources
 import android.graphics.Bitmap
 import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
-import com.google.android.gms.maps.model.LatLng
-import com.skedgo.tripkit.location.GeoPoint
-import com.skedgo.tripkit.routing.Trip
-import com.skedgo.tripkit.routing.TripSegment
-import io.mockk.MockKAnnotations
+import com.skedgo.tripkit.ui.R
 import io.mockk.every
-import io.mockk.impl.annotations.MockK
+import io.mockk.mockk
+import io.mockk.mockkObject
 import io.mockk.mockkStatic
+import io.mockk.slot
+import io.mockk.verify
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -24,73 +23,67 @@ import org.robolectric.annotation.Config
 @Config(sdk = [33])
 class SegmentStopMarkerMakerTest {
 
-    @MockK(relaxed = true)
-    lateinit var context: Context
-
-    @MockK(relaxed = true)
-    lateinit var trip: Trip
-
-    @MockK(relaxed = true)
-    lateinit var stop: ServiceStop
-
-    @MockK(relaxed = true)
-    lateinit var segment: TripSegment
-
-    @MockK(relaxed = true)
-    lateinit var bitmap: Bitmap
-
-    @MockK(relaxed = true)
-    lateinit var bitmapDescriptor: BitmapDescriptor
-
+    private lateinit var context: Context
+    private lateinit var resources: Resources
     private lateinit var segmentStopMarkerMaker: SegmentStopMarkerMaker
 
     @Before
     fun setUp() {
-        MockKAnnotations.init(this, relaxed = true)
-
-        // Initialize SegmentStopMarkerMaker with mock context
+        context = mockk()
+        resources = mockk()
+        every { context.resources } returns resources
         segmentStopMarkerMaker = SegmentStopMarkerMaker(context)
 
-        // Mock stop position
-        every { stop.position } returns GeoPoint(37.7749, -122.4194)
-        every { stop.name } returns "Mock Stop"
-        every { stop.platform } returns "Platform 1"
-
-        // Mock context resources
-        every { context.resources.getDimensionPixelSize(any()) } returns 20
-
-        // Mock BitmapDescriptorFactory to avoid real object creation
+        // Mock BitmapDescriptorFactory
         mockkStatic(BitmapDescriptorFactory::class)
-        every { BitmapDescriptorFactory.fromBitmap(any()) } returns bitmapDescriptor
+        every { BitmapDescriptorFactory.fromBitmap(any()) } returns mockk<BitmapDescriptor>()
 
-        // Mock MapMarkerUtils
-        mockkStatic(MapMarkerUtils::class)
-        every { MapMarkerUtils.createStopMarkerIcon(any(), any(), any(), any()) } returns bitmap
+        // Mock MapMarkerUtils static method
+        mockkObject(MapMarkerUtils)
     }
 
     @Test
-    fun `make should return valid MarkerOptions`() {
-        // Arrange
-        val stopMarkerViewModel = StopMarkerViewModel(
-            trip = trip,
-            stop = stop,
-            title = "Test Stop",
-            segment = segment,
-            isTravelled = false
-        )
+    fun `test make function`() {
+        val stopMarkerViewModel = mockk<StopMarkerViewModel>(relaxed = true)
+        val iconSize = 100
+        val bitmap = mockk<Bitmap>(relaxed = true)
+        val iconSlot = slot<Bitmap>()
+
+        // Mock dimensions and icon creation
+        every { resources.getDimensionPixelSize(R.dimen.stop_circle_pin_diameter) } returns iconSize
+        every {
+            MapMarkerUtils.createStopMarkerIcon(
+                iconSize,
+                stopMarkerViewModel.strokeColor,
+                stopMarkerViewModel.fillColor,
+                !stopMarkerViewModel.isTravelled
+            )
+        } returns bitmap
+
+        // Mock BitmapDescriptorFactory usage
+        every { BitmapDescriptorFactory.fromBitmap(capture(iconSlot)) } returns mockk()
 
         // Act
         val markerOptions = segmentStopMarkerMaker.make(stopMarkerViewModel)
 
         // Assert
-        assertNotNull(markerOptions)
-        assertEquals("Test Stop", markerOptions.title)
-        assertEquals("Mock Stop", markerOptions.snippet)
-        assertEquals(LatLng(37.7749, -122.4194), markerOptions.position)
-        assertEquals(0.5f, markerOptions.anchorU)
-        assertEquals(0.5f, markerOptions.anchorV)
-        assertEquals(0.5f, markerOptions.infoWindowAnchorU)
-        assertEquals(0f, markerOptions.infoWindowAnchorV)
-        assertEquals(0.5f, markerOptions.alpha)
+        verify {
+            MapMarkerUtils.createStopMarkerIcon(
+                iconSize,
+                stopMarkerViewModel.strokeColor,
+                stopMarkerViewModel.fillColor,
+                !stopMarkerViewModel.isTravelled
+            )
+        }
+        assertEquals(stopMarkerViewModel.title, markerOptions.title)
+        assertEquals(stopMarkerViewModel.snippet, markerOptions.snippet)
+        assertEquals(stopMarkerViewModel.position, markerOptions.position)
+        assertEquals(false, markerOptions.isDraggable)
+        assertEquals(stopMarkerViewModel.alpha, markerOptions.alpha, 0.0f)
+        assertEquals(bitmap, iconSlot.captured)
+        assertEquals(0.5f, markerOptions.anchorU, 0.0f)
+        assertEquals(0.5f, markerOptions.anchorV, 0.0f)
+        assertEquals(0.5f, markerOptions.infoWindowAnchorU, 0.0f)
+        assertEquals(0.0f, markerOptions.infoWindowAnchorV, 0.0f)
     }
 }
