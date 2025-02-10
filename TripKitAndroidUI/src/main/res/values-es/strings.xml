@@ -598,4 +598,6 @@ Los datos son anónimos, y se proporcionan a investigadores, reguladores y prove
     <string name="terms_of_use">Términos de Uso</string>
     <string name="label_last_updated">Last Updated:</string>
     <string name="route_not_supported">Routing from %s to %s is not yet supported</string>
+    <string name="share_url">http://tripgo.me/stop/</string>
+    <string name="continue_to_checkout">Continuar con el pago</string>
 </resources>
