@@ -117,8 +117,9 @@ class ServiceDetailViewModel @Inject constructor(
         }
 
         val globalConfigs = TripKit.getInstance().configs()
-        if (globalConfigs.showOperatorNames())
+        if (globalConfigs.showOperatorNames()) {
             tertiaryText.set(operator)
+        }
 
         realTimeVehicle?.let { occupancyViewModel.setOccupancy(it, false) }
         showOccupancyInfo.set(occupancyViewModel.hasInformation())
@@ -171,18 +172,22 @@ class ServiceDetailViewModel @Inject constructor(
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({
                 setup(
-                    it.name!!,
-                    segment.serviceTripId.orEmpty(),
-                    segment.serviceName,
-                    segment.serviceNumber,
-                    segment.serviceColor,
-                    segment.serviceOperator,
-                    segment.startStopCode.orEmpty(),
-                    segment.endStopCode,
-                    segment.timetableStartTime,
-                    segment.realTimeVehicle,
-                    segment.wheelchairAccessible,
-                    segment.bicycleAccessible
+                    region = it.name.orEmpty(),
+                    serviceId = segment.serviceTripId.orEmpty(),
+                    serviceName = segment.serviceName,
+                    serviceNumber = segment.serviceNumber,
+                    serviceColor = segment.serviceColor,
+                    operator = segment.serviceOperator,
+                    startStopCode = segment.startStopCode.orEmpty(),
+                    endStopCode = segment.endStopCode,
+                    embarkation = if(segment.timetableStartTime == 0L) {
+                        segment.startTimeInSecs
+                    } else {
+                        segment.timetableStartTime
+                    },
+                    realTimeVehicle = segment.realTimeVehicle,
+                    wheelchairAccessible = segment.wheelchairAccessible,
+                    bicycleAccessible = segment.bicycleAccessible
                 )
             }, {
                 Timber.e(it)
@@ -197,10 +202,10 @@ class ServiceDetailViewModel @Inject constructor(
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({
                 setup(
-                    region = it.name ?: "",
+                    region = it.name.orEmpty(),
                     serviceId = _entry.serviceTripId.orEmpty(),
                     serviceName = if (!_entry.serviceName.isNullOrEmpty())
-                        _entry.serviceName!!
+                        _entry.serviceName.orEmpty()
                     else
                         getServiceTertiaryText.execute(_entry),
                     serviceNumber = _entry.serviceNumber,
@@ -237,7 +242,7 @@ class ServiceDetailViewModel @Inject constructor(
             }
         }
 
-        items.get()!!.forEach { vm ->
+        items.get()?.forEach { vm ->
             vm.onCleared()
         }
         list.firstOrNull()?.setDrawable(context, ServiceDetailItemViewModel.LineDirection.START)
@@ -247,7 +252,7 @@ class ServiceDetailViewModel @Inject constructor(
 
     override fun onCleared() {
         super.onCleared()
-        items.get()!!.forEach {
+        items.get()?.forEach {
             it.onCleared()
         }
     }
