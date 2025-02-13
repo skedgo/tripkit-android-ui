@@ -1,6 +1,8 @@
 package com.skedgo.tripkit.ui.utils
 
+import android.content.res.ColorStateList
 import android.content.res.Resources.NotFoundException
+import android.graphics.Color
 import android.graphics.PorterDuff
 import android.graphics.PorterDuffColorFilter
 import android.graphics.drawable.Drawable
@@ -10,6 +12,7 @@ import android.util.TypedValue
 import android.view.View
 import android.view.ViewGroup
 import android.view.accessibility.AccessibilityEvent
+import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.annotation.ColorInt
@@ -289,5 +292,63 @@ fun TextView.setDrawableTint(color: Int) {
         } else {
             it.clearColorFilter()
         }
+    }
+}
+
+@BindingAdapter("appTint")
+fun setButtonAppTint(button: Button, @ColorInt default: Int) {
+    DynamicAppColor.getAppColors()?.tintColor?.let {
+        val color = Color.rgb(it.red, it.green, it.blue)
+        button.backgroundTintList = ColorStateList.valueOf(color)
+    } ?: run {
+        DynamicAppColor.getSystemColors()?.tintColor?.let {
+            button.backgroundTintList = ColorStateList.valueOf(it)
+        } ?: run {
+            button.backgroundTintList = ColorStateList.valueOf(default)
+        }
+    }
+}
+
+@BindingAdapter("appTint")
+fun setImageViewAppTint(imageView: ImageView, @ColorInt default: Int?) {
+    val color = DynamicAppColor.getAppColors()?.tintColor?.let {
+        Color.rgb(it.red, it.green, it.blue)
+    } ?: DynamicAppColor.getSystemColors()?.tintColor ?: default
+
+    color?.let {
+        imageView.setColorFilter(it, PorterDuff.Mode.SRC_IN) // Apply tint only to fill
+    }
+}
+
+@BindingAdapter("appTint")
+fun setTextViewAppTint(textView: TextView, @ColorInt default: Int?) {
+    val color = DynamicAppColor.getAppColors()?.tintColor?.let {
+        Color.rgb(it.red, it.green, it.blue)
+    } ?: DynamicAppColor.getSystemColors()?.tintColor ?: default
+
+    color?.let {
+        textView.setTextColor(it)
+    }
+}
+
+@BindingAdapter("appForeground")
+fun setTextViewAppForegroundTint(textView: TextView, @ColorInt default: Int?) {
+    val color = DynamicAppColor.getAppColors()?.barForeground?.let {
+        Color.rgb(it.red, it.green, it.blue)
+    } ?: DynamicAppColor.getSystemColors()?.barForeground ?: default
+
+    color?.let {
+        textView.setTextColor(it)
+    }
+}
+
+@BindingAdapter("appBackground")
+fun setLayoutAppBackgroundTint(view: View, @ColorInt default: Int?) {
+    val color = DynamicAppColor.getAppColors()?.barBackground?.let {
+        Color.rgb(it.red, it.green, it.blue)
+    } ?: DynamicAppColor.getSystemColors()?.barBackground ?: default
+
+    color?.let {
+        view.setBackgroundColor(it)
     }
 }
