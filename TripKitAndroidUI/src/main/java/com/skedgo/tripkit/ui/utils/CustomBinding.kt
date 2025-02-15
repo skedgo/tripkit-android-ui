@@ -6,6 +6,7 @@ import android.graphics.Color
 import android.graphics.PorterDuff
 import android.graphics.PorterDuffColorFilter
 import android.graphics.drawable.Drawable
+import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.StateListDrawable
 import android.os.SystemClock
 import android.util.TypedValue
@@ -18,7 +19,9 @@ import android.widget.TextView
 import androidx.annotation.ColorInt
 import androidx.cardview.widget.CardView
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.ColorUtils
 import androidx.databinding.BindingAdapter
+import com.afollestad.materialdialogs.utils.MDUtil.ifNotZero
 import com.bumptech.glide.load.model.GlideUrl
 import com.bumptech.glide.load.model.LazyHeaders
 import com.bumptech.glide.request.RequestOptions
@@ -309,11 +312,41 @@ fun setButtonAppTint(button: Button, @ColorInt default: Int) {
     }
 }
 
+@BindingAdapter("appTintWithState")
+fun setButtonStateBackground(button: Button, @ColorInt default: Int?) {
+    val enabledColor = DynamicAppColor.getAppColors()?.tintColor?.let {
+        Color.rgb(it.red, it.green, it.blue)
+    } ?: DynamicAppColor.getSystemColors()?.tintColor ?: default
+
+    val disabledColor = enabledColor?.let {
+        ColorUtils.setAlphaComponent(it, (0.3 * 255).toInt()) // 30% opacity for disabled state
+    } ?: Color.GRAY // Fallback to gray if everything is null
+
+    val enabledDrawable = GradientDrawable().apply {
+        shape = GradientDrawable.RECTANGLE
+        cornerRadius = 16f // Adjust as needed
+        setColor(enabledColor ?: Color.TRANSPARENT)
+    }
+
+    val disabledDrawable = GradientDrawable().apply {
+        shape = GradientDrawable.RECTANGLE
+        cornerRadius = 16f
+        setColor(disabledColor)
+    }
+
+    val stateListDrawable = StateListDrawable().apply {
+        addState(intArrayOf(-android.R.attr.state_enabled), disabledDrawable) // Disabled state
+        addState(intArrayOf(), enabledDrawable) // Default state
+    }
+
+    button.background = stateListDrawable
+}
+
 @BindingAdapter("appTint")
 fun setImageViewAppTint(imageView: ImageView, @ColorInt default: Int?) {
     val color = DynamicAppColor.getAppColors()?.tintColor?.let {
         Color.rgb(it.red, it.green, it.blue)
-    } ?: DynamicAppColor.getSystemColors()?.tintColor ?: default
+    } ?: DynamicAppColor.getSystemColors()?.tintColor ?: default.takeIf { default != 0 }
 
     color?.let {
         imageView.setColorFilter(it, PorterDuff.Mode.SRC_IN) // Apply tint only to fill
@@ -331,6 +364,54 @@ fun setTextViewAppTint(textView: TextView, @ColorInt default: Int?) {
     }
 }
 
+@BindingAdapter("appLayoutTint")
+fun setLayoutAppTint(view: View, @ColorInt default: Int?) {
+    val color = DynamicAppColor.getAppColors()?.tintColor?.let {
+        Color.rgb(it.red, it.green, it.blue)
+    } ?: DynamicAppColor.getSystemColors()?.barBackground ?: default
+
+    color?.let {
+        view.backgroundTintList = ColorStateList.valueOf(it)
+    }
+}
+
+@BindingAdapter("appTextTint")
+fun setButtonTextAppTint(button: Button, @ColorInt default: Int?) {
+    val color = DynamicAppColor.getAppColors()?.tintColor?.let {
+        Color.rgb(it.red, it.green, it.blue)
+    } ?: DynamicAppColor.getSystemColors()?.tintColor ?: default
+
+    color?.let {
+        button.setTextColor(it)
+    }
+}
+
+@BindingAdapter("appBackgroundTintAlpha")
+fun setTextViewBackgroundTintAlpha(textView: TextView, @ColorInt default: Int?) {
+    val color = DynamicAppColor.getAppColors()?.tintColor?.let {
+        Color.argb((0.2 * 255).toInt(), it.red, it.green, it.blue) // Apply 20% alpha
+    } ?: DynamicAppColor.getSystemColors()?.tintColor?.let {
+        Color.argb((0.2 * 255).toInt(), Color.red(it), Color.green(it), Color.blue(it))
+    } ?: default?.let {
+        Color.argb((0.2 * 255).toInt(), Color.red(it), Color.green(it), Color.blue(it))
+    }
+
+    color?.let {
+        textView.backgroundTintList = ColorStateList.valueOf(it)
+    }
+}
+
+@BindingAdapter("appBackgroundTint")
+fun setTextViewBackgroundTint(textView: TextView, @ColorInt default: Int?) {
+    val color = DynamicAppColor.getAppColors()?.tintColor?.let {
+        Color.rgb(it.red, it.green, it.blue)
+    } ?: DynamicAppColor.getSystemColors()?.tintColor ?: default
+
+    color?.let {
+        textView.setBackgroundColor(it)
+    }
+}
+
 @BindingAdapter("appForeground")
 fun setTextViewAppForegroundTint(textView: TextView, @ColorInt default: Int?) {
     val color = DynamicAppColor.getAppColors()?.barForeground?.let {
@@ -339,6 +420,17 @@ fun setTextViewAppForegroundTint(textView: TextView, @ColorInt default: Int?) {
 
     color?.let {
         textView.setTextColor(it)
+    }
+}
+
+@BindingAdapter("appForeground")
+fun setImageViewAppForegroundTint(imageView: ImageView, @ColorInt default: Int?) {
+    val color = DynamicAppColor.getAppColors()?.barForeground?.let {
+        Color.rgb(it.red, it.green, it.blue)
+    } ?: DynamicAppColor.getSystemColors()?.barForeground ?: default
+
+    color?.let {
+        imageView.setColorFilter(it, PorterDuff.Mode.SRC_IN) // Apply tint only to fill
     }
 }
 
@@ -352,3 +444,4 @@ fun setLayoutAppBackgroundTint(view: View, @ColorInt default: Int?) {
         view.setBackgroundColor(it)
     }
 }
+

@@ -39,7 +39,7 @@
                     android:layout_height="@dimen/icon_regular"
                     android:src="@drawable/ic_back_button"
                     android:padding="@dimen/spacing_extra_small"
-                    app:appTint="@{@color/colorAccent}"
+                    app:appForeground="@{@color/colorAccent}"
                     android:visibility="@{viewModel.toolbarState.showBackButton}"
                     android:importantForAccessibility="no" />
 

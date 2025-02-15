@@ -62,13 +62,14 @@
             android:padding="0dp"
             android:textSize="@dimen/font_size_small"
             android:textAllCaps="false"
-            android:backgroundTint="@color/colorAccent"
             android:background="@drawable/bg_round_accent"
             android:visibility="@{viewModel.quickBookingSegment != null}"
             android:text="@{viewModel.quickBookingSegment.booking.title}"
             app:layout_constraintTop_toBottomOf="@+id/tvTime"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:appTint="@{@color/colorAccent}"
+            tools:backgroundTint="@color/colorAccent"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
