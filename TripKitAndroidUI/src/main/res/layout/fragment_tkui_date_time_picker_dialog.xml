@@ -150,13 +150,13 @@
 
                         <CalendarView
                             android:id="@+id/dpDate"
+                            android:theme="@style/Widget.CalendarView.Custom"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:datePickerMode="spinner"
                             android:background="@android:color/white"
                             android:spinnersShown="false"
                             app:layout_constraintTop_toTopOf="parent"
-                            app:appCalendarSelectedTint="@{null}"
                             android:focusedMonthDateColor="@color/tripKitWarning"
                             />
 
