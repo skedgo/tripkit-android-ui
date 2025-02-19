@@ -114,7 +114,8 @@
                             android:checked="@={viewModel.isOneWayOnly}"
                             app:layout_constraintTop_toTopOf="parent"
                             app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintEnd_toEndOf="parent" />
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:appSwitchTint="@{null}" />
 
                     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -154,7 +155,10 @@
                             android:datePickerMode="spinner"
                             android:background="@android:color/white"
                             android:spinnersShown="false"
-                            app:layout_constraintTop_toTopOf="parent" />
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:appCalendarSelectedTint="@{null}"
+                            android:focusedMonthDateColor="@color/tripKitWarning"
+                            />
 
                         <View
                             android:id="@+id/vDatePickerDivider"
@@ -232,7 +236,7 @@
                             android:padding="@dimen/spacing_small"
                             android:layout_marginEnd="@dimen/spacing_small"
                             android:text="@string/done"
-                            app:appTint="@{@color/colorAccent}"/>
+                            app:appTextTint="@{@color/colorAccent}"/>
 
                         <TimePicker
                             android:id="@+id/time_picker"
@@ -252,7 +256,7 @@
         <Button
             android:id="@+id/bConfirm"
             android:layout_width="match_parent"
-            android:layout_height="@dimen/button_size_normal"
+            android:layout_height="@dimen/button_size_medium"
             android:layout_gravity="center"
             android:layout_marginHorizontal="@dimen/spacing_medium"
             android:layout_marginBottom="@dimen/spacing_small"

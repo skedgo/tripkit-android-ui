@@ -3,6 +3,7 @@ package com.skedgo.tripkit.ui.utils
 import android.content.res.ColorStateList
 import android.content.res.Resources.NotFoundException
 import android.graphics.Color
+import android.graphics.Paint
 import android.graphics.PorterDuff
 import android.graphics.PorterDuffColorFilter
 import android.graphics.drawable.Drawable
@@ -14,12 +15,17 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.accessibility.AccessibilityEvent
 import android.widget.Button
+import android.widget.CalendarView
 import android.widget.ImageView
+import android.widget.ProgressBar
+import android.widget.RadioButton
 import android.widget.TextView
 import androidx.annotation.ColorInt
+import androidx.appcompat.widget.SwitchCompat
 import androidx.cardview.widget.CardView
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.ColorUtils
+import androidx.core.view.ViewCompat
 import androidx.databinding.BindingAdapter
 import com.afollestad.materialdialogs.utils.MDUtil.ifNotZero
 import com.bumptech.glide.load.model.GlideUrl
@@ -298,6 +304,10 @@ fun TextView.setDrawableTint(color: Int) {
     }
 }
 
+/**
+ * =================== Dynamic color binding using colors from [DynamicAppColor] ===================
+*/
+
 @BindingAdapter("appTint")
 fun setButtonAppTint(button: Button, @ColorInt default: Int) {
     DynamicAppColor.getAppColors()?.tintColor?.let {
@@ -320,26 +330,33 @@ fun setButtonStateBackground(button: Button, @ColorInt default: Int?) {
 
     val disabledColor = enabledColor?.let {
         ColorUtils.setAlphaComponent(it, (0.3 * 255).toInt()) // 30% opacity for disabled state
-    } ?: Color.GRAY // Fallback to gray if everything is null
+    } ?: Color.GRAY // Fallback to gray if null
 
-    val enabledDrawable = GradientDrawable().apply {
+    val colorStateList = ColorStateList(
+        arrayOf(
+            intArrayOf(-android.R.attr.state_enabled), // Disabled state
+            intArrayOf(android.R.attr.state_enabled) // Enabled state
+        ),
+        intArrayOf(
+            disabledColor, // Color when disabled
+            enabledColor ?: Color.TRANSPARENT // Color when enabled
+        )
+    )
+
+    // Create a GradientDrawable to ensure background supports tinting
+    val backgroundDrawable = GradientDrawable().apply {
         shape = GradientDrawable.RECTANGLE
-        cornerRadius = 16f // Adjust as needed
-        setColor(enabledColor ?: Color.TRANSPARENT)
+        cornerRadius = button.resources.getDimension(R.dimen.button_radius_small) // Adjust as needed
+        setColor(enabledColor ?: Color.TRANSPARENT) // Set initial color
     }
 
-    val disabledDrawable = GradientDrawable().apply {
-        shape = GradientDrawable.RECTANGLE
-        cornerRadius = 16f
-        setColor(disabledColor)
-    }
+    // Set the background explicitly so tinting works
+    button.background = backgroundDrawable
+    button.backgroundTintList = colorStateList
 
-    val stateListDrawable = StateListDrawable().apply {
-        addState(intArrayOf(-android.R.attr.state_enabled), disabledDrawable) // Disabled state
-        addState(intArrayOf(), enabledDrawable) // Default state
-    }
-
-    button.background = stateListDrawable
+    // Ensure state change is reflected
+    button.invalidate()
+    button.refreshDrawableState()
 }
 
 @BindingAdapter("appTint")
@@ -349,11 +366,11 @@ fun setImageViewAppTint(imageView: ImageView, @ColorInt default: Int?) {
     } ?: DynamicAppColor.getSystemColors()?.tintColor ?: default.takeIf { default != 0 }
 
     color?.let {
-        imageView.setColorFilter(it, PorterDuff.Mode.SRC_IN) // Apply tint only to fill
+        imageView.setColorFilter(it, PorterDuff.Mode.SRC_IN)
     }
 }
 
-@BindingAdapter("appTint")
+@BindingAdapter("appTextTint")
 fun setTextViewAppTint(textView: TextView, @ColorInt default: Int?) {
     val color = DynamicAppColor.getAppColors()?.tintColor?.let {
         Color.rgb(it.red, it.green, it.blue)
@@ -372,6 +389,86 @@ fun setLayoutAppTint(view: View, @ColorInt default: Int?) {
 
     color?.let {
         view.backgroundTintList = ColorStateList.valueOf(it)
+    }
+}
+
+@BindingAdapter("appSwitchTint")
+fun setSwitchCheckedTint(switch: SwitchCompat, @ColorInt default: Int?) {
+    val checkedColor = DynamicAppColor.getAppColors()?.tintColor?.let {
+        Color.rgb(it.red, it.green, it.blue)
+    } ?: DynamicAppColor.getSystemColors()?.tintColor ?: default
+
+    val uncheckedColor = checkedColor?.let {
+        ColorUtils.setAlphaComponent(it, (0.4 * 255).toInt()) // 40% opacity for unchecked state
+    } ?: Color.GRAY // Fallback to gray if everything is null
+
+    val thumbStates = ColorStateList(
+        arrayOf(
+            intArrayOf(android.R.attr.state_checked), // Checked state
+            intArrayOf() // Default (unchecked) state
+        ),
+        intArrayOf(
+            checkedColor ?: Color.TRANSPARENT, // Thumb color when checked
+            uncheckedColor // Thumb color when unchecked
+        )
+    )
+
+    val trackStates = ColorStateList(
+        arrayOf(
+            intArrayOf(android.R.attr.state_checked), // Checked state
+            intArrayOf() // Default (unchecked) state
+        ),
+        intArrayOf(
+            ColorUtils.setAlphaComponent(checkedColor ?: Color.TRANSPARENT, (0.6 * 255).toInt()), // Track when checked
+            ColorUtils.setAlphaComponent(uncheckedColor, (0.3 * 255).toInt()) // Track when unchecked
+        )
+    )
+
+    switch.thumbTintList = thumbStates
+    switch.trackTintList = trackStates
+}
+
+@BindingAdapter("appProgressTint")
+fun setProgressBarTint(progressBar: ProgressBar, @ColorInt default: Int?) {
+    val color = DynamicAppColor.getAppColors()?.tintColor?.let {
+        Color.rgb(it.red, it.green, it.blue)
+    } ?: DynamicAppColor.getSystemColors()?.tintColor ?: default
+
+    color?.let {
+        val colorStateList = ColorStateList.valueOf(it)
+        progressBar.indeterminateDrawable?.setTintList(colorStateList) // For indeterminate mode
+        progressBar.progressDrawable?.setTintList(colorStateList) // For determinate mode
+    }
+}
+
+@BindingAdapter("appCalendarSelectedTint")
+fun setCalendarViewSelectedTint(calendarView: CalendarView, @ColorInt default: Int?) {
+    val color = DynamicAppColor.getAppColors()?.tintColor?.let {
+        Color.rgb(it.red, it.green, it.blue)
+    } ?: DynamicAppColor.getSystemColors()?.tintColor ?: default
+
+    color?.let {
+        try {
+            // Change the selected date text color (requires reflection)
+            val field = CalendarView::class.java.getDeclaredField("mDaySelectorPaint")
+            field.isAccessible = true
+            val paint = field.get(calendarView) as Paint
+            paint.color = it
+            calendarView.invalidate() // Refresh the UI
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+
+        // Set the selected date background indicator (vertical bar)
+        try {
+            val field = CalendarView::class.java.getDeclaredField("mSelectedDateVerticalBar")
+            field.isAccessible = true
+            val drawable = ContextCompat.getDrawable(calendarView.context, field.getInt(calendarView))
+            drawable?.setTint(it)
+            field.set(calendarView, drawable)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 }
 
@@ -409,6 +506,37 @@ fun setTextViewBackgroundTint(textView: TextView, @ColorInt default: Int?) {
 
     color?.let {
         textView.setBackgroundColor(it)
+    }
+}
+
+@BindingAdapter("appCheckedTint")
+fun setRadioButtonCheckedTint(radioButton: RadioButton, @ColorInt default: Int?) {
+    val color = DynamicAppColor.getAppColors()?.tintColor?.let {
+        Color.rgb(it.red, it.green, it.blue)
+    } ?: DynamicAppColor.getSystemColors()?.tintColor ?: default.takeIf { default != 0 }
+
+    color?.let {
+        val colorStateList = ColorStateList(
+            arrayOf(
+                intArrayOf(android.R.attr.state_checked), // Checked state
+                intArrayOf(-android.R.attr.state_checked) // Unchecked state
+            ),
+            intArrayOf(
+                it, // Checked color
+                ColorUtils.setAlphaComponent(it, (0.2 * 255).toInt()) // Unchecked color (60% opacity)
+            )
+        )
+
+        // Set button tint
+        ViewCompat.setBackgroundTintList(radioButton, colorStateList)
+
+        // Apply the color manually to the compound button drawable
+        radioButton.compoundDrawablesRelative.forEach { drawable ->
+            drawable?.setTintList(colorStateList)
+        }
+
+        // Force UI refresh
+        radioButton.invalidate()
     }
 }
 

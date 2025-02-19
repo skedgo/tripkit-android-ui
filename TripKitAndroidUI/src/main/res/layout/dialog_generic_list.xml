@@ -23,9 +23,10 @@
             android:id="@+id/genericList_cl_header"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/colorPrimary"
             android:padding="@dimen/spacing_small"
-            app:layout_constraintTop_toTopOf="parent">
+            app:layout_constraintTop_toTopOf="parent"
+            app:appBackground="@{@color/colorPrimary}"
+            tools:background="@color/colorPrimary">
 
             <TextView
                 android:id="@+id/genericList_tv_title"
@@ -35,6 +36,7 @@
                 android:gravity="center"
                 android:paddingStart="@dimen/spacing_normal"
                 android:paddingEnd="@dimen/spacing_normal"
+                android:textSize="@dimen/font_size_medium"
                 android:text="@{viewModel.title}"
                 android:textColor="@android:color/white"
                 app:layout_constraintBottom_toBottomOf="parent"
@@ -54,11 +56,11 @@
                 android:paddingStart="@dimen/spacing_normal"
                 android:paddingEnd="@dimen/spacing_normal"
                 android:text="@string/close"
-                android:textColor="@android:color/white"
                 app:clickWithDebounce="@{() -> handler.onClose()}"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent"
+                app:appForeground="@{@android:color/white}"/>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -106,7 +108,7 @@
 
         </LinearLayout>
 
-        <androidx.appcompat.widget.AppCompatButton
+        <Button
             android:id="@+id/genericList_b_confirm"
             android:layout_width="match_parent"
             android:layout_height="50dp"
@@ -119,7 +121,8 @@
             android:theme="@style/Theme.MaterialComponents"
             android:visibility="@{!viewModel.viewModeOnly}"
             app:clickWithDebounce="@{() -> handler.onConfirm()}"
-            app:layout_constraintBottom_toBottomOf="parent" />
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:appTint="@{@color/colorPrimary}"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

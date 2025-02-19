@@ -13,6 +13,7 @@ import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.TextView
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -42,6 +43,10 @@ import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.PublishSubject
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -241,7 +246,8 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
                 }
 
                 smoothScroller.targetPosition = integer.toInt()
-                binding.recyclerView.layoutManager?.startSmoothScroll(smoothScroller)
+//                binding.recyclerView.layoutManager?.startSmoothScroll(smoothScroller)
+                scrollToNowPosition(2000L)
             }.addTo(autoDisposable)
 
         val buffer = if (tripSegment == null) {
@@ -475,16 +481,7 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
         tripSegment = _tripSegment
 
         binding.goToNowButton.setOnClickListener {
-            val layoutManager = binding.recyclerView.layoutManager as LinearLayoutManager
-            val firstNowPosition = viewModel.getFirstNowPosition()
-            if (layoutManager.findFirstVisibleItemPosition() < firstNowPosition &&
-                firstNowPosition != 0 &&
-                (firstNowPosition + 1) < (binding.recyclerView.adapter?.itemCount ?: 0)
-            ) {
-                binding.recyclerView.scrollToPosition(firstNowPosition + 1)
-            } else {
-                binding.recyclerView.scrollToPosition(firstNowPosition)
-            }
+            scrollToNowPosition()
         }
 
         bookingActions =
@@ -506,6 +503,37 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
                 .addTo(autoDisposable)
         }
 
+    }
+
+    private fun scrollToNowPosition(loadDelay: Long = 0) {
+        lifecycleScope.launch {
+            delay(loadDelay)
+            withContext(Dispatchers.Main) {
+                val layoutManager = binding.recyclerView.layoutManager as LinearLayoutManager
+                val firstNowPosition = viewModel.getFirstNowPosition()
+                val itemCount = binding.recyclerView.adapter?.itemCount ?: 0
+
+                if (firstNowPosition in 0 until itemCount) {
+                    // If it's not at the bottom, make sure it stays at the top
+                    if (firstNowPosition < itemCount - 1) {
+                        layoutManager.scrollToPositionWithOffset(firstNowPosition, 0)
+                    } else {
+                        // If it's the last item, just scroll smoothly to it
+                        binding.recyclerView.smoothScrollToPosition(firstNowPosition)
+                    }
+                }
+                /*val layoutManager = binding.recyclerView.layoutManager as LinearLayoutManager
+                val firstNowPosition = viewModel.getFirstNowPosition()
+                if (layoutManager.findFirstVisibleItemPosition() < firstNowPosition &&
+                    firstNowPosition != 0 &&
+                    (firstNowPosition + 1) < (binding.recyclerView.adapter?.itemCount ?: 0)
+                ) {
+                    binding.recyclerView.scrollToPosition(firstNowPosition + 1)
+                } else {
+                    binding.recyclerView.scrollToPosition(firstNowPosition)
+                }*/
+            }
+        }
     }
 
     override fun onStop() {

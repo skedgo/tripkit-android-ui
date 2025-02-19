@@ -32,7 +32,8 @@
                 android:checked="@{viewModel.isLeaveAfter}"
                 android:onClick="@{handlers::onClickLeaveAfter}"
                 android:text="@{viewModel.leaveAtLabel}"
-                tools:text="@string/leave_at" />
+                tools:text="@string/leave_at"
+                app:appCheckedTint="@{null}"/>
 
             <RadioButton
                 android:id="@+id/radio_arrive_by"
@@ -40,7 +41,8 @@
                 android:checked="@{!viewModel.isLeaveAfter}"
                 android:onClick="@{handlers::onClickArriveBy}"
                 android:text="@{viewModel.arriveByLabel}"
-                tools:text="@string/arrive_by" />
+                tools:text="@string/arrive_by"
+                app:appCheckedTint="@{null}"/>
         </RadioGroup>
 
         <TextView

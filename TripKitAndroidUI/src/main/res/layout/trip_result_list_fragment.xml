@@ -90,13 +90,13 @@
                 android:singleLine="true"
                 android:onClick="@{() -> viewModel.onStartLocationClicked()}"
                 android:text="@{viewModel.fromName}"
-                android:textColor="@color/colorPrimary"
                 android:importantForAccessibility="no"
                 android:textDirection="locale"
                 app:layout_constraintEnd_toStartOf="@+id/fromAction"
                 app:layout_constraintStart_toEndOf="@+id/fromLabel"
                 app:layout_constraintTop_toTopOf="@+id/fromLabel"
-                tools:text="Current Location" />
+                tools:text="Current Location"
+                app:appTextTint="@{@color/colorPrimary}"/>
             <!--            android:contentDescription="@{viewModel.fromContentDescription}"-->
 
             <ImageView
@@ -137,7 +137,8 @@
                 android:paddingVertical="@dimen/spacing_small"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent">
+                app:layout_constraintTop_toTopOf="parent"
+                app:appLayoutTint="@{@color/colorPrimary}">
 
                 <TextView
                     style="@style/TextAppearance.MaterialComponents.Body2"
@@ -145,15 +146,14 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
                     android:text="@{viewModel.timeLabel}"
-                    android:textColor="@color/colorPrimary" />
+                    app:appTextTint="@{@color/colorPrimary}"/>
 
                 <ImageView
                     android:layout_width="16dp"
                     android:layout_height="16dp"
                     android:layout_gravity="center_vertical"
                     app:srcCompat="@drawable/chevron_down"
-                    app:tint="@color/colorPrimary"
-                    tools:tint="@color/colorPrimary" />
+                    app:appTint="@{@color/colorPrimary}"/>
             </LinearLayout>
 
             <LinearLayout
@@ -179,7 +179,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
                     android:text="@string/transport"
-                    android:textColor="@color/colorPrimary"
+                    app:appTextTint="@{@color/colorPrimary}"
                     tools:text="Transports" />
 
                 <ImageView
@@ -188,7 +188,7 @@
                     android:layout_gravity="center_vertical"
                     android:src="@{viewModel.showTransport ? @drawable/chevron_up : @drawable/chevron_down}"
                     app:tint="@color/colorPrimary"
-                    tools:tint="@color/colorPrimary"
+                    app:appTint="@{@color/colorPrimary}"
                     tools:src="@drawable/chevron_down" />
             </LinearLayout>
 
@@ -255,7 +255,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 tools:textColor="@color/colorAccent"
-                app:appTint="@{@color/colorAccent}"/>
+                app:appTextTint="@{@color/colorAccent}"/>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
