@@ -5,6 +5,8 @@
 
     <data>
 
+        <import type="com.skedgo.tripkit.ui.utils.DynamicAppColor"/>
+
         <variable
             name="viewModel"
             type="com.skedgo.tripkit.ui.tripresults.TripResultTripViewModel" />
@@ -77,14 +79,14 @@
             android:maxHeight="30dp"
             android:minHeight="0dp"
             android:minWidth="0dp"
-            app:backgroundTint="@color/colorAccent"
             android:visibility="@{viewModel.hasQuickBooking}"
             android:text="@{viewModel.trip.quickBookingSegment.booking.title}"
             app:clickWithDebounce="@{() -> viewModel.onQuickBookingActionClicked()}"
             android:background="@drawable/bg_rect_round_corners_accent"
             app:layout_constraintTop_toTopOf="@+id/segmentsLayout"
             app:layout_constraintBottom_toBottomOf="@+id/segmentsLayout"
-            app:layout_constraintEnd_toEndOf="parent" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:appTint="@{@color/colorAccent}"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

@@ -171,12 +171,13 @@
                 android:onClick="@{() -> viewModel.onMoreButtonClicked.perform()}"
                 android:singleLine="true"
                 android:text="@{viewModel.moreButtonText}"
-                android:textColor="@color/colorAccent"
                 android:visibility="@{viewModel.moreButtonVisible}"
                 android:contentDescription="@{viewModel.accessibilityLabel}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_weight="1"
                 app:layout_constraintTop_toBottomOf="@+id/footerLine"
+                app:appTextTint="@{@color/colorAccent}"
+                tools:textColor="@color/colorAccent"
                 tools:text="ButtonText" />
 
             <!--

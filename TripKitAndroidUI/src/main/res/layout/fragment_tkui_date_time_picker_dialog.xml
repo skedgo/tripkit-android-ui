@@ -20,11 +20,12 @@
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/toolbar"
-            android:background="@color/colorPrimaryDark"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:layout_constraintTop_toTopOf="parent"
-            android:padding="@dimen/spacing_small">
+            android:padding="@dimen/spacing_small"
+            app:appBackground="@{@color/colorPrimaryDark}"
+            tools:background="@color/colorPrimaryDark">
 
             <LinearLayout
                 android:id="@+id/layoutBack"
@@ -42,15 +43,17 @@
                     android:src="@drawable/ic_back_button"
                     android:padding="@dimen/spacing_extra_small"
                     android:importantForAccessibility="no"
-                    app:tint="@color/colorAccent"/>
+                    app:appForeground="@{@color/colorAccent}"
+                    tools:tint="@color/colorAccent"/>
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textColor="@color/colorAccent"
                     android:text="@string/back"
                     android:textSize="@dimen/font_size_medium"
-                    android:padding="@dimen/spacing_small" />
+                    android:padding="@dimen/spacing_small"
+                    app:appForeground="@{@color/colorAccent}"
+                    tools:textColor="@color/colorAccent"/>
 
             </LinearLayout>
 
@@ -111,7 +114,8 @@
                             android:checked="@={viewModel.isOneWayOnly}"
                             app:layout_constraintTop_toTopOf="parent"
                             app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintEnd_toEndOf="parent" />
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:appSwitchTint="@{null}" />
 
                     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -146,12 +150,15 @@
 
                         <CalendarView
                             android:id="@+id/dpDate"
+                            android:theme="@style/Widget.CalendarView.Custom"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:datePickerMode="spinner"
                             android:background="@android:color/white"
                             android:spinnersShown="false"
-                            app:layout_constraintTop_toTopOf="parent" />
+                            app:layout_constraintTop_toTopOf="parent"
+                            android:focusedMonthDateColor="@color/tripKitWarning"
+                            />
 
                         <View
                             android:id="@+id/vDatePickerDivider"
@@ -226,10 +233,10 @@
                             android:layout_height="wrap_content"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintTop_toTopOf="parent"
-                            android:textColor="@color/colorAccent"
                             android:padding="@dimen/spacing_small"
                             android:layout_marginEnd="@dimen/spacing_small"
-                            android:text="@string/done" />
+                            android:text="@string/done"
+                            app:appTextTint="@{@color/colorAccent}"/>
 
                         <TimePicker
                             android:id="@+id/time_picker"
@@ -249,7 +256,7 @@
         <Button
             android:id="@+id/bConfirm"
             android:layout_width="match_parent"
-            android:layout_height="@dimen/button_size_normal"
+            android:layout_height="@dimen/button_size_medium"
             android:layout_gravity="center"
             android:layout_marginHorizontal="@dimen/spacing_medium"
             android:layout_marginBottom="@dimen/spacing_small"
@@ -259,6 +266,7 @@
             android:paddingEnd="@dimen/spacing_normal"
             android:text="@string/confirm"
             android:textColor="@android:color/white"
+            app:appTintWithState="@{@color/colorAccent}"
             app:layout_constraintBottom_toBottomOf="parent"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
