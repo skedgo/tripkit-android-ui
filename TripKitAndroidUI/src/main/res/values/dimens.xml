@@ -67,6 +67,7 @@
 
     <dimen name="cardview_corner_radius">12dp</dimen>
     <dimen name="cardview_corner_radius_small">4dp</dimen>
+    <dimen name="button_radius_small">8dp</dimen>
 
     <dimen name="induction_detail_icon_size">40dp</dimen>
     <dimen name="induction_action_margin_bottom">40dp</dimen>
@@ -80,6 +81,7 @@
     <dimen name="drt_ticket_action_icon_size">24dp</dimen>
 
     <dimen name="button_size_normal">35dp</dimen>
+    <dimen name="button_size_medium">50dp</dimen>
 
     <dimen name="image_size_small">120dp</dimen>
 </resources>

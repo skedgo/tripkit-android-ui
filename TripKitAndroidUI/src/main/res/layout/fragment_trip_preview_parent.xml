@@ -17,10 +17,11 @@
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/toolbar"
-            android:background="@color/colorPrimaryDark"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:layout_constraintTop_toTopOf="parent"
+            app:appBackground="@{@color/colorPrimaryDark}"
+            tools:background="@color/colorPrimaryDark"
             android:padding="@dimen/spacing_small">
 
             <LinearLayout
@@ -38,17 +39,18 @@
                     android:layout_height="@dimen/icon_regular"
                     android:src="@drawable/ic_back_button"
                     android:padding="@dimen/spacing_extra_small"
-                    android:tint="@color/colorAccent"
+                    app:appForeground="@{@color/colorAccent}"
                     android:visibility="@{viewModel.toolbarState.showBackButton}"
                     android:importantForAccessibility="no" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textColor="@color/colorAccent"
                     android:textSize="@dimen/font_size_medium"
                     android:padding="@dimen/spacing_small"
                     android:text="@{viewModel.toolbarState.backActionLabel}"
+                    app:appForeground="@{@color/colorAccent}"
+                    tools:textColor="@color/colorAccent"
                     tools:text="Cancel" />
 
             </LinearLayout>
@@ -69,12 +71,13 @@
                 android:id="@+id/tvSecondaryAction"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="@color/colorAccent"
                 android:textSize="@dimen/font_size_medium"
                 android:padding="@dimen/spacing_small"
                 android:text="@{viewModel.toolbarState.secondaryActionLabel}"
                 android:visibility="@{viewModel.toolbarState.showSecondaryAction}"
                 tools:text="Action"
+                app:appForeground="@{@color/colorAccent}"
+                tools:textColor="@color/colorAccent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent" />

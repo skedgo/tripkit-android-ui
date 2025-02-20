@@ -11,8 +11,10 @@ import com.skedgo.tripkit.common.model.TransportMode.Companion.getLocalIconResId
 import com.skedgo.tripkit.common.util.TransportModeUtils.getIconUrlForId
 import com.skedgo.tripkit.common.util.TransportModeUtils.getIconUrlForModeInfo
 import com.skedgo.tripkit.routing.ModeInfo
+import com.skedgo.tripkit.ui.GlideApp
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.TripKitUI
+import timber.log.Timber
 
 object ImageViewBindingAdapters {
     @JvmStatic
@@ -103,16 +105,20 @@ object ImageViewBindingAdapters {
     @JvmStatic
     @BindingAdapter("modeIconId")
     fun bindModeIconId(view: ImageView, modeIconId: String?) {
+        Timber.tag("ImageViewBindingAdapters: modeIconId").i("$modeIconId")
         val resId = getLocalIconResId(modeIconId)
         if (resId == 0) {
             if (!TextUtils.isEmpty(modeIconId)) {
                 val url = getIconUrlForId(view.resources, modeIconId)
-                TripKitUI.getInstance().picasso()
+                Timber.tag("ImageViewBindingAdapters: modeIconId").i("loading icon from: $url")
+                GlideApp.with(view.context)
                     .load(url)
+                    .skipMemoryCache(true)
                     .placeholder(R.drawable.ic_car_ride_share)
                     .error(R.drawable.ic_car_ride_share)
                     .into(view)
             } else {
+                Timber.tag("ImageViewBindingAdapters: modeIconId").i("loading icon from local")
                 view.setImageResource(R.drawable.ic_car_ride_share)
             }
         }

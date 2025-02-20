@@ -9,6 +9,7 @@ import androidx.databinding.ObservableBoolean
 import androidx.databinding.ObservableField
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButton
+import com.skedgo.tripkit.ui.utils.DynamicAppColor
 
 
 interface ActionButtonClickListener {
@@ -36,11 +37,15 @@ class ActionButtonViewModel constructor(context: Context, button: ActionButton) 
         this.tag = button.tag
         val stateList = arrayOf(intArrayOf(android.R.attr.state_enabled), intArrayOf())
 
+        val appTintColor = DynamicAppColor.getAppColors()?.tintColor?.run {
+            Color.rgb(red, green, blue)
+        } ?: ContextCompat.getColor(context, R.color.colorPrimary)
+
         if (button.isPrimary) {
             this.iconTint.set(Color.WHITE)
             this.outlineTint.set(Color.TRANSPARENT)
             val backgroundColorList =
-                intArrayOf(ContextCompat.getColor(context, R.color.colorPrimary), 0)
+                intArrayOf(appTintColor, 0)
             this.backgroundTint.set(ColorStateList(stateList, backgroundColorList))
             this.background.set(ContextCompat.getDrawable(context, R.drawable.bg_circle_primary))
         } else {
