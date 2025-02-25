@@ -58,7 +58,7 @@ public class WaypointTask implements SingleOnSubscribe<List<TripGroup>> {
         this.param = param;
     }
 
-    static JsonArray createJsonSegments(ArrayList<TripSegment> segments,
+    static JsonArray createJsonSegments(List<TripSegment> segments,
                                         TripSegment prototypeSegment,
                                         Location waypoint,
                                         boolean isGetOn) {
@@ -157,7 +157,7 @@ public class WaypointTask implements SingleOnSubscribe<List<TripGroup>> {
         try {
             region = param.getRegion();
             if (param instanceof WayPointTaskParam.ForChangingService) {
-                ArrayList<TripSegment> segments = ((WayPointTaskParam.ForChangingService) param).getSegments();
+                List<TripSegment> segments = ((WayPointTaskParam.ForChangingService) param).getSegments();
                 TripSegment prototypeSegment = ((WayPointTaskParam.ForChangingService) param).getPrototypeSegment();
                 TimetableEntry service = ((WayPointTaskParam.ForChangingService) param).getService();
                 postData = createPostDataForChangingService(
@@ -167,7 +167,7 @@ public class WaypointTask implements SingleOnSubscribe<List<TripGroup>> {
                     service
                 );
             } else {
-                ArrayList<TripSegment> segments = ((WayPointTaskParam.ForChangingStop) param).getSegments();
+                List<TripSegment> segments = ((WayPointTaskParam.ForChangingStop) param).getSegments();
                 TripSegment prototypeSegment = ((WayPointTaskParam.ForChangingStop) param).getPrototypeSegment();
                 Location waypoint = ((WayPointTaskParam.ForChangingStop) param).getWaypoint();
                 boolean isGetOn = ((WayPointTaskParam.ForChangingStop) param).isGetOn();
@@ -218,7 +218,7 @@ public class WaypointTask implements SingleOnSubscribe<List<TripGroup>> {
     }
 
     String createPostDataForChangingService(Region region,
-                                            ArrayList<TripSegment> segments,
+                                            List<TripSegment> segments,
                                             TripSegment prototypeSegment,
                                             TimetableEntry service) {
         JsonArray jsonSegments = new JsonArray();

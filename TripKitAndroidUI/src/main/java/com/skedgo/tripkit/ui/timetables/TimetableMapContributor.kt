@@ -146,7 +146,7 @@ class TimetableMapContributor(val fragment: Fragment) : TripKitMapContributor {
 
         autoDisposable.add(
             viewModel.drawStops
-                .subscribe({ (newMarkerOptions, removedStopIds) ->
+                .subscribeWithErrorHandling { (newMarkerOptions, removedStopIds) ->
                     for (id in removedStopIds) {
                         stopCodesToMarkerMap[id]!!.remove()
                         stopCodesToMarkerMap.remove(id)
@@ -155,7 +155,7 @@ class TimetableMapContributor(val fragment: Fragment) : TripKitMapContributor {
                         val marker = map.addMarker(first)
                         stopCodesToMarkerMap[second!!] = marker
                     }
-                }, {})
+                }
         )
 
 
@@ -304,9 +304,9 @@ class TimetableMapContributor(val fragment: Fragment) : TripKitMapContributor {
         }
         val bearing = if (vehicle.location == null) 0 else vehicle.location.bearing
         val color =
-            if (service!!.serviceColor == null || service!!.serviceColor.color == Color.BLACK) fragment.resources.getColor(
+            if (service!!.serviceColor == null || service!!.serviceColor?.color == Color.BLACK) fragment.resources.getColor(
                 R.color.v4_color
-            ) else service!!.serviceColor.color
+            ) else service!!.serviceColor?.color!!
         val maxLength = 3
         val text =
             (if (TextUtils.isEmpty(service!!.serviceNumber)) {

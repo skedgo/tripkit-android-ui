@@ -25,6 +25,7 @@ import java.util.concurrent.TimeUnit;
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 
+// TODO for future checking, when converted to kotlin, not working anymore
 public class ServiceStopMarkerCreator {
     private final Context context;
     private final TimeLabelMaker timeLabelMaker;
@@ -45,7 +46,7 @@ public class ServiceStopMarkerCreator {
     }
 
     public MarkerOptions toMarkerOptions(@NonNull StopInfo stopInfo, String displayText, String timeZone) {
-        ServiceStop stop = stopInfo.stop;
+        ServiceStop stop = stopInfo.getStop();
         if (stop.getType() != null) {
             Pair<Bitmap, Float> icon = new BearingMarkerIconBuilder(context, timeLabelMaker)
                 .hasBearing(true)
@@ -53,7 +54,7 @@ public class ServiceStopMarkerCreator {
                 .vehicleIcon(convert(
                     context,
                     ScheduledStop.convertStopTypeToVehicleMode(stop.getType()),
-                    stopInfo.realTimeStatus
+                    stopInfo.getRealTimeStatus()
                 ))
                 .vehicleIconScale(ModeInfo.MAP_LIST_SIZE_RATIO)
                 .baseIcon(R.drawable.ic_map_pin_base)
@@ -73,13 +74,13 @@ public class ServiceStopMarkerCreator {
                 .infoWindowAnchor(icon.second, 0f);
         } else {
             int circleMarkerDiameter = (int) context.getResources().getDimension(R.dimen.stop_circle_pin_diameter);
-            final int strokeColor = stopInfo.travelled ? stopInfo.serviceColor : Color.GRAY;
-            final int fillColor = stopInfo.travelled ? Color.WHITE : Color.LTGRAY;
-            final Bitmap icon = MapMarkerUtils.createStopMarkerIcon(
+            final int strokeColor = stopInfo.getTravelled() ? stopInfo.getServiceColor() : Color.GRAY;
+            final int fillColor = stopInfo.getTravelled() ? Color.WHITE : Color.LTGRAY;
+            final Bitmap icon = MapMarkerUtils.INSTANCE.createStopMarkerIcon(
                 circleMarkerDiameter,
                 strokeColor,
                 fillColor,
-                !stopInfo.travelled);
+                !stopInfo.getTravelled());
             return new MarkerOptions()
                 .position(new LatLng(stop.getLat(), stop.getLon()))
                 .draggable(false)

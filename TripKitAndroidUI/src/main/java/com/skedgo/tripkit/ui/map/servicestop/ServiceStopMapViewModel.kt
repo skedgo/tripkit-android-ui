@@ -2,6 +2,7 @@ package com.skedgo.tripkit.ui.map.servicestop
 
 import android.annotation.SuppressLint
 import android.content.Context
+import androidx.annotation.VisibleForTesting
 import com.google.android.gms.maps.model.MarkerOptions
 import com.jakewharton.rxrelay2.BehaviorRelay
 import com.jakewharton.rxrelay2.PublishRelay
@@ -169,7 +170,8 @@ class ServiceStopMapViewModel @Inject constructor(
             .autoClear()
     }
 
-    private fun getStopForService(stop: ScheduledStop, service: TimetableEntry): ScheduledStop {
+    @VisibleForTesting
+    fun getStopForService(stop: ScheduledStop, service: TimetableEntry): ScheduledStop {
         if (stop.code == service.stopCode || stop.children == null) {
             return stop
         }

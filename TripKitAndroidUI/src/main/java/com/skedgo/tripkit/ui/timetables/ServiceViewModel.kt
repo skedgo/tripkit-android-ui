@@ -38,7 +38,7 @@ abstract class ServiceViewModel() : RxViewModel() {
 
     abstract val modeInfo: ObservableField<ModeInfo>
     abstract val onItemClick: TapAction<TimetableEntry>
-    abstract val onAlertsClick: TapAction<ArrayList<RealtimeAlert>>
+    abstract val onAlertsClick: TapAction<List<RealtimeAlert>?>
 
     abstract var service: TimetableEntry
     abstract var dateTimeZone: DateTimeZone

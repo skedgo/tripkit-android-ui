@@ -12,14 +12,14 @@ import io.reactivex.Single
 object CreateMarkerForParking {
     fun execute(
         resources: Resources,
-        parking: Parking
+        parking: Parking,
+        iconRes: Int = R.drawable.ic_map_stop_parking
     ): Single<MarkerOptions> {
         val markerOptions = MarkerOptions()
             .title(parking.name)
             .position(LatLng(parking.location.latitude, parking.location.longitude))
             .draggable(false)
 
-        val iconRes = R.drawable.ic_map_stop_parking
         val icon: BitmapDescriptor
         if (iconRes == 0) {
             icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW)

@@ -19,7 +19,7 @@ open class GetA2BTime @Inject constructor(
         val timeRangeText = getTimeRangeText.execute(dateTimeZone, startTimeInSecs, endTimeInSecs)
         val serviceTitle = when {
             service.serviceNumber.isNullOrEmpty().not() -> service.serviceNumber
-            service.startStop?.type != null -> service.startStop.type.toString().capitalize()
+            service.startStop?.type != null -> service.startStop?.type.toString().capitalize()
             else -> context.getString(R.string.service)
         }
         return "$serviceTitle: $timeRangeText"

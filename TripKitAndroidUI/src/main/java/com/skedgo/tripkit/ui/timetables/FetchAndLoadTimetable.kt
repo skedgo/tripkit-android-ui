@@ -37,8 +37,7 @@ open class FetchAndLoadTimetable @Inject constructor(
             disembarkationStopCodes,
             region,
             startTimeInSecs
-        )
-            .flatMap { (_, parentStop) ->
+        ).flatMap { (_, parentStop) ->
                 loadTimetable(embarkationStopCodes, startTimeInSecs)
                     .map { it to parentStop }
             }
@@ -82,7 +81,7 @@ open class FetchAndLoadTimetable @Inject constructor(
             .flatMap {
                 Observable.fromIterable(it)
                     .flatMapSingle { service ->
-                        serviceAlertsDao.getAlertForService(service.serviceTripId)
+                        serviceAlertsDao.getAlertForService(service.serviceTripId.orEmpty())
                             .map { it.map { serviceAlertsMapper.toModel(it) } }
                             .map {
                                 service.alerts = ArrayList(it)

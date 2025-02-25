@@ -12,7 +12,7 @@ import java.util.List;
 import io.reactivex.functions.Function;
 
 public class ServiceLineOverlayTask implements Function<List<ServiceLineOverlayTask.ServiceLineInfo>, List<PolylineOptions>> {
-    private static final int NON_TRAVELLED_LINE_COLOR = 0x88AAAAAA;
+    public static final int NON_TRAVELLED_LINE_COLOR = 0x88AAAAAA;
 
     public ServiceLineOverlayTask() {
     }

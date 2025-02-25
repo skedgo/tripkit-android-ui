@@ -498,7 +498,7 @@ class TripResultMapContributor : TripKitMapContributor {
     private fun createVehicleMarker(context: Context, segment: TripSegment) {
         val vehicleMarkerOptions = vehicleMarkerCreatorLazy.get()?.call(context.resources, segment)
         val marker = vehicleMarkers?.addMarker(vehicleMarkerOptions)
-        vehicleMarkerIconFetcherLazy.get()?.call(marker, segment.realTimeVehicle!!)
+        marker?.let { vehicleMarkerIconFetcherLazy.get()?.call(marker, segment.realTimeVehicle!!) }
     }
 
     private fun showAlertMarkers(
