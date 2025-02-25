@@ -1,556 +1,519 @@
-package com.skedgo.tripkit.ui.trip.options;
+package com.skedgo.tripkit.ui.trip.options
 
-import android.content.Context;
-import android.os.Bundle;
-import android.text.TextUtils;
-import android.text.format.DateFormat;
+import android.content.Context
+import android.os.Bundle
+import android.text.TextUtils
+import android.text.format.DateFormat
+import androidx.annotation.VisibleForTesting
+import androidx.databinding.Observable
+import androidx.databinding.Observable.OnPropertyChangedCallback
+import androidx.databinding.ObservableBoolean
+import androidx.databinding.ObservableField
+import androidx.databinding.ObservableInt
+import com.skedgo.tripkit.common.model.time.TimeTag
+import com.skedgo.tripkit.time.GetNow
+import com.skedgo.tripkit.ui.R
+import com.skedgo.tripkit.ui.trip.details.viewmodel.ITimePickerViewModel
+import com.squareup.otto.Bus
+import org.joda.time.DateTime
+import org.joda.time.DateTimeZone
+import java.util.Calendar
+import java.util.Date
+import java.util.GregorianCalendar
+import java.util.TimeZone
+import java.util.concurrent.TimeUnit.MILLISECONDS
 
-import com.skedgo.tripkit.common.model.time.TimeTag;
-import com.skedgo.tripkit.time.GetNow;
-import com.skedgo.tripkit.ui.R;
-import com.skedgo.tripkit.ui.trip.details.viewmodel.ITimePickerViewModel;
-import com.squareup.otto.Bus;
+class InterCityTimePickerViewModel(
+    private val context: Context,
+    private val eventBus: Bus,
+    private val getNow: GetNow,
+    private val defaultTimezone: String
+) : ITimePickerViewModel {
+    private val defaultTimeType = TimeTag.TIME_TYPE_LEAVE_AFTER
 
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
-
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.List;
-import java.util.TimeZone;
-import java.util.concurrent.TimeUnit;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.annotation.VisibleForTesting;
-import androidx.databinding.Observable;
-import androidx.databinding.ObservableBoolean;
-import androidx.databinding.ObservableField;
-import androidx.databinding.ObservableInt;
-
-public class InterCityTimePickerViewModel implements ITimePickerViewModel {
-    public static final String ARG_TITLE = "title";
-    public static final String ARG_LEAVE_AT_LABEL = "leave_at_label";
-    public static final String ARG_ARRIVE_BY_LABEL = "arrive_by_label";
-    public static final String ARG_SINGLE_SELECTION_LABEL = "single_label";
-    public static final String ARG_POSITIVE_ACTION = "positive_action";
-    public static final String ARG_SHOW_POSITIVE_ACTION = "show_positive_action";
-    public static final String ARG_NEGATIVE_ACTION = "negative_action";
-    public static final String ARG_SHOW_NEGATIVE_ACTION = "show_negative_action";
-    public static final String ARG_DEPARTURE_TIMEZONE = "departureTimezone";
-    public static final String ARG_ARRIVAL_TIMEZONE = "arrivalTimezone";
-    public static final String ARG_TIME_IN_MILLIS = "time_in_millis";
-    public static final String ARG_TIME_TYPE = "time_type";
-    public static final String ARG_DATE_TIME_PICKER_MIN_LIMIT = "dateTimePickerMinLimit";
-    public static final String ARG_TIME_PICKER_MINUTES_INTERVAL = "timePickerMinutesInterval";
-    private static final String DATE_FORMAT = "EEE, MMM dd";
-    private static final int MAX_DATE_COUNT = 28; // 4 weeks ahead.
-
-    private final int defaultTimeType = TimeTag.TIME_TYPE_LEAVE_AFTER;
-    private final GetNow getNow;
     @VisibleForTesting
-    TimeZone departureTimezone;
-    TimeZone arrivalTimezone;
-    long timeMillis;
-    private Context context;
-    private Bus eventBus;
-    private ObservableField<List<String>> dates;
-    private GregorianCalendar timeCalendar;
-    private List<GregorianCalendar> departureCalendars;
-    private List<GregorianCalendar> arrivalCalendars;
-    private List<GregorianCalendar> singleSelectionCalendars;
-    private ObservableInt selectedPosition;
-    private ObservableBoolean isLeaveAfter;
-    private ObservableBoolean isSingleSelection;
-    private String defaultTimezone;
-    private ObservableField<String> dialogTitle;
-    private ObservableField<String> leaveAtLabel;
-    private ObservableField<String> arriveByLabel;
-    private ObservableField<String> singleLabel;
-    private ObservableInt positiveActionLabel;
-    private ObservableBoolean showPositiveAction;
-    private ObservableInt negativeActionLabel;
-    private ObservableBoolean showNegativeAction;
-    private ObservableField<Date> dateTimePickerMinLimit;
-    private ObservableInt timePickerMinuteInterval;
-    private Integer extraSelectionCount = 0;
+    var departureTimezone: TimeZone? = null
+    var arrivalTimezone: TimeZone? = null
+    var timeMillis: Long = 0
+    private val dates = ObservableField<List<String>>()
+    private var timeCalendar: GregorianCalendar? = null
+    private var departureCalendars: List<GregorianCalendar>? = null
+    private var arrivalCalendars: List<GregorianCalendar>? = null
+    private var singleSelectionCalendars: List<GregorianCalendar>? = null
+    private val selectedPosition = ObservableInt(1)
+    private val isLeaveAfter = ObservableBoolean(true)
+    private val isSingleSelection = ObservableBoolean(false)
+    private val dialogTitle = ObservableField<String>()
+    private val leaveAtLabel: ObservableField<String>
+    private val arriveByLabel: ObservableField<String>
+    private val singleLabel: ObservableField<String>
+    private val positiveActionLabel: ObservableInt
+    private val showPositiveAction: ObservableBoolean
+    private val negativeActionLabel: ObservableInt
+    private val showNegativeAction: ObservableBoolean
+    private val dateTimePickerMinLimit: ObservableField<Date>
+    private val timePickerMinuteInterval: ObservableInt
+    private var extraSelectionCount = 0
 
-    public InterCityTimePickerViewModel(
-        @NonNull Context context,
-        @NonNull Bus bus,
-        @NonNull GetNow getNow,
-        String defaultTimezone) {
-        this.context = context;
-        this.eventBus = bus;
-        this.getNow = getNow;
-        this.dates = new ObservableField<>();
-        this.selectedPosition = new ObservableInt(1);
-        this.isLeaveAfter = new ObservableBoolean(true);
-        this.isSingleSelection = new ObservableBoolean(false);
-        this.defaultTimezone = defaultTimezone;
-        this.dialogTitle = new ObservableField<>();
-        this.leaveAtLabel = new ObservableField(context.getString(R.string.leave_at));
-        this.arriveByLabel = new ObservableField(context.getString(R.string.arrive_by));
-        this.positiveActionLabel = new ObservableInt(R.string.done);
-        this.showPositiveAction = new ObservableBoolean(false);
-        this.negativeActionLabel = new ObservableInt(R.string.leave_now);
-        this.showNegativeAction = new ObservableBoolean(false);
-        this.singleLabel = new ObservableField<>();
-        this.dateTimePickerMinLimit = new ObservableField<>();
-        this.timePickerMinuteInterval = new ObservableInt(1);
+    init {
+        this.leaveAtLabel = ObservableField<String>(context.getString(R.string.leave_at))
+        this.arriveByLabel = ObservableField<String>(context.getString(R.string.arrive_by))
+        this.positiveActionLabel = ObservableInt(R.string.done)
+        this.showPositiveAction = ObservableBoolean(false)
+        this.negativeActionLabel = ObservableInt(R.string.leave_now)
+        this.showNegativeAction = ObservableBoolean(false)
+        this.singleLabel = ObservableField()
+        this.dateTimePickerMinLimit = ObservableField()
+        this.timePickerMinuteInterval = ObservableInt(1)
     }
 
 
-    @Override
-    public void handleArguments(Bundle args) {
+    override fun handleArguments(args: Bundle) {
         if (args != null) {
-            String extraTimezone;
+            var extraTimezone: String?
             if (args.containsKey(ARG_DEPARTURE_TIMEZONE)) {
-                extraTimezone = args.getString(ARG_DEPARTURE_TIMEZONE);
+                extraTimezone = args.getString(ARG_DEPARTURE_TIMEZONE)
                 if (!TextUtils.isEmpty(extraTimezone)) {
-                    this.departureTimezone = TimeZone.getTimeZone(extraTimezone);
+                    this.departureTimezone = TimeZone.getTimeZone(extraTimezone)
                 } else {
-                    this.departureTimezone = TimeZone.getTimeZone(defaultTimezone);
+                    this.departureTimezone = TimeZone.getTimeZone(
+                        defaultTimezone
+                    )
                 }
             }
             if (args.containsKey(ARG_ARRIVAL_TIMEZONE)) {
-                extraTimezone = args.getString(ARG_ARRIVAL_TIMEZONE);
+                extraTimezone = args.getString(ARG_ARRIVAL_TIMEZONE)
                 if (!TextUtils.isEmpty(extraTimezone)) {
-                    this.arrivalTimezone = TimeZone.getTimeZone(extraTimezone);
+                    this.arrivalTimezone = TimeZone.getTimeZone(extraTimezone)
                 } else {
-                    this.arrivalTimezone = TimeZone.getTimeZone(defaultTimezone);
+                    this.arrivalTimezone = TimeZone.getTimeZone(
+                        defaultTimezone
+                    )
                 }
             }
             if (args.containsKey(ARG_TIME_IN_MILLIS)) {
-                this.timeMillis = args.getLong(ARG_TIME_IN_MILLIS);
+                this.timeMillis = args.getLong(ARG_TIME_IN_MILLIS)
             }
 
             if (args.containsKey(ARG_TIME_TYPE)) {
-                int timeType = args.getInt(ARG_TIME_TYPE);
+                val timeType = args.getInt(ARG_TIME_TYPE)
                 if (timeType == TimeTag.TIME_TYPE_SINGLE_SELECTION) {
-                    this.isLeaveAfter.set(false);
-                    this.isSingleSelection.set(true);
+                    isLeaveAfter.set(false)
+                    isSingleSelection.set(true)
                 } else {
-                    this.isLeaveAfter.set(timeType == defaultTimeType);
-                    this.isSingleSelection.set(false);
+                    isLeaveAfter.set(timeType == defaultTimeType)
+                    isSingleSelection.set(false)
                 }
             }
             if (args.containsKey(ARG_TITLE)) {
-                this.dialogTitle.set(args.getString(ARG_TITLE, ""));
+                dialogTitle.set(args.getString(ARG_TITLE, ""))
             }
             if (args.containsKey(ARG_SHOW_POSITIVE_ACTION)) {
-                boolean show = args.getBoolean(ARG_SHOW_POSITIVE_ACTION);
+                val show = args.getBoolean(ARG_SHOW_POSITIVE_ACTION)
                 if (show && args.containsKey(ARG_POSITIVE_ACTION)) {
-                    int label = args.getInt(ARG_POSITIVE_ACTION, 0);
-                    this.positiveActionLabel.set(label);
-                    this.showPositiveAction.set(label != 0);
+                    val label = args.getInt(ARG_POSITIVE_ACTION, 0)
+                    positiveActionLabel.set(label)
+                    showPositiveAction.set(label != 0)
                 }
             }
             if (args.containsKey(ARG_SHOW_NEGATIVE_ACTION)) {
-                boolean show = args.getBoolean(ARG_SHOW_NEGATIVE_ACTION);
+                val show = args.getBoolean(ARG_SHOW_NEGATIVE_ACTION)
                 if (show && args.containsKey(ARG_NEGATIVE_ACTION)) {
-                    int label = args.getInt(ARG_NEGATIVE_ACTION, 0);
-                    this.negativeActionLabel.set(label);
-                    this.showNegativeAction.set(label != 0);
+                    val label = args.getInt(ARG_NEGATIVE_ACTION, 0)
+                    negativeActionLabel.set(label)
+                    showNegativeAction.set(label != 0)
                 }
             }
             if (args.containsKey(ARG_LEAVE_AT_LABEL)) {
-                this.leaveAtLabel.set(args.getString(ARG_LEAVE_AT_LABEL, ""));
+                leaveAtLabel.set(args.getString(ARG_LEAVE_AT_LABEL, ""))
             }
             if (args.containsKey(ARG_ARRIVE_BY_LABEL)) {
-                this.arriveByLabel.set(args.getString(ARG_ARRIVE_BY_LABEL, ""));
+                arriveByLabel.set(args.getString(ARG_ARRIVE_BY_LABEL, ""))
             }
             if (args.containsKey(ARG_SINGLE_SELECTION_LABEL)) {
-                this.singleLabel.set(args.getString(ARG_SINGLE_SELECTION_LABEL, ""));
+                singleLabel.set(args.getString(ARG_SINGLE_SELECTION_LABEL, ""))
             }
             if (args.containsKey(ARG_DATE_TIME_PICKER_MIN_LIMIT)) {
-                long dateTimeLong = args.getLong(ARG_DATE_TIME_PICKER_MIN_LIMIT, -1L);
+                val dateTimeLong = args.getLong(ARG_DATE_TIME_PICKER_MIN_LIMIT, -1L)
                 if (dateTimeLong != -1L) {
-                    dateTimePickerMinLimit.set(new Date(dateTimeLong));
+                    dateTimePickerMinLimit.set(Date(dateTimeLong))
                 }
             }
             if (args.containsKey(ARG_TIME_PICKER_MINUTES_INTERVAL)) {
-                timePickerMinuteInterval.set(args.getInt(ARG_TIME_PICKER_MINUTES_INTERVAL, 1));
+                timePickerMinuteInterval.set(args.getInt(ARG_TIME_PICKER_MINUTES_INTERVAL, 1))
             }
 
-            initValues();
+            initValues()
         }
     }
 
-    @Override
-    public ObservableField<String> dialogTitle() {
-        return dialogTitle;
+    override fun dialogTitle(): ObservableField<String> {
+        return dialogTitle
     }
 
-    @Override
-    public ObservableField<String> leaveAtLabel() {
-        return leaveAtLabel;
+    override fun leaveAtLabel(): ObservableField<String> {
+        return leaveAtLabel
     }
 
-    @Override
-    public ObservableField<String> arriveByLabel() {
-        return arriveByLabel;
+    override fun arriveByLabel(): ObservableField<String> {
+        return arriveByLabel
     }
 
-    @Override
-    public ObservableField<String> singleSelectionLabel() {
-        return singleLabel;
+    override fun singleSelectionLabel(): ObservableField<String> {
+        return singleLabel
     }
 
-    @Override
-    public ObservableBoolean isSingleSelection() {
-        return isSingleSelection;
+    override fun isSingleSelection(): ObservableBoolean {
+        return isSingleSelection
     }
 
-    @Override
-    public ObservableInt positiveActionLabel() {
-        return positiveActionLabel;
+    override fun positiveActionLabel(): ObservableInt {
+        return positiveActionLabel
     }
 
-    @Override
-    public ObservableBoolean showPositiveAction() {
-        return showPositiveAction;
+    override fun showPositiveAction(): ObservableBoolean {
+        return showPositiveAction
     }
 
-    @Override
-    public ObservableInt negativeActionLabel() {
-        return negativeActionLabel;
+    override fun negativeActionLabel(): ObservableInt {
+        return negativeActionLabel
     }
 
-    @Override
-    public ObservableBoolean showNegativeAction() {
-        return showNegativeAction;
+    override fun showNegativeAction(): ObservableBoolean {
+        return showNegativeAction
     }
 
-    @Override
-    public ObservableField<List<String>> dates() {
-        return dates;
+    override fun dates(): ObservableField<List<String>> {
+        return dates
     }
 
-    @Override
-    public int getHour() {
-        return timeCalendar.get(Calendar.HOUR_OF_DAY);
+    override fun getHour(): Int {
+        return timeCalendar!![Calendar.HOUR_OF_DAY]
     }
 
-    @Override
-    public int getMinute() {
-        return timeCalendar.get(Calendar.MINUTE);
+    override fun getMinute(): Int {
+        return timeCalendar!![Calendar.MINUTE]
     }
 
-    @Override
-    public ObservableInt selectedPosition() {
-        return selectedPosition;
+    override fun selectedPosition(): ObservableInt {
+        return selectedPosition
     }
 
-    @Override
-    public ObservableBoolean isLeaveAfter() {
-        return isLeaveAfter;
+    override fun isLeaveAfter(): ObservableBoolean {
+        return isLeaveAfter
     }
 
-    @Override
-    public Date dateTimeMinLimit() {
-        return dateTimePickerMinLimit.get();
+    override fun dateTimeMinLimit(): Date? {
+        return dateTimePickerMinLimit.get()
     }
 
-    @Override
-    public void updateTime(int hour, int minute) {
-        timeCalendar.set(Calendar.HOUR_OF_DAY, hour);
-        timeCalendar.set(Calendar.MINUTE, minute);
+    override fun updateTime(hour: Int, minute: Int) {
+        timeCalendar!![Calendar.HOUR_OF_DAY] = hour
+        timeCalendar!![Calendar.MINUTE] = minute
     }
 
-    @Override
-    public TimeTag leaveNow() {
-        return TimeTag.createForLeaveNow();
+    override fun leaveNow(): TimeTag {
+        return TimeTag.createForLeaveNow()
     }
 
-    @Override
-    public TimeTag done() {
-        int position = selectedPosition.get();
-        GregorianCalendar dateCalendar = this.isSingleSelection.get() ?
-            singleSelectionCalendars.get(position) :
-            this.isLeaveAfter.get() ? departureCalendars.get(position) :
-                arrivalCalendars.get(position);
-        dateCalendar.setTimeZone(departureTimezone);
-        return getTimeTagFromDateTime(dateCalendar, timeCalendar);
+    override fun done(): TimeTag {
+        val position = selectedPosition.get()
+        val dateCalendar =
+            if (isSingleSelection.get()) singleSelectionCalendars!![position] else if (isLeaveAfter.get()) departureCalendars!![position] else arrivalCalendars!![position]
+        dateCalendar.timeZone = departureTimezone
+        return getTimeTagFromDateTime(dateCalendar, timeCalendar!!)
     }
 
-    @Override
-    public ObservableInt getTimePickerMinuteInterval() {
-        return timePickerMinuteInterval;
+    override fun getTimePickerMinuteInterval(): ObservableInt {
+        return timePickerMinuteInterval
     }
 
     /**
      * Visible only for testing.
      */
-    Calendar offsetTimeZone(Date date, TimeZone fromTimeZone, TimeZone toTimeZone) {
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTimeZone(fromTimeZone);
-        calendar.setTime(date);
+    fun offsetTimeZone(date: Date?, fromTimeZone: TimeZone?, toTimeZone: TimeZone?): Calendar {
+        val calendar = Calendar.getInstance()
+        calendar.timeZone = fromTimeZone
+        calendar.time = date
         // FROM TimeZone to UTC
-        calendar.add(Calendar.MILLISECOND, fromTimeZone.getRawOffset() * -1);
-        if (fromTimeZone.inDaylightTime(calendar.getTime())) {
-            calendar.add(Calendar.MILLISECOND, calendar.getTimeZone().getDSTSavings() * -1);
+        calendar.add(Calendar.MILLISECOND, fromTimeZone!!.rawOffset * -1)
+        if (fromTimeZone.inDaylightTime(calendar.time)) {
+            calendar.add(Calendar.MILLISECOND, calendar.timeZone.dstSavings * -1)
         }
         // UTC to TO TimeZone
-        calendar.add(Calendar.MILLISECOND, toTimeZone.getRawOffset());
-        if (toTimeZone.inDaylightTime(calendar.getTime())) {
-            calendar.add(Calendar.MILLISECOND, toTimeZone.getDSTSavings());
+        calendar.add(Calendar.MILLISECOND, toTimeZone!!.rawOffset)
+        if (toTimeZone.inDaylightTime(calendar.time)) {
+            calendar.add(Calendar.MILLISECOND, toTimeZone.dstSavings)
         }
-        return calendar;
+        return calendar
     }
 
-    private void initValues() {
-        GregorianCalendar departureTime = createTime(departureTimezone);
-        GregorianCalendar arrivalTime = createTime(arrivalTimezone);
-        GregorianCalendar singleSelectionTime = createTime(arrivalTimezone);
-        this.departureCalendars = createDateRange((GregorianCalendar) departureTime.clone());
-        this.arrivalCalendars = createDateRange((GregorianCalendar) arrivalTime.clone());
-        this.singleSelectionCalendars = createDateRange((GregorianCalendar) singleSelectionTime.clone());
-        this.isLeaveAfter.addOnPropertyChangedCallback(onTimeTypePropertyChanged());
-        this.isSingleSelection.addOnPropertyChangedCallback(onTimeTypePropertyChanged());
-        moveToLastSelectedTime();
+    private fun initValues() {
+        val departureTime = createTime(departureTimezone)
+        val arrivalTime = createTime(arrivalTimezone)
+        val singleSelectionTime = createTime(arrivalTimezone)
+        this.departureCalendars = createDateRange(departureTime.clone() as GregorianCalendar)
+        this.arrivalCalendars = createDateRange(arrivalTime.clone() as GregorianCalendar)
+        this.singleSelectionCalendars =
+            createDateRange(singleSelectionTime.clone() as GregorianCalendar)
+        isLeaveAfter.addOnPropertyChangedCallback(onTimeTypePropertyChanged())
+        isSingleSelection.addOnPropertyChangedCallback(onTimeTypePropertyChanged())
+        moveToLastSelectedTime()
     }
 
-    @NonNull
-    private Observable.OnPropertyChangedCallback onTimeTypePropertyChanged() {
-        return new Observable.OnPropertyChangedCallback() {
-            @Override
-            public void onPropertyChanged(Observable sender, int propertyId) {
-                notifyTimeTypeChange();
+    private fun onTimeTypePropertyChanged(): OnPropertyChangedCallback {
+        return object : OnPropertyChangedCallback() {
+            override fun onPropertyChanged(sender: Observable, propertyId: Int) {
+                notifyTimeTypeChange()
             }
-        };
-    }
-
-    private GregorianCalendar createTime(TimeZone timezone) {
-        GregorianCalendar calendar = new GregorianCalendar(timezone);
-        calendar.setTimeInMillis(getNow.execute().getMillis());
-        return calendar;
-    }
-
-    private List<GregorianCalendar> createDateRange(@NonNull GregorianCalendar date) {
-        List<GregorianCalendar> dateRange = new ArrayList<>(MAX_DATE_COUNT);
-        //date.add(Calendar.DAY_OF_MONTH, -1);
-        GregorianCalendar newDate;
-        for (int i = 0; i < MAX_DATE_COUNT; ++i) {
-            newDate = (GregorianCalendar) date.clone();
-            dateRange.add(newDate);
-            date.add(Calendar.DAY_OF_MONTH, 1);
         }
-        return getFilteredDateRange(dateRange);
     }
 
-    private List<GregorianCalendar> getFilteredDateRange(@NonNull List<GregorianCalendar> dateRange) {
-        Date minLimit = dateTimeMinLimit();
+    private fun createTime(timezone: TimeZone?): GregorianCalendar {
+        val calendar = GregorianCalendar(timezone)
+        calendar.timeInMillis = getNow.execute().millis
+        return calendar
+    }
+
+    private fun createDateRange(date: GregorianCalendar): List<GregorianCalendar> {
+        val dateRange: MutableList<GregorianCalendar> = ArrayList(MAX_DATE_COUNT)
+        //date.add(Calendar.DAY_OF_MONTH, -1);
+        var newDate: GregorianCalendar
+        for (i in 0 until MAX_DATE_COUNT) {
+            newDate = date.clone() as GregorianCalendar
+            dateRange.add(newDate)
+            date.add(Calendar.DAY_OF_MONTH, 1)
+        }
+        return getFilteredDateRange(dateRange)
+    }
+
+    private fun getFilteredDateRange(dateRange: List<GregorianCalendar>): List<GregorianCalendar> {
+        val minLimit = dateTimeMinLimit()
         if (minLimit != null) {
-            List<GregorianCalendar> result = new ArrayList<>();
-            for (GregorianCalendar calendar : dateRange) {
-                if (!calendar.getTime().before(minLimit)) {
-                    result.add(calendar);
+            val result: MutableList<GregorianCalendar> = ArrayList()
+            for (calendar in dateRange) {
+                if (!calendar.time.before(minLimit)) {
+                    result.add(calendar)
                 }
             }
 
-            return result;
-
+            return result
         } else {
-            return dateRange;
+            return dateRange
         }
     }
 
-    private TimeTag getTimeTagFromDateTime(@NonNull GregorianCalendar date,
-                                           @NonNull GregorianCalendar time) {
-        TimeZone timeZone = this.isSingleSelection.get() ? arrivalTimezone :
-            this.isLeaveAfter.get() ? departureTimezone : arrivalTimezone;
-        int timeType = this.isSingleSelection.get() ? TimeTag.TIME_TYPE_SINGLE_SELECTION :
-            this.isLeaveAfter.get() ? defaultTimeType : TimeTag.TIME_TYPE_ARRIVE_BY;
-        GregorianCalendar newTime = combineDateTime(time, date, timeZone);
+    private fun getTimeTagFromDateTime(
+        date: GregorianCalendar,
+        time: GregorianCalendar
+    ): TimeTag {
+        val timeZone =
+            if (isSingleSelection.get()) arrivalTimezone else if (isLeaveAfter.get()) departureTimezone else arrivalTimezone
+        val timeType =
+            if (isSingleSelection.get()) TimeTag.TIME_TYPE_SINGLE_SELECTION else if (isLeaveAfter.get()) defaultTimeType else TimeTag.TIME_TYPE_ARRIVE_BY
+        val newTime = combineDateTime(time, date, timeZone)
         return TimeTag.createForTimeType(
             timeType,
-            TimeUnit.MILLISECONDS.toSeconds(newTime.getTimeInMillis())
-        );
+            MILLISECONDS.toSeconds(newTime.timeInMillis)
+        )
     }
 
-    private void moveToLastSelectedTime() {
-        List<GregorianCalendar> selectedCalendars = this.isSingleSelection.get() ?
-            singleSelectionCalendars : this.isLeaveAfter.get()
-            ? departureCalendars : arrivalCalendars;
+    private fun moveToLastSelectedTime() {
+        val selectedCalendars =
+            if (isSingleSelection.get()) singleSelectionCalendars else if (isLeaveAfter.get()
+            ) departureCalendars else arrivalCalendars
         //Set last selected time
-        TimeZone tz = selectedCalendars.get(0).getTimeZone();
-        this.timeCalendar = new GregorianCalendar(selectedCalendars.get(0).getTimeZone());
-        DateTime dateTime = new DateTime(timeMillis, DateTimeZone.forID(tz.getID()));
+        val tz = selectedCalendars!![0].timeZone
+        this.timeCalendar = GregorianCalendar(selectedCalendars[0].timeZone)
+        val dateTime = DateTime(timeMillis, DateTimeZone.forID(tz.id))
 
 
-        this.timeCalendar.clear();
-        this.timeCalendar.setTime(dateTime.toDate());
+        timeCalendar!!.clear()
+        timeCalendar!!.time = dateTime.toDate()
 
         //Set last selected position
-        int date = this.timeCalendar.get(Calendar.DATE);
-        GregorianCalendar temp;
-        for (int i = 0; i < selectedCalendars.size(); ++i) {
-            temp = selectedCalendars.get(i);
-            if (temp.get(Calendar.DATE) == date) {
+        val date = timeCalendar!![Calendar.DATE]
+        var temp: GregorianCalendar
+        for (i in selectedCalendars.indices) {
+            temp = selectedCalendars[i]
+            if (temp[Calendar.DATE] == date) {
                 //this.selectedPosition.set(i - 1);
-                this.selectedPosition.set(i);
-                break;
+                selectedPosition.set(i)
+                break
             }
-
         }
         //Set last selected calendars
-        this.dates.set(formatDateTime(selectedCalendars));
+        dates.set(formatDateTime(selectedCalendars))
     }
 
-    private void notifyTimeTypeChange() {
-        if (departureTimezone.equals(arrivalTimezone)) // if same timezone -> no change
+    private fun notifyTimeTypeChange() {
+        if (departureTimezone == arrivalTimezone) // if same timezone -> no change
         {
-            return;
+            return
         }
-        TimeZone fromTimeZone;
-        TimeZone toTimeZone;
-        GregorianCalendar dateCalendar;
-        if (this.isSingleSelection.get()) {
-            fromTimeZone = arrivalTimezone;
-            toTimeZone = departureTimezone;
-            dateCalendar = singleSelectionCalendars.get(selectedPosition.get());
+        val fromTimeZone: TimeZone?
+        val toTimeZone: TimeZone?
+        val dateCalendar: GregorianCalendar
+        if (isSingleSelection.get()) {
+            fromTimeZone = arrivalTimezone
+            toTimeZone = departureTimezone
+            dateCalendar = singleSelectionCalendars!![selectedPosition.get()]
         } else {
-            if (this.isLeaveAfter.get()) {
-                fromTimeZone = arrivalTimezone;
-                toTimeZone = departureTimezone;
-                dateCalendar = arrivalCalendars.get(selectedPosition.get());
+            if (isLeaveAfter.get()) {
+                fromTimeZone = arrivalTimezone
+                toTimeZone = departureTimezone
+                dateCalendar = arrivalCalendars!![selectedPosition.get()]
             } else {
-                fromTimeZone = departureTimezone;
-                toTimeZone = arrivalTimezone;
-                dateCalendar = departureCalendars.get(selectedPosition.get());
+                fromTimeZone = departureTimezone
+                toTimeZone = arrivalTimezone
+                dateCalendar = departureCalendars!![selectedPosition.get()]
             }
         }
-        GregorianCalendar dateTimeCalendar = combineDateTime(
-            timeCalendar,
+        val dateTimeCalendar = combineDateTime(
+            timeCalendar!!,
             dateCalendar,
             fromTimeZone
-        );
-        this.timeCalendar = (GregorianCalendar) offsetTimeZone(
-            dateTimeCalendar.getTime(),
+        )
+        this.timeCalendar = offsetTimeZone(
+            dateTimeCalendar.time,
             fromTimeZone,
             toTimeZone
-        );
+        ) as GregorianCalendar
 
-        refreshDateTime();
+        refreshDateTime()
     }
 
     /**
      * Create new calendar by time and date
      */
-    private GregorianCalendar combineDateTime(@NonNull GregorianCalendar time,
-                                              @NonNull GregorianCalendar dateCalendar,
-                                              TimeZone timeZone) {
-        GregorianCalendar newTime = new GregorianCalendar(timeZone);
-        newTime.set(Calendar.YEAR, dateCalendar.get(Calendar.YEAR));
-        newTime.set(Calendar.MONTH, dateCalendar.get(Calendar.MONTH));
-        newTime.set(Calendar.DATE, dateCalendar.get(Calendar.DATE));
-        newTime.set(Calendar.HOUR_OF_DAY, time.get(Calendar.HOUR_OF_DAY));
-        newTime.set(Calendar.MINUTE, time.get(Calendar.MINUTE));
-        return newTime;
+    private fun combineDateTime(
+        time: GregorianCalendar,
+        dateCalendar: GregorianCalendar,
+        timeZone: TimeZone?
+    ): GregorianCalendar {
+        val newTime = GregorianCalendar(timeZone)
+        newTime[Calendar.YEAR] = dateCalendar[Calendar.YEAR]
+        newTime[Calendar.MONTH] = dateCalendar[Calendar.MONTH]
+        newTime[Calendar.DATE] = dateCalendar[Calendar.DATE]
+        newTime[Calendar.HOUR_OF_DAY] = time[Calendar.HOUR_OF_DAY]
+        newTime[Calendar.MINUTE] = time[Calendar.MINUTE]
+        return newTime
     }
 
-    private void refreshDateTime() {
-        List<GregorianCalendar> selectedCalendars = this.isSingleSelection.get() ?
-            singleSelectionCalendars : this.isLeaveAfter.get()
-            ? departureCalendars : arrivalCalendars;
-        int startIndex;
-        int position = selectedPosition.get();
-        if (position == 0) {
-            startIndex = position;
+    private fun refreshDateTime() {
+        val selectedCalendars =
+            if (isSingleSelection.get()) singleSelectionCalendars else if (isLeaveAfter.get()
+            ) departureCalendars else arrivalCalendars
+        val startIndex: Int
+        val position = selectedPosition.get()
+        startIndex = if (position == 0) {
+            position
         } else {
-            startIndex = position - 1;
+            position - 1
         }
-        int date = timeCalendar.get(Calendar.DATE);
-        GregorianCalendar tempCalendar;
-        for (int i = startIndex; i <= startIndex + extraSelectionCount && i < selectedCalendars.size(); ++i) {
-            tempCalendar = selectedCalendars.get(i);
-            if (tempCalendar.get(Calendar.DATE) == date) {
-                selectedPosition.set(i);
-                break;
+        val date = timeCalendar!![Calendar.DATE]
+        var tempCalendar: GregorianCalendar
+        var i = startIndex
+        while (i <= startIndex + extraSelectionCount && i < selectedCalendars!!.size) {
+            tempCalendar = selectedCalendars[i]
+            if (tempCalendar[Calendar.DATE] == date) {
+                selectedPosition.set(i)
+                break
             }
 
+            ++i
         }
-        this.dates.set(formatDateTime(selectedCalendars));
+        dates.set(formatDateTime(selectedCalendars!!))
     }
 
-    private List<String> formatDateTime(@NonNull List<GregorianCalendar> dateRange) {
-        List<String> formatDates = new ArrayList<>(dateRange.size());
-        extraSelectionCount = 0;
-        boolean skip = false;
+    private fun formatDateTime(dateRange: List<GregorianCalendar>): List<String> {
+        val formatDates: MutableList<String> = ArrayList(dateRange.size)
+        extraSelectionCount = 0
+        var skip = false
         while (!skip) {
-            String label = checkDateForStringLabel(dateRange.get(extraSelectionCount).getTime());
+            val label = checkDateForStringLabel(dateRange[extraSelectionCount].time)
             if (label != null) {
-                formatDates.add(label);
+                formatDates.add(label)
             } else {
-                skip = true;
+                skip = true
             }
 
-            extraSelectionCount++;
+            extraSelectionCount++
         }
         /*
         formatDates.add(context.getString(R.string.yesterday));
         formatDates.add(context.getString(R.string.today));
         formatDates.add(context.getString(R.string.tomorrow));
         */
-        String dateString;
-        for (int i = extraSelectionCount - 1; i < dateRange.size(); ++i) {
-            dateString = DateFormat.format(DATE_FORMAT, dateRange.get(i)).toString();
-            formatDates.add(dateString);
+        var dateString: String
+        for (i in extraSelectionCount - 1 until dateRange.size) {
+            dateString = DateFormat.format(DATE_FORMAT, dateRange[i]).toString()
+            formatDates.add(dateString)
         }
-        return formatDates;
+        return formatDates
     }
 
-    @Override
-    @Nullable
-    public GregorianCalendar getSelectedDate() {
-        @Nullable GregorianCalendar result;
-        if (isSingleSelection.get()) {
-            result = singleSelectionCalendars.get(selectedPosition.get());
+    override fun getSelectedDate(): GregorianCalendar? {
+        val result = if (isSingleSelection.get()) {
+            singleSelectionCalendars!![selectedPosition.get()]
         } else if (isLeaveAfter.get()) {
-            result = departureCalendars.get(selectedPosition.get());
+            departureCalendars!![selectedPosition.get()]
         } else {
-            result = arrivalCalendars.get(selectedPosition.get());
+            arrivalCalendars!![selectedPosition.get()]
         }
-        return result;
+        return result
     }
 
-    @Nullable
-    private String checkDateForStringLabel(Date oldTime) {
-        Date newTime = new Date();
+    private fun checkDateForStringLabel(oldTime: Date): String? {
+        val newTime = Date()
         try {
-            Calendar cal = Calendar.getInstance();
-            cal.setTime(newTime);
-            Calendar oldCal = Calendar.getInstance();
-            oldCal.setTime(oldTime);
+            val cal = Calendar.getInstance()
+            cal.time = newTime
+            val oldCal = Calendar.getInstance()
+            oldCal.time = oldTime
 
-            int oldYear = oldCal.get(Calendar.YEAR);
-            int year = cal.get(Calendar.YEAR);
-            int oldDay = oldCal.get(Calendar.DAY_OF_YEAR);
-            int day = cal.get(Calendar.DAY_OF_YEAR);
+            val oldYear = oldCal[Calendar.YEAR]
+            val year = cal[Calendar.YEAR]
+            val oldDay = oldCal[Calendar.DAY_OF_YEAR]
+            val day = cal[Calendar.DAY_OF_YEAR]
 
             if (oldYear == year) {
-                int value = oldDay - day;
+                val value = oldDay - day
                 if (value == -1) {
-                    return context.getString(R.string.yesterday);
+                    return context.getString(R.string.yesterday)
                 } else if (value == 0) {
-                    return context.getString(R.string.today);
+                    return context.getString(R.string.today)
                 } else if (value == 1) {
-                    return context.getString(R.string.tomorrow);
+                    return context.getString(R.string.tomorrow)
                 }
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
-        return null;
+        return null
     }
 
-    @Nullable
-    @Override
-    public TimeZone getTimezone() {
-        return departureTimezone != null ? departureTimezone : arrivalTimezone;
+    override fun getTimezone(): TimeZone? {
+        return if (departureTimezone != null) departureTimezone else arrivalTimezone
+    }
+
+    companion object {
+        const val ARG_TITLE: String = "title"
+        const val ARG_LEAVE_AT_LABEL: String = "leave_at_label"
+        const val ARG_ARRIVE_BY_LABEL: String = "arrive_by_label"
+        const val ARG_SINGLE_SELECTION_LABEL: String = "single_label"
+        const val ARG_POSITIVE_ACTION: String = "positive_action"
+        const val ARG_SHOW_POSITIVE_ACTION: String = "show_positive_action"
+        const val ARG_NEGATIVE_ACTION: String = "negative_action"
+        const val ARG_SHOW_NEGATIVE_ACTION: String = "show_negative_action"
+        const val ARG_DEPARTURE_TIMEZONE: String = "departureTimezone"
+        const val ARG_ARRIVAL_TIMEZONE: String = "arrivalTimezone"
+        const val ARG_TIME_IN_MILLIS: String = "time_in_millis"
+        const val ARG_TIME_TYPE: String = "time_type"
+        const val ARG_DATE_TIME_PICKER_MIN_LIMIT: String = "dateTimePickerMinLimit"
+        const val ARG_TIME_PICKER_MINUTES_INTERVAL: String = "timePickerMinutesInterval"
+        private const val DATE_FORMAT = "EEE, MMM dd"
+        private const val MAX_DATE_COUNT = 28 // 4 weeks ahead.
     }
 }
 
