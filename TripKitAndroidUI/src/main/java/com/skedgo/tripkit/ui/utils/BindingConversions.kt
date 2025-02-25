@@ -1,45 +1,59 @@
-package com.skedgo.tripkit.ui.utils;
+package com.skedgo.tripkit.ui.utils
 
-import com.skedgo.tripkit.common.model.location.Location;
-import com.skedgo.tripkit.common.model.stop.StopType;
-import com.skedgo.tripkit.ui.R;
+import androidx.annotation.DrawableRes
+import androidx.databinding.BindingConversion
+import com.skedgo.tripkit.common.model.location.Location
+import com.skedgo.tripkit.common.model.stop.StopType
+import com.skedgo.tripkit.common.model.stop.StopType.BUS
+import com.skedgo.tripkit.common.model.stop.StopType.CABLECAR
+import com.skedgo.tripkit.common.model.stop.StopType.FERRY
+import com.skedgo.tripkit.common.model.stop.StopType.MONORAIL
+import com.skedgo.tripkit.common.model.stop.StopType.PARKING
+import com.skedgo.tripkit.common.model.stop.StopType.SUBWAY
+import com.skedgo.tripkit.common.model.stop.StopType.TAXI
+import com.skedgo.tripkit.common.model.stop.StopType.TRAIN
+import com.skedgo.tripkit.common.model.stop.StopType.TRAM
+import com.skedgo.tripkit.ui.R
 
-import androidx.annotation.DrawableRes;
-import androidx.annotation.Nullable;
-import androidx.databinding.BindingConversion;
-
-public final class BindingConversions {
-    private BindingConversions() {
-    }
-
+object BindingConversions {
     @DrawableRes
-    public static int convertStopTypeToMapIconRes(@Nullable StopType stopType) {
-        if (stopType == StopType.BUS) {
-            return R.drawable.ic_map_stop_bus;
-        } else if (stopType == StopType.TRAIN) {
-            return R.drawable.ic_map_stop_train;
-        } else if (stopType == StopType.FERRY) {
-            return R.drawable.ic_map_stop_ferry;
-        } else if (stopType == StopType.MONORAIL) {
-            return R.drawable.ic_map_stop_monorail;
-        } else if (stopType == StopType.SUBWAY) {
-            return R.drawable.ic_map_stop_subway;
-        } else if (stopType == StopType.TAXI) {
-            return R.drawable.ic_map_stop_taxi;
-        } else if (stopType == StopType.PARKING) {
-            return R.drawable.ic_map_stop_parking;
-        } else if (stopType == StopType.TRAM) {
-            return R.drawable.ic_map_stop_tram;
-        } else if (stopType == StopType.CABLECAR) {
-            return R.drawable.ic_map_stop_cablecar;
-        } else {
-            return 0;
+    fun convertStopTypeToMapIconRes(stopType: StopType?): Int {
+        return when (stopType) {
+            BUS -> {
+                R.drawable.ic_map_stop_bus
+            }
+            TRAIN -> {
+                R.drawable.ic_map_stop_train
+            }
+            FERRY -> {
+                R.drawable.ic_map_stop_ferry
+            }
+            MONORAIL -> {
+                R.drawable.ic_map_stop_monorail
+            }
+            SUBWAY -> {
+                R.drawable.ic_map_stop_subway
+            }
+            TAXI -> {
+                R.drawable.ic_map_stop_taxi
+            }
+            PARKING -> {
+                R.drawable.ic_map_stop_parking
+            }
+            TRAM -> {
+                R.drawable.ic_map_stop_tram
+            }
+            CABLECAR -> {
+                R.drawable.ic_map_stop_cablecar
+            }
+            else -> {
+                0
+            }
         }
     }
+}
 
-    @BindingConversion
-    public static int convertLocationToAlpha(Location location) {
-        return location == null ? 1 : 0;
-    }
-
+@BindingConversion
+fun convertLocationToAlpha(location: Location?): Int {
+    return if (location == null) 1 else 0
 }
