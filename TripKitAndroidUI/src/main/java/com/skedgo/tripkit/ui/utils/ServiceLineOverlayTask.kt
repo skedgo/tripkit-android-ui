@@ -1,138 +1,123 @@
-package com.skedgo.tripkit.ui.utils;
+package com.skedgo.tripkit.ui.utils
 
-import android.graphics.Color;
+import android.graphics.Color
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.PolylineOptions
+import com.skedgo.tripkit.ui.utils.ServiceLineOverlayTask.ServiceLineInfo
+import io.reactivex.functions.Function
+import java.util.LinkedList
 
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.PolylineOptions;
+class ServiceLineOverlayTask : Function<List<ServiceLineInfo>, List<PolylineOptions>> {
+    override fun apply(serviceLineInfos: List<ServiceLineInfo>): List<PolylineOptions> {
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
+        val mNonTravelledLinesToDraw: MutableList<List<LineSegment>> = LinkedList()
+        val linesToDraw: MutableList<List<LineSegment>> = LinkedList()
 
-import io.reactivex.functions.Function;
-
-public class ServiceLineOverlayTask implements Function<List<ServiceLineOverlayTask.ServiceLineInfo>, List<PolylineOptions>> {
-    public static final int NON_TRAVELLED_LINE_COLOR = 0x88AAAAAA;
-
-    public ServiceLineOverlayTask() {
-    }
-
-    @Override
-    public List<PolylineOptions> apply(List<ServiceLineInfo> serviceLineInfos) {
-        List<ServiceLineInfo> mLinesToDraw = serviceLineInfos;
-
-        List<List<LineSegment>> mNonTravelledLinesToDraw = new LinkedList<List<LineSegment>>();
-        List<List<LineSegment>> linesToDraw = new LinkedList<List<LineSegment>>();
-
-        for (ServiceLineInfo line : mLinesToDraw) {
-
-            if (line.waypoints == null || line.waypoints.isEmpty()) {
-                continue;
+        for (line in serviceLineInfos) {
+            if (line.waypoints.isNullOrEmpty()) {
+                continue
             }
 
-            List<LineSegment> nonTravelledLines = new ArrayList<LineSegment>();
-            List<LineSegment> lineSegmentsToDraw = new ArrayList<LineSegment>();
+            val nonTravelledLines: MutableList<LineSegment> = ArrayList()
+            val lineSegmentsToDraw: MutableList<LineSegment> = ArrayList()
 
-            for (int j = 0, size = line.waypoints.size() - 1; j < size; j++) {
-                final LatLng start = line.waypoints.get(j);
-                final LatLng end = line.waypoints.get(j + 1);
+            var j = 0
+            val size = line.waypoints.size - 1
+            while (j < size) {
+                val start = line.waypoints[j]
+                val end = line.waypoints[j + 1]
 
                 if (line.travelled) {
                     if (!nonTravelledLines.isEmpty()) {
-                        mNonTravelledLinesToDraw.add(nonTravelledLines);
-                        nonTravelledLines.clear();
+                        mNonTravelledLinesToDraw.add(nonTravelledLines)
+                        nonTravelledLines.clear()
                     }
 
-                    lineSegmentsToDraw.add(new LineSegment(start, end, LineSegment.SOLID, line.color));
+                    lineSegmentsToDraw.add(LineSegment(start, end, LineSegment.SOLID, line.color))
                 } else {
-                    nonTravelledLines.add(new LineSegment(start, end, LineSegment.SOLID, line.color));
+                    nonTravelledLines.add(LineSegment(start, end, LineSegment.SOLID, line.color))
                 }
+                j++
             }
 
-            linesToDraw.add(lineSegmentsToDraw);
+            linesToDraw.add(lineSegmentsToDraw)
 
             if (!nonTravelledLines.isEmpty()) {
-                mNonTravelledLinesToDraw.add(nonTravelledLines);
+                mNonTravelledLinesToDraw.add(nonTravelledLines)
             }
         }
 
-        return getPolylines(linesToDraw, mNonTravelledLinesToDraw);
+        return getPolylines(linesToDraw, mNonTravelledLinesToDraw)
     }
 
-    private List<PolylineOptions> getPolylines(List<List<LineSegment>> mLinesToDraw, List<List<LineSegment>> mNonTravelledLinesToDraw) {
-        List<PolylineOptions> polylineOptions = new ArrayList<>();
+    private fun getPolylines(
+        mLinesToDraw: List<List<LineSegment>>,
+        mNonTravelledLinesToDraw: List<List<LineSegment>>
+    ): List<PolylineOptions> {
+        val polylineOptions: MutableList<PolylineOptions> = ArrayList()
         if (!mLinesToDraw.isEmpty()) {
-            List<LatLng> lines = new ArrayList<>();
-            for (List<LineSegment> list : mLinesToDraw) {
-                lines.clear();
-                for (LineSegment line : list) {
-                    lines.add(line.start);
-                    lines.add(line.end);
+            val lines: MutableList<LatLng> = ArrayList()
+            for (list in mLinesToDraw) {
+                lines.clear()
+                for (line in list) {
+                    lines.add(line.start)
+                    lines.add(line.end)
                 }
 
                 if (!lines.isEmpty()) {
-                    int color = list.get(0).color;
+                    val color = list[0].color
 
                     //If we have a non-black color, draw an outline!
                     if (color != Color.BLACK) {
-                        polylineOptions.add(new PolylineOptions()
-                            .addAll(lines)
-                            .color(Color.BLACK)
-                            .width(20)
-                            .geodesic(true));
+                        polylineOptions.add(
+                            PolylineOptions()
+                                .addAll(lines)
+                                .color(Color.BLACK)
+                                .width(20f)
+                                .geodesic(true)
+                        )
                     }
 
-                    polylineOptions.add(new PolylineOptions()
-                        .addAll(lines)
-                        .color(color)
-                        .width(color != Color.BLACK ? 12 : 14)
-                        .geodesic(true));
+                    polylineOptions.add(
+                        PolylineOptions()
+                            .addAll(lines)
+                            .color(color)
+                            .width((if (color != Color.BLACK) 12 else 14).toFloat())
+                            .geodesic(true)
+                    )
                 }
             }
         }
 
         if (!mNonTravelledLinesToDraw.isEmpty()) {
-            List<LatLng> lines = new LinkedList<LatLng>();
-            for (List<LineSegment> list : mNonTravelledLinesToDraw) {
-                lines.clear();
-                for (LineSegment line : list) {
-                    lines.add(line.start);
-                    lines.add(line.end);
+            val lines: MutableList<LatLng> = LinkedList()
+            for (list in mNonTravelledLinesToDraw) {
+                lines.clear()
+                for (line in list) {
+                    lines.add(line.start)
+                    lines.add(line.end)
                 }
 
                 if (!lines.isEmpty()) {
-                    polylineOptions.add(new PolylineOptions().addAll(lines).color(NON_TRAVELLED_LINE_COLOR).width(14));
+                    polylineOptions.add(
+                        PolylineOptions().addAll(lines).color(
+                            NON_TRAVELLED_LINE_COLOR
+                        ).width(14f)
+                    )
                 }
             }
         }
-        return polylineOptions;
+        return polylineOptions
     }
 
-    public static class LineSegment {
-        public static final int SOLID = 0;
-
-        public LatLng start;
-        public LatLng end;
-        public int color;
-        public int type;
-
-        public LineSegment(LatLng start, LatLng end, int type, int color) {
-            this.start = start;
-            this.end = end;
-            this.color = color;
-            this.type = type;
+    class LineSegment(var start: LatLng, var end: LatLng, var type: Int, var color: Int) {
+        companion object {
+            const val SOLID: Int = 0
         }
     }
 
-    public static class ServiceLineInfo {
-        public final List<LatLng> waypoints;
-        public final int color;
-        public boolean travelled;
-
-        public ServiceLineInfo(final List<LatLng> waypoints, final int color, final boolean travelled) {
-            this.waypoints = waypoints;
-            this.color = color;
-            this.travelled = travelled;
-        }
+    class ServiceLineInfo(val waypoints: List<LatLng>?, val color: Int, var travelled: Boolean)
+    companion object {
+        const val NON_TRAVELLED_LINE_COLOR: Int = -0x77555556
     }
 }
