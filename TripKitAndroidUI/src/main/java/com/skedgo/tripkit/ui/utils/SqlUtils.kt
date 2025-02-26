@@ -1,13 +1,13 @@
-package com.skedgo.tripkit.ui.utils;
+package com.skedgo.tripkit.ui.utils
 
-import android.database.sqlite.SQLiteStatement;
+import android.database.sqlite.SQLiteStatement
 
-class SqlUtils {
-    public static void bind(SQLiteStatement statement, int bindArg, String value) {
+object SqlUtils {
+    fun bind(statement: SQLiteStatement, bindArg: Int, value: String?) {
         if (value == null) {
-            statement.bindNull(bindArg);
+            statement.bindNull(bindArg)
         } else {
-            statement.bindString(bindArg, value);
+            statement.bindString(bindArg, value)
         }
     }
 }

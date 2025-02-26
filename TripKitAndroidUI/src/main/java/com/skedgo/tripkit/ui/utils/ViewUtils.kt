@@ -1,34 +1,30 @@
-package com.skedgo.tripkit.ui.utils;
+package com.skedgo.tripkit.ui.utils
 
-import android.text.TextUtils;
-import android.view.View;
-import android.widget.ImageView;
-import android.widget.TextView;
+import android.text.TextUtils
+import android.view.View
+import android.widget.ImageView
+import android.widget.TextView
+import androidx.annotation.DrawableRes
 
-import androidx.annotation.DrawableRes;
-import androidx.annotation.NonNull;
-
-public final class ViewUtils {
-    private ViewUtils() {
-    }
-
-    public static void setText(TextView view, CharSequence text) {
+object ViewUtils {
+    @JvmStatic
+    fun setText(view: TextView?, text: CharSequence?) {
         if (view != null) {
-            view.setText(text);
+            view.text = text
             if (TextUtils.isEmpty(text)) {
-                view.setVisibility(View.GONE);
+                view.visibility = View.GONE
             } else {
-                view.setVisibility(View.VISIBLE);
+                view.visibility = View.VISIBLE
             }
         }
     }
 
-    public static void setImage(@NonNull ImageView view, @DrawableRes int res) {
+    fun setImage(view: ImageView, @DrawableRes res: Int) {
         if (res != 0) {
-            view.setImageResource(res);
-            view.setVisibility(View.VISIBLE);
+            view.setImageResource(res)
+            view.visibility = View.VISIBLE
         } else {
-            view.setVisibility(View.GONE);
+            view.visibility = View.GONE
         }
     }
 }
