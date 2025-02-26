@@ -1,169 +1,152 @@
-package com.skedgo.tripkit.ui.views;
+package com.skedgo.tripkit.ui.views
 
-import android.content.Context;
-import android.os.Parcel;
-import android.os.Parcelable;
-import android.util.AttributeSet;
-import android.view.View;
-import android.view.accessibility.AccessibilityEvent;
-import android.widget.Checkable;
+import android.content.Context
+import android.os.Parcel
+import android.os.Parcelable
+import android.os.Parcelable.ClassLoaderCreator
+import android.os.Parcelable.Creator
+import android.util.AttributeSet
+import android.view.View
+import android.view.accessibility.AccessibilityEvent
+import android.widget.Checkable
+import androidx.appcompat.R
+import androidx.appcompat.widget.AppCompatImageButton
+import androidx.core.view.AccessibilityDelegateCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.accessibility.AccessibilityEventCompat
+import androidx.core.view.accessibility.AccessibilityNodeInfoCompat
+import androidx.customview.view.AbsSavedState
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.widget.AppCompatImageButton;
-import androidx.core.view.AccessibilityDelegateCompat;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.accessibility.AccessibilityEventCompat;
-import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
-import androidx.customview.view.AbsSavedState;
+class CheckableImageButton @JvmOverloads constructor(
+    context: Context?,
+    attrs: AttributeSet? = null,
+    defStyleAttr: Int = R.attr.imageButtonStyle
+) : AppCompatImageButton(
+    context!!, attrs, defStyleAttr
+), Checkable {
+    private var checked = false
+    private var checkable = true
 
-public class CheckableImageButton extends AppCompatImageButton implements Checkable {
-
-    private static final int[] DRAWABLE_STATE_CHECKED = new int[]{android.R.attr.state_checked};
-
-    private boolean checked;
-    private boolean checkable = true;
-
-    public CheckableImageButton(Context context) {
-        this(context, null);
-    }
-
-    public CheckableImageButton(Context context, AttributeSet attrs) {
-        this(context, attrs, androidx.appcompat.R.attr.imageButtonStyle);
-    }
-
-    public CheckableImageButton(Context context, AttributeSet attrs, int defStyleAttr) {
-        super(context, attrs, defStyleAttr);
-
-        setAlpha(checked ? 1.0f : 0.25f);
+    init {
+        alpha = if (checked) 1.0f else 0.25f
 
         ViewCompat.setAccessibilityDelegate(
             this,
-            new AccessibilityDelegateCompat() {
-                @Override
-                public void onInitializeAccessibilityEvent(View host, @NonNull AccessibilityEvent event) {
-                    super.onInitializeAccessibilityEvent(host, event);
-                    event.setChecked(isChecked());
+            object : AccessibilityDelegateCompat() {
+                override fun onInitializeAccessibilityEvent(host: View, event: AccessibilityEvent) {
+                    super.onInitializeAccessibilityEvent(host, event)
+                    event.isChecked = isChecked
                 }
 
-                @Override
-                public void onInitializeAccessibilityNodeInfo(
-                    View host, @NonNull AccessibilityNodeInfoCompat info) {
-                    super.onInitializeAccessibilityNodeInfo(host, info);
-                    info.setCheckable(isCheckable());
-                    info.setChecked(isChecked());
+                override fun onInitializeAccessibilityNodeInfo(
+                    host: View, info: AccessibilityNodeInfoCompat
+                ) {
+                    super.onInitializeAccessibilityNodeInfo(host, info)
+                    info.isCheckable = isCheckable()
+                    info.isChecked = isChecked
                 }
-            });
+            })
     }
 
-    @Override
-    public boolean isChecked() {
-        return checked;
+    override fun isChecked(): Boolean {
+        return checked
     }
 
-    @Override
-    public void setChecked(boolean checked) {
+    override fun setChecked(checked: Boolean) {
         if (checkable && this.checked != checked) {
-            this.checked = checked;
-            refreshDrawableState();
-            sendAccessibilityEvent(AccessibilityEventCompat.TYPE_WINDOW_CONTENT_CHANGED);
+            this.checked = checked
+            refreshDrawableState()
+            sendAccessibilityEvent(AccessibilityEventCompat.TYPE_WINDOW_CONTENT_CHANGED)
         }
-        setAlpha(checked ? 1.0f : 0.25f);
+        alpha = if (checked) 1.0f else 0.25f
     }
 
-    @Override
-    public void toggle() {
-        setChecked(!checked);
+    override fun toggle() {
+        isChecked = !checked
     }
 
-    @Override
-    public int[] onCreateDrawableState(int extraSpace) {
-        if (checked) {
-            return mergeDrawableStates(
-                super.onCreateDrawableState(extraSpace + DRAWABLE_STATE_CHECKED.length),
-                DRAWABLE_STATE_CHECKED);
+    override fun onCreateDrawableState(extraSpace: Int): IntArray {
+        return if (checked) {
+            mergeDrawableStates(
+                super.onCreateDrawableState(extraSpace + DRAWABLE_STATE_CHECKED.size),
+                DRAWABLE_STATE_CHECKED
+            )
         } else {
-            return super.onCreateDrawableState(extraSpace);
+            super.onCreateDrawableState(extraSpace)
         }
     }
 
-    @NonNull
-    @Override
-    protected Parcelable onSaveInstanceState() {
-        Parcelable superState = super.onSaveInstanceState();
-        SavedState savedState = new SavedState(superState);
-        savedState.checked = checked;
-        return savedState;
+    override fun onSaveInstanceState(): Parcelable {
+        val superState = super.onSaveInstanceState()
+        val savedState = SavedState(superState)
+        savedState.checked = checked
+        return savedState
     }
 
-    @Override
-    protected void onRestoreInstanceState(Parcelable state) {
-        if (!(state instanceof SavedState)) {
-            super.onRestoreInstanceState(state);
-            return;
+    override fun onRestoreInstanceState(state: Parcelable) {
+        if (state !is SavedState) {
+            super.onRestoreInstanceState(state)
+            return
         }
-        SavedState savedState = (SavedState) state;
-        super.onRestoreInstanceState(savedState.getSuperState());
-        setChecked(savedState.checked);
+        val savedState = state
+        super.onRestoreInstanceState(savedState.superState)
+        isChecked = savedState.checked
     }
 
     /**
      * Returns whether the image button is checkable.
      */
-    public boolean isCheckable() {
-        return checkable;
+    fun isCheckable(): Boolean {
+        return checkable
     }
 
     /**
      * Sets image button to be checkable or not.
      */
-    public void setCheckable(boolean checkable) {
+    fun setCheckable(checkable: Boolean) {
         if (this.checkable != checkable) {
-            this.checkable = checkable;
-            sendAccessibilityEvent(AccessibilityEventCompat.CONTENT_CHANGE_TYPE_UNDEFINED);
+            this.checkable = checkable
+            sendAccessibilityEvent(AccessibilityEventCompat.CONTENT_CHANGE_TYPE_UNDEFINED)
         }
     }
 
-    static class SavedState extends AbsSavedState {
+    internal class SavedState : AbsSavedState {
+        var checked: Boolean = false
 
-        public static final Creator<SavedState> CREATOR =
-            new ClassLoaderCreator<SavedState>() {
-                @NonNull
-                @Override
-                public SavedState createFromParcel(@NonNull Parcel in, ClassLoader loader) {
-                    return new SavedState(in, loader);
+        constructor(superState: Parcelable?) : super(superState!!)
+
+        constructor(source: Parcel, loader: ClassLoader?) : super(source, loader) {
+            readFromParcel(source)
+        }
+
+        override fun writeToParcel(out: Parcel, flags: Int) {
+            super.writeToParcel(out, flags)
+            out.writeInt(if (checked) 1 else 0)
+        }
+
+        private fun readFromParcel(`in`: Parcel) {
+            checked = `in`.readInt() == 1
+        }
+
+        companion object {
+            @JvmField
+            val CREATOR: Creator<SavedState?> = object : ClassLoaderCreator<SavedState?> {
+                override fun createFromParcel(`in`: Parcel, loader: ClassLoader): SavedState {
+                    return SavedState(`in`, loader)
                 }
 
-                @NonNull
-                @Override
-                public SavedState createFromParcel(@NonNull Parcel in) {
-                    return new SavedState(in, null);
+                override fun createFromParcel(`in`: Parcel): SavedState {
+                    return SavedState(`in`, null)
                 }
 
-                @NonNull
-                @Override
-                public SavedState[] newArray(int size) {
-                    return new SavedState[size];
+                override fun newArray(size: Int): Array<SavedState?> {
+                    return arrayOfNulls(size)
                 }
-            };
-        boolean checked;
-
-        public SavedState(Parcelable superState) {
-            super(superState);
+            }
         }
+    }
 
-        public SavedState(@NonNull Parcel source, ClassLoader loader) {
-            super(source, loader);
-            readFromParcel(source);
-        }
-
-        @Override
-        public void writeToParcel(@NonNull Parcel out, int flags) {
-            super.writeToParcel(out, flags);
-            out.writeInt(checked ? 1 : 0);
-        }
-
-        private void readFromParcel(@NonNull Parcel in) {
-            checked = in.readInt() == 1;
-        }
+    companion object {
+        private val DRAWABLE_STATE_CHECKED = intArrayOf(android.R.attr.state_checked)
     }
 }
