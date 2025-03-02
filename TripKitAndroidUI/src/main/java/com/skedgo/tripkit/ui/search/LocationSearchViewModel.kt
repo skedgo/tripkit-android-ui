@@ -116,9 +116,9 @@ class LocationSearchViewModel @Inject constructor(
     private val _unableToFindPlaceCoordinatesError: PublishRelay<Throwable> = PublishRelay.create()
     private lateinit var bounds: LatLngBounds
     private lateinit var center: LatLng
-    private var canOpenTimetable: Boolean = false
-    private var showCurrentLocation: Boolean = false
-    private var showDropPin: Boolean = false
+    var canOpenTimetable: Boolean = false
+    var showCurrentLocation: Boolean = false
+    var showDropPin: Boolean = false
     private var isRouting: Boolean = false
     private val onQueryTextChangeEventThrottle = PublishSubject.create<String>()
     private val isFetchingPlaceDetails = ObservableBoolean(false)
