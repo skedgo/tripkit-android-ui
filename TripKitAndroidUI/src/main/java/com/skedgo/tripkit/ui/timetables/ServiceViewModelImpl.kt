@@ -27,7 +27,6 @@ internal class ServiceViewModelImpl @Inject constructor(
     override val occupancyViewModel: OccupancyViewModel,
     override val serviceAlertViewModel: ServiceAlertViewModel,
     private val getServiceTitleText: GetServiceTitleText,
-    private val getServiceSubTitleText: GetServiceSubTitleText,
     private val getServiceTertiaryText: GetServiceTertiaryText,
     private val getRealtimeText: GetRealtimeText,
     private val errorLogger: ErrorLogger

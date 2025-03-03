@@ -17,7 +17,6 @@ import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.base.MockKTest
 import com.skedgo.tripkit.ui.model.TimetableEntry
 import com.skedgo.tripkit.ui.timetables.GetRealtimeText
-import com.skedgo.tripkit.ui.timetables.GetServiceSubTitleText
 import com.skedgo.tripkit.ui.timetables.GetServiceTertiaryText
 import com.skedgo.tripkit.ui.timetables.GetServiceTitleText
 import com.skedgo.tripkit.ui.trip.details.viewmodel.OccupancyViewModel
@@ -48,7 +47,6 @@ class ServiceDetailViewModelTest: MockKTest() {
     private val serviceAlertViewModel: ServiceAlertViewModel = mockk()
     private val loadServices: LoadServices = mockk()
     private val getServiceTitleText: GetServiceTitleText = mockk()
-    private val getServiceSubTitleText: GetServiceSubTitleText = mockk()
     private val getServiceTertiaryText: GetServiceTertiaryText = mockk()
     private val getRealtimeText: GetRealtimeText = mockk()
     private val errorLogger: ErrorLogger = mockk()
@@ -81,7 +79,6 @@ class ServiceDetailViewModelTest: MockKTest() {
             serviceAlertViewModel,
             loadServices,
             getServiceTitleText,
-            getServiceSubTitleText,
             getServiceTertiaryText,
             getRealtimeText,
             errorLogger
