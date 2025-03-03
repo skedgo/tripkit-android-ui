@@ -68,10 +68,13 @@ class ServiceDetailViewModel @Inject constructor(
 
     val lastUpdatedText = ObservableField<String>()
 
-    val itemBinding = ItemBinding.of<ServiceDetailItemViewModel>(
-        BR.viewModel,
-        R.layout.service_detail_fragment_list_item
-    )
+    val itemBinding: ItemBinding<ServiceDetailItemViewModel> by lazy {
+        ItemBinding.of<ServiceDetailItemViewModel>(
+            BR.viewModel,
+            R.layout.service_detail_fragment_list_item
+        )
+    }
+
     val items: ObservableField<List<ServiceDetailItemViewModel>> = ObservableField(emptyList())
     val onItemClicked = PublishRelay.create<ServiceStop>()
     var showCloseButton = ObservableBoolean(false)

@@ -1,7 +1,6 @@
 package com.skedgo.tripkit.ui.map.servicestop
 
 import android.content.Context
-import android.util.Pair
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.google.android.gms.maps.model.MarkerOptions
 import com.jakewharton.rxrelay2.PublishRelay

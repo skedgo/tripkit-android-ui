@@ -1,7 +1,6 @@
 package com.skedgo.tripkit.ui.timetables
 
 import android.content.Context
-import android.util.Pair
 import com.skedgo.tripkit.common.model.stop.ScheduledStop
 import com.skedgo.tripkit.common.util.TimeUtils
 import com.skedgo.tripkit.ui.model.StopInfo

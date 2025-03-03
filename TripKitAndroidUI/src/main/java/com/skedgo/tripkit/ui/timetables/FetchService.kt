@@ -4,7 +4,6 @@ import android.content.ContentValues
 import android.content.Context
 import android.graphics.Color
 import android.text.TextUtils
-import android.util.Pair
 import android.util.SparseArray
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.PolyUtil

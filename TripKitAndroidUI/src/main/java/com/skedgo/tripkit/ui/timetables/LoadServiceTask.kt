@@ -1,7 +1,6 @@
 package com.skedgo.tripkit.ui.timetables
 
 import android.database.Cursor
-import android.util.Pair
 import android.util.SparseArray
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.PolyUtil
