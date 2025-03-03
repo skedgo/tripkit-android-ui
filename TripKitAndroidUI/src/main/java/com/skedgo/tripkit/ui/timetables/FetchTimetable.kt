@@ -18,6 +18,7 @@ import skedgo.tripgo.data.timetables.ParentStopDao
 import skedgo.tripgo.data.timetables.ParentStopEntity
 import javax.inject.Inject
 
+// TODO: Reattempt adding unit test (initial attempt had errors)
 open class FetchTimetable @Inject constructor(
     private val departuresRepository: DeparturesRepository,
     private val realtimeAlertRepository: RealtimeAlertRepository,
