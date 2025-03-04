@@ -2,6 +2,7 @@ package com.skedgo.tripkit.ui.favorites.trips
 
 import kotlinx.coroutines.flow.Flow
 
+@Deprecated("use [com.skedgo.tripkit.ui.favorites.v2.data.network.FavoritesRepository]")
 interface FavoriteTripsRepository {
     suspend fun saveFavoriteTrip(favoriteTrip: FavoriteTrip)
     suspend fun updateFavoriteTrip(favoriteTrip: FavoriteTrip)
