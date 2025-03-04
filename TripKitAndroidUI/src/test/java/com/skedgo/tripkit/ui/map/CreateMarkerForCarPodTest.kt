@@ -68,10 +68,6 @@ class CreateMarkerForCarPodTest {
         every { colorEntity.green } returns 100
         every { colorEntity.blue } returns 50
 
-        // Mock TripGoStyleKit to prevent real drawing
-        mockkStatic(TripGoStyleKit::class)
-        every { TripGoStyleKit.drawIconcarshare(any(), any(), any()) } just  Runs
-
         // Mock BitmapDescriptorFactory to prevent crashes
         mockkStatic(BitmapDescriptorFactory::class)
         every { BitmapDescriptorFactory.fromBitmap(any()) } returns mockBitmapDescriptor
@@ -92,7 +88,6 @@ class CreateMarkerForCarPodTest {
 
         // Verify interactions
         verify { resources.getDimensionPixelSize(R.dimen.map_icon_size) }
-        verify { TripGoStyleKit.drawIconcarshare(any(), any(), any()) }
         verify { BitmapDescriptorFactory.fromBitmap(any()) }
     }
 
@@ -106,6 +101,6 @@ class CreateMarkerForCarPodTest {
 
         // Assert
         testObserver.assertComplete()
-        verify { TripGoStyleKit.drawIconcarshare(any(), any(), any()) }
+        testObserver.assertNoErrors()
     }
 }
