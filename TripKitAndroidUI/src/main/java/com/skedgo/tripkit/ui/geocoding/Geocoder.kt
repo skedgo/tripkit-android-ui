@@ -14,7 +14,7 @@ open class Geocoder {
     open var nearLongitude: Double = Double.MAX_VALUE
         protected set
     @JvmField
-    protected var mGson: Gson = GsonBuilder()
+    var mGson: Gson = GsonBuilder()
         .registerTypeAdapter(Location::class.java, GeocodeResultAdapter(createForLowercaseEnum()))
         .create()
     open val serviceUrl: String? = null
