@@ -51,10 +51,12 @@ class DirectionsTripPreviewItemViewModel : TripPreviewPagerItemViewModel() {
         TripPreviewStepCustomRecyclerViewAdapter<DirectionsTripPreviewItemStepViewModel>()
 
     var items = ObservableArrayList<DirectionsTripPreviewItemStepViewModel>()
-    var itemBinding = ItemBinding.of<DirectionsTripPreviewItemStepViewModel>(
-        BR.viewModel,
-        R.layout.trip_preview_step
-    )
+    val itemBinding by lazy {
+        ItemBinding.of<DirectionsTripPreviewItemStepViewModel>(
+            BR.viewModel,
+            R.layout.trip_preview_step
+        )
+    }
 
     override fun setSegment(context: Context, segment: TripSegment) {
         super.setSegment(context, segment)

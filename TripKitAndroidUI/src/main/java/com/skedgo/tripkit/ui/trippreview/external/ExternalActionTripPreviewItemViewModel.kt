@@ -2,6 +2,7 @@ package com.skedgo.tripkit.ui.trippreview.external
 
 import android.content.Context
 import android.webkit.URLUtil
+import androidx.annotation.VisibleForTesting
 import androidx.databinding.ObservableArrayList
 import com.skedgo.tripkit.common.model.booking.Booking
 import com.skedgo.tripkit.routing.TripSegment
@@ -14,11 +15,12 @@ import com.skedgo.tripkit.ui.trippreview.handleExternalAction
 class ExternalActionTripPreviewItemViewModel : TripPreviewPagerItemViewModel() {
     val items = ObservableArrayList<ExternalActionViewModel>()
 
-    val binding = ItemBinding.of<ExternalActionViewModel>(
-        BR.viewModel,
-        R.layout.trip_preview_external_action_pager_list_item
-    )
-        .bindExtra(BR.parentViewModel, this)
+    val binding by lazy {
+        ItemBinding.of<ExternalActionViewModel>(
+            BR.viewModel,
+            R.layout.trip_preview_external_action_pager_list_item
+        ).bindExtra(BR.parentViewModel, this)
+    }
 
     override fun setSegment(context: Context, segment: TripSegment) {
         super.setSegment(context, segment)
@@ -34,7 +36,8 @@ class ExternalActionTripPreviewItemViewModel : TripPreviewPagerItemViewModel() {
         }
     }
 
-    private fun generateTitle(context: Context, action: String, booking: Booking): String? {
+    @VisibleForTesting
+    fun generateTitle(context: Context, action: String, booking: Booking): String? {
 
         return if (booking.externalActions?.size ?: 0 > 1) {
             when {

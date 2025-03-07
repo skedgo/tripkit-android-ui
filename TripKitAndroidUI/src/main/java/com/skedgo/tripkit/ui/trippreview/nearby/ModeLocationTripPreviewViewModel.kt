@@ -21,8 +21,10 @@ import javax.inject.Inject
 class ModeLocationTripPreviewViewModel @Inject constructor(private val locationInfoService: LocationInfoService) :
     RxViewModel() {
     val infoGroups = ObservableArrayList<InfoGroupViewModel>()
-    val infoGroupBinding: ItemBinding<InfoGroupViewModel> =
+    val infoGroupBinding: ItemBinding<InfoGroupViewModel> by lazy {
         ItemBinding.of(BR.viewModel, R.layout.trip_preview_pager_nearby_info_group_item)
+    }
+
 
     var address = ObservableField<String>("")
     var showAddress = ObservableBoolean(false)
