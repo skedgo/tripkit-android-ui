@@ -5,6 +5,7 @@ import com.google.android.libraries.places.api.model.RectangularBounds
 import com.google.android.libraries.places.api.net.FetchPlaceRequest
 import com.google.android.libraries.places.api.net.FindAutocompletePredictionsRequest
 import com.google.android.libraries.places.api.net.PlacesClient
+import com.skedgo.TripKit
 import io.reactivex.Observable
 import io.reactivex.schedulers.Schedulers.io
 import timber.log.Timber
@@ -14,6 +15,9 @@ import javax.inject.Provider
 
 class PlaceSearchRepositoryImpl
 @Inject constructor(private val geoDataClient: Provider<PlacesClient>) : PlaceSearchRepository {
+
+    private val globalConfigs = TripKit.getInstance().configs()
+
     override fun searchForPlaces(
         query: String,
         latLngBounds: LatLngBounds
@@ -44,15 +48,16 @@ class PlaceSearchRepositoryImpl
                             val result = task.result
                             val predictions =
                                 result?.autocompletePredictions.orEmpty().toCollection(ArrayList())
-                            val itemsToRemove = predictions.filter { prediction ->
-                                prediction.placeTypes.any {
-                                    it.name in listOf(
-                                        "SCHOOL",
-                                        "SECONDARY_SCHOOL"
-                                    )
+
+                            // Safely call `placeTypeFilter`, defaulting to an empty list if null
+                            val restrictedItems = globalConfigs.placeTypeFilter?.call() ?: emptyList()
+
+                            if (restrictedItems.isNotEmpty()) {
+                                predictions.removeAll { prediction ->
+                                    prediction.placeTypes.any { it.name in restrictedItems }
                                 }
                             }
-                            predictions.removeAll(itemsToRemove.toSet())
+
                             it.onNext(predictions)
                             it.onComplete()
                         } else {
