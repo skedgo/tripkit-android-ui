@@ -21,10 +21,12 @@ import javax.inject.Inject
 class TripPreviewHeaderViewModel @Inject constructor() : RxViewModel() {
 
     val items: ObservableArrayList<TripSegmentSummaryItemViewModel> = ObservableArrayList()
-    val itemBinding = ItemBinding.of<TripSegmentSummaryItemViewModel>(
-        BR.viewModel,
-        R.layout.item_trip_segment_summary
-    )
+    val itemBinding by lazy {
+        ItemBinding.of<TripSegmentSummaryItemViewModel>(
+            BR.viewModel,
+            R.layout.item_trip_segment_summary
+        )
+    }
 
     private val _quickBookingSegment = MutableLiveData<TripSegment?>()
     val quickBookingSegment: LiveData<TripSegment?> = _quickBookingSegment

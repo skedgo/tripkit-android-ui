@@ -14,7 +14,7 @@ const val ITEM_TIMETABLE = 7
 const val ITEM_TIMETABLE_PAYMENT = 8
 
 fun TripSegment.correctItemType(): Int {
-    return if (this.turnByTurn != null) {
+    return if (this.getTurnByTurn() != null) {
         ITEM_DIRECTIONS
     } else if (this.getType() == SegmentType.SCHEDULED) {
         ITEM_SERVICE

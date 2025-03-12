@@ -9,6 +9,7 @@ import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Build
 import android.provider.Settings
+import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.recyclerview.widget.DiffUtil
@@ -55,7 +56,7 @@ class TripSegmentGetOffAlertsViewModel @Inject internal constructor(
         const val URL_PARAM_HASH = "hash"
     }
 
-    private val _getOffAlertStateOn = MutableLiveData<Boolean>(defaultValue)
+    val _getOffAlertStateOn = MutableLiveData<Boolean>(defaultValue)
     val getOffAlertStateOn: LiveData<Boolean> = _getOffAlertStateOn
 
     private val _isVisible = MutableLiveData<Boolean>()
@@ -78,10 +79,17 @@ class TripSegmentGetOffAlertsViewModel @Inject internal constructor(
     val items = DiffObservableList<TripSegmentGetOffAlertDetailViewModel>(
         TripSegmentGetOffAlertDetailViewModel.diffCallback()
     )
-    val itemBinding = ItemBinding.of<TripSegmentGetOffAlertDetailViewModel>(
-        BR.viewModel,
-        R.layout.item_alert_detail
-    )
+    val itemBinding by lazy {
+        ItemBinding.of<TripSegmentGetOffAlertDetailViewModel>(
+            BR.viewModel,
+            R.layout.item_alert_detail
+        )
+    }
+
+    @VisibleForTesting
+    fun setGetOffAlertStateOn(isOn: Boolean) {
+        _getOffAlertStateOn.value = isOn
+    }
 
     fun validate() {
         _getOffAlertStateOn.postValue(GetOffAlertCache.isTripAlertStateOn(trip.getTripUuid()))

@@ -94,7 +94,7 @@ class TripResultListViewModel @Inject constructor(
 
     val customAdapter = TripResultListCustomRecyclerViewAdapter<Any>()
 
-    val itemBinding =
+    val itemBinding by lazy {
         ItemBinding.of(
             OnItemBindClass<Any>()
                 .map(TripResultViewModel::class.java, BR.viewModel, R.layout.trip_result_list_item)
@@ -104,6 +104,8 @@ class TripResultListViewModel @Inject constructor(
                     R.layout.circular_progress_loader
                 )
         )
+    }
+
 
     val results = DiffObservableList<TripResultViewModel>(GroupDiffCallback)
     val tripResultListStream = BehaviorSubject.create<List<TripResultViewModel>>()
@@ -111,10 +113,12 @@ class TripResultListViewModel @Inject constructor(
     private val loadingList = ObservableArrayList<LoaderPlaceholder>()
     val mergedList = MergeObservableList<Any>().insertList(loadingList).insertList(results)
 
-    val transportBinding = ItemBinding.of<TripResultTransportItemViewModel>(
-        BR.viewModel,
-        R.layout.trip_result_list_transport_item
-    )
+    val transportBinding by lazy {
+        ItemBinding.of<TripResultTransportItemViewModel>(
+            BR.viewModel,
+            R.layout.trip_result_list_transport_item
+        )
+    }
     val transportModes: ObservableField<List<TripResultTransportItemViewModel>> =
         ObservableField(emptyList())
     val showTransport = ObservableBoolean(false)

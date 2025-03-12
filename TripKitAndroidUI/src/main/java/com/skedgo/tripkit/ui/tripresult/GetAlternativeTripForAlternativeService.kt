@@ -12,6 +12,7 @@ import com.skedgo.tripkit.agenda.ConfigRepository
 import com.skedgo.tripkit.routing.Trip
 import com.skedgo.tripkit.routing.TripGroup
 import com.skedgo.tripkit.routing.TripSegment
+import io.reactivex.Scheduler
 import javax.inject.Inject
 
 open class GetAlternativeTripForAlternativeService
@@ -25,7 +26,8 @@ open class GetAlternativeTripForAlternativeService
     open fun execute(
         trip: Trip,
         tripSegmentId: Long,
-        selectedService: TimetableEntry
+        selectedService: TimetableEntry,
+        scheduler: Scheduler = Schedulers.io()
     ): Single<TripGroup> {
         return regionService.getRegionByLocationAsync(trip.from)
             .singleOrError()
@@ -45,8 +47,7 @@ open class GetAlternativeTripForAlternativeService
                             selectedService
                         )
                     )
-                )
-                    .subscribeOn(Schedulers.io())
+                ).subscribeOn(scheduler)
             }
             .map { it.first() }
     }

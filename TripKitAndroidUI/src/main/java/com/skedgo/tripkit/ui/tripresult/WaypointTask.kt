@@ -1,176 +1,60 @@
-package com.skedgo.tripkit.ui.tripresult;
+package com.skedgo.tripkit.ui.tripresult
 
-import android.content.Context;
-import android.text.TextUtils;
-
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
-import com.skedgo.tripkit.agenda.ConfigRepository;
-import com.skedgo.tripkit.common.model.location.Location;
-import com.skedgo.tripkit.common.model.region.Region;
-import com.skedgo.tripkit.common.util.Gsons;
-import com.skedgo.tripkit.common.util.ListUtils;
-import com.skedgo.tripkit.routing.RoutingResponse;
-import com.skedgo.tripkit.routing.SegmentType;
-import com.skedgo.tripkit.routing.TripGroup;
-import com.skedgo.tripkit.routing.TripSegment;
-import com.skedgo.tripkit.ui.R;
-import com.skedgo.tripkit.ui.model.TimetableEntry;
-import com.skedgo.tripkit.ui.utils.HttpUtils;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
-import androidx.annotation.NonNull;
-import io.reactivex.SingleEmitter;
-import io.reactivex.SingleOnSubscribe;
-
+import android.content.Context
+import android.text.TextUtils
+import com.google.gson.JsonArray
+import com.google.gson.JsonObject
+import com.google.gson.JsonPrimitive
+import com.skedgo.tripkit.agenda.ConfigRepository
+import com.skedgo.tripkit.common.model.location.Location
+import com.skedgo.tripkit.common.model.region.Region
+import com.skedgo.tripkit.common.util.Gsons.createForLowercaseEnum
+import com.skedgo.tripkit.common.util.ListUtils
+import com.skedgo.tripkit.routing.RoutingResponse
+import com.skedgo.tripkit.routing.SegmentType.ARRIVAL
+import com.skedgo.tripkit.routing.SegmentType.DEPARTURE
+import com.skedgo.tripkit.routing.SegmentType.STATIONARY
+import com.skedgo.tripkit.routing.TripGroup
+import com.skedgo.tripkit.routing.TripSegment
+import com.skedgo.tripkit.ui.R
+import com.skedgo.tripkit.ui.model.TimetableEntry
+import com.skedgo.tripkit.ui.tripresult.WayPointTaskParam.ForChangingService
+import com.skedgo.tripkit.ui.tripresult.WayPointTaskParam.ForChangingStop
+import com.skedgo.tripkit.ui.utils.HttpUtils
+import io.reactivex.SingleEmitter
+import io.reactivex.SingleOnSubscribe
+import java.io.IOException
 
 /**
  * https://redmine.buzzhives.com/projects/buzzhives/wiki/Routing_API#Trips-from-waypoint
  */
-public class WaypointTask implements SingleOnSubscribe<List<TripGroup>> {
-    public static final String KEY_REGION = "region";
-    public static final String KEY_SEGMENTS = "segments";
-    public static final String KEY_OPERATOR = "operator";
-    public static final String KEY_SERVICE_TRIP_ID = "serviceTripID";
-    public static final String KEY_END_TIME = "endTime";
-    public static final String KEY_START_TIME = "startTime";
-    public static final String KEY_MODES = "modes";
-    public static final String KEY_END = "end";
-    public static final String KEY_START = "start";
-    public static final String KEY_CONFIG = "config";
-    public static final String FORMAT_COORDINATES = "(%f,%f)";
+class WaypointTask(
+    private val context: Context,
+    private val configCreator: ConfigRepository,
+    private val param: WayPointTaskParam
+) : SingleOnSubscribe<List<TripGroup>> {
+    @Throws(Exception::class)
+    override fun subscribe(singleSubscriber: SingleEmitter<List<TripGroup>>) {
+        val region: Region
 
-    private final Context context;
-    private final ConfigRepository configCreator;
-    private WayPointTaskParam param;
-
-    public WaypointTask(
-        @NonNull Context context,
-        @NonNull ConfigRepository configCreator,
-        WayPointTaskParam param) {
-        this.context = context;
-        this.configCreator = configCreator;
-        this.param = param;
-    }
-
-    static JsonArray createJsonSegments(List<TripSegment> segments,
-                                        TripSegment prototypeSegment,
-                                        Location waypoint,
-                                        boolean isGetOn) {
-        boolean changeNextDeparture = false;
-        boolean isTimeAdded = false;
-
-        JsonArray jsonSegments = new JsonArray();
-        for (TripSegment segment : segments) {
-            if (segment.getSegmentId() == prototypeSegment.getSegmentId()) {
-                JsonObject jsonSegment = new JsonObject();
-                if (isGetOn) {
-                    // The waypoint now becomes the departure.
-                    jsonSegment.addProperty(KEY_START, waypoint.getCoordinateString());
-                    jsonSegment.addProperty(KEY_END, segment.getTo().getCoordinateString());
-                } else {
-                    // Get-off case.
-                    jsonSegment.addProperty(KEY_START, segment.getFrom().getCoordinateString());
-
-                    // The waypoint now becomes the arrival.
-                    jsonSegment.addProperty(KEY_END, waypoint.getCoordinateString());
-
-                    // This case we have to change next segment's departure.
-                    changeNextDeparture = true;
-                }
-
-                if (!TextUtils.isEmpty(segment.transportModeId)) {
-                    JsonArray jsonModes = new JsonArray();
-                    jsonModes.add(new JsonPrimitive(segment.transportModeId));
-                    jsonSegment.add(KEY_MODES, jsonModes);
-                }
-
-                if (!isTimeAdded) {
-                    jsonSegment.addProperty(KEY_START_TIME, segment.getStartTimeInSecs());
-
-                    // We only add once.
-                    isTimeAdded = true;
-                }
-
-                jsonSegments.add(jsonSegment);
-            } else if ((segment.getType() != SegmentType.STATIONARY)
-                && (segment.getType() != SegmentType.ARRIVAL)
-                && (segment.getType() != SegmentType.DEPARTURE)) {
-                JsonObject jsonSegment = convertSegmentToJson(segment);
-                if (changeNextDeparture) {
-                    // We've iterated at the segment following the prototype segment.
-                    jsonSegment.addProperty(KEY_START, waypoint.getCoordinateString());
-
-                    // We only change once.
-                    changeNextDeparture = true;
-                }
-
-                if (!isTimeAdded) {
-                    jsonSegment.addProperty(KEY_START_TIME, segment.getStartTimeInSecs());
-
-                    // We only add once.
-                    isTimeAdded = true;
-                }
-
-                jsonSegments.add(jsonSegment);
-            }
-        }
-
-        return jsonSegments;
-    }
-
-    static JsonObject convertSegmentToJson(TripSegment segment) {
-        JsonObject jsonSegment = new JsonObject();
-        jsonSegment.addProperty(KEY_START, segment.getFrom().getCoordinateString());
-        jsonSegment.addProperty(KEY_END, segment.getTo().getCoordinateString());
-
-        if (!TextUtils.isEmpty(segment.transportModeId)) {
-            JsonArray jsonModes = new JsonArray();
-            jsonModes.add(new JsonPrimitive(segment.transportModeId));
-            jsonSegment.add(KEY_MODES, jsonModes);
-        }
-
-        return jsonSegment;
-    }
-
-    /**
-     * TODO: Handle 'vehicleUUID'.
-     */
-    static JsonObject createPostDataForChangingStop(JsonObject configParams,
-                                                    JsonArray segments) {
-        JsonObject jsonPostData = new JsonObject();
-        jsonPostData.add(KEY_CONFIG, configParams);
-        jsonPostData.add(KEY_SEGMENTS, segments);
-        return jsonPostData;
-    }
-
-    @Override
-    public void subscribe(SingleEmitter<List<TripGroup>> singleSubscriber) throws Exception {
-        Region region;
-
-        String postData;
+        val postData: String
         try {
-            region = param.getRegion();
-            if (param instanceof WayPointTaskParam.ForChangingService) {
-                List<TripSegment> segments = ((WayPointTaskParam.ForChangingService) param).getSegments();
-                TripSegment prototypeSegment = ((WayPointTaskParam.ForChangingService) param).getPrototypeSegment();
-                TimetableEntry service = ((WayPointTaskParam.ForChangingService) param).getService();
+            region = param.region
+            if (param is ForChangingService) {
+                val segments = param.segments
+                val prototypeSegment = param.prototypeSegment
+                val service = param.service
                 postData = createPostDataForChangingService(
                     region,
                     segments,
                     prototypeSegment,
                     service
-                );
+                )
             } else {
-                List<TripSegment> segments = ((WayPointTaskParam.ForChangingStop) param).getSegments();
-                TripSegment prototypeSegment = ((WayPointTaskParam.ForChangingStop) param).getPrototypeSegment();
-                Location waypoint = ((WayPointTaskParam.ForChangingStop) param).getWaypoint();
-                boolean isGetOn = ((WayPointTaskParam.ForChangingStop) param).isGetOn();
+                val segments = (param as ForChangingStop).segments
+                val prototypeSegment = param.prototypeSegment
+                val waypoint = param.waypoint
+                val isGetOn = param.isGetOn
 
                 postData = createPostDataForChangingStop(
                     configCreator.call(),
@@ -180,82 +64,202 @@ public class WaypointTask implements SingleOnSubscribe<List<TripGroup>> {
                         waypoint,
                         isGetOn
                     )
-                ).toString();
+                ).toString()
             }
-        } catch (Exception e) {
-            singleSubscriber.onError(e);
-            return;
+        } catch (e: Exception) {
+            singleSubscriber.onError(e)
+            return
         }
 
-        List<String> serverURLs = region.getURLs();
+        val serverURLs: List<String>? = region.getURLs()
         if (serverURLs != null) {
-            for (String serverURL : serverURLs) {
+            for (serverURL in serverURLs) {
                 try {
-                    String waypointResponseBody = HttpUtils.post(serverURL + context.getString(R.string.api_waypoint), postData);
-                    Gson gson = Gsons.createForLowercaseEnum();
-                    RoutingResponse waypointResponse = gson.fromJson(waypointResponseBody, RoutingResponse.class);
+                    val waypointResponseBody = HttpUtils.post(
+                        serverURL + context.getString(R.string.api_waypoint),
+                        postData
+                    )
+                    val gson = createForLowercaseEnum()
+                    val waypointResponse =
+                        gson.fromJson(waypointResponseBody, RoutingResponse::class.java)
                     if (waypointResponse.hasError()) {
-                        singleSubscriber.onError(new RuntimeException(waypointResponse.getErrorMessage()));
-                        return;
+                        singleSubscriber.onError(RuntimeException(waypointResponse.errorMessage))
+                        return
                     }
 
-                    waypointResponse.processRawData(context.getResources(), gson);
-                    ArrayList<TripGroup> tripGroups = waypointResponse.getTripGroupList();
-                    if (ListUtils.isEmpty(tripGroups) || ListUtils.isEmpty(tripGroups.get(0).getTrips())) {
-                        singleSubscriber.onError(new RuntimeException("No groups found"));
-                        return;
+                    waypointResponse.processRawData(context.resources, gson)
+                    val tripGroups: ArrayList<TripGroup>? = waypointResponse.tripGroupList
+                    if (ListUtils.isEmpty(tripGroups) || ListUtils.isEmpty(
+                            tripGroups!![0]!!.trips
+                        )
+                    ) {
+                        singleSubscriber.onError(RuntimeException("No groups found"))
+                        return
                     }
 
-                    singleSubscriber.onSuccess(tripGroups);
-                    return;
-                } catch (IOException e) {
-                    singleSubscriber.onError(e);
+                    singleSubscriber.onSuccess(tripGroups!!)
+                    return
+                } catch (e: IOException) {
+                    singleSubscriber.onError(e)
                 }
             }
         } else {
-            singleSubscriber.onError(new RuntimeException("No urls"));
+            singleSubscriber.onError(RuntimeException("No urls"))
         }
     }
 
-    String createPostDataForChangingService(Region region,
-                                            List<TripSegment> segments,
-                                            TripSegment prototypeSegment,
-                                            TimetableEntry service) {
-        JsonArray jsonSegments = new JsonArray();
-        for (TripSegment segment : segments) {
-            if (segment.getSegmentId() == prototypeSegment.getSegmentId()) {
-                JsonObject jsonSegment = convertServiceToJson(region, service);
-                jsonSegments.add(jsonSegment);
-            } else if ((segment.getType() != SegmentType.STATIONARY)
-                && (segment.getType() != SegmentType.ARRIVAL)
-                && (segment.getType() != SegmentType.DEPARTURE)) {
-                JsonObject jsonSegment = convertSegmentToJson(segment);
-                jsonSegments.add(jsonSegment);
+    fun createPostDataForChangingService(
+        region: Region,
+        segments: List<TripSegment>,
+        prototypeSegment: TripSegment,
+        service: TimetableEntry
+    ): String {
+        val jsonSegments = JsonArray()
+        for (segment in segments) {
+            if (segment.segmentId == prototypeSegment.segmentId) {
+                val jsonSegment = convertServiceToJson(region, service)
+                jsonSegments.add(jsonSegment)
+            } else if ((segment.getType() != STATIONARY)
+                && (segment.getType() != ARRIVAL)
+                && (segment.getType() != DEPARTURE)
+            ) {
+                val jsonSegment = convertSegmentToJson(segment)
+                jsonSegments.add(jsonSegment)
             }
         }
 
-        JsonObject jsonPostData = new JsonObject();
-        jsonPostData.add(KEY_CONFIG, configCreator.call());
-        jsonPostData.add(KEY_SEGMENTS, jsonSegments);
+        val jsonPostData = JsonObject()
+        jsonPostData.add(KEY_CONFIG, configCreator.call())
+        jsonPostData.add(KEY_SEGMENTS, jsonSegments)
 
-        return jsonPostData.toString();
+        return jsonPostData.toString()
     }
 
-    private JsonObject convertServiceToJson(Region region, TimetableEntry service) {
-        JsonObject jsonSegment = new JsonObject();
-        jsonSegment.addProperty(KEY_START, service.getStopCode());
-        jsonSegment.addProperty(KEY_END, service.getEndStopCode());
+    private fun convertServiceToJson(region: Region, service: TimetableEntry): JsonObject {
+        val jsonSegment = JsonObject()
+        jsonSegment.addProperty(KEY_START, service.stopCode)
+        jsonSegment.addProperty(KEY_END, service.endStopCode)
 
-        JsonArray jsonModes = new JsonArray();
-        jsonModes.add(new JsonPrimitive("pt_pub"));
-        jsonModes.add(new JsonPrimitive("pt_sch"));
-        jsonSegment.add(KEY_MODES, jsonModes);
+        val jsonModes = JsonArray()
+        jsonModes.add(JsonPrimitive("pt_pub"))
+        jsonModes.add(JsonPrimitive("pt_sch"))
+        jsonSegment.add(KEY_MODES, jsonModes)
 
-        jsonSegment.addProperty(KEY_START_TIME, service.getStartTimeInSecs());
-        jsonSegment.addProperty(KEY_END_TIME, service.getEndTimeInSecs());
-        jsonSegment.addProperty(KEY_SERVICE_TRIP_ID, service.getServiceTripId());
-        jsonSegment.addProperty(KEY_OPERATOR, service.getOperator());
-        jsonSegment.addProperty(KEY_REGION, region.getName());
-        return jsonSegment;
+        jsonSegment.addProperty(KEY_START_TIME, service.startTimeInSecs)
+        jsonSegment.addProperty(KEY_END_TIME, service.endTimeInSecs)
+        jsonSegment.addProperty(KEY_SERVICE_TRIP_ID, service.serviceTripId)
+        jsonSegment.addProperty(KEY_OPERATOR, service.operator)
+        jsonSegment.addProperty(KEY_REGION, region.name)
+        return jsonSegment
+    }
+
+    companion object {
+        const val KEY_REGION: String = "region"
+        const val KEY_SEGMENTS: String = "segments"
+        const val KEY_OPERATOR: String = "operator"
+        const val KEY_SERVICE_TRIP_ID: String = "serviceTripID"
+        const val KEY_END_TIME: String = "endTime"
+        const val KEY_START_TIME: String = "startTime"
+        const val KEY_MODES: String = "modes"
+        const val KEY_END: String = "end"
+        const val KEY_START: String = "start"
+        const val KEY_CONFIG: String = "config"
+        const val FORMAT_COORDINATES: String = "(%f,%f)"
+
+        fun createJsonSegments(
+            segments: List<TripSegment>,
+            prototypeSegment: TripSegment,
+            waypoint: Location,
+            isGetOn: Boolean
+        ): JsonArray {
+            var changeNextDeparture = false
+            var isTimeAdded = false
+
+            val jsonSegments = JsonArray()
+            for (segment in segments) {
+                if (segment.segmentId == prototypeSegment.segmentId) {
+                    val jsonSegment = JsonObject()
+                    if (isGetOn) {
+                        // The waypoint now becomes the departure.
+                        jsonSegment.addProperty(KEY_START, waypoint.coordinateString)
+                        jsonSegment.addProperty(KEY_END, segment.to!!.coordinateString)
+                    } else {
+                        // Get-off case.
+                        jsonSegment.addProperty(KEY_START, segment.from!!.coordinateString)
+
+                        // The waypoint now becomes the arrival.
+                        jsonSegment.addProperty(KEY_END, waypoint.coordinateString)
+
+                        // This case we have to change next segment's departure.
+                        changeNextDeparture = true
+                    }
+
+                    if (!TextUtils.isEmpty(segment.transportModeId)) {
+                        val jsonModes = JsonArray()
+                        jsonModes.add(JsonPrimitive(segment.transportModeId))
+                        jsonSegment.add(KEY_MODES, jsonModes)
+                    }
+
+                    if (!isTimeAdded) {
+                        jsonSegment.addProperty(KEY_START_TIME, segment.startTimeInSecs)
+
+                        // We only add once.
+                        isTimeAdded = true
+                    }
+
+                    jsonSegments.add(jsonSegment)
+                } else if ((segment.getType() != STATIONARY)
+                    && (segment.getType() != ARRIVAL)
+                    && (segment.getType() != DEPARTURE)
+                ) {
+                    val jsonSegment = convertSegmentToJson(segment)
+                    if (changeNextDeparture) {
+                        // We've iterated at the segment following the prototype segment.
+                        jsonSegment.addProperty(KEY_START, waypoint.coordinateString)
+
+                        // We only change once.
+                        changeNextDeparture = true
+                    }
+
+                    if (!isTimeAdded) {
+                        jsonSegment.addProperty(KEY_START_TIME, segment.startTimeInSecs)
+
+                        // We only add once.
+                        isTimeAdded = true
+                    }
+
+                    jsonSegments.add(jsonSegment)
+                }
+            }
+
+            return jsonSegments
+        }
+
+        fun convertSegmentToJson(segment: TripSegment): JsonObject {
+            val jsonSegment = JsonObject()
+            jsonSegment.addProperty(KEY_START, segment.from!!.coordinateString)
+            jsonSegment.addProperty(KEY_END, segment.to!!.coordinateString)
+
+            if (!TextUtils.isEmpty(segment.transportModeId)) {
+                val jsonModes = JsonArray()
+                jsonModes.add(JsonPrimitive(segment.transportModeId))
+                jsonSegment.add(KEY_MODES, jsonModes)
+            }
+
+            return jsonSegment
+        }
+
+        /**
+         * TODO: Handle 'vehicleUUID'.
+         */
+        fun createPostDataForChangingStop(
+            configParams: JsonObject,
+            segments: JsonArray
+        ): JsonObject {
+            val jsonPostData = JsonObject()
+            jsonPostData.add(KEY_CONFIG, configParams)
+            jsonPostData.add(KEY_SEGMENTS, segments)
+            return jsonPostData
+        }
     }
 }
