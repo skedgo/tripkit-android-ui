@@ -332,7 +332,6 @@ class TimetableViewModel @Inject constructor(
 
         servicesVMs
             .ignoreNetworkErrors()
-            .take(1)
             .subscribe({
                 scrollToNow.accept(getFirstNowPosition(it))
             }, {
