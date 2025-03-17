@@ -2,8 +2,10 @@ package com.skedgo.tripkit.ui.trippreview.v2
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.Observer
+import com.skedgo.tripkit.routing.SegmentType
 import com.skedgo.tripkit.routing.TripSegment
 import com.skedgo.tripkit.routing.TurnByTurn
+import com.skedgo.tripkit.routing.TurnByTurn.CYCLING
 import com.skedgo.tripkit.ui.utils.correctItemType
 import io.mockk.*
 import org.junit.After
@@ -21,18 +23,9 @@ class TripPreviewParentViewModelTest {
     val instantExecutorRule = InstantTaskExecutorRule() // Executes LiveData instantly
 
     private lateinit var viewModel: TripPreviewParentViewModel
-    private lateinit var mockTripSegment: TripSegment
-
     @Before
     fun setUp() {
         viewModel = TripPreviewParentViewModel()
-
-        mockTripSegment = mockk(relaxed = true) {
-            every { getTurnByTurn() } returns TurnByTurn.CYCLING
-        }
-
-        mockkStatic("com.skedgo.tripkit.ui.utils.TripSegmentExtensionsKt")
-        every { mockTripSegment.correctItemType() } returns 123
     }
 
     @After
@@ -59,6 +52,17 @@ class TripPreviewParentViewModelTest {
 
     @Test
     fun `setTripSegment should post trip segment and update segment item type`() {
+
+        val mockTripSegment = spyk(TripSegment()) {
+            setTurnByTurn(CYCLING.name)
+            every { from } returns mockk()
+            every { to } returns mockk()
+            every { getType() } returns SegmentType.SCHEDULED
+        }
+
+        mockkStatic("com.skedgo.tripkit.ui.utils.TripSegmentExtensionsKt")
+        every { mockTripSegment.correctItemType() } returns 123
+
         val observer = mockk<Observer<Int>>(relaxed = true)
         viewModel.segmentItemType.observeForever(observer)
 

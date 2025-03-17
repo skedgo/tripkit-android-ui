@@ -1,10 +1,12 @@
 package com.skedgo.tripkit.ui.tripresults
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.skedgo.tripkit.routing.Trip
 import com.skedgo.tripkit.routing.TripSegment
 import com.skedgo.tripkit.ui.base.MockKTest
 import io.mockk.*
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.test.*
@@ -13,25 +15,29 @@ import org.junit.*
 import org.junit.Assert.assertTrue
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import org.robolectric.annotation.Config
 
 @ExperimentalCoroutinesApi
-@RunWith(JUnit4::class)
+@RunWith(AndroidJUnit4::class)
+@Config(sdk = [33])
 class TripResultTripViewModelTest: MockKTest() {
 
     @get:Rule
     val instantTaskExecutorRule = InstantTaskExecutorRule()
 
+    private val unconfinedTestDispatcher = UnconfinedTestDispatcher()
+
     private lateinit var viewModel: TripResultTripViewModel
 
     @Before
     fun setup() {
-        initDispatchers()
+        Dispatchers.setMain(unconfinedTestDispatcher)
         viewModel = TripResultTripViewModel()
     }
 
     @After
     fun tearDown() {
-        tearDownDispatchers()
+        Dispatchers.resetMain()
     }
 
     @Test
@@ -68,7 +74,7 @@ class TripResultTripViewModelTest: MockKTest() {
         viewModel.clickFlow = clickFlow
 
         viewModel.onItemClicked()
-        testDispatcher.scheduler.advanceUntilIdle()
+        unconfinedTestDispatcher.scheduler.advanceUntilIdle()
 
         coVerify { clickFlow.emit(trip) }
     }
@@ -85,7 +91,7 @@ class TripResultTripViewModelTest: MockKTest() {
         viewModel.quickBookingActionClickFlow = quickBookingFlow
 
         viewModel.onQuickBookingActionClicked()
-        testDispatcher.scheduler.advanceUntilIdle()
+        unconfinedTestDispatcher.scheduler.advanceUntilIdle()
 
         coVerify { quickBookingFlow.emit(quickSegment) }
     }
