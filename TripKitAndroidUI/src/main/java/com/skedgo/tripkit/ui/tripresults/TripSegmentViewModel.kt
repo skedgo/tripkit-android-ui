@@ -33,7 +33,6 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import timber.log.Timber
 import javax.inject.Inject
 
-
 @SuppressLint("StaticFieldLeak")
 class TripSegmentViewModel @Inject constructor(
     private val context: Context,

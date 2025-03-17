@@ -1,268 +1,268 @@
-package com.skedgo.tripkit.ui.map;
+package com.skedgo.tripkit.ui.map
 
-import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.Paint;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
-import android.util.Pair;
+import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.Bitmap.Config.ARGB_8888
+import android.graphics.BitmapFactory
+import android.graphics.Canvas
+import android.graphics.Paint
+import android.graphics.drawable.Drawable
+import android.util.Pair
+import androidx.annotation.DrawableRes
+import androidx.core.content.ContextCompat
+import com.skedgo.tripkit.ui.R
+import kotlin.math.abs
 
-import com.skedgo.tripkit.ui.R;
+class BearingMarkerIconBuilder(
+    private val mContext: Context,
+    private val mTimeLabelMaker: TimeLabelMaker?
+) {
+    private var mHasBearing = false
+    private var mBearing = 0
+    private var mHasBearingVehicleIcon = false
+    private var mBaseIconResourceId = 0
+    private var mPointerIconResourceId = 0
+    private var mHasTime = false
+    private var mMillis: Long = 0
+    private val mRotationPaint = Paint()
+    private var vehicleIconRes: Drawable? = null
+    private var vehicleIconScale = 1f
+    private var mTimezone: String? = null
 
-import androidx.annotation.DrawableRes;
-import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
-
-public class BearingMarkerIconBuilder {
-    private boolean mHasBearing;
-    private int mBearing;
-    private boolean mHasBearingVehicleIcon;
-    private int mBaseIconResourceId;
-    private int mPointerIconResourceId;
-    private boolean mHasTime;
-    private long mMillis;
-    private Context mContext;
-    private TimeLabelMaker mTimeLabelMaker;
-    private Paint mRotationPaint;
-    private Drawable vehicleIconRes;
-    private float vehicleIconScale = 1f;
-    private String mTimezone;
-
-    public BearingMarkerIconBuilder(@NonNull Context context,
-                                    TimeLabelMaker timeLabelMaker) {
-        mContext = context;
-        mTimeLabelMaker = timeLabelMaker;
-
-        mRotationPaint = new Paint();
-        mRotationPaint.setAntiAlias(true);
-        mRotationPaint.setFilterBitmap(true);
+    init {
+        mRotationPaint.isAntiAlias = true
+        mRotationPaint.isFilterBitmap = true
     }
 
-    public BearingMarkerIconBuilder hasBearing(boolean hasBearing) {
-        mHasBearing = hasBearing;
-        return this;
+    fun hasBearing(hasBearing: Boolean): BearingMarkerIconBuilder {
+        mHasBearing = hasBearing
+        return this
     }
 
-    public BearingMarkerIconBuilder bearing(int bearing) {
-        mBearing = bearing;
-        return this;
+    fun bearing(bearing: Int): BearingMarkerIconBuilder {
+        mBearing = bearing
+        return this
     }
 
     /**
-     * @param vehicleIconRes Must be an instance of {@link BitmapDrawable}.
+     * @param vehicleIconRes Must be an instance of [BitmapDrawable].
      */
-    public BearingMarkerIconBuilder vehicleIcon(Drawable vehicleIconRes) {
-        this.vehicleIconRes = vehicleIconRes;
-        return this;
+    fun vehicleIcon(vehicleIconRes: Drawable?): BearingMarkerIconBuilder {
+        this.vehicleIconRes = vehicleIconRes
+        return this
     }
 
-    public BearingMarkerIconBuilder vehicleIconScale(float vehicleIconScale) {
-        this.vehicleIconScale = vehicleIconScale;
-        return this;
+    fun vehicleIconScale(vehicleIconScale: Float): BearingMarkerIconBuilder {
+        this.vehicleIconScale = vehicleIconScale
+        return this
     }
 
-    public BearingMarkerIconBuilder baseIcon(@DrawableRes int baseIconResourceId) {
-        mBaseIconResourceId = baseIconResourceId;
-        return this;
+    fun baseIcon(@DrawableRes baseIconResourceId: Int): BearingMarkerIconBuilder {
+        mBaseIconResourceId = baseIconResourceId
+        return this
     }
 
-    public BearingMarkerIconBuilder pointerIcon(@DrawableRes int pointerIconResourceId) {
-        mPointerIconResourceId = pointerIconResourceId;
-        return this;
+    fun pointerIcon(@DrawableRes pointerIconResourceId: Int): BearingMarkerIconBuilder {
+        mPointerIconResourceId = pointerIconResourceId
+        return this
     }
 
-    public BearingMarkerIconBuilder hasTime(boolean hasTime) {
-        mHasTime = hasTime;
-        return this;
+    fun hasTime(hasTime: Boolean): BearingMarkerIconBuilder {
+        mHasTime = hasTime
+        return this
     }
 
-    public BearingMarkerIconBuilder time(long millis, String timeZone) {
-        mMillis = millis;
-        mTimezone = timeZone;
-        return this;
+    fun time(millis: Long, timeZone: String?): BearingMarkerIconBuilder {
+        mMillis = millis
+        mTimezone = timeZone
+        return this
     }
 
-    public BearingMarkerIconBuilder hasBearingVehicleIcon(boolean hasBearingVehicleIcon) {
-        mHasBearingVehicleIcon = hasBearingVehicleIcon;
-        return this;
+    fun hasBearingVehicleIcon(hasBearingVehicleIcon: Boolean): BearingMarkerIconBuilder {
+        mHasBearingVehicleIcon = hasBearingVehicleIcon
+        return this
     }
 
-    public Pair<Bitmap, Float> build() {
-        Bitmap vehiclePointerBitmap = createVehiclePointerBitmap();
-        Bitmap vehiclePointerPinBitmap = createVehiclePointerPinBitmap(vehiclePointerBitmap);
-        vehiclePointerBitmap.recycle();
+    fun build(): Pair<Bitmap, Float> {
+        val vehiclePointerBitmap = createVehiclePointerBitmap()
+        val vehiclePointerPinBitmap = createVehiclePointerPinBitmap(vehiclePointerBitmap)
+        vehiclePointerBitmap.recycle()
 
         if (mHasTime && mTimeLabelMaker != null) {
-            Pair<Bitmap, Float> markerIcon = plusTimeLabel(vehiclePointerPinBitmap);
-            vehiclePointerPinBitmap.recycle();
-            return markerIcon;
+            val markerIcon = plusTimeLabel(vehiclePointerPinBitmap)
+            vehiclePointerPinBitmap.recycle()
+            return markerIcon
         } else {
-            return new Pair<>(vehiclePointerPinBitmap, 0.5f);
+            return Pair(vehiclePointerPinBitmap, 0.5f)
         }
     }
 
-    private Pair<Bitmap, Float> plusTimeLabel(Bitmap vehiclePointerPinBitmap) {
-        Bitmap timeLabelBitmap = mTimeLabelMaker.create(mMillis, mTimezone);
-        Bitmap finalBitmap = Bitmap.createBitmap(
-            vehiclePointerPinBitmap.getWidth() + timeLabelBitmap.getWidth(),
-            vehiclePointerPinBitmap.getHeight(),
-            Bitmap.Config.ARGB_8888
-        );
+    private fun plusTimeLabel(vehiclePointerPinBitmap: Bitmap): Pair<Bitmap, Float> {
+        val timeLabelBitmap = mTimeLabelMaker!!.create(mMillis, mTimezone!!)
+        val finalBitmap = Bitmap.createBitmap(
+            vehiclePointerPinBitmap.width + timeLabelBitmap.width,
+            vehiclePointerPinBitmap.height,
+            ARGB_8888
+        )
 
-        Canvas canvas = new Canvas(finalBitmap);
-        int rotateAngle = convertToCanvasAxes(mBearing);
-        boolean bearingToWesternSide = isBearingToWesternSide(rotateAngle);
+        val canvas = Canvas(finalBitmap)
+        val rotateAngle = convertToCanvasAxes(mBearing)
+        val bearingToWesternSide = isBearingToWesternSide(rotateAngle)
 
-        int offset = mContext.getResources().getDimensionPixelSize(R.dimen.v4_content_padding);
-        int timeLabelLeft = bearingToWesternSide
-            ? vehiclePointerPinBitmap.getWidth() - offset
-            : offset;
-        float timeLabelTop = (vehiclePointerPinBitmap.getWidth() - timeLabelBitmap.getHeight()) / 2f;
+        val offset = mContext.resources.getDimensionPixelSize(R.dimen.v4_content_padding)
+        val timeLabelLeft = if (bearingToWesternSide
+        ) vehiclePointerPinBitmap.width - offset
+        else offset
+        val timeLabelTop = (vehiclePointerPinBitmap.width - timeLabelBitmap.height) / 2f
 
-        final Drawable timeLabelBackgroundDrawable = ContextCompat.getDrawable(mContext, R.drawable.v4_shape_map_time_label);
+        val timeLabelBackgroundDrawable =
+            ContextCompat.getDrawable(mContext, R.drawable.v4_shape_map_time_label)
         if (timeLabelBackgroundDrawable != null) {
-            canvas.save();
-            {
-                float timeLabelBackgroundLeft = bearingToWesternSide
-                    ? vehiclePointerPinBitmap.getWidth() / 2f
-                    : offset;
-                canvas.translate(timeLabelBackgroundLeft, timeLabelTop);
+            canvas.save()
+            run {
+                val timeLabelBackgroundLeft = if (bearingToWesternSide
+                ) vehiclePointerPinBitmap.width / 2f
+                else offset.toFloat()
+                canvas.translate(timeLabelBackgroundLeft, timeLabelTop)
 
                 timeLabelBackgroundDrawable.setBounds(
                     0, 0,
-                    timeLabelBitmap.getWidth() + vehiclePointerPinBitmap.getWidth() / 2 - offset,
-                    timeLabelBitmap.getHeight()
-                );
-                timeLabelBackgroundDrawable.draw(canvas);
+                    timeLabelBitmap.width + vehiclePointerPinBitmap.width / 2 - offset,
+                    timeLabelBitmap.height
+                )
+                timeLabelBackgroundDrawable.draw(canvas)
             }
-            canvas.restore();
+            canvas.restore()
         }
 
-        canvas.drawBitmap(timeLabelBitmap, timeLabelLeft, timeLabelTop, null);
-        timeLabelBitmap.recycle();
+        canvas.drawBitmap(timeLabelBitmap, timeLabelLeft.toFloat(), timeLabelTop, null)
+        timeLabelBitmap.recycle()
 
-        int vehiclePointerPinBitmapLeft = !bearingToWesternSide
-            ? finalBitmap.getWidth() - vehiclePointerPinBitmap.getWidth()
-            : 0;
-        canvas.drawBitmap(vehiclePointerPinBitmap, vehiclePointerPinBitmapLeft, 0, null);
+        val vehiclePointerPinBitmapLeft = if (!bearingToWesternSide
+        ) finalBitmap.width - vehiclePointerPinBitmap.width
+        else 0
+        canvas.drawBitmap(vehiclePointerPinBitmap, vehiclePointerPinBitmapLeft.toFloat(), 0f, null)
 
-        float anchor = vehiclePointerPinBitmap.getWidth() / (2.f * finalBitmap.getWidth());
-        float anchorU = bearingToWesternSide ? anchor : 1.0f - anchor;
-        return new Pair<>(finalBitmap, anchorU);
+        val anchor = vehiclePointerPinBitmap.width / (2f * finalBitmap.width)
+        val anchorU = if (bearingToWesternSide) anchor else 1.0f - anchor
+        return Pair(finalBitmap, anchorU)
     }
 
-    private Bitmap createVehiclePointerPinBitmap(Bitmap vehiclePointerBitmap) {
+    private fun createVehiclePointerPinBitmap(vehiclePointerBitmap: Bitmap): Bitmap {
         // Padding between the VehiclePointer and the PinBase
-        int padding = -mContext.getResources().getDimensionPixelSize(R.dimen.v4_base_pointer_padding) * 2;
-        Bitmap baseBitmap = BitmapFactory.decodeResource(mContext.getResources(), mBaseIconResourceId);
-        Bitmap vehiclePointerPinBitmap = Bitmap.createBitmap(
-            vehiclePointerBitmap.getWidth(),
-            vehiclePointerBitmap.getHeight() + padding + baseBitmap.getHeight(),
-            Bitmap.Config.ARGB_8888
-        );
+        val padding = -mContext.resources.getDimensionPixelSize(R.dimen.v4_base_pointer_padding) * 2
+        val baseBitmap = BitmapFactory.decodeResource(mContext.resources, mBaseIconResourceId)
+        val vehiclePointerPinBitmap = Bitmap.createBitmap(
+            vehiclePointerBitmap.width,
+            vehiclePointerBitmap.height + padding + baseBitmap.height,
+            ARGB_8888
+        )
 
-        Canvas canvas = new Canvas(vehiclePointerPinBitmap);
+        val canvas = Canvas(vehiclePointerPinBitmap)
 
         // Locate the base
-        int baseLeft = (vehiclePointerBitmap.getWidth() - baseBitmap.getWidth()) / 2;
-        int baseTop = vehiclePointerBitmap.getHeight() + padding;
-        canvas.drawBitmap(baseBitmap, baseLeft, baseTop, null);
-        canvas.drawBitmap(vehiclePointerBitmap, 0, 0, null);
+        val baseLeft = (vehiclePointerBitmap.width - baseBitmap.width) / 2
+        val baseTop = vehiclePointerBitmap.height + padding
+        canvas.drawBitmap(baseBitmap, baseLeft.toFloat(), baseTop.toFloat(), null)
+        canvas.drawBitmap(vehiclePointerBitmap, 0f, 0f, null)
 
-        return vehiclePointerPinBitmap;
+        return vehiclePointerPinBitmap
     }
 
-    private Bitmap createVehiclePointerBitmap() {
-        Bitmap pointerBitmap = BitmapFactory.decodeResource(mContext.getResources(), mPointerIconResourceId);
-        Bitmap vehiclePointerBitmap = Bitmap.createBitmap(
-            pointerBitmap.getWidth(),
-            pointerBitmap.getHeight(),
-            Bitmap.Config.ARGB_8888
-        );
+    private fun createVehiclePointerBitmap(): Bitmap {
+        val pointerBitmap = BitmapFactory.decodeResource(mContext.resources, mPointerIconResourceId)
+        val vehiclePointerBitmap = Bitmap.createBitmap(
+            pointerBitmap.width,
+            pointerBitmap.height,
+            ARGB_8888
+        )
 
-        Canvas canvas = new Canvas(vehiclePointerBitmap);
+        val canvas = Canvas(vehiclePointerBitmap)
 
-        int rotateAngle = convertToCanvasAxes(mBearing);
+        val rotateAngle = convertToCanvasAxes(mBearing)
         if (mHasBearing) {
-            canvas.save();
+            canvas.save()
 
             // Rotate the Pointer bitmap to reflect bearing
             canvas.rotate(
-                rotateAngle,
-                vehiclePointerBitmap.getWidth() / 2,
-                vehiclePointerBitmap.getHeight() / 2
-            );
-            canvas.drawBitmap(pointerBitmap, 0, 0, mRotationPaint);
+                rotateAngle.toFloat(),
+                (vehiclePointerBitmap.width / 2).toFloat(),
+                (vehiclePointerBitmap.height / 2).toFloat()
+            )
+            canvas.drawBitmap(pointerBitmap, 0f, 0f, mRotationPaint)
 
-            canvas.restore();
+            canvas.restore()
         } else {
-            canvas.drawBitmap(pointerBitmap, 0, 0, null);
+            canvas.drawBitmap(pointerBitmap, 0f, 0f, null)
         }
 
-        pointerBitmap.recycle();
+        pointerBitmap.recycle()
 
         // Place the Vehicle bitmap onto the Pointer bitmap
-        canvas.save();
+        canvas.save()
 
-        Bitmap vehicleBitmap = convertDrawableToBitmap(vehicleIconRes);
+        val vehicleBitmap: Bitmap = convertDrawableToBitmap(vehicleIconRes)
         if (mHasBearing && mHasBearingVehicleIcon && isBearingToWesternSide(rotateAngle)) {
             // Flip drawing horizontally to reflect bearing: East -> West
-            canvas.scale(-1.0f, 1.0f);
-            canvas.translate(-vehiclePointerBitmap.getWidth(), 0f);
+            canvas.scale(-1.0f, 1.0f)
+            canvas.translate(-vehiclePointerBitmap.width.toFloat(), 0f)
         }
 
-        int vehicleBitmapLeft = (vehiclePointerBitmap.getWidth() - vehicleBitmap.getWidth()) / 2;
-        int vehicleBitmapTop = (vehiclePointerBitmap.getHeight() - vehicleBitmap.getHeight()) / 2;
-        canvas.drawBitmap(vehicleBitmap, vehicleBitmapLeft, vehicleBitmapTop, null);
+        val vehicleBitmapLeft = (vehiclePointerBitmap.width - vehicleBitmap.width) / 2
+        val vehicleBitmapTop = (vehiclePointerBitmap.height - vehicleBitmap.height) / 2
+        canvas.drawBitmap(
+            vehicleBitmap,
+            vehicleBitmapLeft.toFloat(),
+            vehicleBitmapTop.toFloat(),
+            null
+        )
 
-        vehicleBitmap.recycle();
+        vehicleBitmap.recycle()
 
-        canvas.restore();
-        return vehiclePointerBitmap;
+        canvas.restore()
+        return vehiclePointerBitmap
     }
 
-    private boolean isBearingToWesternSide(int rotateAngle) {
-        return rotateAngle >= 90 && rotateAngle <= 270;
+    private fun isBearingToWesternSide(rotateAngle: Int): Boolean {
+        return rotateAngle >= 90 && rotateAngle <= 270
     }
 
-    private int convertToCanvasAxes(int travelDirection) {
-        return 360 - correctTravelDirection(travelDirection);
+    private fun convertToCanvasAxes(travelDirection: Int): Int {
+        return 360 - correctTravelDirection(travelDirection)
     }
 
     /**
      * Recomputes travel direction against Pointer's default direction (90 in degrees)
      */
-    private int correctTravelDirection(int travelDirection) {
-        if (travelDirection >= 0 && travelDirection <= 90) {
-            return 90 - travelDirection;
+    private fun correctTravelDirection(travelDirection: Int): Int {
+        return if (travelDirection >= 0 && travelDirection <= 90) {
+            90 - travelDirection
         } else if (travelDirection > 90 && travelDirection <= 180) {
-            return Math.abs(travelDirection - 360 - 90);
+            abs((travelDirection - 360 - 90).toDouble()).toInt()
         } else if (travelDirection > 180 && travelDirection <= 360) {
-            return Math.abs(travelDirection - 360) + 90;
+            (abs((travelDirection - 360).toDouble()) + 90).toInt()
         } else {
-            return travelDirection;
+            travelDirection
         }
     }
 
-    private Bitmap convertDrawableToBitmap(Drawable drawable) {
-        final Bitmap bitmap = Bitmap.createBitmap(
-            drawable.getIntrinsicWidth(),
-            drawable.getIntrinsicHeight(),
-            Bitmap.Config.ARGB_8888
-        );
+    private fun convertDrawableToBitmap(drawable: Drawable?): Bitmap {
+        val bitmap = Bitmap.createBitmap(
+            drawable!!.intrinsicWidth,
+            drawable.intrinsicHeight,
+            ARGB_8888
+        )
 
-        final Canvas canvas = new Canvas(bitmap);
+        val canvas = Canvas(bitmap)
         canvas.scale(
             vehicleIconScale,
             vehicleIconScale,
-            bitmap.getWidth() / 2,
-            bitmap.getHeight() / 2
-        );
+            (bitmap.width / 2).toFloat(),
+            (bitmap.height / 2).toFloat()
+        )
 
-        drawable.setBounds(0, 0, drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight());
-        drawable.draw(canvas);
-        return bitmap;
+        drawable.setBounds(0, 0, drawable.intrinsicWidth, drawable.intrinsicHeight)
+        drawable.draw(canvas)
+        return bitmap
     }
 }

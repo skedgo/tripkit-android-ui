@@ -58,7 +58,6 @@ import com.skedgo.tripkit.ui.map.adapter.ViewableInfoWindowAdapter
 import com.skedgo.tripkit.ui.map.convertToDomainLatLngBounds
 import com.skedgo.tripkit.ui.map.home.ViewPort.CloseEnough
 import com.skedgo.tripkit.ui.map.home.ViewPort.NotCloseEnough
-import com.skedgo.tripkit.ui.model.LocationTag
 import com.skedgo.tripkit.ui.tracking.EventTracker
 import com.skedgo.tripkit.ui.trip.options.SelectionType
 import com.skedgo.tripkit.ui.utils.APP_PREF_CLEAR_CAR_PODS_ONCE
@@ -818,12 +817,6 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
         tripLocationMarkers!!.setInfoWindowAdapter(infoWindowAdapter)
         tripLocationMarkers!!.setOnInfoWindowClickListener(OnInfoWindowClickListener { marker: Marker ->
             val tag = marker.tag
-            if (tag is LocationTag) {
-                val location = tag.location
-                if (location != null) {
-                    //          bus.post(new InfoWindowClickEvent(location));
-                }
-            }
         })
     }
 
