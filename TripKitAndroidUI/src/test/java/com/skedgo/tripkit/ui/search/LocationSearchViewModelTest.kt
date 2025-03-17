@@ -2,8 +2,11 @@ package com.skedgo.tripkit.ui.search
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Pair
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
+import com.skedgo.TripKit
+import com.skedgo.tripkit.Configs
 import com.skedgo.tripkit.data.regions.RegionService
 import com.skedgo.tripkit.logging.ErrorLogger
 import com.skedgo.tripkit.ui.base.MockKTest
@@ -16,6 +19,7 @@ import com.squareup.picasso.Picasso
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.mockkObject
 import io.mockk.spyk
 import org.amshove.kluent.internal.assertEquals
 import org.junit.After
@@ -49,6 +53,16 @@ class LocationSearchViewModelTest : MockKTest() {
     @Before
     fun setUp() {
         initRx()
+        val mockConfigs: Configs = mockk(relaxed = true) {
+            every { locationFilter } returns mockk(relaxed = true)
+        }
+        val tripKitInstance = mockk<TripKit>(relaxed = true) {
+            every { configs() } returns mockConfigs
+        }
+        mockkObject(TripKit) {
+            every { TripKit.getInstance() } returns tripKitInstance
+            every { TripKit.getInstance().configs() } returns mockConfigs
+        }
         viewModel = spyk(
             LocationSearchViewModel(
                 context,

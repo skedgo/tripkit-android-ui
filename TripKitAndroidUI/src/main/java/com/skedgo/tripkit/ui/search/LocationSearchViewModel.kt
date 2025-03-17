@@ -125,7 +125,9 @@ class LocationSearchViewModel @Inject constructor(
     private val isFetchingPlaceDetails = ObservableBoolean(false)
     private val isSearchingSuggestion = ObservableBoolean(false)
     private val queryCache = mutableMapOf<String, AutoCompleteResult>()
-    private val globalConfigs = TripKit.getInstance().configs()
+    private val globalConfigs by lazy {
+        TripKit.getInstance().configs()
+    }
 
     init {
         allSuggestions.insertList(fixedSuggestions)
