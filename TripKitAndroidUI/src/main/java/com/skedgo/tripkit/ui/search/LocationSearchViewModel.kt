@@ -11,6 +11,7 @@ import androidx.lifecycle.viewModelScope
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
 import com.jakewharton.rxrelay2.PublishRelay
+import com.skedgo.TripKit
 import com.skedgo.rxtry.subscribeWithErrorHandling
 import com.skedgo.tripkit.analytics.SearchResultItemSource
 import com.skedgo.tripkit.common.model.location.LOCATION_CLASS_SCHOOL
@@ -124,6 +125,7 @@ class LocationSearchViewModel @Inject constructor(
     private val isFetchingPlaceDetails = ObservableBoolean(false)
     private val isSearchingSuggestion = ObservableBoolean(false)
     private val queryCache = mutableMapOf<String, AutoCompleteResult>()
+    private val globalConfigs = TripKit.getInstance().configs()
 
     init {
         allSuggestions.insertList(fixedSuggestions)
@@ -192,6 +194,7 @@ class LocationSearchViewModel @Inject constructor(
 
                     is HasResults -> {
                         googleAndTripGoSuggestions.clear()
+
                         val initialSuggestions = result.suggestions.map { place ->
                             GoogleAndTripGoSuggestionViewModel(
                                 context,
@@ -201,32 +204,25 @@ class LocationSearchViewModel @Inject constructor(
                                 iconProvider(),
                                 result.query
                             )
+                        }.toMutableList()
+
+                        // Extract location class and display name as pairs, allowing null values
+                        val allLocations = initialSuggestions.map { suggestion ->
+                            android.util.Pair(suggestion.location.locationClass, suggestion.location.displayName)
                         }
 
-                        // Filter to identify all school items
-                        val schoolItems =
-                            initialSuggestions.filter { it.location.locationClass == LOCATION_CLASS_SCHOOL }
+                        // Safely call `locationFilter`, defaulting to an empty list if null
+                        val restrictedItems = globalConfigs.locationFilter?.apply(allLocations) ?: emptyList()
 
-                        // Using a set to avoid duplicates
-                        val uniqueItemsToAdd = mutableSetOf<GoogleAndTripGoSuggestionViewModel>()
-
-                        // Add school items directly since they should always be included
-                        uniqueItemsToAdd.addAll(schoolItems)
-
-                        // Filter and add other items based on their distance and relevance to any school item
-                        initialSuggestions.forEach { item ->
-                            if (item.location.locationClass != "SchoolLocation" && schoolItems.none { school ->
-                                    LocationUtil.getRelevancePoint(
-                                        school.location.displayName,
-                                        item.location.displayName
-                                    ) > 0.7
-                                }) {
-                                uniqueItemsToAdd.add(item)
+                        // Remove locations that should be filtered out
+                        if (restrictedItems.isNotEmpty()) {
+                            initialSuggestions.removeAll { suggestion ->
+                                android.util.Pair(suggestion.location.locationClass, suggestion.location.displayName) in restrictedItems
                             }
                         }
 
-                        // Add all unique filtered items to the main suggestions list
-                        googleAndTripGoSuggestions.addAll(uniqueItemsToAdd)
+                        // Add the filtered suggestions to the final list
+                        googleAndTripGoSuggestions.addAll(initialSuggestions)
 
                         errorViewModel.updateError(null)
                     }
