@@ -247,7 +247,7 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
 
                 smoothScroller.targetPosition = integer.toInt()
 //                binding.recyclerView.layoutManager?.startSmoothScroll(smoothScroller)
-                scrollToNowPosition(2000L)
+                scrollToNowPosition()
             }.addTo(autoDisposable)
 
         val buffer = if (tripSegment == null) {
