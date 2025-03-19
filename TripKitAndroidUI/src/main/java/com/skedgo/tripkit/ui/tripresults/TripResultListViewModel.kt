@@ -259,10 +259,6 @@ class TripResultListViewModel @Inject constructor(
             }
             .toList()
             .subscribe({ list ->
-                list.forEach {
-                    println("tag123, modeiconId: ${it.modeIconId.value}")
-                    println("tag123, modeId: ${it.modeId.value}")
-                }
                 transportModes.value = list
                 if (execute) {
                     load()
