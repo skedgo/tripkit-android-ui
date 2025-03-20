@@ -4,7 +4,6 @@ import android.content.Context
 import android.view.View
 import androidx.databinding.ObservableArrayList
 import androidx.databinding.ObservableBoolean
-import androidx.databinding.ObservableField
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
@@ -78,11 +77,11 @@ class TripResultListViewModel @Inject constructor(
     private val routingTimeViewModelMapper: RoutingTimeViewModelMapper
 ) : RxViewModel(), ActionButtonContainer {
     val loadingItem = LoaderPlaceholder()
-    val fromName = ObservableField<String>()
-    val fromContentDescription = ObservableField<String>()
-    val toName = ObservableField<String>()
-    val toContentDescription = ObservableField<String>()
-    val timeLabel = ObservableField<String>()
+    val fromName = MutableLiveData<String>()
+    val fromContentDescription = MutableLiveData<String>()
+    val toName = MutableLiveData<String>()
+    val toContentDescription = MutableLiveData<String>()
+    val timeLabel = MutableLiveData<String>()
 
     val onItemClicked = PublishRelay.create<ViewTrip>()
     val onQuickBookingActionClicked = PublishRelay.create<TripSegment>()
@@ -119,8 +118,8 @@ class TripResultListViewModel @Inject constructor(
             R.layout.trip_result_list_transport_item
         )
     }
-    val transportModes: ObservableField<List<TripResultTransportItemViewModel>> =
-        ObservableField(emptyList())
+    val transportModes: MutableLiveData<List<TripResultTransportItemViewModel>> =
+        MutableLiveData(emptyList())
     val showTransport = ObservableBoolean(false)
     val showTransportModeSelection = ObservableBoolean(true)
     val isError = ObservableBoolean(false)
@@ -195,13 +194,13 @@ class TripResultListViewModel @Inject constructor(
         this.query = _query
         _query.fromLocation?.let {
             val displayName = it.displayName
-            fromName.set(displayName)
-            fromContentDescription.set("From $displayName")
+            fromName.value = displayName
+            fromContentDescription.value = "From $displayName"
         }
         _query.toLocation?.let {
             val displayName = it.displayName
-            toName.set(displayName)
-            toContentDescription.set("Going to $displayName")
+            toName.value = displayName
+            toContentDescription.value = "Going to $displayName"
         }
 
         showTransportModeSelection.set(showTransportSelectionView)
@@ -241,7 +240,8 @@ class TripResultListViewModel @Inject constructor(
                 }
             }
             .map { viewModel ->
-                viewModel.checked.set(transportVisibilityFilter!!.isSelected(viewModel.modeId.get()!!))
+                viewModel.checked.value =
+                    transportVisibilityFilter!!.isSelected(viewModel.modeId.value!!)
                 viewModel
             }
             .map {
@@ -263,7 +263,7 @@ class TripResultListViewModel @Inject constructor(
             }
             .toList()
             .subscribe({ list ->
-                transportModes.set(list)
+                transportModes.value = list
                 if (execute) {
                     load()
                 }
@@ -275,9 +275,9 @@ class TripResultListViewModel @Inject constructor(
     }
 
     private fun toggleTransportModeChecked(mode: String, checked: Boolean) {
-        transportModes.get()?.forEach { model ->
-            if (model.modeId.get() == mode) {
-                model.checked.set(checked)
+        transportModes.value?.forEach { model ->
+            if (model.modeId.value == mode) {
+                model.checked.value = checked
             }
         }
     }
@@ -297,7 +297,7 @@ class TripResultListViewModel @Inject constructor(
                             .toObservable()
                     }.observeOn(AndroidSchedulers.mainThread())
                         .subscribe({ str ->
-                            timeLabel.set(str)
+                            timeLabel.value = str
                         }, { error ->
                             isError.set(true)
                             handleError(error)

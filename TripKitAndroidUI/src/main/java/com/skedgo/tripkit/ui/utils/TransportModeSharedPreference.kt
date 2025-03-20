@@ -20,7 +20,7 @@ object TransportModeDefaults {
 
     fun getDefaultTransportModes() = defaultTransportModes
 
-    fun setSetDefaultModes(vararg modeIds: String) {
+    fun setDefaultModes(vararg modeIds: String) {
         defaultTransportModes = modeIds.toList()
     }
 

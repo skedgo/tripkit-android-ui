@@ -332,7 +332,6 @@ class TimetableViewModel @Inject constructor(
 
         servicesVMs
             .ignoreNetworkErrors()
-            .take(1)
             .subscribe({
                 scrollToNow.accept(getFirstNowPosition(it))
             }, {
@@ -379,7 +378,6 @@ class TimetableViewModel @Inject constructor(
     private fun getFirstNowPosition(services: List<ServiceViewModel>): Int {
         return services.indexOfFirst {
             val condition = it.getRealTimeDeparture() - getNow.execute().toSeconds() >= -1L
-            println("tag123: ${it.secondaryText.get()} ~ ${it.getRealTimeDeparture() - getNow.execute().toSeconds()}")
             condition
         }.let { max(it, 0) }
     }
