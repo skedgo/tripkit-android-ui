@@ -7,6 +7,7 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.MutableLiveData
 import com.skedgo.TripKit
 import com.skedgo.rxtry.subscribeWithErrorHandling
+import com.skedgo.tripkit.common.model.realtimealert.RealTimeStatus
 import com.skedgo.tripkit.logging.ErrorLogger
 import com.skedgo.tripkit.routing.ModeInfo
 import com.skedgo.tripkit.ui.R
@@ -15,6 +16,7 @@ import com.skedgo.tripkit.ui.trip.details.viewmodel.OccupancyViewModel
 import com.skedgo.tripkit.ui.trip.details.viewmodel.ServiceAlertViewModel
 import com.skedgo.tripkit.ui.utils.TapAction
 import com.skedgo.tripkit.ui.utils.TimeSpanUtils
+import io.reactivex.android.schedulers.AndroidSchedulers
 import org.joda.time.DateTimeZone
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -41,6 +43,7 @@ internal class ServiceViewModelImpl @Inject constructor(
     override val tertiaryText = MutableLiveData<String>()
     override val quaternaryText = MutableLiveData<String>()
     override val countDownTimeText = MutableLiveData<String>()
+    override val countDownTimeTextColor = MutableLiveData<Int>(R.color.tripKitSuccess)
     override val alpha = MutableLiveData(1f)
 
     override val serviceColor: MutableLiveData<Int> = MutableLiveData()
@@ -109,15 +112,29 @@ internal class ServiceViewModelImpl @Inject constructor(
     private fun presentCountDownTimeForFrequency() {
         if (!service.isFrequencyBased) {
             service.getTimeLeftToDepartInterval(30, TimeUnit.SECONDS)
+                .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({ presentCountDownTime(it) }, errorLogger::logError)
                 .autoClear()
         }
     }
 
     private fun presentCountDownTime(departureCountDownTimeInMins: Long) {
-        countDownTimeText.value = TimeSpanUtils.getRelativeTimeSpanString(departureCountDownTimeInMins)
+        if (service.realTimeStatus == RealTimeStatus.CANCELLED || service.isCancelled) {
+            countDownTimeText.postValue(context.getString(R.string.cancelled))
+            countDownTimeTextColor.postValue(
+                ContextCompat.getColor(context, R.color.tripKitError)
+            )
+        } else {
+            countDownTimeTextColor.postValue(
+                ContextCompat.getColor(context, R.color.tripKitSuccess)
+            )
+            countDownTimeText.postValue(
+                TimeSpanUtils.getRelativeTimeSpanString(departureCountDownTimeInMins)
+            )
+        }
 
-        if (departureCountDownTimeInMins < 0) {
+
+        if (departureCountDownTimeInMins < 0 || service.isCancelled) {
             countDownTimeTextBack.value =
                 ContextCompat.getDrawable(
                     context,

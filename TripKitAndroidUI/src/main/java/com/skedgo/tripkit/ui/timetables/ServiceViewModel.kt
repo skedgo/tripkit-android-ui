@@ -20,6 +20,7 @@ abstract class ServiceViewModel() : RxViewModel() {
     abstract val tertiaryText: MutableLiveData<String>
     abstract val quaternaryText: MutableLiveData<String>
     abstract val countDownTimeText: MutableLiveData<String>
+    abstract val countDownTimeTextColor: MutableLiveData<Int>
     abstract val alpha: MutableLiveData<Float>
     abstract val countDownTimeTextBack: MutableLiveData<Drawable>
     abstract val serviceColor: MutableLiveData<Int>

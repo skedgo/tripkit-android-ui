@@ -117,9 +117,10 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@{viewModel.countDownTimeText}"
-                android:textColor="@color/tripKitPrimary"
+                android:textColor="@{viewModel.countDownTimeTextColor}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
+                tools:textColor="@color/tripKitPrimary"
                 tools:text="Now" />
 
             <TextView
