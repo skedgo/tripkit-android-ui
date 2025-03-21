@@ -1,10 +1,7 @@
 package com.skedgo.tripkit.ui.timetables
 
 import android.graphics.drawable.Drawable
-import androidx.databinding.ObservableBoolean
-import androidx.databinding.ObservableField
-import androidx.databinding.ObservableFloat
-import androidx.databinding.ObservableInt
+import androidx.lifecycle.MutableLiveData
 import com.skedgo.tripkit.common.model.realtimealert.RealtimeAlert
 import com.skedgo.tripkit.routing.ModeInfo
 import com.skedgo.tripkit.ui.core.RxViewModel
@@ -17,26 +14,26 @@ import org.joda.time.DateTimeZone
 abstract class ServiceViewModel() : RxViewModel() {
     abstract val occupancyViewModel: OccupancyViewModel
     abstract val serviceAlertViewModel: ServiceAlertViewModel
-    abstract val serviceNumber: ObservableField<String>
-    abstract val secondaryText: ObservableField<String>
-    abstract val secondaryTextColor: ObservableInt
-    abstract val tertiaryText: ObservableField<String>
-    abstract val quaternaryText: ObservableField<String>
-    abstract val countDownTimeText: ObservableField<String>
-    abstract val alpha: ObservableFloat
-    abstract val countDownTimeTextBack: ObservableField<Drawable>
-    abstract val serviceColor: ObservableInt
-    abstract val showOccupancyInfo: ObservableBoolean
-    abstract val showBicycleAccessible: ObservableBoolean
-    abstract val isCurrentTrip: ObservableBoolean
+    abstract val serviceNumber: MutableLiveData<String>
+    abstract val secondaryText: MutableLiveData<String>
+    abstract val secondaryTextColor: MutableLiveData<Int>
+    abstract val tertiaryText: MutableLiveData<String>
+    abstract val quaternaryText: MutableLiveData<String>
+    abstract val countDownTimeText: MutableLiveData<String>
+    abstract val alpha: MutableLiveData<Float>
+    abstract val countDownTimeTextBack: MutableLiveData<Drawable>
+    abstract val serviceColor: MutableLiveData<Int>
+    abstract val showOccupancyInfo: MutableLiveData<Boolean>
+    abstract val showBicycleAccessible: MutableLiveData<Boolean>
+    abstract val isCurrentTrip: MutableLiveData<Boolean>
 
 //    abstract val wheelchairAccessible: ObservableBoolean
 //    abstract val wheelchairInaccessible: ObservableBoolean
 
-    abstract val wheelchairIcon: ObservableField<Drawable?>
-    abstract val wheelchairTint: ObservableField<Int>
+    abstract val wheelchairIcon: MutableLiveData<Drawable?>
+    abstract val wheelchairTint: MutableLiveData<Int>
 
-    abstract val modeInfo: ObservableField<ModeInfo>
+    abstract val modeInfo: MutableLiveData<ModeInfo>
     abstract val onItemClick: TapAction<TimetableEntry>
     abstract val onAlertsClick: TapAction<List<RealtimeAlert>?>
 

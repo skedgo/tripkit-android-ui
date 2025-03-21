@@ -315,7 +315,10 @@ class TripResultListFragment : BaseTripKitFragment() {
         }
 
         viewModel.startLocationListener.observe(viewLifecycleOwner){
-            locationClickListener?.onStartLocationClicked()
+            if(it == true) {
+                locationClickListener?.onStartLocationClicked()
+                viewModel.setStartLocationListenerValue(false)
+            }
         }
     }
 

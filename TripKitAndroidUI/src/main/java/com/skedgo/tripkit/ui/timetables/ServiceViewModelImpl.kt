@@ -4,10 +4,7 @@ import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.Drawable
 import androidx.core.content.ContextCompat
-import androidx.databinding.ObservableBoolean
-import androidx.databinding.ObservableField
-import androidx.databinding.ObservableFloat
-import androidx.databinding.ObservableInt
+import androidx.lifecycle.MutableLiveData
 import com.skedgo.TripKit
 import com.skedgo.rxtry.subscribeWithErrorHandling
 import com.skedgo.tripkit.logging.ErrorLogger
@@ -32,25 +29,25 @@ internal class ServiceViewModelImpl @Inject constructor(
     private val errorLogger: ErrorLogger
 ) : ServiceViewModel() {
     //  override val wheelchairAccessible = ObservableBoolean(false)
-    override val wheelchairIcon = ObservableField<Drawable?>()
-    override val wheelchairTint = ObservableField<Int>(Color.BLACK)
+    override val wheelchairIcon = MutableLiveData<Drawable?>()
+    override val wheelchairTint = MutableLiveData<Int>(Color.BLACK)
 
-    override val serviceNumber = ObservableField<String>()
-    override val secondaryText = ObservableField<String>()
-    override val secondaryTextColor: ObservableInt = ObservableInt()
-    override val showOccupancyInfo = ObservableBoolean(false)
-    override val showBicycleAccessible = ObservableBoolean(false)
+    override val serviceNumber = MutableLiveData<String>()
+    override val secondaryText = MutableLiveData<String>()
+    override val secondaryTextColor: MutableLiveData<Int> = MutableLiveData()
+    override val showOccupancyInfo = MutableLiveData(false)
+    override val showBicycleAccessible = MutableLiveData(false)
 
-    override val tertiaryText = ObservableField<String>()
-    override val quaternaryText = ObservableField<String>()
-    override val countDownTimeText = ObservableField<String>()
-    override val alpha = ObservableFloat(1f)
+    override val tertiaryText = MutableLiveData<String>()
+    override val quaternaryText = MutableLiveData<String>()
+    override val countDownTimeText = MutableLiveData<String>()
+    override val alpha = MutableLiveData(1f)
 
-    override val serviceColor: ObservableInt = ObservableInt()
-    override val isCurrentTrip = ObservableBoolean(false)
+    override val serviceColor: MutableLiveData<Int> = MutableLiveData()
+    override val isCurrentTrip = MutableLiveData(false)
 
-    override val countDownTimeTextBack: ObservableField<Drawable> = ObservableField()
-    override val modeInfo: ObservableField<ModeInfo> = ObservableField()
+    override val countDownTimeTextBack: MutableLiveData<Drawable> = MutableLiveData()
+    override val modeInfo: MutableLiveData<ModeInfo> = MutableLiveData()
     override val onItemClick = TapAction.create { service }
 
     override val onAlertsClick = TapAction.create { service.alerts }
@@ -66,31 +63,31 @@ internal class ServiceViewModelImpl @Inject constructor(
         _dateTimeZone: DateTimeZone
     ) {
         service = _service
-        this.isCurrentTrip.set(_currentTripId == service.serviceTripId)
+        this.isCurrentTrip.postValue(_currentTripId == service.serviceTripId)
         dateTimeZone = _dateTimeZone
         updateInfo()
     }
 
     private fun updateInfo() {
 
-        modeInfo.set(service.modeInfo)
+        modeInfo.postValue(service.modeInfo)
         if (service.serviceNumber.isNullOrBlank()) {
-            serviceNumber.set(service.serviceName)
+            serviceNumber.postValue(service.serviceName)
         } else {
-            serviceNumber.set(service.serviceNumber)
+            serviceNumber.postValue(service.serviceNumber)
         }
         val (secondaryMessage, color) = getRealtimeText.execute(
             dateTimeZone,
             service,
             service.realtimeVehicle
         )
-        secondaryText.set(secondaryMessage)
-        secondaryTextColor.set(ContextCompat.getColor(context, color))
-        tertiaryText.set(getServiceTertiaryText.execute(service))
+        secondaryText.postValue(secondaryMessage)
+        secondaryTextColor.postValue(ContextCompat.getColor(context, color))
+        tertiaryText.postValue(getServiceTertiaryText.execute(service))
 
         val globalConfigs = TripKit.getInstance().configs()
         if (globalConfigs.showOperatorNames()) {
-            quaternaryText.set(service.operator)
+            quaternaryText.postValue(service.operator)
         }
 
         setBicycleAccessible()
@@ -101,12 +98,12 @@ internal class ServiceViewModelImpl @Inject constructor(
     }
 
     private fun setBicycleAccessible() {
-        showBicycleAccessible.set(service.bicycleAccessible == true)
+        showBicycleAccessible.postValue(service.bicycleAccessible == true)
     }
 
     private fun presentOccupancy() {
         service.realtimeVehicle?.let { occupancyViewModel.setOccupancy(it, false) }
-        showOccupancyInfo.set(occupancyViewModel.hasInformation())
+        showOccupancyInfo.postValue(occupancyViewModel.hasInformation())
     }
 
     private fun presentCountDownTimeForFrequency() {
@@ -118,24 +115,22 @@ internal class ServiceViewModelImpl @Inject constructor(
     }
 
     private fun presentCountDownTime(departureCountDownTimeInMins: Long) {
-        countDownTimeText.set(TimeSpanUtils.getRelativeTimeSpanString(departureCountDownTimeInMins))
+        countDownTimeText.value = TimeSpanUtils.getRelativeTimeSpanString(departureCountDownTimeInMins)
 
         if (departureCountDownTimeInMins < 0) {
-            countDownTimeTextBack.set(
+            countDownTimeTextBack.value =
                 ContextCompat.getDrawable(
                     context,
                     R.drawable.v4_shape_rect_cancelled
                 )
-            )
-            alpha.set(0.5f)
+            alpha.value = 0.5f
         } else {
-            countDownTimeTextBack.set(
+            countDownTimeTextBack.value =
                 ContextCompat.getDrawable(
                     context,
                     R.drawable.v4_shape_btn_positive_normal
                 )
-            )
-            alpha.set(1f)
+            alpha.value = 1f
         }
     }
 
@@ -143,10 +138,10 @@ internal class ServiceViewModelImpl @Inject constructor(
         service.serviceColor?.let {
             when (it.color) {
                 Color.BLACK, Color.WHITE -> {
-                    serviceColor.set(Color.BLACK)
+                    serviceColor.postValue(Color.BLACK)
                 }
                 else -> {
-                    serviceColor.set(it.color)
+                    serviceColor.postValue(it.color)
                 }
             }
         }
@@ -156,16 +151,16 @@ internal class ServiceViewModelImpl @Inject constructor(
 
         service.wheelchairAccessible?.let {
             if (it) {
-                wheelchairIcon.set(ContextCompat.getDrawable(context, R.drawable.ic_wheelchair))
-                wheelchairTint.set(ContextCompat.getColor(context, R.color.black2))
+                wheelchairIcon.postValue(ContextCompat.getDrawable(context, R.drawable.ic_wheelchair))
+                wheelchairTint.postValue(ContextCompat.getColor(context, R.color.black2))
             } else {
-                wheelchairIcon.set(
+                wheelchairIcon.postValue(
                     ContextCompat.getDrawable(
                         context,
                         R.drawable.ic_wheelchair_not_accessible
                     )
                 )
-                wheelchairTint.set(ContextCompat.getColor(context, R.color.tripKitWarning))
+                wheelchairTint.postValue(ContextCompat.getColor(context, R.color.tripKitWarning))
             }
         }
         serviceAlertViewModel.setAlerts(service.alerts)

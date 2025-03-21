@@ -2,8 +2,6 @@ package com.skedgo.tripkit.ui.timetables
 
 import android.content.Context
 import android.content.res.Resources
-import androidx.databinding.ObservableBoolean
-import androidx.databinding.ObservableField
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
@@ -79,12 +77,15 @@ class TimetableViewModel @Inject constructor(
     var stop: BehaviorRelay<ScheduledStop> = BehaviorRelay.create()
     var serviceTripId: BehaviorRelay<String> = BehaviorRelay.create()
 
-    val stationName = ObservableField<String>()
-    val stationType = ObservableField<String>()
-    val itemBinding =
+    val stationName = MutableLiveData<String>()
+    val stationType = MutableLiveData<String>()
+    val itemBinding by lazy {
         ItemBinding.of<ServiceViewModel>(BR.viewModel, R.layout.timetable_fragment_list_item)
-    val serviceItemBinding =
+    }
+
+    val serviceItemBinding by lazy {
         ItemBinding.of<TimetableHeaderLineItem>(BR.data, R.layout.timetable_header_line_item)
+    }
 
     private val _showTimetableEntry = MutableLiveData<ShowTimetableEntry>()
     val showTimeTableEntry: LiveData<ShowTimetableEntry> = _showTimetableEntry
@@ -105,21 +106,21 @@ class TimetableViewModel @Inject constructor(
             oldItem: ServiceViewModel,
             newItem: ServiceViewModel
         ): Boolean =
-            oldItem.serviceNumber.get() == newItem.serviceNumber.get()
-                && oldItem.secondaryText.get() == newItem.secondaryText.get()
-                && oldItem.tertiaryText.get() == newItem.tertiaryText.get()
-                && oldItem.countDownTimeText.get() == newItem.countDownTimeText.get()
+            oldItem.serviceNumber.value == newItem.serviceNumber.value
+                && oldItem.secondaryText.value == newItem.secondaryText.value
+                && oldItem.tertiaryText.value == newItem.tertiaryText.value
+                && oldItem.countDownTimeText.value == newItem.countDownTimeText.value
 
 
     }
 
     val services = DiffObservableList<ServiceViewModel>(ServicesDiffCallback)
 
-    val serviceNumbers: ObservableField<List<TimetableHeaderLineItem>> =
-        ObservableField(emptyList())
-    val showLoading = ObservableBoolean(false)
-    val showCloseButton = ObservableBoolean(false)
-    val showSearch = ObservableBoolean(true)
+    val serviceNumbers: MutableLiveData<List<TimetableHeaderLineItem>> =
+        MutableLiveData(emptyList())
+    val showLoading = MutableLiveData(false)
+    val showCloseButton = MutableLiveData(false)
+    val showSearch = MutableLiveData(true)
 
     val downloadTimetable: PublishRelay<Long> = PublishRelay.create<Long>()
     val onDateChanged: PublishRelay<Long> = PublishRelay.create<Long>()
@@ -166,7 +167,7 @@ class TimetableViewModel @Inject constructor(
                         )
                             .toObservable()
                             .ignoreNetworkErrors()
-                            .isExecuting { showLoading.set(it) }
+                            .isExecuting { showLoading.postValue(it) }
                     }
                     .subscribe({
                         emitter.onNext(it)
@@ -280,9 +281,9 @@ class TimetableViewModel @Inject constructor(
 
     val scrollToNow: PublishRelay<Int> = PublishRelay.create<Int>()
 
-    val enableButton = ObservableBoolean(true)
-    val showButton = ObservableBoolean(false)
-    val buttonText = ObservableField<String>()
+    val enableButton = MutableLiveData(true)
+    val showButton = MutableLiveData(false)
+    val buttonText = MutableLiveData<String>()
     val actionChosen = PublishRelay.create<String>()
     val timetableEntryChosen = PublishRelay.create<TimetableEntry>()
     var action = ""
@@ -313,13 +314,14 @@ class TimetableViewModel @Inject constructor(
                 it.forEach {
                     tmpServiceList.add(
                         TimetableHeaderLineItem(
-                            it.serviceNumber.get().orEmpty(),
-                            it.serviceColor.get()
+                            it.serviceNumber.value.orEmpty(),
+                            it.serviceColor.value ?: 0
                         )
                     )
                 }
-                serviceNumbers.set(tmpServiceList.distinctBy { it.serviceNumber }
-                    .sortedBy { it.serviceNumber })
+                serviceNumbers.postValue(
+                    tmpServiceList.distinctBy { it.serviceNumber }.sortedBy { it.serviceNumber }
+                )
             }, {
                 if(BuildConfig.DEBUG) it.printStackTrace()
                 Timber.e(it)
@@ -348,16 +350,16 @@ class TimetableViewModel @Inject constructor(
             when {
                 actions.contains(ExternalAction.SHOW_TICKET.action) -> {
                     action = ExternalAction.SHOW_TICKET.action
-                    buttonText.set("Show Ticket")
+                    buttonText.postValue("Show Ticket")
                 }
                 actions.contains(ExternalAction.BOOK.action) -> {
                     action = ExternalAction.BOOK.action
-                    buttonText.set("Book")
+                    buttonText.postValue( "Book")
                 }
             }
         }
 
-        showButton.set(
+        showButton.postValue(
             action.isNotEmpty() && (segment?.booking?.quickBookingsUrl.isNullOrEmpty()
                 || !segment?.booking?.confirmation?.purchasedTickets().isNullOrEmpty())
         )
@@ -391,8 +393,8 @@ class TimetableViewModel @Inject constructor(
 
     fun setText(context: Context) {
         this.stop.value?.let {
-            stationName.set(this.stop.value?.name)
-            stationType.set(this.stop.value?.type.toString())
+            stationName.value = this.stop.value?.name
+            stationType.value = this.stop.value?.type.toString()
         }
     }
 

@@ -164,6 +164,10 @@ class TripResultListViewModel @Inject constructor(
         _startLocationListener.value = true // Notify View
     }
 
+    fun setStartLocationListenerValue(value: Boolean) {
+        _startLocationListener.value = value
+    }
+
     fun transportLayoutClicked(view: View) {
         showTransport.set(!showTransport.get())
     }

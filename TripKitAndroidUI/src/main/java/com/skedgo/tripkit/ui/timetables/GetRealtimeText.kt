@@ -84,7 +84,7 @@ open class GetRealtimeText @Inject constructor(
                         context.getString(
                             R.string.realtime_early,
                             TimeUtils.getDurationInHoursMins(context, abs(timeDiff.toInt()))
-                        ) to R.color.tripKitSuccess
+                        ) to R.color.tripKitWarning
 
                     else -> context.getString(
                         R.string.realtime_late,

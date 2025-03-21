@@ -69,26 +69,26 @@ class TripSegmentItemViewModel @Inject internal constructor(
 
     val onClick = TapAction.create<TripSegmentItemViewModel>() { this }
     val onTicketInfoClicked = TapAction.create { this }
-    val title = ObservableField<String>()
-    val startTime = ObservableField<SpannableString>()
-    val showStartTime = ObservableBoolean(false)
-    val endTime = ObservableField<SpannableString>()
-    val showEndTime = ObservableBoolean(false)
+    val title = MutableLiveData<String>()
+    val startTime = MutableLiveData<SpannableString>()
+    val showStartTime = MutableLiveData(false)
+    val endTime = MutableLiveData<SpannableString>()
+    val showEndTime = MutableLiveData(false)
 
-    val description = ObservableField<String>()
-    val showDescription = ObservableBoolean(false)
-    val showTicketInfo = ObservableBoolean(false)
-    val icon = ObservableField<Drawable>()
-    val showBackgroundCircle = ObservableBoolean(false)
-    val backgroundCircleTint = ObservableField<Int>(Color.TRANSPARENT)
+    val description = MutableLiveData<String>()
+    val showDescription = MutableLiveData(false)
+    val showTicketInfo = MutableLiveData(false)
+    val icon = MutableLiveData<Drawable?>()
+    val showBackgroundCircle = MutableLiveData(false)
+    val backgroundCircleTint = MutableLiveData<Int>(Color.TRANSPARENT)
 
-    val topLineTint = ObservableField<Int>(Color.TRANSPARENT)
-    val bottomLineTint = ObservableField<Int>(Color.TRANSPARENT)
-    val showTopLine = ObservableBoolean(false)
-    val showBottomLine = ObservableBoolean(false)
+    val topLineTint = MutableLiveData<Int>(Color.TRANSPARENT)
+    val bottomLineTint = MutableLiveData<Int>(Color.TRANSPARENT)
+    val showTopLine = MutableLiveData(false)
+    val showBottomLine = MutableLiveData(false)
 
-    val showAlerts = ObservableBoolean(false)
-    val alerts = ObservableField<ArrayList<RealtimeAlert>>()
+    val showAlerts = MutableLiveData(false)
+    val alerts = MutableLiveData<ArrayList<RealtimeAlert>>()
 
     val alertsClicked = BehaviorRelay.create<ArrayList<RealtimeAlert>>()
 
@@ -97,7 +97,7 @@ class TripSegmentItemViewModel @Inject internal constructor(
 
     var tripSegment: TripSegment? = null
 
-    val externalAction = ObservableField<String>()
+    val externalAction = MutableLiveData<String>()
     val externalActionClicked = BehaviorRelay.create<TripSegment>()
 
     private val _roadTagsCharItems = MutableLiveData<List<RoadTagChartItem>>()
@@ -124,10 +124,10 @@ class TripSegmentItemViewModel @Inject internal constructor(
     ) {
         this.isStationaryItem = isStationaryItem
         tripSegment?.let { segment ->
-            this.title.set(title)
+            this.title.value = title
 
-            this.description.set(description ?: "")
-            this.showDescription.set(description != null)
+            this.description.value = description.orEmpty()
+            this.showDescription.value = description != null
 
             segment.verifyAndUpdateExternalAction(viewType)
 
@@ -160,7 +160,7 @@ class TripSegmentItemViewModel @Inject internal constructor(
 
     private fun TripSegment.handleAlerts() {
         if (!this.alerts.isNullOrEmpty()) {
-            showAlerts.set(true)
+            showAlerts.value = true
             this.alerts?.groupConsecutiveBy { firstItem, secondItem ->
                 firstItem.title() == secondItem.title()
             }?.let { sameTitleGroups ->
@@ -170,7 +170,7 @@ class TripSegmentItemViewModel @Inject internal constructor(
                         alertsArray.add(group.first())
                     }
                 }
-                this@TripSegmentItemViewModel.alerts.set(alertsArray)
+                this@TripSegmentItemViewModel.alerts.value = alertsArray
             }
         }
     }
@@ -205,7 +205,7 @@ class TripSegmentItemViewModel @Inject internal constructor(
             drawable?.let {
                 val d = it.mutate()
                 d.setColorFilter(segmentCircleColor, PorterDuff.Mode.ADD)
-                icon.set(d)
+                icon.value = d
             }
         }
     }
@@ -233,8 +233,8 @@ class TripSegmentItemViewModel @Inject internal constructor(
                     else -> true
                 }
 
-            backgroundCircleTint.set(lineColor)
-            showBackgroundCircle.set(true)
+            backgroundCircleTint.value = lineColor
+            showBackgroundCircle.value = true
 
             return tintWhite
         }
@@ -246,7 +246,7 @@ class TripSegmentItemViewModel @Inject internal constructor(
         if ((this.correctItemType() == ITEM_EXTERNAL_BOOKING && viewType == SegmentViewType.MOVING)
             || (this.correctItemType() == ITEM_NEARBY && this.booking?.externalActions?.isNotEmpty() == true)
         ) {
-            externalAction.set(this.booking!!.title)
+            externalAction.value = this.booking?.title
         }
     }
 
@@ -270,7 +270,7 @@ class TripSegmentItemViewModel @Inject internal constructor(
                 Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
             )
 
-            if (delay > 0) { // Late
+            if (delay > 60) { // Late
                 startTimeSpannable.setSpan(
                     ForegroundColorSpan(ContextCompat.getColor(context, R.color.tripKitError)),
                     0,
@@ -278,7 +278,7 @@ class TripSegmentItemViewModel @Inject internal constructor(
                     Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
                 )
 
-            } else if (delay < 0) { // Early
+            } else if (delay < -60) { // Early
                 startTimeSpannable.setSpan(
                     ForegroundColorSpan(
                         ContextCompat.getColor(
@@ -303,8 +303,8 @@ class TripSegmentItemViewModel @Inject internal constructor(
                     Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
                 )
             }
-            this.startTime.set(startTimeSpannable)
-            this.showStartTime.set(true)
+            this.startTime.value = startTimeSpannable
+            this.showStartTime.value = true
 
             if (endTime != null) {
                 // This is not the end time, but rather the timetable time for realtime services. It is shown
@@ -316,18 +316,18 @@ class TripSegmentItemViewModel @Inject internal constructor(
                     endTimeSpannable.length,
                     Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
                 )
-                this.endTime.set(endTimeSpannable)
-                this.showEndTime.set(true)
+                this.endTime.value = endTimeSpannable
+                this.showEndTime.value = true
             }
         } else {
             if (startTime != null) {
-                this.startTime.set(SpannableString(startTime))
-                this.showStartTime.set(true)
+                this.startTime.value = SpannableString(startTime)
+                this.showStartTime.value = true
             }
 
             if (endTime != null && endTime != startTime) {
-                this.endTime.set(SpannableString(endTime))
-                this.showEndTime.set(true)
+                this.endTime.value = SpannableString(endTime)
+                this.showEndTime.value = true
             }
         }
     }
@@ -338,14 +338,14 @@ class TripSegmentItemViewModel @Inject internal constructor(
     ): Int {
         var segmentCircleColor = Color.TRANSPARENT
         if (topConnectionColor != Color.TRANSPARENT) {
-            this.topLineTint.set(topConnectionColor)
-            this.showTopLine.set(true)
+            this.topLineTint.value = topConnectionColor
+            this.showTopLine.value = true
             segmentCircleColor = topConnectionColor
         }
 
         if (bottomConnectionColor != Color.TRANSPARENT) {
-            this.bottomLineTint.set(bottomConnectionColor)
-            this.showBottomLine.set(true)
+            this.bottomLineTint.value = bottomConnectionColor
+            this.showBottomLine.value = true
             if (segmentCircleColor != Color.TRANSPARENT) {
                 segmentCircleColor = Color.GRAY
             } else {
@@ -410,7 +410,7 @@ class TripSegmentItemViewModel @Inject internal constructor(
     }
 
     fun onAlertClick(view: View) {
-        alertsClicked.accept(alerts.get())
+        alertsClicked.accept(alerts.value)
     }
 
     fun onExternalActionClicked(view: View) {
@@ -421,10 +421,10 @@ class TripSegmentItemViewModel @Inject internal constructor(
 
     private fun showSegmentIcon(segment: TripSegment, tintWhite: Boolean) {
         if (segment.getType() == SegmentType.ARRIVAL || segment.getType() == SegmentType.DEPARTURE) {
-            icon.set(ContextCompat.getDrawable(context, R.drawable.v4_ic_map_location))
+            icon.value = ContextCompat.getDrawable(context, R.drawable.v4_ic_map_location)
         } else {
             if (segment.modeInfo == null || segment.modeInfo!!.modeCompat == null) {
-                icon.set(null)
+                icon.value = null
             } else {
                 val url =
                     tripSegmentHelper.getIconUrlForModeInfo(context.resources, segment.modeInfo)
@@ -445,11 +445,11 @@ class TripSegmentItemViewModel @Inject internal constructor(
                     }
                     .observeOn(AndroidSchedulers.mainThread())
                     .doOnComplete {
-                        this.showTicketInfo.set(!segment.ticketURL.isNullOrEmpty())
+                        this.showTicketInfo.value = !segment.ticketURL.isNullOrEmpty()
                     }
                     .subscribe({ drawable:
                                  Drawable ->
-                        icon.set(drawable)
+                        icon.value = drawable
                     }, { e -> Timber.e(e) }).autoClear()
 
             }
