@@ -50,6 +50,7 @@ class GetRealtimeTextTest {
             every { startTimeInSecs } returns 1617187200L
             every { endTimeInSecs } returns -1
             every { realTimeArrival } returns -1
+            every { isCancelled } returns false
         }
 
         val dateTimeZone = DateTimeZone.UTC
@@ -73,6 +74,7 @@ class GetRealtimeTextTest {
             every { startTimeInSecs } returns 1617187200L
             every { endTimeInSecs } returns -1
             every { realTimeArrival } returns -1
+            every { isCancelled } returns false
         }
 
         val dateTimeZone = DateTimeZone.UTC
@@ -94,6 +96,7 @@ class GetRealtimeTextTest {
             every { startTimeInSecs } returns 1617187200L
             every { endTimeInSecs } returns -1
             every { realTimeArrival } returns -1
+            every { isCancelled } returns false
         }
 
         val dateTimeZone = DateTimeZone.UTC
@@ -117,6 +120,7 @@ class GetRealtimeTextTest {
             every { startTimeInSecs } returns 1617187200L
             every { endTimeInSecs } returns -1
             every { realTimeArrival } returns -1
+            every { isCancelled } returns false
 
         }
 
@@ -132,7 +136,7 @@ class GetRealtimeTextTest {
 
         val result = getRealtimeText.execute(dateTimeZone, service)
 
-        assertEquals("5 min early • 10:40" to R.color.tripKitSuccess, result)
+        assertEquals("5 min early • 10:40" to R.color.tripKitWarning, result)
     }
 
     @Test
@@ -145,6 +149,7 @@ class GetRealtimeTextTest {
             every { startTimeInSecs } returns 1617187200L
             every { endTimeInSecs } returns -1
             every { realTimeArrival } returns -1
+            every { isCancelled } returns false
         }
 
         val dateTimeZone = DateTimeZone.UTC

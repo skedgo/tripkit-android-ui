@@ -104,10 +104,10 @@ class TripResultListViewModelTest: MockKTest() {
             execute = false
         )
 
-        assertEquals("Home", viewModel.fromName.get())
-        assertEquals("From Home", viewModel.fromContentDescription.get())
-        assertEquals("Office", viewModel.toName.get())
-        assertEquals("Going to Office", viewModel.toContentDescription.get())
+        assertEquals("Home", viewModel.fromName.value)
+        assertEquals("From Home", viewModel.fromContentDescription.value)
+        assertEquals("Office", viewModel.toName.value)
+        assertEquals("Going to Office", viewModel.toContentDescription.value)
         assertTrue(viewModel.showTransportModeSelection.get())
     }
 
@@ -126,7 +126,7 @@ class TripResultListViewModelTest: MockKTest() {
 
         val viewModelTransportItem = mockk<TripResultTransportItemViewModel>(relaxed = true).apply {
             every { setup(any()) } just Runs
-            every { modeId.get() } returns "bus"
+            every { modeId.value } returns "bus"
             every { clicked } returns PublishRelay.create<Pair<String, Boolean>>()
         }
 
@@ -146,7 +146,7 @@ class TripResultListViewModelTest: MockKTest() {
             execute = false
         )
 
-        assertTrue(viewModel.transportModes.get()?.isNotEmpty() == true)
+        assertTrue(viewModel.transportModes.value?.isNotEmpty() == true)
     }
 
     @Test
