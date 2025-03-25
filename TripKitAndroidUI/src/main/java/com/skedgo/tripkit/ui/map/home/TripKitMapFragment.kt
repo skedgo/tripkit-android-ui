@@ -533,11 +533,13 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
                 )
             )
         }
-        if (position.zoom <= ZoomLevel.ZOOM_VALUE_TO_SHOW_CITIES) {
-            showCities(map!!, regions)
-        } else {
-            removeAllCities()
-        }
+
+        // Commented out to disable removal of added region level markers based on zoom
+//        if (position.zoom <= ZoomLevel.ZOOM_VALUE_TO_SHOW_CITIES) {
+        showCities(map!!, regions)
+//        } else {
+//            removeAllCities()
+//        }
     }
 
     fun moveToLatLng(latLng: com.skedgo.geocoding.LatLng) {
