@@ -140,12 +140,12 @@ class TripResultViewModelTest: MockKTest() {
 
         viewModel.setTripGroup(mockContext, tripGroup, TripGroupClassifier.Classification.NONE)
 
-        assertFalse(viewModel.showMoreTrips.get())
+        assertFalse(viewModel.showMoreTrips.value == true)
 
         viewModel.toggleShowMore()
 
-        assertTrue(viewModel.showMoreTrips.get())
-        assertEquals("Test", viewModel.moreButtonText.get())
+        assertTrue(viewModel.showMoreTrips.value == true)
+        assertEquals("Test", viewModel.moreButtonText.value)
     }
 
     @Test
@@ -188,6 +188,6 @@ class TripResultViewModelTest: MockKTest() {
         assertEquals(tripGroup, viewModel.group)
         assertEquals(displayTrip, viewModel.trip)
         assertFalse(viewModel.badgeVisible.value ?: true)
-        assertEquals(1, viewModel.tripResults.size)
+        assertEquals(1, viewModel.tripResults.value?.size)
     }
 }

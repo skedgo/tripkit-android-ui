@@ -176,8 +176,8 @@ class TripSegmentViewModelTest : MockKTest() {
 
         viewModel.setSegment(trip, segment)
 
-        assert(viewModel.primaryText.get() == "123")
-        assert(viewModel.showPrimary.get())
+        assert(viewModel.primaryText.value == "123")
+        assert(viewModel.showPrimary.value == true)
     }
 
     @Test
@@ -202,7 +202,7 @@ class TripSegmentViewModelTest : MockKTest() {
 
         viewModel.buildSubtitle(trip, segment)
 
-        val subtitle = viewModel.secondaryText.get().toString()
+        val subtitle = viewModel.secondaryText.value.toString()
         assert(subtitle.contains("08:00 AM"))
     }
 }

@@ -1,17 +1,22 @@
 package com.skedgo.tripkit.ui.trippreview.segment
 
 import android.graphics.drawable.Drawable
+import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.skedgo.tripkit.common.model.TransportMode
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
 import io.mockk.*
 import org.junit.After
+import org.junit.Rule
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
 class TripSegmentSummaryItemViewModelTest {
+
+    @get:Rule
+    val instantTaskExecutorRule = InstantTaskExecutorRule()
 
     private lateinit var mockDrawable: Drawable
 
@@ -50,15 +55,15 @@ class TripSegmentSummaryItemViewModelTest {
         )
 
         // Assert
-        assertEquals(123L, viewModel.id.get())
-        assertEquals("Trip Title", viewModel.title.get())
-        assertEquals("Trip Subtitle", viewModel.subTitle.get())
-        assertEquals(mockDrawable, viewModel.icon.get())
-        assertEquals("Trip Description", viewModel.description.get())
-        assertEquals(TransportMode.ID_TAXI, viewModel.modeId.get())
+        assertEquals(123L, viewModel.id.value)
+        assertEquals("Trip Title", viewModel.title.value)
+        assertEquals("Trip Subtitle", viewModel.subTitle.value)
+        assertEquals(mockDrawable, viewModel.icon.value)
+        assertEquals("Trip Description", viewModel.description.value)
+        assertEquals(TransportMode.ID_TAXI, viewModel.modeId.value)
 
         // Taxi mode should not mirror
-        assertFalse(viewModel.isMirrored.get())
+        assertFalse(viewModel.isMirrored.value == true)
     }
 
     @Test
@@ -82,7 +87,7 @@ class TripSegmentSummaryItemViewModelTest {
         )
 
         // Assert
-        assertTrue(viewModel.isMirrored.get())
+        assertTrue(viewModel.isMirrored.value == true)
     }
 
     @Test
@@ -108,6 +113,6 @@ class TripSegmentSummaryItemViewModelTest {
         )
 
         // Assert
-        assertTrue(viewModel.isMirrored.get())
+        assertTrue(viewModel.isMirrored.value == true)
     }
 }

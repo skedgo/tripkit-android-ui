@@ -91,14 +91,14 @@ class TripPreviewHeaderViewModelTest: MockKTest() {
 
         assertEquals(2, viewModel.items.size)
         with(viewModel.items[0]) {
-            assertEquals(vm1.title.get(), title.get())
-            assertEquals(vm1.subTitle.get(), subTitle.get())
-            assertEquals(vm1.description.get(), description.get())
+            assertEquals(vm1.title.value, title.value)
+            assertEquals(vm1.subTitle.value, subTitle.value)
+            assertEquals(vm1.description.value, description.value)
         }
         with(viewModel.items[1]) {
-            assertEquals(vm2.title.get(), title.get())
-            assertEquals(vm2.subTitle.get(), subTitle.get())
-            assertEquals(vm2.description.get(), description.get())
+            assertEquals(vm2.title.value, title.value)
+            assertEquals(vm2.subTitle.value, subTitle.value)
+            assertEquals(vm2.description.value, description.value)
         }
 
         assertEquals(quickBookingSegment, viewModel.quickBookingSegment.value)
