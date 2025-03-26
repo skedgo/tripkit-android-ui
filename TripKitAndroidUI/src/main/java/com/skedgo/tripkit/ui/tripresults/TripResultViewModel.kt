@@ -4,10 +4,6 @@ import android.content.Context
 import android.content.res.Resources
 import android.graphics.drawable.Drawable
 import androidx.core.content.ContextCompat
-import androidx.databinding.ObservableArrayList
-import androidx.databinding.ObservableBoolean
-import androidx.databinding.ObservableField
-import androidx.databinding.ObservableInt
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -32,15 +28,16 @@ class TripResultTripViewModel : ViewModel() {
             field = value
             checkQuickBooking() // Recalculate visibility whenever trip is updated
         }
-    val title = ObservableField<String>()
-    val subtitle = ObservableField<String>()
-    val isMissedPreBooking = ObservableField<Boolean>()
-    val isHideExactTimes = ObservableField<Boolean>()
-    val contentDescription = ObservableField<String>()
+    val title = MutableLiveData<String>()
+    val subtitle = MutableLiveData<String>()
+    val isMissedPreBooking = MutableLiveData<Boolean>()
+    val isHideExactTimes = MutableLiveData<Boolean>()
+    val contentDescription = MutableLiveData<String>()
     var clickFlow: MutableSharedFlow<Trip>? = null
     var quickBookingActionClickFlow: MutableSharedFlow<TripSegment>? = null
     val segments = ArrayList<TripSegmentViewModel>()
-    val weightedScore = ObservableField<String>()
+    val weightedScore = MutableLiveData<String>()
+    val isCancelled = MutableLiveData(false)
 
     private val _hasQuickBooking = MutableLiveData<Boolean>(false)
     val hasQuickBooking: LiveData<Boolean> = _hasQuickBooking
@@ -83,33 +80,29 @@ class TripResultViewModel @Inject constructor(
     // Badge
     private val _badgeDrawable = MutableLiveData<Drawable?>()
     val badgeDrawable: LiveData<Drawable?> = _badgeDrawable
-    //val badgeDrawable = ObservableField<Drawable>()
 
     private val _badgeText = MutableLiveData<String?>()
     val badgeText: LiveData<String?> = _badgeText
-    //val badgeText = ObservableField<String>()
 
     private val _badgeTextColor = MutableLiveData<Int?>()
     val badgeTextColor: LiveData<Int?> = _badgeTextColor
-    //val badgeTextColor = ObservableInt()
 
     private val _badgeVisible = MutableLiveData<Boolean>(false)
     val badgeVisible: LiveData<Boolean> = _badgeVisible
-    //val badgeVisible = ObservableBoolean(false)
 
-    val tripResults = ObservableArrayList<TripResultTripViewModel>()
-    val showMoreTrips = ObservableBoolean(false)
-    val hasTripLabels = ObservableBoolean(true)
+    val tripResults = MutableLiveData<MutableList<TripResultTripViewModel>>()
+    val showMoreTrips = MutableLiveData(false)
+    val hasTripLabels = MutableLiveData(true)
 
     var actionButtonHandler: ActionButtonHandler? = null
 
     // Footer
-    val alternateTripVisible = ObservableBoolean(false)
-    val costVisible = ObservableBoolean(true)
-    val cost = ObservableField<String>()
-    val moreButtonVisible = ObservableBoolean(false)
-    var moreButtonText = ObservableField<String>()
-    var accessibilityLabel = ObservableField<String>()
+    val alternateTripVisible = MutableLiveData(false)
+    val costVisible = MutableLiveData(true)
+    val cost = MutableLiveData<String>()
+    val moreButtonVisible = MutableLiveData(false)
+    var moreButtonText = MutableLiveData<String>()
+    var accessibilityLabel = MutableLiveData<String>()
     var otherTripGroups: List<Trip>? = null
     var classification = TripGroupClassifier.Classification.NONE
 
@@ -130,27 +123,29 @@ class TripResultViewModel @Inject constructor(
     }
 
     fun toggleShowMore() {
-        showMoreTrips.set(!showMoreTrips.get())
+        showMoreTrips.value = !(showMoreTrips.value ?: false)
 
-        if (showMoreTrips.get()) {
+        if (showMoreTrips.value == true) {
             otherTripGroups?.forEach {
                 addTripToList(it)
             }
-            moreButtonText.set(context.resources.getString(R.string.less))
-            moreButtonVisible.set(true)
+            moreButtonText.value = context.resources.getString(R.string.less)
+            moreButtonVisible.value = true
         } else {
             otherTripGroups?.let { otherTrips ->
                 removeFromTripList(otherTrips.map { tripToTripResultTripViewModel(it) })
             }
-            moreButtonText.set(context.resources.getString(R.string.more))
-            moreButtonVisible.set(true)
+            moreButtonText.value = context.resources.getString(R.string.more)
+            moreButtonVisible.value = true
         }
 
         sortTripResults()
     }
 
     private fun sortTripResults() {
-        tripResults.sortBy { it.trip?.startTimeInSecs ?: Long.MAX_VALUE }
+        tripResults.value = tripResults.value?.sortedBy {
+            it.trip?.startTimeInSecs ?: Long.MAX_VALUE
+        }?.toMutableList()
     }
 
     override fun equals(other: Any?): Boolean {
@@ -163,7 +158,7 @@ class TripResultViewModel @Inject constructor(
             if (value.bookingHashCode != other.trip.segmentList[index].bookingHashCode) return false
         }
 
-        if (moreButtonText.get() != other.moreButtonText.get()) {
+        if (moreButtonText.value != other.moreButtonText.value) {
             return false
         }
         return true
@@ -174,8 +169,7 @@ class TripResultViewModel @Inject constructor(
         tripgroup: TripGroup,
         classification: TripGroupClassifier.Classification?
     ) {
-        tripResults.removeAll { true }
-        tripResults.clear()
+        tripResults.value = mutableListOf()
         group = tripgroup
         trip = tripgroup.displayTrip!!
         otherTripGroups = tripgroup.trips?.filterNot { it.uuid == trip.uuid }
@@ -208,13 +202,13 @@ class TripResultViewModel @Inject constructor(
                     actionButtonHandler?.getPrimaryAction(context, trip)
 
                 actionButtonText?.let {
-                    moreButtonText = actionButtonText
-                    moreButtonVisible.set(true)
+                    moreButtonText = it
+                    moreButtonVisible.value = true
                 }
             }
         } else {
-            moreButtonText.set(context.resources.getString(R.string.more))
-            moreButtonVisible.set(true)
+            moreButtonText.value = context.resources.getString(R.string.more)
+            moreButtonVisible.value = true
         }
 
         trip.availabilityInfo?.let { _availabilityInfo.postValue(it) }
@@ -222,25 +216,33 @@ class TripResultViewModel @Inject constructor(
     }
 
     private fun addTripToList(trip: Trip) {
-        tripResults.add(tripToTripResultTripViewModel(trip))
+        val results = tripResults.value.orEmpty().toMutableList()
+        results.add(tripToTripResultTripViewModel(trip))
+        tripResults.value = results
     }
 
     private fun removeFromTripList(trips: List<TripResultTripViewModel>) {
-        tripResults.removeAll { trips.any { toRemove -> it.trip == toRemove.trip } }
+        val results = tripResults.value.orEmpty().toMutableList()
+        results.removeAll { trips.any { toRemove -> it.trip == toRemove.trip } }
+        tripResults.value = results
     }
 
     private fun tripToTripResultTripViewModel(trip: Trip): TripResultTripViewModel {
         val newVm = TripResultTripViewModel()
         newVm.trip = trip
+        newVm.isCancelled.value = trip.getAvailability() == Availability.Cancelled
         newVm.clickFlow = clickFlow
         newVm.quickBookingActionClickFlow = quickBookingActionClickFlow
-        newVm.title.set(buildTitle(context, trip))
-        newVm.weightedScore.set(trip.weightedScore.toString())
-        newVm.subtitle.set(buildSubtitle(context, trip))
-        newVm.contentDescription.set(buildContentDescription(trip))
-        newVm.isMissedPreBooking.set(trip.segmentList?.first()?.availability.equals(Availability.MissedPrebookingWindow.value))
-        newVm.isHideExactTimes.set(trip.hideExactTimes || trip.segmentList.any { it.isHideExactTimes })
-        accessibilityLabel.set(getAccessibilityLabel() ?: context.getString(R.string.book))
+        newVm.title.value = buildTitle(context, trip)
+        newVm.weightedScore.value = trip.weightedScore.toString()
+        newVm.subtitle.value = buildSubtitle(context, trip)
+        newVm.contentDescription.value = buildContentDescription(trip)
+        newVm.isMissedPreBooking.value =
+            trip.segmentList?.first()?.availability.equals(Availability.MissedPrebookingWindow.value)
+        newVm.isHideExactTimes.value =
+            trip.hideExactTimes || trip.segmentList.any { it.isHideExactTimes }
+        accessibilityLabel.value =
+            getAccessibilityLabel() ?: context.getString(R.string.book)
         setSegments(newVm.segments, trip)
 
         return newVm
@@ -410,10 +412,10 @@ class TripResultViewModel @Inject constructor(
             builder.append(resources.getString(R.string.no_co_2));
         }
 
-        cost.set(builder.toString())
+        cost.value = builder.toString()
 
-        costVisible.set(!globalConfigs.hideTripMetrics())
-        hasTripLabels.set(globalConfigs.hasTripLabels())
+        costVisible.value = !globalConfigs.hideTripMetrics()
+        hasTripLabels.value = globalConfigs.hasTripLabels()
     }
 
     private fun setMoneyCost() {

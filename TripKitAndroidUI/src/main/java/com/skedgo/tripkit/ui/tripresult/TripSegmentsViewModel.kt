@@ -24,6 +24,8 @@ import com.skedgo.tripkit.common.model.location.Location
 import com.skedgo.tripkit.common.model.realtimealert.RealtimeAlert
 import com.skedgo.tripkit.common.util.TimeUtils
 import com.skedgo.tripkit.datetime.PrintTime
+import com.skedgo.tripkit.routing.Availability
+import com.skedgo.tripkit.routing.Availability.Cancelled
 import com.skedgo.tripkit.routing.GetOffAlertCache
 import com.skedgo.tripkit.routing.MessageType
 import com.skedgo.tripkit.routing.SegmentType
@@ -101,8 +103,8 @@ class TripSegmentsViewModel @Inject internal constructor(
         const val TRIP_SUMMARY_DEBOUNCE = 500L
     }
 
-    private val segmentViewModels: MutableList<TripSegmentItemViewModel> = ArrayList()
-    val buttons = ObservableArrayList<ActionButtonViewModel>()
+    private val segmentViewModels: MutableList<TripSegmentItemViewModel> = mutableListOf()
+    val buttons = MutableLiveData<MutableList<ActionButtonViewModel>>(mutableListOf())
     val buttonsBinding: ItemBinding<ActionButtonViewModel> by lazy {
         ItemBinding.of<ActionButtonViewModel>(BR.viewModel, R.layout.trip_segment_action_button)
             .bindExtra(BR.listener, this)
@@ -132,8 +134,9 @@ class TripSegmentsViewModel @Inject internal constructor(
                 )
         )
     }
-    val showCloseButton = ObservableBoolean(false)
-    val isHideExactTimes = ObservableBoolean(false)
+    val showCloseButton = MutableLiveData(false)
+    val isHideExactTimes = MutableLiveData(false)
+    val isCancelled = MutableLiveData(false)
 
     internal val onStreetViewTapped = PublishSubject.create<Location>()
     private val creditSourcesOfDataViewModel = BehaviorRelay.create<CreditSourcesOfDataViewModel>()
@@ -146,8 +149,8 @@ class TripSegmentsViewModel @Inject internal constructor(
     val segmentClicked = PublishRelay.create<TripSegment>()
     val externalActionClicked = PublishRelay.create<TripSegment>()
     val ticketInfoClicked = PublishRelay.create<String>()
-    var durationTitle = ObservableField<String>()
-    var arriveAtTitle = ObservableField<String>()
+    var durationTitle = MutableLiveData<String>()
+    var arriveAtTitle = MutableLiveData<String>()
     val locationLabel = PublishRelay.create<String>()
     private var actionButtonHandler: ActionButtonHandler? = null
     private var trip: Trip? = null
@@ -185,7 +188,8 @@ class TripSegmentsViewModel @Inject internal constructor(
 
     private val tripSummaryStream = MutableSharedFlow<List<TripSegmentSummaryItemViewModel>>()
 
-    val summaryItems: ObservableArrayList<TripSegmentSummaryItemViewModel> = ObservableArrayList()
+    val summaryItems: MutableLiveData<MutableList<TripSegmentSummaryItemViewModel>> =
+        MutableLiveData(mutableListOf())
     val summaryItemsBinding: ItemBinding<TripSegmentSummaryItemViewModel> by lazy {
         ItemBinding.of<TripSegmentSummaryItemViewModel>(
             BR.viewModel,
@@ -198,8 +202,7 @@ class TripSegmentsViewModel @Inject internal constructor(
             .debounce(TRIP_SUMMARY_DEBOUNCE)
             .flowOn(Dispatchers.IO)
             .onEach { tripSummaryItems ->
-                summaryItems.clear()
-                summaryItems.addAll(tripSummaryItems.sortedBy { it.id.get() })
+                summaryItems.value = tripSummaryItems.sortedBy { it.id.value }.toMutableList()
             }
             .catch { exception ->
                 Timber.e(exception)
@@ -263,14 +266,15 @@ class TripSegmentsViewModel @Inject internal constructor(
             actionButtonHandler?.let { handler ->
                 val actions =
                     handler.getActions(context, tripGroup.displayTrip!!).distinctBy { it.text }
-                if (buttons.size != actions.size) {
-                    buttons.clear()
+                if (buttons.value.orEmpty().size != actions.size) {
+                    val newButtons = mutableListOf<ActionButtonViewModel>()
                     actions.forEach {
-                        buttons.add(ActionButtonViewModel(context, it))
+                        newButtons.add(ActionButtonViewModel(context, it))
                     }
+                    buttons.value = newButtons
                 } else {
                     actions.forEachIndexed { i, button ->
-                        buttons[i].update(context, button)
+                        buttons.value?.get(i)?.update(context, button)
                     }
                 }
             }
@@ -281,28 +285,30 @@ class TripSegmentsViewModel @Inject internal constructor(
         val trip = tripGroup.trips?.firstOrNull { it.tripId == tripId } ?: tripGroup.displayTrip
         if (trip == null || trip.from == null || trip.to == null) return
         if (trip.isDepartureTimeFixed()) {
-            durationTitle.set("${printTime.print(trip.startDateTime)} - ${printTime.print(trip.endDateTime)}")
-            arriveAtTitle.set(formatDuration(context, trip.startTimeInSecs, trip.endTimeInSecs))
+            durationTitle.value =
+                "${printTime.print(trip.startDateTime)} - ${printTime.print(trip.endDateTime)}"
+            arriveAtTitle.value =
+                formatDuration(context, trip.startTimeInSecs, trip.endTimeInSecs)
         } else {
-            durationTitle.set(formatDuration(context, trip.startTimeInSecs, trip.endTimeInSecs))
+            durationTitle.value =
+                formatDuration(context, trip.startTimeInSecs, trip.endTimeInSecs)
             if (!trip.queryIsLeaveAfter) {
-                arriveAtTitle.set(
+                arriveAtTitle.value =
                     context.resources.getString(
                         R.string.departs__pattern,
                         printTime.print(trip.startDateTime)
                     ).capitalize()
-                )
             } else {
-                arriveAtTitle.set(
+                arriveAtTitle.value =
                     context.resources.getString(
                         R.string.arrives__pattern,
                         printTime.print(trip.endDateTime)
                     ).capitalize()
-                )
             }
         }
 
-        isHideExactTimes.set(trip.hideExactTimes || trip.segmentList.any { it.isHideExactTimes })
+        isHideExactTimes.value =
+            trip.hideExactTimes || trip.segmentList.any { it.isHideExactTimes }
     }
     // TODO This function is duplicated in TripResultViewModel
     /**
@@ -381,13 +387,15 @@ class TripSegmentsViewModel @Inject internal constructor(
         if (tripSegment.getType() == SegmentType.ARRIVAL) {
             topConnectionColor = connectionColor
         }
+
         viewModel.setupSegment(
             viewType = TripSegmentItemViewModel.SegmentViewType.TERMINAL,
             title = processedText(tripSegment, tripSegment.action),
             startTime = time,
             lineColor = connectionColor,
             topConnectionColor = topConnectionColor,
-            bottomConnectionColor = bottomConnectionColor
+            bottomConnectionColor = bottomConnectionColor,
+            isCancelled = tripSegment.availability.equals(Cancelled.value, ignoreCase = true)
         )
     }
 
@@ -517,7 +525,8 @@ class TripSegmentsViewModel @Inject internal constructor(
             hasRealtime = (realtimeTripSegment != null),
             topConnectionColor = tripSegment.lineColor(),
             bottomConnectionColor = nextSegment?.lineColor() ?: Color.TRANSPARENT,
-            isStationaryItem = true
+            isStationaryItem = true,
+            isCancelled = tripSegment.availability.equals(Cancelled.value, ignoreCase = true)
         )
     }
 
@@ -530,7 +539,8 @@ class TripSegmentsViewModel @Inject internal constructor(
             viewType = TripSegmentItemViewModel.SegmentViewType.MOVING,
             title = processedText(tripSegment, tripSegment.action),
             description = tripSegment.getDisplayNotes(context, false),
-            lineColor = tripSegment.lineColor()
+            lineColor = tripSegment.lineColor(),
+            isCancelled = tripSegment.availability.equals(Cancelled.value, ignoreCase = true)
         )
     }
 
@@ -540,6 +550,7 @@ class TripSegmentsViewModel @Inject internal constructor(
         val trip = tripGroup.trips?.firstOrNull { it.tripId == tripId } ?: tripGroup.displayTrip
         if (trip != null) {
             this.trip = trip
+            isCancelled.value = trip.getAvailability() == Cancelled
             val tripSegments = trip.segmentList
             segmentViewModels.clear()
 
@@ -635,7 +646,7 @@ class TripSegmentsViewModel @Inject internal constructor(
             ).map { bitmapDrawable ->
                 segment.createSummaryIcon(context, bitmapDrawable)
             }.subscribe({ drawable ->
-                if (tripSegmentSummaryItem.none { it.id.get() == segment.segmentId }) {
+                if (tripSegmentSummaryItem.none { it.id.value == segment.segmentId }) {
                     tripSegmentSummaryItem.add(
                         segment.generateTripPreviewHeader(context, drawable, printTime)
                             .getSummaryItem()
@@ -766,15 +777,17 @@ class TripSegmentsViewModel @Inject internal constructor(
                 when (result) {
                     is com.skedgo.tripkit.utils.async.Result.Loading -> {
                         withContext(Dispatchers.Main) {
-                            buttons.firstOrNull { it.tag == ActionButtonHandler.ACTION_EXTERNAL_SHOW_TICKET }
-                                ?.showSpinner(true)
+                            buttons.value?.firstOrNull {
+                                it.tag == ActionButtonHandler.ACTION_EXTERNAL_SHOW_TICKET
+                            }?.showSpinner(true)
                         }
                     }
 
                     is com.skedgo.tripkit.utils.async.Result.Success -> {
                         withContext(Dispatchers.Main) {
-                            buttons.firstOrNull { it.tag == ActionButtonHandler.ACTION_EXTERNAL_SHOW_TICKET }
-                                ?.showSpinner(false)
+                            buttons.value?.firstOrNull {
+                                it.tag == ActionButtonHandler.ACTION_EXTERNAL_SHOW_TICKET
+                            }?.showSpinner(false)
                             val tickets = result.data
 
                             val formatter = DateTimeFormatter.ISO_DATE_TIME
@@ -793,8 +806,9 @@ class TripSegmentsViewModel @Inject internal constructor(
 
                     is com.skedgo.tripkit.utils.async.Result.Error -> {
                         withContext(Dispatchers.Main) {
-                            buttons.firstOrNull { it.tag == ActionButtonHandler.ACTION_EXTERNAL_SHOW_TICKET }
-                                ?.showSpinner(false)
+                            buttons.value?.firstOrNull {
+                                it.tag == ActionButtonHandler.ACTION_EXTERNAL_SHOW_TICKET
+                            }?.showSpinner(false)
                         }
                     }
                 }

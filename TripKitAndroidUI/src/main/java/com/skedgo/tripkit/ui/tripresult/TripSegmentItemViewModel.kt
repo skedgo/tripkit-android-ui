@@ -106,6 +106,9 @@ class TripSegmentItemViewModel @Inject internal constructor(
     private val _showBicycleAccessible = MutableLiveData(false)
     val showBicycleAccessible: LiveData<Boolean> = _showBicycleAccessible
 
+    val cancelledMessage = MutableLiveData<String>()
+    val isCancelled = MutableLiveData(false)
+
     private var isStationaryItem = false
 
     //TODO break this big function into small functions
@@ -121,7 +124,10 @@ class TripSegmentItemViewModel @Inject internal constructor(
         topConnectionColor: Int = lineColor,
         bottomConnectionColor: Int = lineColor,
         isStationaryItem: Boolean = false,
+        isCancelled: Boolean = false
     ) {
+        this.isCancelled.value = isCancelled
+        this.cancelledMessage.value = "Service has been cancelled."
         this.isStationaryItem = isStationaryItem
         tripSegment?.let { segment ->
             this.title.value = title

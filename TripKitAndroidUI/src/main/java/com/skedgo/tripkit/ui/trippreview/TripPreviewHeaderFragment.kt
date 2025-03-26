@@ -108,7 +108,7 @@ class TripPreviewHeaderFragment : Fragment() {
         layoutManager: LinearLayoutManager
     ) {
         // Find the position of the item where selected = true
-        val selectedItemPosition = viewModel.items.indexOfFirst { it.selected.get() }
+        val selectedItemPosition = viewModel.items.indexOfFirst { it.selected.value ?: false }
         // Check if the item with the selected flag is visible
         if (selectedItemPosition != -1) {
             val firstVisiblePosition = layoutManager.findFirstVisibleItemPosition()

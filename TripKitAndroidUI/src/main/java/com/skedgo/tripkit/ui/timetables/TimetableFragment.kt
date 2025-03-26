@@ -343,6 +343,7 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
         savedInstanceState: Bundle?
     ): View {
         binding = TimetableFragmentBinding.inflate(layoutInflater)
+        binding.lifecycleOwner = viewLifecycleOwner
 
         val layoutManager = FlexboxLayoutManager(context)
         layoutManager.flexDirection = FlexDirection.ROW

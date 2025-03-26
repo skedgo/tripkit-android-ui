@@ -3,6 +3,7 @@ package com.skedgo.tripkit.ui.trippreview.segment
 import android.graphics.drawable.Drawable
 import androidx.databinding.ObservableBoolean
 import androidx.databinding.ObservableField
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.skedgo.tripkit.common.model.TransportMode
 import com.skedgo.tripkit.ui.utils.TapStateFlow
@@ -20,30 +21,30 @@ class TripSegmentSummaryItemViewModel : ViewModel() {
             isRightToLeft: Boolean
         ): TripSegmentSummaryItemViewModel =
             TripSegmentSummaryItemViewModel().apply {
-                title.set(summary.title)
-                subTitle.set(summary.subTitle)
-                icon.set(summary.icon)
-                id.set(summary.id)
-                description.set(summary.description)
-                modeId.set(summary.modeId)
+                title.value = summary.title.orEmpty()
+                subTitle.value = summary.subTitle.orEmpty()
+                icon.value = summary.icon
+                id.value = summary.id
+                description.value = summary.description
+                modeId.value = summary.modeId
 
                 if (summary.modeId != TransportMode.ID_TAXI &&
                     TransportMode.getLocalIconResId(summary.modeId) != 0 ||
                     summary.modeId == "me_car-r"
                 ) {
-                    isMirrored.set(isRightToLeft)
+                    isMirrored.value = isRightToLeft
                 }
             }
     }
 
-    val id = ObservableField<Long>()
-    val title = ObservableField<String>()
-    val subTitle = ObservableField<String>()
-    val icon = ObservableField<Drawable>()
-    val selected = ObservableBoolean(false)
-    val description = ObservableField<String>()
-    val modeId = ObservableField<String>()
-    val isMirrored = ObservableBoolean(false)
+    val id = MutableLiveData<Long?>()
+    val title = MutableLiveData<String>()
+    val subTitle = MutableLiveData<String>()
+    val icon = MutableLiveData<Drawable?>()
+    val selected = MutableLiveData(false)
+    val description = MutableLiveData<String?>()
+    val modeId = MutableLiveData<String?>()
+    val isMirrored = MutableLiveData(false)
 
     val itemClick = TapStateFlow.create { this }
 }

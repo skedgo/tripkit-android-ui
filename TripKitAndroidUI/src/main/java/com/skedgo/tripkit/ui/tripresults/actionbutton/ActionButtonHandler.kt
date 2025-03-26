@@ -2,7 +2,7 @@ package com.skedgo.tripkit.ui.tripresults.actionbutton
 
 import android.content.Context
 import androidx.annotation.DrawableRes
-import androidx.databinding.ObservableField
+import androidx.lifecycle.MutableLiveData
 import com.skedgo.tripkit.common.model.location.Location
 import com.skedgo.tripkit.routing.Trip
 import com.skedgo.tripkit.routing.TripSegment
@@ -56,10 +56,10 @@ open class ActionButtonHandler {
     /**
     Given a trip, provide an action string, or return NULL if the action button should not be shown.
      */
-    open fun getPrimaryAction(context: Context, trip: Trip): ObservableField<String>? {
+    open fun getPrimaryAction(context: Context, trip: Trip): MutableLiveData<String>? {
         val foundSegment = segmentSearch(trip)
         val type = foundSegment?.correctItemType()
-        val result = ObservableField<String>()
+        val result = MutableLiveData<String>()
         if (type == ITEM_SERVICE) {
             // TODO: More & Less button to expand the list of extra services
 //            result.set(context.getString(R.string.view_times))
@@ -67,12 +67,12 @@ open class ActionButtonHandler {
         } else if (type == ITEM_QUICK_BOOKING
             || type == ITEM_EXTERNAL_BOOKING
         ) {
-            result.set(foundSegment.booking?.title)
+            result.value = foundSegment.booking?.title
             return result
         } else {
             val mainSegment = trip.getMainTripSegment()
             if (mainSegment != null && mainSegment.miniInstruction != null && mainSegment.miniInstruction?.instruction != null) {
-                result.set(mainSegment.miniInstruction?.instruction)
+                result.value = mainSegment.miniInstruction?.instruction
                 return result
             }
         }

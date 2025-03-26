@@ -172,6 +172,7 @@ class TripResultListFragment : BaseTripKitFragment() {
         previouslyInitialized = ::binding.isInitialized
 
         binding = TripResultListFragmentBinding.inflate(layoutInflater)
+        binding.lifecycleOwner = viewLifecycleOwner
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
 
