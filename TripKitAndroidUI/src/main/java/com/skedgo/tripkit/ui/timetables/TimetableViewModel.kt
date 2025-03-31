@@ -240,11 +240,7 @@ class TimetableViewModel @Inject constructor(
                 this.setService(_currentServiceTripId ?: "", it, timeZone)
                 this.onItemClick.observable.observeOn(AndroidSchedulers.mainThread())
                     .subscribeWithErrorHandling { entry ->
-//                            if (action.isNotEmpty()) {
-//
-//                            } else {
                         timetableEntryChosen.accept(entry)
-//                            }
                     }
             }
         }
@@ -335,7 +331,8 @@ class TimetableViewModel @Inject constructor(
         servicesVMs
             .ignoreNetworkErrors()
             .subscribe({
-                scrollToNow.accept(getFirstNowPosition(it))
+                // To disable auto scrolling
+                //scrollToNow.accept(getFirstNowPosition(it))
             }, {
                 if(BuildConfig.DEBUG) it.printStackTrace()
             }).autoClear()
