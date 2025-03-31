@@ -30,6 +30,9 @@ import kotlin.math.min
  * @author Adrian Schoenig
  */
 object TripGoStyleKit {
+
+    private const val RAD_TO_DEG = 180f / Math.PI.toFloat()
+
     @Synchronized
     fun drawIconbikeshare(canvas: Canvas) {
         drawIconbikeshare(canvas, RectF(0f, 0f, 40f, 40f), AspectFit)
@@ -190,7 +193,7 @@ object TripGoStyleKit {
 
         // Local Variables
         val fillStart = if (fraction == 1f) 0f else asin((fraction * 2f - 1f).toDouble())
-            .toFloat() * 180f / Math.PI.toFloat()
+            .toFloat() * RAD_TO_DEG
         val frame = RectF(borderWidth, borderWidth, borderWidth + length, borderWidth + length)
         val fillColor =
             if (fraction > 0.66f) fullColor else (if (fraction > 0.33f) normalColor else emptyColor)
@@ -201,7 +204,7 @@ object TripGoStyleKit {
             borderWidth + length * 0.125f + length * 0.75f
         )
         val fillEnd = if (fraction == 1f) 1f else 180f - asin((fraction * 2f - 1f).toDouble())
-            .toFloat() * 180f / Math.PI.toFloat()
+            .toFloat() * RAD_TO_DEG
 
         // Background
         val backgroundRect = CacheForBikeShareMap.backgroundRect
@@ -434,7 +437,7 @@ object TripGoStyleKit {
 
         // Local Variables
         val fillStart = if (fraction == 1f) 0f else asin((fraction * 2f - 1f).toDouble())
-            .toFloat() * 180f / Math.PI.toFloat()
+            .toFloat() * RAD_TO_DEG
         val frame = RectF(borderWidth, borderWidth, borderWidth + length, borderWidth + length)
         val fillColor =
             if (fraction > 0.66f) fullColor else (if (fraction > 0.33f) normalColor else emptyColor)
@@ -445,7 +448,7 @@ object TripGoStyleKit {
             borderWidth + length * 0.125f + length * 0.75f
         )
         val fillEnd = if (fraction == 1f) 1f else 180f - asin((fraction * 2f - 1f).toDouble())
-            .toFloat() * 180f / Math.PI.toFloat()
+            .toFloat() * RAD_TO_DEG
 
         // Background
         val backgroundRect = CacheForCarShareMap.backgroundRect

@@ -1,5 +1,6 @@
 package com.skedgo.tripkit.ui.geocoding
 
+import com.skedgo.TripKit
 import com.skedgo.geocoding.GCFoursquareResult
 import com.skedgo.tripkit.common.model.location.Location
 import org.json.JSONArray
@@ -139,6 +140,9 @@ class FoursquareGeocoder(input: String, nearbyLat: Double, nearbyLon: Double) {
     )
     private val foursquareUrl: URL
         get() {
+            val tripKitConfigs = TripKit.getInstance().configs()
+            val fourSquareKey = tripKitConfigs.fourSquareKeyProvider()?.call()
+
             val date = Date()
             val simpleDateFormat = SimpleDateFormat("yyyyMMdd", Locale.US)
             val dateString = simpleDateFormat.format(date)
@@ -149,15 +153,9 @@ class FoursquareGeocoder(input: String, nearbyLat: Double, nearbyLon: Double) {
                 sb.append("-33.892387,151.187315") //sydney
             }
             sb.append("&query=" + URLEncoder.encode(input, "utf8"))
-            sb.append(("&client_id=" + FOURSQUARE_CLIENT_ID))
-            sb.append(("&client_secret=" + FOURSQUARE_CLIENT_SECRET))
+            sb.append(("&client_id=" + fourSquareKey?.clientId))
+            sb.append(("&client_secret=" + fourSquareKey?.clientSecret))
             sb.append("&v=").append(dateString)
             return URL(sb.toString())
         }
-
-    companion object {
-        private const val FOURSQUARE_CLIENT_ID = "0QZSSYNBJL1SC3KG45OIO41PIMQIHEB10V2HBSBMUGLZMVYZ"
-        private const val FOURSQUARE_CLIENT_SECRET =
-            "NZJOMT2ULWYDOJCN0UHUSIXWALP2AQ3NI4WXY5X0LKEY5HNR"
-    }
 }

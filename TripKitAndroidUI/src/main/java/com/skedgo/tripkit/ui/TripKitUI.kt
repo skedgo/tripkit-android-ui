@@ -129,7 +129,6 @@ import javax.inject.Singleton
         PrioritiesRepositoryModule::class,
         GetRoutingConfigModule::class,
         BookingModule::class,
-        SchedulerFactoryModule::class,
         WaypointsModule::class,
         FavoriteTripsModule::class,
         FavoritesModule::class,
@@ -219,7 +218,6 @@ abstract class TripKitUI {
             val isDebuggable = (0 != (context.applicationInfo.flags
                 and ApplicationInfo.FLAG_DEBUGGABLE) || BuildConfig.DEBUG)
             return builder().context(context)
-
                 .debuggable(isDebuggable)
                 .baseUrlAdapterFactory { repository.server }
                 .userTokenProvider {
