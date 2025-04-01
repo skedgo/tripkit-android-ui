@@ -32,10 +32,10 @@ import com.skedgo.rxtry.subscribeWithErrorHandling
 import com.skedgo.tripkit.AndroidGeocoder
 import com.skedgo.tripkit.TripKitConstants.Companion.PREF_NAME_APP
 import com.skedgo.tripkit.account.data.Polygon
+import com.skedgo.tripkit.common.model.TransportMode
 import com.skedgo.tripkit.common.model.location.Location
 import com.skedgo.tripkit.common.model.region.Region
 import com.skedgo.tripkit.common.model.region.Region.City
-import com.skedgo.tripkit.common.model.TransportMode
 import com.skedgo.tripkit.data.regions.RegionService
 import com.skedgo.tripkit.tripplanner.NonCurrentType
 import com.skedgo.tripkit.tripplanner.PinUpdate
@@ -232,7 +232,8 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
         if (context?.getVersionCode() == 75L && !prefs.getBoolean(
                 APP_PREF_CLEAR_CAR_PODS_ONCE,
                 false
-            )) {
+            )
+        ) {
             viewModel.clearCarPods()
             prefs.edit().putBoolean(APP_PREF_CLEAR_CAR_PODS_ONCE, true).apply()
         }
@@ -295,12 +296,13 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
             }
             .addTo(autoDisposable)
 
-        if(viewModel.showMarkers.get()) {
+        if (viewModel.showMarkers.get()) {
             loadMarkers()
         }
 
         if (!requireContext().isNetworkConnected() &&
-            appPreferences.getBoolean(APP_PREF_DEACTIVATED, false)) {
+            appPreferences.getBoolean(APP_PREF_DEACTIVATED, false)
+        ) {
             appDeactivatedListener?.invoke()
         }
     }
@@ -405,7 +407,8 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
         if (type == 0) {
 
             if (pinnedOriginLocationOnClickMarker != null &&
-                pinnedOriginLocationOnClickMarker?.isVisible == true) {
+                pinnedOriginLocationOnClickMarker?.isVisible == true
+            ) {
                 removePinnedLocationMarker(listOf(pinnedOriginLocationOnClickMarker!!))
             }
 
@@ -421,7 +424,8 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
         } else {
 
             if (pinnedDepartureLocationOnClickMarker != null &&
-                pinnedDepartureLocationOnClickMarker?.isVisible == true) {
+                pinnedDepartureLocationOnClickMarker?.isVisible == true
+            ) {
                 removePinnedLocationMarker(listOf(pinnedDepartureLocationOnClickMarker!!))
             }
 
@@ -437,7 +441,8 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
         }
 
         if ((pinnedOriginLocationOnClickMarker != null && pinnedOriginLocationOnClickMarker!!.isVisible)
-            && pinnedDepartureLocationOnClickMarker != null && pinnedDepartureLocationOnClickMarker!!.isVisible) {
+            && pinnedDepartureLocationOnClickMarker != null && pinnedDepartureLocationOnClickMarker!!.isVisible
+        ) {
             zoomOuToShowMarkers(
                 pinnedOriginLocationOnClickMarker!!,
                 pinnedDepartureLocationOnClickMarker!!
@@ -534,12 +539,11 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
             )
         }
 
-        // Commented out to disable removal of added region level markers based on zoom
-//        if (position.zoom <= ZoomLevel.ZOOM_VALUE_TO_SHOW_CITIES) {
-        showCities(map!!, regions)
-//        } else {
-//            removeAllCities()
-//        }
+        if (position.zoom <= ZoomLevel.ZOOM_VALUE_TO_SHOW_CITIES) {
+            showCities(map!!, regions)
+        } else {
+            removeAllCities()
+        }
     }
 
     fun moveToLatLng(latLng: com.skedgo.geocoding.LatLng) {
