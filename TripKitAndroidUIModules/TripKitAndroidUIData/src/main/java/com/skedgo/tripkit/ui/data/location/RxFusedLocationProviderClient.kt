@@ -14,6 +14,10 @@ import io.reactivex.Flowable
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers.io
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.mapNotNull
 import java.lang.ref.WeakReference
 
 open class RxFusedLocationProviderClient(
@@ -81,4 +85,34 @@ open class RxFusedLocationProviderClient(
             }
             .subscribeOn(io())
             .observeOn(AndroidSchedulers.mainThread())
+
+    open fun requestLocationStreamFlow(request: LocationRequest): Flow<Location> =
+        requestLocationUpdatesFlow(request)
+            .mapNotNull { update ->
+                when (update) {
+                    is LocationUpdates.Result -> update.value.lastLocation
+                    else -> null
+                }
+            }
+
+    @SuppressLint("MissingPermission")
+    open fun requestLocationUpdatesFlow(request: LocationRequest): Flow<LocationUpdates> = callbackFlow {
+        val callback = object : LocationCallback() {
+            override fun onLocationAvailability(availability: LocationAvailability) {
+                trySend(LocationUpdates.Availability(availability))
+            }
+
+            override fun onLocationResult(result: LocationResult) {
+                trySend(LocationUpdates.Result(result))
+            }
+        }
+
+        client.requestLocationUpdates(request, callback, Looper.getMainLooper())
+            .addOnFailureListener { close(it) }
+
+        awaitClose {
+            client.removeLocationUpdates(callback)
+                .addOnFailureListener { Log.e("removeLocationUpdates", it.message, it) }
+        }
+    }
 }
