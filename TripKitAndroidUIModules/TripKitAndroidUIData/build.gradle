@@ -43,6 +43,9 @@ android {
 
 dependencies {
     implementation libs.kotlin
+    implementation libs.coroutinesCore
+    implementation libs.coroutinesAndroid
+    implementation libs.coroutinesRx
     implementation libs.rxjava2
     implementation libs.rxrelay2
     implementation libs.rxAndroid2
