@@ -17,6 +17,7 @@ import com.skedgo.tripkit.ui.trippreview.segment.TripSegmentsSummaryData
 import com.skedgo.tripkit.ui.tripresults.GetTransportIconTintStrategy
 import com.skedgo.tripkit.ui.utils.*
 import io.reactivex.Observable
+import io.reactivex.Scheduler
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.PublishSubject
@@ -43,7 +44,7 @@ class TripPreviewPagerViewModel @Inject constructor(
     fun generatePreviewHeaders(
         context: Context,
         tripSegments: List<TripSegment>,
-        getTransportIconTintStrategy: GetTransportIconTintStrategy
+        getTransportIconTintStrategy: GetTransportIconTintStrategy,
     ) {
         tripSummaryStream
             .debounce(500, TimeUnit.MILLISECONDS)
@@ -101,8 +102,8 @@ class TripPreviewPagerViewModel @Inject constructor(
             }).autoClear()
     }
 
-    fun startUpdateTripPolling(tripGroupId: String) {
-        Observable.interval(10L, TimeUnit.SECONDS, Schedulers.io())
+    fun startUpdateTripPolling(tripGroupId: String, scheduler: Scheduler = Schedulers.io()) {
+        Observable.interval(10L, TimeUnit.SECONDS, scheduler)
             .subscribeWithErrorHandling {
                 getUpdatedTrip(tripGroupId)
             }.autoClear()

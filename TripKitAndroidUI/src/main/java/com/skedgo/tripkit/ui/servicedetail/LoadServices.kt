@@ -13,7 +13,7 @@ import io.reactivex.*
 import io.reactivex.schedulers.Schedulers
 import javax.inject.Inject
 
-typealias ServiceStopAndLine = android.util.Pair<List<StopInfo>, List<ServiceLineOverlayTask.ServiceLineInfo>>
+typealias ServiceStopAndLine = Pair<List<StopInfo>, List<ServiceLineOverlayTask.ServiceLineInfo>>
 
 class LoadServices @Inject constructor(
     private val context: Context,

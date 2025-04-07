@@ -135,6 +135,8 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
     ): View? {
 
         binding = TripSegmentListFragmentBinding.inflate(inflater)
+        binding.lifecycleOwner = viewLifecycleOwner
+
         binding.viewModel = viewModel
         viewModel.setActionButtonHandlerFactory(
             actionButtonHandlerFactory,
@@ -142,7 +144,7 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
             queryToLocation
         )
         val showCloseButton = arguments?.getBoolean(ARG_SHOW_CLOSE_BUTTON, false) ?: false
-        viewModel.showCloseButton.set(showCloseButton)
+        viewModel.showCloseButton.value = showCloseButton
         binding.closeButton.setOnClickListener(onCloseButtonListener)
 
         binding.itemsView.isNestedScrollingEnabled = true

@@ -46,7 +46,8 @@
                     android:src="@{viewModel.badgeDrawable}"
                     android:visibility="@{viewModel.badgeVisible}"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:src="@drawable/ic_money_sign_circle"/>
 
                 <TextView
                     android:id="@+id/badgeText"

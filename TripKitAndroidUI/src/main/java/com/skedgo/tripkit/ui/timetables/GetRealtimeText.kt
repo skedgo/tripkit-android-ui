@@ -53,6 +53,8 @@ open class GetRealtimeText @Inject constructor(
         }
 
         return when {
+            service.realTimeStatus == RealTimeStatus.CANCELLED || service.isCancelled ->
+                context.getString(R.string.cancelled).uppercase() to R.color.tripKitError
             service.realTimeStatus == null || service.realTimeStatus == RealTimeStatus.INCAPABLE ->
                 "${context.getString(R.string.scheduled)} • $schedule" to R.color.black1
 
@@ -84,7 +86,7 @@ open class GetRealtimeText @Inject constructor(
                         context.getString(
                             R.string.realtime_early,
                             TimeUtils.getDurationInHoursMins(context, abs(timeDiff.toInt()))
-                        ) to R.color.tripKitSuccess
+                        ) to R.color.tripKitWarning
 
                     else -> context.getString(
                         R.string.realtime_late,

@@ -6,6 +6,7 @@ import com.skedgo.tripkit.ui.search.FetchFoursquareLocations
 import com.skedgo.tripkit.ui.search.FetchLocationsParameters
 import io.reactivex.Observable
 import io.reactivex.ObservableOnSubscribe
+import java.util.ArrayList
 import javax.inject.Inject
 
 class FetchFoursquareLocationsImpl @Inject internal constructor(

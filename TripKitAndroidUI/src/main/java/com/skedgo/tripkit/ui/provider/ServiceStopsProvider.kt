@@ -147,7 +147,7 @@ class ServiceStopsProvider : ContentProvider() {
         try {
             val db = mDbHelper.writableDatabase
 
-            var fields: Array<DatabaseField>
+            var fields: Array<DatabaseField?>
             var table: DatabaseTable
             when (type) {
                 STOPS -> {
@@ -268,7 +268,7 @@ class ServiceStopsProvider : ContentProvider() {
             try {
                 db.beginTransaction()
 
-                var fields: Array<DatabaseField>? = null
+                var fields: Array<DatabaseField?>? = null
                 var table: DatabaseTable? = null
 
                 when (type) {

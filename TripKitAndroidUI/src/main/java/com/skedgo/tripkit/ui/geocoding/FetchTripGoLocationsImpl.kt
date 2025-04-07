@@ -31,6 +31,7 @@ class FetchTripGoLocationsImpl @Inject internal constructor(
                     subscriber.onComplete()
                 } catch (e: Exception) {
                     Timber.e(e)
+                    subscriber.onError(e)
                 }
             })
             /* Don't let any error of one source block one another source. */

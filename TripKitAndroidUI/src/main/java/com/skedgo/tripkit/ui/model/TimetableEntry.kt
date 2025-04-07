@@ -1,5 +1,7 @@
 package com.skedgo.tripkit.ui.model
 
+import android.os.Build.VERSION
+import android.os.Build.VERSION_CODES
 import android.os.Parcel
 import android.os.Parcelable
 import android.os.Parcelable.Creator
@@ -157,6 +159,8 @@ class TimetableEntry : Parcelable, IRealTimeElement, ITimeRange, WheelchairAcces
             serializedEndSecs = value
         }
 
+    var isCancelled: Boolean = false
+
     init {
         // For debug purpose only.
         if (BuildConfig.DEBUG) {
@@ -209,6 +213,11 @@ class TimetableEntry : Parcelable, IRealTimeElement, ITimeRange, WheelchairAcces
         out.writeValue(startStopShortName)
         out.writeList(alertHashCodes)
         out.writeString(startPlatform)
+        if (VERSION.SDK_INT >= VERSION_CODES.Q) {
+            out.writeBoolean(isCancelled)
+        } else {
+            out.writeInt(if (isCancelled) 1 else 0)
+        }
     }
 
     /**
@@ -269,6 +278,11 @@ class TimetableEntry : Parcelable, IRealTimeElement, ITimeRange, WheelchairAcces
                 service.alertHashCodes = `in`.readArrayList(Long::class.java.classLoader) as ArrayList<Long>?
                 service.serviceColor = `in`.readParcelable(ServiceColor::class.java.classLoader)
                 service.startPlatform = `in`.readString()
+                service.isCancelled = if (VERSION.SDK_INT >= VERSION_CODES.Q) {
+                    `in`.readBoolean()
+                } else {
+                    `in`.readInt() == 1
+                }
                 return service
             }
 

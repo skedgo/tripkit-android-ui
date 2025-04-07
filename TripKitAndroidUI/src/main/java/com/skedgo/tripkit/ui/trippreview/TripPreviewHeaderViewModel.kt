@@ -21,10 +21,12 @@ import javax.inject.Inject
 class TripPreviewHeaderViewModel @Inject constructor() : RxViewModel() {
 
     val items: ObservableArrayList<TripSegmentSummaryItemViewModel> = ObservableArrayList()
-    val itemBinding = ItemBinding.of<TripSegmentSummaryItemViewModel>(
-        BR.viewModel,
-        R.layout.item_trip_segment_summary
-    )
+    val itemBinding by lazy {
+        ItemBinding.of<TripSegmentSummaryItemViewModel>(
+            BR.viewModel,
+            R.layout.item_trip_segment_summary
+        )
+    }
 
     private val _quickBookingSegment = MutableLiveData<TripSegment?>()
     val quickBookingSegment: LiveData<TripSegment?> = _quickBookingSegment
@@ -57,7 +59,7 @@ class TripPreviewHeaderViewModel @Inject constructor() : RxViewModel() {
                     segmentSummary, isRightToLeft
                 ).apply {
                     if (index == 0) {
-                        selected.set(true)
+                        selected.value = true
                         segmentSummary.description?.let { desc ->
                             _description.value = desc
                             _showDescription.value = true
@@ -65,9 +67,9 @@ class TripPreviewHeaderViewModel @Inject constructor() : RxViewModel() {
                     }
 
                     itemClick.observable.onEach {
-                        it.id.get()?.apply {
+                        it.id.value?.apply {
                             setSelectedById(this)
-                            _selectedSegmentId.value = Pair(this, it.modeId.get().toString())
+                            _selectedSegmentId.value = Pair(this, it.modeId.value.toString())
                         }
                     }.launchIn(viewModelScope)
                 }
@@ -76,14 +78,14 @@ class TripPreviewHeaderViewModel @Inject constructor() : RxViewModel() {
     }
 
     fun setSelectedById(segmentId: Long, modeId: String? = null) {
-        items.firstOrNull { it.id.get() == segmentId }?.apply {
-            selected.set(true)
+        items.firstOrNull { it.id.value == segmentId }?.apply {
+            selected.value = true
 
-            items.filter { item -> item.id.get() != segmentId }.map { otherItem ->
-                otherItem.selected.set(false)
+            items.filter { item -> item.id.value != segmentId }.map { otherItem ->
+                otherItem.selected.value = false
             }
 
-            description.get()?.let { desc ->
+            description.value?.let { desc ->
                 _description.value = desc
                 _showDescription.value = true
             } ?: kotlin.run { _showDescription.value = false }
@@ -99,14 +101,14 @@ class TripPreviewHeaderViewModel @Inject constructor() : RxViewModel() {
                     getNextPreviousItemModeId(true) -> {
                         items[
                             items.indexOfFirst { selectedItem ->
-                                selectedItem.selected.get()
+                                selectedItem.selected.value ?: false
                             } + 1
                         ]
                     }
                     getNextPreviousItemModeId(false) -> {
                         items[
                             items.indexOfFirst { selectedItem ->
-                                selectedItem.selected.get()
+                                selectedItem.selected.value ?: false
                             } - 1
                         ]
                     }
@@ -126,13 +128,13 @@ class TripPreviewHeaderViewModel @Inject constructor() : RxViewModel() {
 
     private fun setSelected(item: TripSegmentSummaryItemViewModel) {
         with(item) {
-            selected.set(true)
+            selected.value = true
 
-            items.filter { item -> item.id.get() != this.id.get() }.map { otherItem ->
-                otherItem.selected.set(false)
+            items.filter { item -> item.id.value != this.id.value }.map { otherItem ->
+                otherItem.selected.value = false
             }
 
-            description.get()?.let { desc ->
+            description.value?.let { desc ->
                 _description.value = desc
                 _showDescription.value = true
             } ?: kotlin.run { _showDescription.value = false }
@@ -140,16 +142,16 @@ class TripPreviewHeaderViewModel @Inject constructor() : RxViewModel() {
     }
 
     private fun getNextPreviousItemModeId(isNext: Boolean): String? {
-        val selectedIndex = items.indexOfFirst { it.selected.get() }
+        val selectedIndex = items.indexOfFirst { it.selected.value ?: false }
         return if (isNext) {
             if ((selectedIndex + 1) < items.size) {
-                items[selectedIndex + 1].modeId.get()
+                items[selectedIndex + 1].modeId.value
             } else {
                 null
             }
         } else {
             if ((selectedIndex - 1) >= 0) {
-                items[selectedIndex - 1].modeId.get()
+                items[selectedIndex - 1].modeId.value
             } else {
                 null
             }
@@ -159,25 +161,25 @@ class TripPreviewHeaderViewModel @Inject constructor() : RxViewModel() {
 
     private fun checkNearestSegment(segmentId: Long): TripSegmentSummaryItemViewModel? {
         val segmentGreater = items.filter {
-            it.id.get() != null && it.id.get()!! > segmentId
-        }.minByOrNull { it.id.get()!! }
+            (it.id.value ?: -1L) > segmentId
+        }.minByOrNull { it.id.value!! }
 
         val segmentLower = items.filter {
-            it.id.get() != null && it.id.get()!! < segmentId
-        }.maxByOrNull { it.id.get()!! }
+            (it.id.value ?: 0L) < segmentId
+        }.maxByOrNull { it.id.value ?: 0L }
 
         return when {
             segmentGreater != null && segmentLower != null -> {
-                if (segmentLower.modeId.get() != TransportMode.ID_WALK) {
+                if (segmentLower.modeId.value != TransportMode.ID_WALK) {
                     segmentLower
                 } else {
                     segmentGreater
                 }
             }
-            segmentGreater != null && segmentGreater.modeId.get() != TransportMode.ID_WALK -> {
+            segmentGreater != null && segmentGreater.modeId.value != TransportMode.ID_WALK -> {
                 segmentGreater
             }
-            segmentLower != null && segmentLower.modeId.get() != TransportMode.ID_WALK -> {
+            segmentLower != null && segmentLower.modeId.value != TransportMode.ID_WALK -> {
                 segmentLower
             }
             else -> {

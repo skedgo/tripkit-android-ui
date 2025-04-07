@@ -12,14 +12,16 @@ import android.text.style.DynamicDrawableSpan
 import android.text.style.ImageSpan
 import android.text.style.RelativeSizeSpan
 import androidx.core.content.ContextCompat
-import androidx.databinding.ObservableBoolean
 import androidx.databinding.ObservableField
+import androidx.lifecycle.MutableLiveData
 import com.google.android.gms.common.util.CollectionUtils
-import com.skedgo.tripkit.common.model.realtimealert.RealtimeAlert
 import com.skedgo.tripkit.common.model.TransportMode
+import com.skedgo.tripkit.common.model.realtimealert.RealtimeAlert
 import com.skedgo.tripkit.common.util.TimeUtils
 import com.skedgo.tripkit.common.util.TransportModeUtils
 import com.skedgo.tripkit.datetime.PrintTime
+import com.skedgo.tripkit.routing.Availability
+import com.skedgo.tripkit.routing.Availability.Cancelled
 import com.skedgo.tripkit.routing.Trip
 import com.skedgo.tripkit.routing.TripSegment
 import com.skedgo.tripkit.routing.startDateTime
@@ -32,7 +34,6 @@ import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import timber.log.Timber
 import javax.inject.Inject
-
 
 @SuppressLint("StaticFieldLeak")
 class TripSegmentViewModel @Inject constructor(
@@ -49,23 +50,24 @@ class TripSegmentViewModel @Inject constructor(
 
     val icon = ObservableField<Drawable>()
 
-    val showPrimary = ObservableBoolean(false)
-    val primaryText = ObservableField<String>()
-    val showSecondary = ObservableBoolean(false)
-    val secondaryText = ObservableField<CharSequence>()
-    val isHideExactTimes = ObservableBoolean(false)
-    val isRealtime = ObservableBoolean(false)
-    val isBicycleAccessible = ObservableBoolean(false)
+    val showPrimary = MutableLiveData(false)
+    val primaryText = MutableLiveData<String>()
+    val showSecondary = MutableLiveData(false)
+    val secondaryText = MutableLiveData<CharSequence>()
+    val isHideExactTimes = MutableLiveData(false)
+    val isRealtime = MutableLiveData(false)
+    val isBicycleAccessible = MutableLiveData(false)
+    val isCancelled = MutableLiveData(false)
 
     fun setSegment(trip: Trip, segment: TripSegment) {
         showTitle(segment)
 
-        isHideExactTimes.set(segment.isHideExactTimes)
-        isRealtime.set(segment.isRealTime)
-        isBicycleAccessible.set(
+        isCancelled.value = trip.getAvailability() == Cancelled
+        isHideExactTimes.value = segment.isHideExactTimes
+        isRealtime.value = segment.isRealTime
+        isBicycleAccessible.value =
             transportModeSharedPreference.isTransportModeEnabled(TransportMode.ID_BICYCLE) &&
                 segment.bicycleAccessible
-        )
 
         buildSubtitle(trip, segment)
 
@@ -118,13 +120,14 @@ class TripSegmentViewModel @Inject constructor(
             summaryText.append(alertSpan)
         }
 
-        secondaryText.set(summaryText)
-        showSecondary.set(true)
+        secondaryText.value = summaryText
+        showSecondary.value = true
     }
 
     private fun getAlertIconSpan(segment: TripSegment): CharSequence? {
         if (segment.alerts != null && !segment.alerts!!.isEmpty()
-            && shouldAttachAlertIconToSubtitle(segment)) {
+            && shouldAttachAlertIconToSubtitle(segment)
+        ) {
             val alertIcon = getAlertIcon(segment)
             val alertIconSpan = SpannableStringBuilder("  ")
             val width = alertIcon.intrinsicWidth / 2
@@ -178,14 +181,14 @@ class TripSegmentViewModel @Inject constructor(
 
     private fun showTitle(segment: TripSegment) {
         if (!TextUtils.isEmpty(segment.serviceNumber)) {
-            primaryText.set(segment.serviceNumber)
-            showPrimary.set(true)
+            primaryText.value = segment.serviceNumber
+            showPrimary.value = true
         } else {
             val description = segment.modeInfo?.description
             description?.let {
                 if (!TextUtils.isEmpty(it)) {
-                    primaryText.set(it)
-                    showPrimary.set(true)
+                    primaryText.value = it
+                    showPrimary.value = true
                 }
             }
         }

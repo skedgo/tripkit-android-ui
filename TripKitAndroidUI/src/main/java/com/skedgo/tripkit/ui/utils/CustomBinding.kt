@@ -27,7 +27,6 @@ import androidx.core.content.ContextCompat
 import androidx.core.graphics.ColorUtils
 import androidx.core.view.ViewCompat
 import androidx.databinding.BindingAdapter
-import com.afollestad.materialdialogs.utils.MDUtil.ifNotZero
 import com.bumptech.glide.load.model.GlideUrl
 import com.bumptech.glide.load.model.LazyHeaders
 import com.bumptech.glide.request.RequestOptions
@@ -306,7 +305,7 @@ fun TextView.setDrawableTint(color: Int) {
 
 /**
  * =================== Dynamic color binding using colors from [DynamicAppColor] ===================
-*/
+ */
 
 @BindingAdapter("appTint")
 fun setButtonAppTint(button: Button, @ColorInt default: Int) {
@@ -346,7 +345,8 @@ fun setButtonStateBackground(button: Button, @ColorInt default: Int?) {
     // Create a GradientDrawable to ensure background supports tinting
     val backgroundDrawable = GradientDrawable().apply {
         shape = GradientDrawable.RECTANGLE
-        cornerRadius = button.resources.getDimension(R.dimen.button_radius_small) // Adjust as needed
+        cornerRadius =
+            button.resources.getDimension(R.dimen.button_radius_small) // Adjust as needed
         setColor(enabledColor ?: Color.TRANSPARENT) // Set initial color
     }
 
@@ -419,8 +419,14 @@ fun setSwitchCheckedTint(switch: SwitchCompat, @ColorInt default: Int?) {
             intArrayOf() // Default (unchecked) state
         ),
         intArrayOf(
-            ColorUtils.setAlphaComponent(checkedColor ?: Color.TRANSPARENT, (0.6 * 255).toInt()), // Track when checked
-            ColorUtils.setAlphaComponent(uncheckedColor, (0.3 * 255).toInt()) // Track when unchecked
+            ColorUtils.setAlphaComponent(
+                checkedColor ?: Color.TRANSPARENT,
+                (0.6 * 255).toInt()
+            ), // Track when checked
+            ColorUtils.setAlphaComponent(
+                uncheckedColor,
+                (0.3 * 255).toInt()
+            ) // Track when unchecked
         )
     )
 
@@ -463,7 +469,8 @@ fun setCalendarViewSelectedTint(calendarView: CalendarView, @ColorInt default: I
         try {
             val field = CalendarView::class.java.getDeclaredField("mSelectedDateVerticalBar")
             field.isAccessible = true
-            val drawable = ContextCompat.getDrawable(calendarView.context, field.getInt(calendarView))
+            val drawable =
+                ContextCompat.getDrawable(calendarView.context, field.getInt(calendarView))
             drawable?.setTint(it)
             field.set(calendarView, drawable)
         } catch (e: Exception) {
@@ -523,7 +530,10 @@ fun setRadioButtonCheckedTint(radioButton: RadioButton, @ColorInt default: Int?)
             ),
             intArrayOf(
                 it, // Checked color
-                ColorUtils.setAlphaComponent(it, (0.2 * 255).toInt()) // Unchecked color (60% opacity)
+                ColorUtils.setAlphaComponent(
+                    it,
+                    (0.2 * 255).toInt()
+                ) // Unchecked color (60% opacity)
             )
         )
 
@@ -573,3 +583,27 @@ fun setLayoutAppBackgroundTint(view: View, @ColorInt default: Int?) {
     }
 }
 
+@BindingAdapter("isDisabled", "originalColor", requireAll = false)
+fun setViewIsDisabled(view: View, disabled: Boolean, originalColor: Int?) {
+    val disabledColor = ContextCompat.getColor(view.context, R.color.light_grey_3)
+
+    when (view) {
+        is ImageView -> {
+            if (disabled) {
+                view.setColorFilter(disabledColor)
+            } else {
+                view.clearColorFilter()
+            }
+        }
+
+        is TextView -> {
+            if (disabled) {
+                view.setTextColor(disabledColor)
+            } else if (originalColor != null) {
+                view.setTextColor(originalColor)
+            }
+        }
+
+        else -> Unit
+    }
+}

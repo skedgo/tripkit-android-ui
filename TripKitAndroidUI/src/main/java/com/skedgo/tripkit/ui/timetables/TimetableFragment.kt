@@ -161,8 +161,8 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
 
         outState.putParcelable(ARG_STOP, stop)
         outState.putStringArrayList(ARG_BOOKING_ACTION, bookingActions)
-        outState.putBoolean(ARG_SHOW_SEARCH_FIELD, viewModel.showSearch.get())
-        outState.putBoolean(ARG_SHOW_CLOSE_BUTTON, viewModel.showCloseButton.get())
+        outState.putBoolean(ARG_SHOW_SEARCH_FIELD, viewModel.showSearch.value ?: false)
+        outState.putBoolean(ARG_SHOW_CLOSE_BUTTON, viewModel.showCloseButton.value ?: false)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -263,8 +263,8 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
         viewModel.actionChosen.observeOn(AndroidSchedulers.mainThread())
             .subscribeWithErrorHandling {
                 if (viewModel.action == "book") {
-                    viewModel.buttonText.set("Booking...")
-                    viewModel.enableButton.set(false)
+                    viewModel.buttonText.value = "Booking..."
+                    viewModel.enableButton.value = false
                 }
                 tripPreviewPagerListener?.onServiceActionButtonClicked(
                     tripSegment,
@@ -324,7 +324,7 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
     }
 
     fun setBookingActions(bookingActions: List<String>?) {
-        viewModel.enableButton.set(true)
+        viewModel.enableButton.value = true
         if (!bookingActions.isNullOrEmpty()) {
             val list = ArrayList<String>()
             list.addAll(bookingActions.toMutableList())
@@ -343,6 +343,7 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
         savedInstanceState: Bundle?
     ): View {
         binding = TimetableFragmentBinding.inflate(layoutInflater)
+        binding.lifecycleOwner = viewLifecycleOwner
 
         val layoutManager = FlexboxLayoutManager(context)
         layoutManager.flexDirection = FlexDirection.ROW
@@ -390,7 +391,7 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
             override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
                 super.onScrollStateChanged(recyclerView, newState)
 
-                if (!recyclerView.canScrollVertically(1) && !viewModel.showLoading.get()) {
+                if (!recyclerView.canScrollVertically(1) && viewModel.showLoading.value != true) {
                     viewModel.downloadMoreTimetableAsync()
                 }
             }
@@ -489,10 +490,10 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
                 ?: arguments?.getStringArrayList(ARG_BOOKING_ACTION)
 
         val showCloseButton = arguments?.getBoolean(ARG_SHOW_CLOSE_BUTTON, false) ?: false
-        viewModel.showCloseButton.set(showCloseButton)
+        viewModel.showCloseButton.value = showCloseButton
 
         val showSearchBar = arguments?.getBoolean(ARG_SHOW_SEARCH_FIELD) ?: cachedShowSearchBar
-        viewModel.showSearch.set(showSearchBar)
+        viewModel.showSearch.value = showSearchBar
 
         binding.closeButton.setOnClickListener(onCloseButtonListener)
 

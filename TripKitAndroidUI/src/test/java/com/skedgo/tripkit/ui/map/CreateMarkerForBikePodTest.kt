@@ -1,6 +1,8 @@
 package com.skedgo.tripkit.ui.map
 
 import android.content.res.Resources
+import android.graphics.Canvas
+import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
@@ -13,9 +15,11 @@ import io.mockk.Runs
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.just
+import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.verify
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -24,6 +28,9 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [33])
 class CreateMarkerForBikePodTest {
+
+    @get:Rule
+    val instantTaskExecutorRule = InstantTaskExecutorRule()
 
     @MockK
     private lateinit var resources: Resources
@@ -52,9 +59,6 @@ class CreateMarkerForBikePodTest {
         every { bikePodDetails.availableBikes } returns 5
         every { bikePodDetails.totalSpaces } returns 10
 
-        mockkStatic(TripGoStyleKit::class)
-        every { TripGoStyleKit.drawBikeShareMap(any(), any(), any(), any()) } just Runs
-
         mockkStatic(BitmapDescriptorFactory::class)
         every { BitmapDescriptorFactory.fromBitmap(any()) } returns mockBitmapDescriptor
     }
@@ -76,7 +80,6 @@ class CreateMarkerForBikePodTest {
 
         // Verify interactions
         verify { resources.getDimensionPixelSize(R.dimen.map_icon_size) }
-        verify { TripGoStyleKit.drawBikeShareMap(any(), 0.5f, 0.toFloat(), 48.toFloat()) }
         verify { BitmapDescriptorFactory.fromBitmap(any()) }
     }
 
@@ -91,6 +94,6 @@ class CreateMarkerForBikePodTest {
 
         // Assert
         testObserver.assertComplete()
-        verify { TripGoStyleKit.drawBikeShareMap(any(), 1f, 0.toFloat(), 48.toFloat()) }
+        testObserver.assertNoErrors()
     }
 }

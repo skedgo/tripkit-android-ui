@@ -4,7 +4,6 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
-
         <variable
             name="viewModel"
             type="com.skedgo.tripkit.ui.tripresults.TripSegmentViewModel" />
@@ -13,7 +12,19 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:minHeight="40dp"
         android:layout_marginEnd="4dp">
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:background="@color/disabled"
+            android:elevation="1dp"
+            android:visibility="@{viewModel.isCancelled()}"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"/>
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/iconContent"
@@ -30,6 +41,7 @@
                 android:layoutDirection="locale"
                 android:src="@{viewModel.icon}"
                 tools:src="@drawable/ic_bus"
+                app:isDisabled="@{viewModel.isCancelled()}"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
@@ -44,6 +56,8 @@
             android:text="@{viewModel.primaryText}"
             android:textColor="@color/black"
             android:visibility="@{viewModel.showPrimary}"
+            app:isDisabled="@{viewModel.isCancelled()}"
+            app:originalColor="@{@color/black}"
             app:layout_constraintBottom_toTopOf="@+id/secondary"
             app:layout_constraintStart_toEndOf="@+id/iconContent"
             app:layout_constraintTop_toTopOf="parent"
@@ -58,6 +72,8 @@
             android:text="@{viewModel.secondaryText}"
             android:textColor="@color/black1"
             android:visibility="@{!viewModel.isHideExactTimes() &amp;&amp; viewModel.secondaryText.length() > 0}"
+            app:isDisabled="@{viewModel.isCancelled()}"
+            app:originalColor="@{@color/black1}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toEndOf="@+id/iconContent"
             app:layout_constraintTop_toBottomOf="@+id/primary"
@@ -71,6 +87,7 @@
             android:rotation="45"
             android:src="@drawable/ic_wifi"
             android:visibility="@{viewModel.isRealtime()}"
+            app:isDisabled="@{viewModel.isCancelled()}"
             app:layout_constraintBottom_toBottomOf="@+id/secondary"
             app:layout_constraintStart_toEndOf="@+id/secondary" />
 
@@ -81,6 +98,7 @@
             android:layout_marginStart="@dimen/spacing_extra_small"
             android:src="@drawable/ic_bike"
             android:visibility="@{viewModel.isBicycleAccessible()}"
+            app:isDisabled="@{viewModel.isCancelled()}"
             app:layout_constraintBottom_toBottomOf="@+id/secondary"
             app:layout_constraintStart_toEndOf="@+id/ivWifi" />
 

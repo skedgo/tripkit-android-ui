@@ -12,6 +12,7 @@ import io.reactivex.functions.Consumer;
  * A custom {@link Bus} that posts events from any thread and
  * lets subscribers receive them on the main thread.
  */
+@Deprecated
 public class MainThreadBus extends Bus {
     private final Consumer<Throwable> errorHandler;
 

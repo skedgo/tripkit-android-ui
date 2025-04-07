@@ -622,4 +622,6 @@ We aggregate the anonymised data and provide it to researchers, regulators, and 
     <string name="terms_of_use">Terms of Use</string>
     <string name="label_last_updated">Last Updated:</string>
     <string name="route_not_supported">Routing from %s to %s is not yet supported</string>
+    <string name="cancelled">Cancelled</string>
+    <string name="alternatives">Alternatives</string>
 </resources>

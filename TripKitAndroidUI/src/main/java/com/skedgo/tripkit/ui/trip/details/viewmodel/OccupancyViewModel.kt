@@ -24,7 +24,9 @@ open class OccupancyViewModel @Inject constructor(private val context: Context) 
 
     // For train occupancy
     val hasOccupancyInformation = ObservableBoolean(false)
-    val itemBinding = ItemBinding.of<TrainOccupancyItemViewModel>(BR.occupancy, R.layout.train_item)
+    val itemBinding by lazy {
+        ItemBinding.of<TrainOccupancyItemViewModel>(BR.occupancy, R.layout.train_item)
+    }
     val items: ObservableList<TrainOccupancyItemViewModel> = ObservableArrayList()
 
     open fun setOccupancy(vehicle: RealTimeVehicle, showAverage: Boolean) {

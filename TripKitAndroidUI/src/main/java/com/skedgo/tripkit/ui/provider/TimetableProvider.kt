@@ -126,7 +126,7 @@ class TimetableProvider : ContentProvider() {
             val db = mDbHelper.writableDatabase
 
             lateinit var table: DatabaseTable
-            var fields: Array<DatabaseField>? = null
+            var fields: Array<DatabaseField?>? = null
             when (type) {
                 SCHEDULED_SERVICES -> {
                     table = DbTables.SCHEDULED_SERVICES
@@ -244,7 +244,7 @@ class TimetableProvider : ContentProvider() {
                 db.beginTransaction()
 
                 lateinit var table: DatabaseTable
-                var fields: Array<DatabaseField>? = null
+                var fields: Array<DatabaseField?>? = null
 
                 when (type) {
                     SCHEDULED_SERVICES -> table = DbTables.SCHEDULED_SERVICES

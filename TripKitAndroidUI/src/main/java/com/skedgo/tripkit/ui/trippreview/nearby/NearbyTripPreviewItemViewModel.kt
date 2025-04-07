@@ -49,25 +49,29 @@ class NearbyTripPreviewItemViewModel : RxViewModel() {
     val showModes = ObservableBoolean(false)
     var originalItems = listOf<NearbyLocation>()
     var items = ObservableArrayList<NearbyTripPreviewItemListItemViewModel>()
-    val binding = ItemBinding.of(
-        OnItemBindClass<Any>()
-            .map(
-                NearbyTripPreviewItemListItemViewModel::class.java,
-                com.skedgo.tripkit.ui.BR.viewModel,
-                R.layout.trip_preview_pager_nearby_list_item
-            )
-            .map(
-                LoaderPlaceholder::class.java,
-                ItemBinding.VAR_NONE,
-                R.layout.circular_progress_loader
-            )
-    )
+    val binding by lazy {
+        ItemBinding.of(
+            OnItemBindClass<Any>()
+                .map(
+                    NearbyTripPreviewItemListItemViewModel::class.java,
+                    com.skedgo.tripkit.ui.BR.viewModel,
+                    R.layout.trip_preview_pager_nearby_list_item
+                )
+                .map(
+                    LoaderPlaceholder::class.java,
+                    ItemBinding.VAR_NONE,
+                    R.layout.circular_progress_loader
+                )
+        )
+    }
 
     var transportModes = ObservableArrayList<NearbyTripPreviewModeItemViewModel>()
-    var transportBinding = ItemBinding.of<NearbyTripPreviewModeItemViewModel>(
-        BR.viewModel,
-        R.layout.trip_preview_pager_nearby_list_mode_transport
-    )
+    val transportBinding by lazy {
+        ItemBinding.of<NearbyTripPreviewModeItemViewModel>(
+            BR.viewModel,
+            R.layout.trip_preview_pager_nearby_list_mode_transport
+        )
+    }
     val mergedList = MergeObservableList<Any>().insertItem(loadingItem).insertList(items)
 
     fun clearTransportModes() {

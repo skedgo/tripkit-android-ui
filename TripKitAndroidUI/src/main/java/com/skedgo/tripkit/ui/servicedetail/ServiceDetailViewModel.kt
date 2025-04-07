@@ -24,7 +24,6 @@ import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.core.RxViewModel
 import com.skedgo.tripkit.ui.model.TimetableEntry
 import com.skedgo.tripkit.ui.timetables.GetRealtimeText
-import com.skedgo.tripkit.ui.timetables.GetServiceSubTitleText
 import com.skedgo.tripkit.ui.timetables.GetServiceTertiaryText
 import com.skedgo.tripkit.ui.timetables.GetServiceTitleText
 import com.skedgo.tripkit.ui.trip.details.viewmodel.OccupancyViewModel
@@ -44,7 +43,6 @@ class ServiceDetailViewModel @Inject constructor(
     val serviceAlertViewModel: ServiceAlertViewModel,
     private val loadServices: LoadServices,
     private val getServiceTitleText: GetServiceTitleText,
-    private val getServiceSubTitleText: GetServiceSubTitleText,
     private val getServiceTertiaryText: GetServiceTertiaryText,
     private val getRealtimeText: GetRealtimeText,
     private val errorLogger: ErrorLogger
@@ -68,10 +66,13 @@ class ServiceDetailViewModel @Inject constructor(
 
     val lastUpdatedText = ObservableField<String>()
 
-    val itemBinding = ItemBinding.of<ServiceDetailItemViewModel>(
-        BR.viewModel,
-        R.layout.service_detail_fragment_list_item
-    )
+    val itemBinding: ItemBinding<ServiceDetailItemViewModel> by lazy {
+        ItemBinding.of<ServiceDetailItemViewModel>(
+            BR.viewModel,
+            R.layout.service_detail_fragment_list_item
+        )
+    }
+
     val items: ObservableField<List<ServiceDetailItemViewModel>> = ObservableField(emptyList())
     val onItemClicked = PublishRelay.create<ServiceStop>()
     var showCloseButton = ObservableBoolean(false)

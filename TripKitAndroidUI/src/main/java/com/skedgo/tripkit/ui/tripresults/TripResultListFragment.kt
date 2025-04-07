@@ -172,6 +172,7 @@ class TripResultListFragment : BaseTripKitFragment() {
         previouslyInitialized = ::binding.isInitialized
 
         binding = TripResultListFragmentBinding.inflate(layoutInflater)
+        binding.lifecycleOwner = viewLifecycleOwner
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
 
@@ -315,7 +316,10 @@ class TripResultListFragment : BaseTripKitFragment() {
         }
 
         viewModel.startLocationListener.observe(viewLifecycleOwner){
-            locationClickListener?.onStartLocationClicked()
+            if(it == true) {
+                locationClickListener?.onStartLocationClicked()
+                viewModel.setStartLocationListenerValue(false)
+            }
         }
     }
 

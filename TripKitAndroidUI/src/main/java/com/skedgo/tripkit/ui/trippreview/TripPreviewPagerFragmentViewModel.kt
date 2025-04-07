@@ -19,7 +19,7 @@ import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Provider
 
-
+@Deprecated("")
 class TripPreviewPagerFragmentViewModel
 /*@Inject internal constructor(private val context: Context,
                                                                      private val genericItemProvider: Provider<TripPreviewPagerItemViewModel>,
