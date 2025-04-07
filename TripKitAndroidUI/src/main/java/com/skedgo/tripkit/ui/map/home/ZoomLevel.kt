@@ -4,7 +4,7 @@ enum class ZoomLevel(val level: Float) {
     INNER(15.2f), OUTER(13f);
 
     companion object {
-        const val ZOOM_VALUE_TO_SHOW_CITIES: Float = -7f
+        const val ZOOM_VALUE_TO_SHOW_CITIES: Float = 10f
 
         fun fromLevel(level: Float): ZoomLevel? {
             for (zoomLevel in values()) {
