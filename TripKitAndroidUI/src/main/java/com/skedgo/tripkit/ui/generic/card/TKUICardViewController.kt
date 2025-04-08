@@ -9,6 +9,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.core.BaseBottomSheetDialogFragment
 import com.skedgo.tripkit.ui.databinding.FragmentTkuiCardBinding
+import com.skedgo.tripkit.ui.map.home.TripKitMapFragment
 
 
 /**
@@ -21,6 +22,7 @@ import com.skedgo.tripkit.ui.databinding.FragmentTkuiCardBinding
  * - Configurable peek height, behavior state, and hideable flag via the hosted [TKUICardBaseFragment]
  * - Disabling dismissal by outside touch
  * - Full-height bottom sheet layout
+ * - Holding [TripKitMapFragment] instance and pass it to fragments with [TKUICardBaseFragment] instance
  *
  * The hosted fragment can optionally extend [TKUICardBaseFragment] to provide custom behavior such as:
  * - Initial [BottomSheetBehavior] state (`EXPANDED`, `HALF_EXPANDED`, etc.)
@@ -52,24 +54,28 @@ import com.skedgo.tripkit.ui.databinding.FragmentTkuiCardBinding
  * ---
  *
  * **Note:**
- * Imitated `TGCardViewController` from iOS.
+ * Imitation of `TGCardViewController` from iOS.
  * Currently, it is a separate library/module on iOS, but since we already have a lot of
  * libraries on our side, not sure if it'll be good to have this on another library.
  * Will just put it in the `TripKitUI` module for now.
  */
 class TKUICardViewController : BaseBottomSheetDialogFragment<FragmentTkuiCardBinding>() {
 
+    private var mapFragment: TripKitMapFragment? = null
+
     override val layoutRes: Int
         get() = R.layout.fragment_tkui_card
 
     companion object {
+        const val TAG = "TKUICardViewController"
         const val ARG_SHOW_CLOSE = "ARG_SHOW_CLOSE"
         const val ARG_FRAGMENT_CLASS_NAME = "ARG_FRAGMENT_CLASS_NAME"
 
         fun newInstance(
             showClose: Boolean = true,
             fragmentClass: Class<out Fragment>,
-            fragmentArgs: Bundle? = null
+            fragmentArgs: Bundle? = null,
+            mapFragment: TripKitMapFragment? = null
         ): TKUICardViewController {
             return TKUICardViewController().apply {
                 arguments = Bundle().apply {
@@ -77,6 +83,7 @@ class TKUICardViewController : BaseBottomSheetDialogFragment<FragmentTkuiCardBin
                     putString(ARG_FRAGMENT_CLASS_NAME, fragmentClass.name)
                     fragmentArgs?.let { putBundle("fragmentArgs", it) }
                 }
+                this.mapFragment = mapFragment
             }
         }
     }
@@ -106,6 +113,7 @@ class TKUICardViewController : BaseBottomSheetDialogFragment<FragmentTkuiCardBin
                 behaviorState = fragment.behaviorState
                 peekHeightValue = resources.getDimensionPixelSize(fragment.peekHeightResourceValue)
                 isHideable = fragment.isHideable
+                fragment.mapFragment = mapFragment
             }
 
             childFragmentManager.beginTransaction()
@@ -131,4 +139,6 @@ class TKUICardViewController : BaseBottomSheetDialogFragment<FragmentTkuiCardBin
             behavior.isHideable = isHideable
         }
     }
+
+    fun generateTag() = "$TAG:${arguments?.getString(ARG_FRAGMENT_CLASS_NAME)}"
 }
