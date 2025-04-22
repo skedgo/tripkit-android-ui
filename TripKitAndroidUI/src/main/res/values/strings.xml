@@ -624,4 +624,16 @@ We aggregate the anonymised data and provide it to researchers, regulators, and 
     <string name="route_not_supported">Routing from %s to %s is not yet supported</string>
     <string name="cancelled">Cancelled</string>
     <string name="alternatives">Alternatives</string>
+
+    <!-- Settings Data Strings -->
+    <string name="data">Data</string>
+    <string name="clear">Clear</string>
+    <string name="clear_cache">Clear Cache</string>
+    <string name="clear_cache_desc">Are you sure you want to clear the app\'s cache?</string>
+    <string name="clear_search_history">Clear Search History</string>
+    <string name="please_wait">Please wait</string>
+    <string name="clearing_cache">Clearing cache...</string>
+    <string name="clear_cache_succeeded">Cache cleared successfully</string>
+    <string name="clear_cache_failed">Failed to clear some cache files</string>
+
 </resources>
