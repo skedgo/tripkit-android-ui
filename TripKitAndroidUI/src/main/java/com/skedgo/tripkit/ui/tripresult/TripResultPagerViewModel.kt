@@ -24,6 +24,7 @@ import com.skedgo.tripkit.ui.routingresults.TrackViewingTrip
 import com.skedgo.tripkit.ui.routingresults.TripGroupRepository
 import com.skedgo.tripkit.ui.tripprogress.UpdateTripProgressWithUserLocation
 import com.skedgo.tripkit.ui.tripresults.PermissiveTransportViewFilter
+import com.skedgo.tripkit.ui.utils.toObservable
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
@@ -43,12 +44,9 @@ const val ARG_TRIP_GROUP_ID = "tripGroupId"
 class TripResultPagerViewModel @Inject internal constructor(
     private val context: Context,
     private val getSortedTripGroups: GetSortedTripGroups,
-//        private val reportPlannedTrip: ReportPlannedTrip,
     private val trackViewingTrip: TrackViewingTrip,
     private val errorLogger: ErrorLogger,
-//        private val eventTracker: EventTracker,
     private val selectedTripGroupRepository: SelectedTripGroupRepository,
-//        private val userInfoRepository: UserInfoRepository,
     private val updateTripProgress: UpdateTripProgressWithUserLocation,
     private val tripGroupRepository: TripGroupRepository,
     private val fetchingRealtimeStatusRepository: FetchingRealtimeStatusRepository,
@@ -60,8 +58,8 @@ class TripResultPagerViewModel @Inject internal constructor(
     val selectedTripGroup by lazy {
         tripGroupRepository.getTripGroup(currentTripGroupId.toString())
     }
-    val currentPage = ObservableInt()
-    val tripGroupsBinding = ObservableField<List<TripGroup>>(emptyList())
+    val currentPage = MutableLiveData<Int>()
+    val tripGroupsBinding = MutableLiveData<List<TripGroup>>(emptyList())
 
     private val tripGroups: BehaviorRelay<List<TripGroup>> = BehaviorRelay.create()
     val tripSource = BehaviorRelay.create<TripSource>()
@@ -175,7 +173,7 @@ class TripResultPagerViewModel @Inject internal constructor(
             currentTrip.postValue(defaultTrip ?: tripGroups.firstOrNull()?.trips?.first())
             tripGroups.indexOfFirst { id.uuid() == it.uuid() }
         }.doOnNext {
-            currentPage.set(it)
+            currentPage.value = it
         }.map { Unit }
     }
 
@@ -183,13 +181,13 @@ class TripResultPagerViewModel @Inject internal constructor(
         return tripGroups
             .subscribeOn(AndroidSchedulers.mainThread())
             .doOnNext {
-                tripGroupsBinding.set(it)
+                tripGroupsBinding.value = it
             }
     }
 
     fun updateSelectedTripGroup(): Observable<TripGroup> {
         return currentPage
-            .asObservable()
+            .toObservable()
             .skip(1)
             .withLatestFrom(tripGroups.hide(), BiFunction<Int, List<TripGroup>, TripGroup>
             { id, tripGroups -> tripGroups[id] })
@@ -202,7 +200,7 @@ class TripResultPagerViewModel @Inject internal constructor(
 
     fun getCurrentDisplayTrip(): Observable<Trip> {
         return currentPage
-            .asObservable()
+            .toObservable()
             .skip(1)
             .withLatestFrom(tripGroups.hide(), BiFunction<Int, List<TripGroup>, TripGroup>
             { id, tripGroups ->

@@ -6,6 +6,7 @@ import android.view.View
 import androidx.core.view.isVisible
 import com.jakewharton.rxrelay2.PublishRelay
 import com.skedgo.tripkit.model.ViewTrip
+import com.skedgo.tripkit.routing.Trip
 import com.skedgo.tripkit.routing.TripGroup
 import com.skedgo.tripkit.routing.TripSegment
 import com.skedgo.tripkit.ui.R
@@ -114,12 +115,12 @@ class TKUITripDetailsViewControllerFragment :
                 }
 
                 tripGroupId != null -> {
-                    pagerFragmentBuilder.showSingleRoute().withTripGroupId(tripGroupId)
-                        .withTripId(tripId)
+                    pagerFragmentBuilder.showSingleRoute().withTripGroupId(tripGroupId.orEmpty())
+                        .withTripId(tripId ?: 0)
                 }
 
                 favoriteTripId != null -> {
-                    pagerFragmentBuilder.withFavoriteTripId(favoriteTripId)
+                    pagerFragmentBuilder.withFavoriteTripId(favoriteTripId.orEmpty())
                 }
             }
 
@@ -137,16 +138,18 @@ class TKUITripDetailsViewControllerFragment :
             pagerFragment?.setOnCloseButtonListener {
                 eventBus.publish(ViewControllerEvent.OnCloseAction())
             }
-            pagerFragment?.setOnTripUpdatedListener { trip ->
+            pagerFragment?.setOnTripUpdatedListener(object :
+                TripResultPagerFragment.OnTripUpdatedListener {
+                override fun onTripUpdated(trip: Trip?) {
+                    trip?.group?.let {
+                        val list = ArrayList<TripGroup>()
+                        list.add(it)
+                        eventBus.publish(ViewControllerEvent.OnReportPlannedTrip(list, trip))
+                    }
 
-                trip?.group?.let {
-                    val list = ArrayList<TripGroup>()
-                    list.add(it)
-                    eventBus.publish(ViewControllerEvent.OnReportPlannedTrip(list, trip))
+                    binding.layoutLoading.isVisible = trip == null
                 }
-
-                binding.layoutLoading.isVisible = trip == null
-            }
+            })
             pagerFragment?.tripSegmentClickListener =
                 object : TripSegmentListFragment.OnTripSegmentClickListener {
                     override fun tripSegmentClicked(tripSegment: TripSegment) {

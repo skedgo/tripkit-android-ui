@@ -4,6 +4,8 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
+import io.reactivex.Observable
+import io.reactivex.ObservableEmitter
 
 fun <T : Any, L : LiveData<T>> LifecycleOwner.observe(liveData: L, body: (T?) -> Unit) {
     liveData.removeObservers(this)
@@ -13,4 +15,16 @@ fun <T : Any, L : LiveData<T>> LifecycleOwner.observe(liveData: L, body: (T?) ->
 fun <T> MutableLiveData<T>.updateFields(actions: (MutableLiveData<T>) -> Unit) {
     actions(this)
     this.value = this.value
+}
+
+fun <T> LiveData<T>.toObservable(): Observable<T> {
+    return Observable.create { emitter: ObservableEmitter<T> ->
+        val observer = androidx.lifecycle.Observer<T> { t ->
+            if (!emitter.isDisposed) {
+                t?.let { emitter.onNext(it) }
+            }
+        }
+        emitter.setCancellable { this.removeObserver(observer) }
+        this.observeForever(observer)
+    }
 }

@@ -44,6 +44,8 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
     private val RQ_VIEW_TIMETABLE = 0
     private val RQ_VIEW_ALERTS = 1
 
+    var position = -1
+
     override fun onClick(p0: View?) {
 //        if (mClickListener != null && p0 != null) {
 //            mClickListener?.tripKitButtonClicked(p0.id, viewModel.tripGroup)
@@ -146,8 +148,6 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
         val showCloseButton = arguments?.getBoolean(ARG_SHOW_CLOSE_BUTTON, false) ?: false
         viewModel.showCloseButton.value = showCloseButton
         binding.closeButton.setOnClickListener(onCloseButtonListener)
-
-        binding.itemsView.isNestedScrollingEnabled = true
 
         tripGroupId?.let {
             viewModel.loadTripGroup(it, tripId ?: -1L, savedInstanceState)

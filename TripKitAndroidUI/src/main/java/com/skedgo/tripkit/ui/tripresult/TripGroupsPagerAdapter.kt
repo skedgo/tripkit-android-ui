@@ -12,10 +12,16 @@ import com.skedgo.tripkit.ui.tripresult.TripSegmentListFragment.OnTripSegmentCli
 import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButtonHandlerFactory
 import io.reactivex.subjects.PublishSubject
 
+@Deprecated(
+    """
+        Use the new [#com.skedgo.tripkit.ui.tripresult.v2.TripGroupsPagerAdapter] with 
+        ViewPager2 implementation
+    """
+)
 class TripGroupsPagerAdapter(
     private val fragmentManager: FragmentManager,
     private val tripResultMapContributor: TripResultMapContributor
-) : FragmentStatePagerAdapter(fragmentManager, BEHAVIOR_SET_USER_VISIBLE_HINT) {
+) : FragmentStatePagerAdapter(fragmentManager, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
     var tripGroups: List<TripGroup>? = null
         set(value) {
             field = value
@@ -40,6 +46,9 @@ class TripGroupsPagerAdapter(
 
     private var queryFromLocation: Location? = null
     private var queryToLocation: Location? = null
+
+    private var currentPrimaryItemPosition: Int = -1
+    private var forceRefreshPosition: Int = -1
 
     /*
         This horrific workaround is necessary because the Material library's BottomSheetBehavior only looks for the
@@ -81,6 +90,7 @@ class TripGroupsPagerAdapter(
             .withUpdateStream(updateStream)
             .withQueryLocations(queryFromLocation, queryToLocation)
             .build()
+        fragment.position = position
         fragment.setOnTripKitButtonClickListener(listener!!)
         fragment.onCloseButtonListener = closeListener
         fragment.setOnTripSegmentClickListener(segmentClickListener!!)
@@ -100,7 +110,10 @@ class TripGroupsPagerAdapter(
         queryToLocation = to
     }
 
-    override fun getItemPosition(`object`: Any): Int {
-        return POSITION_NONE
+    override fun getItemPosition(`object`: Any): Int = POSITION_NONE
+
+    fun notifyPageChanged(position: Int) {
+        forceRefreshPosition = position
+        notifyDataSetChanged()
     }
 }

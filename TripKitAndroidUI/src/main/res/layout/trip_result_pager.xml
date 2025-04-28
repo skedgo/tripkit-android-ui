@@ -9,16 +9,35 @@
             type="com.skedgo.tripkit.ui.tripresult.TripResultPagerViewModel" />
     </data>
 
-    <FrameLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <com.skedgo.tripkit.ui.views.CustomViewPager
+        <LinearLayout
+            android:id="@+id/layoutDragHandle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintTop_toTopOf="parent"
+            android:paddingVertical="@dimen/spacing_medium"
+            android:gravity="center">
+
+            <View
+                android:layout_width="52dp"
+                android:layout_height="8dp"
+                android:background="@drawable/bg_round_rect_primary" />
+
+        </LinearLayout>
+
+        <androidx.viewpager2.widget.ViewPager2
             android:id="@+id/tripGroupsPager"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="0dp"
             android:background="@android:color/white"
-            app:currentItem="@={viewModel.currentPage}"
-            app:tripGroups="@{viewModel.tripGroupsBinding}" />
-    </FrameLayout>
+            app:currentItem="@{viewModel.currentPage}"
+            app:layout_constraintTop_toBottomOf="@+id/layoutDragHandle"
+            app:layout_constraintBottom_toBottomOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
 </layout>
