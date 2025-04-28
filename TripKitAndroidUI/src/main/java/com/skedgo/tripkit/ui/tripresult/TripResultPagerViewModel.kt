@@ -181,7 +181,7 @@ class TripResultPagerViewModel @Inject internal constructor(
         return tripGroups
             .subscribeOn(AndroidSchedulers.mainThread())
             .doOnNext {
-                tripGroupsBinding.value = it
+                tripGroupsBinding.postValue(it)
             }
     }
 
