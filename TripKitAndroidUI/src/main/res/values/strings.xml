@@ -541,7 +541,6 @@ We aggregate the anonymised data and provide it to researchers, regulators, and 
     </plurals>
 
     <string name="choose_on_map">Choose on Map</string>
-    <string name="subscriber_only">Your %s account opens the door to more exciting features.</string>
     <string name="choose_location">Choose location</string>
     <string name="favorites">Favorites</string>
     <string name="add_home">Add Home</string>
@@ -614,7 +613,6 @@ We aggregate the anonymised data and provide it to researchers, regulators, and 
     <string name="enter_home_address">Enter your Home address</string>
     <string name="enter_work_address">Enter your Work address</string>
     <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="select_time">Select Time</string>
     <string name="edit_favorite">Edit Favourite</string>
     <string name="confirmation_allow_background_location_title">Background location access</string>
@@ -624,6 +622,7 @@ We aggregate the anonymised data and provide it to researchers, regulators, and 
     <string name="route_not_supported">Routing from %s to %s is not yet supported</string>
     <string name="cancelled">Cancelled</string>
     <string name="alternatives">Alternatives</string>
+
 
     <!-- Settings Data Strings -->
     <string name="data">Data</string>
@@ -635,5 +634,253 @@ We aggregate the anonymised data and provide it to researchers, regulators, and 
     <string name="clearing_cache">Clearing cache...</string>
     <string name="clear_cache_succeeded">Cache cleared successfully</string>
     <string name="clear_cache_failed">Failed to clear some cache files</string>
+
+    <!--TripGo Specific Resourecs-->
+
+    <!-- ====== App‑wide ====== -->
+    <string name="default_notification_channel_id">default_channel</string>
+    <string name="default_notification_channel_description">ODIN PASS notifications</string>
+    <string name="format_reward_points_required">Reward points required %d pts</string>
+    <string name="push_notification_url_mobility_bundle">odin:///openMySubscriptions</string>
+
+    <!-- ====== Plurals ====== -->
+    <plurals name="trip_count">
+        <item quantity="one">%d trip</item>
+        <item quantity="other">%d trips</item>
+    </plurals>
+    <plurals name="trip_count_taken">
+        <item quantity="one">trip taken</item>
+        <item quantity="other">trips taken</item>
+    </plurals>
+
+    <!-- ====== Onboarding & Induction ====== -->
+    <string name="contact_your_mobility_navigator">Please contact your Mobility Navigator to complete the next step.</string>
+    <string name="how_to_book">How to book</string>
+    <string name="how_to_use_your_wallet">How to use your wallet</string>
+    <string name="induction_app_overview_card_subtitle">
+        How to book transportation and use the Mobility Wallet
+    </string>
+    <string name="induction_app_overview_item_balance_title">
+        Check your Mobility Wallet balance on the home screen. This will be used to pay for rides booked through this app.
+    </string>
+    <string name="induction_app_overview_item_book_title">
+        Submit a ride request by selecting \'Book\', then wait for your ride confirmation on the app.
+    </string>
+    <string name="induction_app_overview_item_search_title">
+        View available ride services by entering the start and end locations for your trip.
+    </string>
+    <string name="induction_app_overview_title">App Overview</string>
+    <string name="induction_booking_a_ride_title">Booking a Ride</string>
+    <string name="induction_book_ride_step1">
+        Review your transportation options and click "Book" to select your ride.
+    </string>
+    <string name="induction_book_ride_step2">
+        Indicate your preferred mode of transport with the Transport filters.
+    </string>
+    <string name="induction_book_ride_step3">
+        Adjust trip details by clicking the start location or trip time.
+    </string>
+    <string name="check_your_mobility_wallet_balance">Check your Mobility Wallet balance</string>
+    <string name="review_your_transportation_options">Review your transportation options</string>
+    <string name="indicate_your_preferred_mode_of_transport">Indicate your preferred mode of transport</string>
+    <string name="adjust_trip_details">Adjust trip details</string>
+    <string name="induction_welcome_subtitle">
+        Please contact your mobility Navigator to complete the next step.
+    </string>
+    <string name="induction_welcome_title">You’re almost there!</string>
+    <string name="submit_a_ride_request">Submit a ride request</string>
+    <string name="view_available_ride_services">View available ride services</string>
+    <string name="view_more">View more</string>
+    <string name="view_tag_no_space">No space</string>
+    <string name="youre_almost_there">You’re almost there</string>
+
+    <!-- ====== Transport selector ====== -->
+    <string name="lbl_not_interested">Not interested</string>
+    <string name="lbl_show_me">Show me</string>
+    <string name="lbl_transport_step1_subTitle">
+        Tap here to customise your preferred modes of transport
+    </string>
+    <string name="lbl_transport_step1_title">How do you usually get around?</string>
+    <string name="lbl_transport_step2_subTitle">
+        Only your preferred modes will be fully visible now. You can always make changes in your Profile. Tap OK to dismiss this message.
+    </string>
+    <string name="lbl_transport_step2_title">We hope that is helpful.</string>
+
+    <!-- ====== Travel priorities ====== -->
+    <string name="lbl_onboarding_travel_subtitle">We tailor trip recommendations based on your priorities.</string>
+    <string name="lbl_onboarding_travel_title">What are your travel priorities?</string>
+    <string name="lbl_travel_step1_subTitle">We tailor trip recommendations based on your priorities.</string>
+    <string name="lbl_travel_step1_title">What are your travel priorities?</string>
+    <string name="lbl_travel_step2_subTitle">
+        Your trips are now personalised to match your priorities. You can always make changes in your Profile. Tap OK to dismiss this message
+    </string>
+    <string name="lbl_travel_step2_title">Well done!</string>
+
+    <!-- ====== Calendar permissions ====== -->
+    <string name="access_to_calender_helps">
+        Access to your Calendar allows TripGo to help you plan your day better. You
+        can change it any time from the Settings.
+    </string>
+    <string name="allow">Allow</string>
+    <string name="allow_access_to_calendar">Allow access to Calendar</string>
+    <string name="connect_to_calendar">Connect to Calendar</string>
+    <string name="select_the_calendars_you">
+        Select the calendars you want to include in your Agenda
+    </string>
+    <string name="skip_for_later">Skip for later</string>
+
+    <!-- ====== Scheduling preferences ====== -->
+    <string name="let_us_know_work_times">
+        Let us know your work times so we can push notifications better
+    </string>
+    <string name="work_times">Work Times</string>
+
+    <!-- ====== Notifications ====== -->
+    <string name="current_time">Current time</string>
+    <string name="lbl_minutes_before_trip">Minutes before trip</string>
+    <string name="lbl_trip_notifications">Trip Notifications</string>
+    <string name="action_alert_me">Alert Me</string>
+    <string name="action_mute">Mute</string>
+
+    <!-- ====== Favorites ====== -->
+    <string name="add_favorite">Add Favorite</string>
+    <string name="manage_favorite">Manage Favorite</string>
+
+    <!-- ====== Fragments ====== -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <!-- ====== Permissions & Prompts ====== -->
+    <string name="prompt_desc_feature_requires_login">
+        This feature requires you to be logged into an account.
+    </string>
+    <string name="prompt_title_feature_requires_login">Feature Requires Login</string>
+
+    <!-- ====== Authentication & Account ====== -->
+    <string name="agree_to_terms_and_privacy_policy">
+        By continuing you agree to our Terms of Service and Privacy Policy
+    </string>
+    <string name="authentication_error">Authentication Error</string>
+    <string name="could_not_sign_in">Could not sign in</string>
+    <string name="delete">Delete</string>
+    <string name="delete_account_confirmation">
+        Are you sure you want to delete your account?
+    </string>
+    <string name="delete_account_message">
+        This will delete your account from %s\'s servers. Continued use of %s will create a new empty account.
+    </string>
+    <string name="expired_qr">Expired QR</string>
+    <string name="incorrect_username_or_password">Incorrect username or password</string>
+    <string name="no_signal_or_service">No Signal or Service</string>
+    <string name="or">OR</string>
+    <string name="password">Password</string>
+    <string name="recover_account">Recover Account</string>
+    <string name="reset_password_confirmation">Are you sure that you want to reset your password? You will be logged out and a link to reset your password will be sent to your email address.</string>
+    <string name="signing_in_message">Please wait while we work on getting your account set up</string>
+    <string name="update_token_failed">Log-in failed, please try again</string>
+    <string name="username_or_email">Username or Email</string>
+
+    <!-- ====== UI Labels ====== -->
+    <string name="activity">Activity</string>
+    <string name="developer_options">Developer Options</string>
+    <string name="desc_start_ride_request">Start ride request</string>
+    <string name="hint_title">Title</string>
+    <string name="lbl_accessibility_statement">Accessibility statement</string>
+    <string name="lbl_fcm_token">FCM Token</string>
+    <string name="lbl_full_logs">Full logs</string>
+    <string name="lbl_reward">Reward</string>
+    <string name="lbl_rider">Rider</string>
+    <string name="lbl_the_university_of_queensland">The University of Queensland</string>
+    <string name="lbl_userId">userID</string>
+    <string name="str_see_more">See more</string>
+    <string name="terms_accepted">Accepted</string>
+    <string name="terms_ignored">Ignored</string>
+    <string name="minus">-</string>
+    <string name="more_exercise">Exercise</string>
+    <string name="others">Others</string>
+    <string name="plus">+</string>
+    <string name="str_close">Close</string>
+    <string name="str_favorite_item_pop_up">Favorite Item Pop Up Menu</string>
+    <string name="title_activity_priorities_settings">Priorities</string>
+    <string name="to_with_colon">To:</string>
+    <string name="select_location">Select Location</string>
+    <string name="payments_use_sandbox">Payments use sandbox</string>
+    <string name="pref_wayfinderwiki">Enable WayFinderWiki</string>
+    <string name="user_id">User ID</string>
+
+    <!-- ====== Distance Units ====== -->
+    <string name="default_distance_unit">@string/distance_value_auto</string>
+    <string name="distance_value_auto">auto</string>
+    <string name="distance_value_imperial">imperial</string>
+
+    <!-- ====== Payments & Subscriptions ====== -->
+    <string name="card_ending_in">%1$s ending in %2$s</string>
+    <string name="checkout">Checkout</string>
+    <string name="choose_the_monthly_pass">
+        Choose the transport pass that suits you best
+    </string>
+    <string name="go_card_usage">Ticket &amp; Logs</string>
+    <string name="joined_on_pattern">Joined on %1$s</string>
+    <string name="mobility_plan">Transport pass</string>
+    <string name="number_of_points_to_deduct">Number of points to deduct</string>
+    <string name="one_off_fee_unlock_included_transport_offers">
+        A one-off fee to unlock the included transport offers for %s.
+    </string>
+    <string name="paid">Paid</string>
+    <string name="purchase_a_transport_pass">Purchase a transport pass</string>
+    <string name="purchase_pass_for_next_month">Purchase pass for next %s</string>
+    <string name="rewards_were_sucessfully_requested">
+        Rewards were successfully requested!
+    </string>
+    <string name="sign_in_to_uq">Log in to your UQ account</string>
+    <string name="subscriber_only">
+        Your %s account opens the door to more exciting features.
+    </string>
+    <string name="subscribe">Purchase</string>
+    <string name="manage_subscription">Manage subscription</string>
+    <string name="pay_from">Pay from</string>
+    <string name="str_purchase_this_transport_pass">Purchase this transport pass</string>
+    <string name="str_please_confirm_request_purchase_transport_pass_new_message">
+    Please confirm the request to purchase this new transport pass. This new pass will become effective immediately after your current pass expires.
+    </string>
+    <string name="lbl_no_active_gocard_ticket_header">No active GoCard ticket</string>
+    <string name="lbl_no_active_gocard_ticket">Your active GoCard ticket will be shown here.</string>
+    <string name="lbl_renew_disable_desc">You may purchase your next pass closer to when your current pass expires.</string>
+    <string name="no_ticket">No ticket</string>
+    <string name="the_transport_offers_shown_above_are_included_in_this_pass">
+    The transport offers shown above are included in this transport pass. For any transport modes not shown, full fares apply. The AirTrain is not included on ODIN PASS.
+    </string>
+    <string name="this_is_your_upcoming_plan">This is your upcoming pass</string>
+    <string name="this_ticket_has_expired">This ticket has expired</string>
+    <string name="these_are_the_fees">
+        These are the fees payable to access discounted rates on included transport modes.
+    </string>
+    <string name="terms_and_conditions">Terms &amp; Conditions</string>
+    <string name="voucher_code_issue">Voucher code issue</string>
+    <string name="view_my_passes">View my passes</string>
+    <string name="view_other_plans">Available passes</string>
+
+    <!-- ====== Error & Feedback ====== -->
+    <string name="error_generic">Something went wrong.</string>
+    <string name="error_sending_payment_confirmation">
+        Error sending payment confirmation to server
+    </string>
+    <string name="in_progress">In Progress</string>
+    <string name="msg_text_copied_to_clipboard">Text copied to clipboard</string>
+    <string name="receipt_reference_number">Receipt reference number</string>
+    <string name="reference">Reference</string>
+    <string name="ticket_info">Ticket info</string>
+    <string name="ticket_qr_code_description">
+        Your pay as you go ticket. Scan the QR Code when boarding.
+    </string>
+    <string name="track_trip">Track trip</string>
+    <string name="tracking_trip">Tracking trip…</string>
+    <string name="trip_tracked">Trip tracked</string>
+    <string name="received">Received</string>
+    <string name="insufficient">Insufficient Points</string>
+    <string name="lifetime">Lifetime</string>
+    <string name="latest_redemption_events">Latest redemption events</string>
+    <string name="please_check_your_mobile_or_internet_connection">Please check your mobile or Internet connection.</string>
+    <string name="enter_your_address">Enter your address</string>
+    <string name="not_available">Not available</string>
 
 </resources>

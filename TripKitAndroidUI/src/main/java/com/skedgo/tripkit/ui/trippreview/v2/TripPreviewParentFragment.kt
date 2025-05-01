@@ -74,7 +74,7 @@ open class TripPreviewParentFragment : BaseDialog<FragmentTripPreviewParentBindi
         initViews()
     }
 
-    protected fun getContainerResourceId() = R.id.content
+    fun getContainerResourceId() = R.id.content
 
     open fun showQuickBooking() {}
 
