@@ -500,7 +500,9 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
         segmentActionStream?.let {
             it.subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({}, { it.printStackTrace() })
+                .subscribe({
+                    setBookingActions(it.booking?.externalActions)
+                }, { it.printStackTrace() })
                 .addTo(autoDisposable)
         }
 
