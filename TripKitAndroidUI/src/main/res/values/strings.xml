@@ -327,7 +327,7 @@ We aggregate the anonymised data and provide it to researchers, regulators, and 
     <!--Title of notification showing a non-critical issue-->
     <string name="warning">Warning</string>
     <!--'This data' refers to data about how a user users the app, which transport options they choose, etc.-->
-    <string name="we_keep_this_data_on_servers_in_australia_coma_europe_coma_or_the_us_dot_we_retain_this_data_forever_to_be_able_to_create_long_minusterm_trends_dot_for_more_details_coma_see_our_privacy_policy_dot">We keep this data on servers in Australia, Europe, or the US. We retain this data forever to be able to create long-term trends. For more details, see our Privacy Policy.</string>
+    <string name="we_keep_this_data_on_servers_in_australia_coma_europe_coma_or_the_us_dot_we_retain_this_data_forever_to_be_able_to_create_long_minusterm_trends_dot_for_more_details_coma_see_our_privacy_policy_dot">We keep anonymised trip data on servers in Australia, Europe, or the US. We retain this data forever to be able to create long-term trends. For more details see our Privacy Policy.</string>
     <!--Explanation for transport modes included in a mobility plan-->
     <string name="you_will_receive_discounted_rates_if_the_above_transport_modes_are_used_dot_for_transport_modes_not_shown_coma_full_fares_apply">You will receive discounted rates if the above transport modes are used. For transport modes not shown, full fares apply</string>
     <!--Class = "UINavigationItem"; title = "Service"; ObjectID = "JMk-5m-B22";-->
