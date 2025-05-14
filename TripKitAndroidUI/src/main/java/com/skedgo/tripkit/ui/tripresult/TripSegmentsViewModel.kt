@@ -197,6 +197,8 @@ class TripSegmentsViewModel @Inject internal constructor(
         )
     }
 
+    var tripAlertChangeValidator: (() -> Boolean)? = null
+
     init {
         tripSummaryStream
             .debounce(TRIP_SUMMARY_DEBOUNCE)
@@ -671,6 +673,14 @@ class TripSegmentsViewModel @Inject internal constructor(
 
             val getOffAlertsViewModel =
                 TripSegmentGetOffAlertsViewModel(trip, isOn, tripUpdater, remindersRepository)
+
+            getOffAlertsViewModel.alertStateToggleCustomValidation = { context, isOn ->
+                if(tripAlertChangeValidator?.invoke() == true) {
+                    getOffAlertsViewModel.onAlertChange(context, isOn)
+                } else {
+                    getOffAlertsViewModel.setGetOffAlertStateOn(false)
+                }
+            }
 
             getOffAlertsViewModel.showGeofencesOnMap = { _geofenceCircles.postValue(it) }
 

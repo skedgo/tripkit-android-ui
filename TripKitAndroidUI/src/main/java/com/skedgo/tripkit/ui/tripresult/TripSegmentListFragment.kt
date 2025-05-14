@@ -67,6 +67,10 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
         }
     }
 
+    private var tripAlertChangeValidator: (() -> Boolean)? = null
+    fun setTripAlertChangeValidator(validator: () -> Boolean) {
+        this.tripAlertChangeValidator = validator
+    }
 
     interface OnTripSegmentClickListener {
         fun tripSegmentClicked(tripSegment: TripSegment)
@@ -154,7 +158,7 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
         }
 
         accessibilityDefaultViewManager.setDefaultViewForAccessibility(binding.duration)
-
+        viewModel.tripAlertChangeValidator = tripAlertChangeValidator
         return binding.root
     }
 
