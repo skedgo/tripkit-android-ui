@@ -36,6 +36,8 @@ class TripGroupsPagerAdapter(
     @JvmField
     var segmentClickListener: OnTripSegmentClickListener? = null
 
+    var tripAlertChangeValidator: (() -> Boolean)? = null
+
     private val updateStream = PublishSubject.create<Unit>()
 
     private var queryFromLocation: Location? = null
@@ -84,6 +86,7 @@ class TripGroupsPagerAdapter(
         fragment.setOnTripKitButtonClickListener(listener!!)
         fragment.onCloseButtonListener = closeListener
         fragment.setOnTripSegmentClickListener(segmentClickListener!!)
+        tripAlertChangeValidator?.let { fragment.setTripAlertChangeValidator(it) }
         return fragment
     }
 
