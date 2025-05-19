@@ -26,7 +26,7 @@ open class BaseTripKitFragment : Fragment() {
         this.onCloseButtonListener = View.OnClickListener { v -> listener(v) }
     }
 
-    val autoDisposable = AutoDisposable()
+    protected val autoDisposable = AutoDisposable()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
