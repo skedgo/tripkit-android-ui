@@ -1,0 +1,216 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 2,
+    "identityHash": "4be7f10c6c5ccc383e3c94fc487a1bd6",
+    "entities": [
+      {
+        "tableName": "favorites_v2",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`uuid` TEXT NOT NULL, `type` TEXT NOT NULL, `name` TEXT, `order` INTEGER, `region` TEXT, `stopCode` TEXT, `filter` TEXT, `pattern` TEXT, `userId` TEXT, `location_address` TEXT, `location_lat` REAL, `location_lng` REAL, `location_name` TEXT, `start_address` TEXT, `start_lat` REAL, `start_lng` REAL, `start_name` TEXT, `end_address` TEXT, `end_lat` REAL, `end_lng` REAL, `end_name` TEXT, PRIMARY KEY(`uuid`))",
+        "fields": [
+          {
+            "fieldPath": "uuid",
+            "columnName": "uuid",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "type",
+            "columnName": "type",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "order",
+            "columnName": "order",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "region",
+            "columnName": "region",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "stopCode",
+            "columnName": "stopCode",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "filter",
+            "columnName": "filter",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "pattern",
+            "columnName": "pattern",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "userId",
+            "columnName": "userId",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "location.address",
+            "columnName": "location_address",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "location.lat",
+            "columnName": "location_lat",
+            "affinity": "REAL",
+            "notNull": false
+          },
+          {
+            "fieldPath": "location.lng",
+            "columnName": "location_lng",
+            "affinity": "REAL",
+            "notNull": false
+          },
+          {
+            "fieldPath": "location.name",
+            "columnName": "location_name",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "startLocation.address",
+            "columnName": "start_address",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "startLocation.lat",
+            "columnName": "start_lat",
+            "affinity": "REAL",
+            "notNull": false
+          },
+          {
+            "fieldPath": "startLocation.lng",
+            "columnName": "start_lng",
+            "affinity": "REAL",
+            "notNull": false
+          },
+          {
+            "fieldPath": "startLocation.name",
+            "columnName": "start_name",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "endLocation.address",
+            "columnName": "end_address",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "endLocation.lat",
+            "columnName": "end_lat",
+            "affinity": "REAL",
+            "notNull": false
+          },
+          {
+            "fieldPath": "endLocation.lng",
+            "columnName": "end_lng",
+            "affinity": "REAL",
+            "notNull": false
+          },
+          {
+            "fieldPath": "endLocation.name",
+            "columnName": "end_name",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "uuid"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "waypoints",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`lat` REAL NOT NULL, `lng` REAL NOT NULL, `mode` TEXT, `modes` TEXT, `modeTitle` TEXT, `order` INTEGER NOT NULL, `tripId` TEXT NOT NULL, `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "lat",
+            "columnName": "lat",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lng",
+            "columnName": "lng",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "mode",
+            "columnName": "mode",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "modes",
+            "columnName": "modes",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "modeTitle",
+            "columnName": "modeTitle",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "order",
+            "columnName": "order",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "tripId",
+            "columnName": "tripId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      }
+    ],
+    "views": [],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '4be7f10c6c5ccc383e3c94fc487a1bd6')"
+    ]
+  }
+}
