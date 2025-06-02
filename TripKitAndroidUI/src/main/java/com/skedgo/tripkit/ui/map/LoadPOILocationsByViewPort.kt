@@ -5,4 +5,5 @@ import io.reactivex.Observable
 
 interface LoadPOILocationsByViewPort {
     fun execute(viewPort: ViewPort): Observable<List<IMapPoiLocation>>
+    fun fetch(viewPort: ViewPort): Observable<List<IMapPoiLocation>>
 }

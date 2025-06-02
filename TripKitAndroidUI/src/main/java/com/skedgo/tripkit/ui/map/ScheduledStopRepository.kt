@@ -39,7 +39,9 @@ open class ScheduledStopRepository @Inject constructor(
             .append(DbFields.CODE).append(" = ")
             .append(DbTables.LOCATIONS).append(".")
             .append(DbFields.SCHEDULED_STOP_CODE)
-        b.append(" INNER JOIN ")
+
+        // ❗ Change this from INNER JOIN to LEFT JOIN so stops still show up even if download history is missing
+        b.append(" LEFT JOIN ")
             .append(DbTables.SCHEDULED_STOP_DOWNLOAD_HISTORY)
             .append(" ON ")
             .append(DbTables.SCHEDULED_STOP_DOWNLOAD_HISTORY)
