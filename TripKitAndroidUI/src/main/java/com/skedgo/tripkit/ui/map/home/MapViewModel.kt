@@ -223,18 +223,6 @@ class MapViewModel @Inject internal constructor(
     }
 }
 
-private fun Observable<ViewPort>.distinctViewPortUntilChanged(
-    getCellIdsFromViewPort: GetCellIdsFromViewPort
-): Observable<ViewPort> {
-    return this
-        .flatMap { viewPort ->
-            getCellIdsFromViewPort.fetch(viewPort)
-                .map { viewPort to it }
-        }
-        .distinctUntilChanged { a, b -> a.second == b.second }
-        .map { it.first }
-}
-
 sealed class ViewPort(val zoom: Float, val visibleBounds: LatLngBounds) {
     class CloseEnough(zoom: Float, visibleBounds: LatLngBounds) : ViewPort(zoom, visibleBounds)
     class NotCloseEnough(zoom: Float, visibleBounds: LatLngBounds) : ViewPort(zoom, visibleBounds)
