@@ -25,12 +25,12 @@ import kotlinx.coroutines.launch
 
 class TripPreviewHeaderFragment : Fragment() {
 
+    private val sharedViewModel: TripPreviewSharedViewModel by viewModels({ requireParentFragment() })
     private val viewModel: TripPreviewHeaderViewModel by viewModels()
 
     lateinit var binding: FragmentTripPreviewHeaderBinding
 
     private val disposeBag = CompositeDisposable()
-    private var pageIndexStream: PublishSubject<Pair<Long, String>>? = null
     private var hideExactTimes: Boolean = false
     private var loadQuickBookingCallback: (TripSegment?) -> Unit = { _ -> }
 
@@ -63,15 +63,20 @@ class TripPreviewHeaderFragment : Fragment() {
     }
 
     private fun initObserver() {
-        pageIndexStream?.subscribeOn(AndroidSchedulers.mainThread())
-            ?.subscribeWithErrorHandling {
-                viewModel.setSelectedById(it.first, it.second)
-                checkSelectedItemOnLoadedHeaders(binding.rvHeaders.layoutManager as LinearLayoutManager)
-            }?.addTo(disposeBag)
+        sharedViewModel.apply {
+            observe(pageIndex) {
+                it?.let {
+                    viewModel.setSelectedById(it.first, it.second)
+                    checkSelectedItemOnLoadedHeaders(
+                        binding.rvHeaders.layoutManager as LinearLayoutManager
+                    )
+                }
+            }
+        }
 
         viewModel.apply {
             observe(selectedSegmentId) {
-                it?.let { pageIndexStream?.onNext(it) }
+                it?.let { sharedViewModel.setPageIndex(it.first, it.second) }
             }
             setHideExactTimes(this@TripPreviewHeaderFragment.hideExactTimes)
         }
@@ -126,12 +131,10 @@ class TripPreviewHeaderFragment : Fragment() {
         const val TAG = "TripPreviewHeader"
 
         fun newInstance(
-            pageIndexStream: PublishSubject<Pair<Long, String>>?,
             hideExactTimes: Boolean,
             loadQuickBookingCallback: (TripSegment?) -> Unit = { _ -> }
         ): TripPreviewHeaderFragment {
             return TripPreviewHeaderFragment().apply {
-                this.pageIndexStream = pageIndexStream
                 this.hideExactTimes = hideExactTimes
                 this.loadQuickBookingCallback = loadQuickBookingCallback
             }

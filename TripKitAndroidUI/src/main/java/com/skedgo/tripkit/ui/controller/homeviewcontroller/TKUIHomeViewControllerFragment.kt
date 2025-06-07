@@ -770,7 +770,6 @@ class TKUIHomeViewControllerFragment :
         segmentId: Long,
         fromTripAction: Boolean = false
     ) {
-        val pageIndexStream = PublishSubject.create<Pair<Long, String>>()
         val paymentDataStream = PublishSubject.create<PaymentData>()
         val ticketActionStream = PublishSubject.create<String>()
 
@@ -778,7 +777,6 @@ class TKUIHomeViewControllerFragment :
 
         val headerFragment =
             TripPreviewHeaderFragment.newInstance(
-                pageIndexStream,
                 tripSegment.trip?.hideExactTimes == true ||
                     tripSegment.trip?.segmentList?.any { it.isHideExactTimes } ?: false
             )
@@ -789,7 +787,6 @@ class TKUIHomeViewControllerFragment :
             tripSegment.trip!!.uuid, segmentId,
             initTripPreviewPagerFragmentListener(tripSegment),
             fromTripAction,
-            pageIndexStream,
             paymentDataStream,
             ticketActionStream
         ) {

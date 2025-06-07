@@ -16,6 +16,21 @@
             android:background="@android:color/white"
             android:padding="16dp">
 
+            <FrameLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:paddingHorizontal="@dimen/spacing_normal"
+                android:paddingVertical="@dimen/spacing_small">
+
+                <View
+                    android:layout_width="40dp"
+                    android:layout_height="8dp"
+                    android:background="@drawable/bg_round_rect_grey"
+                    android:src="@drawable/ic_drag_handle"/>
+
+            </FrameLayout>
+
             <ImageView
                 android:id="@+id/btnClose"
                 android:layout_width="24dp"
@@ -28,7 +43,7 @@
             <FrameLayout
                 android:id="@+id/contentFrame"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="1000dp" />
 
         </LinearLayout>
 
