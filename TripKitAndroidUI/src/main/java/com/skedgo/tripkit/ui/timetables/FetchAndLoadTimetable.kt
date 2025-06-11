@@ -38,9 +38,10 @@ open class FetchAndLoadTimetable @Inject constructor(
             region,
             startTimeInSecs
         ).flatMap { (_, parentStop) ->
-                loadTimetable(embarkationStopCodes, startTimeInSecs)
-                    .map { it to parentStop }
-            }
+            loadTimetable(
+                embarkationStopCodes, startTimeInSecs
+            ).map { it to parentStop }
+        }
     }
 
     private fun loadTimetable(

@@ -173,19 +173,19 @@ class TimetableViewModel @Inject constructor(
                         emitter.onNext(it)
                         timeInSecs.set(it.first.last().startTimeInSecs + 1)
                     }, {
-                        if (BuildConfig.DEBUG) {
-                            it.printStackTrace()
-                        }
+                        it.printStackTrace()
                         emitter.onError(it)
                     })
                 emitter.setCancellable { subscription.dispose() }
             }, BackpressureStrategy.LATEST).toObservable()
                 .doOnError { throwable: Throwable ->
+                    throwable.printStackTrace()
                     Timber.e("An error occurred", throwable)
                 }
                 .scan { a, b -> (a.first + b.first) to b.second }
         }
         .doOnError { throwable: Throwable ->
+            throwable.printStackTrace()
             Timber.e("An error occurred", throwable)
         }
         .replay(1)
