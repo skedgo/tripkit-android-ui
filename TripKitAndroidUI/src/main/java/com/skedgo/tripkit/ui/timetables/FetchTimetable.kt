@@ -90,6 +90,22 @@ open class FetchTimetable @Inject constructor(
                     TimetableProvider.SCHEDULED_SERVICES_URI,
                     serviceValuesList
                 )
+
+                embarkationStopCodes.filter { stopCode ->
+                    response.serviceList.orEmpty().none { it.stopCode == stopCode }
+                }.forEach { stopCode ->
+                    val newServiceList = response.serviceList.orEmpty()
+                    newServiceList.map {
+                        it.stopCode = stopCode
+                    }
+                    val newServiceValuesList =
+                        timetableEntriesMapper.toContentValues(newServiceList)
+                    context.contentResolver.bulkInsert(
+                        TimetableProvider.SCHEDULED_SERVICES_URI,
+                        newServiceValuesList
+                    )
+                }
+
                 saveAlerts(response)
 
                 response.serviceList.orEmpty() to Optional<ScheduledStop>(response.parentInfo)
@@ -114,6 +130,8 @@ open class FetchTimetable @Inject constructor(
                         Completable.fromAction {
                             serviceAlertsDao.deleteAlertByService(it)
                         }
+                    }.doOnError {
+                        it.printStackTrace()
                     }
                     .andThen(Single.just(service))
                     .map {
@@ -124,7 +142,11 @@ open class FetchTimetable @Inject constructor(
                                     alertHashCodesToAlerts[it]!!
                                 )
                             }
+                    }.doOnError {
+                        it.printStackTrace()
                     }
+            }.doOnError {
+                it.printStackTrace()
             }
             .flatMapCompletable {
                 Completable.fromAction {
