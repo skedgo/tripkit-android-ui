@@ -65,4 +65,7 @@ class TKUICardViewControllerManager(
         return fragment
     }
 
+    fun getFragmentByTag(tag: String) = fragmentManager.findFragmentByTag(tag)
+    fun getFragmentById(id: Int) = fragmentManager.findFragmentById(id)
+
 }

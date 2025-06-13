@@ -11,7 +11,6 @@ import com.skedgo.tripkit.ui.map.home.TripKitMapFragment
 abstract class TKUICardBaseFragment<V : ViewDataBinding> : BaseFragment<V>(), CardableFragment {
 
     abstract val mapContributor: TripKitMapContributor?
-    abstract val navigator: TKUICardNavigator
 
     var mapFragment: TripKitMapFragment? = null
     var cardDataManager: TKUICardDataManager? = null
