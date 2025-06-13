@@ -62,7 +62,7 @@ import com.skedgo.tripkit.ui.map.home.TripKitMapFragment
 class TKUICardViewController : BaseBottomSheetDialogFragment<FragmentTkuiCardBinding>() {
 
     private var mapFragment: TripKitMapFragment? = null
-    private var cardManager: TKUICardManager? = null
+    private var cardManager: TKUICardDataManager? = null
 
     override val layoutRes: Int
         get() = R.layout.fragment_tkui_card
@@ -77,7 +77,7 @@ class TKUICardViewController : BaseBottomSheetDialogFragment<FragmentTkuiCardBin
             fragmentClass: Class<out Fragment>,
             fragmentArgs: Bundle? = null,
             mapFragment: TripKitMapFragment? = null,
-            cardManager: TKUICardManager? = null,
+            cardManager: TKUICardDataManager? = null,
             showOverlay: Boolean = true
         ): TKUICardViewController {
             return TKUICardViewController().apply {
@@ -118,7 +118,7 @@ class TKUICardViewController : BaseBottomSheetDialogFragment<FragmentTkuiCardBin
                 behaviorState = fragment.defaultCardSettings().startingState
                 peekHeightValue = fragment.defaultCardSettings().peekHeight
                 fragment.mapFragment = mapFragment
-                fragment.cardManager = cardManager
+                fragment.cardDataManager = cardManager
             }
 
             childFragmentManager.beginTransaction()

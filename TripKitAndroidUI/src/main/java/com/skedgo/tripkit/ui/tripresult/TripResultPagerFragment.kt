@@ -1,373 +1,386 @@
-package com.skedgo.tripkit.ui.tripresult;
+package com.skedgo.tripkit.ui.tripresult
 
-import android.content.Context;
-import android.os.Bundle;
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
+import android.content.Context
+import android.os.Bundle
+import android.view.View
+import androidx.viewpager.widget.ViewPager.OnPageChangeListener
+import androidx.viewpager2.widget.ViewPager2
+import com.skedgo.tripkit.common.model.location.Location
+import com.skedgo.tripkit.logging.ErrorLogger
+import com.skedgo.tripkit.model.ViewTrip
+import com.skedgo.tripkit.routing.Trip
+import com.skedgo.tripkit.routing.TripGroup
+import com.skedgo.tripkit.ui.R
+import com.skedgo.tripkit.ui.TripKitUI.Companion.getInstance
+import com.skedgo.tripkit.ui.booking.BookViewClickEventHandler.Companion.create
+import com.skedgo.tripkit.ui.core.BaseFragment
+import com.skedgo.tripkit.ui.databinding.TripResultPagerBinding
+import com.skedgo.tripkit.ui.map.home.TripKitMapContributor
+import com.skedgo.tripkit.ui.tripresult.TripSegmentListFragment.OnTripKitButtonClickListener
+import com.skedgo.tripkit.ui.tripresult.TripSegmentListFragment.OnTripSegmentClickListener
+import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButtonHandlerFactory
+import com.squareup.otto.Bus
+import javax.inject.Inject
+import com.skedgo.tripkit.ui.tripresult.v2.TripGroupsPagerAdapter
 
-import com.skedgo.tripkit.common.model.location.Location;
-import com.skedgo.tripkit.logging.ErrorLogger;
-import com.skedgo.tripkit.model.ViewTrip;
-import com.skedgo.tripkit.routing.Trip;
-import com.skedgo.tripkit.routing.TripGroup;
-import com.skedgo.tripkit.ui.TripKitUI;
-import com.skedgo.tripkit.ui.booking.BookViewClickEventHandler;
-import com.skedgo.tripkit.ui.core.BaseTripKitFragment;
-import com.skedgo.tripkit.ui.databinding.TripResultPagerBinding;
-import com.skedgo.tripkit.ui.map.home.TripKitMapContributor;
-import com.skedgo.tripkit.ui.model.TripKitButtonConfigurator;
-import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButtonHandlerFactory;
-import com.squareup.otto.Bus;
+class TripResultPagerFragment : BaseFragment<TripResultPagerBinding>(), OnPageChangeListener,
+    OnTripKitButtonClickListener {
 
-import org.jetbrains.annotations.NotNull;
+    override val layoutRes: Int
+        get() = R.layout.trip_result_pager
 
-import java.util.List;
-import java.util.Map;
+    private val bookViewClickEventHandler = create(this)
+    var tripSegmentClickListener: OnTripSegmentClickListener? = null
+    var tripButtonClickListener: OnTripKitButtonClickListener? = null
+    var tripUpdatedListener: OnTripUpdatedListener? = null
 
-import javax.inject.Inject;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-import androidx.viewpager.widget.ViewPager;
-
-public class TripResultPagerFragment extends BaseTripKitFragment implements ViewPager.OnPageChangeListener, TripSegmentListFragment.OnTripKitButtonClickListener {
-    private static final String KEY_CURRENT_PAGE = "currentPage";
-    private static final String KEY_SHOW_CLOSE_BUTTON = "showCloseButton";
-    private final BookViewClickEventHandler bookViewClickEventHandler = BookViewClickEventHandler.create(this);
-    public TripSegmentListFragment.OnTripSegmentClickListener tripSegmentClickListener = null;
-    OnTripKitButtonClickListener tripButtonClickListener = null;
-    OnTripUpdatedListener tripUpdatedListener = null;
     /* TODO: Replace with RxJava-based approach. */
     @Inject
-    @Deprecated
-    Bus bus;
+    @Deprecated("")
+    lateinit var bus: Bus
+
     @Inject
-    TripResultPagerViewModel viewModel;
+    lateinit var viewModel: TripResultPagerViewModel
+
     @Inject
-    ErrorLogger errorLogger;
-    private TripGroupsPagerAdapter tripGroupsPagerAdapter;
-    private TripResultPagerBinding binding;
-    private TripResultMapContributor mapContributor = new TripResultMapContributor();
-    private ActionButtonHandlerFactory actionButtonHandlerFactory = null;
-    private List<TripGroup> initialTripGroupList = null;
-    private Location queryFromLocation = null;
-    private Location queryToLocation = null;
-    @Nullable
-    private PagerFragmentArguments args;
-    private int currentPage = -1;
+    lateinit var errorLogger: ErrorLogger
 
-    public void setOnTripKitButtonClickListener(OnTripKitButtonClickListener listener) {
-        this.tripButtonClickListener = listener;
+
+    private var tripGroupsPagerAdapter: TripGroupsPagerAdapter? = null
+    private val mapContributor = TripResultMapContributor()
+    private var actionButtonHandlerFactory: ActionButtonHandlerFactory? = null
+    private var initialTripGroupList: List<TripGroup>? = null
+    private var queryFromLocation: Location? = null
+    private var queryToLocation: Location? = null
+    private var args: PagerFragmentArguments? = null
+    private var currentPage = -1
+    private val pageChangeCallback = object : ViewPager2.OnPageChangeCallback() {
+        override fun onPageSelected(position: Int) {
+            super.onPageSelected(position)
+            this@TripResultPagerFragment.onPageSelected(position)
+        }
     }
 
-    public void setOnTripUpdatedListener(OnTripUpdatedListener listener) {
-        this.tripUpdatedListener = listener;
+    override val observeAccessibility: Boolean
+        get() = false
+
+    override fun getDefaultViewForAccessibility(): View? = null
+
+    fun setOnTripKitButtonClickListener(listener: OnTripKitButtonClickListener?) {
+        this.tripButtonClickListener = listener
     }
 
-    public void setActionButtonHandlerFactory(ActionButtonHandlerFactory actionButtonHandlerFactory) {
-        this.actionButtonHandlerFactory = actionButtonHandlerFactory;
+    fun setOnTripUpdatedListener(listener: OnTripUpdatedListener) {
+        this.tripUpdatedListener = listener
     }
 
-    public void setQueryLocations(Location from, Location to) {
-        queryFromLocation = from;
-        queryToLocation = to;
+    fun setActionButtonHandlerFactory(actionButtonHandlerFactory: ActionButtonHandlerFactory?) {
+        this.actionButtonHandlerFactory = actionButtonHandlerFactory
     }
 
-    @Nullable
-    @Override
-    public View onCreateView(
-        LayoutInflater inflater,
-        @Nullable ViewGroup container,
-        @Nullable Bundle savedInstanceState) {
-        final TripResultPagerBinding binding = TripResultPagerBinding.inflate(inflater);
-        this.binding = binding;
-
-        binding.setViewModel(viewModel);
-        binding.tripGroupsPager.setAdapter(tripGroupsPagerAdapter);
-
-        binding.tripGroupsPager.setCurrentItem(currentPage);
-        viewModel.getCurrentPage().set(currentPage);
-        return binding.getRoot();
+    fun setQueryLocations(from: Location?, to: Location?) {
+        queryFromLocation = from
+        queryToLocation = to
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        bus.register(this);
-        bus.register(bookViewClickEventHandler);
-        getAutoDisposable().add(viewModel.trackViewingTrip()
-            .subscribe());
+    override fun onCreated(savedInstance: Bundle?) {
 
-        getAutoDisposable().add(viewModel.observeTripGroups()
-            .subscribe(
-                groups -> tripGroupsPagerAdapter.notifyDataSetChanged()
-            ));
+        binding.lifecycleOwner = viewLifecycleOwner
+        binding.viewModel = viewModel
 
-        getAutoDisposable().add(viewModel.observeInitialPage()
-            .subscribe());
+        if (savedInstance != null) {
+            currentPage = savedInstance.getInt(KEY_CURRENT_PAGE)
+        }
 
-        getAutoDisposable().add(viewModel.updateSelectedTripGroup()
-            .subscribe());
+        viewModel.onCreate(savedInstance)
+        var tripId: Long? = null
+        var groupId: String? = null
+        tripGroupsPagerAdapter = TripGroupsPagerAdapter(this, mapContributor)
+        tripGroupsPagerAdapter?.tripGroups = emptyList()
 
-        getAutoDisposable().add(viewModel.loadFetchingRealtimeStatus()
-            .subscribe());
+        if (savedInstance == null) {
+            if (args is HasInitialTripGroupId) {
+                groupId = (args as HasInitialTripGroupId).tripGroupId()
+                tripId = (args as HasInitialTripGroupId).tripId()
+                tripGroupsPagerAdapter?.tripIds?.set(groupId, tripId!!)
+                viewModel.setInitialSelectedTripGroupId(groupId)
+                mapContributor.setTripGroupId(groupId, tripId)
+            }
+        }
 
-        assert args != null;
-        getAutoDisposable().add(viewModel.getSortedTripGroups(args, initialTripGroupList)
-            .subscribe(tripGroup -> {
-                if (args instanceof FavoriteTrip) {
-                    // The trip group will possibly have changed after reloading it, so set the map to the correct one here
-                    mapContributor.setTripGroupId(viewModel.getCurrentTripGroupId().get(), null);
+        val args = arguments
+        if (args != null) {
+            tripGroupsPagerAdapter?.setShowCloseButton(args.getBoolean(KEY_SHOW_CLOSE_BUTTON, false))
+        }
+
+        tripGroupsPagerAdapter?.apply {
+            listener = this@TripResultPagerFragment
+            segmentClickListener = tripSegmentClickListener
+            closeListener = onCloseButtonListener
+            setActionButtonHandlerFactory(actionButtonHandlerFactory)
+            setQueryLocations(queryFromLocation, queryToLocation)
+        }
+
+        binding.tripGroupsPager.adapter = tripGroupsPagerAdapter
+        binding.tripGroupsPager.offscreenPageLimit = 1
+
+        binding.tripGroupsPager.setCurrentItem(currentPage, false)
+
+        binding.tripGroupsPager.registerOnPageChangeCallback(pageChangeCallback)
+
+        binding.tripGroupsPager.currentItem = currentPage
+        viewModel.currentPage.value = currentPage
+    }
+
+    override fun onResume() {
+        super.onResume()
+        bus.register(this)
+        bus.register(bookViewClickEventHandler)
+
+        autoDisposable.add(
+            viewModel.trackViewingTrip()
+                .subscribe()
+        )
+
+        autoDisposable.add(
+            viewModel.observeTripGroups()
+                .subscribe { groups: List<TripGroup?>? ->
+                    tripGroupsPagerAdapter?.notifyDataSetChanged()
                 }
-            }, errorLogger::trackError));
+        )
 
-        viewModel.getCurrentTrip().observe(getViewLifecycleOwner(), trip -> {
+        autoDisposable.add(
+            viewModel.observeInitialPage()
+                .subscribe()
+        )
+
+        autoDisposable.add(
+            viewModel.updateSelectedTripGroup()
+                .subscribe()
+        )
+
+        autoDisposable.add(
+            viewModel.loadFetchingRealtimeStatus()
+                .subscribe()
+        )
+
+        checkNotNull(args)
+        autoDisposable.add(
+            viewModel.getSortedTripGroups(args!!, initialTripGroupList!!)
+                .subscribe({ tripGroup: Unit ->
+                    if (args is FavoriteTrip) {
+                        // The trip group will possibly have changed after reloading it, so set the map to the correct one here
+                        mapContributor.setTripGroupId(viewModel.currentTripGroupId.get(), null)
+                    }
+                }, { error: Throwable? ->
+                    errorLogger!!.trackError(
+                        error!!
+                    )
+                })
+        )
+
+        viewModel.currentTrip.observe(viewLifecycleOwner) { trip: Trip? ->
             if (tripUpdatedListener != null) {
-                tripUpdatedListener.onTripUpdated(trip);
+                tripUpdatedListener!!.onTripUpdated(trip)
             }
-        });
+        }
+
+        viewModel.tripGroupsBinding.observe(viewLifecycleOwner) { tripGroups ->
+            tripGroupsPagerAdapter?.tripGroups = tripGroups ?: emptyList()
+        }
     }
 
-    public TripKitMapContributor contributor() {
-        return mapContributor;
+    fun contributor(): TripKitMapContributor {
+        return mapContributor
     }
 
-    public void updatePagerFragmentTripGroup(@NotNull TripGroup tripGroup) {
-        viewModel.setInitialSelectedTripGroupId(tripGroup.uuid());
+    fun updatePagerFragmentTripGroup(tripGroup: TripGroup) {
+        viewModel.setInitialSelectedTripGroupId(tripGroup.uuid())
     }
 
-    public void updateTripGroupResult(@NotNull List<TripGroup> tripGroup) {
-        viewModel.updateTripGroupResult(tripGroup);
+    fun updateTripGroupResult(tripGroup: List<TripGroup>) {
+        viewModel.updateTripGroupResult(tripGroup)
     }
 
-    @Override
-    public void onDestroy() {
-        mapContributor.cleanup();
-        super.onDestroy();
+    override fun onDestroy() {
+        mapContributor.cleanup()
+        super.onDestroy()
     }
 
-    @Override
-    public void onStart() {
-        super.onStart();
-        viewModel.onStart();
-        mapContributor.setup();
-        this.binding.tripGroupsPager.addOnPageChangeListener(this);
-
+    override fun onStart() {
+        super.onStart()
+        viewModel.onStart()
+        mapContributor.setup()
+        //binding.tripGroupsPager.addOnPageChangeListener(this)
+        if(binding.tripGroupsPager.adapter == null) {
+            binding.tripGroupsPager.adapter = tripGroupsPagerAdapter
+        }
     }
 
-    @Override
-    public void onStop() {
-        super.onStop();
-        viewModel.onStop();
-        this.binding.tripGroupsPager.removeOnPageChangeListener(this);
+    override fun onStop() {
+        super.onStop()
+        viewModel.onStop()
+        binding.tripGroupsPager.unregisterOnPageChangeCallback(pageChangeCallback)
+        //binding.tripGroupsPager.removeOnPageChangeListener(this)
+        binding.tripGroupsPager.adapter = null
     }
 
-    @Override
-    public void onPause() {
-        super.onPause();
-        bus.unregister(this);
-        bus.unregister(bookViewClickEventHandler);
+    override fun onPause() {
+        super.onPause()
+        bus!!.unregister(this)
+        bus!!.unregister(bookViewClickEventHandler)
     }
 
-    @Override
-    public void onSaveInstanceState(@NonNull Bundle outState) {
-        super.onSaveInstanceState(outState);
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
         if (binding != null && binding.tripGroupsPager != null) {
-            outState.putInt(KEY_CURRENT_PAGE, binding.tripGroupsPager.getCurrentItem());
+            outState.putInt(KEY_CURRENT_PAGE, binding.tripGroupsPager.currentItem)
         }
-        viewModel.onSavedInstanceState(outState);
+        viewModel.onSavedInstanceState(outState)
     }
 
-    public Fragment getCurrentFragment() {
-        return (Fragment) tripGroupsPagerAdapter.instantiateItem(
-            binding.tripGroupsPager,
-            currentPage == -1 ? binding.tripGroupsPager.getCurrentItem() : currentPage
-        );
+    override fun onAttach(context: Context) {
+        getInstance().tripDetailsComponent().inject(this)
+        mapContributor.initialize()
+        super.onAttach(context)
     }
 
-    @Override
-    public void onAttach(Context context) {
-        TripKitUI.getInstance().tripDetailsComponent().inject(this);
-        mapContributor.initialize();
-        super.onAttach(context);
+    fun setArgs(args: PagerFragmentArguments) {
+        this.args = args
     }
 
-    @Override
-    public void onCreate(@org.jetbrains.annotations.Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (savedInstanceState != null) {
-            currentPage = savedInstanceState.getInt(KEY_CURRENT_PAGE);
-        }
-
-        viewModel.onCreate(savedInstanceState);
-        Long tripId = null;
-        String groupId = null;
-        tripGroupsPagerAdapter = new TripGroupsPagerAdapter(getChildFragmentManager(), mapContributor);
-
-        if (savedInstanceState == null) {
-            if (args instanceof HasInitialTripGroupId) {
-                groupId = ((HasInitialTripGroupId) args).tripGroupId();
-                tripId = ((HasInitialTripGroupId) args).tripId();
-                tripGroupsPagerAdapter.getTripIds().put(groupId, tripId);
-                viewModel.setInitialSelectedTripGroupId(groupId);
-                mapContributor.setTripGroupId(groupId, tripId);
-            }
-        }
-
-        TripKitButtonConfigurator configurator = null;
-        Bundle b = getArguments();
-        if (b != null) {
-            tripGroupsPagerAdapter.setShowCloseButton(b.getBoolean(KEY_SHOW_CLOSE_BUTTON, false));
-        }
-
-        tripGroupsPagerAdapter.listener = this;
-        tripGroupsPagerAdapter.segmentClickListener = tripSegmentClickListener;
-        tripGroupsPagerAdapter.closeListener = getOnCloseButtonListener();
-        tripGroupsPagerAdapter.setActionButtonHandlerFactory(actionButtonHandlerFactory);
-        tripGroupsPagerAdapter.setQueryLocations(queryFromLocation, queryToLocation);
+    override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {
     }
 
-    public void setArgs(@NonNull PagerFragmentArguments args) {
-        this.args = args;
+    override fun onPageSelected(position: Int) {
+        val group = tripGroupsPagerAdapter?.tripGroups?.get(position)
+        mapContributor.setTripGroupId(group?.uuid(), null)
+        viewModel.currentPage.value = position
     }
 
-    @Override
-    public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-
+    override fun onPageScrollStateChanged(state: Int) {
     }
 
-    @Override
-    public void onPageSelected(int position) {
-        TripGroup group = this.tripGroupsPagerAdapter.getTripGroups().get(position);
-        mapContributor.setTripGroupId(group.uuid(), null);
-        viewModel.getCurrentPage().set(position);
-    }
-
-    @Override
-    public void onPageScrollStateChanged(int state) {
-
-    }
-
-    @Override
-    public void tripKitButtonClicked(int id, @NotNull TripGroup tripGroup) {
+    override fun tripKitButtonClicked(id: Int, tripGroup: TripGroup) {
         if (tripButtonClickListener != null) {
-            tripButtonClickListener.onTripKitButtonClicked(id, tripGroup);
+            tripButtonClickListener!!.onTripKitButtonClicked(id, tripGroup)
         }
     }
 
-    public interface OnTripKitButtonClickListener {
-        void onTripKitButtonClicked(int id, TripGroup tripGroup);
+    interface OnTripKitButtonClickListener {
+        fun onTripKitButtonClicked(id: Int, tripGroup: TripGroup?)
     }
 
-    public interface OnTripUpdatedListener {
-        void onTripUpdated(Trip trip);
+    interface OnTripUpdatedListener {
+        fun onTripUpdated(trip: Trip?)
     }
 
-    public static class Builder {
-        private String tripGroupId = "";
-        private String favoriteTripId = "";
-        private Long tripId = -1L;
-        private Integer sortOrder = 1;
-        private String requestId = "";
-        private Long arriveBy = 0L;
-        private Location fromLocation = null;
-        private Location toLocation = null;
-        private boolean showCloseButton = false;
-        private boolean singleRoute = false;
-        private List<TripGroup> initialTripGroupList = null;
-        private ActionButtonHandlerFactory actionButtonHandlerFactory = null;
+    class Builder {
+        private var tripGroupId = ""
+        private var favoriteTripId = ""
+        private var tripId = -1L
+        private var sortOrder = 1
+        private var requestId = ""
+        private var arriveBy = 0L
+        private var fromLocation: Location? = null
+        private var toLocation: Location? = null
+        private var showCloseButton = false
+        private var singleRoute = false
+        private var initialTripGroupList: List<TripGroup>? = null
+        private var actionButtonHandlerFactory: ActionButtonHandlerFactory? = null
 
-        public Builder withActionButtonHandlerFactory(ActionButtonHandlerFactory factory) {
-            this.actionButtonHandlerFactory = factory;
-            return this;
+        fun withActionButtonHandlerFactory(factory: ActionButtonHandlerFactory?): Builder {
+            this.actionButtonHandlerFactory = factory
+            return this
         }
 
-        public Builder withViewTrip(ViewTrip trip) {
-            this.tripGroupId = trip.tripGroupUUID();
-            this.tripId = trip.getDisplayTripID();
-            this.sortOrder = trip.getSortOrder();
-            this.arriveBy = trip.query().getArriveBy();
-            this.requestId = trip.query().uuid();
-            this.fromLocation = trip.query().getFromLocation();
-            this.toLocation = trip.query().getToLocation();
-            return this;
+        fun withViewTrip(trip: ViewTrip): Builder {
+            this.tripGroupId = trip.tripGroupUUID()
+            this.tripId = trip.displayTripID
+            this.sortOrder = trip.sortOrder
+            this.arriveBy = trip.query().arriveBy
+            this.requestId = trip.query().uuid()
+            this.fromLocation = trip.query().fromLocation
+            this.toLocation = trip.query().toLocation
+            return this
         }
 
-        public Builder withFavoriteTripId(String id) {
-            favoriteTripId = id;
-            singleRoute = true;
-            return this;
+        fun withFavoriteTripId(id: String): Builder {
+            favoriteTripId = id
+            singleRoute = true
+            return this
         }
 
-        public Builder withTripGroupId(String tripGroupId) {
-            this.tripGroupId = tripGroupId;
-            return this;
+        fun withTripGroupId(tripGroupId: String): Builder {
+            this.tripGroupId = tripGroupId
+            return this
         }
 
-        public Builder withTripId(Long tripId) {
-            this.tripId = tripId;
-            return this;
+        fun withTripId(tripId: Long): Builder {
+            this.tripId = tripId
+            return this
         }
 
-        public Builder showSingleRoute() {
-            this.singleRoute = true;
-            return this;
+        fun showSingleRoute(): Builder {
+            this.singleRoute = true
+            return this
         }
 
-        public Builder withSortOrder(Integer sortOrder) {
-            this.sortOrder = sortOrder;
-            return this;
+        fun withSortOrder(sortOrder: Int): Builder {
+            this.sortOrder = sortOrder
+            return this
         }
 
-        public Builder withRequestId(String requestId) {
-            this.requestId = requestId;
-            return this;
+        fun withRequestId(requestId: String): Builder {
+            this.requestId = requestId
+            return this
         }
 
-        public Builder withArriveBy(Long arriveBy) {
-            this.arriveBy = arriveBy;
-            return this;
+        fun withArriveBy(arriveBy: Long): Builder {
+            this.arriveBy = arriveBy
+            return this
         }
 
-        public Builder withInitialTripGroupList(List<TripGroup> initialTripGroupList) {
-            this.initialTripGroupList = initialTripGroupList;
-            return this;
+        fun withInitialTripGroupList(initialTripGroupList: List<TripGroup>?): Builder {
+            this.initialTripGroupList = initialTripGroupList
+            return this
         }
 
-        public Builder showCloseButton() {
-            this.showCloseButton = true;
-            return this;
+        fun showCloseButton(): Builder {
+            this.showCloseButton = true
+            return this
         }
 
-        public TripResultPagerFragment build() {
-            PagerFragmentArguments args;
-            if (singleRoute) {
+        fun build(): TripResultPagerFragment {
+            val args = if (singleRoute) {
                 if (!favoriteTripId.isEmpty()) {
-                    args = new FavoriteTrip(this.favoriteTripId);
+                    FavoriteTrip(this.favoriteTripId)
                 } else {
-                    args = new SingleTrip(this.tripGroupId, this.tripId);
+                    SingleTrip(this.tripGroupId, this.tripId)
                 }
             } else {
-                args = new FromRoutes(
+                FromRoutes(
                     this.tripGroupId,
                     this.tripId,
                     this.sortOrder,
                     this.requestId,
                     this.arriveBy
-                );
+                )
             }
-            TripResultPagerFragment fragment = new TripResultPagerFragment();
-            fragment.setArgs(args);
-            fragment.setActionButtonHandlerFactory(actionButtonHandlerFactory);
-            fragment.setQueryLocations(fromLocation, toLocation);
-            Bundle b = new Bundle();
-            b.putBoolean(KEY_SHOW_CLOSE_BUTTON, showCloseButton);
-            fragment.initialTripGroupList = initialTripGroupList;
-            fragment.setArguments(b);
-            return fragment;
+            val fragment = TripResultPagerFragment()
+            fragment.setArgs(args)
+            fragment.setActionButtonHandlerFactory(actionButtonHandlerFactory)
+            fragment.setQueryLocations(fromLocation, toLocation)
+            val b = Bundle()
+            b.putBoolean(KEY_SHOW_CLOSE_BUTTON, showCloseButton)
+            fragment.initialTripGroupList = initialTripGroupList
+            fragment.arguments = b
+            return fragment
         }
+    }
+
+    companion object {
+        private const val KEY_CURRENT_PAGE = "currentPage"
+        private const val KEY_SHOW_CLOSE_BUTTON = "showCloseButton"
     }
 }

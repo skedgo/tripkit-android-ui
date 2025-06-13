@@ -5,12 +5,8 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import android.view.ViewTreeObserver
-import android.view.WindowManager
 import android.widget.FrameLayout
-import androidx.core.view.doOnPreDraw
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -24,7 +20,7 @@ class TKUICardDialog(
     private val fragmentClass: Class<out Fragment>,
     private val fragmentArgs: Bundle? = null,
     private val mapFragment: TripKitMapFragment? = null,
-    private val cardManager: TKUICardManager? = null
+    private val cardManager: TKUICardDataManager? = null
 ) {
     private var dialog: BottomSheetDialog? = null
 
@@ -55,7 +51,7 @@ class TKUICardDialog(
 
                     if (fragment is TKUICardBaseFragment<*>) {
                         fragment.mapFragment = mapFragment
-                        fragment.cardManager = cardManager
+                        fragment.cardDataManager = cardManager
                     }
 
                     fragmentManager.beginTransaction()

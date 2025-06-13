@@ -7,7 +7,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.skedgo.tripkit.ui.generic.card.TKUICardBaseFragment
-import com.skedgo.tripkit.ui.generic.card.TKUICardManager
+import com.skedgo.tripkit.ui.generic.card.TKUICardDataManager
 import com.skedgo.tripkit.ui.map.home.TripKitMapFragment
 import com.skedgo.tripkit.ui.utils.isTalkBackOn
 
@@ -18,16 +18,16 @@ class TKUICardViewControllerManager(
     private val bottomSheetCardsManager: BottomSheetCardsManager
 ) {
     var currentFragment: Fragment? = null
-    var cardManager: TKUICardManager? = null
+    var cardManager: TKUICardDataManager? = null
     var mapFragment: TripKitMapFragment? = null
 
-    fun showCard(
-        fragmentClass: Class<out Fragment>,
+    fun <T> showCard(
+        fragmentClass: Class<T>,
         fragmentArgs: Bundle? = null,
         mapFragment: TripKitMapFragment? = null,
-        cardManager: TKUICardManager? = null,
+        cardManager: TKUICardDataManager? = null,
         addToBackStack: Boolean = false
-    ) {
+    ): T where T : Fragment {
         this.mapFragment = mapFragment
         this.cardManager = cardManager
 
@@ -37,10 +37,10 @@ class TKUICardViewControllerManager(
 
         if (fragment is TKUICardBaseFragment<*>) {
             fragment.mapFragment = mapFragment
-            fragment.cardManager = cardManager
+            fragment.cardDataManager = cardManager
         }
 
-        if(fragment is CardableFragment) {
+        if (fragment is CardableFragment) {
             bottomSheetCardsManager.setupFragment(
                 fragment,
                 if (context.isTalkBackOn()) {
@@ -62,5 +62,7 @@ class TKUICardViewControllerManager(
 
         transaction.commitAllowingStateLoss()
 
+        return fragment
     }
+
 }
