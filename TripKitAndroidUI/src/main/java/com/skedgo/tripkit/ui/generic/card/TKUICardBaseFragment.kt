@@ -20,4 +20,8 @@ abstract class TKUICardBaseFragment<V : ViewDataBinding> : BaseFragment<V>(), Ca
             ?: parentFragment as? TKUICardHost
             ?: activity as? TKUICardHost
     }
+
+    fun onClose() {
+        bottomSheetManager?.popBackStack()
+    }
 }
