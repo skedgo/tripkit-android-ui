@@ -57,8 +57,7 @@ open class LoadStopsByViewPort @Inject constructor(
                             selection,
                             selectionArgs,
                             null
-                        )
-                            .repeatWhen { scheduledStopRepository.changes }
+                        ).repeatWhen { scheduledStopRepository.changes }
                     }
                     .defaultIfEmpty(emptyList())
             }
