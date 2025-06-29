@@ -6,6 +6,7 @@ import com.skedgo.tripkit.routing.ModeInfo
 import com.skedgo.tripkit.routing.VehicleDrawables
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.map.BearingMarkerIconBuilder
+import io.reactivex.Observable
 
 fun Context.getFromAndToMarkerBitmap(type: Int): Bitmap {
 
@@ -40,4 +41,16 @@ fun Context.getFromAndToMarkerBitmap(type: Int): Bitmap {
             pointerIcon(R.drawable.ic_map_pin_arrival_small)
         }.build().first
     }
+}
+
+fun Observable<ViewPort>.distinctViewPortUntilChanged(
+    getCellIdsFromViewPort: GetCellIdsFromViewPort
+): Observable<ViewPort> {
+    return this
+        .flatMap { viewPort ->
+            getCellIdsFromViewPort.fetch(viewPort)
+                .map { viewPort to it }
+        }
+        .distinctUntilChanged { a, b -> a.second == b.second }
+        .map { it.first }
 }

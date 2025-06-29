@@ -1,4 +1,6 @@
-include ':tripkituisample'
+if (!System.getenv("JITPACK")) {
+    include ':tripkituisample'
+}
 include ':TripKitAndroidUI'
 include ':TripKitAndroidUIModules:TripKitAndroidUIData'
 include ':TripKitAndroidUIModules:TripKitAndroidUIDomain'

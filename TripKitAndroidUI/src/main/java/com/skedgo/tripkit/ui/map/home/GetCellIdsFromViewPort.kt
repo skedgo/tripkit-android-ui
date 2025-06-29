@@ -2,6 +2,7 @@ package com.skedgo.tripkit.ui.map.home
 
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
+import com.skedgo.tripkit.common.model.region.Region
 import com.skedgo.tripkit.data.regions.RegionService
 import com.skedgo.tripkit.location.GeoPoint
 import io.reactivex.Observable
@@ -35,6 +36,29 @@ open class GetCellIdsFromViewPort @Inject constructor(val regionService: RegionS
                     GeoPoint(googleMapsBounds.center.latitude, googleMapsBounds.center.longitude),
                     viewPort.zoom,
                     googleMapsBounds
+                )
+            }
+    }
+
+    open fun fetch(viewPort: ViewPort): Observable<List<String>> {
+        val bounds = viewPort.visibleBounds
+        val sw = bounds.southwest
+        val ne = bounds.northeast
+
+        return regionService.getRegionByLocationAsync(sw.latitude, sw.longitude)
+            .ignoreOutOfRegionsException()
+            .map { region ->
+                val googleBounds = LatLngBounds.builder()
+                    .include(LatLng(sw.latitude, sw.longitude))
+                    .include(LatLng(ne.latitude, ne.longitude))
+                    .build()
+
+                val center = googleBounds.center
+                StopLoaderArgs.getCellIdsByCameraZoom(
+                    region,
+                    GeoPoint(center.latitude, center.longitude),
+                    viewPort.zoom,
+                    googleBounds
                 )
             }
     }

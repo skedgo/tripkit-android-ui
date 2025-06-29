@@ -12,6 +12,7 @@ import com.jakewharton.rxrelay2.PublishRelay
 import com.skedgo.rxtry.Failure
 import com.skedgo.rxtry.Success
 import com.skedgo.rxtry.Try
+import com.skedgo.rxtry.printThrowableStackTrace
 import com.skedgo.tripkit.camera.GetInitialMapCameraPosition
 import com.skedgo.tripkit.camera.PutMapCameraPosition
 import com.skedgo.tripkit.common.model.location.Location
@@ -26,6 +27,7 @@ import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.core.RxViewModel
 import com.skedgo.tripkit.ui.data.cameraposition.toCameraPosition
 import com.skedgo.tripkit.ui.data.cameraposition.toMapCameraPosition
+import com.skedgo.tripkit.ui.data.extensions.withBuffer
 import com.skedgo.tripkit.ui.data.places.LatLngBounds
 import com.skedgo.tripkit.ui.map.IMapPoiLocation
 import com.skedgo.tripkit.ui.map.LoadPOILocationsByViewPort
@@ -64,17 +66,19 @@ class MapViewModel @Inject internal constructor(
 
     private val viewportChanged = PublishRelay.create<ViewPort>()
     val markers = viewportChanged.hide()
-        .debounce(500, TimeUnit.MILLISECONDS)
+        .debounce(400, TimeUnit.MILLISECONDS)
         .flatMap { viewPort ->
-            getCellIdsFromViewPort.execute(viewPort)
+            getCellIdsFromViewPort.fetch(viewPort)
                 .map { viewPort to it }
         }
         .distinctUntilChanged { a, b -> a.second == b.second }
-        .map { it.first }
+        .map {
+            it.first
+        }
         .observeOn(Schedulers.io())
         .switchMap {
             if (showMarkers.get()) {
-                loadPOILocationsByViewPort.execute(it)
+                loadPOILocationsByViewPort.fetch(it)
             } else {
                 Observable.empty()
             }
@@ -138,10 +142,24 @@ class MapViewModel @Inject internal constructor(
         viewportChanged.hide()
             .debounce(500, TimeUnit.MILLISECONDS)!!
             .distinctViewPortUntilChanged(getCellIdsFromViewPort)
-            .switchMapDelayError {
-                fetchStopsByViewport.execute(it).toObservable<Unit>()
+            .switchMapDelayError { viewPort ->
+                fetchStopsByViewport.fetch(viewPort)
+                    .andThen(
+                        // Perform broader prefetch with buffer = 3.0
+                        Completable.fromAction {
+                            if (viewPort is ViewPort.CloseEnough) {
+                                val broaderBounds = viewPort.visibleBounds.withBuffer(3.0)
+                                val broaderViewPort = ViewPort.CloseEnough(viewPort.zoom, broaderBounds)
+                                fetchStopsByViewport
+                                    .fetch(broaderViewPort).subscribe({
+                                    }, { errorLogger.logError(it) }).autoClear()
+                            }
+                        }
+                    )
+                    .toObservable<Unit>()
             }
-            .subscribe({}, { errorLogger.logError(it) })
+            .subscribe({
+            }, { errorLogger.logError(it) })
             .autoClear()
     }
 
@@ -183,18 +201,26 @@ class MapViewModel @Inject internal constructor(
 
     fun onViewPortChanged(viewPort: ViewPort) = viewportChanged.accept(viewPort)
 
-}
+    fun prefetchMarkersForRegion(zoom: Float, bounds: LatLngBounds) {
+        val initial = bounds.withBuffer(1.5)
+        val broader = bounds.withBuffer(5.0)
 
-private fun Observable<ViewPort>.distinctViewPortUntilChanged(
-    getCellIdsFromViewPort: GetCellIdsFromViewPort
-): Observable<ViewPort> {
-    return this
-        .flatMap { viewPort ->
-            getCellIdsFromViewPort.execute(viewPort)
-                .map { viewPort to it }
-        }
-        .distinctUntilChanged { a, b -> a.second == b.second }
-        .map { it.first }
+        val initialViewport = ViewPort.CloseEnough(zoom, initial)
+        val broaderViewport = ViewPort.CloseEnough(zoom, broader)
+
+        // Fast initial fetch
+        fetchStopsByViewport.fetch(initialViewport)
+            .andThen(Completable.fromAction {
+                viewportChanged.accept(initialViewport)
+            })
+            .subscribe({}, { it.printThrowableStackTrace() })
+            .autoClear()
+
+        // to cache a broader reach
+        fetchStopsByViewport.fetch(broaderViewport)
+            .subscribe({}, { it.printThrowableStackTrace() })
+            .autoClear()
+    }
 }
 
 sealed class ViewPort(val zoom: Float, val visibleBounds: LatLngBounds) {
