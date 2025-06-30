@@ -883,4 +883,7 @@ We aggregate the anonymised data and provide it to researchers, regulators, and 
     <string name="enter_your_address">Enter your address</string>
     <string name="not_available">Not available</string>
 
+    <string name="permission_required">Permission Required</string>
+    <string name="permission_go_to_settings_message">Allow this app to access this device’s location in settings.</string>
+    <string name="permission_go_to_settings">Go to Settings</string>
 </resources>
