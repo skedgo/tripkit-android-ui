@@ -36,6 +36,8 @@ class TripGroupsPagerAdapter(
     private var queryFromLocation: Location? = null
     private var queryToLocation: Location? = null
 
+    var tripAlertChangeValidator: (() -> Boolean)? = null
+
     fun setShowCloseButton(showCloseButton: Boolean) {
         this.showCloseButton = showCloseButton
     }

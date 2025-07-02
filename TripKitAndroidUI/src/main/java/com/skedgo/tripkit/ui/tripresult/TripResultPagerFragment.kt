@@ -129,6 +129,7 @@ class TripResultPagerFragment : BaseFragment<TripResultPagerBinding>(), OnPageCh
             closeListener = onCloseButtonListener
             setActionButtonHandlerFactory(actionButtonHandlerFactory)
             setQueryLocations(queryFromLocation, queryToLocation)
+            tripAlertChangeValidator = this@TripResultPagerFragment.tripAlertChangeValidator
         }
 
         binding.tripGroupsPager.adapter = tripGroupsPagerAdapter
@@ -249,51 +250,10 @@ class TripResultPagerFragment : BaseFragment<TripResultPagerBinding>(), OnPageCh
         viewModel.onSavedInstanceState(outState)
     }
 
-    val currentFragment: Fragment
-        get() = tripGroupsPagerAdapter!!.instantiateItem(
-            binding!!.tripGroupsPager,
-            if (currentPage == -1) binding!!.tripGroupsPager.currentItem else currentPage
-        ) as Fragment
-
     override fun onAttach(context: Context) {
         getInstance().tripDetailsComponent().inject(this)
         mapContributor.initialize()
         super.onAttach(context)
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        if (savedInstanceState != null) {
-            currentPage = savedInstanceState.getInt(KEY_CURRENT_PAGE)
-        }
-
-        viewModel.onCreate(savedInstanceState)
-        var tripId: Long? = null
-        var groupId: String? = null
-        tripGroupsPagerAdapter = TripGroupsPagerAdapter(childFragmentManager, mapContributor)
-
-        if (savedInstanceState == null) {
-            if (args is HasInitialTripGroupId) {
-                groupId = (args as HasInitialTripGroupId).tripGroupId()
-                tripId = (args as HasInitialTripGroupId).tripId()
-                tripGroupsPagerAdapter!!.tripIds[groupId] = tripId!!
-                viewModel.setInitialSelectedTripGroupId(groupId)
-                mapContributor.setTripGroupId(groupId, tripId)
-            }
-        }
-
-        val configurator: TripKitButtonConfigurator? = null
-        val b = arguments
-        if (b != null) {
-            tripGroupsPagerAdapter!!.setShowCloseButton(b.getBoolean(KEY_SHOW_CLOSE_BUTTON, false))
-        }
-
-        tripGroupsPagerAdapter!!.listener = this
-        tripGroupsPagerAdapter!!.segmentClickListener = tripSegmentClickListener
-        tripGroupsPagerAdapter!!.closeListener = onCloseButtonListener
-        tripGroupsPagerAdapter!!.setActionButtonHandlerFactory(actionButtonHandlerFactory)
-        tripGroupsPagerAdapter!!.setQueryLocations(queryFromLocation, queryToLocation)
-        tripGroupsPagerAdapter!!.tripAlertChangeValidator = tripAlertChangeValidator
     }
 
     fun setArgs(args: PagerFragmentArguments) {
