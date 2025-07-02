@@ -551,6 +551,17 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
         })
     }
 
+    fun fetchCurrentPositionMarkers() {
+        map?.let {
+            val position = it.cameraPosition
+            val visibleBounds = it.projection.visibleRegion.latLngBounds
+            viewModel.prefetchMarkersForRegion(
+                position.zoom,
+                visibleBounds.convertToDomainLatLngBounds()
+            )
+        }
+    }
+
     override fun animateToMyLocation() {
         goToMyLocation()
     }
@@ -717,15 +728,22 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
         setupMap(map)
         if (moveCamera) {
             viewModel.getInitialCameraUpdate()
-                .subscribe({ cameraUpdate: CameraUpdate? -> map.moveCamera(cameraUpdate) }) { error: Throwable? ->
-                    errorLogger!!.trackError(
+                .subscribe(
+                    { cameraUpdate: CameraUpdate? ->
+                        map.moveCamera(cameraUpdate)
+                        val position = map.cameraPosition
+                        val visibleBounds = map.projection.visibleRegion.latLngBounds
+                        viewModel.prefetchMarkersForRegion(
+                            position.zoom,
+                            visibleBounds.convertToDomainLatLngBounds()
+                        )
+                    }) { error: Throwable? ->
+                    errorLogger.trackError(
                         error!!
                     )
                 }
                 .addTo(autoDisposable)
         }
-
-
     }
 
     private fun showMyLocationError() {
@@ -746,7 +764,13 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
     }
 
     fun focusOnLocation(location: LatLng) {
-        map?.moveCamera(CameraUpdateFactory.newLatLng(location))
+        whenSafeToUseMap(Consumer { map: GoogleMap ->
+            val position = CameraPosition.Builder()
+                .zoom(ZoomLevel.OUTER.level)
+                .target(LatLng(location.latitude, location.longitude))
+                .build()
+            map.moveCamera(CameraUpdateFactory.newCameraPosition(position))
+        })
     }
 
     fun setFromMarkerLocation(location: LatLng?) {

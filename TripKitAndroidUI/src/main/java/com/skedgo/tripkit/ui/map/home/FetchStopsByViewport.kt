@@ -44,12 +44,49 @@ open class FetchStopsByViewport @Inject constructor(
                     }
             }
             else -> Observable.empty<FetchStopParams>()
+        }.flatMapCompletable {
+            stopsFetcher.fetchAsync(it.cellIds, it.region, it.level)
+                .ignoreNetworkErrors()
+                .ignoreElements()
         }
-            .flatMapCompletable {
-                stopsFetcher.fetchAsync(it.cellIds, it.region, it.level)
-                    .ignoreNetworkErrors()
-                    .ignoreElements()
+
+    open fun fetch(viewPort: ViewPort): Completable {
+        return when (viewPort) {
+            is ViewPort.CloseEnough -> {
+                regionService.getRegionByLocationAsync(
+                    viewPort.visibleBounds.southwest.latitude,
+                    viewPort.visibleBounds.southwest.longitude
+                )
+                    .ignoreOutOfRegionsException()
+                    .flatMap { region ->
+                        val defaultParams = FetchStopParams(
+                            listOf(region.name!!),
+                            region,
+                            ApiZoomLevels.REGION
+                        )
+
+                        if (viewPort.isInner()) {
+                            getCellIdsFromViewPort.fetch(viewPort)
+                                .map { cellIds ->
+                                    FetchStopParams(
+                                        cellIds,
+                                        region,
+                                        ApiZoomLevels.fromMapZoomLevel(ZoomLevel.fromLevel(viewPort.zoom))
+                                    )
+                                }
+                                .startWith(defaultParams)
+                        } else {
+                            Observable.just(defaultParams)
+                        }
+                    }
             }
+            else -> Observable.empty()
+        }.flatMapCompletable { params ->
+            stopsFetcher.fetchAsync(params.cellIds, params.region, params.level)
+                .ignoreNetworkErrors()
+                .ignoreElements()
+        }
+    }
 
     open fun clearData(type: ClearDataType): Completable? {
         return if (type == ClearDataType.CAR_PODS) {

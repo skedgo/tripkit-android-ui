@@ -2,7 +2,11 @@ package com.skedgo.tripkit.ui.tripresult
 
 import android.content.Context
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
 import androidx.viewpager.widget.ViewPager.OnPageChangeListener
 import androidx.viewpager2.widget.ViewPager2
 import com.skedgo.tripkit.common.model.location.Location
@@ -16,6 +20,7 @@ import com.skedgo.tripkit.ui.booking.BookViewClickEventHandler.Companion.create
 import com.skedgo.tripkit.ui.core.BaseFragment
 import com.skedgo.tripkit.ui.databinding.TripResultPagerBinding
 import com.skedgo.tripkit.ui.map.home.TripKitMapContributor
+import com.skedgo.tripkit.ui.model.TripKitButtonConfigurator
 import com.skedgo.tripkit.ui.tripresult.TripSegmentListFragment.OnTripKitButtonClickListener
 import com.skedgo.tripkit.ui.tripresult.TripSegmentListFragment.OnTripSegmentClickListener
 import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButtonHandlerFactory
@@ -54,6 +59,7 @@ class TripResultPagerFragment : BaseFragment<TripResultPagerBinding>(), OnPageCh
     private var queryToLocation: Location? = null
     private var args: PagerFragmentArguments? = null
     private var currentPage = -1
+    private var tripAlertChangeValidator: (() -> Boolean)? = null
     private val pageChangeCallback = object : ViewPager2.OnPageChangeCallback() {
         override fun onPageSelected(position: Int) {
             super.onPageSelected(position)
@@ -76,6 +82,10 @@ class TripResultPagerFragment : BaseFragment<TripResultPagerBinding>(), OnPageCh
 
     fun setActionButtonHandlerFactory(actionButtonHandlerFactory: ActionButtonHandlerFactory?) {
         this.actionButtonHandlerFactory = actionButtonHandlerFactory
+    }
+
+    fun setTripAlertChangeValidator(validator: () -> Boolean) {
+        this.tripAlertChangeValidator = validator
     }
 
     fun setQueryLocations(from: Location?, to: Location?) {
@@ -172,9 +182,9 @@ class TripResultPagerFragment : BaseFragment<TripResultPagerBinding>(), OnPageCh
                         // The trip group will possibly have changed after reloading it, so set the map to the correct one here
                         mapContributor.setTripGroupId(viewModel.currentTripGroupId.get(), null)
                     }
-                }, { error: Throwable? ->
-                    errorLogger!!.trackError(
-                        error!!
+                }, { error: Throwable ->
+                    errorLogger.trackError(
+                        error
                     )
                 })
         )
@@ -227,8 +237,8 @@ class TripResultPagerFragment : BaseFragment<TripResultPagerBinding>(), OnPageCh
 
     override fun onPause() {
         super.onPause()
-        bus!!.unregister(this)
-        bus!!.unregister(bookViewClickEventHandler)
+        bus.unregister(this)
+        bus.unregister(bookViewClickEventHandler)
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -239,10 +249,51 @@ class TripResultPagerFragment : BaseFragment<TripResultPagerBinding>(), OnPageCh
         viewModel.onSavedInstanceState(outState)
     }
 
+    val currentFragment: Fragment
+        get() = tripGroupsPagerAdapter!!.instantiateItem(
+            binding!!.tripGroupsPager,
+            if (currentPage == -1) binding!!.tripGroupsPager.currentItem else currentPage
+        ) as Fragment
+
     override fun onAttach(context: Context) {
         getInstance().tripDetailsComponent().inject(this)
         mapContributor.initialize()
         super.onAttach(context)
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        if (savedInstanceState != null) {
+            currentPage = savedInstanceState.getInt(KEY_CURRENT_PAGE)
+        }
+
+        viewModel.onCreate(savedInstanceState)
+        var tripId: Long? = null
+        var groupId: String? = null
+        tripGroupsPagerAdapter = TripGroupsPagerAdapter(childFragmentManager, mapContributor)
+
+        if (savedInstanceState == null) {
+            if (args is HasInitialTripGroupId) {
+                groupId = (args as HasInitialTripGroupId).tripGroupId()
+                tripId = (args as HasInitialTripGroupId).tripId()
+                tripGroupsPagerAdapter!!.tripIds[groupId] = tripId!!
+                viewModel.setInitialSelectedTripGroupId(groupId)
+                mapContributor.setTripGroupId(groupId, tripId)
+            }
+        }
+
+        val configurator: TripKitButtonConfigurator? = null
+        val b = arguments
+        if (b != null) {
+            tripGroupsPagerAdapter!!.setShowCloseButton(b.getBoolean(KEY_SHOW_CLOSE_BUTTON, false))
+        }
+
+        tripGroupsPagerAdapter!!.listener = this
+        tripGroupsPagerAdapter!!.segmentClickListener = tripSegmentClickListener
+        tripGroupsPagerAdapter!!.closeListener = onCloseButtonListener
+        tripGroupsPagerAdapter!!.setActionButtonHandlerFactory(actionButtonHandlerFactory)
+        tripGroupsPagerAdapter!!.setQueryLocations(queryFromLocation, queryToLocation)
+        tripGroupsPagerAdapter!!.tripAlertChangeValidator = tripAlertChangeValidator
     }
 
     fun setArgs(args: PagerFragmentArguments) {

@@ -39,6 +39,7 @@ open class ScheduledStopRepository @Inject constructor(
             .append(DbFields.CODE).append(" = ")
             .append(DbTables.LOCATIONS).append(".")
             .append(DbFields.SCHEDULED_STOP_CODE)
+
         b.append(" INNER JOIN ")
             .append(DbTables.SCHEDULED_STOP_DOWNLOAD_HISTORY)
             .append(" ON ")

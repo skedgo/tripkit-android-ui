@@ -59,6 +59,8 @@ class TripSegmentGetOffAlertsViewModel @Inject internal constructor(
     val _getOffAlertStateOn = MutableLiveData<Boolean>(defaultValue)
     val getOffAlertStateOn: LiveData<Boolean> = _getOffAlertStateOn
 
+    var alertStateToggleCustomValidation: ((Context, Boolean) -> Unit)? = null
+
     private val _isVisible = MutableLiveData<Boolean>()
     val isVisible: LiveData<Boolean> = _isVisible
 
@@ -86,9 +88,8 @@ class TripSegmentGetOffAlertsViewModel @Inject internal constructor(
         )
     }
 
-    @VisibleForTesting
     fun setGetOffAlertStateOn(isOn: Boolean) {
-        _getOffAlertStateOn.value = isOn
+        _getOffAlertStateOn.postValue(isOn)
     }
 
     fun validate() {
@@ -101,7 +102,9 @@ class TripSegmentGetOffAlertsViewModel @Inject internal constructor(
     }
 
     fun setAlertState(context: Context, isOn: Boolean) {
-        onAlertChange(context, isOn)
+        alertStateToggleCustomValidation?.invoke(context, isOn) ?: run {
+            onAlertChange(context, isOn)
+        }
     }
 
     fun onAlertChange(context: Context, isOn: Boolean) {

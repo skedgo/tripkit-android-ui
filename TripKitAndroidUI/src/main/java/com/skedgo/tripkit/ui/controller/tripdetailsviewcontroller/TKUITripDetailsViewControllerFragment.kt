@@ -21,6 +21,7 @@ import com.skedgo.tripkit.ui.favorites.trips.FavoriteTrip
 import com.skedgo.tripkit.ui.map.home.TripKitMapFragment
 import com.skedgo.tripkit.ui.routingresults.TripGroupRepository
 import com.skedgo.tripkit.ui.tripresult.TripResultPagerFragment
+import com.skedgo.tripkit.ui.tripresult.TripResultPagerFragment.OnTripUpdatedListener
 import com.skedgo.tripkit.ui.tripresult.TripSegmentListFragment
 import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButtonHandlerFactory
 import kotlinx.coroutines.CoroutineScope
@@ -116,7 +117,7 @@ class TKUITripDetailsViewControllerFragment :
 
                 tripGroupId != null -> {
                     pagerFragmentBuilder.showSingleRoute().withTripGroupId(tripGroupId.orEmpty())
-                        .withTripId(tripId ?: 0)
+                        .withTripId(tripId ?: 0L)
                 }
 
                 favoriteTripId != null -> {
@@ -138,8 +139,7 @@ class TKUITripDetailsViewControllerFragment :
             pagerFragment?.setOnCloseButtonListener {
                 eventBus.publish(ViewControllerEvent.OnCloseAction())
             }
-            pagerFragment?.setOnTripUpdatedListener(object :
-                TripResultPagerFragment.OnTripUpdatedListener {
+            pagerFragment?.setOnTripUpdatedListener(object : TripResultPagerFragment.OnTripUpdatedListener {
                 override fun onTripUpdated(trip: Trip?) {
                     trip?.group?.let {
                         val list = ArrayList<TripGroup>()
