@@ -77,7 +77,7 @@ object ProviderUtils {
                 newId = statement.executeInsert()
                 sSbPool.save(sb)
             } else {
-                newId = db.replaceOrThrow(table?.name, null, values)
+                newId = db.replaceOrThrow(table?.name!!, null, values)
             }
         }
         return newId
