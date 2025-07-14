@@ -671,9 +671,7 @@ We aggregate the anonymised data and provide it to researchers, regulators, and 
     </string>
     <string name="induction_app_overview_title">App Overview</string>
     <string name="induction_booking_a_ride_title">Booking a Ride</string>
-    <string name="induction_book_ride_step1">
-        Review your transportation options and click "Book" to select your ride.
-    </string>
+    <string name="induction_book_ride_step1">Review your transportation options and click "Book" to select your ride.</string>
     <string name="induction_book_ride_step2">
         Indicate your preferred mode of transport with the Transport filters.
     </string>
