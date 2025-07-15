@@ -8,6 +8,7 @@
 
     <!-- "New" colors from design mockups-->
     <color name="tripKitPrimary">#23b15e</color>
+    <color name="white">#FFFFFF</color>
     <color name="black">#212A33</color>
     <color name="black1">#99212A33</color>
     <color name="black2">#4D212A33</color>
@@ -29,6 +30,10 @@
     <color name="classification_greenest">#00a88f</color>
     <color name="classification_healthiest">#e15b72</color>
     <color name="classification_recommended">#1880e7</color>
+
+    <!-- "DayNight" colors -->
+    <color name="inactiveAreaBackground">#F6F6F6</color>
+    <color name="searchBarBackground">#FFFFFF</color>
 
     <color name="favorite_blue">#3467CE</color>
     <color name="favorite_blue_faded">#703467CE</color>
