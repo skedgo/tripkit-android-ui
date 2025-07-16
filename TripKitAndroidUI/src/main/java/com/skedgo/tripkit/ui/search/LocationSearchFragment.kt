@@ -145,6 +145,13 @@ class LocationSearchFragment : BaseTripKitFragment() {
     @Inject
     lateinit var viewModelFactory: LocationSearchViewModelFactory
     private lateinit var viewModel: LocationSearchViewModel
+    
+    /**
+     * Public getter for the LocationSearchViewModel
+     */
+    fun getViewModel(): LocationSearchViewModel? {
+        return if (::viewModel.isInitialized) viewModel else null
+    }
 
     /**
      * @suppress
