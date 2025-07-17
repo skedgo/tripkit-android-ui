@@ -78,7 +78,7 @@ class TKUICardViewControllerManager(
         currentFragment = fragment
 
         val transaction = fragmentManager.beginTransaction()
-            .replace(contentFrameId, fragment)
+            .replace(contentFrameId, fragment, fragmentClass.name)
 
         if (addToBackStack) {
             transaction.addToBackStack(fragmentClass.name)
