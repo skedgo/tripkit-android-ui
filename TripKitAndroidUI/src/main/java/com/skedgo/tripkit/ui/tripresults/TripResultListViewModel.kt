@@ -544,7 +544,7 @@ class TripResultListViewModel @Inject constructor(
     }
 
     fun onShowBookARideInduction(show: Boolean) {
-        _showHelpInfo.postValue(show)
+        _showHelpInfo.value = show
     }
 
     private var updateJob: Job? = null
