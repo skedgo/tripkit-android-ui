@@ -184,6 +184,15 @@ class LocationSearchFragment : BaseTripKitFragment() {
     override fun onAttach(context: Context) {
         TripKitUI.getInstance().locationSearchComponent().inject(this);
         super.onAttach(context)
+        
+        // Initialize viewModel early to prevent crashes from setQuery calls
+        if (!::viewModel.isInitialized) {
+            viewModel = ViewModelProviders.of(this, viewModelFactory)
+                .get(LocationSearchViewModel::class.java)
+            viewModel.locationSearchIconProvider = locationSearchIconProvider
+            viewModel.fixedSuggestionsProvider = fixedSuggestionsProvider
+            viewModel.locationSearchProvider = searchSuggestionProvider
+        }
     }
 
     /**
@@ -192,11 +201,13 @@ class LocationSearchFragment : BaseTripKitFragment() {
     @SuppressLint("CheckResult")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        viewModel = ViewModelProviders.of(this, viewModelFactory)
-            .get(LocationSearchViewModel::class.java)
-        viewModel.locationSearchIconProvider = locationSearchIconProvider
-        viewModel.fixedSuggestionsProvider = fixedSuggestionsProvider
-        viewModel.locationSearchProvider = searchSuggestionProvider
+        if (!::viewModel.isInitialized) {
+            viewModel = ViewModelProviders.of(this, viewModelFactory)
+                .get(LocationSearchViewModel::class.java)
+            viewModel.locationSearchIconProvider = locationSearchIconProvider
+            viewModel.fixedSuggestionsProvider = fixedSuggestionsProvider
+            viewModel.locationSearchProvider = searchSuggestionProvider
+        }
     }
 
     /**
@@ -343,7 +354,9 @@ class LocationSearchFragment : BaseTripKitFragment() {
      * @param query
      */
     fun setQuery(query: String, isRouting: Boolean = false) {
-        viewModel.onQueryTextChanged(query, isRouting)
+        if (::viewModel.isInitialized) {
+            viewModel.onQueryTextChanged(query, isRouting)
+        }
     }
 
     private fun initSearchView(searchView: SearchView) {

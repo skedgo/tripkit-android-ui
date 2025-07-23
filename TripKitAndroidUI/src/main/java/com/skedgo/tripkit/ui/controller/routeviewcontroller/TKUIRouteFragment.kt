@@ -71,7 +71,11 @@ class TKUIRouteFragment : BaseFragment<FragmentTkuiRouteBinding>() {
             // Only pay attention if one of the EditText's has focus. When the swap button is pressed, both
             // focuses are cleared so we won't trigger a new query
             if (!ignoreNextTextChange && (binding.tieStartEdit.hasFocus() || binding.tieDestinationEdit.hasFocus())) {
-                locationSearchFragment?.setQuery(text.toString(), true)
+                locationSearchFragment?.let { fragment ->
+                    if (fragment.isAdded && fragment.isVisible) {
+                        fragment.setQuery(text.toString(), true)
+                    }
+                }
 
                 if (text.toString().isEmpty()) {
                     setCorrectLocation(null)
@@ -113,17 +117,33 @@ class TKUIRouteFragment : BaseFragment<FragmentTkuiRouteBinding>() {
         if (v == binding.tieStartEdit && hasFocus) {
             focusedField = binding.tieStartEdit
             if (viewModel.startLocation?.locationType != Location.TYPE_CURRENT_LOCATION) {
-                locationSearchFragment?.setQuery(binding.tieStartEdit.text.toString(), true)
+                locationSearchFragment?.let { fragment ->
+                    if (fragment.isAdded && fragment.isVisible) {
+                        fragment.setQuery(binding.tieStartEdit.text.toString(), true)
+                    }
+                }
             } else {
-                locationSearchFragment?.setQuery("", true)
+                locationSearchFragment?.let { fragment ->
+                    if (fragment.isAdded && fragment.isVisible) {
+                        fragment.setQuery("", true)
+                    }
+                }
             }
             viewModel.focusedField = TKUIRouteViewModel.FocusedField.START
         } else if (v == binding.tieDestinationEdit && hasFocus) {
             focusedField = binding.tieDestinationEdit
             if (viewModel.destinationLocation?.locationType != Location.TYPE_CURRENT_LOCATION) {
-                locationSearchFragment?.setQuery(binding.tieDestinationEdit.text.toString(), true)
+                locationSearchFragment?.let { fragment ->
+                    if (fragment.isAdded && fragment.isVisible) {
+                        fragment.setQuery(binding.tieDestinationEdit.text.toString(), true)
+                    }
+                }
             } else {
-                locationSearchFragment?.setQuery("", true)
+                locationSearchFragment?.let { fragment ->
+                    if (fragment.isAdded && fragment.isVisible) {
+                        fragment.setQuery("", true)
+                    }
+                }
             }
             viewModel.focusedField = TKUIRouteViewModel.FocusedField.DESTINATION
         }
@@ -232,14 +252,22 @@ class TKUIRouteFragment : BaseFragment<FragmentTkuiRouteBinding>() {
             viewModel.startLocation = null
             toggleShowCurrentLocation()
             binding.tieStartEdit.requestFocus()
-            locationSearchFragment?.setQuery("", true)
+            locationSearchFragment?.let { fragment ->
+                if (fragment.isAdded && fragment.isVisible) {
+                    fragment.setQuery("", true)
+                }
+            }
         }
         binding.tilDestinationEdit.setEndIconOnClickListener {
             ignoreNextTextChange = true
             viewModel.destinationLocation = null
             toggleShowCurrentLocation()
             binding.tieDestinationEdit.requestFocus()
-            locationSearchFragment?.setQuery("", true)
+            locationSearchFragment?.let { fragment ->
+                if (fragment.isAdded && fragment.isVisible) {
+                    fragment.setQuery("", true)
+                }
+            }
         }
     }
 
@@ -448,7 +476,11 @@ class TKUIRouteFragment : BaseFragment<FragmentTkuiRouteBinding>() {
                         lat = 0.0
                         lon = 0.0
                     }
-                    locationSearchFragment?.setQuery("") // To reset the list
+                    locationSearchFragment?.let { fragment ->
+                        if (fragment.isAdded && fragment.isVisible) {
+                            fragment.setQuery("") // To reset the list
+                        }
+                    }
                     setCorrectLocation(fixedLocation)
                     lifecycleScope.launch {
                         getCurrentLocation()

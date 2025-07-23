@@ -152,7 +152,11 @@ class TKUILocationSearchViewControllerFragment :
     }
 
     fun setQuery(query: String, isRouting: Boolean = false) {
-        locationSearchFragment?.setQuery(query, isRouting)
+        locationSearchFragment?.let { fragment ->
+            if (fragment.isAdded && fragment.isVisible) {
+                fragment.setQuery(query, isRouting)
+            }
+        }
     }
 
     companion object {
