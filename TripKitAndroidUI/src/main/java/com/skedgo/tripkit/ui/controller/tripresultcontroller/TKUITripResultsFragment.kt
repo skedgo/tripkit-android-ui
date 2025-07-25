@@ -22,7 +22,7 @@ import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButtonHandlerFactory
 import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
-//TODO for code refactoring
+//TODO changes from TripResults (TripGo) should be applied here
 class TKUITripResultsFragment : BaseFragment<FragmentTkuiTripResultsBinding>() {
 
     @Inject

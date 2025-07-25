@@ -45,6 +45,12 @@ import com.skedgo.tripkit.ui.map.VehicleMarkerViewModel
 import com.skedgo.tripkit.ui.map.adapter.SegmentInfoWindowAdapter
 import com.skedgo.tripkit.ui.map.adapter.ServiceStopInfoWindowAdapter
 import com.skedgo.tripkit.ui.map.home.TripKitMapContributor
+import com.skedgo.tripkit.ui.utils.MARKER_COLLECTION_ALERT
+import com.skedgo.tripkit.ui.utils.MARKER_COLLECTION_NON_TRAVELLED_STOP
+import com.skedgo.tripkit.ui.utils.MARKER_COLLECTION_SEGMENT
+import com.skedgo.tripkit.ui.utils.MARKER_COLLECTION_TRAVELLED_STOP
+import com.skedgo.tripkit.ui.utils.MARKER_COLLECTION_VEHICLE
+import com.skedgo.tripkit.ui.utils.getOrNewCollection
 import com.squareup.picasso.Picasso
 import dagger.Lazy
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -191,16 +197,41 @@ class TripResultMapContributor : TripKitMapContributor {
     }
 
     private fun setupManagers(context: Context) {
-        markerManager = MarkerManager(map).apply {
+        // Only create a new MarkerManager if we don't already have one from TripKitMapFragment
+        if (markerManager == null) {
+            markerManager = MarkerManager(map)
+        }
+
+        markerManager?.apply {
             // Added null checker to ensure that it'll not create a newCollection instance
             // if there's already an existing one to avoid markers being left behind
             // and unable to remove
-            travelledStopMarkers = travelledStopMarkers ?: newCollection("travelledStopMarkers")
-            vehicleMarkers = vehicleMarkers ?: newCollection("vehicleMarkers")
-            segmentMarkers = segmentMarkers ?: newCollection("segmentMarkers")
-            nonTravelledStopMarkers =
-                nonTravelledStopMarkers ?: newCollection("nonTravelledStopMarkers")
-            alertMarkers = alertMarkers ?: newCollection("alertMarkers")
+            // Adding System.currentTimeMillis() to ensure new collection will be made
+            travelledStopMarkers = if (travelledStopMarkers == null) {
+                getOrNewCollection(MARKER_COLLECTION_TRAVELLED_STOP)
+            } else {
+                travelledStopMarkers
+            }
+            vehicleMarkers = if (vehicleMarkers == null) {
+                getOrNewCollection(MARKER_COLLECTION_VEHICLE)
+            } else {
+                vehicleMarkers
+            }
+            segmentMarkers = if (segmentMarkers == null) {
+                getOrNewCollection(MARKER_COLLECTION_SEGMENT)
+            } else {
+                segmentMarkers
+            }
+            nonTravelledStopMarkers = if (nonTravelledStopMarkers == null) {
+                getOrNewCollection(MARKER_COLLECTION_NON_TRAVELLED_STOP)
+            } else {
+                nonTravelledStopMarkers
+            }
+            alertMarkers = if (alertMarkers == null) {
+                getOrNewCollection(MARKER_COLLECTION_ALERT)
+            } else {
+                alertMarkers
+            }
 
             travelledStopMarkers?.setInfoWindowAdapter(serviceStopCalloutAdapter)
             nonTravelledStopMarkers?.setInfoWindowAdapter(serviceStopCalloutAdapter)
@@ -210,7 +241,8 @@ class TripResultMapContributor : TripKitMapContributor {
             }
             segmentMarkers?.setOnInfoWindowClickListener(listener)
             alertMarkers?.setOnInfoWindowClickListener(listener)
-            map.setOnInfoWindowClickListener(markerManager)
+            // DON'T set the MarkerManager as the info window click listener - this breaks POI markers
+            // map.setOnInfoWindowClickListener(markerManager)
             map.isIndoorEnabled = false
             map.uiSettings.isRotateGesturesEnabled = true
 
@@ -423,7 +455,8 @@ class TripResultMapContributor : TripKitMapContributor {
             val cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, 50)
             map.animateCamera(cameraUpdate)
         } else if (segment.singleLocation != null) {
-            val cameraUpdate = CameraUpdateFactory.newLatLngZoom(segment.singleLocation?.toLatLng(), 20f)
+            val cameraUpdate =
+                CameraUpdateFactory.newLatLngZoom(segment.singleLocation?.toLatLng(), 20f)
             map.animateCamera(cameraUpdate)
         } else {
             Timber.e("focusTripLine: No polyline points or single location available.")

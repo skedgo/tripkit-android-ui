@@ -429,7 +429,8 @@ class TKUIHomeViewControllerFragment :
             }
 
             override fun reloadMapMarkers() {
-                mapFragment.setShowPoiMarkers(true, emptyList())
+                // Use the new restoration method to properly restore previous state
+                mapFragment.restorePoiMarkersState()
 
                 Observable.timer(500, TimeUnit.MILLISECONDS)
                     .observeOn(AndroidSchedulers.mainThread())

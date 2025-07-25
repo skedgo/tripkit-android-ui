@@ -161,7 +161,7 @@ class TKUITimetableControllerFragment : BaseFragment<FragmentTkuiTimetableContro
         time: Long
     ) {
 
-        mapFragment?.setShowPoiMarkers(false, null)
+        mapFragment?.setShowMarkers(false, null)
 
         serviceDetailsFragment = ServiceDetailFragment.Builder()
             .withStop(scheduledStop)
@@ -188,7 +188,7 @@ class TKUITimetableControllerFragment : BaseFragment<FragmentTkuiTimetableContro
     }
 
     private fun resetMapState() {
-        mapFragment?.setShowPoiMarkers(true, emptyList())
+        mapFragment?.setShowMarkers(true, emptyList())
         val contributor = serviceDetailsFragment?.contributor()
         if (contributor is TimetableMapContributor) {
             contributor.getMapPreviousPosition().let {

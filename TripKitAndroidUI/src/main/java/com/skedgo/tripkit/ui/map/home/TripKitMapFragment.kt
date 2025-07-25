@@ -59,10 +59,18 @@ import com.skedgo.tripkit.ui.map.convertToDomainLatLngBounds
 import com.skedgo.tripkit.ui.map.home.ViewPort.CloseEnough
 import com.skedgo.tripkit.ui.map.home.ViewPort.NotCloseEnough
 import com.skedgo.tripkit.ui.tracking.EventTracker
+import com.skedgo.tripkit.ui.tripresult.TripResultMapContributor
 import com.skedgo.tripkit.ui.trip.options.SelectionType
 import com.skedgo.tripkit.ui.utils.APP_PREF_CLEAR_CAR_PODS_ONCE
 import com.skedgo.tripkit.ui.utils.APP_PREF_DEACTIVATED
 import com.skedgo.tripkit.ui.utils.KEY_APP_PREF
+import com.skedgo.tripkit.ui.utils.MARKER_COLLECTION_ARRIVAL
+import com.skedgo.tripkit.ui.utils.MARKER_COLLECTION_CITY
+import com.skedgo.tripkit.ui.utils.MARKER_COLLECTION_CURRENT_LOCATION
+import com.skedgo.tripkit.ui.utils.MARKER_COLLECTION_DEPARTURE
+import com.skedgo.tripkit.ui.utils.MARKER_COLLECTION_POI
+import com.skedgo.tripkit.ui.utils.MARKER_COLLECTION_TRIP_LOCATION
+import com.skedgo.tripkit.ui.utils.getOrNewCollection
 import com.skedgo.tripkit.ui.utils.getVersionCode
 import com.skedgo.tripkit.ui.utils.isNetworkConnected
 import com.squareup.otto.Bus
@@ -166,6 +174,10 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
         null //for type, 0 = from and 1 = to
     var appDeactivatedListener: (() -> Unit)? = null
 
+    // Track POI markers state before entering trip details to restore it later
+    private var previousPoiMarkersState: Boolean = true
+    private var previousTransportModes: List<TransportMode>? = null
+
     /**
      * When an icon in the map is clicked, an information window is displayed. When that information window
      * is clicked, this interface is used as a callback to notify the app of the click.
@@ -259,9 +271,15 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
         contributor?.cleanup()
         contributor = newContributor
         contributor?.let {
-            whenSafeToUseMap(Consumer { map: GoogleMap ->
+            // If the contributor is a TripResultMapContributor, share the MarkerManager
+            when (it) {
+                is TripResultMapContributor -> {
+                    it.markerManager = this.markerManager
+                }
+            }
+            whenSafeToUseMap { map: GoogleMap ->
                 contributor?.safeToUseMap(requireContext(), map)
-            })
+            }
         }
     }
 
@@ -817,12 +835,12 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
     }
 
     private fun setUpCurrentLocationMarkers(markerManager: MarkerManager) {
-        currentLocationMarkers = markerManager.newCollection("CurrentLocationMarkers")
+        currentLocationMarkers = markerManager.getOrNewCollection(MARKER_COLLECTION_CURRENT_LOCATION)
         currentLocationMarkers!!.setInfoWindowAdapter(myLocationWindowAdapter)
     }
 
     private fun setUpDepartureAndArrivalMarkers(markerManager: MarkerManager) {
-        departureMarkers = markerManager.newCollection("DepartureMarkers")
+        departureMarkers = markerManager.getOrNewCollection(MARKER_COLLECTION_DEPARTURE)
         departureMarkers!!.setInfoWindowAdapter(infoWindowAdapter)
         departureMarkers!!.setOnInfoWindowClickListener(OnInfoWindowClickListener { marker: Marker ->
             val tag = marker.tag
@@ -831,7 +849,7 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
                 //        bus.post(new InfoWindowClickEvent(toLocation(type), true));
             }
         })
-        arrivalMarkers = markerManager.newCollection("ArrivalMarkers")
+        arrivalMarkers = markerManager.getOrNewCollection(MARKER_COLLECTION_ARRIVAL)
         arrivalMarkers!!.setInfoWindowAdapter(infoWindowAdapter)
         arrivalMarkers!!.setOnInfoWindowClickListener(OnInfoWindowClickListener { marker: Marker ->
             val tag = marker.tag
@@ -843,7 +861,7 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
     }
 
     private fun setUpTripLocationMarkers(markerManager: MarkerManager) {
-        tripLocationMarkers = markerManager.newCollection("TripLocationMarkers")
+        tripLocationMarkers = markerManager.getOrNewCollection(MARKER_COLLECTION_TRIP_LOCATION)
         tripLocationMarkers!!.setInfoWindowAdapter(infoWindowAdapter)
         tripLocationMarkers!!.setOnInfoWindowClickListener(OnInfoWindowClickListener { marker: Marker ->
             val tag = marker.tag
@@ -851,7 +869,7 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
     }
 
     private fun setUpCityMarkers(markerManager: MarkerManager) {
-        cityMarkers = markerManager.newCollection("CityMarkers")
+        cityMarkers = markerManager.getOrNewCollection(MARKER_COLLECTION_CITY)
         cityMarkers!!.setInfoWindowAdapter(cityInfoWindowAdapter)
         cityMarkers!!.setOnInfoWindowClickListener(OnInfoWindowClickListener { marker: Marker ->
             val tag = marker.tag
@@ -862,7 +880,7 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
     }
 
     private fun setUpPOIMarkers(markerManager: MarkerManager, map: GoogleMap) {
-        poiMarkers = markerManager.newCollection("poiMarkers")
+        poiMarkers = markerManager.getOrNewCollection(MARKER_COLLECTION_POI)
         val poiMarkers = poiMarkers
 
         // This invisible marker is used to show the InfoWindow when a user clicks on a Google POI or long-presses somewhere
@@ -926,18 +944,46 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
         }
     }
 
-    fun setShowPoiMarkers(show: Boolean, modes: List<TransportMode>?) {
+    fun setShowMarkers(show: Boolean, modes: List<TransportMode>?) {
+        // Save current state before making changes (only if we're disabling markers)
+        if (!show && viewModel.showMarkers.get()) {
+            savePoiMarkersState()
+        }
+
         viewModel.transportModes = modes
         modes?.let {
             transportModes = it
         }
 
-        poiMarkers?.clear()
         viewModel.showMarkers.set(show)
         if (show) {
+            tripLocationMarkers?.showAll()
+            poiMarkers?.showAll()
             loadMarkers()
+        } else {
+            tripLocationMarkers?.hideAll()
+            poiMarkers?.hideAll()
         }
     }
+
+    /**
+     * Save the current POI markers state before disabling them
+     */
+    private fun savePoiMarkersState() {
+        previousPoiMarkersState = viewModel.showMarkers.get()
+        previousTransportModes = transportModes
+    }
+
+    /**
+     * Restore POI markers to their previous state
+     */
+    fun restorePoiMarkersState() {
+        if (previousPoiMarkersState) {
+            setShowMarkers(true, previousTransportModes)
+        }
+    }
+
+
 
     fun moveToCameraPosition(cameraPosition: CameraPosition) {
         map?.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition))
