@@ -1,5 +1,6 @@
 package com.skedgo.tripkit.ui.timetables.data
 
+import com.skedgo.rxtry.printThrowableStackTrace
 import com.skedgo.tripkit.data.regions.RegionService
 import com.skedgo.tripkit.ui.model.DeparturesResponse
 import com.skedgo.tripkit.ui.timetables.domain.DeparturesRepository
@@ -23,30 +24,30 @@ class DeparturesRepositoryImpl @Inject constructor(
         limit: Int
     ): Single<DeparturesResponse> =
         regionService.getRegionByNameAsync(region)
-            .flatMap { Observable.fromIterable(it.getURLs()) }
-            .map {
-                it.toHttpUrlOrNull()!!
-                    .newBuilder()
-                    .addPathSegment(DEPARTURES_ENDPOINT)
-                    .build()
-                    .toString()
-            }
-            .map { url ->
-                // TODO Likely need to provide a configuration - see TripGo's ConfigCreator
-                val requestBody = ImmutableDepartureRequestBody.builder()
-                    .embarkationStops(embarkationStopCodes)
-                    .disembarkationStops(disembarkationStopCodes)
-                    .regionName(region)
-                    .limit(limit)
-                    .timeInSecs(timeInSecs)
-                    .includeStops(false)
-                    .build()
+            .flatMap { regionObj ->
+                Observable.fromIterable(regionObj.getURLs() ?: emptyList())
+                    .concatMapDelayError { baseUrl ->
+                        val url = baseUrl.toHttpUrlOrNull()!!
+                            .newBuilder()
+                            .addPathSegment(DEPARTURES_ENDPOINT)
+                            .build()
+                            .toString()
 
-                departuresApi.request(url, requestBody)
-            }.lastOrError()
-            .flatMap {
-                it
+                        val requestBody = ImmutableDepartureRequestBody.builder()
+                            .embarkationStops(embarkationStopCodes)
+                            .disembarkationStops(disembarkationStopCodes)
+                            .regionName(region)
+                            .limit(limit)
+                            .timeInSecs(timeInSecs)
+                            .includeStops(false)
+                            .build()
+
+                        departuresApi.request(url, requestBody)
+                            .doOnError { it.printThrowableStackTrace() }
+                            .toObservable()
+                    }
             }
+            .firstOrError()
             .map { it.postProcess(embarkationStopCodes, disembarkationStopCodes) }
 
     override fun getTimetableEntries(
@@ -59,30 +60,30 @@ class DeparturesRepositoryImpl @Inject constructor(
         includeStops: Boolean
     ): Single<DeparturesResponse> =
         regionService.getRegionByNameAsync(region)
-            .flatMap { Observable.fromIterable(it.getURLs()) }
-            .map {
-                it.toHttpUrlOrNull()!!
-                    .newBuilder()
-                    .addPathSegment(DEPARTURES_ENDPOINT)
-                    .build()
-                    .toString()
-            }
-            .map { url ->
-                // TODO Likely need to provide a configuration - see TripGo's ConfigCreator
-                val requestBody = ImmutableDepartureRequestBody.builder()
-                    .embarkationStops(embarkationStopCodes)
-                    .disembarkationStops(disembarkationStopCodes)
-                    .regionName(region)
-                    .limit(limit)
-                    .timeInSecs(timeInSecs)
-                    .filters(filters)
-                    .includeStops(includeStops)
-                    .build()
+            .flatMap { regionObj ->
+                Observable.fromIterable(regionObj.getURLs() ?: emptyList())
+                    .concatMapDelayError { baseUrl ->
+                        val url = baseUrl.toHttpUrlOrNull()!!
+                            .newBuilder()
+                            .addPathSegment(DEPARTURES_ENDPOINT)
+                            .build()
+                            .toString()
 
-                departuresApi.request(url, requestBody)
-            }.lastOrError()
-            .flatMap {
-                it
+                        val requestBody = ImmutableDepartureRequestBody.builder()
+                            .embarkationStops(embarkationStopCodes)
+                            .disembarkationStops(disembarkationStopCodes)
+                            .regionName(region)
+                            .limit(limit)
+                            .timeInSecs(timeInSecs)
+                            .filters(filters)
+                            .includeStops(includeStops)
+                            .build()
+
+                        departuresApi.request(url, requestBody)
+                            .doOnError { it.printThrowableStackTrace() }
+                            .toObservable()
+                    }
             }
+            .firstOrError()
             .map { it.postProcess(embarkationStopCodes, disembarkationStopCodes) }
 }
