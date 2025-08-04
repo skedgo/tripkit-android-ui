@@ -8,7 +8,9 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.DiffUtil
+import com.jakewharton.rxrelay2.BehaviorRelay
 import com.jakewharton.rxrelay2.PublishRelay
+import com.jakewharton.rxrelay2.Relay
 import com.skedgo.rxtry.subscribeWithErrorHandling
 import com.skedgo.tripkit.LOCATION_NOT_SUPPORTED_ERROR
 import com.skedgo.tripkit.RoutingError
@@ -90,6 +92,7 @@ class TripResultListViewModel @Inject constructor(
 
     val stateChange = PublishRelay.create<MultiStateView.ViewState>()
     val onError = PublishRelay.create<String>()
+    val onLocationNeeded: Relay<String> = BehaviorRelay.create()
 
     val customAdapter = TripResultListCustomRecyclerViewAdapter<Any>()
 
@@ -232,6 +235,12 @@ class TripResultListViewModel @Inject constructor(
 
     private fun getTransport(execute: Boolean = true) {
         setLoading(true)
+
+        if (query.fromLocation == null) {
+            onLocationNeeded.accept(context.getString(R.string.error_location_required, context.getString(R.string.app_name)))
+            return
+        }
+
         regionService.getTransportModesByLocationsAsync(query.fromLocation!!, query.toLocation!!)
             .observeOn(AndroidSchedulers.mainThread())
             .flatMapIterable { value -> value }

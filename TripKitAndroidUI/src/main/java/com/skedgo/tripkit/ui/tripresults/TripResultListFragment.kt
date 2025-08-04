@@ -252,6 +252,19 @@ class TripResultListFragment : BaseTripKitFragment() {
             binding.recyclerView.layoutManager?.scrollToPosition(0)
         }.addTo(autoDisposable)
 
+        viewModel.onLocationNeeded.observeOn(AndroidSchedulers.mainThread())
+            .subscribeWithErrorHandling { error ->
+                binding.multiStateView?.let { msv ->
+                    val view = if (activity is OnResultStateListener) {
+                        (activity as OnResultStateListener).provideErrorView(error)
+                    } else {
+                        LayoutInflater.from(activity).inflate(R.layout.generic_error_view, null)
+                    }
+                    view.findViewById<TextView>(R.id.errorMessageView)?.text = error
+                    msv.setViewForState(view, MultiStateView.ViewState.ERROR, true)
+                }
+            }.addTo(autoDisposable)
+
         viewModel.onError.observeOn(AndroidSchedulers.mainThread()).subscribeWithErrorHandling { error ->
             binding.multiStateView?.let { msv ->
                 if (activity is OnResultStateListener) {
