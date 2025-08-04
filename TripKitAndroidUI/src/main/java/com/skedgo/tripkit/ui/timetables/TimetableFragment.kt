@@ -161,17 +161,63 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
 
+        // Save basic stop and booking data
         outState.putParcelable(ARG_STOP, stop)
         outState.putStringArrayList(ARG_BOOKING_ACTION, bookingActions)
         outState.putBoolean(ARG_SHOW_SEARCH_FIELD, viewModel.showSearch.value ?: false)
         outState.putBoolean(ARG_SHOW_CLOSE_BUTTON, viewModel.showCloseButton.value ?: false)
+
+        // Save trip segment data
+        tripSegment?.let { segment ->
+            outState.putString("saved_trip_segment_service_trip_id", segment.serviceTripId ?: "")
+            outState.putString("saved_trip_segment_id", segment.id)
+            outState.putLong("saved_trip_segment_segment_id", segment.segmentId)
+        }
+
+        // Save view model state
+        outState.putString("saved_filter_text", viewModel.filter.value ?: "")
+        outState.putString("saved_service_trip_id", viewModel.serviceTripId.value ?: "")
+
+        // Save scroll position
+        if (::binding.isInitialized) {
+            val layoutManager = binding.recyclerView.layoutManager as? LinearLayoutManager
+            layoutManager?.let { manager ->
+                outState.putInt("saved_scroll_position", manager.findFirstVisibleItemPosition())
+                outState.putInt("saved_scroll_offset", manager.findViewByPosition(manager.findFirstVisibleItemPosition())?.top ?: 0)
+            }
+        }
+
+        // Save cached data
+        cachedStop?.let { cached ->
+            outState.putParcelable("saved_cached_stop", cached)
+        }
+        outState.putBoolean("saved_cached_show_search_bar", cachedShowSearchBar)
+        outState.putBoolean("saved_from_preview", fromPreview)
+        cachedBookingActions?.let { cached ->
+            outState.putStringArrayList("saved_cached_booking_actions", cached)
+        }
+
+        // Save button state
+        outState.putInt("saved_buttons_count", buttons.size)
+        buttons.forEachIndexed { index, button ->
+            outState.putString("saved_button_$index", button.id)
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         savedInstanceState?.let { arguments = it }
 
+        // Restore basic booking actions
         bookingActions = cachedBookingActions ?: arguments?.getStringArrayList(ARG_BOOKING_ACTION)
+
+        // Restore cached data
+        arguments?.let { bundle ->
+            cachedStop = bundle.getParcelable("saved_cached_stop")
+            cachedShowSearchBar = bundle.getBoolean("saved_cached_show_search_bar", true)
+            fromPreview = bundle.getBoolean("saved_from_preview", false)
+            cachedBookingActions = bundle.getStringArrayList("saved_cached_booking_actions")
+        }
     }
 
     override fun onResume() {
@@ -487,6 +533,8 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        // Initialize basic data
         stop = arguments?.getParcelable(ARG_STOP)
         if (stop == null) {
             stop = cachedStop
@@ -516,6 +564,46 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
                     setBookingActions(it.booking?.externalActions)
                 }, { it.printStackTrace() })
                 .addTo(autoDisposable)
+        }
+
+        // Restore state if available
+        savedInstanceState?.let { bundle ->
+            restoreState(bundle)
+        }
+    }
+
+    /**
+     * Restore state from saved instance state
+     */
+    private fun restoreState(bundle: Bundle) {
+        // Restore trip segment data
+        bundle.getString("saved_trip_segment_service_trip_id")?.let { serviceTripId ->
+            if (serviceTripId.isNotEmpty()) {
+                viewModel.serviceTripId.accept(serviceTripId)
+            }
+        }
+
+        // Restore filter state
+        bundle.getString("saved_filter_text")?.let { filterText ->
+            if (filterText.isNotEmpty()) {
+                viewModel.filter.accept(filterText)
+            }
+        }
+
+        // Restore scroll position after a delay to ensure adapter is ready
+        val savedScrollPosition = bundle.getInt("saved_scroll_position", -1)
+        val savedScrollOffset = bundle.getInt("saved_scroll_offset", 0)
+
+        if (savedScrollPosition >= 0 && ::binding.isInitialized) {
+            lifecycleScope.launch {
+                delay(500) // Wait for adapter to be ready
+                withContext(Dispatchers.Main) {
+                    val layoutManager = binding.recyclerView.layoutManager as? LinearLayoutManager
+                    layoutManager?.let { manager ->
+                        manager.scrollToPositionWithOffset(savedScrollPosition, savedScrollOffset)
+                    }
+                }
+            }
         }
     }
 

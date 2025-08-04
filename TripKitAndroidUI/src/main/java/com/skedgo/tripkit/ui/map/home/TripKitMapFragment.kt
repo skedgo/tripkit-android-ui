@@ -242,6 +242,11 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
 
         geocoder = AndroidGeocoder(requireContext())
 
+        // Restore state if available
+        savedInstanceState?.let { bundle ->
+            restoreMapState(bundle)
+        }
+
         getMapAsync { map ->
             initFromAndToMarkers(map)
             map.setOnCameraIdleListener(this)
@@ -256,6 +261,74 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
             contributor?.safeToUseMap(requireContext(), map)
         })
         initStuff()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        
+        // Save map camera state if available
+        map?.let { googleMap ->
+            val cameraPosition = googleMap.cameraPosition
+            outState.putDouble("map_camera_lat", cameraPosition.target.latitude)
+            outState.putDouble("map_camera_lng", cameraPosition.target.longitude)
+            outState.putFloat("map_camera_zoom", cameraPosition.zoom)
+            outState.putFloat("map_camera_bearing", cameraPosition.bearing)
+            outState.putFloat("map_camera_tilt", cameraPosition.tilt)
+            
+            // Save visible region bounds
+            try {
+                val visibleRegion = googleMap.projection.visibleRegion.latLngBounds
+                outState.putDouble("map_visible_bounds_northeast_lat", visibleRegion.northeast.latitude)
+                outState.putDouble("map_visible_bounds_northeast_lng", visibleRegion.northeast.longitude)
+                outState.putDouble("map_visible_bounds_southwest_lat", visibleRegion.southwest.latitude)
+                outState.putDouble("map_visible_bounds_southwest_lng", visibleRegion.southwest.longitude)
+            } catch (e: Exception) {
+                // Projection may not be available yet
+            }
+        }
+        
+        // Save marker state
+        outState.putBoolean("show_markers", viewModel.showMarkers.get())
+        
+        // Save last zoom level
+        outState.putFloat("last_zoom_level", lastZoomLevel)
+        
+        // Save contributor state if available
+        contributor?.let { contributor ->
+            outState.putString("contributor_class", contributor.javaClass.simpleName)
+        }
+    }
+
+    /**
+     * Restore map state from saved instance state
+     */
+    private fun restoreMapState(bundle: Bundle) {
+        // Store saved state for restoration when map is ready
+        if (bundle.containsKey("map_camera_lat")) {
+            val latitude = bundle.getDouble("map_camera_lat")
+            val longitude = bundle.getDouble("map_camera_lng")
+            val zoom = bundle.getFloat("map_camera_zoom")
+            val bearing = bundle.getFloat("map_camera_bearing")
+            val tilt = bundle.getFloat("map_camera_tilt")
+            
+            // Restore camera position when map is ready
+            whenSafeToUseMap(Consumer { map: GoogleMap ->
+                val cameraPosition = CameraPosition.Builder()
+                    .target(LatLng(latitude, longitude))
+                    .zoom(zoom)
+                    .bearing(bearing)
+                    .tilt(tilt)
+                    .build()
+                map.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition))
+            })
+        }
+        
+        // Restore marker visibility
+        val showMarkers = bundle.getBoolean("show_markers", true)
+        viewModel.showMarkers.set(showMarkers)
+        
+        // Restore last zoom level
+        lastZoomLevel = bundle.getFloat("last_zoom_level", lastZoomLevel)
     }
 
     fun setContributor(newContributor: TripKitMapContributor?) {

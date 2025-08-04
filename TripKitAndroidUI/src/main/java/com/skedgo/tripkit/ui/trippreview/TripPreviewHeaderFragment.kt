@@ -48,8 +48,68 @@ class TripPreviewHeaderFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // Restore state if available
+        savedInstanceState?.let { bundle ->
+            restoreState(bundle)
+        }
+
         initObserver()
         initViews()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        
+        // Save view model state
+        viewModel.selectedSegmentId.value?.let { selectedSegment ->
+            outState.putLong("selected_segment_id", selectedSegment.first)
+            outState.putString("selected_mode_id", selectedSegment.second)
+        }
+        
+        // Save description state
+        viewModel.description.value?.let { description ->
+            outState.putString("description_text", description)
+        }
+        outState.putBoolean("show_description", viewModel.showDescription.value ?: false)
+        
+        // Save hide exact times state
+        outState.putBoolean("hide_exact_times", hideExactTimes)
+        
+        // Save quick booking segment state if available
+        viewModel.quickBookingSegment.value?.let { segment ->
+            outState.putString("quick_booking_segment_id", segment.id)
+        }
+        
+        // Save items state (selected items)
+        val selectedItems = viewModel.items.filter { it.selected.value == true }
+        outState.putInt("selected_items_count", selectedItems.size)
+        selectedItems.forEachIndexed { index, item ->
+            outState.putLong("selected_item_$index", item.id.value ?: -1L)
+        }
+    }
+
+    /**
+     * Restore state from saved instance state
+     */
+    private fun restoreState(bundle: Bundle) {
+        // Restore selected segment
+        if (bundle.containsKey("selected_segment_id")) {
+            val segmentId = bundle.getLong("selected_segment_id")
+            val modeId = bundle.getString("selected_mode_id", "")
+            viewModel.setSelectedById(segmentId, modeId)
+        }
+        
+        // Restore description state
+        bundle.getString("description_text")?.let { description ->
+            // Note: We can't directly set LiveData values, they will be restored when data is reloaded
+        }
+        
+        // Restore hide exact times state
+        hideExactTimes = bundle.getBoolean("hide_exact_times", false)
+        viewModel.setHideExactTimes(hideExactTimes)
+        
+        // Note: Items will be restored when setHeaderItems is called by the parent fragment
+        // Quick booking segment will be restored when the data is reloaded
     }
 
     private fun initViews() {
