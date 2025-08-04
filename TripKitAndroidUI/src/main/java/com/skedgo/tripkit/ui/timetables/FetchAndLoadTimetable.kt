@@ -90,6 +90,12 @@ open class FetchAndLoadTimetable @Inject constructor(
                             }
                     }
                     .toList()
+                    .map { services ->
+                        // Deduplicate by serviceTripId to avoid showing the same service multiple times
+                        // when it's stored with different stop codes in the database
+                        val deduplicatedServices = services.distinctBy { it.serviceTripId }
+                        deduplicatedServices
+                    }
             }
     }
 }

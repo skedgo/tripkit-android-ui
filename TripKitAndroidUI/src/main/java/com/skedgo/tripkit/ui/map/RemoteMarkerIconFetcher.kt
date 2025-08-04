@@ -59,9 +59,9 @@ class RemoteMarkerIconFetcher @Inject constructor(
                                     it,
                                     Color.rgb(TINT_BITMAP_RGB, TINT_BITMAP_RGB, TINT_BITMAP_RGB),
                                     Color.rgb(
-                                        modeInfo?.color?.red ?: 0,
-                                        modeInfo?.color?.green ?: 0,
-                                        modeInfo?.color?.blue ?: 0
+                                        modeInfo?.getServiceColor()?.red ?: 0,
+                                        modeInfo?.getServiceColor()?.green ?: 0,
+                                        modeInfo?.getServiceColor()?.blue ?: 0
                                     ),
                                     SIZE_CIRCULAR_BITMAP
                                 )
