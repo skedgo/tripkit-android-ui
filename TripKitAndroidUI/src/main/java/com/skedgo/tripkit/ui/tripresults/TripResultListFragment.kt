@@ -43,6 +43,7 @@ import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import org.joda.time.format.DateTimeFormat
 import timber.log.Timber
+import com.skedgo.tripkit.ui.BuildConfig
 import java.util.*
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -136,6 +137,47 @@ class TripResultListFragment : BaseTripKitFragment() {
         val contributor = TripResultListMapContributor(viewModel)
         tripKitMapFragment?.setContributor(contributor)
         contributor
+    }
+    
+    // Public access methods for contributor state management
+    fun getContributor(): TripResultListMapContributor? {
+        // Safety check: ensure Dagger injection has completed before accessing mapContributor
+        return try {
+            if (::viewModelProviderFactory.isInitialized) {
+                mapContributor
+            } else {
+                null
+            }
+        } catch (e: Exception) {
+            // If any lateinit property is not initialized, return null
+            null
+        }
+    }
+    
+    fun updateContributorQuery(query: Query) {
+        // Safety check: ensure Dagger injection has completed before accessing mapContributor
+        try {
+            if (::viewModelProviderFactory.isInitialized) {
+                mapContributor.setOriginDestinationLocations(query.fromLocation, query.toLocation)
+            }
+        } catch (e: Exception) {
+            if (BuildConfig.DEBUG) {
+                Timber.w("Cannot update contributor query - Dagger injection not complete")
+            }
+        }
+    }
+    
+    fun cleanupContributor() {
+        // Safety check: ensure Dagger injection has completed before accessing mapContributor
+        try {
+            if (::viewModelProviderFactory.isInitialized) {
+                mapContributor.cleanup()
+            }
+        } catch (e: Exception) {
+            if (BuildConfig.DEBUG) {
+                Timber.w("Cannot cleanup contributor - Dagger injection not complete")
+            }
+        }
     }
 
 

@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.os.Handler
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.InflateException
@@ -158,27 +157,78 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
         super.onAttach(context)
     }
 
+    /**
+     * State restoration for TimetableFragment
+     *
+     * This handles the comprehensive saving of timetable state when the app is killed and restarted.
+     * The saving process follows a specific order to ensure all critical data is preserved:
+     *
+     * 1. Save basic fragment data (stop, booking actions, UI state)
+     * 2. Save trip segment data for route restoration
+     * 3. Save view model state (filter, service trip ID)
+     * 4. Save scroll position for user experience continuity
+     * 5. Save cached data for offline/background scenarios
+     * 6. Save button state for action restoration
+     */
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
 
-        // Save basic stop and booking data
+        // Step 1: Save basic fragment data
+        saveBasicFragmentData(outState)
+
+        // Step 2: Save trip segment data
+        saveTripSegmentData(outState)
+
+        // Step 3: Save view model state
+        saveViewModelState(outState)
+
+        // Step 4: Save scroll position
+        saveScrollPosition(outState)
+
+        // Step 5: Save cached data
+        saveCachedData(outState)
+
+        // Step 6: Save button state
+        saveButtonState(outState)
+    }
+
+    /**
+     * Save basic fragment data including stop, booking actions, and UI state.
+     * This ensures the core timetable functionality can be restored.
+     */
+    private fun saveBasicFragmentData(outState: Bundle) {
         outState.putParcelable(ARG_STOP, stop)
         outState.putStringArrayList(ARG_BOOKING_ACTION, bookingActions)
         outState.putBoolean(ARG_SHOW_SEARCH_FIELD, viewModel.showSearch.value ?: false)
         outState.putBoolean(ARG_SHOW_CLOSE_BUTTON, viewModel.showCloseButton.value ?: false)
+    }
 
-        // Save trip segment data
+    /**
+     * Save trip segment data for route restoration.
+     * This ensures the timetable can be properly linked to the correct trip segment.
+     */
+    private fun saveTripSegmentData(outState: Bundle) {
         tripSegment?.let { segment ->
             outState.putString("saved_trip_segment_service_trip_id", segment.serviceTripId ?: "")
             outState.putString("saved_trip_segment_id", segment.id)
             outState.putLong("saved_trip_segment_segment_id", segment.segmentId)
         }
+    }
 
-        // Save view model state
+    /**
+     * Save view model state including filter and service trip ID.
+     * This preserves the current search/filter state and service context.
+     */
+    private fun saveViewModelState(outState: Bundle) {
         outState.putString("saved_filter_text", viewModel.filter.value ?: "")
         outState.putString("saved_service_trip_id", viewModel.serviceTripId.value ?: "")
+    }
 
-        // Save scroll position
+    /**
+     * Save scroll position for user experience continuity.
+     * This ensures the user returns to the same position in the timetable list.
+     */
+    private fun saveScrollPosition(outState: Bundle) {
         if (::binding.isInitialized) {
             val layoutManager = binding.recyclerView.layoutManager as? LinearLayoutManager
             layoutManager?.let { manager ->
@@ -186,8 +236,13 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
                 outState.putInt("saved_scroll_offset", manager.findViewByPosition(manager.findFirstVisibleItemPosition())?.top ?: 0)
             }
         }
+    }
 
-        // Save cached data
+    /**
+     * Save cached data for offline/background scenarios.
+     * This ensures the timetable can function even when network data is unavailable.
+     */
+    private fun saveCachedData(outState: Bundle) {
         cachedStop?.let { cached ->
             outState.putParcelable("saved_cached_stop", cached)
         }
@@ -196,18 +251,42 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
         cachedBookingActions?.let { cached ->
             outState.putStringArrayList("saved_cached_booking_actions", cached)
         }
+    }
 
-        // Save button state
+    /**
+     * Save button state for action restoration.
+     * This preserves any custom action buttons that were configured.
+     */
+    private fun saveButtonState(outState: Bundle) {
         outState.putInt("saved_buttons_count", buttons.size)
         buttons.forEachIndexed { index, button ->
             outState.putString("saved_button_$index", button.id)
         }
     }
 
+    /**
+     * State restoration for TimetableFragment
+     *
+     * This handles the restoration of timetable state when the app is killed and restarted.
+     * The restoration process follows a specific order to ensure proper initialization:
+     *
+     * 1. Restore basic booking actions and cached data
+     * 2. Apply restored state to view model
+     * 3. Restore scroll position when view is ready
+     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         savedInstanceState?.let { arguments = it }
 
+        // Step 1: Restore basic booking actions and cached data
+        restoreBasicData()
+    }
+
+    /**
+     * Restore basic data including booking actions and cached information.
+     * This ensures the fragment has the necessary context for proper initialization.
+     */
+    private fun restoreBasicData() {
         // Restore basic booking actions
         bookingActions = cachedBookingActions ?: arguments?.getStringArrayList(ARG_BOOKING_ACTION)
 
@@ -224,6 +303,11 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
         super.onResume()
 
         setObservers()
+
+        // Restore state if available
+        arguments?.let { bundle ->
+            restoreState(bundle)
+        }
 
         binding.recyclerView.scrollToPosition(0)
 
@@ -573,24 +657,54 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
     }
 
     /**
-     * Restore state from saved instance state
+     * Restore state from saved instance state.
+     * This method applies the saved state to the view model and UI components.
+     * The restoration process follows a specific order to ensure proper initialization:
+     *
+     * 1. Restore trip segment data for proper route linking
+     * 2. Restore filter state for search continuity
+     * 3. Restore scroll position for user experience continuity
      */
     private fun restoreState(bundle: Bundle) {
-        // Restore trip segment data
+        // Step 1: Restore trip segment data
+        restoreTripSegmentData(bundle)
+
+        // Step 2: Restore filter state
+        restoreFilterState(bundle)
+
+        // Step 3: Restore scroll position
+        restoreScrollPosition(bundle)
+    }
+
+    /**
+     * Restore trip segment data for proper route linking.
+     * This ensures the timetable is correctly associated with the trip segment.
+     */
+    private fun restoreTripSegmentData(bundle: Bundle) {
         bundle.getString("saved_trip_segment_service_trip_id")?.let { serviceTripId ->
             if (serviceTripId.isNotEmpty()) {
                 viewModel.serviceTripId.accept(serviceTripId)
             }
         }
+    }
 
-        // Restore filter state
+    /**
+     * Restore filter state for search continuity.
+     * This ensures the timetable displays the correct filtered results.
+     */
+    private fun restoreFilterState(bundle: Bundle) {
         bundle.getString("saved_filter_text")?.let { filterText ->
             if (filterText.isNotEmpty()) {
                 viewModel.filter.accept(filterText)
             }
         }
+    }
 
-        // Restore scroll position after a delay to ensure adapter is ready
+    /**
+     * Restore scroll position for user experience continuity.
+     * This ensures the user returns to the same position in the timetable list.
+     */
+    private fun restoreScrollPosition(bundle: Bundle) {
         val savedScrollPosition = bundle.getInt("saved_scroll_position", -1)
         val savedScrollOffset = bundle.getInt("saved_scroll_offset", 0)
 
@@ -598,9 +712,15 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
             lifecycleScope.launch {
                 delay(500) // Wait for adapter to be ready
                 withContext(Dispatchers.Main) {
-                    val layoutManager = binding.recyclerView.layoutManager as? LinearLayoutManager
-                    layoutManager?.let { manager ->
-                        manager.scrollToPositionWithOffset(savedScrollPosition, savedScrollOffset)
+                    try {
+                        val layoutManager = binding.recyclerView.layoutManager as? LinearLayoutManager
+                        layoutManager?.let { manager ->
+                            manager.scrollToPositionWithOffset(savedScrollPosition, savedScrollOffset)
+                        }
+                    } catch (e: Exception) {
+                        if (BuildConfig.DEBUG) {
+                            Timber.w("Failed to restore scroll position: ${e.message}")
+                        }
                     }
                 }
             }

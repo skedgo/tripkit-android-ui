@@ -334,10 +334,16 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
     fun setContributor(newContributor: TripKitMapContributor?) {
         contributor?.cleanup()
         contributor = newContributor
-        contributor?.let {
-            whenSafeToUseMap(Consumer { map: GoogleMap ->
-                contributor?.safeToUseMap(requireContext(), map)
-            })
+        contributor?.let { contributor ->
+            // Check if map is already ready and call safeToUseMap immediately
+            if (map != null) {
+                contributor.safeToUseMap(requireContext(), map!!)
+            } else {
+                // Map is not ready yet, wait for it
+                whenSafeToUseMap(Consumer { map: GoogleMap ->
+                    contributor.safeToUseMap(requireContext(), map)
+                })
+            }
         }
     }
 

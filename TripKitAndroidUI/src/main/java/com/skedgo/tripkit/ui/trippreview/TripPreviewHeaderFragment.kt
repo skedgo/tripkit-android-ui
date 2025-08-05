@@ -57,30 +57,72 @@ class TripPreviewHeaderFragment : Fragment() {
         initViews()
     }
 
+    /**
+     * State restoration for TripPreviewHeaderFragment
+     * 
+     * This handles the comprehensive saving of trip preview header state when the app is killed and restarted.
+     * The saving process follows a specific order to ensure all critical data is preserved:
+     * 
+     * 1. Save view model state (selected segment, description)
+     * 2. Save UI state (show description, hide exact times)
+     * 3. Save quick booking segment for action restoration
+     * 4. Save selected items for multi-selection scenarios
+     */
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         
-        // Save view model state
+        // Step 1: Save view model state
+        saveViewModelState(outState)
+        
+        // Step 2: Save UI state
+        saveUIState(outState)
+        
+        // Step 3: Save quick booking segment
+        saveQuickBookingSegment(outState)
+        
+        // Step 4: Save selected items
+        saveSelectedItems(outState)
+    }
+
+    /**
+     * Save view model state including selected segment and description.
+     * This ensures the correct segment is highlighted and description is preserved.
+     */
+    private fun saveViewModelState(outState: Bundle) {
         viewModel.selectedSegmentId.value?.let { selectedSegment ->
             outState.putLong("selected_segment_id", selectedSegment.first)
             outState.putString("selected_mode_id", selectedSegment.second)
         }
         
-        // Save description state
         viewModel.description.value?.let { description ->
             outState.putString("description_text", description)
         }
+    }
+
+    /**
+     * Save UI state including show description and hide exact times flags.
+     * This preserves the user's display preferences.
+     */
+    private fun saveUIState(outState: Bundle) {
         outState.putBoolean("show_description", viewModel.showDescription.value ?: false)
-        
-        // Save hide exact times state
         outState.putBoolean("hide_exact_times", hideExactTimes)
-        
-        // Save quick booking segment state if available
+    }
+
+    /**
+     * Save quick booking segment for action restoration.
+     * This ensures quick booking functionality is preserved.
+     */
+    private fun saveQuickBookingSegment(outState: Bundle) {
         viewModel.quickBookingSegment.value?.let { segment ->
             outState.putString("quick_booking_segment_id", segment.id)
         }
-        
-        // Save items state (selected items)
+    }
+
+    /**
+     * Save selected items for multi-selection scenarios.
+     * This preserves any multi-selection state that was active.
+     */
+    private fun saveSelectedItems(outState: Bundle) {
         val selectedItems = viewModel.items.filter { it.selected.value == true }
         outState.putInt("selected_items_count", selectedItems.size)
         selectedItems.forEachIndexed { index, item ->
@@ -89,27 +131,66 @@ class TripPreviewHeaderFragment : Fragment() {
     }
 
     /**
-     * Restore state from saved instance state
+     * Restore state from saved instance state.
+     * This method applies the saved state to the view model and UI components.
+     * The restoration process follows a specific order to ensure proper initialization:
+     * 
+     * 1. Restore selected segment for proper highlighting
+     * 2. Restore UI state (hide exact times)
+     * 3. Restore description and quick booking data (handled by data reload)
+     * 4. Restore selected items (handled by parent fragment)
      */
     private fun restoreState(bundle: Bundle) {
-        // Restore selected segment
+        // Step 1: Restore selected segment
+        restoreSelectedSegment(bundle)
+        
+        // Step 2: Restore UI state
+        restoreUIState(bundle)
+        
+        // Step 3: Restore description and quick booking data
+        restoreDescriptionAndQuickBooking(bundle)
+        
+        // Note: Selected items will be restored when setHeaderItems is called by the parent fragment
+        // This ensures proper data consistency and avoids timing issues
+    }
+
+    /**
+     * Restore selected segment for proper highlighting.
+     * This ensures the correct segment is highlighted when the fragment is restored.
+     */
+    private fun restoreSelectedSegment(bundle: Bundle) {
         if (bundle.containsKey("selected_segment_id")) {
             val segmentId = bundle.getLong("selected_segment_id")
             val modeId = bundle.getString("selected_mode_id", "")
             viewModel.setSelectedById(segmentId, modeId)
         }
-        
-        // Restore description state
-        bundle.getString("description_text")?.let { description ->
-            // Note: We can't directly set LiveData values, they will be restored when data is reloaded
-        }
-        
-        // Restore hide exact times state
+    }
+
+    /**
+     * Restore UI state including hide exact times flag.
+     * This preserves the user's display preferences.
+     */
+    private fun restoreUIState(bundle: Bundle) {
         hideExactTimes = bundle.getBoolean("hide_exact_times", false)
         viewModel.setHideExactTimes(hideExactTimes)
+    }
+
+    /**
+     * Restore description and quick booking data.
+     * Note: These are handled by data reload to ensure consistency.
+     */
+    private fun restoreDescriptionAndQuickBooking(bundle: Bundle) {
+        // Description will be restored when data is reloaded
+        bundle.getString("description_text")?.let { description ->
+            // Note: We can't directly set LiveData values, they will be restored when data is reloaded
+            // This ensures the description is consistent with the current trip data
+        }
         
-        // Note: Items will be restored when setHeaderItems is called by the parent fragment
         // Quick booking segment will be restored when the data is reloaded
+        bundle.getString("quick_booking_segment_id")?.let { segmentId ->
+            // Note: The quick booking segment will be restored when setHeaderItems is called
+            // This ensures the segment data is consistent with the current trip state
+        }
     }
 
     private fun initViews() {
