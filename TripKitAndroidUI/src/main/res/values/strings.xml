@@ -884,4 +884,5 @@ We aggregate the anonymised data and provide it to researchers, regulators, and 
     <string name="permission_required">Permission Required</string>
     <string name="permission_go_to_settings_message">Allow this app to access this device’s location in settings.</string>
     <string name="permission_go_to_settings">Go to Settings</string>
+    <string name="error_location_required">Location is required to use this feature. Please enable location services and grant location permission to this app in Settings &gt; Apps &gt; %1$s &gt; Permissions.</string>
 </resources>
