@@ -224,6 +224,27 @@ class TripPreviewHeaderFragment : Fragment() {
         }
     }
 
+    /**
+     * Set up the page index stream for communication with the pager fragment
+     */
+    fun setPageIndexStream(stream: PublishSubject<Pair<Long, String>>) {
+        pageIndexStream = stream
+    }
+
+    /**
+     * Set up the hide exact times flag
+     */
+    fun setHideExactTimes(hide: Boolean) {
+        hideExactTimes = hide
+    }
+
+    /**
+     * Set up the quick booking callback
+     */
+    fun setLoadQuickBookingCallback(callback: (TripSegment?) -> Unit) {
+        loadQuickBookingCallback = callback
+    }
+
     private fun checkLoadedHeaders() {
         val layoutManager = binding.rvHeaders.layoutManager as LinearLayoutManager
         val adapter = binding.rvHeaders.adapter
