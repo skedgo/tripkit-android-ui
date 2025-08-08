@@ -7,7 +7,7 @@ import com.google.android.gms.maps.model.MarkerOptions
 import com.skedgo.tripkit.common.model.location.Location
 import com.skedgo.tripkit.parkingspots.models.Parking
 import com.skedgo.tripkit.ui.map.adapter.StopInfoWindowAdapter
-import com.skedgo.tripkit.ui.map.adapter.ViewableInfoWindowAdapter
+import com.skedgo.tripkit.ui.map.adapter.NonClickableInfoWindowAdapter
 import com.skedgo.tripkit.ui.model.PodLocation
 import com.skedgo.tripkit.ui.tracking.EventTracker
 import com.squareup.otto.Bus
@@ -22,7 +22,7 @@ class CarParkPOILocation(val parking: Parking) : IMapPoiLocation {
         CreateMarkerForParking.execute(resources, parking)
 
     override fun getInfoWindowAdapter(context: Context): StopInfoWindowAdapter {
-        return ViewableInfoWindowAdapter(LayoutInflater.from(context))
+        return NonClickableInfoWindowAdapter(LayoutInflater.from(context))
 
     }
 
