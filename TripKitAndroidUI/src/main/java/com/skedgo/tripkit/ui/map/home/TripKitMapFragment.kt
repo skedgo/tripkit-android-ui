@@ -935,10 +935,14 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
             transportModes = it
         }
 
-        poiMarkers?.clear()
         viewModel.showMarkers.set(show)
         if (show) {
+            tripLocationMarkers?.showAll()
+            poiMarkers?.showAll()
             loadMarkers()
+        } else {
+            tripLocationMarkers?.hideAll()
+            poiMarkers?.hideAll()
         }
     }
 

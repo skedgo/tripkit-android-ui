@@ -22,6 +22,7 @@ import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.maps.model.Polyline
 import com.google.android.gms.maps.model.PolylineOptions
+import com.skedgo.rxtry.printThrowableStackTrace
 import com.skedgo.rxtry.subscribeWithErrorHandling
 import com.skedgo.tripkit.common.model.stop.ScheduledStop
 import com.skedgo.tripkit.common.model.stop.ServiceStop
@@ -155,12 +156,15 @@ class TimetableMapContributor(val fragment: Fragment) : TripKitMapContributor {
                         val marker = map.addMarker(first)
                         stopCodesToMarkerMap[second!!] = marker
                     }
+                    fitAllMapElementsToBounds()
                 }
         )
 
 
-        autoDisposable.add(viewModel.viewPort
-            .subscribeWithErrorHandling { coordinates: List<LatLng>? -> this.centerMapOver(map, coordinates) })
+//        autoDisposable.add(viewModel.viewPort
+//            .subscribeWithErrorHandling { coordinates: List<LatLng>? ->
+//                this.centerMapOver(map, coordinates) }
+//        )
 
         autoDisposable.add(viewModel.drawServiceLine
             .subscribeWithErrorHandling { polylineOptions: List<PolylineOptions?> ->
@@ -179,10 +183,7 @@ class TimetableMapContributor(val fragment: Fragment) : TripKitMapContributor {
                     }
                 }
 
-                val bounds = builder.build()
-                val padding = 50 // Optional padding around the bounds
-                val cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, padding)
-                map.animateCamera(cameraUpdate)
+                fitAllMapElementsToBounds()
             })
 
         autoDisposable.add(viewModel.realtimeVehicle
@@ -192,6 +193,7 @@ class TimetableMapContributor(val fragment: Fragment) : TripKitMapContributor {
                 } else {
                     setRealTimeVehicle(null) // Handle empty OptionalCompat
                 }
+                fitAllMapElementsToBounds()
             })
     }
 
@@ -419,4 +421,65 @@ class TimetableMapContributor(val fragment: Fragment) : TripKitMapContributor {
     fun getMapPreviousPosition(): CameraPosition? {
         return previousCameraPosition
     }
+
+    private fun fitAllMapElementsToBounds(
+        paddingPx: Int = 160,
+        includeRealtimeVehicle: Boolean = true,
+        singlePointZoom: Float = 16f
+    ) {
+        val map = googleMap ?: return
+
+        val builder = LatLngBounds.Builder()
+        var count = 0
+        var firstPoint: LatLng? = null
+
+        // 1) All stop markers
+        for (marker in stopCodesToMarkerMap.values) {
+            val p = marker.position
+            builder.include(p)
+            if (count == 0) firstPoint = p
+            count++
+        }
+
+        // 2) All polyline points
+        for (poly in serviceLines) {
+            for (p in poly.points) {
+                builder.include(p)
+                if (count == 0) firstPoint = p
+                count++
+            }
+        }
+
+        // 3) Realtime vehicle marker
+        if (includeRealtimeVehicle) {
+            realTimeVehicleMarker?.position?.let { p ->
+                builder.include(p)
+                if (count == 0) firstPoint = p
+                count++
+            }
+        }
+
+        if (count == 0) return // nothing to show
+
+        try {
+            if (count == 1) {
+                // Only one point -> just zoom to it
+                map.animateCamera(CameraUpdateFactory.newLatLngZoom(firstPoint!!, singlePointZoom))
+            } else {
+                // Multiple points -> fit bounds
+                val bounds = builder.build()
+                try {
+                    map.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, paddingPx))
+                } catch (_: IllegalStateException) {
+                    // Fallback if called before map has size; post to the view to retry
+                    fragment.view?.post {
+                        map.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, paddingPx))
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            e.printThrowableStackTrace()
+        }
+    }
+
 }
