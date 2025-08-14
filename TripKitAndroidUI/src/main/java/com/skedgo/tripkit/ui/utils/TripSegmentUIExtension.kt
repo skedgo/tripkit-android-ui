@@ -24,6 +24,8 @@ import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import org.joda.time.format.DateTimeFormat
 import timber.log.Timber
+import android.text.format.DateFormat
+import com.skedgo.tripkit.ui.utils.SystemTimeFormatManager
 
 
 fun TripSegment.getSegmentIconObservable(
@@ -100,7 +102,8 @@ private fun TripSegment.shouldAttachAlertIconToSubtitle(): Boolean {
 }
 
 fun TripSegment.generateTripPreviewHeader(icon: Drawable): TripSegmentSummary {
-    val dateTimeFormatter = DateTimeFormat.forPattern("hh:mm a")
+    val timePattern = SystemTimeFormatManager.getTimeFormatPattern()
+    val dateTimeFormatter = DateTimeFormat.forPattern(timePattern)
     return TripSegmentSummary(
         id = this.segmentId,
         title = this.getTitle(),
@@ -121,7 +124,8 @@ fun TripSegment.generateTripPreviewHeader(
     icon: Drawable,
     printTime: PrintTime
 ): TripSegmentSummary {
-    val dateTimeFormatter = DateTimeFormat.forPattern("hh:mm a")
+    val timePattern = SystemTimeFormatManager.getTimeFormatPattern()
+    val dateTimeFormatter = DateTimeFormat.forPattern(timePattern)
     return TripSegmentSummary(
         id = this.segmentId,
         title = this.getTitle(),
@@ -200,4 +204,16 @@ private fun TripSegment.getTitle(): String {
             ""
         }
     }
+}
+
+private fun TripSegment.getTimeText(context: Context): String {
+    val timePattern = SystemTimeFormatManager.getTimeFormatPattern()
+    val dateTimeFormatter = DateTimeFormat.forPattern(timePattern)
+    return startDateTime.toString(dateTimeFormatter)
+}
+
+private fun TripSegment.getTimeRangeText(context: Context): String {
+    val timePattern = SystemTimeFormatManager.getTimeFormatPattern()
+    val dateTimeFormatter = DateTimeFormat.forPattern(timePattern)
+    return "${startDateTime.toString(dateTimeFormatter)} - ${endDateTime.toString(dateTimeFormatter)}"
 }

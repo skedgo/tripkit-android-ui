@@ -1,6 +1,7 @@
 package com.skedgo.tripkit.ui.timetables
 
 import android.content.Context
+import android.text.format.DateFormat
 import com.skedgo.tripkit.common.model.realtimealert.RealTimeStatus
 import com.skedgo.tripkit.common.util.TimeUtils
 import com.skedgo.tripkit.datetime.PrintTime
@@ -27,7 +28,9 @@ open class GetRealtimeText @Inject constructor(
 
         val isRightToLeft = context.resources.getBoolean(R.bool.is_right_to_left)
 
-        val dateTimeFormatter = DateTimeFormat.forPattern("HH:mm")
+        // Use system-aware time format instead of hardcoded "HH:mm"
+        val timePattern = if (DateFormat.is24HourFormat(context)) "H:mm" else "h:mm a"
+        val dateTimeFormatter = DateTimeFormat.forPattern(timePattern)
         val startTime = realTimeDeparture(service, service.realtimeVehicle)
         val endTime = realTimeArrival(service, service.realtimeVehicle)
         val startDateTime = DateTime(TimeUnit.SECONDS.toMillis(startTime))
