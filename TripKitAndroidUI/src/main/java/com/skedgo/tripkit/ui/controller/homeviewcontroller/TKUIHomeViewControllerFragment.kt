@@ -2,7 +2,9 @@ package com.skedgo.tripkit.ui.controller.homeviewcontroller
 
 import android.Manifest
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
+import android.provider.Settings
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
@@ -63,6 +65,8 @@ import com.skedgo.tripkit.ui.utils.deFocusAndHideKeyboard
 import com.skedgo.tripkit.ui.utils.hideKeyboard
 import com.skedgo.tripkit.ui.utils.isPermissionGranted
 import com.skedgo.tripkit.ui.utils.replaceFragment
+import com.skedgo.tripkit.ui.utils.showConfirmationPopUpDialog
+import com.skedgo.tripkit.checkIfLocationProviderIsEnabled
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -669,6 +673,20 @@ class TKUIHomeViewControllerFragment :
     }
 
     private fun checkLocationPermission(callback: (Boolean) -> Unit) {
+        // First check if device location is enabled
+        if (!requireContext().checkIfLocationProviderIsEnabled()) {
+            requireContext().showConfirmationPopUpDialog(
+                title = getString(R.string.location_services_required),
+                message = getString(R.string.device_location_is_turned_off),
+                positiveLabel = getString(R.string.settings),
+                positiveCallback = {
+                    val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
+                    startActivity(intent)
+                }
+            )
+            return
+        }
+
         ExcuseMe.couldYouGive(this)
             .permissionFor(Manifest.permission.ACCESS_FINE_LOCATION) {
                 callback.invoke(it.granted.contains(Manifest.permission.ACCESS_FINE_LOCATION))

@@ -3,8 +3,10 @@ package com.skedgo.tripkit.ui.map.home
 import android.annotation.SuppressLint
 import android.app.Application
 import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.provider.Settings
 import android.view.View
 import android.widget.Toast
 import com.araujo.jordan.excuseme.ExcuseMe
@@ -73,6 +75,8 @@ import com.skedgo.tripkit.ui.utils.MARKER_COLLECTION_TRIP_LOCATION
 import com.skedgo.tripkit.ui.utils.getOrNewCollection
 import com.skedgo.tripkit.ui.utils.getVersionCode
 import com.skedgo.tripkit.ui.utils.isNetworkConnected
+import com.skedgo.tripkit.ui.utils.showConfirmationPopUpDialog
+import com.skedgo.tripkit.checkIfLocationProviderIsEnabled
 import com.squareup.otto.Bus
 import dagger.Lazy
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -715,6 +719,20 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
 
     @SuppressLint("MissingPermission")
     private fun goToMyLocation() {
+        // First check if device location is enabled
+        if (!requireContext().checkIfLocationProviderIsEnabled()) {
+            requireContext().showConfirmationPopUpDialog(
+                title = getString(R.string.location_services_required),
+                message = getString(R.string.device_location_is_turned_off),
+                positiveLabel = getString(R.string.settings),
+                positiveCallback = {
+                    val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
+                    startActivity(intent)
+                }
+            )
+            return
+        }
+
         ExcuseMe.couldYouGive(this)
             .permissionFor(android.Manifest.permission.ACCESS_FINE_LOCATION) {
                 if (it.granted.contains(android.Manifest.permission.ACCESS_FINE_LOCATION)) {
