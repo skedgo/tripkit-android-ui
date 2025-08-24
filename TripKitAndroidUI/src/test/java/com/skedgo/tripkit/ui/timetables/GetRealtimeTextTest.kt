@@ -2,6 +2,7 @@ package com.skedgo.tripkit.ui.timetables
 
 import android.content.Context
 import android.content.res.Resources
+import android.text.format.DateFormat
 import com.skedgo.tripkit.common.model.realtimealert.RealTimeStatus
 import com.skedgo.tripkit.datetime.PrintTime
 import com.skedgo.tripkit.routing.RealTimeVehicle
@@ -9,9 +10,12 @@ import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.model.TimetableEntry
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.mockkStatic
+import io.mockk.unmockkStatic
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import org.joda.time.tz.UTCProvider
+import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.BeforeClass
@@ -35,9 +39,16 @@ class GetRealtimeTextTest {
 
     @Before
     fun setUp() {
+        mockkStatic(DateFormat::class)
+        every { DateFormat.is24HourFormat(any()) } returns true
         every { context.resources } returns resources
         every { resources.getBoolean(R.bool.is_right_to_left) } returns false // Mock getBoolean()
         getRealtimeText = GetRealtimeText(context, printTime)
+    }
+
+    @After
+    fun tearDown() {
+        unmockkStatic(DateFormat::class)
     }
 
     @Test

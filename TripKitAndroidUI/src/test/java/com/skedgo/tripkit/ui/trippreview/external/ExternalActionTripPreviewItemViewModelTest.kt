@@ -1,17 +1,23 @@
 package com.skedgo.tripkit.ui.trippreview.external
 
 import android.content.Context
+import android.text.format.DateFormat
 import android.webkit.URLUtil
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.skedgo.tripkit.common.model.booking.Booking
 import com.skedgo.tripkit.routing.TripSegment
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.trippreview.handleExternalAction
+import com.skedgo.tripkit.ui.utils.SystemTimeFormatManager
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.mockkObject
 import io.mockk.mockkStatic
 import io.mockk.slot
+import io.mockk.unmockkObject
+import io.mockk.unmockkStatic
 import org.joda.time.DateTimeZone
+import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule
@@ -41,10 +47,21 @@ class ExternalActionTripPreviewItemViewModelTest {
             booking = mockBooking
         }
 
+        // Mock static classes
         mockkStatic(URLUtil::class)
         every { URLUtil.isNetworkUrl(any()) } returns true
+        
         mockkStatic(DateTimeZone::class)
         every { DateTimeZone.forID(any()) } answers { DateTimeZone.UTC }
+        
+        // Mock DateFormat.is24HourFormat to prevent NullPointerException
+        mockkStatic(DateFormat::class)
+        every { DateFormat.is24HourFormat(any()) } returns false
+        
+        // Mock SystemTimeFormatManager
+        mockkObject(SystemTimeFormatManager)
+        every { SystemTimeFormatManager.getTimeFormatPattern() } returns "h:mm a"
+        every { SystemTimeFormatManager.getTimeFormatPatternWithAmPm() } returns "h:mm a"
 
         viewModel = ExternalActionTripPreviewItemViewModel()
 
@@ -59,6 +76,14 @@ class ExternalActionTripPreviewItemViewModelTest {
         every { mockContext.getString(R.string.action_call_taxis) } returns "Call a Taxi"
         every { mockContext.getString(R.string.show_website) } returns "Show Website"
         every { mockContext.handleExternalAction(any()) } returns mockk(relaxed = true)
+    }
+
+    @After
+    fun tearDown() {
+        unmockkStatic(URLUtil::class)
+        unmockkStatic(DateTimeZone::class)
+        unmockkStatic(DateFormat::class)
+        unmockkObject(SystemTimeFormatManager)
     }
 
     @Test
