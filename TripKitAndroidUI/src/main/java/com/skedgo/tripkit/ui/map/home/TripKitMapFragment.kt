@@ -534,6 +534,13 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
             if (!tipTapPublicStops) {
                 //        bus.post(new RequestShowTip(TooltipFragment.PREF_TAP_PUBLIC_STOPS, getString(R.string.tap_public_transport_stops_for_access_to_timetable)));
             }
+
+            viewModel.onViewPortChanged(
+                CloseEnough(
+                    position.zoom,
+                    visibleBounds.convertToDomainLatLngBounds()
+                )
+            )
         } else {
             if (!tipTapIsDeleted) {
                 //        bus.post(new TooltipFragment.TooltipClose(TooltipFragment.PREF_TAP_PUBLIC_STOPS));
@@ -543,15 +550,7 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
                 //        bus.post(new RequestShowTip(TooltipFragment.PREF_ZOOM_TO_SEE_TIMETABLE, getString(R.string.zoom_into_map_to_view_public_transport_stops)));
                 checkZoomOutFlag = true
             }
-        }
-        if (zoomLevel != null) {
-            viewModel.onViewPortChanged(
-                CloseEnough(
-                    position.zoom,
-                    visibleBounds.convertToDomainLatLngBounds()
-                )
-            )
-        } else {
+
             viewModel.onViewPortChanged(
                 NotCloseEnough(
                     position.zoom,
@@ -561,9 +560,25 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
         }
 
         if (position.zoom <= ZoomLevel.ZOOM_VALUE_TO_SHOW_CITIES) {
+            toggleLocationMarkers(show = false)
             showCities(map!!, regions)
         } else {
+            toggleLocationMarkers(show = true)
             removeAllCities()
+        }
+    }
+
+    fun toggleLocationMarkers(show: Boolean) {
+        if (show) {
+            tripLocationMarkers?.showAll()
+            poiMarkers?.showAll()
+            arrivalMarkers?.showAll()
+            departureMarkers?.showAll()
+        } else {
+            tripLocationMarkers?.hideAll()
+            poiMarkers?.hideAll()
+            arrivalMarkers?.hideAll()
+            departureMarkers?.hideAll()
         }
     }
 
@@ -618,7 +633,7 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
     private fun updateArrivalMarker(pinUpdate: PinUpdate) {
         whenSafeToUseMap { map: GoogleMap? ->
             pinUpdate.match(
-                { arrivalMarkers!!.clear() },
+                { arrivalMarkers?.clear() },
                 { (type) ->
                     val marker = arrivalMarkers!!.addMarker(
                         tripLocationMarkerCreator.call(type.toLocation())
@@ -634,7 +649,7 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
     private fun updateDepartureMarker(pinUpdate: PinUpdate) {
         whenSafeToUseMap { map: GoogleMap? ->
             pinUpdate.match(
-                { departureMarkers!!.clear() },
+                { departureMarkers?.clear() },
                 { (type) ->
                     val marker = departureMarkers!!.addMarker(
                         tripLocationMarkerCreator.call(type.toLocation())
@@ -648,7 +663,7 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
     }
 
     private fun removeAllCities() {
-        cityMarkers!!.clear()
+        cityMarkers?.clear()
         cityMarkerMap.clear()
     }
 
@@ -962,14 +977,14 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
         }
     }
 
-    fun setShowMarkers(show: Boolean, modes: List<TransportMode>?) {
+    fun setShowMarkers(show: Boolean, notIncludedModes: List<TransportMode>?) {
         // Save current state before making changes (only if we're disabling markers)
         if (!show && viewModel.showMarkers.get()) {
             savePoiMarkersState()
         }
 
-        viewModel.transportModes = modes
-        modes?.let {
+        //viewModel.notIncludedTransportModes = notIncludedModes
+        notIncludedModes?.let {
             transportModes = it
         }
 

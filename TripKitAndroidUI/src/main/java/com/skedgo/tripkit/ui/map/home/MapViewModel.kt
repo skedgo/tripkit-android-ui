@@ -17,6 +17,7 @@ import com.skedgo.tripkit.camera.GetInitialMapCameraPosition
 import com.skedgo.tripkit.camera.PutMapCameraPosition
 import com.skedgo.tripkit.common.model.location.Location
 import com.skedgo.tripkit.common.model.TransportMode
+import com.skedgo.tripkit.data.regions.RegionService
 import com.skedgo.tripkit.location.GeoPoint
 import com.skedgo.tripkit.location.GoToMyLocationRepository
 import com.skedgo.tripkit.logging.ErrorLogger
@@ -50,7 +51,8 @@ class MapViewModel @Inject internal constructor(
     private val fetchStopsByViewport: FetchStopsByViewport,
     private val getCellIdsFromViewPort: GetCellIdsFromViewPort,
     private val loadPOILocationsByViewPort: LoadPOILocationsByViewPort,
-    private val errorLogger: ErrorLogger
+    private val errorLogger: ErrorLogger,
+    private val regionService: RegionService
 ) : RxViewModel() {
     private val _myLocationError: PublishRelay<Throwable> = PublishRelay.create()
     val myLocationError: Observable<Throwable>
@@ -62,7 +64,7 @@ class MapViewModel @Inject internal constructor(
 
     var showMarkers = ObservableBoolean(true)
 
-    var transportModes: List<TransportMode>? = null
+    var notIncludedTransportModes: List<TransportMode>? = null
 
     private val viewportChanged = PublishRelay.create<ViewPort>()
     val markers = viewportChanged.hide()
@@ -113,7 +115,7 @@ class MapViewModel @Inject internal constructor(
 
     private fun hidePoi(identifier: String): Boolean {
         var _toRemove = false
-        transportModes?.forEach {
+        notIncludedTransportModes?.forEach {
             if (identifier.contains(it.id ?: "") && !_toRemove) {
                 _toRemove = true
             }
