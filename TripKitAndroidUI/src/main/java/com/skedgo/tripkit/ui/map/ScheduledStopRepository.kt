@@ -8,6 +8,7 @@ import com.skedgo.tripkit.ui.database.scheduled_stops.ScheduledStopMapper
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.schedulers.Schedulers
+import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -27,28 +28,28 @@ open class ScheduledStopRepository @Inject constructor(
     ): List<ScheduledStop> {
         val cellCodes = extractCellCodesFromSelection(selection, selectionArgs)
         if (cellCodes.isEmpty()) {
-            println("DEBUG: No cell codes found, returning empty list")
+            Timber.i("DEBUG: No cell codes found, returning empty list")
             return emptyList()
         }
         
         val bounds = extractBoundsFromSelection(selectionArgs)
-        
-        println("DEBUG: Querying with cellCodes: $cellCodes")
-        println("DEBUG: Bounds: $bounds")
+
+        Timber.i("DEBUG: Querying with cellCodes: $cellCodes")
+        Timber.i("DEBUG: Bounds: $bounds")
         
         // First, let's check if we have any data in the database at all
         val allStops = scheduledStopDatabase.scheduledStopDao().getAllScheduledStopsSync()
         val allLocations = scheduledStopDatabase.scheduledStopDao().getAllLocationsSync()
-        println("DEBUG: Total stops in DB: ${allStops.size}")
-        println("DEBUG: Total locations in DB: ${allLocations.size}")
+        Timber.i("DEBUG: Total stops in DB: ${allStops.size}")
+        Timber.i("DEBUG: Total locations in DB: ${allLocations.size}")
         
         val entities = if (bounds != null) {
-            println("DEBUG: Querying with bounds: $bounds")
-            println("DEBUG: Bounds details:")
-            println("  - southWestLat: ${bounds.southWestLat}")
-            println("  - southWestLon: ${bounds.southWestLon}")
-            println("  - northEastLat: ${bounds.northEastLat}")
-            println("  - northEastLon: ${bounds.northEastLon}")
+            Timber.i("DEBUG: Querying with bounds: $bounds")
+            Timber.i("DEBUG: Bounds details:")
+            Timber.i("  - southWestLat: ${bounds.southWestLat}")
+            Timber.i("  - southWestLon: ${bounds.southWestLon}")
+            Timber.i("  - northEastLat: ${bounds.northEastLat}")
+            Timber.i("  - northEastLon: ${bounds.northEastLon}")
             
             val result = scheduledStopDatabase.scheduledStopDao().getScheduledStopsWithLocationInBoundsNoHistory(
                 cellCodes,
@@ -57,25 +58,25 @@ open class ScheduledStopRepository @Inject constructor(
                 bounds.northEastLat,
                 bounds.northEastLon
             )
-            println("DEBUG: Query with bounds returned: ${result.size} entities")
+            Timber.i("DEBUG: Query with bounds returned: ${result.size} entities")
             
             // Debug: Show first few results to see what coordinates we got
             if (result.isNotEmpty()) {
-                println("DEBUG: First 3 results coordinates:")
+                Timber.i("DEBUG: First 3 results coordinates:")
                 result.take(3).forEach { entity ->
-                    println("  - Stop ${entity.scheduledStop.code}: lat=${entity.location?.lat}, lon=${entity.location?.lon}")
+                    Timber.i("  - Stop ${entity.scheduledStop.code}: lat=${entity.location?.lat}, lon=${entity.location?.lon}")
                 }
             }
             
             result
         } else {
-            println("DEBUG: Querying without bounds")
+            Timber.i("DEBUG: Querying without bounds")
             val result = scheduledStopDatabase.scheduledStopDao().getScheduledStopsWithLocationNoHistory(cellCodes)
-            println("DEBUG: Query without bounds returned: ${result.size} entities")
+            Timber.i("DEBUG: Query without bounds returned: ${result.size} entities")
             result
         }
-        
-        println("DEBUG: Final entities count: ${entities.size}")
+
+        Timber.i("DEBUG: Final entities count: ${entities.size}")
         return scheduledStopMapper.mapToDomainList(entities)
     }
 
@@ -101,13 +102,13 @@ open class ScheduledStopRepository @Inject constructor(
                 try {
                     val stopId = scheduledStopDatabase.scheduledStopDao().insertScheduledStop(scheduledStop)
                     val locationId = scheduledStopDatabase.scheduledStopDao().insertLocation(location)
-                    
+
                     // Log for debugging
-                    println("Inserted scheduled stop with ID: $stopId, location with ID: $locationId")
-                    println("Stop data: code=${scheduledStop.code}, cellCode=${scheduledStop.cellCode}")
-                    println("Location data: lat=${location.lat}, lon=${location.lon}, name=${location.name}")
+                    Timber.i("Inserted scheduled stop with ID: $stopId, location with ID: $locationId")
+                    Timber.i("Stop data: code=${scheduledStop.code}, cellCode=${scheduledStop.cellCode}")
+                    Timber.i("Location data: lat=${location.lat}, lon=${location.lon}, name=${location.name}")
                 } catch (e: Exception) {
-                    println("Error inserting data: ${e.message}")
+                    Timber.i("Error inserting data: ${e.message}")
                     throw e
                 }
             }
@@ -126,7 +127,7 @@ open class ScheduledStopRepository @Inject constructor(
                     val deletedLocations = scheduledStopDatabase.scheduledStopDao().deleteLocationsByCellCodes(cellCodes)
                     val deletedHistory = scheduledStopDatabase.scheduledStopDao().deleteDownloadHistoriesByCellCodes(cellCodes)
                     
-                    println("Deleted: $deletedStops stops, $deletedLocations locations, $deletedHistory history records")
+                    Timber.i("Deleted: $deletedStops stops, $deletedLocations locations, $deletedHistory history records")
                 }
             }
             .andThen(Completable.fromAction {
@@ -171,9 +172,9 @@ open class ScheduledStopRepository @Inject constructor(
             val insertedStops = scheduledStopDatabase.scheduledStopDao().insertScheduledStops(scheduledStops)
             val insertedLocations = scheduledStopDatabase.scheduledStopDao().insertLocations(locations)
             
-            println("Bulk inserted: ${insertedStops.size} stops, ${insertedLocations.size} locations")
+            Timber.i("Bulk inserted: ${insertedStops.size} stops, ${insertedLocations.size} locations")
         } catch (e: Exception) {
-            println("Error in bulk insert: ${e.message}")
+            Timber.i("Error in bulk insert: ${e.message}")
             throw e
         }
         
@@ -186,11 +187,11 @@ open class ScheduledStopRepository @Inject constructor(
         
         contentValues.forEach { contentValue ->
             // Debug: Print all keys and values
-            println("=== ContentValues Debug ===")
+            Timber.i("=== ContentValues Debug ===")
             contentValue.keySet().forEach { key ->
-                println("Key: '$key' = ${contentValue.get(key)}")
+                Timber.i("Key: '$key' = ${contentValue.get(key)}")
             }
-            println("==========================")
+            Timber.i("==========================")
             
             val location = parseContentValuesToLocationEntity(contentValue)
             locations.add(location)
@@ -198,9 +199,9 @@ open class ScheduledStopRepository @Inject constructor(
         
         try {
             val insertedLocations = scheduledStopDatabase.scheduledStopDao().insertLocations(locations)
-            println("Bulk inserted locations: ${insertedLocations.size} locations")
+            Timber.i("Bulk inserted locations: ${insertedLocations.size} locations")
         } catch (e: Exception) {
-            println("Error in bulk insert locations: ${e.message}")
+            Timber.i("Error in bulk insert locations: ${e.message}")
             throw e
         }
         
@@ -212,11 +213,11 @@ open class ScheduledStopRepository @Inject constructor(
     fun bulkInsertEntities(entities: List<com.skedgo.tripkit.ui.database.scheduled_stops.ScheduledStopEntity>): Int {
         try {
             val insertedStops = scheduledStopDatabase.scheduledStopDao().insertScheduledStops(entities)
-            println("Bulk inserted scheduled stops: ${insertedStops.size} stops")
+            Timber.i("Bulk inserted scheduled stops: ${insertedStops.size} stops")
             notifyChange()
             return insertedStops.size
         } catch (e: Exception) {
-            println("Error in bulk insert entities: ${e.message}")
+            Timber.i("Error in bulk insert entities: ${e.message}")
             throw e
         }
     }
@@ -224,11 +225,11 @@ open class ScheduledStopRepository @Inject constructor(
     fun bulkInsertLocationEntities(entities: List<com.skedgo.tripkit.ui.database.scheduled_stops.LocationEntity>): Int {
         try {
             val insertedLocations = scheduledStopDatabase.scheduledStopDao().insertLocations(entities)
-            println("Bulk inserted location entities: ${insertedLocations.size} locations")
+            Timber.i("Bulk inserted location entities: ${insertedLocations.size} locations")
             notifyChange()
             return insertedLocations.size
         } catch (e: Exception) {
-            println("Error in bulk insert location entities: ${e.message}")
+            Timber.i("Error in bulk insert location entities: ${e.message}")
             throw e
         }
     }
@@ -276,11 +277,11 @@ open class ScheduledStopRepository @Inject constructor(
                 val stopId = scheduledStopDatabase.scheduledStopDao().insertScheduledStop(testStop)
                 val locationId = scheduledStopDatabase.scheduledStopDao().insertLocation(testLocation)
                 
-                println("Test data inserted - Stop ID: $stopId, Location ID: $locationId")
-                println("Test location: lat=${testLocation.lat}, lon=${testLocation.lon}, name='${testLocation.name}'")
+                Timber.i("Test data inserted - Stop ID: $stopId, Location ID: $locationId")
+                Timber.i("Test location: lat=${testLocation.lat}, lon=${testLocation.lon}, name='${testLocation.name}'")
                 
             } catch (e: Exception) {
-                println("Error inserting test data: ${e.message}")
+                Timber.i("Error inserting test data: ${e.message}")
                 e.printStackTrace()
                 throw e
             }
@@ -363,17 +364,17 @@ open class ScheduledStopRepository @Inject constructor(
         val isDynamic = contentValues.getAsInteger("is_dynamic") ?: contentValues.getAsInteger("locations.is_dynamic") ?: 0
         
         // Debug: Print extracted values
-        println("=== Parsed Location Values ===")
-        println("name: '$name'")
-        println("address: '$address'")
-        println("lat: $lat")
-        println("lon: $lon")
-        println("exact: $exact")
-        println("bearing: $bearing")
-        println("scheduledStopCode: '$scheduledStopCode'")
-        println("locationType: $locationType")
-        println("isDynamic: $isDynamic")
-        println("=============================")
+        Timber.i("=== Parsed Location Values ===")
+        Timber.i("name: '$name'")
+        Timber.i("address: '$address'")
+        Timber.i("lat: $lat")
+        Timber.i("lon: $lon")
+        Timber.i("exact: $exact")
+        Timber.i("bearing: $bearing")
+        Timber.i("scheduledStopCode: '$scheduledStopCode'")
+        Timber.i("locationType: $locationType")
+        Timber.i("isDynamic: $isDynamic")
+        Timber.i("=============================")
         
         return com.skedgo.tripkit.ui.database.scheduled_stops.LocationEntity(
             name = name,

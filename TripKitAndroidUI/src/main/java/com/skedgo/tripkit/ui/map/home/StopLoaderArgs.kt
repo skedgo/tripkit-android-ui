@@ -8,6 +8,8 @@ import com.skedgo.tripkit.data.database.DbFields
 import com.skedgo.tripkit.location.GeoPoint
 import com.skedgo.tripkit.ui.data.CursorToStopConverter
 import com.skedgo.tripkit.ui.map.home.ZoomLevel.INNER
+import com.skedgo.tripkit.ui.map.home.ZoomLevel.REGIONAL
+import com.skedgo.tripkit.ui.map.home.ZoomLevel.OUTER
 import kotlin.math.max
 import kotlin.math.min
 
@@ -41,10 +43,24 @@ object StopLoaderArgs {
         zoom: Float,
         span: LatLngBounds
     ): ArrayList<String> {
-        return if (ZoomLevel.fromLevel(zoom) == INNER) {
-            getCellIdsForLocalLevel(geoPoint, span)
-        } else {
-            getCellIdsForRegionalLevel(region)
+        return when {
+            zoom >= 15.2f -> {
+                // Pure local level - load local stops + region for cities
+                val localCellIds = getCellIdsForLocalLevel(geoPoint, span)
+                localCellIds.addAll(getCellIdsForRegionalLevel(region))
+                localCellIds
+            }
+            zoom >= 13.0f -> {
+                // Hybrid approach: load both region and local levels
+                val localCellIds = getCellIdsForLocalLevel(geoPoint, span)
+                val regionalCellIds = getCellIdsForRegionalLevel(region)
+                localCellIds.addAll(regionalCellIds)
+                localCellIds
+            }
+            else -> {
+                // Regional level (8.1f and below) - always load region for cities
+                getCellIdsForRegionalLevel(region)
+            }
         }
     }
 

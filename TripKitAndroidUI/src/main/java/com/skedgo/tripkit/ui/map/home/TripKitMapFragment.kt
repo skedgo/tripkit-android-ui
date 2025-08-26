@@ -568,17 +568,17 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
         }
     }
 
-    fun toggleLocationMarkers(show: Boolean) {
+    private fun toggleLocationMarkers(show: Boolean) {
         if (show) {
             tripLocationMarkers?.showAll()
             poiMarkers?.showAll()
             arrivalMarkers?.showAll()
             departureMarkers?.showAll()
         } else {
-            tripLocationMarkers?.hideAll()
-            poiMarkers?.hideAll()
-            arrivalMarkers?.hideAll()
-            departureMarkers?.hideAll()
+            tripLocationMarkers?.clear()
+            poiMarkers?.clear()
+            arrivalMarkers?.clear()
+            departureMarkers?.clear()
         }
     }
 

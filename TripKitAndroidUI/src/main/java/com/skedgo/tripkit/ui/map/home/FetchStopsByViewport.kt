@@ -27,19 +27,40 @@ open class FetchStopsByViewport @Inject constructor(
                 )
                     .ignoreOutOfRegionsException()
                     .flatMap { region ->
-                        val parentStops =
-                            FetchStopParams(listOf(region.name!!), region, ApiZoomLevels.REGION)
+                        val defaultParams = FetchStopParams(
+                            listOf(region.name!!),
+                            region,
+                            ApiZoomLevels.REGION
+                        )
+
                         if (viewPort.isInner()) {
-                            getCellIdsFromViewPort.execute(viewPort)
-                                .map {
-                                    FetchStopParams(
-                                        it, region,
-                                        ApiZoomLevels.fromMapZoomLevel(ZoomLevel.fromLevel(viewPort.zoom))
-                                    )
-                                }
-                                .startWith(parentStops)
+                            if (ApiZoomLevels.shouldLoadBothLevels(viewPort.zoom)) {
+                                // Hybrid approach: load both region and local levels
+                                val localParams = getCellIdsFromViewPort.execute(viewPort)
+                                    .map { cellIds ->
+                                        FetchStopParams(
+                                            cellIds,
+                                            region,
+                                            ApiZoomLevels.LOCAL
+                                        )
+                                    }
+                                
+                                // Start with region level, then add local level
+                                localParams.startWith(defaultParams)
+                            } else {
+                                // Pure local level (>= 15.2f)
+                                getCellIdsFromViewPort.execute(viewPort)
+                                    .map { cellIds ->
+                                        FetchStopParams(
+                                            cellIds,
+                                            region,
+                                            ApiZoomLevels.LOCAL
+                                        )
+                                    }
+                                    .startWith(defaultParams)
+                            }
                         } else {
-                            Observable.just(parentStops)
+                            Observable.just(defaultParams)
                         }
                     }
             }
@@ -66,15 +87,31 @@ open class FetchStopsByViewport @Inject constructor(
                         )
 
                         if (viewPort.isInner()) {
-                            getCellIdsFromViewPort.fetch(viewPort)
-                                .map { cellIds ->
-                                    FetchStopParams(
-                                        cellIds,
-                                        region,
-                                        ApiZoomLevels.fromMapZoomLevel(ZoomLevel.fromLevel(viewPort.zoom))
-                                    )
-                                }
-                                .startWith(defaultParams)
+                            if (ApiZoomLevels.shouldLoadBothLevels(viewPort.zoom)) {
+                                // Hybrid approach: load both region and local levels
+                                val localParams = getCellIdsFromViewPort.fetch(viewPort)
+                                    .map { cellIds ->
+                                        FetchStopParams(
+                                            cellIds,
+                                            region,
+                                            ApiZoomLevels.LOCAL
+                                        )
+                                    }
+                                
+                                // Start with region level, then add local level
+                                localParams.startWith(defaultParams)
+                            } else {
+                                // Pure local level (>= 15.2f)
+                                getCellIdsFromViewPort.fetch(viewPort)
+                                    .map { cellIds ->
+                                        FetchStopParams(
+                                            cellIds,
+                                            region,
+                                            ApiZoomLevels.LOCAL
+                                        )
+                                    }
+                                    .startWith(defaultParams)
+                            }
                         } else {
                             Observable.just(defaultParams)
                         }

@@ -1,6 +1,7 @@
 package com.skedgo.tripkit.ui.map.home
 
 import com.skedgo.tripkit.ui.map.home.ZoomLevel.INNER
+import com.skedgo.tripkit.ui.map.home.ZoomLevel.REGIONAL
 import com.skedgo.tripkit.ui.map.home.ZoomLevel.OUTER
 
 
@@ -26,13 +27,18 @@ object ApiZoomLevels {
      * @param zoomLevel Zoom level defined by Google map.
      */
     fun fromMapZoomLevel(zoomLevel: ZoomLevel?): Int {
-        if (zoomLevel == INNER) {
-            return LOCAL
+        return when (zoomLevel) {
+            INNER -> LOCAL
+            REGIONAL, OUTER -> REGION
+            else -> UNKNOWN
         }
-        return if (zoomLevel == OUTER) {
-            REGION
-        } else {
-            UNKNOWN
-        }
+    }
+
+    /**
+     * Determines if a zoom level should load both region and local levels
+     * This is used for the hybrid approach in zoom range 13.0f - 15.1f
+     */
+    fun shouldLoadBothLevels(zoom: Float): Boolean {
+        return zoom >= 13.0f && zoom < 15.2f
     }
 }
