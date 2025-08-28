@@ -39,6 +39,6 @@ object ApiZoomLevels {
      * This is used for the hybrid approach in zoom range 13.0f - 15.1f
      */
     fun shouldLoadBothLevels(zoom: Float): Boolean {
-        return zoom >= 13.0f && zoom < 15.2f
+        return zoom >= 14.0f && zoom < 15.2f
     }
 }

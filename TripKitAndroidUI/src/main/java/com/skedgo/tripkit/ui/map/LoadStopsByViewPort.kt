@@ -4,7 +4,6 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
 import com.skedgo.tripkit.common.model.stop.ScheduledStop
 import com.skedgo.tripkit.data.regions.RegionService
-import com.skedgo.tripkit.ui.data.CursorToStopConverter
 import com.skedgo.tripkit.ui.map.home.GetCellIdsFromViewPort
 import com.skedgo.tripkit.ui.map.home.StopLoaderArgs
 import com.skedgo.tripkit.ui.map.home.ViewPort
@@ -44,16 +43,14 @@ open class LoadStopsByViewPort @Inject constructor(
                         getCellIdsFromViewPort.execute(viewPort)
                             .map { region to it }
                     }
-                    .map { (region, cellIds) ->
-                        StopLoaderArgs.newArgsForStopsLoader(cellIds, region, bounds)
-                    }
-                    .map { it.first to it.second }
-                    .flatMap { (cellIds, bounds) ->
-                        val selectionArgs =
-                            StopLoaderArgs.createStopLoaderSelectionArgs(cellIds, bounds)
-                        val selection = StopLoaderArgs.createStopLoaderSelection(cellIds.size)
+                    .flatMap { (region, cellIds) ->
+                        // For Room-based approach, we create a selection string that includes
+                        // cell codes and bounds, which ScheduledStopRepository will parse
+                        val selection = createRoomSelection(cellIds.size)
+                        val selectionArgs = createRoomSelectionArgs(cellIds, bounds)
+                        
                         scheduledStopRepository.queryStops(
-                            CursorToStopConverter.PROJECTION,
+                            null, // projection not needed for Room
                             selection,
                             selectionArgs,
                             null
@@ -64,5 +61,39 @@ open class LoadStopsByViewPort @Inject constructor(
             is ViewPort.NotCloseEnough -> Observable.just(emptyList())
             else -> Observable.just(emptyList())
         }
+    }
+    
+    /**
+     * Creates a selection string compatible with Room-based ScheduledStopRepository
+     * The repository will parse this to extract cell codes and bounds
+     */
+    private fun createRoomSelection(cellIdsSize: Int): String {
+        // This selection string will be parsed by ScheduledStopRepository.extractCellCodesFromSelection
+        // and extractBoundsFromSelection methods to extract the necessary information for Room queries
+        return "cell_code IN (${"?" + ",?".repeat(cellIdsSize - 1)}) AND lat >= ? AND lat <= ? AND lon >= ? AND lon <= ?"
+    }
+    
+    /**
+     * Creates selection arguments compatible with Room-based ScheduledStopRepository
+     * Format: [cellCode1, cellCode2, ..., southWestLat, northEastLat, southWestLon, northEastLon]
+     */
+    private fun createRoomSelectionArgs(cellIds: List<String>, bounds: LatLngBounds): Array<String> {
+        val fromLng = minOf(bounds.southwest.longitude, bounds.northeast.longitude)
+        val toLng = maxOf(bounds.southwest.longitude, bounds.northeast.longitude)
+        
+        val selectionArgs = Array(cellIds.size + 4) { "" }
+        
+        // Add cell codes first
+        cellIds.forEachIndexed { index, cellId ->
+            selectionArgs[index] = cellId
+        }
+        
+        // Add bounds: lat >= ?, lat <= ?, lon >= ?, lon <= ?
+        selectionArgs[cellIds.size] = bounds.southwest.latitude.toString()
+        selectionArgs[cellIds.size + 1] = bounds.northeast.latitude.toString()
+        selectionArgs[cellIds.size + 2] = fromLng.toString()
+        selectionArgs[cellIds.size + 3] = toLng.toString()
+        
+        return selectionArgs
     }
 }

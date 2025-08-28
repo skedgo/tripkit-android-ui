@@ -87,6 +87,64 @@ interface ScheduledStopDao {
     """)
     fun getScheduledStopsWithLocationNoHistory(cellCodes: List<String>): List<ScheduledStopWithLocation>
 
+    @Transaction
+    @Query("""
+        SELECT * FROM scheduled_stops 
+        INNER JOIN locations ON scheduled_stops.code = locations.scheduledStopCode
+        WHERE scheduled_stops.cellCode IN (:cellCodes)
+        AND scheduled_stops.parentId IS NULL
+        LIMIT :limit OFFSET :offset
+    """)
+    fun getScheduledStopsWithLocationNoHistoryPaginated(
+        cellCodes: List<String>,
+        limit: Int,
+        offset: Int
+    ): List<ScheduledStopWithLocation>
+
+    @Transaction
+    @Query("""
+        SELECT * FROM scheduled_stops 
+        INNER JOIN locations ON scheduled_stops.code = locations.scheduledStopCode
+        WHERE scheduled_stops.cellCode IN (:cellCodes)
+        AND scheduled_stops.parentId IS NULL
+        AND locations.lat BETWEEN :southWestLat AND :northEastLat
+        AND locations.lon BETWEEN :southWestLon AND :northEastLon
+        LIMIT :limit OFFSET :offset
+    """)
+    fun getScheduledStopsWithLocationInBoundsNoHistoryPaginated(
+        cellCodes: List<String>,
+        southWestLat: Double,
+        southWestLon: Double,
+        northEastLat: Double,
+        northEastLon: Double,
+        limit: Int,
+        offset: Int
+    ): List<ScheduledStopWithLocation>
+
+    @Query("""
+        SELECT COUNT(*) FROM scheduled_stops 
+        INNER JOIN locations ON scheduled_stops.code = locations.scheduledStopCode
+        WHERE scheduled_stops.cellCode IN (:cellCodes)
+        AND scheduled_stops.parentId IS NULL
+    """)
+    fun getScheduledStopsCount(cellCodes: List<String>): Int
+
+    @Query("""
+        SELECT COUNT(*) FROM scheduled_stops 
+        INNER JOIN locations ON scheduled_stops.code = locations.scheduledStopCode
+        WHERE scheduled_stops.cellCode IN (:cellCodes)
+        AND scheduled_stops.parentId IS NULL
+        AND locations.lat BETWEEN :southWestLat AND :northEastLat
+        AND locations.lon BETWEEN :southWestLon AND :northEastLon
+    """)
+    fun getScheduledStopsWithBoundsCount(
+        cellCodes: List<String>,
+        southWestLat: Double,
+        southWestLon: Double,
+        northEastLat: Double,
+        northEastLon: Double
+    ): Int
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertScheduledStop(scheduledStop: ScheduledStopEntity): Long
 

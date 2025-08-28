@@ -54,26 +54,30 @@ class DefaultLoadPOILocationsByViewPort @Inject constructor(
     }
 
     override fun fetch(viewPort: ViewPort): Observable<List<IMapPoiLocation>> {
-//        val bikePods = loadBikePodsByViewPort.execute(viewPort)
-//            .map { it.map(::BikePodPOILocation) }
-//
-//        val freeFloatingVehicles = loadFreeFloatingVehiclesByViewPort.execute(viewPort)
-//            .map { it.map(::FreeFloatingVehiclePOILocation) }
+        val bikePods = loadBikePodsByViewPort.execute(viewPort)
+            .map { it.map(::BikePodPOILocation) }
+
+        val freeFloatingVehicles = loadFreeFloatingVehiclesByViewPort.execute(viewPort)
+            .map { it.map(::FreeFloatingVehiclePOILocation) }
 
         val stops = loadStopsByViewPort.execute(viewPort)
-            .map { it.map { stop -> StopPOILocation(stop, stopInfoWindowAdapter) } }
+            .map {
+                it.map { stop ->
+                    StopPOILocation(stop, stopInfoWindowAdapter)
+                }
+            }
 
-//        val carPods = loadCarPodByViewPort.execute(viewPort)
-//            .map { it.map(::CarPodPOILocation) }
-//
-//        val facilities = loadFacilitiesByViewPort.execute(viewPort)
-//            .map { it.map(::FacilityPOILocation) }
-//
-//        val carParks = loadCarParksByViewPort.execute(viewPort)
-//            .map { it.map(::CarParkPOILocation) }
+        val carPods = loadCarPodByViewPort.execute(viewPort)
+            .map { it.map(::CarPodPOILocation) }
+
+        val facilities = loadFacilitiesByViewPort.execute(viewPort)
+            .map { it.map(::FacilityPOILocation) }
+
+        val carParks = loadCarParksByViewPort.execute(viewPort)
+            .map { it.map(::CarParkPOILocation) }
 
         return Observable
-            .just(/*bikePods, freeFloatingVehicles,*/ stops /*, carPods, facilities, carParks*/)
+            .just(bikePods, freeFloatingVehicles, stops , carPods, facilities, carParks)
             .toList()
             .toObservable()
             .flatMap { sources ->

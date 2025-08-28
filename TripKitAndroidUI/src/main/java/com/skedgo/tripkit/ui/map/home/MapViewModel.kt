@@ -73,7 +73,10 @@ class MapViewModel @Inject internal constructor(
             getCellIdsFromViewPort.fetch(viewPort)
                 .map { viewPort to it }
         }
-        .distinctUntilChanged { a, b -> a.second == b.second }
+        .distinctUntilChanged { pair1, pair2 ->
+           val isTheSame = pair1.second == pair2.second
+            isTheSame && pair1.first.zoom > ZoomLevel.OUTER.level
+        }
         .map {
             it.first
         }
@@ -89,8 +92,10 @@ class MapViewModel @Inject internal constructor(
             hidePoi(it.toMutableList())
         }
         .compose(
-            DiffTransformer<IMapPoiLocation, MarkerOptions>({ it.identifier },
-                { it.createMarkerOptions(resources, picasso) })
+            DiffTransformer<IMapPoiLocation, MarkerOptions>(
+                { it.identifier },
+                { it.createMarkerOptions(resources, picasso) }
+            )
         )
         .autoClear()
 

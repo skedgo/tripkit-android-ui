@@ -52,6 +52,7 @@ import com.skedgo.tripkit.ui.map.LocationEnhancedMapFragment
 import com.skedgo.tripkit.ui.map.MapCameraController
 import com.skedgo.tripkit.ui.map.MapMarkerUtils
 import com.skedgo.tripkit.ui.map.StopMarkerIconFetcher
+import com.skedgo.tripkit.ui.map.StopPOILocation
 import com.skedgo.tripkit.ui.map.TripLocationMarkerCreator
 import com.skedgo.tripkit.ui.map.adapter.CityInfoWindowAdapter
 import com.skedgo.tripkit.ui.map.adapter.NoActionWindowAdapter
@@ -84,6 +85,8 @@ import io.reactivex.functions.Consumer
 import io.reactivex.schedulers.Schedulers
 import java.util.LinkedList
 import javax.inject.Inject
+import io.reactivex.subjects.PublishSubject
+import java.util.concurrent.TimeUnit
 
 /**
  * A map component for an app. It automatically integrates with SkedGo's backend, display transit information without
@@ -155,6 +158,7 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
     private var tipZoomIsDeleted = false
     private var checkZoomOutFlag = false
     private var map: GoogleMap? = null
+    private var lastZoomLevel: Float = 0f
 
     private var fromMarker: Marker? = null
     private var toMarker: Marker? = null
@@ -326,6 +330,18 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
         ) {
             appDeactivatedListener?.invoke()
         }
+
+        // Set up the throttle for clearing non-regional markers
+        clearNonRegionalMarkersThrottle.debounce(500, TimeUnit.MILLISECONDS)
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(
+                {
+                    clearNonRegionalMarkers()
+                },
+                { e ->
+                    e.printStackTrace()
+                }
+            ).addTo(autoDisposable)
     }
 
     private fun loadMarkers() {
@@ -522,10 +538,16 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
         if (map == null) {
             return
         }
+
+        if (position.zoom > 8.0f && position.zoom < 12.0f) {
+            clearNonRegionalMarkersThrottle.onNext(System.currentTimeMillis())
+        }
+        
         val visibleBounds = map!!.projection.visibleRegion.latLngBounds
         //    bus.post(new CameraChangeEvent(position, visibleBounds));
 //reason to keep zoomLevel is because it's used in so many loader classes
         val zoomLevel = ZoomLevel.fromLevel(position.zoom)
+
         if (zoomLevel != null) {
             if (!tipZoomIsDeleted && tipTapPublicStops && checkZoomOutFlag) {
                 //        bus.post(new TooltipFragment.TooltipClose(TooltipFragment.PREF_ZOOM_TO_SEE_TIMETABLE));
@@ -575,10 +597,10 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
             arrivalMarkers?.showAll()
             departureMarkers?.showAll()
         } else {
-            tripLocationMarkers?.clear()
-            poiMarkers?.clear()
-            arrivalMarkers?.clear()
-            departureMarkers?.clear()
+            tripLocationMarkers?.hideAll()
+            poiMarkers?.hideAll()
+            arrivalMarkers?.hideAll()
+            departureMarkers?.hideAll()
         }
     }
 
@@ -967,7 +989,6 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
     }
 
     // Keep track of the last zoom level since we don't want to misleadingly call the OnZoomLevelChangedListener.
-    private var lastZoomLevel = 0f
     override fun onCameraIdle() {
         map?.let {
             if (it.cameraPosition.zoom != lastZoomLevel) {
@@ -1016,14 +1037,23 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
         }
     }
 
-
-
     fun moveToCameraPosition(cameraPosition: CameraPosition) {
         map?.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition))
     }
 
     fun moveCameraToPolygonBounds(polygon: Polygon) {
         map?.let { cameraController.moveToPolygonBounds(it, polygon) }
+    }
+
+    /**
+     * Clear all LOCAL level markers when transitioning to regional level
+     * This ensures that existing LOCAL markers are removed when zooming out
+     */
+    val clearNonRegionalMarkersThrottle = PublishSubject.create<Long>()
+
+    private fun clearNonRegionalMarkers() {
+        poiMarkers?.clear()
+        MapData.getRegionalStops().forEach { poiMarkers?.addMarker(it) }
     }
 
     companion object {
