@@ -33,7 +33,10 @@ class ActionButtonViewModel constructor(context: Context, button: ActionButton) 
     fun update(context: Context, button: ActionButton) {
         this.showSpinner.set(false)
         this.title.set(button.text)
-        this.icon.set(ContextCompat.getDrawable(context, button.icon))
+        // Only set icon if it's a valid resource ID (not 0)
+        if (button.icon != 0) {
+            this.icon.set(ContextCompat.getDrawable(context, button.icon))
+        }
         this.tag = button.tag
         val stateList = arrayOf(intArrayOf(android.R.attr.state_enabled), intArrayOf())
 
