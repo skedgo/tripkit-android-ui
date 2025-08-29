@@ -337,6 +337,9 @@ class TripSegmentsViewModel @Inject internal constructor(
                     actions.forEachIndexed { i, actionButton ->
                         val existingButton = buttons.value?.get(i)
                         if (existingButton != null) {
+                            // Always update the button with proper data first, then preserve dynamic states
+                            existingButton.update(context, actionButton)
+                            
                             // Preserve dynamic states for specific button types
                             when (actionButton.tag) {
                                 ActionButtonHandler.ACTION_TAG_FAVORITE -> {
@@ -345,8 +348,6 @@ class TripSegmentsViewModel @Inject internal constructor(
                                     if (currentText?.contains("Remove", ignoreCase = true) == true) {
                                         // Button is already in favorite state, preserve it
                                         existingButton.title.set(context.getString(R.string.remove_favourite))
-                                    } else {
-                                        existingButton.update(context, actionButton)
                                     }
                                 }
                                 ActionButtonHandler.ACTION_TAG_ALERT -> {
@@ -355,13 +356,7 @@ class TripSegmentsViewModel @Inject internal constructor(
                                     if (currentText?.contains("Mute", ignoreCase = true) == true) {
                                         // Button is already in alert state, preserve it
                                         existingButton.title.set(context.getString(R.string.action_mute))
-                                    } else {
-                                        existingButton.update(context, actionButton)
                                     }
-                                }
-                                else -> {
-                                    // For other buttons, update normally
-                                    existingButton.update(context, actionButton)
                                 }
                             }
                         }
