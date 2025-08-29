@@ -40,7 +40,7 @@ import com.skedgo.tripkit.routing.startDateTime
 import com.skedgo.tripkit.routing.timetableEndDateTime
 import com.skedgo.tripkit.routing.timetableStartDateTime
 import com.skedgo.tripkit.ui.BR
-import com.skedgo.tripkit.ui.BuildConfig
+
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.core.RxViewModel
 import com.skedgo.tripkit.ui.creditsources.CreditSourcesOfDataViewModel
@@ -237,6 +237,11 @@ class TripSegmentsViewModel @Inject internal constructor(
         actionButtonHandler = actionButtonHandlerFactory?.createHandler(this)
         actionButtonHandler?.queryFromLocation = queryFromLocation
         actionButtonHandler?.queryToLocation = queryToLocation
+        
+        // If we have a trip group and action button handler is now available, setup buttons
+        if (actionButtonHandler != null && tripGroupRelay.hasValue()) {
+            setupButtons(tripGroupRelay.value!!)
+        }
     }
 
     fun setInternalBus(bus: Bus) {
@@ -281,17 +286,44 @@ class TripSegmentsViewModel @Inject internal constructor(
     private fun setupButtons(tripGroup: TripGroup) {
         if (tripGroup.displayTrip == null) return
         
-        // If we're restoring state and buttons are already restored, skip setup
-        if (isRestoringState && buttons.value?.isNotEmpty() == true) {
-            isRestoringState = false
-            return
-        }
-        
         viewModelScope.launch {
-            actionButtonHandler?.let { handler ->
-                val actions =
-                    handler.getActions(context, tripGroup.displayTrip!!).distinctBy { it.text }
-                
+            if (actionButtonHandler == null) {
+                return@launch
+            }
+            
+            val handler = actionButtonHandler!!
+            val actions = handler.getActions(context, tripGroup.displayTrip!!).distinctBy { it.text }
+            
+            // If we're restoring state and buttons are already restored, update them with proper data
+            if (isRestoringState && buttons.value?.isNotEmpty() == true) {
+                // Update existing buttons with proper data from handler while preserving states
+                actions.forEachIndexed { i, actionButton ->
+                    val existingButton = buttons.value?.get(i)
+                    if (existingButton != null) {
+                        // Update the button with proper data but preserve dynamic states
+                        existingButton.update(context, actionButton)
+                        
+                        // Restore dynamic states for specific button types
+                        when (actionButton.tag) {
+                            ActionButtonHandler.ACTION_TAG_FAVORITE -> {
+                                // Check if this button was in favorite state
+                                val currentText = existingButton.title.get()
+                                if (currentText?.contains("Remove", ignoreCase = true) == true) {
+                                    existingButton.title.set(context.getString(R.string.remove_favourite))
+                                }
+                            }
+                            ActionButtonHandler.ACTION_TAG_ALERT -> {
+                                // Check if this button was in alert state
+                                val currentText = existingButton.title.get()
+                                if (currentText?.contains("Mute", ignoreCase = true) == true) {
+                                    existingButton.title.set(context.getString(R.string.action_mute))
+                                }
+                            }
+                        }
+                    }
+                }
+                isRestoringState = false
+            } else {
                 // Create new buttons or update existing ones
                 if (buttons.value.orEmpty().size != actions.size) {
                     val newButtons = mutableListOf<ActionButtonViewModel>()
@@ -799,9 +831,6 @@ class TripSegmentsViewModel @Inject internal constructor(
 
             return getOffAlertsViewModel
         } catch (e: Exception) {
-            if (BuildConfig.DEBUG) {
-                e.printStackTrace()
-            }
             return null
         }
     }
