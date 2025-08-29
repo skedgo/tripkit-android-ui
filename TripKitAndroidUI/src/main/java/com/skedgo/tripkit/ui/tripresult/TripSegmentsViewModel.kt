@@ -48,6 +48,7 @@ import com.skedgo.tripkit.ui.routing.settings.RemindersRepository
 import com.skedgo.tripkit.ui.routingresults.TripGroupRepository
 import com.skedgo.tripkit.ui.trippreview.segment.TripSegmentSummaryItemViewModel
 import com.skedgo.tripkit.ui.tripresults.GetTransportIconTintStrategy
+import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButton
 import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButtonContainer
 import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButtonHandler
 import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButtonHandlerFactory
@@ -101,7 +102,20 @@ class TripSegmentsViewModel @Inject internal constructor(
 
     companion object {
         const val TRIP_SUMMARY_DEBOUNCE = 500L
+        
+        // State saving constants for action buttons
+        const val KEY_ACTION_BUTTONS_STATE = "action_buttons_state"
+        const val KEY_ACTION_BUTTON_COUNT = "action_button_count"
+        const val KEY_ACTION_BUTTON_TAG = "action_button_tag_"
+        const val KEY_ACTION_BUTTON_TEXT = "action_button_text_"
+        const val KEY_ACTION_BUTTON_ICON = "action_button_icon_"
+        const val KEY_ACTION_BUTTON_IS_PRIMARY = "action_button_is_primary_"
+        const val KEY_ACTION_BUTTON_USE_ICON_TINT = "action_button_use_icon_tint_"
+        const val KEY_IS_RESTORING_STATE = "is_restoring_state"
     }
+
+    // State restoration flag to prevent conflicts during restoration
+    private var isRestoringState = false
 
     private val segmentViewModels: MutableList<TripSegmentItemViewModel> = mutableListOf()
     val buttons = MutableLiveData<MutableList<ActionButtonViewModel>>(mutableListOf())
@@ -264,6 +278,13 @@ class TripSegmentsViewModel @Inject internal constructor(
 
     private fun setupButtons(tripGroup: TripGroup) {
         if (tripGroup.displayTrip == null) return
+        
+        // If we're restoring state and buttons are already restored, skip setup
+        if (isRestoringState && buttons.value?.isNotEmpty() == true) {
+            isRestoringState = false
+            return
+        }
+        
         viewModelScope.launch {
             actionButtonHandler?.let { handler ->
                 val actions =
@@ -824,6 +845,98 @@ class TripSegmentsViewModel @Inject internal constructor(
                 }
             }
         }
+    }
+
+    // MARK: - State Management Methods
+
+    /**
+     * Save the current state of action buttons to the provided Bundle
+     */
+    fun onSavedInstanceState(outState: Bundle) {
+        saveActionButtonState(outState)
+    }
+
+    /**
+     * Restore the state of action buttons from the provided Bundle
+     */
+    fun onCreate(savedInstanceState: Bundle?) {
+        if (savedInstanceState != null) {
+            isRestoringState = true
+            restoreActionButtonState(savedInstanceState)
+        }
+    }
+
+    /**
+     * Save action button state to Bundle
+     */
+    private fun saveActionButtonState(outState: Bundle) {
+        val currentButtons = buttons.value
+        if (currentButtons.isNullOrEmpty()) {
+            return
+        }
+
+        outState.putInt(KEY_ACTION_BUTTON_COUNT, currentButtons.size)
+        
+        currentButtons.forEachIndexed { index, buttonViewModel ->
+            outState.putString("${KEY_ACTION_BUTTON_TAG}$index", buttonViewModel.tag)
+            outState.putString("${KEY_ACTION_BUTTON_TEXT}$index", buttonViewModel.title.get())
+            // Note: We don't save icon drawable as it's not easily serializable
+            // Icon will be restored from the ActionButton recreation
+        }
+        
+        outState.putBoolean(KEY_IS_RESTORING_STATE, isRestoringState)
+    }
+
+    /**
+     * Restore action button state from Bundle
+     */
+    private fun restoreActionButtonState(savedInstanceState: Bundle) {
+        val buttonCount = savedInstanceState.getInt(KEY_ACTION_BUTTON_COUNT, 0)
+        if (buttonCount <= 0) {
+            return
+        }
+
+        val restoredButtons = mutableListOf<ActionButtonViewModel>()
+        
+        for (i in 0 until buttonCount) {
+            val tag = savedInstanceState.getString("${KEY_ACTION_BUTTON_TAG}$i")
+            val text = savedInstanceState.getString("${KEY_ACTION_BUTTON_TEXT}$i")
+            
+            if (tag != null && text != null) {
+                // Create a temporary ActionButton with basic info
+                // The full ActionButton will be recreated when setupButtons is called
+                val tempButton = ActionButton(
+                    text = text,
+                    tag = tag,
+                    icon = 0, // Will be set when ActionButton is recreated
+                    isPrimary = false, // Will be set when ActionButton is recreated
+                    useIconTint = true
+                )
+                
+                val buttonViewModel = ActionButtonViewModel(context, tempButton)
+                restoredButtons.add(buttonViewModel)
+            }
+        }
+        
+        if (restoredButtons.isNotEmpty()) {
+            buttons.value = restoredButtons
+        }
+    }
+
+    /**
+     * Create ActionButton from saved state
+     */
+    private fun createActionButtonFromSavedState(savedState: Bundle, index: Int): ActionButton? {
+        val tag = savedState.getString("${KEY_ACTION_BUTTON_TAG}$index") ?: return null
+        val text = savedState.getString("${KEY_ACTION_BUTTON_TEXT}$index") ?: return null
+        
+        return ActionButton(
+            text = text,
+            tag = tag,
+            icon = 0, // Will be set when ActionButton is recreated
+            isPrimary = false, // Will be set when ActionButton is recreated
+            useIconTint = true
+        )
     }
 
 }
