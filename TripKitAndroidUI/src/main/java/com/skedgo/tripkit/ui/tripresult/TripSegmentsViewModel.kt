@@ -111,6 +111,8 @@ class TripSegmentsViewModel @Inject internal constructor(
         const val KEY_ACTION_BUTTON_ICON = "action_button_icon_"
         const val KEY_ACTION_BUTTON_IS_PRIMARY = "action_button_is_primary_"
         const val KEY_ACTION_BUTTON_USE_ICON_TINT = "action_button_use_icon_tint_"
+        const val KEY_ACTION_BUTTON_FAVORITE_STATE = "action_button_favorite_state_"
+        const val KEY_ACTION_BUTTON_ALERT_STATE = "action_button_alert_state_"
         const val KEY_IS_RESTORING_STATE = "is_restoring_state"
     }
 
@@ -289,15 +291,48 @@ class TripSegmentsViewModel @Inject internal constructor(
             actionButtonHandler?.let { handler ->
                 val actions =
                     handler.getActions(context, tripGroup.displayTrip!!).distinctBy { it.text }
+                
+                // Create new buttons or update existing ones
                 if (buttons.value.orEmpty().size != actions.size) {
                     val newButtons = mutableListOf<ActionButtonViewModel>()
-                    actions.forEach {
-                        newButtons.add(ActionButtonViewModel(context, it))
+                    actions.forEach { actionButton ->
+                        val buttonViewModel = ActionButtonViewModel(context, actionButton)
+                        newButtons.add(buttonViewModel)
                     }
                     buttons.value = newButtons
                 } else {
-                    actions.forEachIndexed { i, button ->
-                        buttons.value?.get(i)?.update(context, button)
+                    // Update existing buttons while preserving dynamic states
+                    actions.forEachIndexed { i, actionButton ->
+                        val existingButton = buttons.value?.get(i)
+                        if (existingButton != null) {
+                            // Preserve dynamic states for specific button types
+                            when (actionButton.tag) {
+                                ActionButtonHandler.ACTION_TAG_FAVORITE -> {
+                                    // Keep existing favorite state if available
+                                    val currentText = existingButton.title.get()
+                                    if (currentText?.contains("Remove", ignoreCase = true) == true) {
+                                        // Button is already in favorite state, preserve it
+                                        existingButton.title.set(context.getString(R.string.remove_favourite))
+                                    } else {
+                                        existingButton.update(context, actionButton)
+                                    }
+                                }
+                                ActionButtonHandler.ACTION_TAG_ALERT -> {
+                                    // Keep existing alert state if available
+                                    val currentText = existingButton.title.get()
+                                    if (currentText?.contains("Mute", ignoreCase = true) == true) {
+                                        // Button is already in alert state, preserve it
+                                        existingButton.title.set(context.getString(R.string.action_mute))
+                                    } else {
+                                        existingButton.update(context, actionButton)
+                                    }
+                                }
+                                else -> {
+                                    // For other buttons, update normally
+                                    existingButton.update(context, actionButton)
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -790,6 +825,8 @@ class TripSegmentsViewModel @Inject internal constructor(
                 tripSegmentGetOffAlertsViewModel?.apply {
                     setAlertState(context, getOffAlertStateOn.value?.not() ?: false)
                 }
+                // Update button state after alert toggle
+                updateButtonStateAfterAction(tag, viewModel, context)
             }
             ActionButtonHandler.ACTION_EXTERNAL_SHOW_TICKET -> {
                 getTicket()
@@ -798,7 +835,30 @@ class TripSegmentsViewModel @Inject internal constructor(
                 actionButtonHandler?.actionClicked(
                     context, tag, this.trip ?: tripGroup.displayTrip!!, viewModel
                 )
+                // Update button state after action
+                updateButtonStateAfterAction(tag, viewModel, context)
             }
+        }
+    }
+
+    /**
+     * Update button state after user interaction
+     */
+    private fun updateButtonStateAfterAction(tag: String, viewModel: ActionButtonViewModel, context: Context) {
+        when (tag) {
+            ActionButtonHandler.ACTION_TAG_ALERT -> {
+                val trip = this.trip ?: tripGroup.displayTrip
+                if (trip != null) {
+                    val isAlertOn = GetOffAlertCache.isTripAlertStateOn(trip.getTripUuid())
+                    val newText = if (isAlertOn) {
+                        context.getString(R.string.action_mute)
+                    } else {
+                        context.getString(R.string.action_alert_me)
+                    }
+                    viewModel.title.set(newText)
+                }
+            }
+            // Add other dynamic button states as needed
         }
     }
 
@@ -878,10 +938,23 @@ class TripSegmentsViewModel @Inject internal constructor(
         outState.putInt(KEY_ACTION_BUTTON_COUNT, currentButtons.size)
         
         currentButtons.forEachIndexed { index, buttonViewModel ->
+            // Save basic button properties
             outState.putString("${KEY_ACTION_BUTTON_TAG}$index", buttonViewModel.tag)
             outState.putString("${KEY_ACTION_BUTTON_TEXT}$index", buttonViewModel.title.get())
-            // Note: We don't save icon drawable as it's not easily serializable
-            // Icon will be restored from the ActionButton recreation
+            
+            // Save dynamic states for specific button types
+            when (buttonViewModel.tag) {
+                ActionButtonHandler.ACTION_TAG_FAVORITE -> {
+                    // Save favorite state (text indicates favorite/unfavorite)
+                    val isFavorite = buttonViewModel.title.get()?.contains("Remove", ignoreCase = true) == true
+                    outState.putBoolean("${KEY_ACTION_BUTTON_FAVORITE_STATE}$index", isFavorite)
+                }
+                ActionButtonHandler.ACTION_TAG_ALERT -> {
+                    // Save alert state (text indicates alert/mute)
+                    val isAlertOn = buttonViewModel.title.get()?.contains("Mute", ignoreCase = true) == true
+                    outState.putBoolean("${KEY_ACTION_BUTTON_ALERT_STATE}$index", isAlertOn)
+                }
+            }
         }
         
         outState.putBoolean(KEY_IS_RESTORING_STATE, isRestoringState)
@@ -914,6 +987,31 @@ class TripSegmentsViewModel @Inject internal constructor(
                 )
                 
                 val buttonViewModel = ActionButtonViewModel(context, tempButton)
+                
+                // Restore dynamic states for specific button types
+                when (tag) {
+                    ActionButtonHandler.ACTION_TAG_FAVORITE -> {
+                        val isFavorite = savedInstanceState.getBoolean("${KEY_ACTION_BUTTON_FAVORITE_STATE}$i", false)
+                        // Update text based on favorite state
+                        val favoriteText = if (isFavorite) {
+                            context.getString(R.string.remove_favourite)
+                        } else {
+                            context.getString(R.string.favourite)
+                        }
+                        buttonViewModel.title.set(favoriteText)
+                    }
+                    ActionButtonHandler.ACTION_TAG_ALERT -> {
+                        val isAlertOn = savedInstanceState.getBoolean("${KEY_ACTION_BUTTON_ALERT_STATE}$i", false)
+                        // Update text based on alert state
+                        val alertText = if (isAlertOn) {
+                            context.getString(R.string.action_mute)
+                        } else {
+                            context.getString(R.string.action_alert_me)
+                        }
+                        buttonViewModel.title.set(alertText)
+                    }
+                }
+                
                 restoredButtons.add(buttonViewModel)
             }
         }
