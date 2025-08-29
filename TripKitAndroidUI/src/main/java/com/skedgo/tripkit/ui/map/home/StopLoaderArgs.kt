@@ -4,8 +4,9 @@ import android.util.Pair
 import com.google.android.gms.maps.model.LatLngBounds
 import com.skedgo.tripkit.common.model.region.Region
 import com.skedgo.tripkit.location.GeoPoint
-import kotlin.math.max
-import kotlin.math.min
+import com.skedgo.tripkit.ui.map.home.ZoomLevel.Companion.ZOOM_START_VALUE_FOR_LOCAL
+import com.skedgo.tripkit.ui.map.home.ZoomLevel.Companion.ZOOM_START_VALUE_TO_SHOW_REGIONAL
+import com.skedgo.tripkit.ui.map.home.ZoomLevel.Companion.ZOOM_VALUE_TO_SHOW_CITIES
 
 object StopLoaderArgs {
     /**
@@ -38,22 +39,19 @@ object StopLoaderArgs {
         span: LatLngBounds
     ): ArrayList<String> {
         return when {
-            zoom >= 15.2f -> {
-                // Pure local level - load local stops + region for cities
+            zoom <= ZOOM_VALUE_TO_SHOW_CITIES -> {
+                // City level - load regional stops for cities
+                getCellIdsForRegionalLevel(region)
+            }
+            zoom > ZOOM_START_VALUE_TO_SHOW_REGIONAL && zoom <= ZOOM_START_VALUE_FOR_LOCAL -> {
+                // Regional level - load regional stops
+                getCellIdsForRegionalLevel(region)
+            }
+            else -> {
+                // Local level (> 15.0f) - load local stops + regional for cities
                 val localCellIds = getCellIdsForLocalLevel(geoPoint, span)
                 localCellIds.addAll(getCellIdsForRegionalLevel(region))
                 localCellIds
-            }
-            zoom >= 14.0f -> {
-                // Hybrid approach: load both region and local levels
-                val localCellIds = getCellIdsForLocalLevel(geoPoint, span)
-                val regionalCellIds = getCellIdsForRegionalLevel(region)
-                localCellIds.addAll(regionalCellIds)
-                localCellIds
-            }
-            else -> {
-                // Regional level (8.1f and below) - always load region for cities
-                getCellIdsForRegionalLevel(region)
             }
         }
     }

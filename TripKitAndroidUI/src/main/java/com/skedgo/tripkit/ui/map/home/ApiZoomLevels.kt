@@ -1,9 +1,5 @@
 package com.skedgo.tripkit.ui.map.home
 
-import com.skedgo.tripkit.ui.map.home.ZoomLevel.INNER
-import com.skedgo.tripkit.ui.map.home.ZoomLevel.REGIONAL
-import com.skedgo.tripkit.ui.map.home.ZoomLevel.OUTER
-
 
 /**
  * Zoom level that is compatible with the locations.json API
@@ -28,17 +24,10 @@ object ApiZoomLevels {
      */
     fun fromMapZoomLevel(zoomLevel: ZoomLevel?): Int {
         return when (zoomLevel) {
-            INNER -> LOCAL
-            REGIONAL, OUTER -> REGION
+            ZoomLevel.LOCAL -> LOCAL
+            ZoomLevel.REGIONAL -> REGION
+            ZoomLevel.CITY -> REGION
             else -> UNKNOWN
         }
-    }
-
-    /**
-     * Determines if a zoom level should load both region and local levels
-     * This is used for the hybrid approach in zoom range 13.0f - 15.1f
-     */
-    fun shouldLoadBothLevels(zoom: Float): Boolean {
-        return zoom >= 14.0f && zoom < 15.2f
     }
 }

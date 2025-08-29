@@ -75,7 +75,7 @@ class MapViewModel @Inject internal constructor(
         }
         .distinctUntilChanged { pair1, pair2 ->
            val isTheSame = pair1.second == pair2.second
-            isTheSame && pair1.first.zoom > ZoomLevel.OUTER.level
+            isTheSame && pair1.first.zoom > ZoomLevel.ZOOM_START_VALUE_FOR_LOCAL
         }
         .map {
             it.first
@@ -234,5 +234,5 @@ sealed class ViewPort(val zoom: Float, val visibleBounds: LatLngBounds) {
     class CloseEnough(zoom: Float, visibleBounds: LatLngBounds) : ViewPort(zoom, visibleBounds)
     class NotCloseEnough(zoom: Float, visibleBounds: LatLngBounds) : ViewPort(zoom, visibleBounds)
 
-    fun isInner(): Boolean = zoom >= 13.0f
+    fun isInner(): Boolean = zoom >= ZoomLevel.ZOOM_START_VALUE_FOR_LOCAL
 }

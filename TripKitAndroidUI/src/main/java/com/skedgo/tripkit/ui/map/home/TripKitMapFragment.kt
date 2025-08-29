@@ -52,7 +52,6 @@ import com.skedgo.tripkit.ui.map.LocationEnhancedMapFragment
 import com.skedgo.tripkit.ui.map.MapCameraController
 import com.skedgo.tripkit.ui.map.MapMarkerUtils
 import com.skedgo.tripkit.ui.map.StopMarkerIconFetcher
-import com.skedgo.tripkit.ui.map.StopPOILocation
 import com.skedgo.tripkit.ui.map.TripLocationMarkerCreator
 import com.skedgo.tripkit.ui.map.adapter.CityInfoWindowAdapter
 import com.skedgo.tripkit.ui.map.adapter.NoActionWindowAdapter
@@ -539,7 +538,8 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
             return
         }
 
-        if (position.zoom > 8.0f && position.zoom < 12.0f) {
+        println("========== ${position.zoom} ============")
+        if (position.zoom > ZoomLevel.ZOOM_START_VALUE_TO_SHOW_REGIONAL && position.zoom <= 12.0f) {
             clearNonRegionalMarkersThrottle.onNext(System.currentTimeMillis())
         }
         
@@ -628,7 +628,7 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
     fun animateToCity(city: Location) {
         whenSafeToUseMap(Consumer { map: GoogleMap ->
             val position = CameraPosition.Builder()
-                .zoom(ZoomLevel.OUTER.level)
+                .zoom(ZoomLevel.REGIONAL.level)
                 .target(LatLng(city.lat, city.lon))
                 .build()
             map.animateCamera(CameraUpdateFactory.newCameraPosition(position))
@@ -839,7 +839,7 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
     fun focusOnLocation(location: LatLng) {
         whenSafeToUseMap(Consumer { map: GoogleMap ->
             val position = CameraPosition.Builder()
-                .zoom(ZoomLevel.OUTER.level)
+                .zoom(ZoomLevel.ZOOM_START_VALUE_TO_SHOW_REGIONAL)
                 .target(LatLng(location.latitude, location.longitude))
                 .build()
             map.moveCamera(CameraUpdateFactory.newCameraPosition(position))
