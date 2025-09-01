@@ -1,0 +1,100 @@
+{
+    "formatVersion": 1,
+    "database": {
+        "version": 1,
+        "identityHash": "c1298b518303d6c4bc1800fcdeeb8437",
+        "entities": [
+            {
+                "tableName": "favorites_v2",
+                "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`uuid` TEXT NOT NULL, `name` TEXT NOT NULL, `type` TEXT NOT NULL, `order` INTEGER, `region` TEXT, `stopCode` TEXT, `filter` TEXT, `location` TEXT, `start` TEXT, `end` TEXT, `patterns` TEXT, `userId` TEXT, PRIMARY KEY(`uuid`))",
+                "fields": [
+                    {
+                        "fieldPath": "uuid",
+                        "columnName": "uuid",
+                        "affinity": "TEXT",
+                        "notNull": true
+                    },
+                    {
+                        "fieldPath": "name",
+                        "columnName": "name",
+                        "affinity": "TEXT",
+                        "notNull": true
+                    },
+                    {
+                        "fieldPath": "type",
+                        "columnName": "type",
+                        "affinity": "TEXT",
+                        "notNull": true
+                    },
+                    {
+                        "fieldPath": "order",
+                        "columnName": "order",
+                        "affinity": "INTEGER",
+                        "notNull": false
+                    },
+                    {
+                        "fieldPath": "region",
+                        "columnName": "region",
+                        "affinity": "TEXT",
+                        "notNull": false
+                    },
+                    {
+                        "fieldPath": "stopCode",
+                        "columnName": "stopCode",
+                        "affinity": "TEXT",
+                        "notNull": false
+                    },
+                    {
+                        "fieldPath": "filter",
+                        "columnName": "filter",
+                        "affinity": "TEXT",
+                        "notNull": false
+                    },
+                    {
+                        "fieldPath": "location",
+                        "columnName": "location",
+                        "affinity": "TEXT",
+                        "notNull": false
+                    },
+                    {
+                        "fieldPath": "start",
+                        "columnName": "start",
+                        "affinity": "TEXT",
+                        "notNull": false
+                    },
+                    {
+                        "fieldPath": "end",
+                        "columnName": "end",
+                        "affinity": "TEXT",
+                        "notNull": false
+                    },
+                    {
+                        "fieldPath": "patterns",
+                        "columnName": "patterns",
+                        "affinity": "TEXT",
+                        "notNull": false
+                    },
+                    {
+                        "fieldPath": "userId",
+                        "columnName": "userId",
+                        "affinity": "TEXT",
+                        "notNull": false
+                    }
+                ],
+                "primaryKey": {
+                    "autoGenerate": false,
+                    "columnNames": [
+                        "uuid"
+                    ]
+                },
+                "indices": [],
+                "foreignKeys": []
+            }
+        ],
+        "views": [],
+        "setupQueries": [
+            "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+            "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'c1298b518303d6c4bc1800fcdeeb8437')"
+        ]
+    }
+}
