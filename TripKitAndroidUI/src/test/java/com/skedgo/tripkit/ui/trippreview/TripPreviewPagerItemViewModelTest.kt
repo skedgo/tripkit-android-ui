@@ -3,6 +3,7 @@ package com.skedgo.tripkit.ui.trippreview
 import android.content.Context
 import android.content.res.Resources
 import android.text.TextUtils
+import android.text.format.DateFormat
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.core.content.ContextCompat
 import com.skedgo.tripkit.common.model.location.Location
@@ -13,6 +14,7 @@ import com.skedgo.tripkit.routing.TripSegment
 import com.skedgo.tripkit.routing.endDateTime
 import com.skedgo.tripkit.routing.startDateTime
 import com.skedgo.tripkit.ui.base.MockKTest
+import com.skedgo.tripkit.ui.utils.SystemTimeFormatManager
 import io.mockk.*
 import org.amshove.kluent.internal.assertEquals
 import org.joda.time.DateTime
@@ -63,6 +65,13 @@ class TripPreviewPagerItemViewModelTest: MockKTest() {
         mockkStatic(TextUtils::class)
         every { TextUtils.isEmpty(any()) } answers { false }
 
+        mockkStatic(DateFormat::class)
+        every { DateFormat.is24HourFormat(any()) } returns false
+
+        mockkObject(SystemTimeFormatManager)
+        every { SystemTimeFormatManager.getTimeFormatPattern() } returns "h:mm a"
+        every { SystemTimeFormatManager.getTimeFormatPatternWithAmPm() } returns "h:mm a"
+
         mockkStatic("android.text.format.DateUtils")
 
         every {
@@ -75,6 +84,8 @@ class TripPreviewPagerItemViewModelTest: MockKTest() {
     @After
     fun tearDown() {
         tearDownRx()
+        unmockkObject(SystemTimeFormatManager)
+        unmockkStatic(DateFormat::class)
         unmockkAll()
     }
 

@@ -19,6 +19,8 @@ import java.util.Calendar
 import java.util.Locale
 import java.util.TimeZone
 import java.util.concurrent.TimeUnit.MILLISECONDS
+import android.text.format.DateFormat
+import com.skedgo.tripkit.ui.utils.SystemTimeFormatManager
 
 class TKUIDateTimePickerDialogFragment : BaseDialog<FragmentTkuiDateTimePickerDialogBinding>() {
 
@@ -82,8 +84,8 @@ class TKUIDateTimePickerDialogFragment : BaseDialog<FragmentTkuiDateTimePickerDi
             calendar.set(Calendar.HOUR_OF_DAY, selectedHour)
             calendar.set(Calendar.MINUTE, selectedMinute)
 
-            // Format the time as hh:mm a (12-hour format with AM/PM)
-            val sdf = SimpleDateFormat("hh:mm a", Locale.getDefault())
+            val timePattern = SystemTimeFormatManager.getTimeFormatPattern()
+            val sdf = SimpleDateFormat(timePattern, Locale.getDefault())
             val formattedTime = sdf.format(calendar.time)
 
             viewModel.setTime(formattedTime)

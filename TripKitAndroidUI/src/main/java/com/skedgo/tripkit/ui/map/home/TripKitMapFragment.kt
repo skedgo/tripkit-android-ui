@@ -44,8 +44,11 @@ import com.skedgo.tripkit.ui.TripKitUI
 import com.skedgo.tripkit.ui.core.addTo
 import com.skedgo.tripkit.ui.core.module.HomeMapFragmentModule
 import com.skedgo.tripkit.ui.data.toLocation
+import com.skedgo.tripkit.ui.map.CarParkPOILocation
+import com.skedgo.tripkit.ui.map.FacilityPOILocation
 import com.skedgo.tripkit.ui.map.GenericIMapPoiLocation
 import com.skedgo.tripkit.ui.map.IMapPoiLocation
+import com.skedgo.tripkit.ui.map.StopPOILocation
 import com.skedgo.tripkit.ui.map.LocationEnhancedMapFragment
 import com.skedgo.tripkit.ui.map.MapCameraController
 import com.skedgo.tripkit.ui.map.MapMarkerUtils
@@ -888,7 +891,7 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
         poiMarkers.setOnInfoWindowClickListener { marker: Marker ->
             if (onInfoWindowClickListener != null) {
                 val poiLocation = marker.tag as IMapPoiLocation?
-                if (poiLocation != null) {
+                if (poiLocation != null && isPoiWindowAdapterClickable(poiLocation)) {
                     onInfoWindowClickListener!!.onInfoWindowClick(poiLocation.toLocation())
                 }
             }
@@ -932,10 +935,14 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
             transportModes = it
         }
 
-        poiMarkers?.clear()
         viewModel.showMarkers.set(show)
         if (show) {
+            tripLocationMarkers?.showAll()
+            poiMarkers?.showAll()
             loadMarkers()
+        } else {
+            tripLocationMarkers?.hideAll()
+            poiMarkers?.hideAll()
         }
     }
 
@@ -945,6 +952,18 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
 
     fun moveCameraToPolygonBounds(polygon: Polygon) {
         map?.let { cameraController.moveToPolygonBounds(it, polygon) }
+    }
+
+    /**
+     * Check if a POI location should be clickable based on its type
+     */
+    private fun isPoiWindowAdapterClickable(poiLocation: IMapPoiLocation): Boolean {
+        return when (poiLocation) {
+            is StopPOILocation -> false
+            is CarParkPOILocation -> false
+            is FacilityPOILocation -> false
+            else -> true
+        }
     }
 
     companion object {

@@ -6,14 +6,13 @@ import com.skedgo.tripkit.ui.trip.ArriveBy
 import com.skedgo.tripkit.ui.trip.LeaveAfter
 import com.skedgo.tripkit.ui.trip.Now
 import com.skedgo.tripkit.ui.trip.RoutingTime
+import com.skedgo.tripkit.ui.utils.SystemTimeFormatManager
 import io.reactivex.Single
 import org.joda.time.DateTime
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import javax.inject.Inject
-
-private const val ROUTING_TIME_PATTERN = "MMM dd, h:mm a"
 
 open class RoutingTimeViewModelMapper @Inject internal constructor(
     private val resources: Resources
@@ -27,7 +26,9 @@ open class RoutingTimeViewModelMapper @Inject internal constructor(
     }
 
     private fun DateTime.format(): String {
-        val simpleDateFormat = SimpleDateFormat(ROUTING_TIME_PATTERN, Locale.US)
+        val timePattern = SystemTimeFormatManager.getTimeFormatPattern()
+        val datePattern = "MMM dd, $timePattern"
+        val simpleDateFormat = SimpleDateFormat(datePattern, Locale.US)
         simpleDateFormat.timeZone = zone.toTimeZone()
         return simpleDateFormat.format(Date(millis))
     }

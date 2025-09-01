@@ -7,7 +7,7 @@ import com.google.android.gms.maps.model.MarkerOptions
 import com.skedgo.tripkit.common.model.location.Location
 import com.skedgo.tripkit.data.database.locations.facility.FacilityLocationEntity
 import com.skedgo.tripkit.ui.map.adapter.StopInfoWindowAdapter
-import com.skedgo.tripkit.ui.map.adapter.ViewableInfoWindowAdapter
+import com.skedgo.tripkit.ui.map.adapter.NonClickableInfoWindowAdapter
 import com.skedgo.tripkit.ui.model.PodLocation
 import com.skedgo.tripkit.ui.tracking.EventTracker
 import com.squareup.otto.Bus
@@ -24,7 +24,7 @@ class FacilityPOILocation(
         CreateMarkerFoFacility.execute(resources, facilityLocationEntity)
 
     override fun getInfoWindowAdapter(context: Context): StopInfoWindowAdapter {
-        return ViewableInfoWindowAdapter(LayoutInflater.from(context))
+        return NonClickableInfoWindowAdapter(LayoutInflater.from(context))
 
     }
 

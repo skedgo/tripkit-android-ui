@@ -30,7 +30,7 @@
     <color name="classification_recommended">#1880e7</color>
 
     <color name="favorite_blue">#3467CE</color>
-    <color name="favorite_blue_faded">#303467CE</color>
+    <color name="favorite_blue_faded">#703467CE</color>
     <color name="favorite_bus">#23B15E</color>
     <color name="favorite_train">#6665B2</color>
     <color name="favorite_subway">#9A579D</color>
