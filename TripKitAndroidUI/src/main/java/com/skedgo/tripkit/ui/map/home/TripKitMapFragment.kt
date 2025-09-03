@@ -1067,8 +1067,10 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
     val clearNonRegionalMarkersThrottle = PublishSubject.create<Long>()
 
     private fun clearNonRegionalMarkers() {
-        poiMarkers?.clear()
-        MapData.getRegionalStops().forEach { poiMarkers?.addMarker(it) }
+        if(viewModel.showMarkers.get()) {
+            poiMarkers?.clear()
+            MapData.getRegionalStops().forEach { poiMarkers?.addMarker(it) }
+        }
     }
 
     companion object {
