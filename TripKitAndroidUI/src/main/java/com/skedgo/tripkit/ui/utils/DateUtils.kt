@@ -21,11 +21,13 @@ fun getDisplayDateFormatter(tz: DateTimeZone? = null): DateTimeFormatter {
 }
 
 fun getDisplayTimeFormatter(tz: DateTimeZone? = null): DateTimeFormatter {
-    return DateTimeFormat.forPattern("h:mm aa").withZone(tz)
+    val timePattern = SystemTimeFormatManager.getTimeFormatPatternWithAmPm()
+    return DateTimeFormat.forPattern(timePattern).withZone(tz)
 }
 
 fun getDisplayDateTimeFormatter(tz: DateTimeZone? = null): DateTimeFormatter {
-    return DateTimeFormat.forPattern("MMM dd, yyyy h:mm aa").withZone(tz)
+    val timePattern = SystemTimeFormatManager.getTimeFormatPatternWithAmPm()
+    return DateTimeFormat.forPattern("MMM dd, yyyy $timePattern").withZone(tz)
 }
 
 fun Date.checkDateForStringLabel(context: Context): String? {

@@ -27,7 +27,9 @@ fun TimeTag.formatString(context: Context, timezone: String?): String {
         stringBuilder.append(prefix)
         stringBuilder.append(" ")
         val date = Date(millis)
-        val dateFormat = SimpleDateFormat("MMM dd, h:mm a", Locale.US)
+
+        val timePattern = SystemTimeFormatManager.getTimeFormatPattern()
+        val dateFormat = SimpleDateFormat("MMM dd, $timePattern", Locale.US)
         dateFormat.timeZone = if (timezone != null) {
             TimeZone.getTimeZone(timezone)
         } else {

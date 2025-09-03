@@ -46,12 +46,27 @@ import timber.log.Timber
 import java.util.*
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
+import android.text.format.DateFormat
+import com.skedgo.tripkit.ui.utils.SystemTimeFormatManager
 
 class TripResultListFragment : BaseTripKitFragment() {
 
     companion object {
-        const val DATE_TIME_FORMATTER_LEAVE_NOW = "HH:mm aa"
-        const val DATE_TIME_FORMATTER_LEAVE = "MMMM dd HH:mm aa"
+        private const val ARG_QUERY = "query"
+        private const val ARG_ACTION_BUTTON_HANDLER_FACTORY = "action_button_handler_factory"
+        private const val ARG_SHOW_CLOSE_BUTTON = "show_close_button"
+        private const val ARG_USER_MODES = "user_modes"
+        private const val ARG_BOOK_RIDE_HELP_CALLBACK = "book_ride_help_callback"
+        private const val ARG_TRIP_KIT_MAP_FRAGMENT = "trip_kit_map_fragment"
+        
+        // Use SystemTimeFormatManager singleton instead of requiring Context parameter
+        fun getDateTimeFormatterLeaveNow(): String {
+            return SystemTimeFormatManager.getTimeFormatPatternWithAmPm()
+        }
+        
+        fun getDateTimeFormatterLeave(): String {
+            return SystemTimeFormatManager.getDateTimeFormatPatternWithAmPm("MMMM dd")
+        }
     }
 
     /**
@@ -229,9 +244,9 @@ class TripResultListFragment : BaseTripKitFragment() {
         timeTag?.let {
             val timezone: String? = region.timezone
             val dateFormatter = if (it.isLeaveNow) {
-                DATE_TIME_FORMATTER_LEAVE_NOW
+                getDateTimeFormatterLeaveNow()
             } else {
-                DATE_TIME_FORMATTER_LEAVE
+                getDateTimeFormatterLeave()
             }
             val dt = DateTime(timeTag.timeInMillis, DateTimeZone.forID(timezone))
             val formatter = DateTimeFormat.forPattern(dateFormatter)

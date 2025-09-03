@@ -6,6 +6,9 @@ import com.skedgo.tripkit.booking.quickbooking.Rider
 import org.joda.time.format.ISODateTimeFormat
 import java.text.SimpleDateFormat
 import java.util.Locale
+import android.content.Context
+import java.util.Date
+import com.skedgo.tripkit.ui.utils.SystemTimeFormatManager
 
 data class GenericListItem(
     val label: String,
@@ -69,6 +72,27 @@ data class GenericListItem(
             }
 
             return emptyList()
+        }
+
+        private fun formatTime(context: Context, timeInMillis: Long): String {
+            val fromSdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", Locale.UK)
+            val toSdfDate = SimpleDateFormat("MMM dd, yyyy", Locale.UK)
+            // Use SystemTimeFormatManager singleton instead of requiring Context parameter
+            val timePattern = SystemTimeFormatManager.getTimeFormatPatternWithAmPm()
+            val toSdfTime = SimpleDateFormat(timePattern, Locale.UK)
+            val fromDate = Date(timeInMillis)
+            return "${toSdfDate.format(fromDate)} ${toSdfTime.format(fromDate)}"
+        }
+
+        private fun formatTimeRange(context: Context, startTimeInMillis: Long, endTimeInMillis: Long): String {
+            val fromSdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", Locale.UK)
+            val toSdfDate = SimpleDateFormat("MMM dd, yyyy", Locale.UK)
+            // Use SystemTimeFormatManager singleton instead of requiring Context parameter
+            val timePattern = SystemTimeFormatManager.getTimeFormatPatternWithAmPm()
+            val toSdfTime = SimpleDateFormat(timePattern, Locale.UK)
+            val startDate = Date(startTimeInMillis)
+            val endDate = Date(endTimeInMillis)
+            return "${toSdfDate.format(startDate)} ${toSdfTime.format(startDate)} - ${toSdfDate.format(endDate)} ${toSdfTime.format(endDate)}"
         }
     }
 }

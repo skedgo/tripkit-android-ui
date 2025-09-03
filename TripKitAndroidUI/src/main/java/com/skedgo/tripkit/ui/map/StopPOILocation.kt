@@ -2,10 +2,12 @@ package com.skedgo.tripkit.ui.map
 
 import android.content.Context
 import android.content.res.Resources
+import android.view.LayoutInflater
 import com.google.android.gms.maps.model.MarkerOptions
 import com.skedgo.tripkit.common.model.location.Location
 import com.skedgo.tripkit.common.model.stop.ScheduledStop
 import com.skedgo.tripkit.data.locations.StopsFetcher
+import com.skedgo.tripkit.ui.map.adapter.NonClickableInfoWindowAdapter
 import com.skedgo.tripkit.ui.map.adapter.StopInfoWindowAdapter
 import com.skedgo.tripkit.ui.tracking.EventTracker
 import com.squareup.otto.Bus
@@ -25,7 +27,7 @@ class StopPOILocation(
     }
 
     override fun getInfoWindowAdapter(context: Context): StopInfoWindowAdapter? {
-        return stopInfoWindowAdapter
+        return NonClickableInfoWindowAdapter(LayoutInflater.from(context))
     }
 
     override fun toLocation(): Location {

@@ -27,10 +27,14 @@ import com.skedgo.tripkit.ui.utils.checkDateForStringLabel
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
+import org.joda.time.DateTime
+import org.joda.time.Days
 import org.joda.time.DateTimeZone
 import org.joda.time.format.DateTimeFormat
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
+import android.text.format.DateFormat
+import com.skedgo.tripkit.ui.utils.SystemTimeFormatManager
 
 open class TripPreviewPagerItemViewModel : RxViewModel() {
     var title = ObservableField<String>()
@@ -140,11 +144,7 @@ open class TripPreviewPagerItemViewModel : RxViewModel() {
         fromLocation.set(segment.from?.address ?: "")
         toLocation.set(segment.to?.address ?: "")
 
-        if (!DateUtils.isToday(segment.startTimeInSecs)) {
-            duration.set(segment.startDateTime.toString(DateTimeFormat.forPattern("MMMM dd HH:mm")))
-        } else {
-            duration.set("Today ${segment.startDateTime.toString(DateTimeFormat.forPattern("HH:mm"))}")
-        }
+        updateDuration(segment)
 
         requestedPickUp.set("")
         requestedDropOff.set("")
@@ -152,7 +152,9 @@ open class TripPreviewPagerItemViewModel : RxViewModel() {
             if ((segment.trip?.queryTime ?: 0L) > 0) {
                 val queryDateTime = segment.trip?.queryDateTime
                 val date = queryDateTime?.toString(DateTimeFormat.forPattern("MMM d, yyyy"))
-                val time = queryDateTime?.toString(DateTimeFormat.forPattern("h:mm aa"))
+                // Use system-aware time format instead of hardcoded "H:mm"
+                val timePattern = if (DateFormat.is24HourFormat(context)) "H:mm" else "h:mm a"
+                val time = queryDateTime?.toString(DateTimeFormat.forPattern(timePattern))
                 val label = String.format(context.getString(R.string.requested_time), date, time)
                 if (segment.trip?.queryIsLeaveAfter == true) {
                     requestedPickUp.set(label)
@@ -165,13 +167,17 @@ open class TripPreviewPagerItemViewModel : RxViewModel() {
             val labelForStartDate = startDateTime.toDate().checkDateForStringLabel(context)
             val startDate = labelForStartDate
                 ?: startDateTime.toString(DateTimeFormat.forPattern("MMM d, yyyy"))
-            val startTime = startDateTime.toString(DateTimeFormat.forPattern("h:mm aa"))
+            // Use system-aware time format instead of hardcoded "H:mm"
+            val startTimePattern = if (DateFormat.is24HourFormat(context)) "H:mm" else "h:mm a"
+            val startTime = startDateTime.toString(DateTimeFormat.forPattern(startTimePattern))
 
             val endDateTime = segment.endDateTime
             val labelForEndDate = endDateTime.toDate().checkDateForStringLabel(context)
             val endDate = labelForEndDate
                 ?: endDateTime.toString(DateTimeFormat.forPattern("MMM d, yyyy"))
-            val endTime = endDateTime.toString(DateTimeFormat.forPattern("h:mm aa"))
+            // Use system-aware time format instead of hardcoded "H:mm"
+            val endTimePattern = if (DateFormat.is24HourFormat(context)) "H:mm" else "h:mm a"
+            val endTime = endDateTime.toString(DateTimeFormat.forPattern(endTimePattern))
 
             requestedPickUp.set("$startDate $startTime")
             requestedDropOff.set("$endDate $endTime")
@@ -184,6 +190,27 @@ open class TripPreviewPagerItemViewModel : RxViewModel() {
         hasPickUpWindow.set(
             segment.booking?.confirmation?.purchase()?.pickupWindowDuration() != null
         )
+    }
+
+    private fun updateDuration(segment: TripSegment) {
+        val now = DateTime.now()
+        val segmentDate = segment.startDateTime
+        val daysDiff = Days.daysBetween(now.toLocalDate(), segmentDate.toLocalDate()).days
+
+        when {
+            daysDiff == 0 -> {
+                val timePattern = SystemTimeFormatManager.getTimeFormatPattern()
+                duration.set("Today ${segment.startDateTime.toString(DateTimeFormat.forPattern(timePattern))}")
+            }
+            daysDiff == 1 -> {
+                val timePattern = SystemTimeFormatManager.getTimeFormatPattern()
+                duration.set("Tomorrow ${segment.startDateTime.toString(DateTimeFormat.forPattern(timePattern))}")
+            }
+            else -> {
+                val timePattern = SystemTimeFormatManager.getTimeFormatPattern()
+                duration.set(segment.startDateTime.toString(DateTimeFormat.forPattern("MMMM dd $timePattern")))
+            }
+        }
     }
 
     private fun fetchRegionAndSetupPickUpMessage(trip: Trip) {
@@ -210,8 +237,10 @@ open class TripPreviewPagerItemViewModel : RxViewModel() {
             DateTimeFormat.forPattern("MMM d, yyyy")
                 .withZone(DateTimeZone.forID(timeZone))
         )
+
+        val timePattern = SystemTimeFormatManager.getTimeFormatPatternWithAmPm()
         val time = dateTime.toString(
-            DateTimeFormat.forPattern("h:mm aa")
+            DateTimeFormat.forPattern(timePattern)
                 .withZone(DateTimeZone.forID(timeZone))
         )
 
