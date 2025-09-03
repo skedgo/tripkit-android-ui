@@ -588,7 +588,7 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
             toggleLocationMarkers(show = false)
             showCities(map!!, regions)
         } else {
-            toggleLocationMarkers(show = true)
+            toggleLocationMarkers(show = viewModel.showMarkers.get())
             removeAllCities()
         }
     }
