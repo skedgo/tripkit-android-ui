@@ -65,6 +65,7 @@ import timber.log.Timber
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Provider
+import android.os.Bundle
 
 class TripResultListViewModel @Inject constructor(
     val context: Context,
@@ -148,6 +149,17 @@ class TripResultListViewModel @Inject constructor(
     private val _startLocationListener = MutableLiveData<Boolean>()
     val startLocationListener: LiveData<Boolean> get() = _startLocationListener
 
+    // Flag to detect app restoration scenario
+    private var isAppRestoration = false
+
+    /**
+     * Strategy for handling data updates during route loading
+     */
+    enum class DataUpdateStrategy {
+        EXISTING,  // Current behavior: clear cache and replace with new data
+        MERGE      // New behavior: preserve existing data and merge with new API data
+    }
+
     init {
         transportModeChangeThrottle.debounce(500, TimeUnit.MILLISECONDS)
             .subscribe(
@@ -193,7 +205,8 @@ class TripResultListViewModel @Inject constructor(
         transportModeFilter: TransportModeFilter?,
         actionButtonHandlerFactory: ActionButtonHandlerFactory?,
         force: Boolean = false,
-        execute: Boolean = true
+        execute: Boolean = true,
+        strategy: DataUpdateStrategy = DataUpdateStrategy.EXISTING
     ) {
         if (!force && mergedList.size > 0) {
             return
@@ -229,11 +242,11 @@ class TripResultListViewModel @Inject constructor(
         }
 
         setTimeLabel()
-        getTransport(execute)
+        getTransport(execute, strategy)
     }
 
 
-    private fun getTransport(execute: Boolean = true) {
+    private fun getTransport(execute: Boolean = true, strategy: DataUpdateStrategy = DataUpdateStrategy.EXISTING) {
         setLoading(true)
 
         if (query.fromLocation == null) {
@@ -278,7 +291,7 @@ class TripResultListViewModel @Inject constructor(
             .subscribe({ list ->
                 transportModes.value = list
                 if (execute) {
-                    load()
+                    load(strategy)
                 }
             }, {
                 Timber.e(it)
@@ -342,7 +355,7 @@ class TripResultListViewModel @Inject constructor(
         }
     }
 
-    fun load() {
+    fun load(strategy: DataUpdateStrategy = DataUpdateStrategy.EXISTING) {
         query = query.clone(true)
         query.setUseWheelchair(transportVisibilityFilter!!.isSelected(TransportMode.ID_WHEEL_CHAIR))
         val request = Observable.defer {
@@ -372,7 +385,7 @@ class TripResultListViewModel @Inject constructor(
                         )
                     ).subscribe()
                 )
-                loadFromStore()
+                loadFromStore(strategy)
             }.doOnError {
                 val message = when (it) {
                     is RoutingError -> it.message
@@ -427,7 +440,7 @@ class TripResultListViewModel @Inject constructor(
         load()
     }
 
-    private fun loadFromStore() {
+    private fun loadFromStore(strategy: DataUpdateStrategy = DataUpdateStrategy.EXISTING) {
         val tripFlow = MutableSharedFlow<Trip>()
         tripFlow.onEach {
             val clickEvent = ViewTrip(
@@ -450,7 +463,13 @@ class TripResultListViewModel @Inject constructor(
             .map {
                 val list = it.first
 
-                tripGroupList.clear()
+                if (strategy == DataUpdateStrategy.MERGE) {
+                    // MERGE strategy - preserve existing data and add new ones
+                    // Don't clear tripGroupList, we'll merge with it
+                } else {
+                    // EXISTING strategy - clear and replace
+                    tripGroupList.clear()
+                }
 
                 // Compare with tempTripGroupList and add fullUrl if it matches
                 list.forEach { group ->
@@ -461,9 +480,22 @@ class TripResultListViewModel @Inject constructor(
                     }
                 }
 
-                tripGroupList.addAll(list)
-                val classifier = TripGroupClassifier(list)
-                list.map { group ->
+                if (strategy == DataUpdateStrategy.MERGE) {
+                    // MERGE strategy - add new data without duplicates
+                    list.forEach { newGroup ->
+                        val existingGroup = tripGroupList.find { it.uuid() == newGroup.uuid() }
+                        if (existingGroup == null) {
+                            // Only add if it doesn't already exist
+                            tripGroupList.add(newGroup)
+                        }
+                    }
+                } else {
+                    // EXISTING strategy - replace with new data
+                    tripGroupList.addAll(list)
+                }
+
+                val classifier = TripGroupClassifier(tripGroupList.toList())
+                tripGroupList.map { group ->
                     val vm = tripResultViewModelProvider.get().apply {
                         var handler: ActionButtonHandler? =
                             actionButtonHandlerFactory?.createHandler(this@TripResultListViewModel)

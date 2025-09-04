@@ -272,6 +272,62 @@ class TripResultListFragment : BaseTripKitFragment() {
         return binding.root
     }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        
+        // Check if this is app restoration or navigation return
+        val isAppRestoration = savedInstanceState?.getBoolean("is_app_restoration", false) ?: false
+        val isNavigationReturn = savedInstanceState?.getBoolean("is_navigation_return", false) ?: false
+        
+        // Determine the data update strategy
+        val strategy = when {
+            isAppRestoration || isNavigationReturn -> TripResultListViewModel.DataUpdateStrategy.MERGE
+            else -> TripResultListViewModel.DataUpdateStrategy.EXISTING
+        }
+        
+        // Store current state for next restoration check
+        savedInstanceState?.putBoolean("is_navigation_return", true)
+        
+        query = arguments?.getParcelable<Query>(ARG_QUERY) as Query
+        mapContributor.setOriginDestinationLocations(query?.fromLocation, query?.toLocation)
+        arguments?.getParcelable<TransportModeFilter>(ARG_TRANSPORT_MODE_FILTER)?.let {
+            transportModeFilter = it
+        }
+
+        showTransportSelectionView =
+            arguments?.getBoolean(ARG_SHOW_TRANSPORT_MODE_SELECTION, true)!!
+
+        val globalConfigs = TripKit.getInstance().configs()
+        val showDateTimePopUpOnOpen = globalConfigs.routeScreenConfig() != null &&
+            globalConfigs.routeScreenConfig()?.popUpDateTimePickerOnOpen == true
+
+        query?.let {
+            viewModel.setup(
+                it, showTransportSelectionView, transportModeFilter, actionButtonHandlerFactory,
+                execute = !showDateTimePopUpOnOpen,
+                strategy = strategy
+            )
+        }
+
+        if (!previouslyInitialized && showDateTimePopUpOnOpen) {
+            lifecycleScope.launch {
+                // Added delay, for some reason, it does not show if no delay
+                delay(800)
+                runBlocking { showDateTimePicker(showDateTimePopUpOnOpen) }
+            }
+        }
+
+        viewModel.setHelpInfoVisibility(globalConfigs.hasInductionCards())
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        
+        // Mark that this fragment is being saved (not killed)
+        outState.putBoolean("is_app_restoration", false)
+        outState.putBoolean("is_navigation_return", true)
+    }
+
     override fun onStart() {
         super.onStart()
         mapContributor.setup(requireContext())
@@ -304,6 +360,7 @@ class TripResultListFragment : BaseTripKitFragment() {
 
     override fun onResume() {
         super.onResume()
+        
         autoDisposable.clear()
         viewModel.onFinished.observeOn(AndroidSchedulers.mainThread()).subscribeWithErrorHandling {
             binding.recyclerView.layoutManager?.scrollToPosition(0)
@@ -482,40 +539,6 @@ class TripResultListFragment : BaseTripKitFragment() {
             // To prevent https://fabric.io/skedgo/android/apps/com.buzzhives.android.tripplanner/issues/5967e7f0be077a4dcc839dc5.
             Timber.e("An error occurred", error)
         }
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        query = arguments?.getParcelable<Query>(ARG_QUERY) as Query
-        mapContributor.setOriginDestinationLocations(query?.fromLocation, query?.toLocation)
-        arguments?.getParcelable<TransportModeFilter>(ARG_TRANSPORT_MODE_FILTER)?.let {
-            transportModeFilter = it
-        }
-
-        showTransportSelectionView =
-            arguments?.getBoolean(ARG_SHOW_TRANSPORT_MODE_SELECTION, true)!!
-
-        val globalConfigs = TripKit.getInstance().configs()
-        val showDateTimePopUpOnOpen = globalConfigs.routeScreenConfig() != null &&
-            globalConfigs.routeScreenConfig()?.popUpDateTimePickerOnOpen == true
-
-        query?.let {
-            viewModel.setup(
-                it, showTransportSelectionView, transportModeFilter, actionButtonHandlerFactory,
-
-                execute = !showDateTimePopUpOnOpen
-            )
-        }
-
-        if (!previouslyInitialized && showDateTimePopUpOnOpen) {
-            lifecycleScope.launch {
-                // Added delay, for some reason, it does not show if no delay
-                delay(800)
-                runBlocking { showDateTimePicker(showDateTimePopUpOnOpen) }
-            }
-        }
-
-        viewModel.setHelpInfoVisibility(globalConfigs.hasInductionCards())
     }
 
     class Builder {
