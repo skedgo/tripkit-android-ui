@@ -1,6 +1,7 @@
 package com.skedgo.tripkit.ui.tripresults
 
 import android.content.Context
+import android.content.SharedPreferences
 import android.view.View
 import androidx.databinding.ObservableArrayList
 import androidx.databinding.ObservableBoolean
@@ -79,6 +80,22 @@ class TripResultListViewModel @Inject constructor(
     private val errorLogger: ErrorLogger,
     private val routingTimeViewModelMapper: RoutingTimeViewModelMapper
 ) : RxViewModel(), ActionButtonContainer {
+
+    companion object {
+        // Debug logging tag for time-based data handling
+        private const val DEBUG_TAG = "TIME-BASED-DATA"
+        
+        // Time thresholds for data relevance (in milliseconds)
+        private const val LEAVE_NOW_AFTER_THRESHOLD_MS = 3 * 60 * 60 * 1000L // 3 hours
+        private const val ARRIVE_BY_THRESHOLD_MS = 60 * 60 * 1000L // 1 hour
+        
+        // Query type constants
+        private const val QUERY_TYPE_LEAVE_NOW = "LEAVE_NOW"
+        private const val QUERY_TYPE_LEAVE_AFTER = "LEAVE_AFTER"
+        private const val QUERY_TYPE_ARRIVE_BY = "ARRIVE_BY"
+        private const val QUERY_TYPE_NO_TIMETAG = "NO_TIMETAG"
+    }
+
     val loadingItem = LoaderPlaceholder()
     val fromName = MutableLiveData<String>()
     val fromContentDescription = MutableLiveData<String>()
@@ -151,13 +168,97 @@ class TripResultListViewModel @Inject constructor(
 
     // Flag to detect app restoration scenario
     private var isAppRestoration = false
-
+    
+    // Store the previous query time for time-based data relevance checking
+    private var previousQueryTime: Long? = null
+    
+    // SharedPreferences for persisting previous query time across app kills
+    private val sharedPreferences: SharedPreferences = context.getSharedPreferences("trip_result_times", Context.MODE_PRIVATE)
+    
+    // Generate a unique key for this specific route
+    private fun getPreviousQueryTimeKey(): String {
+        return "previous_query_time_${query.fromLocation?.lat}_${query.fromLocation?.lon}_${query.toLocation?.lat}_${query.toLocation?.lon}"
+    }
+    
     /**
-     * Strategy for handling data updates during route loading
+     * Load the previous query time from SharedPreferences
      */
-    enum class DataUpdateStrategy {
-        EXISTING,  // Current behavior: clear cache and replace with new data
-        MERGE      // New behavior: preserve existing data and merge with new API data
+    private fun loadPreviousQueryTime(): Long? {
+        val key = getPreviousQueryTimeKey()
+        val time = sharedPreferences.getLong(key, -1L)
+        return if (time == -1L) null else time
+    }
+    
+    /**
+     * Save the previous query time to SharedPreferences
+     */
+    private fun savePreviousQueryTime(time: Long) {
+        val key = getPreviousQueryTimeKey()
+        sharedPreferences.edit().putLong(key, time).apply()
+    }
+    
+    /**
+     * Helper method to determine the query type for debugging and logic decisions
+     */
+    private fun getQueryType(): String {
+        return query.timeTag?.let { timeTag ->
+            when {
+                timeTag.isDynamic && timeTag.type == TimeTag.TIME_TYPE_LEAVE_AFTER -> QUERY_TYPE_LEAVE_NOW
+                timeTag.type == TimeTag.TIME_TYPE_LEAVE_AFTER -> QUERY_TYPE_LEAVE_AFTER
+                timeTag.type == TimeTag.TIME_TYPE_ARRIVE_BY -> QUERY_TYPE_ARRIVE_BY
+                else -> QUERY_TYPE_NO_TIMETAG
+            }
+        } ?: QUERY_TYPE_NO_TIMETAG
+    }
+    
+    /**
+     * Formats time in 12-hour format for debug logging
+     * @param timeInMillis Time in milliseconds
+     * @return Formatted time string (e.g., "2:30 PM")
+     */
+    private fun formatTimeForDebug(timeInMillis: Long): String {
+        val calendar = java.util.Calendar.getInstance()
+        calendar.timeInMillis = timeInMillis
+        
+        val hour = calendar.get(java.util.Calendar.HOUR_OF_DAY)
+        val minute = calendar.get(java.util.Calendar.MINUTE)
+        val amPm = if (hour < 12) "AM" else "PM"
+        val displayHour = if (hour == 0) 12 else if (hour > 12) hour - 12 else hour
+        
+        return String.format("%d:%02d %s", displayHour, minute, amPm)
+    }
+    
+    /**
+     * Determines if existing data should be discarded based on query type and time relevance
+     * @param existingQueryTime The time from the existing query
+     * @param currentQueryTime The time from the current query
+     * @return true if data should be discarded, false if it should be preserved
+     */
+    private fun shouldDiscardDataBasedOnTime(existingQueryTime: Long, @Suppress("UNUSED_PARAMETER") currentQueryTime: Long): Boolean {
+        val currentTime = System.currentTimeMillis()
+        val queryType = getQueryType()
+        
+        return when (queryType) {
+            QUERY_TYPE_LEAVE_NOW, QUERY_TYPE_LEAVE_AFTER -> {
+                // For leave now/after: discard if current time is 3h after the previously requested time
+                val timeDifference = currentTime - existingQueryTime
+                val shouldDiscard = timeDifference > LEAVE_NOW_AFTER_THRESHOLD_MS
+                Timber.d("$DEBUG_TAG: LEAVE_NOW/LEAVE_AFTER - timeDiff: ${timeDifference / (60 * 1000)}min, threshold: ${LEAVE_NOW_AFTER_THRESHOLD_MS / (60 * 1000)}min, shouldDiscard: $shouldDiscard")
+                shouldDiscard
+            }
+            QUERY_TYPE_ARRIVE_BY -> {
+                // For arrive by: discard if one hour after that arrive by time
+                val timeDifference = currentTime - existingQueryTime
+                val shouldDiscard = timeDifference > ARRIVE_BY_THRESHOLD_MS
+                Timber.d("$DEBUG_TAG: ARRIVE_BY - timeDiff: ${timeDifference / (60 * 1000)}min, threshold: ${ARRIVE_BY_THRESHOLD_MS / (60 * 1000)}min, shouldDiscard: $shouldDiscard")
+                shouldDiscard
+            }
+            else -> {
+                // For unknown query types or no time context, discard data for safety
+                Timber.d("$DEBUG_TAG: UNKNOWN/NO_TIMETAG - Unknown query type or no time context, discarding data for safety")
+                true
+            }
+        }
     }
 
     init {
@@ -205,8 +306,7 @@ class TripResultListViewModel @Inject constructor(
         transportModeFilter: TransportModeFilter?,
         actionButtonHandlerFactory: ActionButtonHandlerFactory?,
         force: Boolean = false,
-        execute: Boolean = true,
-        strategy: DataUpdateStrategy = DataUpdateStrategy.EXISTING
+        execute: Boolean = true
     ) {
         if (!force && mergedList.size > 0) {
             return
@@ -242,11 +342,11 @@ class TripResultListViewModel @Inject constructor(
         }
 
         setTimeLabel()
-        getTransport(execute, strategy)
+        getTransport(execute)
     }
 
 
-    private fun getTransport(execute: Boolean = true, strategy: DataUpdateStrategy = DataUpdateStrategy.EXISTING) {
+    private fun getTransport(execute: Boolean = true) {
         setLoading(true)
 
         if (query.fromLocation == null) {
@@ -291,7 +391,7 @@ class TripResultListViewModel @Inject constructor(
             .subscribe({ list ->
                 transportModes.value = list
                 if (execute) {
-                    load(strategy)
+                    load()
                 }
             }, {
                 Timber.e(it)
@@ -355,9 +455,14 @@ class TripResultListViewModel @Inject constructor(
         }
     }
 
-    fun load(strategy: DataUpdateStrategy = DataUpdateStrategy.EXISTING) {
+    fun load() {
         query = query.clone(true)
         query.setUseWheelchair(transportVisibilityFilter!!.isSelected(TransportMode.ID_WHEEL_CHAIR))
+        
+        // Log query type for breakpointing
+        val queryType = getQueryType()
+        val timeStr = query.timeTag?.let { formatTimeForDebug(it.timeInMillis) } ?: "No time"
+        Timber.d("$DEBUG_TAG: Load - Query type: $queryType, isDynamic: ${query.timeTag?.isDynamic}, time: $timeStr")
         val request = Observable.defer {
             val filter = TripResultListViewTransportModeFilter(
                 transportModeFilter!!,
@@ -385,7 +490,7 @@ class TripResultListViewModel @Inject constructor(
                         )
                     ).subscribe()
                 )
-                loadFromStore(strategy)
+                loadFromStore()
             }.doOnError {
                 val message = when (it) {
                     is RoutingError -> it.message
@@ -440,7 +545,7 @@ class TripResultListViewModel @Inject constructor(
         load()
     }
 
-    private fun loadFromStore(strategy: DataUpdateStrategy = DataUpdateStrategy.EXISTING) {
+    private fun loadFromStore() {
         val tripFlow = MutableSharedFlow<Trip>()
         tripFlow.onEach {
             val clickEvent = ViewTrip(
@@ -463,12 +568,26 @@ class TripResultListViewModel @Inject constructor(
             .map {
                 val list = it.first
 
-                if (strategy == DataUpdateStrategy.MERGE) {
-                    // MERGE strategy - preserve existing data and add new ones
-                    // Don't clear tripGroupList, we'll merge with it
-                } else {
-                    // EXISTING strategy - clear and replace
+                // Determine if we should clear existing data based on time relevance
+                val currentQueryTime = query.timeTag?.timeInMillis ?: System.currentTimeMillis()
+                
+                // Load previous query time from SharedPreferences (survives app kills)
+                val persistedPreviousTime = loadPreviousQueryTime()
+                val shouldClearExistingData = persistedPreviousTime?.let { prevTime ->
+                    shouldDiscardDataBasedOnTime(prevTime, currentQueryTime)
+                } ?: true // If no previous time, clear data
+                
+                val prevTimeStr = persistedPreviousTime?.let { formatTimeForDebug(it) } ?: "None"
+                val currTimeStr = formatTimeForDebug(currentQueryTime)
+                Timber.d("$DEBUG_TAG: Decision - shouldClear: $shouldClearExistingData, previousTime: $prevTimeStr, currentTime: $currTimeStr")
+
+                if (shouldClearExistingData) {
+                    // Clear existing data
                     tripGroupList.clear()
+                    Timber.d("$DEBUG_TAG: Cleared existing data - time threshold exceeded")
+                } else {
+                    // Preserve existing data
+                    Timber.d("$DEBUG_TAG: Preserving existing data - still within time threshold")
                 }
 
                 // Compare with tempTripGroupList and add fullUrl if it matches
@@ -480,8 +599,8 @@ class TripResultListViewModel @Inject constructor(
                     }
                 }
 
-                if (strategy == DataUpdateStrategy.MERGE) {
-                    // MERGE strategy - add new data without duplicates
+                if (!shouldClearExistingData) {
+                    // Preserve existing data - add new data without duplicates
                     list.forEach { newGroup ->
                         val existingGroup = tripGroupList.find { it.uuid() == newGroup.uuid() }
                         if (existingGroup == null) {
@@ -490,9 +609,14 @@ class TripResultListViewModel @Inject constructor(
                         }
                     }
                 } else {
-                    // EXISTING strategy - replace with new data
+                    // Clear existing data - replace with new data
                     tripGroupList.addAll(list)
                 }
+                
+                // Update previous query time for next comparison (persist to survive app kills)
+                val currentTime = query.timeTag?.timeInMillis ?: System.currentTimeMillis()
+                previousQueryTime = currentTime
+                savePreviousQueryTime(currentTime)
 
                 val classifier = TripGroupClassifier(tripGroupList.toList())
                 tripGroupList.map { group ->

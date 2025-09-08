@@ -275,18 +275,7 @@ class TripResultListFragment : BaseTripKitFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         
-        // Check if this is app restoration or navigation return
-        val isAppRestoration = savedInstanceState?.getBoolean("is_app_restoration", false) ?: false
-        val isNavigationReturn = savedInstanceState?.getBoolean("is_navigation_return", false) ?: false
-        
-        // Determine the data update strategy
-        val strategy = when {
-            isAppRestoration || isNavigationReturn -> TripResultListViewModel.DataUpdateStrategy.MERGE
-            else -> TripResultListViewModel.DataUpdateStrategy.EXISTING
-        }
-        
-        // Store current state for next restoration check
-        savedInstanceState?.putBoolean("is_navigation_return", true)
+        // Using intelligent time-based data handling (no strategy parameter needed)
         
         query = arguments?.getParcelable<Query>(ARG_QUERY) as Query
         mapContributor.setOriginDestinationLocations(query?.fromLocation, query?.toLocation)
@@ -302,11 +291,10 @@ class TripResultListFragment : BaseTripKitFragment() {
             globalConfigs.routeScreenConfig()?.popUpDateTimePickerOnOpen == true
 
         query?.let {
-            viewModel.setup(
-                it, showTransportSelectionView, transportModeFilter, actionButtonHandlerFactory,
-                execute = !showDateTimePopUpOnOpen,
-                strategy = strategy
-            )
+                viewModel.setup(
+                    it, showTransportSelectionView, transportModeFilter, actionButtonHandlerFactory,
+                    execute = !showDateTimePopUpOnOpen
+                )
         }
 
         if (!previouslyInitialized && showDateTimePopUpOnOpen) {
@@ -322,10 +310,7 @@ class TripResultListFragment : BaseTripKitFragment() {
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        
-        // Mark that this fragment is being saved (not killed)
-        outState.putBoolean("is_app_restoration", false)
-        outState.putBoolean("is_navigation_return", true)
+        // No special state saving needed for TIME_BASED strategy
     }
 
     override fun onStart() {
