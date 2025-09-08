@@ -66,7 +66,6 @@ import timber.log.Timber
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Provider
-import android.os.Bundle
 
 class TripResultListViewModel @Inject constructor(
     val context: Context,
@@ -166,8 +165,8 @@ class TripResultListViewModel @Inject constructor(
     private val _startLocationListener = MutableLiveData<Boolean>()
     val startLocationListener: LiveData<Boolean> get() = _startLocationListener
 
-    // Flag to detect app restoration scenario
-    private var isAppRestoration = false
+    // Flag to track if we received new data from API (only then should we save previous query time)
+    private var receivedNewApiData = false
     
     // Store the previous query time for time-based data relevance checking
     private var previousQueryTime: Long? = null
@@ -175,9 +174,9 @@ class TripResultListViewModel @Inject constructor(
     // SharedPreferences for persisting previous query time across app kills
     private val sharedPreferences: SharedPreferences = context.getSharedPreferences("trip_result_times", Context.MODE_PRIVATE)
     
-    // Generate a unique key for this specific route
+    // Single key for previous query time (one route flow only)
     private fun getPreviousQueryTimeKey(): String {
-        return "previous_query_time_${query.fromLocation?.lat}_${query.fromLocation?.lon}_${query.toLocation?.lat}_${query.toLocation?.lon}"
+        return "previous_query_time"
     }
     
     /**
@@ -456,6 +455,9 @@ class TripResultListViewModel @Inject constructor(
     }
 
     fun load() {
+        // Reset flag - will be set to true only if we receive new API data
+        receivedNewApiData = false
+        
         query = query.clone(true)
         query.setUseWheelchair(transportVisibilityFilter!!.isSelected(TransportMode.ID_WHEEL_CHAIR))
         
@@ -474,6 +476,8 @@ class TripResultListViewModel @Inject constructor(
 
             routeService.routeAsync(query = query, transportModeFilter = filter)
                 .flatMap {
+                    // Mark that we received new data from API
+                    receivedNewApiData = true
                     tripGroupWithUrlList.addAll(it)
                     tripGroupRepository.addTripGroups(query.uuid(), it)
                         .toObservable<List<TripGroup>>()
@@ -579,7 +583,16 @@ class TripResultListViewModel @Inject constructor(
                 
                 val prevTimeStr = persistedPreviousTime?.let { formatTimeForDebug(it) } ?: "None"
                 val currTimeStr = formatTimeForDebug(currentQueryTime)
-                Timber.d("$DEBUG_TAG: Decision - shouldClear: $shouldClearExistingData, previousTime: $prevTimeStr, currentTime: $currTimeStr")
+                
+                // Debug: Calculate time elapsed in 12-hour format
+                val timeElapsedStr = persistedPreviousTime?.let { prevTime ->
+                    val timeElapsed = currentQueryTime - prevTime
+                    val hours = timeElapsed / (60 * 60 * 1000)
+                    val minutes = (timeElapsed % (60 * 60 * 1000)) / (60 * 1000)
+                    String.format("%d:%02d", hours, minutes)
+                } ?: "N/A"
+                
+                Timber.d("$DEBUG_TAG: Decision - shouldClear: $shouldClearExistingData, previousTime: $prevTimeStr, currentTime: $currTimeStr, timeElapsed: ${timeElapsedStr}h")
 
                 if (shouldClearExistingData) {
                     // Clear existing data
@@ -614,9 +627,15 @@ class TripResultListViewModel @Inject constructor(
                 }
                 
                 // Update previous query time for next comparison (persist to survive app kills)
-                val currentTime = query.timeTag?.timeInMillis ?: System.currentTimeMillis()
-                previousQueryTime = currentTime
-                savePreviousQueryTime(currentTime)
+                // Only save if we received new data from API (not just loading from store)
+                if (receivedNewApiData) {
+                    val currentTime = query.timeTag?.timeInMillis ?: System.currentTimeMillis()
+                    previousQueryTime = currentTime
+                    savePreviousQueryTime(currentTime)
+                    Timber.d("$DEBUG_TAG: Saved new previous query time: ${formatTimeForDebug(currentTime)}")
+                } else {
+                    Timber.d("$DEBUG_TAG: Skipped saving previous query time (no new API data)")
+                }
 
                 val classifier = TripGroupClassifier(tripGroupList.toList())
                 tripGroupList.map { group ->

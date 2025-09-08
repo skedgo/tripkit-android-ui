@@ -308,11 +308,6 @@ class TripResultListFragment : BaseTripKitFragment() {
         viewModel.setHelpInfoVisibility(globalConfigs.hasInductionCards())
     }
 
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        // No special state saving needed for TIME_BASED strategy
-    }
-
     override fun onStart() {
         super.onStart()
         mapContributor.setup(requireContext())
