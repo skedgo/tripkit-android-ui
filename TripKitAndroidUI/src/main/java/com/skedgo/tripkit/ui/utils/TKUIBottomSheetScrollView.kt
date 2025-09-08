@@ -40,6 +40,7 @@ class TKUIBottomSheetScrollView(
 
     private val bottomSheetCallback = object : BottomSheetBehavior.BottomSheetCallback() {
         override fun onStateChanged(bottomSheet: View, newState: Int) {
+            // Allow scrolling when expanded, and allow upward drag when half-expanded
             onNextScrollStop(newState == BottomSheetBehavior.STATE_EXPANDED)
         }
 
@@ -85,16 +86,30 @@ class TKUIBottomSheetScrollView(
         dyUnconsumed: Int,
         type: Int,
     ) {
+        val currentState = behavior?.state ?: BottomSheetBehavior.STATE_COLLAPSED
+        
+        // Only disable scrolling if we're not in half-expanded state or if it's a downward scroll
         if (dyUnconsumed == dyPreScroll && dyPreScroll < 0) {
-            canScroll = false
+            if (currentState != BottomSheetBehavior.STATE_HALF_EXPANDED) {
+                canScroll = false
+            }
         }
     }
 
     override fun onNestedPreScroll(target: View, dx: Int, dy: Int, consumed: IntArray, type: Int) {
+        val currentState = behavior?.state ?: BottomSheetBehavior.STATE_COLLAPSED
+        
         if (!canScroll) {
-            childHelper.dispatchNestedPreScroll(dx, dy, consumed, null, type)
-            // Ensure all dy is consumed to prevent premature scrolling when not allowed.
-            consumed[1] = dy
+            // When not fully expanded, check if we should allow upward drag to extend
+            if (currentState == BottomSheetBehavior.STATE_HALF_EXPANDED && dy < 0) {
+                // Allow upward scroll (negative dy) to drag the sheet up to expanded state
+                childHelper.dispatchNestedPreScroll(dx, dy, consumed, null, type)
+                // Don't consume the scroll, let it pass through to the bottom sheet behavior
+            } else {
+                // Block downward scroll or any scroll when not in half-expanded state
+                childHelper.dispatchNestedPreScroll(dx, dy, consumed, null, type)
+                consumed[1] = dy
+            }
         } else {
             dyPreScroll = dy
         }

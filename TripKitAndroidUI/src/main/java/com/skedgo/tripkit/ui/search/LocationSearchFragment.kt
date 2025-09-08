@@ -12,6 +12,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.widget.SearchView
 import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.gms.maps.model.LatLng
@@ -28,6 +29,9 @@ import com.skedgo.tripkit.ui.utils.defocusAndHideKeyboard
 import com.skedgo.tripkit.ui.utils.isTalkBackOn
 import com.skedgo.tripkit.ui.utils.showKeyboard
 import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 
@@ -342,8 +346,11 @@ class LocationSearchFragment : BaseTripKitFragment() {
             }, errorLogger::trackError).addTo(autoDisposable)
 
         if (!requireContext().isTalkBackOn()) {
-            searchView?.requestFocus()
-            showKeyboard(requireActivity())
+            lifecycleScope.launch(Dispatchers.Main) {
+                delay(800)
+                searchView?.requestFocus()
+                showKeyboard(requireActivity())
+            }
         }
     }
 
