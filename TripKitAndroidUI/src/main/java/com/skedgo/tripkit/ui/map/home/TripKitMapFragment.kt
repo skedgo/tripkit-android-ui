@@ -169,6 +169,9 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
 
     private var contributor: TripKitMapContributor? = null
 
+    // Track viewport bounds for performance optimization
+    private var lastViewportBounds: LatLngBounds? = null
+
     // There doesn't seem to be a way to show an info window when a POI is clicked, so work-around that
     // by using an invisible marker on the map that is moved to the POI's location when clicked.
     private var poiMarker: Marker? = null
@@ -541,11 +544,6 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
             return
         }
 
-        println("========== ${position.zoom} ============")
-        if (position.zoom > ZoomLevel.ZOOM_START_VALUE_TO_SHOW_REGIONAL && position.zoom <= 12.0f) {
-            clearNonRegionalMarkersThrottle.onNext(System.currentTimeMillis())
-        }
-
         val visibleBounds = map!!.projection.visibleRegion.latLngBounds
         //    bus.post(new CameraChangeEvent(position, visibleBounds));
 //reason to keep zoomLevel is because it's used in so many loader classes
@@ -590,6 +588,13 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
         } else {
             toggleLocationMarkers(show = viewModel.showMarkers.get())
             removeAllCities()
+        }
+
+        println("========== ${position.zoom} ============")
+        if (position.zoom > ZoomLevel.ZOOM_START_VALUE_TO_SHOW_REGIONAL && position.zoom <= 13.0f) {
+            clearNonRegionalMarkersThrottle.onNext(System.currentTimeMillis())
+        } else {
+            hideMarkersOutsideViewport()
         }
     }
 
@@ -690,6 +695,7 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
     private fun removeAllCities() {
         cityMarkers?.clear()
         cityMarkerMap.clear()
+        // Note: City markers are managed by MarkerManager collections, so we don't need to untrack them individually
     }
 
     private fun showCities(map: GoogleMap, regions: List<Region>?) {
@@ -1071,6 +1077,88 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
             poiMarkers?.clear()
             MapData.getRegionalStops().forEach { poiMarkers?.addMarker(it) }
         }
+    }
+
+    /**
+     * Hide markers that are outside the current camera viewport for performance optimization
+     * Uses MarkerManager collections for efficient marker management
+     */
+    private fun hideMarkersOutsideViewport() {
+        val map = this.map ?: return
+        val currentBounds = map.projection.visibleRegion.latLngBounds
+
+        // Only update if viewport has changed significantly
+        if (lastViewportBounds != null && boundsAreSimilar(lastViewportBounds!!, currentBounds)) {
+            return
+        }
+
+        lastViewportBounds = currentBounds
+
+        // Hide/show markers in each collection based on viewport
+        hideMarkersInCollection(poiMarkers, currentBounds)
+        hideMarkersInCollection(cityMarkers, currentBounds)
+        hideMarkersInCollection(tripLocationMarkers, currentBounds)
+        hideMarkersInCollection(departureMarkers, currentBounds)
+        hideMarkersInCollection(arrivalMarkers, currentBounds)
+        hideMarkersInCollection(currentLocationMarkers, currentBounds)
+
+        // Handle individual markers that aren't in collections
+        hideIndividualMarkers(currentBounds)
+    }
+
+    /**
+     * Hide markers in a collection that are outside the viewport
+     */
+    private fun hideMarkersInCollection(collection: MarkerManager.Collection?, bounds: LatLngBounds) {
+        collection?.let { col ->
+            // Get all markers in the collection and check their visibility
+            col.markers.forEach { marker ->
+                val isVisible = bounds.contains(marker.position)
+                marker.isVisible = isVisible
+            }
+        }
+    }
+
+    /**
+     * Hide individual markers that aren't managed by collections
+     */
+    private fun hideIndividualMarkers(bounds: LatLngBounds) {
+        // Handle from/to markers
+        fromMarker?.let { marker ->
+            marker.isVisible = bounds.contains(marker.position)
+        }
+        toMarker?.let { marker ->
+            marker.isVisible = bounds.contains(marker.position)
+        }
+
+        // Handle pinned location markers
+        pinnedOriginLocationOnClickMarker?.let { marker ->
+            marker.isVisible = bounds.contains(marker.position)
+        }
+        pinnedDepartureLocationOnClickMarker?.let { marker ->
+            marker.isVisible = bounds.contains(marker.position)
+        }
+
+        // Handle POI and long press markers (these are usually invisible anyway)
+        poiMarker?.let { marker ->
+            marker.isVisible = bounds.contains(marker.position)
+        }
+        longPressMarker?.let { marker ->
+            marker.isVisible = bounds.contains(marker.position)
+        }
+    }
+
+    /**
+     * Check if two bounds are similar enough to avoid unnecessary updates
+     */
+    private fun boundsAreSimilar(bounds1: LatLngBounds, bounds2: LatLngBounds): Boolean {
+        val latDiff = kotlin.math.abs(bounds1.northeast.latitude - bounds2.northeast.latitude) +
+                     kotlin.math.abs(bounds1.southwest.latitude - bounds2.southwest.latitude)
+        val lngDiff = kotlin.math.abs(bounds1.northeast.longitude - bounds2.northeast.longitude) +
+                     kotlin.math.abs(bounds1.southwest.longitude - bounds2.southwest.longitude)
+
+        // Consider bounds similar if the difference is less than 0.001 degrees (roughly 100m)
+        return latDiff < 0.001 && lngDiff < 0.001
     }
 
     companion object {
