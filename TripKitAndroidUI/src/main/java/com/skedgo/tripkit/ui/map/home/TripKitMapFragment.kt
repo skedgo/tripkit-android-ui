@@ -89,6 +89,9 @@ import java.util.LinkedList
 import javax.inject.Inject
 import io.reactivex.subjects.PublishSubject
 import java.util.concurrent.TimeUnit
+import timber.log.Timber
+import java.util.*
+
 
 /**
  * A map component for an app. It automatically integrates with SkedGo's backend, display transit information without
@@ -590,8 +593,8 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
             removeAllCities()
         }
 
-        println("========== ${position.zoom} ============")
-        if (position.zoom > ZoomLevel.ZOOM_START_VALUE_TO_SHOW_REGIONAL && position.zoom <= 13.0f) {
+        Timber.i("========== ${position.zoom} ============")
+        if (position.zoom > ZoomLevel.ZOOM_START_VALUE_TO_SHOW_REGIONAL && position.zoom <= 12.0f) {
             clearNonRegionalMarkersThrottle.onNext(System.currentTimeMillis())
         } else {
             hideMarkersOutsideViewport()
@@ -599,18 +602,53 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
     }
 
     private fun toggleLocationMarkers(show: Boolean) {
+        val mapRef = map ?: return
+
         if (show) {
+            val viewportBounds = mapRef.projection.visibleRegion.latLngBounds
+            val zoom = mapRef.cameraPosition.zoom
+            val isPOIZoom = zoom > 12.1f && zoom < 14.5f
+
+            // Show non-POI collections first (these can use showAll safely)
             tripLocationMarkers?.showAll()
-            poiMarkers?.showAll()
             arrivalMarkers?.showAll()
             departureMarkers?.showAll()
+
+            // POIs: avoid showAll during POI zoom to prevent the flash
+            if (isPOIZoom) {
+                poiMarkers?.let { collection ->
+                    // Authoritatively set per marker in the same frame
+                    for (marker in collection.markers) {
+                        val inViewport = viewportBounds.contains(marker.position)
+                        val shouldBeVisible = inViewport && (marker.tag is StopPOILocation)
+                        if (marker.isVisible != shouldBeVisible) {
+                            marker.isVisible = shouldBeVisible
+                        }
+                    }
+                }
+            } else {
+                // Outside the POI zoom band we can safely showAll
+                poiMarkers?.showAll()
+            }
+
+            // Apply viewport filtering to all collections immediately (same frame, no blink)
+            hideMarkersInCollection(poiMarkers, viewportBounds)
+            hideMarkersInCollection(cityMarkers, viewportBounds)
+            hideMarkersInCollection(tripLocationMarkers, viewportBounds)
+            hideMarkersInCollection(departureMarkers, viewportBounds)
+            hideMarkersInCollection(arrivalMarkers, viewportBounds)
+            hideMarkersInCollection(currentLocationMarkers, viewportBounds)
+            hideIndividualMarkers(viewportBounds)
+
         } else {
+            // Hiding is unchanged
             tripLocationMarkers?.hideAll()
             poiMarkers?.hideAll()
             arrivalMarkers?.hideAll()
             departureMarkers?.hideAll()
         }
     }
+
 
     fun moveToLatLng(latLng: com.skedgo.geocoding.LatLng) {
         whenSafeToUseMap(Consumer { map ->
@@ -1107,15 +1145,47 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
     }
 
     /**
-     * Hide markers in a collection that are outside the viewport
+     * Hide/show markers in a collection based on viewport and zoom.
+     * - For zoom in (12.1f, 14.5f): only show markers with tag is StopPOILocation AND in viewport.
+     * - Otherwise: standard viewport-based visibility.
      */
-    private fun hideMarkersInCollection(collection: MarkerManager.Collection?, bounds: LatLngBounds) {
-        collection?.let { col ->
-            // Get all markers in the collection and check their visibility
-            col.markers.forEach { marker ->
-                val isVisible = bounds.contains(marker.position)
-                marker.isVisible = isVisible
+    private fun hideMarkersInCollection(
+        collection: MarkerManager.Collection?,
+        viewportBounds: LatLngBounds
+    ) {
+        collection ?: return
+
+        val zoom = map?.cameraPosition?.zoom ?: 0f
+        val isPOIZoom = zoom > 12.1f && zoom < 14.5f
+
+        // Iterate once and set visibility based on the rule for this zoom level
+        for (marker in collection.markers) {
+            val inViewport = viewportBounds.contains(marker.position)
+
+            val shouldBeVisible =
+                if (isPOIZoom) {
+                    // Show only StopPOILocation markers within viewport
+                    inViewport && (marker.tag is StopPOILocation)
+                } else {
+                    // Standard: any marker within viewport
+                    inViewport
+                }
+
+            if (marker.isVisible != shouldBeVisible) {
+                marker.isVisible = shouldBeVisible
             }
+        }
+    }
+
+
+    /**
+     * Extract Location from marker tag
+     */
+    private fun getLocationFromMarker(marker: Marker): Location? {
+        return when (val tag = marker.tag) {
+            is Location -> tag
+            is StopPOILocation -> tag.toLocation()
+            else -> null
         }
     }
 
