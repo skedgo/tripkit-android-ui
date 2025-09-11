@@ -243,6 +243,9 @@ class TripResultPagerFragment : BaseTripKitFragment(), OnPageChangeListener,
         val group = tripGroupsPagerAdapter!!.tripGroups!![position]
         mapContributor.setTripGroupId(group.uuid(), null)
         viewModel.currentPage.set(position)
+        
+        // Update current trip to trigger OnTripUpdatedListener when switching fragments
+        viewModel.updateCurrentTripForPage(position)
     }
 
     override fun onPageScrollStateChanged(state: Int) {

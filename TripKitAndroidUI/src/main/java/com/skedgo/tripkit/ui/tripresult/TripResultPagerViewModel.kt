@@ -245,4 +245,17 @@ class TripResultPagerViewModel @Inject internal constructor(
     fun updateTripGroupResult(tripGroup: List<TripGroup>) {
         tripGroups.accept(tripGroup)
     }
+
+    /**
+     * Update the current trip when page changes
+     * This ensures the OnTripUpdatedListener is called when switching between fragments
+     */
+    fun updateCurrentTripForPage(pageIndex: Int) {
+        val currentTripGroups = tripGroups.value
+        if (currentTripGroups != null && currentTripGroups.isNotEmpty() && pageIndex >= 0 && pageIndex < currentTripGroups.size) {
+            val tripGroup = currentTripGroups[pageIndex]
+            val trip = tripGroup.displayTrip
+            currentTrip.postValue(trip)
+        }
+    }
 }
