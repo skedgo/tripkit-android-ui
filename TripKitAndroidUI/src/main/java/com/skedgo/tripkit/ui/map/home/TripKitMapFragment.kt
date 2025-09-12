@@ -593,11 +593,13 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
             removeAllCities()
         }
 
-        Timber.i("========== ${position.zoom} ============")
-        if (position.zoom > ZoomLevel.ZOOM_START_VALUE_TO_SHOW_REGIONAL && position.zoom <= 12.0f) {
-            clearNonRegionalMarkersThrottle.onNext(System.currentTimeMillis())
-        } else {
-            hideMarkersOutsideViewport()
+        if(position.zoom > ZoomLevel.ZOOM_VALUE_TO_SHOW_CITIES) {
+            Timber.i("========== ${position.zoom} ============")
+            if (position.zoom > ZoomLevel.ZOOM_START_VALUE_TO_SHOW_REGIONAL && position.zoom <= 12.0f) {
+                clearNonRegionalMarkersThrottle.onNext(System.currentTimeMillis())
+            } else {
+                hideMarkersOutsideViewport()
+            }
         }
     }
 
@@ -1111,7 +1113,12 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
     val clearNonRegionalMarkersThrottle = PublishSubject.create<Long>()
 
     private fun clearNonRegionalMarkers() {
-        if(viewModel.showMarkers.get()) {
+        val mapRef = map ?: return
+        val zoom = mapRef.cameraPosition.zoom
+        val isCityZoom = zoom <= ZoomLevel.ZOOM_VALUE_TO_SHOW_CITIES
+        
+        // Don't re-add markers when at city zoom level
+        if(viewModel.showMarkers.get() && !isCityZoom) {
             poiMarkers?.clear()
             MapData.getRegionalStops().forEach { poiMarkers?.addMarker(it) }
         }
