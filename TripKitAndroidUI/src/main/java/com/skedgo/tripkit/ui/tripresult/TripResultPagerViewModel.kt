@@ -96,6 +96,15 @@ class TripResultPagerViewModel @Inject internal constructor(
         when (args) {
             is FromRoutes -> {
                 return if (!initialList.isNullOrEmpty()) {
+                    // Set the correct displayTripId for the selected trip
+                    args.tripId?.let { selectedTripId ->
+                        initialList.forEach { group ->
+                            group.trips?.find { it.tripId == selectedTripId }?.let { selectedTrip ->
+                                group.displayTripId = selectedTripId
+                                defaultTrip = selectedTrip
+                            }
+                        }
+                    }
                     tripGroups.accept(initialList)
                     isLoading.set(false)
                     tripGroups.map {
