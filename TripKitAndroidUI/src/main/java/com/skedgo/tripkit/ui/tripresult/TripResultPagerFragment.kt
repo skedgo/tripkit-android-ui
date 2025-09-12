@@ -91,6 +91,17 @@ class TripResultPagerFragment : BaseTripKitFragment(), OnPageChangeListener,
         return binding.root
     }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        
+        // Set up the currentTrip observer once in onViewCreated to prevent duplicate calls during restoration
+        viewModel.currentTrip.observe(viewLifecycleOwner, Observer { trip: Trip? ->
+            if (tripUpdatedListener != null) {
+                tripUpdatedListener!!.onTripUpdated(trip)
+            }
+        })
+    }
+
     override fun onResume() {
         super.onResume()
         bus!!.register(this)
@@ -134,11 +145,6 @@ class TripResultPagerFragment : BaseTripKitFragment(), OnPageChangeListener,
                 })
         )
 
-        viewModel.currentTrip.observe(viewLifecycleOwner, Observer { trip: Trip? ->
-            if (tripUpdatedListener != null) {
-                tripUpdatedListener!!.onTripUpdated(trip)
-            }
-        })
     }
 
     fun contributor(): TripKitMapContributor {
