@@ -23,6 +23,7 @@ import com.skedgo.tripkit.ui.tripresult.TripSegmentListFragment.OnTripKitButtonC
 import com.skedgo.tripkit.ui.tripresult.TripSegmentListFragment.OnTripSegmentClickListener
 import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButtonHandlerFactory
 import com.squareup.otto.Bus
+import timber.log.Timber
 import javax.inject.Inject
 
 class TripResultPagerFragment : BaseTripKitFragment(), OnPageChangeListener,
@@ -86,8 +87,16 @@ class TripResultPagerFragment : BaseTripKitFragment(), OnPageChangeListener,
         binding.viewModel = viewModel
         binding.tripGroupsPager.adapter = tripGroupsPagerAdapter
 
-        binding.tripGroupsPager.currentItem = currentPage
-        viewModel.currentPage.set(currentPage)
+        // Only set the page if we have a valid currentPage (not -1) or if this is the first time
+        // This prevents subsequent fragment instances from overwriting the correct page during restoration
+        if (currentPage != -1) {
+            // Only set the page if we have a valid currentPage and trip groups are available
+            val currentTripGroups = tripGroupsPagerAdapter?.tripGroups
+            if (currentTripGroups != null && currentPage >= 0 && currentPage < currentTripGroups.size) {
+                binding.tripGroupsPager.currentItem = currentPage
+                viewModel.currentPage.set(currentPage)
+            }
+        }
         return binding.root
     }
 
@@ -160,6 +169,8 @@ class TripResultPagerFragment : BaseTripKitFragment(), OnPageChangeListener,
     }
 
     override fun onDestroy() {
+        // Clear the saved UUID when fragment is destroyed (user goes back/closes)
+        viewModel.clearSavedTripGroupUuid()
         mapContributor.cleanup()
         super.onDestroy()
     }
@@ -208,7 +219,6 @@ class TripResultPagerFragment : BaseTripKitFragment(), OnPageChangeListener,
         if (savedInstanceState != null) {
             currentPage = savedInstanceState.getInt(KEY_CURRENT_PAGE)
         }
-
         viewModel.onCreate(savedInstanceState)
         var tripId: Long? = null
         var groupId: String? = null
@@ -378,5 +388,6 @@ class TripResultPagerFragment : BaseTripKitFragment(), OnPageChangeListener,
     companion object {
         private const val KEY_CURRENT_PAGE = "currentPage"
         private const val KEY_SHOW_CLOSE_BUTTON = "showCloseButton"
+        private const val KEY_TRIP_GROUP_UUID = "tripGroupUuid"
     }
 }
