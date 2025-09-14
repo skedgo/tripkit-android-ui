@@ -23,7 +23,6 @@ import com.skedgo.tripkit.ui.tripresult.TripSegmentListFragment.OnTripKitButtonC
 import com.skedgo.tripkit.ui.tripresult.TripSegmentListFragment.OnTripSegmentClickListener
 import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButtonHandlerFactory
 import com.squareup.otto.Bus
-import timber.log.Timber
 import javax.inject.Inject
 
 class TripResultPagerFragment : BaseTripKitFragment(), OnPageChangeListener,
@@ -169,8 +168,6 @@ class TripResultPagerFragment : BaseTripKitFragment(), OnPageChangeListener,
     }
 
     override fun onDestroy() {
-        // Clear the saved UUID when fragment is destroyed (user goes back/closes)
-        viewModel.clearSavedTripGroupUuid()
         mapContributor.cleanup()
         super.onDestroy()
     }
@@ -388,6 +385,5 @@ class TripResultPagerFragment : BaseTripKitFragment(), OnPageChangeListener,
     companion object {
         private const val KEY_CURRENT_PAGE = "currentPage"
         private const val KEY_SHOW_CLOSE_BUTTON = "showCloseButton"
-        private const val KEY_TRIP_GROUP_UUID = "tripGroupUuid"
     }
 }

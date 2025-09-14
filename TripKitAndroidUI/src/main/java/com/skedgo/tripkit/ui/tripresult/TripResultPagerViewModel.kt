@@ -2,7 +2,6 @@ package com.skedgo.tripkit.ui.tripresult
 
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import androidx.databinding.ObservableBoolean
 import androidx.databinding.ObservableField
 import androidx.databinding.ObservableInt
@@ -28,7 +27,6 @@ import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.functions.BiFunction
-import io.reactivex.rxkotlin.Observables
 import io.reactivex.schedulers.Schedulers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flatMapLatest
@@ -80,8 +78,6 @@ class TripResultPagerViewModel @Inject internal constructor(
         savedInstanceState?.getString(ARG_TRIP_GROUP_ID)?.let {
             setInitialSelectedTripGroupId(it)
         }
-        // Get UUID from SharedPreferences for restoration
-        savedTripGroupUuid = getTripGroupUuidFromSharedPrefs()
     }
 
     fun onSavedInstanceState(outState: Bundle) {
@@ -90,7 +86,7 @@ class TripResultPagerViewModel @Inject internal constructor(
         }
         // Save the current trip group UUID to SharedPreferences for restoration
         val currentTripGroups = tripGroups.value
-        if (currentTripGroups != null && currentTripGroups.isNotEmpty()) {
+        if (!currentTripGroups.isNullOrEmpty()) {
             val currentPageIndex = currentPage.get()
             if (currentPageIndex >= 0 && currentPageIndex < currentTripGroups.size) {
                 val currentTripGroup = currentTripGroups[currentPageIndex]
@@ -190,13 +186,13 @@ class TripResultPagerViewModel @Inject internal constructor(
     fun observeInitialPage(): Observable<Unit> {
         return tripGroups.firstOrError().toObservable()
             .map { tripGroups: List<TripGroup> ->
-                currentTrip.postValue(defaultTrip ?: tripGroups.firstOrNull()?.trips?.first())
-                
-                // Use saved UUID if available (for restoration), otherwise use selectedTripGroup
+                savedTripGroupUuid = getTripGroupUuidFromSharedPrefs()
+                // Use saved UUID if available (for restoration), otherwise use defaultTrip
                 val targetUuid = if (savedTripGroupUuid != null) {
                     savedTripGroupUuid!!
                 } else {
-                    // This will be set by selectedTripGroup when available
+                    // Set currentTrip to defaultTrip for normal navigation (not restoration)
+                    currentTrip.postValue(defaultTrip ?: tripGroups.firstOrNull()?.trips?.first())
                     return@map -1
                 }
                 
@@ -211,7 +207,7 @@ class TripResultPagerViewModel @Inject internal constructor(
                     savedTripGroupUuid = null
                 }
             }
-            .map { Unit }
+            .map { }
     }
 
     fun observeTripGroups(): Observable<List<TripGroup>> {
@@ -264,9 +260,6 @@ class TripResultPagerViewModel @Inject internal constructor(
 
     fun setInitialSelectedTripGroupId(tripGroupId: String) {
         currentTripGroupId.set(tripGroupId)
-        // Clear any saved UUID when setting a new initial selection
-        clearTripGroupUuidFromSharedPrefs()
-        savedTripGroupUuid = null
     }
 
     fun onStart() {
@@ -290,23 +283,11 @@ class TripResultPagerViewModel @Inject internal constructor(
      */
     fun updateCurrentTripForPage(pageIndex: Int) {
         val currentTripGroups = tripGroups.value
-        if (currentTripGroups != null && currentTripGroups.isNotEmpty() && pageIndex >= 0 && pageIndex < currentTripGroups.size) {
+        if (!currentTripGroups.isNullOrEmpty() && pageIndex >= 0 && pageIndex < currentTripGroups.size) {
             val tripGroup = currentTripGroups[pageIndex]
             val trip = tripGroup.displayTrip
             currentTrip.postValue(trip)
         }
-    }
-
-    /**
-     * Find the page index that contains the specified trip group UUID
-     * This is more reliable than using saved page indices since data can change
-     */
-    fun findPageIndexByUuid(targetUuid: String): Int {
-        val currentTripGroups = tripGroups.value
-        if (currentTripGroups != null && currentTripGroups.isNotEmpty()) {
-            return currentTripGroups.indexOfFirst { tripGroup -> tripGroup.uuid() == targetUuid }
-        }
-        return -1
     }
 
     /**
@@ -331,14 +312,5 @@ class TripResultPagerViewModel @Inject internal constructor(
     private fun clearTripGroupUuidFromSharedPrefs() {
         val sharedPrefs = context.getSharedPreferences("trip_restoration", Context.MODE_PRIVATE)
         sharedPrefs.edit().remove("trip_group_uuid").apply()
-    }
-
-    /**
-     * Clear the saved UUID when navigating away from this fragment
-     * This should be called when the user goes back or closes the trip details
-     */
-    fun clearSavedTripGroupUuid() {
-        clearTripGroupUuidFromSharedPrefs()
-        savedTripGroupUuid = null
     }
 }
