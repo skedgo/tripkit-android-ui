@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.InflateException
@@ -150,6 +151,7 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
     private val filterThrottle = PublishSubject.create<String>()
     private lateinit var binding: TimetableFragmentBinding
     protected var buttons: List<TripKitButton> = emptyList()
+    var servicesAreLoaded = false
 
     override fun onAttach(context: Context) {
         TripKitUI.getInstance().inject(this);
@@ -321,6 +323,14 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
                     ?.showUpdateLoader(it, getString(R.string.str_updating))
             }
         }
+
+        // Observer for services list changes
+        viewModel.servicesObservable
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribeWithErrorHandling { servicesList ->
+                scrollToNowPosition()
+                servicesAreLoaded = true
+            }.addTo(autoDisposable)
     }
 
     fun setBookingActions(bookingActions: List<String>?) {
@@ -505,7 +515,6 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
                 }, { it.printStackTrace() })
                 .addTo(autoDisposable)
         }
-
     }
 
     private fun scrollToNowPosition(loadDelay: Long = 0) {
@@ -605,6 +614,7 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
     // TODO check flow for this. I think it'll be better if we create a new instance (kill the prveious one),
     //  than using the same instance and just updating the stop
     fun updateStop(stop: ScheduledStop) {
+        servicesAreLoaded = false
         this.stop = stop
         viewModel.setText(requireContext())
     }
