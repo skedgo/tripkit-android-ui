@@ -209,9 +209,9 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
      */
     private fun saveTripSegmentData(outState: Bundle) {
         tripSegment?.let { segment ->
-            outState.putString("saved_trip_segment_service_trip_id", segment.serviceTripId ?: "")
-            outState.putString("saved_trip_segment_id", segment.id)
-            outState.putLong("saved_trip_segment_segment_id", segment.segmentId)
+            outState.putString(KEY_SAVED_TRIP_SEGMENT_SERVICE_TRIP_ID, segment.serviceTripId ?: "")
+            outState.putString(KEY_SAVED_TRIP_SEGMENT_ID, segment.id)
+            outState.putLong(KEY_SAVED_TRIP_SEGMENT_SEGMENT_ID, segment.segmentId)
         }
     }
 
@@ -220,8 +220,8 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
      * This preserves the current search/filter state and service context.
      */
     private fun saveViewModelState(outState: Bundle) {
-        outState.putString("saved_filter_text", viewModel.filter.value ?: "")
-        outState.putString("saved_service_trip_id", viewModel.serviceTripId.value ?: "")
+        outState.putString(KEY_SAVED_FILTER_TEXT, viewModel.filter.value ?: "")
+        outState.putString(KEY_SAVED_SERVICE_TRIP_ID, viewModel.serviceTripId.value ?: "")
     }
 
     /**
@@ -232,8 +232,8 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
         if (::binding.isInitialized) {
             val layoutManager = binding.recyclerView.layoutManager as? LinearLayoutManager
             layoutManager?.let { manager ->
-                outState.putInt("saved_scroll_position", manager.findFirstVisibleItemPosition())
-                outState.putInt("saved_scroll_offset", manager.findViewByPosition(manager.findFirstVisibleItemPosition())?.top ?: 0)
+                outState.putInt(KEY_SAVED_SCROLL_POSITION, manager.findFirstVisibleItemPosition())
+                outState.putInt(KEY_SAVED_SCROLL_OFFSET, manager.findViewByPosition(manager.findFirstVisibleItemPosition())?.top ?: 0)
             }
         }
     }
@@ -244,12 +244,12 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
      */
     private fun saveCachedData(outState: Bundle) {
         cachedStop?.let { cached ->
-            outState.putParcelable("saved_cached_stop", cached)
+            outState.putParcelable(KEY_SAVED_CACHED_STOP, cached)
         }
-        outState.putBoolean("saved_cached_show_search_bar", cachedShowSearchBar)
-        outState.putBoolean("saved_from_preview", fromPreview)
+        outState.putBoolean(KEY_SAVED_CACHED_SHOW_SEARCH_BAR, cachedShowSearchBar)
+        outState.putBoolean(KEY_SAVED_FROM_PREVIEW, fromPreview)
         cachedBookingActions?.let { cached ->
-            outState.putStringArrayList("saved_cached_booking_actions", cached)
+            outState.putStringArrayList(KEY_SAVED_CACHED_BOOKING_ACTIONS, cached)
         }
     }
 
@@ -258,9 +258,9 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
      * This preserves any custom action buttons that were configured.
      */
     private fun saveButtonState(outState: Bundle) {
-        outState.putInt("saved_buttons_count", buttons.size)
+        outState.putInt(KEY_SAVED_BUTTONS_COUNT, buttons.size)
         buttons.forEachIndexed { index, button ->
-            outState.putString("saved_button_$index", button.id)
+            outState.putString("$KEY_SAVED_BUTTON_PREFIX$index", button.id)
         }
     }
 
@@ -292,10 +292,10 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
 
         // Restore cached data
         arguments?.let { bundle ->
-            cachedStop = bundle.getParcelable("saved_cached_stop")
-            cachedShowSearchBar = bundle.getBoolean("saved_cached_show_search_bar", true)
-            fromPreview = bundle.getBoolean("saved_from_preview", false)
-            cachedBookingActions = bundle.getStringArrayList("saved_cached_booking_actions")
+            cachedStop = bundle.getParcelable(KEY_SAVED_CACHED_STOP)
+            cachedShowSearchBar = bundle.getBoolean(KEY_SAVED_CACHED_SHOW_SEARCH_BAR, true)
+            fromPreview = bundle.getBoolean(KEY_SAVED_FROM_PREVIEW, false)
+            cachedBookingActions = bundle.getStringArrayList(KEY_SAVED_CACHED_BOOKING_ACTIONS)
         }
     }
 
@@ -681,7 +681,7 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
      * This ensures the timetable is correctly associated with the trip segment.
      */
     private fun restoreTripSegmentData(bundle: Bundle) {
-        bundle.getString("saved_trip_segment_service_trip_id")?.let { serviceTripId ->
+        bundle.getString(KEY_SAVED_TRIP_SEGMENT_SERVICE_TRIP_ID)?.let { serviceTripId ->
             if (serviceTripId.isNotEmpty()) {
                 viewModel.serviceTripId.accept(serviceTripId)
             }
@@ -693,7 +693,7 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
      * This ensures the timetable displays the correct filtered results.
      */
     private fun restoreFilterState(bundle: Bundle) {
-        bundle.getString("saved_filter_text")?.let { filterText ->
+        bundle.getString(KEY_SAVED_FILTER_TEXT)?.let { filterText ->
             if (filterText.isNotEmpty()) {
                 viewModel.filter.accept(filterText)
             }
@@ -705,9 +705,9 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
      * This ensures the user returns to the same position in the timetable list.
      */
     private fun restoreScrollPosition(bundle: Bundle) {
-        val savedScrollPosition = bundle.getInt("saved_scroll_position", -1)
-        val savedScrollOffset = bundle.getInt("saved_scroll_offset", 0)
-
+        val savedScrollPosition = bundle.getInt(KEY_SAVED_SCROLL_POSITION, -1)
+        val savedScrollOffset = bundle.getInt(KEY_SAVED_SCROLL_OFFSET, 0)
+        
         if (savedScrollPosition >= 0 && ::binding.isInitialized) {
             lifecycleScope.launch {
                 delay(500) // Wait for adapter to be ready
@@ -892,6 +892,31 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
 
             return fragment
         }
+    }
+
+    companion object {
+        // Trip segment state keys
+        private const val KEY_SAVED_TRIP_SEGMENT_SERVICE_TRIP_ID = "saved_trip_segment_service_trip_id"
+        private const val KEY_SAVED_TRIP_SEGMENT_ID = "saved_trip_segment_id"
+        private const val KEY_SAVED_TRIP_SEGMENT_SEGMENT_ID = "saved_trip_segment_segment_id"
+
+        // View model state keys
+        private const val KEY_SAVED_FILTER_TEXT = "saved_filter_text"
+        private const val KEY_SAVED_SERVICE_TRIP_ID = "saved_service_trip_id"
+
+        // Scroll position keys
+        private const val KEY_SAVED_SCROLL_POSITION = "saved_scroll_position"
+        private const val KEY_SAVED_SCROLL_OFFSET = "saved_scroll_offset"
+
+        // Cached data keys
+        private const val KEY_SAVED_CACHED_STOP = "saved_cached_stop"
+        private const val KEY_SAVED_CACHED_SHOW_SEARCH_BAR = "saved_cached_show_search_bar"
+        private const val KEY_SAVED_FROM_PREVIEW = "saved_from_preview"
+        private const val KEY_SAVED_CACHED_BOOKING_ACTIONS = "saved_cached_booking_actions"
+
+        // Button state keys
+        private const val KEY_SAVED_BUTTONS_COUNT = "saved_buttons_count"
+        private const val KEY_SAVED_BUTTON_PREFIX = "saved_button_"
     }
 
 }

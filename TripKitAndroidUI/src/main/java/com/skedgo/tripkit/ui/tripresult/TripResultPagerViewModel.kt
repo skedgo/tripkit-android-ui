@@ -292,25 +292,36 @@ class TripResultPagerViewModel @Inject internal constructor(
 
     /**
      * Save the trip group UUID to SharedPreferences for restoration
+     * 
+     * Note: We use SharedPreferences instead of onSaveInstanceState because existing 
+     * currentTripGroupId handling doesn't survive restoration state (background process kill) 
+     * very well and fragments occasionally get initialized twice, resulting in data 
+     * inconsistencies when using onSaveInstanceState.
      */
     private fun saveTripGroupUuidToSharedPrefs(uuid: String) {
-        val sharedPrefs = context.getSharedPreferences("trip_restoration", Context.MODE_PRIVATE)
-        sharedPrefs.edit().putString("trip_group_uuid", uuid).apply()
+        val sharedPrefs = context.getSharedPreferences(SHARED_PREFS_NAME_TRIP_RESTORATION, Context.MODE_PRIVATE)
+        sharedPrefs.edit().putString(KEY_TRIP_GROUP_UUID, uuid).apply()
     }
 
     /**
      * Get the saved trip group UUID from SharedPreferences
      */
     private fun getTripGroupUuidFromSharedPrefs(): String? {
-        val sharedPrefs = context.getSharedPreferences("trip_restoration", Context.MODE_PRIVATE)
-        return sharedPrefs.getString("trip_group_uuid", null)
+        val sharedPrefs = context.getSharedPreferences(SHARED_PREFS_NAME_TRIP_RESTORATION, Context.MODE_PRIVATE)
+        return sharedPrefs.getString(KEY_TRIP_GROUP_UUID, null)
     }
 
     /**
      * Clear the saved trip group UUID from SharedPreferences
      */
     private fun clearTripGroupUuidFromSharedPrefs() {
-        val sharedPrefs = context.getSharedPreferences("trip_restoration", Context.MODE_PRIVATE)
-        sharedPrefs.edit().remove("trip_group_uuid").apply()
+        val sharedPrefs = context.getSharedPreferences(SHARED_PREFS_NAME_TRIP_RESTORATION, Context.MODE_PRIVATE)
+        sharedPrefs.edit().remove(KEY_TRIP_GROUP_UUID).apply()
+    }
+    
+    companion object {
+        // SharedPreferences constants for trip restoration
+        private const val SHARED_PREFS_NAME_TRIP_RESTORATION = "trip_restoration"
+        private const val KEY_TRIP_GROUP_UUID = "trip_group_uuid"
     }
 }

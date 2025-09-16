@@ -269,33 +269,33 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
         // Save map camera state if available
         map?.let { googleMap ->
             val cameraPosition = googleMap.cameraPosition
-            outState.putDouble("map_camera_lat", cameraPosition.target.latitude)
-            outState.putDouble("map_camera_lng", cameraPosition.target.longitude)
-            outState.putFloat("map_camera_zoom", cameraPosition.zoom)
-            outState.putFloat("map_camera_bearing", cameraPosition.bearing)
-            outState.putFloat("map_camera_tilt", cameraPosition.tilt)
+            outState.putDouble(KEY_MAP_CAMERA_LAT, cameraPosition.target.latitude)
+            outState.putDouble(KEY_MAP_CAMERA_LNG, cameraPosition.target.longitude)
+            outState.putFloat(KEY_MAP_CAMERA_ZOOM, cameraPosition.zoom)
+            outState.putFloat(KEY_MAP_CAMERA_BEARING, cameraPosition.bearing)
+            outState.putFloat(KEY_MAP_CAMERA_TILT, cameraPosition.tilt)
             
             // Save visible region bounds
             try {
                 val visibleRegion = googleMap.projection.visibleRegion.latLngBounds
-                outState.putDouble("map_visible_bounds_northeast_lat", visibleRegion.northeast.latitude)
-                outState.putDouble("map_visible_bounds_northeast_lng", visibleRegion.northeast.longitude)
-                outState.putDouble("map_visible_bounds_southwest_lat", visibleRegion.southwest.latitude)
-                outState.putDouble("map_visible_bounds_southwest_lng", visibleRegion.southwest.longitude)
+                outState.putDouble(KEY_MAP_VISIBLE_BOUNDS_NE_LAT, visibleRegion.northeast.latitude)
+                outState.putDouble(KEY_MAP_VISIBLE_BOUNDS_NE_LNG, visibleRegion.northeast.longitude)
+                outState.putDouble(KEY_MAP_VISIBLE_BOUNDS_SW_LAT, visibleRegion.southwest.latitude)
+                outState.putDouble(KEY_MAP_VISIBLE_BOUNDS_SW_LNG, visibleRegion.southwest.longitude)
             } catch (e: Exception) {
                 // Projection may not be available yet
             }
         }
         
         // Save marker state
-        outState.putBoolean("show_markers", viewModel.showMarkers.get())
+        outState.putBoolean(KEY_SHOW_MARKERS, viewModel.showMarkers.get())
         
         // Save last zoom level
-        outState.putFloat("last_zoom_level", lastZoomLevel)
+        outState.putFloat(KEY_LAST_ZOOM_LEVEL, lastZoomLevel)
         
         // Save contributor state if available
         contributor?.let { contributor ->
-            outState.putString("contributor_class", contributor.javaClass.simpleName)
+            outState.putString(KEY_CONTRIBUTOR_CLASS, contributor.javaClass.simpleName)
         }
     }
 
@@ -304,12 +304,12 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
      */
     private fun restoreMapState(bundle: Bundle) {
         // Store saved state for restoration when map is ready
-        if (bundle.containsKey("map_camera_lat")) {
-            val latitude = bundle.getDouble("map_camera_lat")
-            val longitude = bundle.getDouble("map_camera_lng")
-            val zoom = bundle.getFloat("map_camera_zoom")
-            val bearing = bundle.getFloat("map_camera_bearing")
-            val tilt = bundle.getFloat("map_camera_tilt")
+        if (bundle.containsKey(KEY_MAP_CAMERA_LAT)) {
+            val latitude = bundle.getDouble(KEY_MAP_CAMERA_LAT)
+            val longitude = bundle.getDouble(KEY_MAP_CAMERA_LNG)
+            val zoom = bundle.getFloat(KEY_MAP_CAMERA_ZOOM)
+            val bearing = bundle.getFloat(KEY_MAP_CAMERA_BEARING)
+            val tilt = bundle.getFloat(KEY_MAP_CAMERA_TILT)
             
             // Restore camera position when map is ready
             whenSafeToUseMap(Consumer { map: GoogleMap ->
@@ -324,11 +324,11 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
         }
         
         // Restore marker visibility
-        val showMarkers = bundle.getBoolean("show_markers", true)
+        val showMarkers = bundle.getBoolean(KEY_SHOW_MARKERS, true)
         viewModel.showMarkers.set(showMarkers)
         
         // Restore last zoom level
-        lastZoomLevel = bundle.getFloat("last_zoom_level", lastZoomLevel)
+        lastZoomLevel = bundle.getFloat(KEY_LAST_ZOOM_LEVEL, lastZoomLevel)
     }
 
     fun setContributor(newContributor: TripKitMapContributor?) {
@@ -1046,6 +1046,24 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
     }
 
     companion object {
+        // Camera state keys
+        private const val KEY_MAP_CAMERA_LAT = "map_camera_lat"
+        private const val KEY_MAP_CAMERA_LNG = "map_camera_lng"
+        private const val KEY_MAP_CAMERA_ZOOM = "map_camera_zoom"
+        private const val KEY_MAP_CAMERA_BEARING = "map_camera_bearing"
+        private const val KEY_MAP_CAMERA_TILT = "map_camera_tilt"
+        
+        // Visible bounds keys
+        private const val KEY_MAP_VISIBLE_BOUNDS_NE_LAT = "map_visible_bounds_northeast_lat"
+        private const val KEY_MAP_VISIBLE_BOUNDS_NE_LNG = "map_visible_bounds_northeast_lng"
+        private const val KEY_MAP_VISIBLE_BOUNDS_SW_LAT = "map_visible_bounds_southwest_lat"
+        private const val KEY_MAP_VISIBLE_BOUNDS_SW_LNG = "map_visible_bounds_southwest_lng"
+        
+        // Other state keys
+        private const val KEY_SHOW_MARKERS = "show_markers"
+        private const val KEY_LAST_ZOOM_LEVEL = "last_zoom_level"
+        private const val KEY_CONTRIBUTOR_CLASS = "contributor_class"
+        
         private fun asMarkerIcon(mode: SelectionType): BitmapDescriptor {
             return if (mode === SelectionType.DEPARTURE) {
                 BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)

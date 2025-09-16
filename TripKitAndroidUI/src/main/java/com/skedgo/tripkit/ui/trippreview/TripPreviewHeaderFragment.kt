@@ -90,12 +90,12 @@ class TripPreviewHeaderFragment : Fragment() {
      */
     private fun saveViewModelState(outState: Bundle) {
         viewModel.selectedSegmentId.value?.let { selectedSegment ->
-            outState.putLong("selected_segment_id", selectedSegment.first)
-            outState.putString("selected_mode_id", selectedSegment.second)
+            outState.putLong(KEY_SELECTED_SEGMENT_ID, selectedSegment.first)
+            outState.putString(KEY_SELECTED_MODE_ID, selectedSegment.second)
         }
         
         viewModel.description.value?.let { description ->
-            outState.putString("description_text", description)
+            outState.putString(KEY_DESCRIPTION_TEXT, description)
         }
     }
 
@@ -104,8 +104,8 @@ class TripPreviewHeaderFragment : Fragment() {
      * This preserves the user's display preferences.
      */
     private fun saveUIState(outState: Bundle) {
-        outState.putBoolean("show_description", viewModel.showDescription.value ?: false)
-        outState.putBoolean("hide_exact_times", hideExactTimes)
+        outState.putBoolean(KEY_SHOW_DESCRIPTION, viewModel.showDescription.value ?: false)
+        outState.putBoolean(KEY_HIDE_EXACT_TIMES, hideExactTimes)
     }
 
     /**
@@ -114,7 +114,7 @@ class TripPreviewHeaderFragment : Fragment() {
      */
     private fun saveQuickBookingSegment(outState: Bundle) {
         viewModel.quickBookingSegment.value?.let { segment ->
-            outState.putString("quick_booking_segment_id", segment.id)
+            outState.putString(KEY_QUICK_BOOKING_SEGMENT_ID, segment.id)
         }
     }
 
@@ -124,9 +124,9 @@ class TripPreviewHeaderFragment : Fragment() {
      */
     private fun saveSelectedItems(outState: Bundle) {
         val selectedItems = viewModel.items.filter { it.selected.value == true }
-        outState.putInt("selected_items_count", selectedItems.size)
+        outState.putInt(KEY_SELECTED_ITEMS_COUNT, selectedItems.size)
         selectedItems.forEachIndexed { index, item ->
-            outState.putLong("selected_item_$index", item.id.value ?: -1L)
+            outState.putLong("$KEY_SELECTED_ITEM_PREFIX$index", item.id.value ?: -1L)
         }
     }
 
@@ -159,9 +159,9 @@ class TripPreviewHeaderFragment : Fragment() {
      * This ensures the correct segment is highlighted when the fragment is restored.
      */
     private fun restoreSelectedSegment(bundle: Bundle) {
-        if (bundle.containsKey("selected_segment_id")) {
-            val segmentId = bundle.getLong("selected_segment_id")
-            val modeId = bundle.getString("selected_mode_id", "")
+        if (bundle.containsKey(KEY_SELECTED_SEGMENT_ID)) {
+            val segmentId = bundle.getLong(KEY_SELECTED_SEGMENT_ID)
+            val modeId = bundle.getString(KEY_SELECTED_MODE_ID, "")
             viewModel.setSelectedById(segmentId, modeId)
         }
     }
@@ -171,7 +171,7 @@ class TripPreviewHeaderFragment : Fragment() {
      * This preserves the user's display preferences.
      */
     private fun restoreUIState(bundle: Bundle) {
-        hideExactTimes = bundle.getBoolean("hide_exact_times", false)
+        hideExactTimes = bundle.getBoolean(KEY_HIDE_EXACT_TIMES, false)
         viewModel.setHideExactTimes(hideExactTimes)
     }
 
@@ -181,13 +181,13 @@ class TripPreviewHeaderFragment : Fragment() {
      */
     private fun restoreDescriptionAndQuickBooking(bundle: Bundle) {
         // Description will be restored when data is reloaded
-        bundle.getString("description_text")?.let { description ->
+        bundle.getString(KEY_DESCRIPTION_TEXT)?.let { description ->
             // Note: We can't directly set LiveData values, they will be restored when data is reloaded
             // This ensures the description is consistent with the current trip data
         }
         
         // Quick booking segment will be restored when the data is reloaded
-        bundle.getString("quick_booking_segment_id")?.let { segmentId ->
+        bundle.getString(KEY_QUICK_BOOKING_SEGMENT_ID)?.let { segmentId ->
             // Note: The quick booking segment will be restored when setHeaderItems is called
             // This ensures the segment data is consistent with the current trip state
         }
@@ -284,6 +284,21 @@ class TripPreviewHeaderFragment : Fragment() {
     }
 
     companion object {
+        // View model state keys
+        private const val KEY_SELECTED_SEGMENT_ID = "selected_segment_id"
+        private const val KEY_SELECTED_MODE_ID = "selected_mode_id"
+        private const val KEY_DESCRIPTION_TEXT = "description_text"
+        
+        // UI state keys
+        private const val KEY_SHOW_DESCRIPTION = "show_description"
+        private const val KEY_HIDE_EXACT_TIMES = "hide_exact_times"
+        
+        // Quick booking keys
+        private const val KEY_QUICK_BOOKING_SEGMENT_ID = "quick_booking_segment_id"
+        
+        // Selected items keys
+        private const val KEY_SELECTED_ITEMS_COUNT = "selected_items_count"
+        private const val KEY_SELECTED_ITEM_PREFIX = "selected_item_"
 
         const val TAG = "TripPreviewHeader"
 

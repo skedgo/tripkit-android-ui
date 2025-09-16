@@ -151,7 +151,7 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
     
     private fun ensureActionButtonHandlerFactory(savedInstanceState: Bundle?) {
         // Restore factory if we don't have one and we should have had one
-        if (actionButtonHandlerFactory == null && savedInstanceState?.getBoolean("had_action_button_handler_factory", false) == true) {
+        if (actionButtonHandlerFactory == null && savedInstanceState?.getBoolean(KEY_HAD_ACTION_BUTTON_HANDLER_FACTORY, false) == true) {
             restoreActionButtonHandlerFactory()
             
             // After restoration, ensure the ViewModel is updated with the restored factory
@@ -186,7 +186,7 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
         viewModel.onSavedInstanceState(outState)
         
         // Save action button handler factory state
-        outState.putBoolean("had_action_button_handler_factory", actionButtonHandlerFactory != null)
+        outState.putBoolean(KEY_HAD_ACTION_BUTTON_HANDLER_FACTORY, actionButtonHandlerFactory != null)
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
@@ -567,5 +567,10 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
             return fragment
 
         }
+    }
+    
+    companion object {
+        // Action button handler factory state key
+        private const val KEY_HAD_ACTION_BUTTON_HANDLER_FACTORY = "had_action_button_handler_factory"
     }
 }
