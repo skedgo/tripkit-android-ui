@@ -534,16 +534,6 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
                         binding.recyclerView.smoothScrollToPosition(firstNowPosition)
                     }
                 }
-                /*val layoutManager = binding.recyclerView.layoutManager as LinearLayoutManager
-                val firstNowPosition = viewModel.getFirstNowPosition()
-                if (layoutManager.findFirstVisibleItemPosition() < firstNowPosition &&
-                    firstNowPosition != 0 &&
-                    (firstNowPosition + 1) < (binding.recyclerView.adapter?.itemCount ?: 0)
-                ) {
-                    binding.recyclerView.scrollToPosition(firstNowPosition + 1)
-                } else {
-                    binding.recyclerView.scrollToPosition(firstNowPosition)
-                }*/
             }
         }
     }
