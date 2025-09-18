@@ -222,6 +222,11 @@ class TripResultPagerViewModel @Inject internal constructor(
             .doOnNext { pageIndex ->
                 if (pageIndex >= 0) {
                     currentPage.set(pageIndex)
+                    // Only update current trip for page 0, as onPageSelected doesn't fire for page 0
+                    // For other pages, onPageSelected will handle the updateCurrentTripForPage call
+                    if (pageIndex == 0) {
+                        updateCurrentTripForPage(pageIndex)
+                    }
                     // Clear the saved UUIDs after successful restoration
                     clearTripGroupUuidFromSharedPrefs()
                     clearTripUuidFromSharedPrefs()
