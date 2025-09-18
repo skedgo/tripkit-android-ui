@@ -11,6 +11,8 @@ import com.skedgo.tripkit.analytics.TripSource
 import com.skedgo.tripkit.logging.ErrorLogger
 import com.skedgo.tripkit.routing.Trip
 import com.skedgo.tripkit.routing.TripGroup
+import com.skedgo.tripkit.routing.endDateTime
+import com.skedgo.tripkit.routing.startDateTime
 import com.skedgo.tripkit.ui.core.RxViewModel
 import com.skedgo.tripkit.ui.core.SchedulerFactory
 import com.skedgo.tripkit.ui.core.rxproperty.asObservable
@@ -84,13 +86,19 @@ class TripResultPagerViewModel @Inject internal constructor(
         if (currentTripGroupId.get() != null) {
             outState.putString(ARG_TRIP_GROUP_ID, currentTripGroupId.get())
         }
-        // Save the current trip group UUID to SharedPreferences for restoration
+        // Save the current trip group UUID and trip UUID to SharedPreferences for restoration
         val currentTripGroups = tripGroups.value
         if (!currentTripGroups.isNullOrEmpty()) {
             val currentPageIndex = currentPage.get()
             if (currentPageIndex >= 0 && currentPageIndex < currentTripGroups.size) {
                 val currentTripGroup = currentTripGroups[currentPageIndex]
                 saveTripGroupUuidToSharedPrefs(currentTripGroup.uuid())
+                
+                // Also save the specific trip UUID for precise restoration
+                val currentTrip = currentTripGroup.displayTrip
+                if (currentTrip != null) {
+                    saveTripUuidToSharedPrefs(currentTrip.uuid)
+                }
             }
         }
     }
@@ -187,6 +195,8 @@ class TripResultPagerViewModel @Inject internal constructor(
         return tripGroups.firstOrError().toObservable()
             .map { tripGroups: List<TripGroup> ->
                 savedTripGroupUuid = getTripGroupUuidFromSharedPrefs()
+                val savedTripUuid = getTripUuidFromSharedPrefs()
+                
                 // Use saved UUID if available (for restoration), otherwise use defaultTrip
                 val targetUuid = if (savedTripGroupUuid != null) {
                     savedTripGroupUuid!!
@@ -197,13 +207,24 @@ class TripResultPagerViewModel @Inject internal constructor(
                 }
                 
                 val pageIndex = tripGroups.indexOfFirst { tripGroup -> tripGroup.uuid() == targetUuid }
+                
+                // If we have a saved trip UUID, find the specific trip and set it as displayTrip
+                if (savedTripUuid != null && pageIndex >= 0) {
+                    val targetTripGroup = tripGroups[pageIndex]
+                    val targetTrip = targetTripGroup.trips?.find { it.uuid == savedTripUuid }
+                    if (targetTrip != null) {
+                        targetTripGroup.displayTripId = targetTrip.tripId
+                    }
+                }
+                
                 pageIndex
             }
             .doOnNext { pageIndex ->
                 if (pageIndex >= 0) {
                     currentPage.set(pageIndex)
-                    // Clear the saved UUID after successful restoration
+                    // Clear the saved UUIDs after successful restoration
                     clearTripGroupUuidFromSharedPrefs()
+                    clearTripUuidFromSharedPrefs()
                     savedTripGroupUuid = null
                 }
             }
@@ -318,10 +339,35 @@ class TripResultPagerViewModel @Inject internal constructor(
         val sharedPrefs = context.getSharedPreferences(SHARED_PREFS_NAME_TRIP_RESTORATION, Context.MODE_PRIVATE)
         sharedPrefs.edit().remove(KEY_TRIP_GROUP_UUID).apply()
     }
+
+    /**
+     * Save the trip UUID to SharedPreferences for restoration
+     */
+    private fun saveTripUuidToSharedPrefs(uuid: String) {
+        val sharedPrefs = context.getSharedPreferences(SHARED_PREFS_NAME_TRIP_RESTORATION, Context.MODE_PRIVATE)
+        sharedPrefs.edit().putString(KEY_TRIP_UUID, uuid).apply()
+    }
+
+    /**
+     * Get the saved trip UUID from SharedPreferences
+     */
+    private fun getTripUuidFromSharedPrefs(): String? {
+        val sharedPrefs = context.getSharedPreferences(SHARED_PREFS_NAME_TRIP_RESTORATION, Context.MODE_PRIVATE)
+        return sharedPrefs.getString(KEY_TRIP_UUID, null)
+    }
+
+    /**
+     * Clear the saved trip UUID from SharedPreferences
+     */
+    private fun clearTripUuidFromSharedPrefs() {
+        val sharedPrefs = context.getSharedPreferences(SHARED_PREFS_NAME_TRIP_RESTORATION, Context.MODE_PRIVATE)
+        sharedPrefs.edit().remove(KEY_TRIP_UUID).apply()
+    }
     
     companion object {
         // SharedPreferences constants for trip restoration
         private const val SHARED_PREFS_NAME_TRIP_RESTORATION = "trip_restoration"
         private const val KEY_TRIP_GROUP_UUID = "trip_group_uuid"
+        private const val KEY_TRIP_UUID = "trip_uuid"
     }
 }
