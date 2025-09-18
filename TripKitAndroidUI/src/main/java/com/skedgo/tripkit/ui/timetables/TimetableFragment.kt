@@ -328,8 +328,10 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
         viewModel.servicesObservable
             .observeOn(AndroidSchedulers.mainThread())
             .subscribeWithErrorHandling { servicesList ->
-                scrollToNowPosition()
-                servicesAreLoaded = true
+                if(!servicesAreLoaded) {
+                    scrollToNowPosition()
+                    servicesAreLoaded = true
+                }
             }.addTo(autoDisposable)
     }
 
