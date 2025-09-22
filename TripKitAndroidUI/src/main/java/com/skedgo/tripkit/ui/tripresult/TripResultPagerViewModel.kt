@@ -196,11 +196,11 @@ class TripResultPagerViewModel @Inject internal constructor(
             .map { tripGroups: List<TripGroup> ->
                 savedTripGroupUuid = getTripGroupUuidFromSharedPrefs()
                 val savedTripUuid = getTripUuidFromSharedPrefs()
-                
+
                 // Use saved UUID if available (for restoration), otherwise use defaultTrip
-                val targetUuid = if (savedTripGroupUuid != null) {
-                    savedTripGroupUuid!!
-                } else {
+                val targetUuid = savedTripGroupUuid?.let { uuid ->
+                    uuid
+                } ?: run {
                     // Set currentTrip to defaultTrip for normal navigation (not restoration)
                     currentTrip.postValue(defaultTrip ?: tripGroups.firstOrNull()?.trips?.first())
                     return@map -1
