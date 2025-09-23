@@ -272,6 +272,9 @@ class TimetableViewModel @Inject constructor(
                 }
         }
 
+    // Observable for services list changes that can be observed from the Fragment
+    val servicesObservable: Observable<List<ServiceViewModel>> = services.asObservable().map { it.toList() }
+
     val stopRelay = BehaviorRelay.create<ScheduledStop>()
     val startTimeRelay = BehaviorRelay.create<Long>()
 
