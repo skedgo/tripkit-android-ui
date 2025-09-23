@@ -89,6 +89,7 @@ class TKUITripResultsFragment : BaseFragment<FragmentTkuiTripResultsBinding>() {
                 toLocation = destination
                 unit = config.unit
                 cyclingSpeed = config.cyclingSpeed.value
+                rollingSpeed = config.rollingSpeed.value
                 walkingSpeed = config.walkingSpeed.value
                 environmentWeight = config.weightingProfile.environmentPriority.value
                 hassleWeight = config.weightingProfile.conveniencePriority.value
