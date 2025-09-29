@@ -9,6 +9,7 @@ import javax.inject.Inject
 internal class GetRoutingConfigImpl @Inject constructor(
     private val walkingSpeedRepository: WalkingSpeedRepository,
     private val cyclingSpeedRepository: CyclingSpeedRepository,
+    private val rollingSpeedRepository: RollingSpeedRepository,
     private val unitsRepository: UnitsRepository,
     private val tripPreferences: TripPreferences,
     private val preferredTransferTimeRepository: PreferredTransferTimeRepository,
@@ -20,6 +21,7 @@ internal class GetRoutingConfigImpl @Inject constructor(
             walkingSpeed = walkingSpeedRepository.getWalkingSpeed(),
             unit = unitsRepository.getUnit(),
             cyclingSpeed = cyclingSpeedRepository.getCyclingSpeed(),
+            rollingSpeed = rollingSpeedRepository.getRollingSpeed(),
             shouldUseConcessionPricing = tripPreferences.isConcessionPricingPreferred(),
             isOnWheelchair = tripPreferences.isWheelchairPreferred(),
             weightingProfile = WeightingProfile(

@@ -365,23 +365,23 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
         binding.serviceLineRecyclerView.isNestedScrollingEnabled = false
         binding.recyclerView.isNestedScrollingEnabled = true
 
-        val swipeListener = OnSwipeTouchListener(requireContext(),
-            object : OnSwipeTouchListener.SwipeGestureListener {
-                override fun onSwipeRight() {
-                    onNextPage?.invoke()
-                }
-
-                override fun onSwipeLeft() {
-                    onPreviousPage?.invoke()
-                }
-            })
-
-        swipeListener.touchCallback = { v, event ->
-            v?.parent?.requestDisallowInterceptTouchEvent(true)
-            v?.onTouchEvent(event)
-        }
-
-        binding.recyclerView.setOnTouchListener(swipeListener)
+//        val swipeListener = OnSwipeTouchListener(requireContext(),
+//            object : OnSwipeTouchListener.SwipeGestureListener {
+//                override fun onSwipeRight() {
+//                    onNextPage?.invoke()
+//                }
+//
+//                override fun onSwipeLeft() {
+//                    onPreviousPage?.invoke()
+//                }
+//            })
+//
+//        swipeListener.touchCallback = { v, event ->
+//            v?.parent?.requestDisallowInterceptTouchEvent(true)
+//            v?.onTouchEvent(event)
+//        }
+//
+//        binding.recyclerView.setOnTouchListener(swipeListener)
 
 
         binding.recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
