@@ -194,6 +194,33 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
     private var previousPoiMarkersState: Boolean = true
     private var previousTransportModes: List<TransportMode>? = null
 
+    // Track existing marker positions to prevent duplicates
+    private val existingMarkerPositions = mutableSetOf<LatLng>()
+
+    /**
+     * Check if a marker with the given position already exists
+     * @param position The LatLng position to check
+     * @return true if a marker with this position already exists, false otherwise
+     */
+    private fun isMarkerPositionExists(position: LatLng): Boolean {
+        return existingMarkerPositions.contains(position)
+    }
+
+    /**
+     * Add a marker position to the tracking set
+     * @param position The LatLng position to add
+     */
+    private fun addMarkerPosition(position: LatLng) {
+        existingMarkerPositions.add(position)
+    }
+
+    /**
+     * Clear all tracked marker positions
+     */
+    private fun clearMarkerPositions() {
+        existingMarkerPositions.clear()
+    }
+
     /**
      * When an icon in the map is clicked, an information window is displayed. When that information window
      * is clicked, this interface is used as a callback to notify the app of the click.
@@ -352,14 +379,21 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
             ).addTo(autoDisposable)
     }
 
+    /**
+     * Load POI markers from the view model, preventing duplicate markers at the same position
+     */
     private fun loadMarkers() {
         viewModel.markers
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({ (first, second) ->
                 for ((first1, second1) in first) {
-                    val marker = poiMarkers!!.addMarker(first1)
-                    marker.tag = second1
+                    // Check if a marker with the same position already exists
+                    if (!isMarkerPositionExists(first1.position)) {
+                        val marker = poiMarkers!!.addMarker(first1)
+                        marker.tag = second1
+                        addMarkerPosition(first1.position)
+                    }
                 }
             }, {
                 errorLogger.logError(it)
@@ -1047,7 +1081,11 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
         }
     }
 
-    fun setShowMarkers(show: Boolean, notIncludedModes: List<TransportMode>?) {
+    fun setShowMarkers(
+        show: Boolean,
+        notIncludedModes: List<TransportMode>?,
+        fromTripList: Boolean = false
+    ) {
         // Save current state before making changes (only if we're disabling markers)
         if (!show && viewModel.showMarkers.get()) {
             savePoiMarkersState()
@@ -1064,8 +1102,15 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
             poiMarkers?.showAll()
             loadMarkers()
         } else {
-            tripLocationMarkers?.hideAll()
-            poiMarkers?.hideAll()
+            if (fromTripList) {
+                tripLocationMarkers?.clear()
+                poiMarkers?.clear()
+                clearMarkerPositions()
+            } else {
+                tripLocationMarkers?.hideAll()
+                poiMarkers?.hideAll()
+            }
+
         }
     }
 
@@ -1120,6 +1165,7 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
         // Don't re-add markers when at city zoom level
         if(viewModel.showMarkers.get() && !isCityZoom) {
             poiMarkers?.clear()
+            clearMarkerPositions()
             MapData.getRegionalStops().forEach { poiMarkers?.addMarker(it) }
         }
     }
@@ -1134,6 +1180,14 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
 
         // Only update if viewport has changed significantly
         if (lastViewportBounds != null && boundsAreSimilar(lastViewportBounds!!, currentBounds)) {
+            return
+        }
+
+        if(!viewModel.showMarkers.get()) {
+            tripLocationMarkers?.hideAll()
+            poiMarkers?.hideAll()
+            arrivalMarkers?.hideAll()
+            departureMarkers?.hideAll()
             return
         }
 
@@ -1170,7 +1224,7 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
             val inViewport = viewportBounds.contains(marker.position)
 
             val shouldBeVisible =
-                if (isPOIZoom) {
+                viewModel.showMarkers.get() && if (isPOIZoom) {
                     // Show only StopPOILocation markers within viewport
                     inViewport && (marker.tag is StopPOILocation)
                 } else {

@@ -173,7 +173,11 @@ class TripResultListFragment : BaseTripKitFragment() {
         TripKitUI.getInstance().routesComponent().inject(this)
         if(mapContributor != null) {
             tripKitMapFragment?.setContributor(mapContributor)
-            tripKitMapFragment?.setShowMarkers(false, null)
+            tripKitMapFragment?.setShowMarkers(
+                show = false,
+                notIncludedModes = null,
+                fromTripList = true
+            )
         }
         mapContributor?.initialize()
         super.onAttach(context)

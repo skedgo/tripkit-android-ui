@@ -64,11 +64,15 @@ class TripPreviewPagerViewModel @Inject constructor(
 
         tripSegments.filter { it.visibility == Visibilities.VISIBILITY_IN_SUMMARY }
             .forEach { segment ->
-                getSegmentIcon(context, segment, getTransportIconTintStrategy) {
-                    if (previewHeaders.none { it.id == segment.segmentId }) {
-                        previewHeaders.add(segment.generateTripPreviewHeader(context, it, printTime))
+                try {
+                    getSegmentIcon(context, segment, getTransportIconTintStrategy) {
+                        if (previewHeaders.none { it.id == segment.segmentId }) {
+                            previewHeaders.add(segment.generateTripPreviewHeader(context, it, printTime))
+                        }
+                        tripSummaryStream.onNext(previewHeaders)
                     }
-                    tripSummaryStream.onNext(previewHeaders)
+                } catch (e: NullPointerException) {
+                    e.printStackTrace()
                 }
             }
     }
