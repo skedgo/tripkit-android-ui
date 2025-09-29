@@ -1,6 +1,6 @@
 package com.skedgo.tripkit.ui.routing.settings
 
 interface WalkingSpeedRepository {
-    suspend fun putWalkingSpeed(walkingSpeed: WalkingSpeed)
-    suspend fun getWalkingSpeed(): WalkingSpeed
+    fun putWalkingSpeed(walkingSpeed: WalkingSpeed)
+    fun getWalkingSpeed(): WalkingSpeed
 }

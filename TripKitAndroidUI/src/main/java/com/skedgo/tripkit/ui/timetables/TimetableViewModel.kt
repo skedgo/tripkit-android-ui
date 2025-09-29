@@ -43,6 +43,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.functions.BiFunction
 import io.reactivex.rxkotlin.Observables
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.rx2.await
 import kotlinx.coroutines.rx2.awaitFirstOrNull
@@ -272,6 +273,9 @@ class TimetableViewModel @Inject constructor(
                 }
         }
 
+    // Observable for services list changes that can be observed from the Fragment
+    val servicesObservable: Observable<List<ServiceViewModel>> = services.asObservable().map { it.toList() }
+
     val stopRelay = BehaviorRelay.create<ScheduledStop>()
     val startTimeRelay = BehaviorRelay.create<Long>()
 
@@ -300,7 +304,16 @@ class TimetableViewModel @Inject constructor(
                     withContext(Dispatchers.Default) {
                         val diff = services.calculateDiff(it)
                         withContext(Dispatchers.Main) {
-                            services.update(it, diff)
+                            // Use delay to ensure RecyclerView is not in the middle of a layout pass
+                            delay(1) // Minimal delay to yield to the main thread
+                            try {
+                                services.update(it, diff)
+                            } catch (e: IndexOutOfBoundsException) {
+                                Timber.e("IndexOutOfBoundsException in services update", e)
+                                // If there's still a race condition, clear and rebuild the list
+                                services.clear()
+                                services.addAll(it)
+                            }
                         }
                     }
                 }

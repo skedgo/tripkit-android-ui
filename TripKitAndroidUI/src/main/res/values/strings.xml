@@ -8,6 +8,7 @@
     <string name="more">More</string>
     <string name="pref_transfer_time">transfer_time</string>
     <string name="pref_cycling_speed">cycling_speed</string>
+    <string name="pref_rolling_speed">rolling_speed</string>
     <string name="pref_walking_speed">walking_speed</string>
     <string name="pref_budget">budget</string>
     <string name="pref_time">time</string>
@@ -84,6 +85,7 @@
     <string name="server">Server</string>
     <string name="version">Version</string>
     <string name="cycling_speed">Cycling speed</string>
+    <string name="rolling_speed">Roll speed</string>
     <string name="unknown_location">Unknown location</string>
     <string name="tomorrow">Tomorrow</string>
     <string name="today">Today</string>
@@ -885,5 +887,7 @@ We aggregate the anonymised data and provide it to researchers, regulators, and 
     <string name="permission_go_to_settings_message">Allow this app to access this device’s location in settings.</string>
     <string name="permission_go_to_settings">Go to Settings</string>
     <string name="error_location_required">Location is required to use this feature. Please enable location services and grant location permission to this app in Settings &gt; Apps &gt; %1$s &gt; Permissions.</string>
+
+    <string name="cancellation_policy">Cancellation policy</string>
     <string name="location_services_required">Location Services Required</string>
 </resources>
