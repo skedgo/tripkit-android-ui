@@ -61,7 +61,11 @@ class DefaultLoadPOILocationsByViewPort @Inject constructor(
             .map { it.map(::FreeFloatingVehiclePOILocation) }
 
         val stops = loadStopsByViewPort.execute(viewPort)
-            .map { it.map { stop -> StopPOILocation(stop, stopInfoWindowAdapter) } }
+            .map {
+                it.map { stop ->
+                    StopPOILocation(stop, stopInfoWindowAdapter)
+                }
+            }
 
         val carPods = loadCarPodByViewPort.execute(viewPort)
             .map { it.map(::CarPodPOILocation) }
@@ -73,7 +77,7 @@ class DefaultLoadPOILocationsByViewPort @Inject constructor(
             .map { it.map(::CarParkPOILocation) }
 
         return Observable
-            .just(bikePods, freeFloatingVehicles, stops, carPods, facilities, carParks)
+            .just(bikePods, freeFloatingVehicles, stops , carPods, facilities, carParks)
             .toList()
             .toObservable()
             .flatMap { sources ->

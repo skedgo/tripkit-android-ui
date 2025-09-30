@@ -6,6 +6,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.view.View
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager.widget.ViewPager
 import com.haroldadmin.cnradapter.NetworkResponse
@@ -27,6 +28,7 @@ import com.skedgo.tripkit.ui.timetables.TimetableFragment
 import com.skedgo.tripkit.ui.trippreview.Action
 import com.skedgo.tripkit.ui.trippreview.TripPreviewPagerListener
 import com.skedgo.tripkit.ui.trippreview.TripPreviewPagerViewModel
+import com.skedgo.tripkit.ui.trippreview.TripPreviewSharedViewModel
 import com.skedgo.tripkit.ui.trippreview.segment.TripSegmentsSummaryData
 import com.skedgo.tripkit.ui.tripresults.GetTransportIconTintStrategy
 import com.skedgo.tripkit.ui.utils.ITEM_SERVICE
@@ -49,11 +51,12 @@ class TKUITripPreviewFragment : BaseFragment<FragmentTkuiTripPreviewBinding>() {
     @Inject
     lateinit var viewModel: TripPreviewPagerViewModel
 
+    private val sharedViewModel: TripPreviewSharedViewModel by viewModels({ requireParentFragment() })
+
     lateinit var adapter: TripPreviewPagerAdapter
 
     private var currentPagerIndex = 0
     private var previewHeadersCallback: ((TripSegmentsSummaryData) -> Unit)? = null
-    private var pageIndexStream: PublishSubject<Pair<Long, String>>? = null
     private var paymentDataStream: PublishSubject<PaymentData>? = null
     private var ticketActionStream: PublishSubject<String>? = null
 
@@ -82,7 +85,6 @@ class TKUITripPreviewFragment : BaseFragment<FragmentTkuiTripPreviewBinding>() {
     override fun clearInstances() {
         super.clearInstances()
         previewHeadersCallback = null
-        pageIndexStream = null
         paymentDataStream = null
         ticketActionStream = null
         latestTrip = null
@@ -115,7 +117,7 @@ class TKUITripPreviewFragment : BaseFragment<FragmentTkuiTripPreviewBinding>() {
                     if (currentPagerIndex > 0 && currentPagerIndex < adapter.pages.size) {
                         adapter.getSegmentByPosition(currentPagerIndex).let {
                             fromPageListener = true
-                            pageIndexStream?.onNext(Pair(it.segmentId, it.transportModeId.toString()))
+                            sharedViewModel.setPageIndex(it.segmentId, it.transportModeId.toString())
                         }
                     }
                 }
@@ -175,20 +177,23 @@ class TKUITripPreviewFragment : BaseFragment<FragmentTkuiTripPreviewBinding>() {
     override fun onResume() {
         super.onResume()
 
-        pageIndexStream?.observeOn(AndroidSchedulers.mainThread())
-            ?.subscribeBy {
-                if (!fromPageListener) {
-                    if (::adapter.isInitialized) {
-                        val index = adapter.getSegmentPositionById(it)
-                        if (index != -1) {
-                            currentPagerIndex = index
-                            binding.vpTripPreview.currentItem = currentPagerIndex
+        sharedViewModel.apply {
+            observe(pageIndex) {
+                it?.let {
+                    if (!fromPageListener) {
+                        if (::adapter.isInitialized) {
+                            val index = adapter.getSegmentPositionById(it)
+                            if (index != -1) {
+                                currentPagerIndex = index
+                                binding.vpTripPreview.currentItem = currentPagerIndex
+                            }
                         }
+                    } else {
+                        fromPageListener = false
                     }
-                } else {
-                    fromPageListener = false
                 }
-            }?.addTo(autoDisposable)
+            }
+        }
     }
 
     private fun updateAdapter() {
@@ -276,7 +281,7 @@ class TKUITripPreviewFragment : BaseFragment<FragmentTkuiTripPreviewBinding>() {
                 currentPagerIndex = position
                 adapter.getSegmentByPosition(position).let {
                     fromPageListener = true
-                    pageIndexStream?.onNext(Pair(it.segmentId, it.transportModeId.toString()))
+                    sharedViewModel.setPageIndex(it.segmentId, it.transportModeId.toString())
 
                     /*
                     TripGoEventBus.publish(
@@ -352,7 +357,6 @@ class TKUITripPreviewFragment : BaseFragment<FragmentTkuiTripPreviewBinding>() {
             tripSegmentHashCode: Long,
             tripPreviewPagerListener: TripPreviewPagerListener,
             fromAction: Boolean = false,
-            pageIndexStream: PublishSubject<Pair<Long, String>>? = null,
             paymentDataStream: PublishSubject<PaymentData>? = null,
             ticketActionStream: PublishSubject<String>? = null,
             previewHeadersCallback: ((TripSegmentsSummaryData) -> Unit)? = null
@@ -362,7 +366,6 @@ class TKUITripPreviewFragment : BaseFragment<FragmentTkuiTripPreviewBinding>() {
             this.tripSegmentHashCode = tripSegmentHashCode
             this.fromTripAction = fromAction
             this.tripPreviewPagerListener = tripPreviewPagerListener
-            this.pageIndexStream = pageIndexStream
             this.paymentDataStream = paymentDataStream
             this.ticketActionStream = ticketActionStream
             this.previewHeadersCallback = previewHeadersCallback

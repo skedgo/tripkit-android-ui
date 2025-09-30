@@ -38,6 +38,8 @@ import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Provider
 import javax.inject.Singleton
+import com.skedgo.tripkit.ui.database.scheduled_stops.ScheduledStopDatabase
+import com.skedgo.tripkit.ui.database.scheduled_stops.ScheduledStopMapper
 
 
 @Module
@@ -58,12 +60,24 @@ class TripKitUIModule {
     internal fun resources(appContext: Context): Resources = appContext.resources
 
     @Provides
+    @Singleton
+    internal fun provideScheduledStopDatabase(context: Context): ScheduledStopDatabase {
+        return ScheduledStopDatabase.getDatabase(context)
+    }
+
+    @Provides
+    @Singleton
+    internal fun provideScheduledStopMapper(gson: Gson): ScheduledStopMapper {
+        return ScheduledStopMapper(gson)
+    }
+
+    @Provides
     internal fun provideStopsPersistor(
         context: Context,
-        gson: Gson,
-        scheduledStopRepository: ScheduledStopRepository
+        scheduledStopRepository: ScheduledStopRepository,
+        gson: Gson
     ): StopsFetcher.IStopsPersistor {
-        return StopsPersistor(context, gson, scheduledStopRepository)
+        return StopsPersistor(context, scheduledStopRepository, gson)
     }
 
     @Provides

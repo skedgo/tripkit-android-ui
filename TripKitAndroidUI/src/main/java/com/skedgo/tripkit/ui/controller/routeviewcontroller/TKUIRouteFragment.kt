@@ -1,8 +1,10 @@
 package com.skedgo.tripkit.ui.controller.routeviewcontroller
 
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
+import android.provider.Settings
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
@@ -33,6 +35,8 @@ import com.skedgo.tripkit.ui.core.addTo
 import com.skedgo.tripkit.ui.databinding.FragmentTkuiRouteBinding
 import com.skedgo.tripkit.ui.search.FixedSuggestions
 import com.skedgo.tripkit.ui.utils.showKeyboard
+import com.skedgo.tripkit.ui.utils.showConfirmationPopUpDialog
+import com.skedgo.tripkit.checkIfLocationProviderIsEnabled
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import kotlinx.coroutines.launch
@@ -71,7 +75,11 @@ class TKUIRouteFragment : BaseFragment<FragmentTkuiRouteBinding>() {
             // Only pay attention if one of the EditText's has focus. When the swap button is pressed, both
             // focuses are cleared so we won't trigger a new query
             if (!ignoreNextTextChange && (binding.tieStartEdit.hasFocus() || binding.tieDestinationEdit.hasFocus())) {
-                locationSearchFragment?.setQuery(text.toString(), true)
+                locationSearchFragment?.let { fragment ->
+                    if (fragment.isAdded && fragment.isVisible) {
+                        fragment.setQuery(text.toString(), true)
+                    }
+                }
 
                 if (text.toString().isEmpty()) {
                     setCorrectLocation(null)
@@ -113,17 +121,33 @@ class TKUIRouteFragment : BaseFragment<FragmentTkuiRouteBinding>() {
         if (v == binding.tieStartEdit && hasFocus) {
             focusedField = binding.tieStartEdit
             if (viewModel.startLocation?.locationType != Location.TYPE_CURRENT_LOCATION) {
-                locationSearchFragment?.setQuery(binding.tieStartEdit.text.toString(), true)
+                locationSearchFragment?.let { fragment ->
+                    if (fragment.isAdded && fragment.isVisible) {
+                        fragment.setQuery(binding.tieStartEdit.text.toString(), true)
+                    }
+                }
             } else {
-                locationSearchFragment?.setQuery("", true)
+                locationSearchFragment?.let { fragment ->
+                    if (fragment.isAdded && fragment.isVisible) {
+                        fragment.setQuery("", true)
+                    }
+                }
             }
             viewModel.focusedField = TKUIRouteViewModel.FocusedField.START
         } else if (v == binding.tieDestinationEdit && hasFocus) {
             focusedField = binding.tieDestinationEdit
             if (viewModel.destinationLocation?.locationType != Location.TYPE_CURRENT_LOCATION) {
-                locationSearchFragment?.setQuery(binding.tieDestinationEdit.text.toString(), true)
+                locationSearchFragment?.let { fragment ->
+                    if (fragment.isAdded && fragment.isVisible) {
+                        fragment.setQuery(binding.tieDestinationEdit.text.toString(), true)
+                    }
+                }
             } else {
-                locationSearchFragment?.setQuery("", true)
+                locationSearchFragment?.let { fragment ->
+                    if (fragment.isAdded && fragment.isVisible) {
+                        fragment.setQuery("", true)
+                    }
+                }
             }
             viewModel.focusedField = TKUIRouteViewModel.FocusedField.DESTINATION
         }
@@ -232,14 +256,22 @@ class TKUIRouteFragment : BaseFragment<FragmentTkuiRouteBinding>() {
             viewModel.startLocation = null
             toggleShowCurrentLocation()
             binding.tieStartEdit.requestFocus()
-            locationSearchFragment?.setQuery("", true)
+            locationSearchFragment?.let { fragment ->
+                if (fragment.isAdded && fragment.isVisible) {
+                    fragment.setQuery("", true)
+                }
+            }
         }
         binding.tilDestinationEdit.setEndIconOnClickListener {
             ignoreNextTextChange = true
             viewModel.destinationLocation = null
             toggleShowCurrentLocation()
             binding.tieDestinationEdit.requestFocus()
-            locationSearchFragment?.setQuery("", true)
+            locationSearchFragment?.let { fragment ->
+                if (fragment.isAdded && fragment.isVisible) {
+                    fragment.setQuery("", true)
+                }
+            }
         }
     }
 
@@ -345,6 +377,20 @@ class TKUIRouteFragment : BaseFragment<FragmentTkuiRouteBinding>() {
     }
 
     private suspend fun getCurrentLocation() {
+        // First check if device location is enabled
+        if (!requireContext().checkIfLocationProviderIsEnabled()) {
+            requireContext().showConfirmationPopUpDialog(
+                title = getString(R.string.location_services_required),
+                message = getString(R.string.device_location_is_turned_off),
+                positiveLabel = getString(R.string.settings),
+                positiveCallback = {
+                    val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
+                    startActivity(intent)
+                }
+            )
+            return
+        }
+
         if (ExcuseMe.couldYouGive(this)
                 .permissionFor(android.Manifest.permission.ACCESS_FINE_LOCATION)
         ) {
@@ -448,7 +494,11 @@ class TKUIRouteFragment : BaseFragment<FragmentTkuiRouteBinding>() {
                         lat = 0.0
                         lon = 0.0
                     }
-                    locationSearchFragment?.setQuery("") // To reset the list
+                    locationSearchFragment?.let { fragment ->
+                        if (fragment.isAdded && fragment.isVisible) {
+                            fragment.setQuery("") // To reset the list
+                        }
+                    }
                     setCorrectLocation(fixedLocation)
                     lifecycleScope.launch {
                         getCurrentLocation()

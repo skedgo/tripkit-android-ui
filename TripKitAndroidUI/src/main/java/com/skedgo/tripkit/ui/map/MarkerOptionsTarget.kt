@@ -6,6 +6,7 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.MarkerOptions
 import com.squareup.picasso.Picasso.LoadedFrom
 import com.squareup.picasso.Target
+import timber.log.Timber
 import java.lang.ref.WeakReference
 
 class MarkerOptionsTarget(
@@ -24,7 +25,7 @@ class MarkerOptionsTarget(
             val icon = BitmapDescriptorFactory.fromBitmap(it)
             actualMarkerOptions?.icon(icon)
         } ?: run {
-            println("bitmap is null")
+            Timber.i("bitmap is null")
         }
     }
 

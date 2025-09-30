@@ -1,8 +1,5 @@
 package com.skedgo.tripkit.ui.map.home
 
-import com.skedgo.tripkit.ui.map.home.ZoomLevel.INNER
-import com.skedgo.tripkit.ui.map.home.ZoomLevel.OUTER
-
 
 /**
  * Zoom level that is compatible with the locations.json API
@@ -26,13 +23,11 @@ object ApiZoomLevels {
      * @param zoomLevel Zoom level defined by Google map.
      */
     fun fromMapZoomLevel(zoomLevel: ZoomLevel?): Int {
-        if (zoomLevel == INNER) {
-            return LOCAL
-        }
-        return if (zoomLevel == OUTER) {
-            REGION
-        } else {
-            UNKNOWN
+        return when (zoomLevel) {
+            ZoomLevel.LOCAL -> LOCAL
+            ZoomLevel.REGIONAL -> REGION
+            ZoomLevel.CITY -> REGION
+            else -> UNKNOWN
         }
     }
 }

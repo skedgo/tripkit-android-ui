@@ -35,7 +35,7 @@ import com.skedgo.tripkit.ui.map.home.TripKitMapFragment
  *     putString("key", "value")
  * }
  *
- * val sheet = TKUICard.newInstance(
+ * val sheet = TKUICardViewController.newInstance(
  *     showClose = true,
  *     fragmentClass = MyCustomFragment::class.java,
  *     fragmentArgs = args
@@ -62,6 +62,7 @@ import com.skedgo.tripkit.ui.map.home.TripKitMapFragment
 class TKUICardViewController : BaseBottomSheetDialogFragment<FragmentTkuiCardBinding>() {
 
     private var mapFragment: TripKitMapFragment? = null
+    private var cardManager: TKUICardDataManager? = null
 
     override val layoutRes: Int
         get() = R.layout.fragment_tkui_card
@@ -75,15 +76,19 @@ class TKUICardViewController : BaseBottomSheetDialogFragment<FragmentTkuiCardBin
             showClose: Boolean = true,
             fragmentClass: Class<out Fragment>,
             fragmentArgs: Bundle? = null,
-            mapFragment: TripKitMapFragment? = null
+            mapFragment: TripKitMapFragment? = null,
+            cardManager: TKUICardDataManager? = null,
+            showOverlay: Boolean = true
         ): TKUICardViewController {
             return TKUICardViewController().apply {
                 arguments = Bundle().apply {
                     putBoolean(ARG_SHOW_CLOSE, showClose)
                     putString(ARG_FRAGMENT_CLASS_NAME, fragmentClass.name)
+                    putBoolean(ARG_SHOW_BACKGROUND_OVERLAY, showOverlay)
                     fragmentArgs?.let { putBundle("fragmentArgs", it) }
                 }
                 this.mapFragment = mapFragment
+                this.cardManager = cardManager
             }
         }
     }
@@ -110,10 +115,10 @@ class TKUICardViewController : BaseBottomSheetDialogFragment<FragmentTkuiCardBin
             }
 
             if(fragment is TKUICardBaseFragment<*>) {
-                behaviorState = fragment.behaviorState
-                peekHeightValue = resources.getDimensionPixelSize(fragment.peekHeightResourceValue)
-                isHideable = fragment.isHideable
+                behaviorState = fragment.defaultCardSettings().startingState
+                peekHeightValue = fragment.defaultCardSettings().peekHeight
                 fragment.mapFragment = mapFragment
+                fragment.cardDataManager = cardManager
             }
 
             childFragmentManager.beginTransaction()
@@ -123,6 +128,7 @@ class TKUICardViewController : BaseBottomSheetDialogFragment<FragmentTkuiCardBin
 
         dialog?.findViewById<View>(com.google.android.material.R.id.design_bottom_sheet)?.apply {
             layoutParams?.height = ViewGroup.LayoutParams.MATCH_PARENT
+            requestLayout()
 
             val behavior = BottomSheetBehavior.from(this)
             behavior.peekHeight = peekHeightValue
@@ -135,6 +141,7 @@ class TKUICardViewController : BaseBottomSheetDialogFragment<FragmentTkuiCardBin
             val behavior = BottomSheetBehavior.from(bottomSheet!!)
             behavior.isFitToContents = false
             behavior.halfExpandedRatio = 0.5f
+            behavior.expandedOffset = 0
             behavior.state = behaviorState
             behavior.isHideable = isHideable
         }

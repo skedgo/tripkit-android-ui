@@ -1,7 +1,9 @@
 package com.skedgo.tripkit.ui.map
 
+import android.content.Intent
 import android.location.Location
 import android.os.Bundle
+import android.provider.Settings
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,6 +16,8 @@ import com.google.android.material.button.MaterialButton
 import com.skedgo.tripkit.logging.ErrorLogger
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.core.addTo
+import com.skedgo.tripkit.ui.utils.showConfirmationPopUpDialog
+import com.skedgo.tripkit.checkIfLocationProviderIsEnabled
 import io.reactivex.Observable
 import io.reactivex.functions.Consumer
 import javax.inject.Inject
@@ -79,6 +83,21 @@ open class LocationEnhancedMapFragment : BaseMapFragment() {
         if (activity == null) {
             return
         }
+        
+        // First check if device location is enabled
+        if (!requireContext().checkIfLocationProviderIsEnabled()) {
+            requireContext().showConfirmationPopUpDialog(
+                title = getString(R.string.location_services_required),
+                message = getString(R.string.device_location_is_turned_off),
+                positiveLabel = getString(R.string.settings),
+                positiveCallback = {
+                    val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
+                    startActivity(intent)
+                }
+            )
+            return
+        }
+
         ExcuseMe.couldYouGive(this)
             .permissionFor(android.Manifest.permission.ACCESS_FINE_LOCATION) {
                 if (it.granted.contains(android.Manifest.permission.ACCESS_FINE_LOCATION)) {

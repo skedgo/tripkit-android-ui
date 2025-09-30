@@ -3,13 +3,10 @@ package com.skedgo.tripkit.ui.map.home
 import android.util.Pair
 import com.google.android.gms.maps.model.LatLngBounds
 import com.skedgo.tripkit.common.model.region.Region
-import com.skedgo.tripkit.common.util.StringUtils.makeArgsString
-import com.skedgo.tripkit.data.database.DbFields
 import com.skedgo.tripkit.location.GeoPoint
-import com.skedgo.tripkit.ui.data.CursorToStopConverter
-import com.skedgo.tripkit.ui.map.home.ZoomLevel.INNER
-import kotlin.math.max
-import kotlin.math.min
+import com.skedgo.tripkit.ui.map.home.ZoomLevel.Companion.ZOOM_START_VALUE_FOR_LOCAL
+import com.skedgo.tripkit.ui.map.home.ZoomLevel.Companion.ZOOM_START_VALUE_TO_SHOW_REGIONAL
+import com.skedgo.tripkit.ui.map.home.ZoomLevel.Companion.ZOOM_VALUE_TO_SHOW_CITIES
 
 object StopLoaderArgs {
     /**
@@ -41,10 +38,21 @@ object StopLoaderArgs {
         zoom: Float,
         span: LatLngBounds
     ): ArrayList<String> {
-        return if (ZoomLevel.fromLevel(zoom) == INNER) {
-            getCellIdsForLocalLevel(geoPoint, span)
-        } else {
-            getCellIdsForRegionalLevel(region)
+        return when {
+            zoom <= ZOOM_VALUE_TO_SHOW_CITIES -> {
+                // City level - load regional stops for cities
+                getCellIdsForRegionalLevel(region)
+            }
+            zoom > ZOOM_START_VALUE_TO_SHOW_REGIONAL && zoom <= ZOOM_START_VALUE_FOR_LOCAL -> {
+                // Regional level - load regional stops
+                getCellIdsForRegionalLevel(region)
+            }
+            else -> {
+                // Local level (> 15.0f) - load local stops + regional for cities
+                val localCellIds = getCellIdsForLocalLevel(geoPoint, span)
+                localCellIds.addAll(getCellIdsForRegionalLevel(region))
+                localCellIds
+            }
         }
     }
 
@@ -117,35 +125,5 @@ object StopLoaderArgs {
         } else {
             return ArrayList(cellIds)
         }
-    }
-
-    fun createStopLoaderSelectionArgs(
-        cellIds: List<String>,
-        visibleBounds: LatLngBounds
-    ): Array<String> {
-        val fromLng = min(visibleBounds.southwest.longitude, visibleBounds.northeast.longitude)
-        val toLng = max(visibleBounds.southwest.longitude, visibleBounds.northeast.longitude)
-        val cellIdSize = cellIds.size
-        val selectionArgsLength = cellIdSize + 4
-        val selectionArgs = Array(selectionArgsLength) { "" }
-        for (i in 0 until cellIdSize) {
-            selectionArgs[i] = cellIds[i]
-        }
-        selectionArgs[selectionArgsLength - 4] = visibleBounds.southwest.latitude.toString()
-        selectionArgs[selectionArgsLength - 3] = visibleBounds.northeast.latitude.toString()
-        selectionArgs[selectionArgsLength - 2] = fromLng.toString()
-        selectionArgs[selectionArgsLength - 1] = toLng.toString()
-        return selectionArgs
-    }
-
-    fun createStopLoaderSelection(cellsIdSize: Int): String {
-        val visibleBoundSelection = " AND " + DbFields.LAT + " >= ? AND " +
-            DbFields.LAT + " <= ? AND " +
-            DbFields.LON + " >= ? AND " +
-            DbFields.LON + " <= ?"
-        return CursorToStopConverter.SELECTION_ALL.replace(
-            CursorToStopConverter.REPLACE_WITH_VAR_ARGS,
-            makeArgsString(cellsIdSize)
-        ) + visibleBoundSelection
     }
 }

@@ -17,6 +17,7 @@ import com.skedgo.tripkit.camera.GetInitialMapCameraPosition
 import com.skedgo.tripkit.camera.PutMapCameraPosition
 import com.skedgo.tripkit.common.model.location.Location
 import com.skedgo.tripkit.common.model.TransportMode
+import com.skedgo.tripkit.data.regions.RegionService
 import com.skedgo.tripkit.location.GeoPoint
 import com.skedgo.tripkit.location.GoToMyLocationRepository
 import com.skedgo.tripkit.logging.ErrorLogger
@@ -50,7 +51,8 @@ class MapViewModel @Inject internal constructor(
     private val fetchStopsByViewport: FetchStopsByViewport,
     private val getCellIdsFromViewPort: GetCellIdsFromViewPort,
     private val loadPOILocationsByViewPort: LoadPOILocationsByViewPort,
-    private val errorLogger: ErrorLogger
+    private val errorLogger: ErrorLogger,
+    private val regionService: RegionService
 ) : RxViewModel() {
     private val _myLocationError: PublishRelay<Throwable> = PublishRelay.create()
     val myLocationError: Observable<Throwable>
@@ -62,7 +64,7 @@ class MapViewModel @Inject internal constructor(
 
     var showMarkers = ObservableBoolean(true)
 
-    var transportModes: List<TransportMode>? = null
+    var notIncludedTransportModes: List<TransportMode>? = null
 
     private val viewportChanged = PublishRelay.create<ViewPort>()
     val markers = viewportChanged.hide()
@@ -71,7 +73,10 @@ class MapViewModel @Inject internal constructor(
             getCellIdsFromViewPort.fetch(viewPort)
                 .map { viewPort to it }
         }
-        .distinctUntilChanged { a, b -> a.second == b.second }
+        .distinctUntilChanged { pair1, pair2 ->
+           val isTheSame = pair1.second == pair2.second
+            isTheSame && pair1.first.zoom > ZoomLevel.ZOOM_START_VALUE_FOR_LOCAL
+        }
         .map {
             it.first
         }
@@ -87,8 +92,10 @@ class MapViewModel @Inject internal constructor(
             hidePoi(it.toMutableList())
         }
         .compose(
-            DiffTransformer<IMapPoiLocation, MarkerOptions>({ it.identifier },
-                { it.createMarkerOptions(resources, picasso) })
+            DiffTransformer<IMapPoiLocation, MarkerOptions>(
+                { it.identifier },
+                { it.createMarkerOptions(resources, picasso) }
+            )
         )
         .autoClear()
 
@@ -113,7 +120,7 @@ class MapViewModel @Inject internal constructor(
 
     private fun hidePoi(identifier: String): Boolean {
         var _toRemove = false
-        transportModes?.forEach {
+        notIncludedTransportModes?.forEach {
             if (identifier.contains(it.id ?: "") && !_toRemove) {
                 _toRemove = true
             }
@@ -227,5 +234,5 @@ sealed class ViewPort(val zoom: Float, val visibleBounds: LatLngBounds) {
     class CloseEnough(zoom: Float, visibleBounds: LatLngBounds) : ViewPort(zoom, visibleBounds)
     class NotCloseEnough(zoom: Float, visibleBounds: LatLngBounds) : ViewPort(zoom, visibleBounds)
 
-    fun isInner(): Boolean = ZoomLevel.fromLevel(zoom) == ZoomLevel.INNER
+    fun isInner(): Boolean = zoom >= ZoomLevel.ZOOM_START_VALUE_FOR_LOCAL
 }

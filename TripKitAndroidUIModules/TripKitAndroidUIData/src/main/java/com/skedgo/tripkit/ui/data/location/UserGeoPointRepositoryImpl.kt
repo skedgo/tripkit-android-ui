@@ -15,13 +15,20 @@ open class UserGeoPointRepositoryImpl constructor(
     private val getLocationUpdates: () -> Observable<Location>,
     private val getNow: GetNow
 ) : UserGeoPointRepository {
+
+    companion object {
+        const val TIMEOUT_GET_LOCATION = 1500L
+    }
+
     override fun getFirstCurrentGeoPoint(): Observable<GeoPoint> =
         getLocationUpdates()
             .firstOrError().toObservable()
+            .timeout(TIMEOUT_GET_LOCATION, TimeUnit.MILLISECONDS)
             .map { GeoPoint(it.latitude, it.longitude) }
 
     override fun getCurrentGeoPoint(): Single<GeoPoint> =
         getLocationUpdates()
+            .timeout(TIMEOUT_GET_LOCATION, TimeUnit.MILLISECONDS)
             .map { GeoPoint(it.latitude, it.longitude) }
             .firstOrError()
 

@@ -37,8 +37,8 @@ class MapCameraController @Inject constructor() {
     }
 
     private fun computeZoomLevel(cameraZoom: Float): Float = when {
-        cameraZoom > ZoomLevel.INNER.level -> cameraZoom
-        else -> ZoomLevel.INNER.level.toFloat()
+        cameraZoom > ZoomLevel.ZOOM_START_VALUE_FOR_LOCAL -> cameraZoom
+        else -> ZoomLevel.ZOOM_START_VALUE_FOR_LOCAL
     }
 
     fun moveToPolygonBounds(map: GoogleMap, multiPolygon: Polygon) {

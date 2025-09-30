@@ -889,4 +889,5 @@ We aggregate the anonymised data and provide it to researchers, regulators, and 
     <string name="error_location_required">Location is required to use this feature. Please enable location services and grant location permission to this app in Settings &gt; Apps &gt; %1$s &gt; Permissions.</string>
 
     <string name="cancellation_policy">Cancellation policy</string>
+    <string name="location_services_required">Location Services Required</string>
 </resources>

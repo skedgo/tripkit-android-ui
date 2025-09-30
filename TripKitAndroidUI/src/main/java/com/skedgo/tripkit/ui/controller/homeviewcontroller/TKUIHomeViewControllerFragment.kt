@@ -2,7 +2,9 @@ package com.skedgo.tripkit.ui.controller.homeviewcontroller
 
 import android.Manifest
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
+import android.provider.Settings
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
@@ -63,6 +65,8 @@ import com.skedgo.tripkit.ui.utils.deFocusAndHideKeyboard
 import com.skedgo.tripkit.ui.utils.hideKeyboard
 import com.skedgo.tripkit.ui.utils.isPermissionGranted
 import com.skedgo.tripkit.ui.utils.replaceFragment
+import com.skedgo.tripkit.ui.utils.showConfirmationPopUpDialog
+import com.skedgo.tripkit.checkIfLocationProviderIsEnabled
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -429,7 +433,8 @@ class TKUIHomeViewControllerFragment :
             }
 
             override fun reloadMapMarkers() {
-                mapFragment.setShowPoiMarkers(true, emptyList())
+                // Use the new restoration method to properly restore previous state
+                mapFragment.restorePoiMarkersState()
 
                 Observable.timer(500, TimeUnit.MILLISECONDS)
                     .observeOn(AndroidSchedulers.mainThread())
@@ -668,6 +673,20 @@ class TKUIHomeViewControllerFragment :
     }
 
     private fun checkLocationPermission(callback: (Boolean) -> Unit) {
+        // First check if device location is enabled
+        if (!requireContext().checkIfLocationProviderIsEnabled()) {
+            requireContext().showConfirmationPopUpDialog(
+                title = getString(R.string.location_services_required),
+                message = getString(R.string.device_location_is_turned_off),
+                positiveLabel = getString(R.string.settings),
+                positiveCallback = {
+                    val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
+                    startActivity(intent)
+                }
+            )
+            return
+        }
+
         ExcuseMe.couldYouGive(this)
             .permissionFor(Manifest.permission.ACCESS_FINE_LOCATION) {
                 callback.invoke(it.granted.contains(Manifest.permission.ACCESS_FINE_LOCATION))
@@ -770,7 +789,6 @@ class TKUIHomeViewControllerFragment :
         segmentId: Long,
         fromTripAction: Boolean = false
     ) {
-        val pageIndexStream = PublishSubject.create<Pair<Long, String>>()
         val paymentDataStream = PublishSubject.create<PaymentData>()
         val ticketActionStream = PublishSubject.create<String>()
 
@@ -778,7 +796,6 @@ class TKUIHomeViewControllerFragment :
 
         val headerFragment =
             TripPreviewHeaderFragment.newInstance(
-                pageIndexStream,
                 tripSegment.trip?.hideExactTimes == true ||
                     tripSegment.trip?.segmentList?.any { it.isHideExactTimes } ?: false
             )
@@ -789,7 +806,6 @@ class TKUIHomeViewControllerFragment :
             tripSegment.trip!!.uuid, segmentId,
             initTripPreviewPagerFragmentListener(tripSegment),
             fromTripAction,
-            pageIndexStream,
             paymentDataStream,
             ticketActionStream
         ) {

@@ -12,6 +12,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.widget.SearchView
 import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.gms.maps.model.LatLng
@@ -28,6 +29,9 @@ import com.skedgo.tripkit.ui.utils.defocusAndHideKeyboard
 import com.skedgo.tripkit.ui.utils.isTalkBackOn
 import com.skedgo.tripkit.ui.utils.showKeyboard
 import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 
@@ -191,6 +195,15 @@ class LocationSearchFragment : BaseTripKitFragment() {
     override fun onAttach(context: Context) {
         TripKitUI.getInstance().locationSearchComponent().inject(this);
         super.onAttach(context)
+        
+        // Initialize viewModel early to prevent crashes from setQuery calls
+        if (!::viewModel.isInitialized) {
+            viewModel = ViewModelProviders.of(this, viewModelFactory)
+                .get(LocationSearchViewModel::class.java)
+            viewModel.locationSearchIconProvider = locationSearchIconProvider
+            viewModel.fixedSuggestionsProvider = fixedSuggestionsProvider
+            viewModel.locationSearchProvider = searchSuggestionProvider
+        }
     }
 
     /**
@@ -199,11 +212,13 @@ class LocationSearchFragment : BaseTripKitFragment() {
     @SuppressLint("CheckResult")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        viewModel = ViewModelProviders.of(this, viewModelFactory)
-            .get(LocationSearchViewModel::class.java)
-        viewModel.locationSearchIconProvider = locationSearchIconProvider
-        viewModel.fixedSuggestionsProvider = fixedSuggestionsProvider
-        viewModel.locationSearchProvider = searchSuggestionProvider
+        if (!::viewModel.isInitialized) {
+            viewModel = ViewModelProviders.of(this, viewModelFactory)
+                .get(LocationSearchViewModel::class.java)
+            viewModel.locationSearchIconProvider = locationSearchIconProvider
+            viewModel.fixedSuggestionsProvider = fixedSuggestionsProvider
+            viewModel.locationSearchProvider = searchSuggestionProvider
+        }
     }
 
     /**
@@ -331,8 +346,11 @@ class LocationSearchFragment : BaseTripKitFragment() {
             }, errorLogger::trackError).addTo(autoDisposable)
 
         if (!requireContext().isTalkBackOn()) {
-            searchView?.requestFocus()
-            showKeyboard(requireActivity())
+            lifecycleScope.launch(Dispatchers.Main) {
+                delay(800)
+                searchView?.requestFocus()
+                showKeyboard(requireActivity())
+            }
         }
     }
 
@@ -350,7 +368,9 @@ class LocationSearchFragment : BaseTripKitFragment() {
      * @param query
      */
     fun setQuery(query: String, isRouting: Boolean = false) {
-        viewModel.onQueryTextChanged(query, isRouting)
+        if (::viewModel.isInitialized) {
+            viewModel.onQueryTextChanged(query, isRouting)
+        }
     }
 
     private fun initSearchView(searchView: SearchView) {

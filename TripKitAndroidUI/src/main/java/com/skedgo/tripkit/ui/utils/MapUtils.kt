@@ -12,6 +12,7 @@ import com.google.android.gms.maps.model.GroundOverlay
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.skedgo.tripkit.routing.RealTimeVehicle
+import timber.log.Timber
 import kotlin.math.pow
 
 object MapUtils {
@@ -102,7 +103,7 @@ object MapUtils {
             val adjustedMaxSize = baseMaxSize * scaleFactor
 
             // Debugging log to verify sizes
-            println("Zoom Level: $zoomLevel, Min Size: $adjustedMinSize, Max Size: $adjustedMaxSize")
+            Timber.i("Zoom Level: $zoomLevel, Min Size: $adjustedMinSize, Max Size: $adjustedMaxSize")
 
             pulseAnimator = ValueAnimator.ofFloat(adjustedMinSize, adjustedMaxSize).apply {
                 this.duration = duration
