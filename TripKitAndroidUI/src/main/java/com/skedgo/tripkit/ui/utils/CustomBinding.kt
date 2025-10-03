@@ -25,6 +25,7 @@ import androidx.appcompat.widget.SwitchCompat
 import androidx.cardview.widget.CardView
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.ColorUtils
+import androidx.core.graphics.drawable.DrawableCompat
 import androidx.core.view.ViewCompat
 import androidx.databinding.BindingAdapter
 import com.bumptech.glide.load.model.GlideUrl
@@ -582,6 +583,31 @@ fun setLayoutAppBackgroundTint(view: View, @ColorInt default: Int?) {
         view.setBackgroundColor(it)
     }
 }
+
+@BindingAdapter(value = ["appBackgroundDrawable", "appBackgroundColor"], requireAll = false)
+fun setLayoutAppBackgroundAndTint(
+    view: View,
+    drawable: Drawable?,
+    @ColorInt default: Int?
+) {
+    // pick color: app → system → default (if any)
+    val color = DynamicAppColor.getAppColors()?.barBackground?.let {
+        Color.rgb(it.red, it.green, it.blue)
+    } ?: DynamicAppColor.getSystemColors()?.barBackground ?: default
+
+    if (drawable != null) {
+        val d = DrawableCompat.wrap(drawable.mutate())
+        color?.let {
+            DrawableCompat.setTint(d, it)
+            DrawableCompat.setTintMode(d, PorterDuff.Mode.SRC_IN)
+        }
+        ViewCompat.setBackground(view, d)
+    } else {
+        // fallback: no drawable provided, just set a solid color if we have one
+        color?.let { view.setBackgroundColor(it) }
+    }
+}
+
 
 @BindingAdapter("isDisabled", "originalColor", requireAll = false)
 fun setViewIsDisabled(view: View, disabled: Boolean, originalColor: Int?) {
