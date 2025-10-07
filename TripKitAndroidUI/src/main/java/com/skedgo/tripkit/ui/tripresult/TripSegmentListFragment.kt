@@ -120,8 +120,19 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        viewModel.onCreate(savedInstanceState)
+        
+        // Restore action button handler factory early in lifecycle
+        ensureActionButtonHandlerFactory(savedInstanceState)
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        viewModel.onSavedInstanceState(outState)
+        
+        // Save action button handler factory state
+        outState.putBoolean(KEY_HAD_ACTION_BUTTON_HANDLER_FACTORY, actionButtonHandlerFactory != null)
+    }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
@@ -144,6 +155,11 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
         binding.lifecycleOwner = viewLifecycleOwner
 
         binding.viewModel = viewModel
+        
+        // Ensure action button handler factory is available
+        ensureActionButtonHandlerFactory(savedInstanceState)
+        
+        // Always set the action button handler factory on the ViewModel
         viewModel.setActionButtonHandlerFactory(
             actionButtonHandlerFactory,
             queryFromLocation,
@@ -165,6 +181,9 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
     override fun onStart() {
         super.onStart()
         viewModel.onStart()
+        
+        // Ensure action button handler factory is available
+        ensureActionButtonHandlerFactory()
 //        viewModel.tripGroupObservable
 //                .observeOn(mainThread())
 //                .take(1)
@@ -180,6 +199,10 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
 
     override fun onResume() {
         super.onResume()
+        
+        // Ensure action button handler factory is available
+        ensureActionButtonHandlerFactory()
+        
         viewModel.ticketInfoClicked.subscribeWithErrorHandling { url ->
             val intent = Intent(Intent.ACTION_VIEW).apply {
                 data = Uri.parse(url)
@@ -415,6 +438,67 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
             .setMessage(info)
             .setPositiveButton(R.string.ok) { dialog, which -> dialog.dismiss() }
         builder.show()
+    }
+
+    private fun restoreActionButtonHandlerFactory() {
+        // Try to get the factory from the application context using reflection
+        try {
+            val application = requireActivity().application
+            val applicationClass = application.javaClass
+            
+            // Try to find the actionButtonHandlerFactory field
+            val factoryField = applicationClass.declaredFields.find { 
+                it.name == "actionButtonHandlerFactory" && 
+                it.type.name.contains("ActionButtonHandlerFactory")
+            }
+            
+            if (factoryField != null) {
+                factoryField.isAccessible = true
+                val restoredFactory = factoryField.get(application) as? ActionButtonHandlerFactory
+                if (restoredFactory != null) {
+                    actionButtonHandlerFactory = restoredFactory
+                }
+            }
+        } catch (e: Exception) {
+            // Factory restoration failed, continue without it
+        }
+    }
+    
+    private fun ensureActionButtonHandlerFactory(savedInstanceState: Bundle?) {
+        // Restore factory if we don't have one and we should have had one
+        if (actionButtonHandlerFactory == null && savedInstanceState?.getBoolean(KEY_HAD_ACTION_BUTTON_HANDLER_FACTORY, false) == true) {
+            restoreActionButtonHandlerFactory()
+            
+            // After restoration, ensure the ViewModel is updated with the restored factory
+            if (actionButtonHandlerFactory != null) {
+                viewModel.setActionButtonHandlerFactory(
+                    actionButtonHandlerFactory,
+                    queryFromLocation,
+                    queryToLocation
+                )
+            }
+        }
+    }
+    
+    private fun ensureActionButtonHandlerFactory() {
+        // Try to restore factory if we don't have one (for cases where savedInstanceState is null)
+        if (actionButtonHandlerFactory == null) {
+            restoreActionButtonHandlerFactory()
+            
+            // After restoration, ensure the ViewModel is updated with the restored factory
+            if (actionButtonHandlerFactory != null) {
+                viewModel.setActionButtonHandlerFactory(
+                    actionButtonHandlerFactory,
+                    queryFromLocation,
+                    queryToLocation
+                )
+            }
+        }
+    }
+
+    companion object {
+        // Action button handler factory state key
+        private const val KEY_HAD_ACTION_BUTTON_HANDLER_FACTORY = "had_action_button_handler_factory"
     }
 
     class Builder {
