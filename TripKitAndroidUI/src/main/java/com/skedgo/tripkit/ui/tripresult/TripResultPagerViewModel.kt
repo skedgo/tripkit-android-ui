@@ -172,14 +172,16 @@ class TripResultPagerViewModel @Inject internal constructor(
         { tripGroups: List<TripGroup>, id: TripGroup ->
             currentTrip.postValue(defaultTrip ?: tripGroups.firstOrNull()?.trips?.first())
             tripGroups.indexOfFirst { id.uuid() == it.uuid() }
-        }.doOnNext {
+        }
+        .observeOn(AndroidSchedulers.mainThread())
+        .doOnNext {
             currentPage.value = it
         }.map { Unit }
     }
 
     fun observeTripGroups(): Observable<List<TripGroup>> {
         return tripGroups
-            .subscribeOn(AndroidSchedulers.mainThread())
+            .observeOn(AndroidSchedulers.mainThread())
             .doOnNext {
                 tripGroupsBinding.value = it
             }
