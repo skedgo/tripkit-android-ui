@@ -56,7 +56,7 @@
             android:visibility="@{!viewModel.showSpinner}"
             app:layout_constraintStart_toStartOf="@id/chooseText"
             app:layout_constraintTop_toBottomOf="@id/chooseText"
-            app:srcCompat="@drawable/ic_search_new" />
+            app:srcCompat="@drawable/ic_search" />
 
         <TextView
             android:id="@+id/locationTextView"

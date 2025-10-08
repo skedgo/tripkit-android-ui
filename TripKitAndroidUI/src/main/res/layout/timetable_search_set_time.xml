@@ -33,7 +33,7 @@
             app:hintEnabled="false"
             android:singleLine="true"
             android:layout_marginTop="4dp"
-            android:drawableStart="@drawable/ic_search_new"
+            android:drawableStart="@drawable/ic_search"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/timeSet"
