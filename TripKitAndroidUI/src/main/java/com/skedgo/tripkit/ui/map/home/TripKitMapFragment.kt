@@ -294,6 +294,11 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
 
         geocoder = AndroidGeocoder(requireContext())
 
+        // Restore state if available
+        savedInstanceState?.let { bundle ->
+            restoreMapState(bundle)
+        }
+
         getMapAsync { map ->
             initFromAndToMarkers(map)
             map.setOnCameraIdleListener(this)
@@ -313,15 +318,21 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
     fun setContributor(newContributor: TripKitMapContributor?) {
         contributor?.cleanup()
         contributor = newContributor
-        contributor?.let {
+        contributor?.let { contributor ->
             // If the contributor is a TripResultMapContributor, share the MarkerManager
-            when (it) {
+            when (contributor) {
                 is TripResultMapContributor -> {
-                    it.markerManager = this.markerManager
+                    contributor.markerManager = this.markerManager
                 }
             }
-            whenSafeToUseMap { map: GoogleMap ->
-                contributor?.safeToUseMap(requireContext(), map)
+            // Check if map is already ready and call safeToUseMap immediately
+            if (map != null) {
+                contributor.safeToUseMap(requireContext(), map!!)
+            } else {
+                // Map is not ready yet, wait for it
+                whenSafeToUseMap(Consumer { map: GoogleMap ->
+                    contributor.safeToUseMap(requireContext(), map)
+                })
             }
         }
     }
@@ -1292,7 +1303,108 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
         return latDiff < 0.001 && lngDiff < 0.001
     }
 
+    /**
+     * Save the current map state for restoration after configuration changes or app resume.
+     * This includes camera position, visible bounds, and map contributor state.
+     */
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+
+        // Save camera position
+        map?.cameraPosition?.let { position ->
+            outState.putDouble(KEY_MAP_CAMERA_LAT, position.target.latitude)
+            outState.putDouble(KEY_MAP_CAMERA_LNG, position.target.longitude)
+            outState.putFloat(KEY_MAP_CAMERA_ZOOM, position.zoom)
+            outState.putFloat(KEY_MAP_CAMERA_BEARING, position.bearing)
+            outState.putFloat(KEY_MAP_CAMERA_TILT, position.tilt)
+        }
+
+        // Save visible bounds
+        map?.projection?.visibleRegion?.latLngBounds?.let { bounds ->
+            outState.putDouble(KEY_MAP_VISIBLE_BOUNDS_NE_LAT, bounds.northeast.latitude)
+            outState.putDouble(KEY_MAP_VISIBLE_BOUNDS_NE_LNG, bounds.northeast.longitude)
+            outState.putDouble(KEY_MAP_VISIBLE_BOUNDS_SW_LAT, bounds.southwest.latitude)
+            outState.putDouble(KEY_MAP_VISIBLE_BOUNDS_SW_LNG, bounds.southwest.longitude)
+        }
+
+        // Save marker visibility state
+        outState.putBoolean(KEY_SHOW_MARKERS, viewModel.showMarkers.get())
+
+        // Save last zoom level
+        lastZoomLevel?.let { zoom ->
+            outState.putFloat(KEY_LAST_ZOOM_LEVEL, zoom)
+        }
+
+        // Save contributor class name for restoration
+        contributor?.let { contributor ->
+            outState.putString(KEY_CONTRIBUTOR_CLASS, contributor::class.java.name)
+        }
+    }
+
+    /**
+     * Restore the map state from saved instance state.
+     * This restores camera position, visible bounds, and marker visibility.
+     * The map contributor must be set externally after restoration.
+     */
+    private fun restoreMapState(savedInstanceState: Bundle) {
+        // Restore camera position when map is ready
+        val hasCamera = savedInstanceState.containsKey(KEY_MAP_CAMERA_LAT) &&
+                savedInstanceState.containsKey(KEY_MAP_CAMERA_LNG) &&
+                savedInstanceState.containsKey(KEY_MAP_CAMERA_ZOOM)
+
+        if (hasCamera) {
+            val lat = savedInstanceState.getDouble(KEY_MAP_CAMERA_LAT)
+            val lng = savedInstanceState.getDouble(KEY_MAP_CAMERA_LNG)
+            val zoom = savedInstanceState.getFloat(KEY_MAP_CAMERA_ZOOM)
+            val bearing = savedInstanceState.getFloat(KEY_MAP_CAMERA_BEARING, 0f)
+            val tilt = savedInstanceState.getFloat(KEY_MAP_CAMERA_TILT, 0f)
+
+            val cameraPosition = CameraPosition.Builder()
+                .target(LatLng(lat, lng))
+                .zoom(zoom)
+                .bearing(bearing)
+                .tilt(tilt)
+                .build()
+
+            whenSafeToUseMap(Consumer { map ->
+                map.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition))
+            })
+        }
+
+        // Restore marker visibility
+        if (savedInstanceState.containsKey(KEY_SHOW_MARKERS)) {
+            val showMarkers = savedInstanceState.getBoolean(KEY_SHOW_MARKERS)
+            viewModel.showMarkers.set(showMarkers)
+        }
+
+        // Restore last zoom level
+        if (savedInstanceState.containsKey(KEY_LAST_ZOOM_LEVEL)) {
+            lastZoomLevel = savedInstanceState.getFloat(KEY_LAST_ZOOM_LEVEL)
+        }
+
+        // Note: Contributor restoration must be handled by the parent fragment
+        // since it requires context about which contributor to create
+    }
+
     companion object {
+        // Camera state keys
+        private const val KEY_MAP_CAMERA_LAT = "map_camera_lat"
+        private const val KEY_MAP_CAMERA_LNG = "map_camera_lng"
+        private const val KEY_MAP_CAMERA_ZOOM = "map_camera_zoom"
+        private const val KEY_MAP_CAMERA_BEARING = "map_camera_bearing"
+        private const val KEY_MAP_CAMERA_TILT = "map_camera_tilt"
+
+        // Visible bounds keys
+        private const val KEY_MAP_VISIBLE_BOUNDS_NE_LAT = "map_visible_bounds_northeast_lat"
+        private const val KEY_MAP_VISIBLE_BOUNDS_NE_LNG = "map_visible_bounds_northeast_lng"
+        private const val KEY_MAP_VISIBLE_BOUNDS_SW_LAT = "map_visible_bounds_southwest_lat"
+        private const val KEY_MAP_VISIBLE_BOUNDS_SW_LNG = "map_visible_bounds_southwest_lng"
+
+        // Other state keys
+        private const val KEY_SHOW_MARKERS = "show_markers"
+        private const val KEY_LAST_ZOOM_LEVEL = "last_zoom_level"
+        private const val KEY_CONTRIBUTOR_CLASS = "contributor_class"
+
         private fun asMarkerIcon(mode: SelectionType): BitmapDescriptor {
             return if (mode === SelectionType.DEPARTURE) {
                 BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)
