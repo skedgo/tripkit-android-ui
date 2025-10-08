@@ -140,7 +140,7 @@ class TripResultPagerFragment : BaseFragment<TripResultPagerBinding>(), OnPageCh
         binding.tripGroupsPager.registerOnPageChangeCallback(pageChangeCallback)
 
         binding.tripGroupsPager.currentItem = currentPage
-        viewModel.currentPage.value = currentPage
+        viewModel.currentPage.set(currentPage)
     }
 
     override fun onResume() {
@@ -155,7 +155,8 @@ class TripResultPagerFragment : BaseFragment<TripResultPagerBinding>(), OnPageCh
 
         autoDisposable.add(
             viewModel.observeTripGroups()
-                .subscribe { groups: List<TripGroup?>? ->
+                .subscribe { groups: List<TripGroup> ->
+                    tripGroupsPagerAdapter?.tripGroups = groups
                     tripGroupsPagerAdapter?.notifyDataSetChanged()
                 }
         )
@@ -196,9 +197,7 @@ class TripResultPagerFragment : BaseFragment<TripResultPagerBinding>(), OnPageCh
             }
         }
 
-        viewModel.tripGroupsBinding.observe(viewLifecycleOwner) { tripGroups ->
-            tripGroupsPagerAdapter?.tripGroups = tripGroups ?: emptyList()
-        }
+        // Note: tripGroupsBinding is now ObservableField, updated via observeTripGroups() in onResume
     }
 
     fun contributor(): TripKitMapContributor {
@@ -266,7 +265,9 @@ class TripResultPagerFragment : BaseFragment<TripResultPagerBinding>(), OnPageCh
     override fun onPageSelected(position: Int) {
         val group = tripGroupsPagerAdapter?.tripGroups?.get(position)
         mapContributor.setTripGroupId(group?.uuid(), null)
-        viewModel.currentPage.value = position
+        viewModel.currentPage.set(position)
+        // Update current trip when page changes
+        viewModel.updateCurrentTripForPage(position)
     }
 
     override fun onPageScrollStateChanged(state: Int) {
