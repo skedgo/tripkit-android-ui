@@ -171,7 +171,9 @@ class TripResultListFragment : BaseTripKitFragment() {
 
     override fun onAttach(context: Context) {
         TripKitUI.getInstance().routesComponent().inject(this)
+        Timber.d("[StateRestore] TripResultListFragment - onAttach called, mapContributor=${mapContributor != null}")
         if(mapContributor != null) {
+            Timber.d("[StateRestore] TripResultListFragment - Setting TripResultListMapContributor on map")
             tripKitMapFragment?.setContributor(mapContributor)
             tripKitMapFragment?.setShowMarkers(
                 show = false,
@@ -184,6 +186,7 @@ class TripResultListFragment : BaseTripKitFragment() {
     }
 
     override fun onDestroyView() {
+        Timber.d("[StateRestore] TripResultListFragment - onDestroyView called, cleaning up map contributor")
         mapContributor?.cleanup()
         super.onDestroyView()
     }

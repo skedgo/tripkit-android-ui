@@ -316,21 +316,35 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
     }
 
     fun setContributor(newContributor: TripKitMapContributor?) {
-        contributor?.cleanup()
+        Timber.d("[StateRestore] TripKitMapFragment - setContributor called: newContributor=${newContributor?.javaClass?.simpleName}, mapReady=${map != null}, sameInstance=${contributor === newContributor}")
+        
+        // Only cleanup if it's a different contributor instance
+        // Cleaning up the same instance would remove polylines unnecessarily
+        if (contributor !== newContributor) {
+            Timber.d("[StateRestore] TripKitMapFragment - Different contributor, calling cleanup on old one")
+            contributor?.cleanup()
+        } else if (contributor === newContributor && newContributor != null) {
+            Timber.d("[StateRestore] TripKitMapFragment - Same contributor instance, skipping cleanup to preserve polylines")
+        }
+        
         contributor = newContributor
         contributor?.let { contributor ->
             // If the contributor is a TripResultMapContributor, share the MarkerManager
             when (contributor) {
                 is TripResultMapContributor -> {
                     contributor.markerManager = this.markerManager
+                    Timber.d("[StateRestore] TripKitMapFragment - TripResultMapContributor detected, shared MarkerManager")
                 }
             }
             // Check if map is already ready and call safeToUseMap immediately
             if (map != null) {
+                Timber.d("[StateRestore] TripKitMapFragment - Map ready, calling safeToUseMap to (re)initialize contributor")
                 contributor.safeToUseMap(requireContext(), map!!)
             } else {
                 // Map is not ready yet, wait for it
+                Timber.d("[StateRestore] TripKitMapFragment - Map not ready, deferring safeToUseMap")
                 whenSafeToUseMap(Consumer { map: GoogleMap ->
+                    Timber.d("[StateRestore] TripKitMapFragment - Map now ready, calling safeToUseMap")
                     contributor.safeToUseMap(requireContext(), map)
                 })
             }
@@ -1347,6 +1361,8 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
      * The map contributor must be set externally after restoration.
      */
     private fun restoreMapState(savedInstanceState: Bundle) {
+        Timber.d("[StateRestore] TripKitMapFragment - restoreMapState called")
+        
         // Restore camera position when map is ready
         val hasCamera = savedInstanceState.containsKey(KEY_MAP_CAMERA_LAT) &&
                 savedInstanceState.containsKey(KEY_MAP_CAMERA_LNG) &&
@@ -1358,6 +1374,8 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
             val zoom = savedInstanceState.getFloat(KEY_MAP_CAMERA_ZOOM)
             val bearing = savedInstanceState.getFloat(KEY_MAP_CAMERA_BEARING, 0f)
             val tilt = savedInstanceState.getFloat(KEY_MAP_CAMERA_TILT, 0f)
+            
+            Timber.d("[StateRestore] TripKitMapFragment - Restoring camera: lat=$lat, lng=$lng, zoom=$zoom")
 
             val cameraPosition = CameraPosition.Builder()
                 .target(LatLng(lat, lng))
@@ -1368,18 +1386,29 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
 
             whenSafeToUseMap(Consumer { map ->
                 map.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition))
+                Timber.d("[StateRestore] TripKitMapFragment - Camera position restored")
             })
+        } else {
+            Timber.d("[StateRestore] TripKitMapFragment - No saved camera position found")
         }
 
         // Restore marker visibility
         if (savedInstanceState.containsKey(KEY_SHOW_MARKERS)) {
             val showMarkers = savedInstanceState.getBoolean(KEY_SHOW_MARKERS)
             viewModel.showMarkers.set(showMarkers)
+            Timber.d("[StateRestore] TripKitMapFragment - Marker visibility restored: $showMarkers")
         }
 
         // Restore last zoom level
         if (savedInstanceState.containsKey(KEY_LAST_ZOOM_LEVEL)) {
             lastZoomLevel = savedInstanceState.getFloat(KEY_LAST_ZOOM_LEVEL)
+            Timber.d("[StateRestore] TripKitMapFragment - Last zoom level restored: $lastZoomLevel")
+        }
+        
+        // Check for saved contributor
+        if (savedInstanceState.containsKey(KEY_CONTRIBUTOR_CLASS)) {
+            val contributorClassName = savedInstanceState.getString(KEY_CONTRIBUTOR_CLASS)
+            Timber.d("[StateRestore] TripKitMapFragment - Saved contributor class: $contributorClassName (will be restored by parent fragment)")
         }
 
         // Note: Contributor restoration must be handled by the parent fragment
