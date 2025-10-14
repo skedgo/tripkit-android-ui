@@ -125,6 +125,7 @@ class TripResultMapContributor : TripKitMapContributor {
 
     private val geoFenceCircleMarkers = mutableListOf<Circle>()
     private var isSafeToUse = false
+    private var observersSetUp = false  // Guard to prevent duplicate subscriptions
 
     fun setTileProvide(url: String) {
         tileProvider = object : UrlTileProvider(256, 256) {
@@ -251,6 +252,13 @@ class TripResultMapContributor : TripKitMapContributor {
     }
 
     private fun setupObservers(context: Context) {
+        // Prevent duplicate subscriptions that cause memory leaks and OOM
+        if (observersSetUp) {
+            return
+        }
+        
+        observersSetUp = true
+        
         autoDisposable.add(viewModel.vehicleMarkerViewModelsStream
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(
@@ -356,6 +364,9 @@ class TripResultMapContributor : TripKitMapContributor {
     }
 
     override fun cleanup() {
+        // Reset observer flag to allow re-setup if contributor is reused
+        observersSetUp = false
+        
         autoDisposable.clear()
         travelledStopMarkers?.clear()
         vehicleMarkers?.clear()
