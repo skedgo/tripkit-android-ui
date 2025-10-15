@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProviders
 import com.jakewharton.rxrelay2.PublishRelay
 import com.skedgo.tripkit.common.model.location.Location
@@ -29,19 +30,13 @@ const val BUTTON_FAVORITE = 2
 class PoiDetailsFragment : BaseTripKitFragment() {
     @Inject
     lateinit var viewModelFactory: PoiDetailsViewModelFactory
-    lateinit var viewModel: PoiDetailsViewModel
+    private val viewModel: PoiDetailsViewModel by viewModels() { viewModelFactory }
     lateinit var binding: PoiDetailsFragmentBinding
 
     val buttonClick = PublishRelay.create<Int>()
     override fun onAttach(context: Context) {
         TripKitUI.getInstance().inject(this)
         super.onAttach(context)
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        viewModel =
-            ViewModelProviders.of(this, viewModelFactory).get(PoiDetailsViewModel::class.java)
     }
 
     fun toggleFavorite(isFavorite: Boolean) {
