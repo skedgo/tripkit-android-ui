@@ -275,8 +275,11 @@ class TripResultPagerFragment : BaseFragment<TripResultPagerBinding>(), OnPageCh
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        if (binding != null && binding.tripGroupsPager != null) {
-            outState.putInt(KEY_CURRENT_PAGE, binding.tripGroupsPager.currentItem)
+        // Check if view exists (which guarantees binding is initialized)
+        if (view != null) {
+            binding.tripGroupsPager?.let { pager ->
+                outState.putInt(KEY_CURRENT_PAGE, pager.currentItem)
+            }
         }
         viewModel.onSavedInstanceState(outState)
     }
