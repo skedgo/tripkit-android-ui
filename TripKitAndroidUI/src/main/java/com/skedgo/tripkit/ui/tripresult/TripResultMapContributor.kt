@@ -387,10 +387,10 @@ class TripResultMapContributor : TripKitMapContributor {
         context = null
     }
 
-    fun setTripGroupId(tripGroupId: String?, tripId: Long? = null) {
+    fun setTripGroupId(tripGroupId: String?, tripId: Long? = null, skipCamera: Boolean = false) {
         tripGroupId?.let {
             removeTileOverlay()
-            viewModel.setTripGroupId(it, tripId)
+            viewModel.setTripGroupId(it, tripId, skipCamera)
         }
     }
 
