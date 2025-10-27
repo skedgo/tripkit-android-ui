@@ -106,6 +106,20 @@ open class ScheduledStopRepository @Inject constructor(
             .subscribeOn(Schedulers.io())
     }
 
+    /**
+     * Synchronous deletion of stops by cell codes. Used during stop save to remove decommissioned stops.
+     * Efficient: Only deletes stops for cells being updated, not entire database.
+     */
+    fun deleteByCellCodesSync(cellCodes: List<String>) {
+        if (cellCodes.isEmpty()) return
+        
+        // Delete in single transaction via Room - efficient for bulk operations
+        val deletedStops = scheduledStopDatabase.scheduledStopDao().deleteScheduledStopsByCellCodes(cellCodes)
+        val deletedLocations = scheduledStopDatabase.scheduledStopDao().deleteLocationsByCellCodes(cellCodes)
+        
+        Timber.d("Deleted old data for ${cellCodes.size} cells: $deletedStops stops, $deletedLocations locations")
+    }
+
     fun update(
         selection: String?,
         selectionArgs: Array<String>?,

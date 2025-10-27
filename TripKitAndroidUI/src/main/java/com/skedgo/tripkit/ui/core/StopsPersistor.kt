@@ -28,6 +28,13 @@ class StopsPersistor @Inject constructor(
     override fun saveStopsSync(cells: List<LocationsResponse.Group>) {
         Timber.i("DEBUG: StopsPersistor.saveStopsSync called with ${cells.size} cells")
         
+        // Fix: Delete old stops for cells being updated to remove decommissioned stops
+        // Efficient: Only deletes for specific cells, not entire database. Room uses indexed WHERE clause.
+        val cellIds = cells.mapNotNull { it.key }
+        if (cellIds.isNotEmpty()) {
+            scheduledStopRepository.deleteByCellCodesSync(cellIds)
+        }
+        
         val scheduledStops = mutableListOf<ScheduledStopEntity>()
         val locations = mutableListOf<LocationEntity>()
 
