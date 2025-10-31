@@ -1,7 +1,9 @@
 package com.skedgo.tripkit.ui.utils
 
 import android.accessibilityservice.AccessibilityServiceInfo
+import android.app.Activity
 import android.content.Context
+import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.ConnectivityManager
@@ -9,6 +11,7 @@ import android.net.NetworkCapabilities
 import android.net.Uri
 import android.os.Build
 import android.provider.Settings
+import android.view.ContextThemeWrapper
 import android.view.View
 import android.view.accessibility.AccessibilityManager
 import androidx.annotation.RequiresApi
@@ -17,6 +20,7 @@ import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.list.listItems
 import com.araujo.jordan.excuseme.ExcuseMe
 import com.araujo.jordan.excuseme.model.PermissionStatus
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.skedgo.tripkit.ui.BuildConfig
 import com.skedgo.tripkit.ui.R
 import timber.log.Timber
@@ -76,6 +80,44 @@ fun Context.showConfirmationPopUpDialog(
             }
         }
     }
+}
+
+fun Context.showConfirmationPopUpAlertDialog(
+    title: String? = null,
+    message: String? = null,
+    positiveLabel: String,
+    positiveCallback: (() -> Unit)? = null,
+    positiveTextColor: Int = R.color.colorPrimary,
+    negativeLabel: String? = null,
+    negativeCallback: (() -> Unit)? = null,
+    negativeTextColor: Int = R.color.colorAccent,
+    cancellable: Boolean = true,
+) {
+    // Avoid showing if the Activity is finishing/destroyed
+    if (this is Activity && (isFinishing || isDestroyed)) return
+
+    val builder = MaterialAlertDialogBuilder(this)
+        .setCancelable(cancellable)
+        .apply { if (title != null) setTitle(title) }
+        .apply { if (message != null) setMessage(message) }
+        .setPositiveButton(positiveLabel) { dialog, _ ->
+            positiveCallback?.invoke()
+            dialog.dismiss()
+        }
+
+    if (negativeLabel != null) {
+        builder.setNegativeButton(negativeLabel) { dialog, _ ->
+            negativeCallback?.invoke()
+            dialog.dismiss()
+        }
+    }
+
+    val dialog = builder.show()
+
+    dialog.getButton(DialogInterface.BUTTON_POSITIVE)
+        .setTextColor(ContextCompat.getColor(this, positiveTextColor))
+    dialog.getButton(DialogInterface.BUTTON_NEGATIVE)
+        .setTextColor(ContextCompat.getColor(this, negativeTextColor))
 }
 
 
