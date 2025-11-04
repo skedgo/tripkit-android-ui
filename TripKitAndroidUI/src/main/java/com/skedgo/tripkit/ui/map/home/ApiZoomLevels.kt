@@ -8,7 +8,7 @@ object ApiZoomLevels {
     /**
      * Only non-parent stops (e.g, bus) are returned at this level.
      */
-    const val LOCAL: Int = 50
+    const val LOCAL: Int = 2
 
     /**
      * Only parent stops (e.g, train) are returned at this level.
@@ -25,8 +25,8 @@ object ApiZoomLevels {
     fun fromMapZoomLevel(zoomLevel: ZoomLevel?): Int {
         return when (zoomLevel) {
             ZoomLevel.LOCAL -> LOCAL
-            ZoomLevel.REGIONAL -> REGION
             ZoomLevel.CITY -> REGION
+            ZoomLevel.REGIONAL -> REGION
             else -> UNKNOWN
         }
     }
