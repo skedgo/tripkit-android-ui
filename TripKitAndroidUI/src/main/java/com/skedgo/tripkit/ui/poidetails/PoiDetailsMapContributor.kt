@@ -87,7 +87,7 @@ class PoiDetailsMapContributor : TripKitMapContributor {
         poiMarker = map.addMarker(markerOptions)
 
         val cameraTarget = getOffsetLatLng(map, markerPosition) ?: markerPosition
-        map.animateCamera(CameraUpdateFactory.newLatLngZoom(cameraTarget, DEFAULT_ZOOM_LEVEL))
+        map.moveCamera(CameraUpdateFactory.newLatLngZoom(cameraTarget, DEFAULT_ZOOM_LEVEL))
     }
 
     private fun getOffsetLatLng(map: GoogleMap, target: LatLng): LatLng? {
