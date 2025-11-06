@@ -79,6 +79,7 @@ import com.skedgo.tripkit.ui.data.waypoints.WaypointsModule
 import com.skedgo.tripkit.ui.locationpointer.LocationPointerComponent
 import com.skedgo.tripkit.ui.map.MarkerIconManager
 import com.skedgo.tripkit.ui.poidetails.PoiDetailsFragment
+import com.skedgo.tripkit.ui.poidetails.PoiDetailsMapContributor
 import com.skedgo.tripkit.ui.routingresults.TripGroupRepository
 import com.skedgo.tripkit.ui.search.FetchSuggestions
 import com.skedgo.tripkit.ui.servicedetail.ServiceDetailFragment
@@ -196,6 +197,8 @@ abstract class TripKitUI {
     abstract fun inject(fragment: ServiceDetailFragment)
 
     abstract fun inject(fragment: PoiDetailsFragment)
+
+    abstract fun inject(contributor: PoiDetailsMapContributor)
 
     companion object {
         var AUTHORITY_END: String = ".com.skedgo.tripkit.ui."

@@ -17,6 +17,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import com.araujo.jordan.excuseme.ExcuseMe
 import com.bumptech.glide.load.resource.bitmap.CircleCrop
@@ -55,6 +56,7 @@ import com.skedgo.tripkit.ui.core.module.ViewModelFactory
 import com.skedgo.tripkit.ui.databinding.FragmentTkuiHomeViewControllerBinding
 import com.skedgo.tripkit.ui.dialog.UpdateModalDialog
 import com.skedgo.tripkit.ui.locationpointer.LocationPointerFragment
+import com.skedgo.tripkit.ui.poidetails.PoiDetailsMapContributor
 import com.skedgo.tripkit.ui.map.home.TripKitMapFragment
 import com.skedgo.tripkit.ui.model.TimetableEntry
 import com.skedgo.tripkit.ui.payment.PaymentData
@@ -106,6 +108,8 @@ class TKUIHomeViewControllerFragment :
     private var tripGroupOnPreview: TripGroup? = null
     private var updateModalDialog: UpdateModalDialog? = null
     private val bottomSheetOffset = MutableLiveData(0)
+
+    private var poiDetailsMapContributor: PoiDetailsMapContributor? = null
 
     private var showMyLocationButtonWithoutPermission = false
 
@@ -277,7 +281,44 @@ class TKUIHomeViewControllerFragment :
         map.setPadding(0, 0, 0, max(calculatedPadding, peekHeight))
     }
 
+    private fun ensurePoiDetailsMapContributor(): PoiDetailsMapContributor {
+        val existing = poiDetailsMapContributor
+        if (existing != null) {
+            if (mapFragment.getContributor() !== existing) {
+                mapFragment.setContributor(existing)
+            }
+            applyMarkerOffset(existing)
+            return existing
+        }
+
+        val contributor = PoiDetailsMapContributor().also {
+            it.initialize()
+        }
+        poiDetailsMapContributor = contributor
+        mapFragment.setShowMarkers(false, null)
+        mapFragment.setContributor(contributor)
+        applyMarkerOffset(contributor)
+        return contributor
+    }
+
+    private fun clearPoiDetailsContributor() {
+        val contributor = poiDetailsMapContributor ?: return
+        if (mapFragment.getContributor() === contributor) {
+            mapFragment.setContributor(null)
+            mapFragment.restorePoiMarkersState()
+        }
+        poiDetailsMapContributor = null
+    }
+
+    private fun applyMarkerOffset(contributor: PoiDetailsMapContributor) {
+        val offset = bottomSheetOffset.value ?: bottomSheetBehavior.peekHeight
+        if (offset > 0) {
+            contributor.setMarkerVerticalOffset(offset)
+        }
+    }
+
     private fun loadTimetable(stop: ScheduledStop) {
+        clearPoiDetailsContributor()
         val fragment = TKUITimetableControllerFragment.newInstance(
             stop,
             mapFragment
@@ -313,13 +354,18 @@ class TKUIHomeViewControllerFragment :
     ) {
 
         location?.let {
+            val contributor = ensurePoiDetailsMapContributor()
+            contributor.setLocation(it)
+
             val fragmentByTag = bottomSheetFragment.getFragmentByTag(TKUIPoiDetailsFragment.TAG)
 
             if (fragmentByTag != null && fragmentByTag is TKUIPoiDetailsFragment && fragmentByTag.isVisible) {
+                fragmentByTag.mapContributor = contributor
                 fragmentByTag.updateData(it)
             } else {
                 val fragment = TKUIPoiDetailsFragment
                     .newInstance(it, isRouting, isDeparture)
+                fragment.mapContributor = contributor
 
                 updateBottomSheetFragment(
                     fragment, TKUIPoiDetailsFragment.TAG, BottomSheetBehavior.STATE_HALF_EXPANDED
@@ -357,6 +403,7 @@ class TKUIHomeViewControllerFragment :
         origin: Location,
         destination: Location? = null
     ) {
+        clearPoiDetailsContributor()
         val routeFragment = TKUIRouteFragment.newInstance(
             map.projection.visibleRegion.latLngBounds,
             map.cameraPosition.target,
@@ -423,6 +470,7 @@ class TKUIHomeViewControllerFragment :
         bottomSheetFragment = TKUIHomeBottomSheetFragment.newInstance(object :
             TKUIHomeBottomSheetFragment.TKUIHomeBottomSheetListener {
             override fun refreshMap() {
+                clearPoiDetailsContributor()
                 mapFragment.refreshMap(map)
                 bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
                 binding.standardBottomSheet.visibility = View.GONE
@@ -622,6 +670,15 @@ class TKUIHomeViewControllerFragment :
                 }.addTo(autoDisposable)
         }
 
+        bottomSheetOffset.observe(
+            viewLifecycleOwner,
+            Observer { offset ->
+                if (offset > 0) {
+                    poiDetailsMapContributor?.setMarkerVerticalOffset(offset)
+                }
+            }
+        )
+
     }
 
     private fun updateFabMyLocationAnchor(anchorId: Int, anchorGravity: Int) {
@@ -635,6 +692,7 @@ class TKUIHomeViewControllerFragment :
     }
 
     private fun handleCloseAction() {
+        clearPoiDetailsContributor()
 
         if (isFromChooseOnMap) {
             isFromChooseOnMap = false
@@ -743,6 +801,7 @@ class TKUIHomeViewControllerFragment :
     }
 
     private fun loadTrip(trip: ViewTrip, tripGroupList: List<TripGroup>) {
+        clearPoiDetailsContributor()
         val fragment = TKUITripDetailsViewControllerFragment.newInstance(
             trip,
             tripGroupList
@@ -789,6 +848,7 @@ class TKUIHomeViewControllerFragment :
         segmentId: Long,
         fromTripAction: Boolean = false
     ) {
+        clearPoiDetailsContributor()
         val paymentDataStream = PublishSubject.create<PaymentData>()
         val ticketActionStream = PublishSubject.create<String>()
 

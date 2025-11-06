@@ -14,6 +14,7 @@ import com.skedgo.tripkit.ui.core.BaseFragment
 import com.skedgo.tripkit.ui.core.addTo
 import com.skedgo.tripkit.ui.databinding.FragmentTkuiPoiDetailsBinding
 import com.skedgo.tripkit.ui.poidetails.PoiDetailsFragment
+import com.skedgo.tripkit.ui.poidetails.PoiDetailsMapContributor
 import com.skedgo.tripkit.ui.utils.defocusAndHideKeyboard
 import javax.inject.Inject
 
@@ -26,6 +27,7 @@ class TKUIPoiDetailsFragment : BaseFragment<FragmentTkuiPoiDetailsBinding>() {
     private var location: Location? = null
     private var isRouting: Boolean = false
     private var isDeparture: Boolean = false
+    var mapContributor: PoiDetailsMapContributor? = null
 
     override val layoutRes: Int
         get() = R.layout.fragment_tkui_poi_details
@@ -54,6 +56,7 @@ class TKUIPoiDetailsFragment : BaseFragment<FragmentTkuiPoiDetailsBinding>() {
         }
 
         location?.let {
+            mapContributor?.setLocation(it)
             fragment = PoiDetailsFragment.Builder(it)
                 .showCloseButton(true)
                 .isDeparture(isDeparture)
@@ -64,6 +67,7 @@ class TKUIPoiDetailsFragment : BaseFragment<FragmentTkuiPoiDetailsBinding>() {
                 setOnCloseButtonListener {
                     eventBus.publish(ViewControllerEvent.OnCloseAction())
                 }
+                mapContributor?.let { contributor -> setMapContributor(contributor) }
                 this@TKUIPoiDetailsFragment.childFragmentManager
                     .beginTransaction()
                     .replace(R.id.container, this)
@@ -86,6 +90,7 @@ class TKUIPoiDetailsFragment : BaseFragment<FragmentTkuiPoiDetailsBinding>() {
     }
 
     fun updateData(location: Location) {
+        mapContributor?.setLocation(location)
         fragment?.updateLocation(location)
     }
 
