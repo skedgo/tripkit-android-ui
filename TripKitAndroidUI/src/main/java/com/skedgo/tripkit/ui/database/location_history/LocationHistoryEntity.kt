@@ -2,6 +2,7 @@ package com.skedgo.tripkit.ui.database.location_history
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.skedgo.tripkit.common.model.location.Location
 
 @Entity(tableName = "location_history")
 data class LocationHistoryEntity(
@@ -19,5 +20,7 @@ data class LocationHistoryEntity(
     val locationClass: String?,
     val w3w: String,
     val wewInfoURL: String,
-    val createdAt: Long
+    val createdAt: Long,
+    val locationType: Int = Location.TYPE_UNKNOWN,
+    val locationJson: String? = null
 )
