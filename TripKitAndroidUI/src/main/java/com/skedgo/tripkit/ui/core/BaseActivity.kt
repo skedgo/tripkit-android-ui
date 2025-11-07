@@ -58,7 +58,7 @@ abstract class BaseActivity<V : ViewDataBinding> : AppCompatActivity() {
         }
     }
 
-    protected fun showLoading(isLoading: Boolean) {
+    fun showLoading(isLoading: Boolean) {
         loadingDialog.let {
             if (isLoading && !loadingDialog.isShowing)
                 loadingDialog.show()
