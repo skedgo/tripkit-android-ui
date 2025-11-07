@@ -6,9 +6,12 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.RectF
+import androidx.core.content.ContextCompat
+import androidx.core.content.res.ResourcesCompat
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.skedgo.tripkit.data.database.locations.facility.FacilityLocationEntity
+import com.skedgo.tripkit.data.database.locations.facility.FacilityType
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.TripGoStyleKit
 import io.reactivex.Single
@@ -47,7 +50,15 @@ object CreateMarkerFoFacility {
             .title(facilityLocation.name)
             .position(LatLng(facilityLocation.lat, facilityLocation.lng))
             .draggable(false)
-            .icon(MarkerIconManager.getMarkerBitmap(R.drawable.ic_facility, iconSize))
+            .icon(
+                if (facilityLocation.facilityType == FacilityType.WATER_FOUNTAIN.type) {
+                    MarkerIconManager.getMarkerBitmap(R.drawable.ic_water_fountain, iconSize)
+                } else {
+                    MarkerIconManager.getMarkerBitmap(R.drawable.ic_facility, iconSize)
+                }
+            )
             .let { Single.just(it) }
     }
+
+
 }
