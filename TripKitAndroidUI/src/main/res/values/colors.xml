@@ -103,4 +103,7 @@
 
     <color name="action_negative">#FB2C36</color>
     <color name="action_positive">#00C950</color>
+    
+    <!-- Icon tinting for dark mode support -->
+    <color name="icon_tint_default">#616161</color>
 </resources>

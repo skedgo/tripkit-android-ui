@@ -18,7 +18,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#ffffff">
+        android:background="@color/white">
 
         <TextView
             android:id="@+id/stopName"
@@ -59,9 +59,9 @@
                 android:id="@+id/serviceType"
                 android:layout_width="16dp"
                 android:layout_height="16dp"
-                android:tint="@color/black2"
                 android:visibility="@{viewModel.modeInfo != null}"
-                app:srcCompat="@{viewModel.modeInfo}" />
+                app:srcCompat="@{viewModel.modeInfo}"
+                app:tint="@color/black2" />
 
             <androidx.cardview.widget.CardView
                 android:layout_width="wrap_content"

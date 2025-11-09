@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:background="@android:color/white"
+    android:background="@color/white"
     android:foreground="?selectableItemBackground"
     android:padding="8dp">
 
@@ -25,7 +26,8 @@
         android:layout_below="@id/operatorName"
         android:layout_marginRight="8dp"
         android:layout_marginTop="16dp"
-        android:src="@drawable/ic_bicycle_share" />
+        android:src="@drawable/ic_bicycle_share"
+        app:tint="@color/icon_tint_default" />
 
     <TextView
         android:id="@+id/availableBikesText"
@@ -44,11 +46,10 @@
         android:layout_alignBottom="@id/availableBikesText"
         android:layout_marginLeft="8dp"
         android:layout_toRightOf="@id/availableBikesText"
-        android:background="?colorPrimary"
         android:gravity="center_horizontal"
         android:paddingLeft="8dp"
         android:paddingRight="8dp"
-        android:textAppearance="@style/TextAppearance.AppCompat.Medium.Inverse"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
         tools:text="24" />
 
     <TextView
@@ -68,11 +69,10 @@
         android:layout_alignBottom="@id/batteryLevelText"
         android:layout_alignRight="@id/availableBikes"
         android:layout_marginLeft="8dp"
-        android:background="?colorPrimary"
         android:gravity="center_horizontal"
         android:paddingLeft="8dp"
         android:paddingRight="8dp"
-        android:textAppearance="@style/TextAppearance.AppCompat.Medium.Inverse"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
         tools:text="15" />
 
     <ImageView
@@ -82,5 +82,6 @@
         android:layout_marginLeft="16dp"
 
         android:layout_toRightOf="@id/availableBikes"
-        android:src="@drawable/ic_arrow_forward" />
+        android:src="@drawable/ic_arrow_forward"
+        app:tint="@color/icon_tint_default" />
 </RelativeLayout>

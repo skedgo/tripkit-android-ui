@@ -12,7 +12,7 @@
             android:id="@+id/chartRoadTags"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@android:color/white"
+            android:background="@color/white"
             android:minHeight="300dp"
             android:visibility="gone"
             app:layout_constraintTop_toTopOf="parent" />

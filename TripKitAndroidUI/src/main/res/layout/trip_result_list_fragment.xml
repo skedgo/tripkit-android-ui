@@ -22,7 +22,7 @@
             android:layout_height="wrap_content"
             android:paddingTop="@dimen/spacing_small"
             android:focusable="true"
-            android:background="@android:color/white"
+            android:background="@color/white"
             android:importantForAccessibility="yes"
             android:contentDescription="@{viewModel.toContentDescription + viewModel.fromContentDescription}"
             app:layout_constraintStart_toStartOf="parent"
@@ -107,11 +107,11 @@
                 android:paddingBottom="@dimen/spacing_extra_small"
                 android:onClick="@{() -> viewModel.onStartLocationClicked()}"
                 android:layout_marginEnd="12dp"
-                android:tint="@color/colorPrimary"
                 app:layout_constraintBottom_toBottomOf="@id/from"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="@+id/from"
-                app:srcCompat="@drawable/chevron_right" />
+                app:srcCompat="@drawable/chevron_right"
+                app:tint="@color/colorPrimary" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <!-- Leave Now & Transports header -->
@@ -122,7 +122,7 @@
             android:paddingTop="@dimen/spacing_large"
             android:paddingBottom="@dimen/spacing_small"
             android:paddingHorizontal="@dimen/spacing_small"
-            android:background="@android:color/white"
+            android:background="@color/white"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/clLocations">
@@ -216,7 +216,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="@dimen/content_padding"
-            android:background="@android:color/white"
+            android:background="@color/white"
             android:layout_marginTop="@dimen/spacing_extra_small"
             android:focusable="true"
             android:clickable="true"

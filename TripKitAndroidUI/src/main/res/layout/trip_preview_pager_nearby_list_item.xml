@@ -22,7 +22,8 @@
             android:src="@{viewModel.icon}"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent" />
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:tint="@color/icon_tint_default" />
 
         <TextView
             android:layout_width="0dp"

@@ -5,6 +5,7 @@
     android:layout_height="wrap_content"
     android:drawablePadding="@dimen/spacing_small"
     android:drawableRight="@drawable/ic_zoom"
+    android:drawableTint="@color/icon_tint_default"
     android:ellipsize="marquee"
     android:singleLine="true"
     android:textColor="@color/v4_title_text"
