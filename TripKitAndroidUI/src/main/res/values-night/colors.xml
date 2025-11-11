@@ -17,6 +17,7 @@
     <color name="grey1">#2B3A40</color>
     <color name="grey2">#303840</color>
     <color name="grey3">#353D45</color>
+    <color name="grey4">#3A444C</color>
     <color name="tripKitSuccess">#30A548</color>
     <color name="tripKitWarning">#E8AA27</color>
     <color name="tripKitError">#D73737</color>
