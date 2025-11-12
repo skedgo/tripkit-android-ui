@@ -19,8 +19,6 @@ import com.skedgo.tripkit.ui.TripKitUI
 import com.skedgo.tripkit.ui.core.BaseTripKitFragment
 import com.skedgo.tripkit.ui.databinding.PoiDetailsFragmentBinding
 import com.skedgo.tripkit.ui.map.home.TripKitMapFragment
-import com.skedgo.tripkit.ui.tripresults.TripResultListFragment.Builder
-import com.skedgo.tripkit.ui.tripresults.map_contributor.TripResultListMapContributor
 import com.skedgo.tripkit.ui.utils.getPackageNameFromStoreUrl
 import com.skedgo.tripkit.ui.utils.isAppInstalled
 import javax.inject.Inject

@@ -38,6 +38,7 @@ import com.skedgo.tripkit.common.model.TransportMode
 import com.skedgo.tripkit.common.model.location.Location
 import com.skedgo.tripkit.common.model.region.Region
 import com.skedgo.tripkit.common.model.region.Region.City
+import com.skedgo.tripkit.common.model.stop.ScheduledStop
 import com.skedgo.tripkit.data.regions.RegionService
 import com.skedgo.tripkit.tripplanner.NonCurrentType
 import com.skedgo.tripkit.tripplanner.PinUpdate
@@ -50,15 +51,16 @@ import com.skedgo.tripkit.ui.map.CarParkPOILocation
 import com.skedgo.tripkit.ui.map.FacilityPOILocation
 import com.skedgo.tripkit.ui.map.GenericIMapPoiLocation
 import com.skedgo.tripkit.ui.map.IMapPoiLocation
-import com.skedgo.tripkit.ui.map.StopPOILocation
 import com.skedgo.tripkit.ui.map.LocationEnhancedMapFragment
 import com.skedgo.tripkit.ui.map.MapCameraController
 import com.skedgo.tripkit.ui.map.MapMarkerUtils
 import com.skedgo.tripkit.ui.map.StopMarkerIconFetcher
+import com.skedgo.tripkit.ui.map.StopPOILocation
 import com.skedgo.tripkit.ui.map.TripLocationMarkerCreator
 import com.skedgo.tripkit.ui.map.adapter.CityInfoWindowAdapter
 import com.skedgo.tripkit.ui.map.adapter.NoActionWindowAdapter
 import com.skedgo.tripkit.ui.map.adapter.POILocationInfoWindowAdapter
+import com.skedgo.tripkit.ui.map.adapter.StopInfoWindowAdapter
 import com.skedgo.tripkit.ui.map.adapter.ViewableInfoWindowAdapter
 import com.skedgo.tripkit.ui.map.convertToDomainLatLngBounds
 import com.skedgo.tripkit.ui.map.home.ViewPort.CloseEnough
@@ -81,6 +83,7 @@ import com.skedgo.tripkit.ui.utils.isNetworkConnected
 import com.skedgo.tripkit.ui.utils.showConfirmationPopUpDialog
 import com.skedgo.tripkit.checkIfLocationProviderIsEnabled
 import com.squareup.otto.Bus
+import com.squareup.picasso.Picasso
 import dagger.Lazy
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.functions.Consumer
@@ -178,8 +181,13 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
     // There doesn't seem to be a way to show an info window when a POI is clicked, so work-around that
     // by using an invisible marker on the map that is moved to the POI's location when clicked.
     private var poiMarker: Marker? = null
-
     private var transportModes: List<TransportMode>? = null
+
+    @Inject
+    lateinit var stopInfoWindowAdapter: StopInfoWindowAdapter
+
+    @Inject
+    lateinit var picasso: Picasso
 
     var enablePinLocationOnClick: Boolean = false
     var pinnedDepartureLocationOnClickMarker: Marker? = null
@@ -1128,6 +1136,50 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
     fun restorePoiMarkersState() {
         if (previousPoiMarkersState) {
             setShowMarkers(true, previousTransportModes)
+        }
+    }
+
+    fun ensureStopMarker(stop: ScheduledStop) {
+        if (stop.lat.isNaN() || stop.lon.isNaN()) {
+            return
+        }
+        if (stop.lat == 0.0 && stop.lon == 0.0) {
+            return
+        }
+        val targetPosition = LatLng(stop.lat, stop.lon)
+        if (isMarkerPositionExists(targetPosition)) {
+            return
+        }
+
+        fun addMarkerIfNeeded() {
+            val collection = poiMarkers ?: return
+            if (isMarkerPositionExists(targetPosition)) {
+                return
+            }
+            val poiLocation = StopPOILocation(stop, stopInfoWindowAdapter)
+            poiLocation.createMarkerOptions(resources, picasso)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe({ markerOptions ->
+                    val position = markerOptions.position
+                    if (isMarkerPositionExists(position)) {
+                        return@subscribe
+                    }
+                    val marker = collection.addMarker(markerOptions)
+                    marker.tag = poiLocation
+                    addMarkerPosition(position)
+                }, { error ->
+                    errorLogger.logError(error)
+                })
+                .addTo(autoDisposable)
+        }
+
+        if (map != null && poiMarkers != null) {
+            addMarkerIfNeeded()
+        } else {
+            whenSafeToUseMap {
+                addMarkerIfNeeded()
+            }
         }
     }
 
