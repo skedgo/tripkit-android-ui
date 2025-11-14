@@ -95,4 +95,7 @@
 
     <color name="induction_detail_description">#993C3C43</color>
     <color name="trip_line_inactive">#80A6A6A6</color>
+
+    <color name="action_negative">#FB2C36</color>
+    <color name="action_positive">#00C950</color>
 </resources>

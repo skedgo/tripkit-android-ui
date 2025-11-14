@@ -82,4 +82,18 @@
         <item name="android:backgroundDimEnabled">false</item>
     </style>
 
+    <style name="ThemeOverlay.AlertDialog" parent="ThemeOverlay.MaterialComponents.MaterialAlertDialog">
+        <!-- Style positive/negative buttons inside the dialog -->
+        <item name="buttonBarPositiveButtonStyle">@style/MyDialogTextButton</item>
+        <item name="buttonBarNegativeButtonStyle">@style/MyDialogTextButton.Negative</item>
+    </style>
+
+    <style name="MyDialogTextButton" parent="Widget.MaterialComponents.Button.TextButton">
+        <item name="android:textColor">@color/black</item>
+        <!-- Optional: ripple/disabled via ColorStateList -->
+    </style>
+
+    <style name="MyDialogTextButton.Negative" parent="MyDialogTextButton">
+        <item name="android:textColor">@color/colorAccent</item>
+    </style>
 </resources>
