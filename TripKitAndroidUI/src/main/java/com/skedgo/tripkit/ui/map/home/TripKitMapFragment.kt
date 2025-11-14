@@ -6,6 +6,8 @@ import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.provider.Settings
 import android.view.View
 import android.widget.Toast
@@ -84,6 +86,7 @@ import com.skedgo.tripkit.ui.utils.showConfirmationPopUpDialog
 import com.skedgo.tripkit.checkIfLocationProviderIsEnabled
 import com.squareup.otto.Bus
 import com.squareup.picasso.Picasso
+import java.util.WeakHashMap
 import dagger.Lazy
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.functions.Consumer
@@ -182,6 +185,8 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
     // by using an invisible marker on the map that is moved to the POI's location when clicked.
     private var poiMarker: Marker? = null
     private var transportModes: List<TransportMode>? = null
+    private val infoWindowHandler = Handler(Looper.getMainLooper())
+    private val markerHideCallbacks = WeakHashMap<Marker, Runnable>()
 
     @Inject
     lateinit var stopInfoWindowAdapter: StopInfoWindowAdapter
@@ -427,6 +432,12 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
         }
         viewModel.onCleared()
         super.onDestroy()
+    }
+
+    override fun onDestroyView() {
+        infoWindowHandler.removeCallbacksAndMessages(null)
+        markerHideCallbacks.clear()
+        super.onDestroyView()
     }
 
     override fun onMarkerClick(marker: Marker): Boolean {
@@ -1148,6 +1159,7 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
         }
         val targetPosition = LatLng(stop.lat, stop.lon)
         if (isMarkerPositionExists(targetPosition)) {
+            showExistingStopMarkerInfoWindow(targetPosition)
             return
         }
 
@@ -1168,6 +1180,8 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
                     val marker = collection.addMarker(markerOptions)
                     marker.tag = poiLocation
                     addMarkerPosition(position)
+                    marker.showInfoWindow()
+                    hideInfoWindowLater(marker)
                 }, { error ->
                     errorLogger.logError(error)
                 })
@@ -1181,6 +1195,47 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
                 addMarkerIfNeeded()
             }
         }
+    }
+
+    private fun showExistingStopMarkerInfoWindow(position: LatLng) {
+        fun showInfoWindow() {
+            val collection = poiMarkers ?: return
+            val marker = collection.markers.firstOrNull { it.position == position } ?: return
+            marker.isVisible = true
+            marker.showInfoWindow()
+            hideInfoWindowLater(marker)
+        }
+
+        if (map != null && poiMarkers != null) {
+            showInfoWindow()
+        } else {
+            whenSafeToUseMap {
+                showInfoWindow()
+            }
+        }
+    }
+
+    private fun hideInfoWindowLater(marker: Marker) {
+        markerHideCallbacks[marker]?.let { infoWindowHandler.removeCallbacks(it) }
+
+        val hideRunnable = Runnable {
+            markerHideCallbacks.remove(marker)
+
+            if (!isAdded || !isVisible) {
+                return@Runnable
+            }
+
+            try {
+                if (marker.isInfoWindowShown) {
+                    marker.hideInfoWindow()
+                }
+            } catch (throwable: Exception) {
+                Timber.v(throwable, "Unable to hide marker info window safely.")
+            }
+        }
+
+        markerHideCallbacks[marker] = hideRunnable
+        infoWindowHandler.postDelayed(hideRunnable, INFO_WINDOW_AUTO_HIDE_DELAY_MS)
     }
 
     fun moveToCameraPosition(cameraPosition: CameraPosition) {
@@ -1352,5 +1407,7 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
                 BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)
             }
         }
+
+        private const val INFO_WINDOW_AUTO_HIDE_DELAY_MS = 3_000L
     }
 }
