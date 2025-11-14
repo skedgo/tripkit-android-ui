@@ -4,12 +4,13 @@
 
 We release patches for security vulnerabilities in the following versions:
 
-| Version | Supported          |
-| ------- | ------------------ |
-| 1.x.x   | :white_check_mark: |
-| < 1.0   | :x:                |
+| Version | Supported |
+| ------- | ---------- |
+| 2.x (current AndroidX/Jetpack releases from `main`) | :white_check_mark: |
+| 1.x (legacy support branch) | :warning: Best-effort fixes only |
+| < 1.0 | :x: |
 
-> **Note:** Please update this table to reflect the actual versions you support.
+> **Note:** TripKit Android UI is distributed through JitPack. Update this table whenever a new minor stream becomes the actively supported release line.
 
 ---
 
@@ -61,21 +62,30 @@ If you're contributing to this project, please follow these security guidelines:
 - No direct commits to `main` or protected branches
 
 ### Dependencies
-- Keep dependencies up to date
-- Review dependency changes for known vulnerabilities
-- Use automated tools like Dependabot to monitor security issues
+- Keep Gradle dependencies up to date (Android Gradle Plugin, Kotlin, Jetpack Compose/AndroidX, Google Maps, etc.)
+- Review dependency changes for known vulnerabilities (GitHub Dependabot alerts are enabled)
+- Maintain alignment between `minSdkVersion`, `targetSdkVersion`, and Google Play requirements
+- Use automated tools like Dependabot and Android Lint reports in CI to monitor security issues
 
 ### Secrets Management
-- **Never** commit credentials, API keys, tokens, or other secrets
-- Use environment variables or secure secret management systems
+- **Never** commit TripKit API keys, Google Maps keys, keystore files, or other credentials
+- Sample apps should use placeholder keys or local `gradle.properties`, not checked-in secrets
+- Use CI/CD secrets (GitHub Actions, Bitrise, etc.) or secure vaults (AWS SSM, GitHub Secrets) for publishing credentials
 - Review commits for accidentally included secrets before pushing
 
 ### Secure Coding
 - Follow [OWASP Top 10](https://owasp.org/www-project-top-ten/) best practices
-- Validate and sanitize all user inputs
-- Use parameterized queries to prevent SQL injection
-- Implement proper authentication and authorization
-- Use HTTPS/TLS for all network communications
+- Validate and sanitize all inputs exposed by TripKit UI components (deep links, intents, form fields)
+- Avoid storing sensitive data in UI state; rely on encrypted storage provided by host apps
+- Implement proper authentication and authorization flows when embedding TripKit services (OAuth tokens, API keys)
+- Use HTTPS/TLS ≥ 1.2 for all network communications and honor Android `networkSecurityConfig`
+
+### Android UI Library Considerations
+- Respect Android permission scopes; UI components must not request permissions directly unless required
+- Keep theming resources compatible with Material You / dynamic color and support dark mode
+- Harden WebView usage (disable JavaScript/file access unless explicitly required)
+- Ensure obfuscation (R8/ProGuard) rules cover TripKit UI modules when shipping AARs
+- Verify multi-module consumers cannot access debug-only tooling from release artifacts
 
 ---
 
@@ -85,8 +95,9 @@ This project includes the following security measures:
 
 - **Dependabot alerts** enabled for vulnerable dependencies
 - **Secret scanning** enabled to prevent credential leaks
+- **GitHub Actions `CI` workflow** (android_ci.yml) runs unit tests on PRs targeting `develop`/`feature/**`
 - **Code review** required for all changes
-- **Branch protection** rules enforced on main branches
+- **Branch protection** rules enforced on `main/develop`
 
 ---
 
@@ -128,7 +139,7 @@ For general security questions or concerns, please contact:
 
 ---
 
-> **Last Updated:** {{ DATE }}  
-> **Version:** 1.0  
+> **Last Updated:** 2025-11-14  
+> **Version:** 1.1  
 > 
 > This security policy is maintained by the repository maintainers and reviewed regularly.
