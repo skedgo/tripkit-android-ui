@@ -1,0 +1,124 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 2,
+    "identityHash": "57447607a97b35742d9ac156a3935fe0",
+    "entities": [
+      {
+        "tableName": "location_history",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`address` TEXT NOT NULL, `name` TEXT, `lat` REAL NOT NULL, `lon` REAL NOT NULL, `exact` INTEGER NOT NULL, `bearing` INTEGER NOT NULL, `phone` TEXT NOT NULL, `url` TEXT NOT NULL, `timezone` TEXT, `popularity` INTEGER NOT NULL, `locationClass` TEXT, `w3w` TEXT NOT NULL, `wewInfoURL` TEXT NOT NULL, `createdAt` INTEGER NOT NULL, `locationType` INTEGER NOT NULL, `locationJson` TEXT, PRIMARY KEY(`address`))",
+        "fields": [
+          {
+            "fieldPath": "address",
+            "columnName": "address",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "lat",
+            "columnName": "lat",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lon",
+            "columnName": "lon",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "exact",
+            "columnName": "exact",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "bearing",
+            "columnName": "bearing",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "phone",
+            "columnName": "phone",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "url",
+            "columnName": "url",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "timezone",
+            "columnName": "timezone",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "popularity",
+            "columnName": "popularity",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "locationClass",
+            "columnName": "locationClass",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "w3w",
+            "columnName": "w3w",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "wewInfoURL",
+            "columnName": "wewInfoURL",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "createdAt",
+            "columnName": "createdAt",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "locationType",
+            "columnName": "locationType",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "locationJson",
+            "columnName": "locationJson",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "address"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      }
+    ],
+    "views": [],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '57447607a97b35742d9ac156a3935fe0')"
+    ]
+  }
+}
