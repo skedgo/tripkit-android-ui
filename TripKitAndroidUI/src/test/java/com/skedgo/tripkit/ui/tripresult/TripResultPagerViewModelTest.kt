@@ -103,7 +103,7 @@ class TripResultPagerViewModelTest: MockKTest() {
 
         observer.assertValue(dummyTripGroups)
 
-        val currentGroups = viewModel.tripGroupsBinding.value
+        val currentGroups = viewModel.tripGroupsBinding.get()
         Assert.assertEquals(dummyTripGroups, currentGroups)
 
         Assert.assertEquals(false, viewModel.isLoading.get())

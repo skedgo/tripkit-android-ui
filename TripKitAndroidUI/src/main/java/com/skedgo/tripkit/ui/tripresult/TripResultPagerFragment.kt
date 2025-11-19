@@ -25,6 +25,7 @@ import com.skedgo.tripkit.ui.tripresult.TripSegmentListFragment.OnTripKitButtonC
 import com.skedgo.tripkit.ui.tripresult.TripSegmentListFragment.OnTripSegmentClickListener
 import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButtonHandlerFactory
 import com.squareup.otto.Bus
+import timber.log.Timber
 import javax.inject.Inject
 import com.skedgo.tripkit.ui.tripresult.v2.TripGroupsPagerAdapter
 
@@ -60,6 +61,7 @@ class TripResultPagerFragment : BaseFragment<TripResultPagerBinding>(), OnPageCh
     private var args: PagerFragmentArguments? = null
     private var currentPage = -1
     private var tripAlertChangeValidator: (() -> Boolean)? = null
+    
     private val pageChangeCallback = object : ViewPager2.OnPageChangeCallback() {
         override fun onPageSelected(position: Int) {
             super.onPageSelected(position)
@@ -137,10 +139,11 @@ class TripResultPagerFragment : BaseFragment<TripResultPagerBinding>(), OnPageCh
 
         binding.tripGroupsPager.setCurrentItem(currentPage, false)
 
-        binding.tripGroupsPager.registerOnPageChangeCallback(pageChangeCallback)
+        // Note: Callback registration moved to onStart() to properly handle onStart/onStop lifecycle
+        // (callback gets unregistered in onStop, re-registered in onStart)
 
         binding.tripGroupsPager.currentItem = currentPage
-        viewModel.currentPage.value = currentPage
+        viewModel.currentPage.set(currentPage)
     }
 
     override fun onResume() {
@@ -155,7 +158,8 @@ class TripResultPagerFragment : BaseFragment<TripResultPagerBinding>(), OnPageCh
 
         autoDisposable.add(
             viewModel.observeTripGroups()
-                .subscribe { groups: List<TripGroup?>? ->
+                .subscribe { groups: List<TripGroup> ->
+                    tripGroupsPagerAdapter?.tripGroups = groups
                     tripGroupsPagerAdapter?.notifyDataSetChanged()
                 }
         )
@@ -175,20 +179,26 @@ class TripResultPagerFragment : BaseFragment<TripResultPagerBinding>(), OnPageCh
                 .subscribe()
         )
 
-        checkNotNull(args)
-        autoDisposable.add(
-            viewModel.getSortedTripGroups(args!!, initialTripGroupList!!)
-                .subscribe({ tripGroup: Unit ->
-                    if (args is FavoriteTrip) {
-                        // The trip group will possibly have changed after reloading it, so set the map to the correct one here
-                        mapContributor.setTripGroupId(viewModel.currentTripGroupId.get(), null)
-                    }
-                }, { error: Throwable ->
-                    errorLogger.trackError(
-                        error
-                    )
-                })
-        )
+        // Call getSortedTripGroups if we have args (initialTripGroupList can be null/empty)
+        // This is critical for loading trip data - without it, fragment shows loading spinner forever
+        if (args != null) {
+            Timber.d("$LOG_TAG - Calling getSortedTripGroups with args=${args?.javaClass?.simpleName}, initialTripGroupList size=${initialTripGroupList?.size ?: 0}")
+            autoDisposable.add(
+                viewModel.getSortedTripGroups(args!!, initialTripGroupList ?: emptyList())
+                    .subscribe({ tripGroup: Unit ->
+                        if (args is FavoriteTrip) {
+                            // The trip group will possibly have changed after reloading it, so set the map to the correct one here
+                            mapContributor.setTripGroupId(viewModel.currentTripGroupId.get(), null)
+                        }
+                    }, { error: Throwable ->
+                        errorLogger.trackError(
+                            error
+                        )
+                    })
+            )
+        } else {
+            Timber.w("$LOG_TAG - Cannot call getSortedTripGroups: args is null")
+        }
 
         viewModel.currentTrip.observe(viewLifecycleOwner) { trip: Trip? ->
             if (tripUpdatedListener != null) {
@@ -196,13 +206,15 @@ class TripResultPagerFragment : BaseFragment<TripResultPagerBinding>(), OnPageCh
             }
         }
 
-        viewModel.tripGroupsBinding.observe(viewLifecycleOwner) { tripGroups ->
-            tripGroupsPagerAdapter?.tripGroups = tripGroups ?: emptyList()
-        }
+        // Note: tripGroupsBinding is now ObservableField, updated via observeTripGroups() in onResume
     }
 
     fun contributor(): TripKitMapContributor {
         return mapContributor
+    }
+    
+    fun getCurrentPage(): Int {
+        return currentPage
     }
 
     fun updatePagerFragmentTripGroup(tripGroup: TripGroup) {
@@ -225,12 +237,31 @@ class TripResultPagerFragment : BaseFragment<TripResultPagerBinding>(), OnPageCh
         //binding.tripGroupsPager.addOnPageChangeListener(this)
         if(binding.tripGroupsPager.adapter == null) {
             binding.tripGroupsPager.adapter = tripGroupsPagerAdapter
+            // Restore the current page position after setting adapter
+            // (adapter removal in onStop resets the ViewPager position)
+            if (currentPage >= 0) {
+                Timber.d("$LOG_TAG - onStart: Restoring ViewPager position to $currentPage")
+                binding.tripGroupsPager.setCurrentItem(currentPage, false)
+            }
         }
+        // Re-register page change callback (it gets unregistered in onStop)
+        binding.tripGroupsPager.registerOnPageChangeCallback(pageChangeCallback)
+        Timber.d("$LOG_TAG - onStart: Page change callback re-registered")
     }
 
     override fun onStop() {
         super.onStop()
         viewModel.onStop()
+        
+        // Save current page position before stopping (e.g., when navigating to TripPreview)
+        // Notify parent fragment so it can restore this position when recreating the pager
+        val currentPagePosition = currentPage
+        if (currentPagePosition >= 0) {
+            pagePositionListener?.onPagePositionSaved(currentPagePosition)
+            Timber.d("$LOG_TAG - onStop: Notified parent of current page position: $currentPagePosition")
+        }
+        
+        Timber.d("$LOG_TAG - onStop: Unregistering page change callback")
         binding.tripGroupsPager.unregisterOnPageChangeCallback(pageChangeCallback)
         //binding.tripGroupsPager.removeOnPageChangeListener(this)
         binding.tripGroupsPager.adapter = null
@@ -244,8 +275,11 @@ class TripResultPagerFragment : BaseFragment<TripResultPagerBinding>(), OnPageCh
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        if (binding != null && binding.tripGroupsPager != null) {
-            outState.putInt(KEY_CURRENT_PAGE, binding.tripGroupsPager.currentItem)
+        // Check if view exists (which guarantees binding is initialized)
+        if (view != null) {
+            binding.tripGroupsPager?.let { pager ->
+                outState.putInt(KEY_CURRENT_PAGE, pager.currentItem)
+            }
         }
         viewModel.onSavedInstanceState(outState)
     }
@@ -265,8 +299,14 @@ class TripResultPagerFragment : BaseFragment<TripResultPagerBinding>(), OnPageCh
 
     override fun onPageSelected(position: Int) {
         val group = tripGroupsPagerAdapter?.tripGroups?.get(position)
+        Timber.d("$LOG_TAG - Page swiped to position $position, tripGroupId=${group?.uuid()}")
+        // Update the field so onStop can save it
+        currentPage = position
         mapContributor.setTripGroupId(group?.uuid(), null)
-        viewModel.currentPage.value = position
+        viewModel.currentPage.set(position)
+        // Update current trip when page changes
+        viewModel.updateCurrentTripForPage(position)
+        Timber.d("$LOG_TAG - Map contributor updated for new trip, currentPage field updated to $currentPage")
     }
 
     override fun onPageScrollStateChanged(state: Int) {
@@ -285,6 +325,16 @@ class TripResultPagerFragment : BaseFragment<TripResultPagerBinding>(), OnPageCh
     interface OnTripUpdatedListener {
         fun onTripUpdated(trip: Trip?)
     }
+    
+    interface OnPagePositionListener {
+        fun onPagePositionSaved(position: Int)
+    }
+    
+    private var pagePositionListener: OnPagePositionListener? = null
+    
+    fun setOnPagePositionListener(listener: OnPagePositionListener?) {
+        this.pagePositionListener = listener
+    }
 
     class Builder {
         private var tripGroupId = ""
@@ -299,6 +349,7 @@ class TripResultPagerFragment : BaseFragment<TripResultPagerBinding>(), OnPageCh
         private var singleRoute = false
         private var initialTripGroupList: List<TripGroup>? = null
         private var actionButtonHandlerFactory: ActionButtonHandlerFactory? = null
+        private var currentPage: Int = -1  // Initial page position
 
         fun withActionButtonHandlerFactory(factory: ActionButtonHandlerFactory?): Builder {
             this.actionButtonHandlerFactory = factory
@@ -361,6 +412,11 @@ class TripResultPagerFragment : BaseFragment<TripResultPagerBinding>(), OnPageCh
             this.showCloseButton = true
             return this
         }
+        
+        fun withCurrentPage(page: Int): Builder {
+            this.currentPage = page
+            return this
+        }
 
         fun build(): TripResultPagerFragment {
             val args = if (singleRoute) {
@@ -382,6 +438,10 @@ class TripResultPagerFragment : BaseFragment<TripResultPagerBinding>(), OnPageCh
             fragment.setArgs(args)
             fragment.setActionButtonHandlerFactory(actionButtonHandlerFactory)
             fragment.setQueryLocations(fromLocation, toLocation)
+            // Set current page before arguments if specified
+            if (currentPage >= 0) {
+                fragment.currentPage = currentPage
+            }
             val b = Bundle()
             b.putBoolean(KEY_SHOW_CLOSE_BUTTON, showCloseButton)
             fragment.initialTripGroupList = initialTripGroupList
@@ -391,6 +451,9 @@ class TripResultPagerFragment : BaseFragment<TripResultPagerBinding>(), OnPageCh
     }
 
     companion object {
+        // Logging tag for state restoration debugging
+        private const val LOG_TAG = "[StateRestore] TripResultPagerFragment"
+        
         private const val KEY_CURRENT_PAGE = "currentPage"
         private const val KEY_SHOW_CLOSE_BUTTON = "showCloseButton"
     }

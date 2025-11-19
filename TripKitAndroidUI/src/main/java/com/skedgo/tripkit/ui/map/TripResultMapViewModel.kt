@@ -46,6 +46,7 @@ class TripResultMapViewModel @Inject internal constructor(
     val selectedTrip: BehaviorRelay<Trip> = BehaviorRelay.create()
 
     private var currentTrip: Trip? = null
+    private var skipNextCameraUpdate = false
 
     // Having a lot of observer on selectedTrip might be the cause of unable
     // to update map when users swiped on the trips overview.
@@ -89,6 +90,12 @@ class TripResultMapViewModel @Inject internal constructor(
 
     @VisibleForTesting
     fun Trip.processCameraUpdate() {
+        // Check if camera update should be skipped (e.g., during restoration)
+        if (skipNextCameraUpdate) {
+            skipNextCameraUpdate = false
+            return
+        }
+        
         this.segmentList?.let { tripSegments ->
             Observable.timer(DELAY_MAP_CAMERA_UPDATE, TimeUnit.MILLISECONDS, Schedulers.io())
                 .subscribe({
@@ -158,7 +165,8 @@ class TripResultMapViewModel @Inject internal constructor(
         mapTilesStream.onNext(segmentWithMapTiles?.mapTiles?.urlTemplates ?: emptyList())
     }
 
-    fun setTripGroupId(tripGroupId: String, tripId: Long? = null) {
+    fun setTripGroupId(tripGroupId: String, tripId: Long? = null, skipCamera: Boolean = false) {
+        skipNextCameraUpdate = skipCamera
         tripGroupDisposable.clear()
         tripGroupRepository.getTripGroup(tripGroupId)
             .subscribeWithErrorHandling { tripGroup ->
