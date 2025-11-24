@@ -65,6 +65,31 @@ class SearchProviderSuggestionViewModel(
 ) :
     FixedSuggestionViewModel(context, suggestion, term)
 
+class HistorySearchProviderSuggestionViewModel(
+    context: Context,
+    suggestion: SearchSuggestion,
+    term: String? = null
+) : SuggestionViewModel(context, term) {
+    val suggestion = suggestion
+    val id = suggestion.id()
+    override val title = suggestion.title()
+    override val titleTextColorRes = suggestion.titleColor()
+    override val subtitle = suggestion.subtitle()
+    override val subtitleTextColorRes = suggestion.subtitleColor()
+    override val onItemClicked: TapAction<SuggestionViewModel> = TapAction.create { this }
+    override val showInfoIcon =
+        suggestion.location() != null && suggestion.location() !is ScheduledStop
+    override val showTimetableIcon: Boolean
+        get() = suggestion.location() is ScheduledStop
+    override val onInfoClicked: TapAction<SuggestionViewModel> = TapAction.create { this }
+    override val onSuggestionActionClicked: TapAction<SuggestionViewModel> =
+        TapAction.create { this }
+
+    init {
+        icon.set(suggestion.icon())
+    }
+}
+
 class CityProviderSuggestionViewModel(
     context: Context,
     suggestion: SearchSuggestion,

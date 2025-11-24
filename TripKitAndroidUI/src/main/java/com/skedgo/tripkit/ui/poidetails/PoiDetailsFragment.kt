@@ -18,6 +18,7 @@ import com.skedgo.tripkit.ui.ARG_SHOW_CLOSE_BUTTON
 import com.skedgo.tripkit.ui.TripKitUI
 import com.skedgo.tripkit.ui.core.BaseTripKitFragment
 import com.skedgo.tripkit.ui.databinding.PoiDetailsFragmentBinding
+import com.skedgo.tripkit.ui.map.home.TripKitMapFragment
 import com.skedgo.tripkit.ui.utils.getPackageNameFromStoreUrl
 import com.skedgo.tripkit.ui.utils.isAppInstalled
 import javax.inject.Inject
@@ -32,9 +33,16 @@ class PoiDetailsFragment : BaseTripKitFragment() {
     lateinit var viewModel: PoiDetailsViewModel
     lateinit var binding: PoiDetailsFragmentBinding
 
+    private var mapContributor: PoiDetailsMapContributor? = null
+    private var tripKitMapFragment: TripKitMapFragment? = null
+
     val buttonClick = PublishRelay.create<Int>()
     override fun onAttach(context: Context) {
         TripKitUI.getInstance().inject(this)
+        if (mapContributor != null) {
+            tripKitMapFragment?.setContributor(mapContributor)
+        }
+        mapContributor?.initialize()
         super.onAttach(context)
     }
 
@@ -44,8 +52,25 @@ class PoiDetailsFragment : BaseTripKitFragment() {
             ViewModelProviders.of(this, viewModelFactory).get(PoiDetailsViewModel::class.java)
     }
 
+    override fun onDestroyView() {
+        mapContributor?.cleanup()
+        super.onDestroyView()
+    }
+
+    fun setMapContributor(contributor: PoiDetailsMapContributor) {
+        mapContributor = contributor
+        if (::viewModel.isInitialized) {
+            viewModel.location.get()?.let { mapContributor?.setLocation(it) }
+        }
+    }
+
     fun toggleFavorite(isFavorite: Boolean) {
         viewModel.setFavorite(requireContext(), isFavorite)
+    }
+
+    override fun onStart() {
+        super.onStart()
+        mapContributor?.setup()
     }
 
     override fun onResume() {
@@ -67,7 +92,10 @@ class PoiDetailsFragment : BaseTripKitFragment() {
         viewModel.showCloseButton.set(showCloseButton)
         viewModel.setFavorite(requireContext(), isFavorite)
 
-        location?.let { viewModel.start(requireContext(), it, isRouting, isDeparture) }
+        location?.let {
+            viewModel.start(requireContext(), it, isRouting, isDeparture)
+            mapContributor?.setLocation(it)
+        }
 
         binding = PoiDetailsFragmentBinding.inflate(inflater)
         binding.lifecycleOwner = this
@@ -101,6 +129,7 @@ class PoiDetailsFragment : BaseTripKitFragment() {
     fun updateLocation(location: Location) {
         viewModel.start(requireContext(), location)
         setOpenAppButtonListener(location)
+        mapContributor?.setLocation(location)
     }
 
     class Builder(val location: Location) {
@@ -108,6 +137,9 @@ class PoiDetailsFragment : BaseTripKitFragment() {
         private var isFavorite = false
         private var isDeparture = false
         private var isRouting = false
+        private var mapContributor: PoiDetailsMapContributor? = null
+        private var tripKitMapFragment: TripKitMapFragment? = null
+
         fun showCloseButton(showCloseButton: Boolean): Builder {
             this.showCloseButton = showCloseButton
             return this
@@ -128,6 +160,16 @@ class PoiDetailsFragment : BaseTripKitFragment() {
             return this
         }
 
+        fun withTripKitMapFragment(tripKitMapFragment: TripKitMapFragment?) : Builder {
+            this.tripKitMapFragment = tripKitMapFragment
+            return this
+        }
+
+        fun withMapContributor(contributor: PoiDetailsMapContributor) : Builder {
+            this.mapContributor = contributor
+            return this
+        }
+
         fun build() = PoiDetailsFragment().apply {
             arguments = Bundle().apply {
                 this.putBoolean(ARG_SHOW_CLOSE_BUTTON, showCloseButton)
@@ -136,6 +178,8 @@ class PoiDetailsFragment : BaseTripKitFragment() {
                 this.putBoolean(ARG_IS_ROUTING, isRouting)
                 this.putBoolean(ARG_IS_DEPARTURE, isDeparture)
             }
+            this@apply.tripKitMapFragment = this@Builder.tripKitMapFragment
+            this@apply.mapContributor = this@Builder.mapContributor
         }
     }
 

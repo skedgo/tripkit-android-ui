@@ -326,6 +326,10 @@ class LocationSearchViewModel @Inject constructor(
                         SearchSuggestionChoice.SearchProviderChoice((it.first as SearchProviderSuggestionViewModel).suggestion.location())
                     )
 
+                    is HistorySearchProviderSuggestionViewModel -> onSuggestionItemClick(
+                            SearchSuggestionChoice.SearchProviderChoice((it.first as HistorySearchProviderSuggestionViewModel).suggestion.location())
+                        )
+
                     is CityProviderSuggestionViewModel -> onSuggestionItemClick(
                         SearchSuggestionChoice.CityProviderChoice((it.first as CityProviderSuggestionViewModel).suggestion.location())
                     )
@@ -367,6 +371,10 @@ class LocationSearchViewModel @Inject constructor(
                         onInfoClicked(suggestionViewModel.suggestion.location())
                     }
 
+                    is HistorySearchProviderSuggestionViewModel -> {
+                        onInfoClicked(suggestionViewModel.suggestion.location())
+                    }
+
                     is GoogleAndTripGoSuggestionViewModel -> {
                         onInfoClicked(suggestionViewModel.location)
                     }
@@ -396,6 +404,10 @@ class LocationSearchViewModel @Inject constructor(
 
                     is GoogleAndTripGoSuggestionViewModel -> {
                         onSuggestionActionClicked(suggestionViewModel.location)
+                    }
+
+                    is HistorySearchProviderSuggestionViewModel -> {
+                        onSuggestionActionClicked(suggestionViewModel.suggestion.location())
                     }
                 }
             }, errorLogger::trackError)
@@ -427,7 +439,9 @@ class LocationSearchViewModel @Inject constructor(
                     it.toSet().reversed(),
                     legacyIconProvider()
                 ).forEach { suggestion ->
-                    historySuggestions.add(SearchProviderSuggestionViewModel(context, suggestion))
+                    historySuggestions.add(
+                        HistorySearchProviderSuggestionViewModel(context, suggestion)
+                    )
                 }
             }, {
                 it.printStackTrace()

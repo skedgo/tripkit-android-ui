@@ -9,7 +9,7 @@ import com.skedgo.tripkit.ui.database.location_history.LocationHistoryEntity
 
 @Database(
     entities = [LocationHistoryEntity::class],
-    version = 1
+    version = 2
 )
 abstract class TripKitUiDatabase : RoomDatabase() {
     abstract fun locationHistoryDao(): LocationHistoryDao
