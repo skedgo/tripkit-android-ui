@@ -8,11 +8,20 @@ import com.skedgo.tripkit.ui.map.SimpleCalloutView
 
 class ServiceStopInfoWindowAdapter(private val inflater: LayoutInflater) :
     SimpleInfoWindowAdapter() {
+
+    private var showRightImage = true
+
+    fun setShowRightImage(show: Boolean) {
+        showRightImage = show
+    }
+
     override fun getInfoContents(marker: Marker): View {
         val view = SimpleCalloutView.create(inflater)
         view.setTitle(marker.title)
         view.setSnippet(marker.snippet)
-        view.setRightImage(R.drawable.ic_arrow_forward)
+        if (showRightImage) {
+            view.setRightImage(R.drawable.ic_arrow_forward)
+        }
         return view
     }
 }
