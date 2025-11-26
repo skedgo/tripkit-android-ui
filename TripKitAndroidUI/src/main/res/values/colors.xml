@@ -106,4 +106,8 @@
     
     <!-- Icon tinting for dark mode support -->
     <color name="icon_tint_default">#616161</color>
+    
+    <!-- Transport mode selector colors -->
+    <color name="transport_mode_selector_checked">#FFFFFF</color>
+    <color name="transport_mode_selector_unchecked">#1F212A33</color>
 </resources>

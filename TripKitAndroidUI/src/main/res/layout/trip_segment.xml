@@ -169,7 +169,6 @@
                         android:layout_height="@dimen/service_detail_icon_size"
                         android:importantForAccessibility="no"
                         android:src="@drawable/ic_bike_accessible"
-                        app:tint="@color/black2"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
 

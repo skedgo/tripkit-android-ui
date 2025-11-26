@@ -40,7 +40,6 @@
                 android:layout_height="24dp"
                 android:layoutDirection="locale"
                 android:src="@{viewModel.icon}"
-                app:tint="@color/icon_tint_default"
                 tools:src="@drawable/ic_bus"
                 app:isDisabled="@{viewModel.isCancelled()}"
                 app:layout_constraintStart_toStartOf="parent"
