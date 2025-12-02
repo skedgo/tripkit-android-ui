@@ -21,14 +21,14 @@
             android:layout_width="@dimen/close_button_size"
             android:layout_height="@dimen/close_button_size"
             android:src="@{viewModel.icon}"
-            app:tint="@color/colorPrimary"
+            app:tint="@color/black"
             app:customImageTint="@{viewModel.selected? @color/colorPrimary : 0}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:mirrorImage="@{viewModel.isMirrored()}"
             tools:src="@drawable/ic_train"
-            tools:tint="@color/colorPrimary" />
+            tools:tint="@color/black" />
 
         <TextView
             android:id="@+id/tvTitle"
