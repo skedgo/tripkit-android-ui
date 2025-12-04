@@ -14,9 +14,11 @@ class POILocationInfoWindowAdapter @Inject constructor(private val context: Cont
         mutableMapOf()
 
     override fun getInfoContents(marker: Marker): View? {
-        val poiLocation = marker.tag as IMapPoiLocation
-        createInfoWindowAdapterIfNeeded(poiLocation)
-        return locationToInfoWindowAdapter[poiLocation.javaClass.simpleName]?.getInfoContents(marker)
+        val poiLocation = marker.tag as? IMapPoiLocation
+        return poiLocation?.let {
+            createInfoWindowAdapterIfNeeded(poiLocation)
+            locationToInfoWindowAdapter[poiLocation.javaClass.simpleName]?.getInfoContents(marker)
+        }
     }
 
     override fun getInfoWindow(marker: Marker): View? {

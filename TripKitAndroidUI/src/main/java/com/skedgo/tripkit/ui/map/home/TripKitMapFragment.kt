@@ -1298,7 +1298,17 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
         if(viewModel.showMarkers.get() && !isCityZoom) {
             poiMarkers?.clear()
             clearMarkerPositions()
-            MapData.getRegionalStops().forEach { poiMarkers?.addMarker(it) }
+            // Re-add cached regional stop markers and restore StopPOILocation tags
+            MapData.getRegionalStops().forEach { cached ->
+                val marker = poiMarkers?.addMarker(cached.markerOptions)
+                marker?.let { m ->
+                    m.tag = com.skedgo.tripkit.ui.map.StopPOILocation(
+                        cached.stop,
+                        stopInfoWindowAdapter
+                    )
+                    addMarkerPosition(m.position)
+                }
+            }
         }
     }
 
