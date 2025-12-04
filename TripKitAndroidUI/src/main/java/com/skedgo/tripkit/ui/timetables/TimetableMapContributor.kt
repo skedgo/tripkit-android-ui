@@ -210,8 +210,10 @@ class TimetableMapContributor(val fragment: Fragment) : TripKitMapContributor {
     }
 
     private fun cleanupServiceDetailVehicleUpdates() {
-        // Stop real-time updates
-        viewModel.stopRealtimeUpdates()
+        // Stop real-time updates (only if initialized to avoid lateinit access before injection)
+        if (::viewModel.isInitialized) {
+            viewModel.stopRealtimeUpdates()
+        }
 
         // Cleanup pulse animation
         hidePulseOverlay(pulseOverlay)

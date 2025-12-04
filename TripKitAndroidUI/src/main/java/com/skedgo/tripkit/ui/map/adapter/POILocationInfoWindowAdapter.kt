@@ -20,9 +20,11 @@ class POILocationInfoWindowAdapter @Inject constructor(private val context: Cont
     }
 
     override fun getInfoWindow(marker: Marker): View? {
-        val poiLocation = marker.tag as IMapPoiLocation
-        createInfoWindowAdapterIfNeeded(poiLocation)
-        return locationToInfoWindowAdapter[poiLocation.javaClass.simpleName]?.getInfoWindow(marker)
+        val poiLocation = marker.tag as? IMapPoiLocation
+        return poiLocation?.let {
+            createInfoWindowAdapterIfNeeded(poiLocation)
+            locationToInfoWindowAdapter[poiLocation.javaClass.simpleName]?.getInfoWindow(marker)
+        }
     }
 
     override fun onInfoWindowClosed(marker: Marker) {

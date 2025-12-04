@@ -31,15 +31,18 @@ class RoadTagChartAdapter @Inject constructor() :
             val roadTagChart = collection[position]
             item = roadTagChart
 
-            RoadTagChartItemAdapter().let { adapter ->
-                rvRoadTags.adapter = adapter
-                adapter.collection = roadTagChart.items.groupBy { it.label }
-                    .map { (_, groupedItems) ->
-                        groupedItems.reduce { acc, roadTagChartItem ->
-                            acc.apply { length += roadTagChartItem.length }
-                        }
-                    }.toList()
-            }
+            // Reuse nested adapter; avoid re-creating per bind
+            val nested = (rvRoadTags.adapter as? RoadTagChartItemAdapter)
+                ?: RoadTagChartItemAdapter().also {
+                    rvRoadTags.adapter = it
+                    rvRoadTags.itemAnimator = null
+                }
+            nested.collection = roadTagChart.items.groupBy { it.label }
+                .map { (_, groupedItems) ->
+                    groupedItems.reduce { acc, roadTagChartItem ->
+                        acc.apply { length += roadTagChartItem.length }
+                    }
+                }.toList()
 
             executePendingBindings()
         }
