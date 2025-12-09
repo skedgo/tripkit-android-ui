@@ -143,6 +143,15 @@ class TimetableMapContributor(val fragment: Fragment) : TripKitMapContributor {
         // Start periodic updates
         startMarkerUpdateInterval()
 
+        // Ensure viewModel is initialized before accessing it
+        // This can happen when safeToUseMap is called before fragment is attached (e.g., during contributor switching)
+        // If not initialized, defer the viewModel subscriptions - they will be set up when safeToUseMap is called again
+        // after the fragment is attached (via onAttachFragment callback)
+        if (!::viewModel.isInitialized) {
+            Timber.w("TimetableMapContributor - viewModel not initialized yet, deferring viewModel subscriptions. Map reference saved, will setup subscriptions after fragment attachment.")
+            return
+        }
+
         //map.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(mStop!!.lat, mStop!!.lon), 15.0f))
 
         autoDisposable.add(
@@ -210,8 +219,11 @@ class TimetableMapContributor(val fragment: Fragment) : TripKitMapContributor {
     }
 
     private fun cleanupServiceDetailVehicleUpdates() {
-        // Stop real-time updates
-        viewModel.stopRealtimeUpdates()
+        // Stop real-time updates - only if viewModel is initialized
+        // This can happen when cleanup is called before fragment is attached (e.g., during contributor switching)
+        if (::viewModel.isInitialized) {
+            viewModel.stopRealtimeUpdates()
+        }
 
         // Cleanup pulse animation
         hidePulseOverlay(pulseOverlay)
@@ -226,13 +238,19 @@ class TimetableMapContributor(val fragment: Fragment) : TripKitMapContributor {
     }
 
     fun setService(service: TimetableEntry?) {
-        viewModel.service.accept(service)
         this.service = service
+        // Only set viewModel if it's initialized (will be set in onActivityCreated after fragment attachment)
+        if (::viewModel.isInitialized) {
+            viewModel.service.accept(service)
+        }
     }
 
     fun setStop(stop: ScheduledStop?) {
         mStop = stop
-        viewModel.stop.accept(stop)
+        // Only set viewModel if it's initialized (will be set in onActivityCreated after fragment attachment)
+        if (::viewModel.isInitialized) {
+            viewModel.stop.accept(stop)
+        }
     }
 
     private fun centerMapOver(map: GoogleMap, coordinates: List<LatLng>?) {
