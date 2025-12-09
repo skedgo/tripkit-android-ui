@@ -194,6 +194,7 @@ class TripResultMapContributor : TripKitMapContributor {
         this.context = context
         this.map = map
         isSafeToUse = true
+        serviceStopCalloutAdapter.setShowRightImage(false)
         setup()
     }
 
