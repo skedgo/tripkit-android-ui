@@ -117,7 +117,7 @@
     <!--Class = "UILabel"; text = "Save money"; ObjectID = "yuP-f9-IR1";-->
     <string name="save_money">Money</string>
     <!--Header for accessing my account-->
-    <string name="my_account">My Account</string>
+    <string name="my_account">Your Account</string>
     <!--Every weekday in context of repetitions (especially recurring events)-->
     <string name="weekdays">Weekdays</string>
     <!--to %date. (old key: DateToFormat)-->
