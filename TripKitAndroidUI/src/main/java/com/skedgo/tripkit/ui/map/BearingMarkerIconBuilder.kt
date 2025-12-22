@@ -1,7 +1,6 @@
 package com.skedgo.tripkit.ui.map
 
 import android.content.Context
-import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.Bitmap.Config.ARGB_8888
 import android.graphics.BitmapFactory
@@ -15,6 +14,7 @@ import android.util.Pair
 import androidx.annotation.DrawableRes
 import androidx.core.content.ContextCompat
 import com.skedgo.tripkit.ui.R
+import com.skedgo.tripkit.ui.utils.isDarkMode
 import kotlin.math.abs
 
 class BearingMarkerIconBuilder(
@@ -165,7 +165,7 @@ class BearingMarkerIconBuilder(
         val canvas = Canvas(vehiclePointerPinBitmap)
 
         // Apply dark mode tinting to base (make it darker for dark mode)
-        val basePaint = if (isDarkMode()) {
+        val basePaint = if (mContext.resources.isDarkMode()) {
             Paint().apply {
                 colorFilter = createDarkenColorFilter()
                 isAntiAlias = true
@@ -195,7 +195,7 @@ class BearingMarkerIconBuilder(
         val canvas = Canvas(vehiclePointerBitmap)
 
         // Apply dark mode tinting to pointer (make it darker for dark mode)
-        val paint = if (isDarkMode()) {
+        val paint = if (mContext.resources.isDarkMode()) {
             Paint().apply {
                 colorFilter = createDarkenColorFilter()
                 isAntiAlias = true
@@ -290,14 +290,6 @@ class BearingMarkerIconBuilder(
         drawable.setBounds(0, 0, drawable.intrinsicWidth, drawable.intrinsicHeight)
         drawable.draw(canvas)
         return bitmap
-    }
-
-    /**
-     * Checks if the app is currently in dark mode.
-     */
-    private fun isDarkMode(): Boolean {
-        val nightModeFlags = mContext.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
-        return nightModeFlags == Configuration.UI_MODE_NIGHT_YES
     }
 
     /**

@@ -1,9 +1,9 @@
 package com.skedgo.tripkit.ui.tripresults
 
-import android.content.res.Configuration
 import android.content.res.Resources
 import android.graphics.Color
 import android.graphics.drawable.Drawable
+import com.skedgo.tripkit.ui.utils.isDarkMode
 import com.skedgo.tripkit.ui.utils.tint
 import com.skedgo.tripkit.routing.ServiceColor
 
@@ -24,20 +24,12 @@ class ThemeAwareApplyTintStrategy(private val resources: Resources) : TransportT
             return drawable
         }
         
-        if (isDarkMode()) {
+        if (resources.isDarkMode()) {
             // Dark mode: tint to white for visibility
             return drawable.tint(Color.WHITE)
         }
         // Light mode: return drawable as-is (no tint)
         return drawable
-    }
-    
-    /**
-     * Checks if the app is currently in dark mode.
-     */
-    private fun isDarkMode(): Boolean {
-        val nightModeFlags = resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
-        return nightModeFlags == Configuration.UI_MODE_NIGHT_YES
     }
 }
 
