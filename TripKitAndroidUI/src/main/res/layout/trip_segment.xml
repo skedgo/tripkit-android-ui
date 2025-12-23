@@ -14,7 +14,7 @@
         android:id="@+id/layoutDetails"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@android:color/white"
+        android:background="@color/white"
         android:onClick="@{() -> viewModel.onClick.perform()}"
         android:paddingStart="16dp"
         app:layout_constraintTop_toTopOf="parent">
@@ -63,7 +63,7 @@
             android:layout_width="@dimen/segment_item_icon_background_size"
             android:layout_height="@dimen/segment_item_icon_background_size"
             android:src="@drawable/black_circle"
-            android:tint="@{viewModel.backgroundCircleTint}"
+            app:tint="@{viewModel.backgroundCircleTint}"
             android:visibility="@{viewModel.showBackgroundCircle}"
             app:layout_constraintBottom_toBottomOf="@+id/line"
             app:layout_constraintEnd_toStartOf="@+id/leftGuide"
@@ -122,6 +122,7 @@
                 android:layout_height="@dimen/segment_item_icon_size"
                 android:layoutDirection="ltr"
                 android:src="@{viewModel.icon}"
+                app:tint="@android:color/white"
                 tools:src="@drawable/ic_train"
                 tools:tint="@android:color/white" />
         </LinearLayout>

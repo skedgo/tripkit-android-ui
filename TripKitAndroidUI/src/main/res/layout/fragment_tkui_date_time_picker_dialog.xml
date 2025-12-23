@@ -154,7 +154,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:datePickerMode="spinner"
-                            android:background="@android:color/white"
+                            android:background="@color/white"
                             android:spinnersShown="false"
                             app:layout_constraintTop_toTopOf="parent"
                             android:focusedMonthDateColor="@color/tripKitWarning"

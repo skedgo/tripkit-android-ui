@@ -45,14 +45,13 @@
             android:layout_height="@dimen/map_icon_size"
             android:layout_marginStart="@dimen/spacing_small"
             android:src="@{viewModel.externalAction.drawable}"
-            android:tint="@android:color/black"
             android:visibility="@{parentViewModel.enableActionButtons? View.VISIBLE: View.INVISIBLE}"
             app:layout_constraintBottom_toBottomOf="@+id/tvAction"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@+id/tvAction"
-            app:tint="@android:color/black"
+            app:tint="@color/black"
             tools:elevation="10dp"
-            tools:ignore="ContentDescription,UseAppTint"
+            tools:ignore="ContentDescription"
             tools:src="@drawable/ic_go" />
 
         <TextView

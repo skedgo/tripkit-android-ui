@@ -31,6 +31,7 @@
             app:layout_constraintBottom_toBottomOf="@+id/description"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
+            app:tint="@color/icon_tint_default"
             tools:src="@drawable/maneuver_light_left" />
 
         <TextView

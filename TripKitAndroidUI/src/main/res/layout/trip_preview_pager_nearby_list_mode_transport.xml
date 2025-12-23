@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
 
@@ -17,6 +18,7 @@
         android:background="@drawable/trip_result_transport_mode_selector_background"
         android:src="@{viewModel.modeIconId}"
         android:onClick="@{viewModel::onItemClick}"
-        android:checked="@{viewModel.checked}" />
+        android:checked="@{viewModel.checked}"
+        app:tint="@color/black" />
 
 </layout>
