@@ -63,9 +63,7 @@ android {
         dataBinding true
     }
 
-    dexOptions {preDexLibraries = true} // To enable build-cache.
-
-    lintOptions {
+    lint {
         checkReleaseBuilds true
         abortOnError false
     }
