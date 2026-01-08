@@ -10,7 +10,7 @@ open class GetTransportIconTintStrategy @Inject constructor(private val resource
         Single.fromCallable {
             when (resources.getBoolean(R.bool.trip_kit_use_service_color)) {
                 true -> ApplyTintStrategy
-                false -> NoTintStrategy
+                false -> ThemeAwareApplyTintStrategy(resources)
             }
         }
 }

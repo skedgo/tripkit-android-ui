@@ -5,12 +5,16 @@ import android.graphics.Bitmap
 import android.graphics.Bitmap.Config.ARGB_8888
 import android.graphics.BitmapFactory
 import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.ColorMatrix
+import android.graphics.ColorMatrixColorFilter
 import android.graphics.Paint
 import android.graphics.drawable.Drawable
 import android.util.Pair
 import androidx.annotation.DrawableRes
 import androidx.core.content.ContextCompat
 import com.skedgo.tripkit.ui.R
+import com.skedgo.tripkit.ui.utils.isDarkMode
 import kotlin.math.abs
 
 class BearingMarkerIconBuilder(
@@ -160,10 +164,21 @@ class BearingMarkerIconBuilder(
 
         val canvas = Canvas(vehiclePointerPinBitmap)
 
+        // Apply dark mode tinting to base (make it darker for dark mode)
+        val basePaint = if (mContext.resources.isDarkMode()) {
+            Paint().apply {
+                colorFilter = createDarkenColorFilter()
+                isAntiAlias = true
+                isFilterBitmap = true
+            }
+        } else {
+            null
+        }
+
         // Locate the base
         val baseLeft = (vehiclePointerBitmap.width - baseBitmap.width) / 2
         val baseTop = vehiclePointerBitmap.height + padding
-        canvas.drawBitmap(baseBitmap, baseLeft.toFloat(), baseTop.toFloat(), null)
+        canvas.drawBitmap(baseBitmap, baseLeft.toFloat(), baseTop.toFloat(), basePaint)
         canvas.drawBitmap(vehiclePointerBitmap, 0f, 0f, null)
 
         return vehiclePointerPinBitmap
@@ -179,6 +194,17 @@ class BearingMarkerIconBuilder(
 
         val canvas = Canvas(vehiclePointerBitmap)
 
+        // Apply dark mode tinting to pointer (make it darker for dark mode)
+        val paint = if (mContext.resources.isDarkMode()) {
+            Paint().apply {
+                colorFilter = createDarkenColorFilter()
+                isAntiAlias = true
+                isFilterBitmap = true
+            }
+        } else {
+            null
+        }
+
         val rotateAngle = convertToCanvasAxes(mBearing)
         if (mHasBearing) {
             canvas.save()
@@ -189,11 +215,11 @@ class BearingMarkerIconBuilder(
                 (vehiclePointerBitmap.width / 2).toFloat(),
                 (vehiclePointerBitmap.height / 2).toFloat()
             )
-            canvas.drawBitmap(pointerBitmap, 0f, 0f, mRotationPaint)
+            canvas.drawBitmap(pointerBitmap, 0f, 0f, paint ?: mRotationPaint)
 
             canvas.restore()
         } else {
-            canvas.drawBitmap(pointerBitmap, 0f, 0f, null)
+            canvas.drawBitmap(pointerBitmap, 0f, 0f, paint)
         }
 
         pointerBitmap.recycle()
@@ -264,5 +290,23 @@ class BearingMarkerIconBuilder(
         drawable.setBounds(0, 0, drawable.intrinsicWidth, drawable.intrinsicHeight)
         drawable.draw(canvas)
         return bitmap
+    }
+
+    /**
+     * Creates a ColorFilter that darkens white/light colors to medium-light gray for dark mode.
+     * This makes white pin markers visible on dark map backgrounds.
+     */
+    private fun createDarkenColorFilter(): ColorMatrixColorFilter {
+        // Color matrix that converts white (#FFFFFF) to medium-light gray (#999999 / 60% gray)
+        // while preserving alpha channel
+        val colorMatrix = ColorMatrix(
+            floatArrayOf(
+                0.6f, 0f, 0f, 0f, 0f,   // Red channel: reduce to 60% (153/255)
+                0f, 0.6f, 0f, 0f, 0f,   // Green channel: reduce to 60% (153/255)
+                0f, 0f, 0.6f, 0f, 0f,   // Blue channel: reduce to 60% (153/255)
+                0f, 0f, 0f, 1f, 0f      // Alpha channel: keep as-is
+            )
+        )
+        return ColorMatrixColorFilter(colorMatrix)
     }
 }

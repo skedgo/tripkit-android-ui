@@ -42,6 +42,7 @@
             android:layout_height="@dimen/icon_medium"
             android:padding="10dp"
             android:src="@drawable/ic_plain_check"
+            app:tint="@color/colorPrimary"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"

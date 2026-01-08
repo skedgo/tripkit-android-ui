@@ -34,7 +34,7 @@
                     android:enabled="false"
                     android:gravity="center"
                     android:text="@string/str_updating"
-                    android:textColor="@android:color/black" />
+                    android:textColor="@color/black" />
 
             </LinearLayout>
         </androidx.cardview.widget.CardView>

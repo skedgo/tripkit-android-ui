@@ -17,7 +17,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#ffffff">
+        android:background="@color/white">
 
         <TextView
             android:id="@+id/title"
@@ -151,7 +151,7 @@
             android:layout_width="24dp"
             android:layout_height="24dp"
             android:layout_marginStart="16dp"
-            android:tint="@color/tripKitSuccess"
+            app:tint="@color/tripKitSuccess"
             android:visibility="@{viewModel.showWebsite}"
             app:layout_constraintBottom_toBottomOf="@+id/website"
             app:layout_constraintStart_toStartOf="parent"
@@ -181,7 +181,7 @@
             android:layout_width="24dp"
             android:layout_height="24dp"
             android:layout_marginStart="16dp"
-            android:tint="@color/tripKitSuccess"
+            app:tint="@color/tripKitSuccess"
             android:visibility="@{viewModel.showWhat3words}"
             app:layout_constraintBottom_toBottomOf="@+id/what3word"
             app:layout_constraintStart_toStartOf="parent"

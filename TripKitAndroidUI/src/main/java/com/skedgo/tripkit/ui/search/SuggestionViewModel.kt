@@ -1,6 +1,7 @@
 package com.skedgo.tripkit.ui.search
 
 import android.content.Context
+    import android.graphics.PorterDuff
 import android.graphics.drawable.Drawable
 import androidx.core.content.ContextCompat
 import androidx.databinding.ObservableField
@@ -12,7 +13,7 @@ import com.skedgo.tripkit.ui.utils.TapAction
 import com.squareup.picasso.Picasso
 
 sealed class SuggestionViewModel(
-    context: Context,
+    protected val context: Context,
     val term: String? = null
 ) {
     val icon: ObservableField<Drawable?> = ObservableField()
@@ -32,6 +33,37 @@ sealed class SuggestionViewModel(
     abstract val onInfoClicked: TapAction<SuggestionViewModel>
 
     abstract val onSuggestionActionClicked: TapAction<SuggestionViewModel>
+
+    /**
+     * Applies tint programmatically to icons for dark mode support.
+     * 
+     * This approach is used because drawables are not uniform in format (some are PNGs which can't
+     * be easily themed with night-res) and not all can be supported with night-res theming. Some
+     * icons (like HOME and WORK) have circular backgrounds that would break if tinted, so we skip
+     * tinting for those. We'll audit and request proper night mode variants in the next dark mode
+     * support iteration.
+     */
+    protected fun applyIconTintIfNeeded(drawable: Drawable?, id: Any?, locationType: Int?): Drawable? {
+        if (drawable == null) return null
+        
+        // Skip tinting for HOME and WORK icons (they have circular backgrounds that would break with tinting)
+        // Check ID first (for FixedSuggestions from either package), then fall back to location type
+        val isHomeOrWork = if (id is Enum<*>) {
+            val enumName = id.name
+            enumName == "HOME" || enumName == "WORK"
+        } else {
+            false
+        } || locationType == Location.TYPE_HOME || locationType == Location.TYPE_WORK
+        
+        if (isHomeOrWork) {
+            return drawable
+        }
+        
+        // Apply tint for all other icons
+        val tintColor = ContextCompat.getColor(context, R.color.icon_tint_default)
+        drawable.mutate().setColorFilter(tintColor, PorterDuff.Mode.SRC_IN)
+        return drawable
+    }
 }
 
 open class FixedSuggestionViewModel(
@@ -54,7 +86,10 @@ open class FixedSuggestionViewModel(
         TapAction.create { this }
 
     init {
-        icon.set(suggestion.icon())
+        val originalIcon = suggestion.icon()
+        val suggestionId = suggestion.id()
+        val locationType = suggestion.location()?.locationType
+        icon.set(applyIconTintIfNeeded(originalIcon, suggestionId, locationType))
     }
 }
 
@@ -217,13 +252,15 @@ class GoogleAndTripGoSuggestionViewModel(
 
         when {
             place.icon() != null -> {
-                icon.set(place.icon())
+                val placeIcon = place.icon()
+                icon.set(applyIconTintIfNeeded(placeIcon, null, location.locationType))
             }
             iconRes == 0 -> {
                 icon.set(null)
             }
             else -> {
-                icon.set(ContextCompat.getDrawable(context, iconRes))
+                val drawable = ContextCompat.getDrawable(context, iconRes)
+                icon.set(applyIconTintIfNeeded(drawable, null, location.locationType))
             }
         }
     }
