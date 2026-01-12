@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.skedgo.tripkit.ui.map.SimpleCalloutView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:gravity="center_vertical">
+    android:gravity="center_vertical"
+    android:padding="8dp">
 
     <ImageView
         android:id="@+id/leftImageView"
@@ -26,7 +28,7 @@
             android:layout_height="wrap_content"
             android:ellipsize="marquee"
             android:maxLines="2"
-            android:textColor="@color/v4_title_text"
+            android:textColor="@android:color/black"
             android:textSize="16sp"
             tools:text="2:07pm" />
 
@@ -36,6 +38,7 @@
             android:layout_height="wrap_content"
             android:ellipsize="marquee"
             android:singleLine="true"
+            android:textColor="@android:color/darker_gray"
             android:textSize="14sp"
             tools:text="Awesome place" />
     </LinearLayout>

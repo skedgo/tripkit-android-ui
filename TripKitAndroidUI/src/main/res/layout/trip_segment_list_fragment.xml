@@ -13,7 +13,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#ffffff"
+        android:background="@color/white"
         android:focusable="false"
         android:importantForAccessibility="no">
 
@@ -42,6 +42,7 @@
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="@string/desc_close"
             android:src="@drawable/close"
+            app:tint="@color/icon_tint_default"
             android:visibility="@{viewModel.showCloseButton}"
             app:layout_constraintBottom_toBottomOf="@+id/duration"
             app:layout_constraintEnd_toEndOf="parent"

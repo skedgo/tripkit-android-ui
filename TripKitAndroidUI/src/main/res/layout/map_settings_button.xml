@@ -4,7 +4,7 @@
     android:layout_height="40dp"
     android:layout_gravity="top|end"
     android:layout_margin="16dp"
-    app:backgroundTint="@android:color/white"
+    app:backgroundTint="@color/white"
     app:iconTint="@color/black"
     style="@style/Widget.MaterialComponents.Button.Icon"
     app:icon="@drawable/ic_person"

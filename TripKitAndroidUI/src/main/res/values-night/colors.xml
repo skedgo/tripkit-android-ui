@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#2ECC71</color>
+    <color name="colorPrimaryDark">#0C6C58</color>
+    <color name="colorAccent">#5FAFFF</color>
+    <color name="colorAccent20">#332B7EED</color>
+    <color name="colorAccent50">#802B7EED</color>
+
+    <!-- "New" colors from design mockups-->
+    <color name="tripKitPrimary">#23b15e</color>
+    <color name="white">#212A33</color>
+    <color name="black">#FFFFFF</color>
+    <color name="black1">#99FFFFFF</color>
+    <color name="black2">#4DFFFFFF</color>
+    <color name="black3">#2EFFFFFF</color>
+    <color name="black4">#1FFFFFFF</color>
+    <color name="grey1">#2B3A40</color>
+    <color name="grey2">#303840</color>
+    <color name="grey3">#353D45</color>
+    <color name="grey4">#3A444C</color>
+    <color name="tripKitSuccess">#30A548</color>
+    <color name="tripKitWarning">#E8AA27</color>
+    <color name="tripKitError">#D73737</color>
+    <color name="tripKitWarning60">#99E8AA27</color>
+    <color name="tripKitWarning12">#1FE8AA27</color>
+    <color name="tripKitDivider">#1FFFFFFF</color>
+    <color name="classification_easiest">#23b15e</color>
+    <color name="classification_cheapest">#ff8d1b</color>
+    <color name="classification_fastest">#f5a300</color>
+    <color name="classification_greenest">#00a88f</color>
+    <color name="classification_healthiest">#e15b72</color>
+    <color name="classification_recommended">#1880e7</color>
+
+    <!-- "DayNight" colors -->
+<!--    <color name="inactiveAreaBackground">#1C1C1E</color>-->
+<!--    <color name="searchBarBackground">#353535</color>-->
+    <color name="inactiveAreaBackground">#303840</color>
+    <color name="searchBarBackground">#2A2F35</color>
+
+    <color name="favorite_blue">#5A8BFF</color>
+    <color name="favorite_blue_faded">#305A8BFF</color>
+    <color name="favorite_bus">#1FAE65</color>
+    <color name="favorite_train">#7D7CC5</color>
+    <color name="favorite_subway">#B26CB3</color>
+    <color name="favorite_monorail">#D4B815</color>
+    <color name="favorite_school_bus">#D4C815</color>
+    <color name="favorite_coach">#589FFF</color>
+    <color name="favorite_tram">#D89040</color>
+    <color name="favorite_cablecar">#C44D3F</color>
+    <color name="favorite_ferry">#5EABE0</color>
+
+    <!-- Colors imported from TripGo -->
+    <color name="main_color">#23b15e</color>
+    <color name="time_label_bg">#CC212A33</color>
+
+    <color name="divider">#3C4A59</color>
+    <color name="light_grey_2">#999999</color>
+    <color name="light_grey_3">#AAAAAA</color>
+
+    <color name="title_text">#FFFFFF</color>
+    <color name="description_text">#CCCCCC</color>
+
+    <color name="occupancyManySeats">#23B15E</color>
+    <color name="occupancyFewSeats">#FFB500</color>
+    <color name="occupancyStandingOnly">#FF9600</color>
+    <color name="alert">#E34040</color>
+    <color name="v4_back_to_top_stroke">#FFFFFF</color>
+    <color name="v4_back_to_top_bg">#80344E6D</color>
+
+    <color name="v4_title_text">#FFFFFF</color>
+    <color name="v4_color">#00CC66</color>
+    <color name="v4_btn_radio_off_flat">#3A3A3A</color>
+    <color name="v4_btn_radio_on_flat">#00CC66</color>
+    <color name="v4_btn_radio_pressed_flat">#00a653</color>
+    <color name="v4_btn_radio_text_flat">#A0A0A0</color>
+
+    <color name="toolbar_buttonText">#4F9DD8</color>
+    <color name="toolbar_buttonText_pressed">#4A6A8B</color>
+    <color name="toolbar_button">#303840</color>
+
+    <color name="marker_car_share">#79C5FF</color>
+
+    <color name="priority_money">#AC80F2</color>
+    <color name="priority_time">#EE9EBE</color>
+    <color name="priority_environment">#CCEBAF</color>
+    <color name="priority_convenience">#F7C1AC</color>
+    <color name="priority_exercise">#9EE2FA</color>
+
+    <color name="colorRippleGray">#1AFFFFFF</color>
+    <color name="colorMutedWhite">#2B3A40</color>
+
+    <color name="warning_late">#C47710</color>
+
+    <color name="pink1">#FF2F74</color>
+
+    <color name="textinputlayout_border">#A0A0A0</color>
+    <color name="textinputlayout_border_focused">#FFFFFF</color>
+
+    <color name="disabled">#666666</color>
+    <color name="red20">#33FF9999</color>
+
+    <color name="induction_detail_description">#99CCCCCC</color>
+    <color name="trip_line_inactive">#60A6A6A6</color>
+    
+    <!-- Icon tinting for dark mode support -->
+    <color name="icon_tint_default">#E0E0E0</color>
+    
+    <!-- Transport mode selector colors -->
+    <color name="transport_mode_selector_checked">#F5F5F5</color>
+    <color name="transport_mode_selector_unchecked">#AAFFFFFF</color>
+</resources>

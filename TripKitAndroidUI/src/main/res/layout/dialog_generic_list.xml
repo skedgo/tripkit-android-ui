@@ -17,7 +17,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@android:color/white">
+        android:background="@color/white">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/genericList_cl_header"
@@ -94,7 +94,7 @@
                 android:layout_height="wrap_content"
                 android:text="@{viewModel.descriptionTitle}"
                 android:textStyle="bold"
-                android:textColor="@android:color/black"
+                android:textColor="@color/black"
                 tools:text="Test" />
 
             <TextView
@@ -103,7 +103,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@{viewModel.description}"
-                android:textColor="@android:color/black"
+                android:textColor="@color/black"
                 tools:text="Test" />
 
         </LinearLayout>

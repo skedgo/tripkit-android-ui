@@ -51,10 +51,10 @@
                 android:layout_marginStart="16dp"
                 android:layout_marginEnd="8dp"
                 android:src="@{viewModel.wheelchairIcon}"
-                android:tint="@color/black2"
                 android:visibility="@{viewModel.showWheelchairAccessible}"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
+                app:tint="@color/black2"
                 tools:src="@drawable/ic_wheelchair" />
 
             <TextView
@@ -77,7 +77,8 @@
                 android:src="@drawable/ic_bike"
                 android:visibility="@{viewModel.showBicycleAccessible}"
                 app:layout_constraintStart_toEndOf="@id/wheelchair"
-                app:layout_constraintTop_toTopOf="@id/wheelchair" />
+                app:layout_constraintTop_toTopOf="@id/wheelchair"
+                app:tint="@color/black2" />
 
             <TextView
                 android:id="@+id/tvBicycleLabel"

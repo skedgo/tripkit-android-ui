@@ -45,8 +45,8 @@
                     android:id="@+id/serviceType"
                     android:layout_width="16dp"
                     android:layout_height="16dp"
-                    android:tint="@color/black2"
-                    app:srcCompat="@{viewModel.modeInfo}" />
+                    app:srcCompat="@{viewModel.modeInfo}"
+                    app:tint="@color/black2" />
 
                 <androidx.cardview.widget.CardView
                     android:layout_width="wrap_content"
@@ -75,9 +75,9 @@
                     android:layout_width="16dp"
                     android:layout_height="16dp"
                     android:layout_marginStart="4dp"
-                    android:tint="@color/tripKitWarning"
                     android:visibility="@{viewModel.serviceAlertViewModel.hasAlerts}"
-                    app:srcCompat="@drawable/ic_action_warning" />
+                    app:srcCompat="@drawable/ic_action_warning"
+                    app:tint="@color/tripKitWarning" />
 
                 <ImageView
                     android:id="@+id/wheelchair"
@@ -86,8 +86,8 @@
                     android:layout_marginStart="@dimen/spacing_extra_small"
                     android:layout_marginEnd="@dimen/spacing_xx_small"
                     android:src="@{viewModel.wheelchairIcon}"
-                    android:tint="@{viewModel.wheelchairTint}"
-                    app:addRtlSupport="@{true}" />
+                    app:addRtlSupport="@{true}"
+                    app:tint="@{viewModel.wheelchairTint}" />
 
                 <ImageView
                     android:id="@+id/ivBicycle"
