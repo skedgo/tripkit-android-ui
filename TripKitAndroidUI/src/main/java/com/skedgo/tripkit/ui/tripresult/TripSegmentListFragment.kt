@@ -173,6 +173,10 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
             viewModel.loadTripGroup(it, tripId ?: -1L, savedInstanceState)
         }
 
+        // Reduce layout conflicts and detach issues: disable item animations on the main list
+        binding.itemsView.itemAnimator = null
+        binding.itemsView.setHasFixedSize(false)
+
         accessibilityDefaultViewManager.setDefaultViewForAccessibility(binding.duration)
         viewModel.tripAlertChangeValidator = tripAlertChangeValidator
         return binding.root
