@@ -1,5 +1,10 @@
 ext {
-    localMaven = "${project.rootDir}/tripkit-android/maven/"
+    // Support both:
+    // - this repo layout (root contains `tripkit-android-ui/`)
+    // - the standalone tripkit-android-ui repo layout (root contains `tripkit-android/`)
+    def nestedRepoMaven = new File(rootProject.projectDir, "tripkit-android-ui/tripkit-android/maven")
+    def standaloneRepoMaven = new File(rootProject.projectDir, "tripkit-android/maven")
+    localMaven = (nestedRepoMaven.exists() ? nestedRepoMaven : standaloneRepoMaven).absolutePath + "/"
     tripkitGroup = "com.skedgo.tripkit"
     tripkitVersion = "2.2.1.5"
     publishMavenUrl = "https://www.myget.org/F/skedgo/maven"

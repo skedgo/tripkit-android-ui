@@ -61,6 +61,11 @@ android {
     buildFeatures {
         viewBinding true
         dataBinding true
+        compose true
+    }
+
+    composeOptions {
+        kotlinCompilerExtensionVersion versions.composeCompiler
     }
 
     lint {
@@ -85,6 +90,15 @@ android {
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     coreLibraryDesugaring libs.desugar
+
+    // Jetpack Compose (kept minimal; versions controlled via Compose BOM)
+    implementation platform(libs.composeBom)
+    implementation libs.activityCompose
+    implementation libs.composeUi
+    implementation libs.composeFoundation
+    implementation libs.composeMaterial
+    implementation libs.composeUiToolingPreview
+    debugImplementation libs.composeUiTooling
 
     implementation libs.supportDesign
     implementation libs.appCompat
@@ -219,11 +233,14 @@ version = tripkitVersion
 publishing {
     repositories {
         maven {
-            url = "file://${localMaven}"
-            //url = publishMavenUrl
-            credentials {
-                username = publishMavenUsername
-                password = publishMavenToken
+            def repoUrl = "file://${localMaven}"
+            url = repoUrl
+            // url = publishMavenUrl
+            if (!repoUrl.startsWith("file:")) {
+                credentials {
+                    username = publishMavenUsername
+                    password = publishMavenToken
+                }
             }
         }
     }
