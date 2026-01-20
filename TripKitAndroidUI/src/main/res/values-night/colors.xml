@@ -108,4 +108,6 @@
     <!-- Transport mode selector colors -->
     <color name="transport_mode_selector_checked">#F5F5F5</color>
     <color name="transport_mode_selector_unchecked">#AAFFFFFF</color>
+
+    <color name="cardBackground">#3A3A3F</color>
 </resources>

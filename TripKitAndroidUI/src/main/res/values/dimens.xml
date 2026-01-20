@@ -66,6 +66,7 @@
     <dimen name="segment_chart_height_4">400dp</dimen>
     <dimen name="segment_progress_height">10dp</dimen>
 
+    <dimen name="cardview_corner_radius_extra_large">32dp</dimen>
     <dimen name="cardview_corner_radius_large">24dp</dimen>
     <dimen name="cardview_corner_radius_medium">16dp</dimen>
     <dimen name="cardview_corner_radius">12dp</dimen>
