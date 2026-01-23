@@ -9,9 +9,9 @@ import androidx.databinding.ObservableField
 import androidx.databinding.ObservableInt
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import com.google.gson.Gson
 import com.jakewharton.rxrelay2.PublishRelay
 import com.skedgo.TripKit
-import com.skedgo.tripkit.ServiceApi
 import com.skedgo.tripkit.ServiceResponse
 import com.skedgo.tripkit.common.model.realtimealert.RealtimeAlert
 import com.skedgo.tripkit.common.model.stop.ScheduledStop
@@ -19,6 +19,7 @@ import com.skedgo.tripkit.common.model.stop.ServiceStop
 import com.skedgo.tripkit.data.regions.RegionService
 import com.skedgo.tripkit.logging.ErrorLogger
 import com.skedgo.tripkit.routing.*
+import com.skedgo.tripkit.servicedetail.ServiceDetailRepository
 import com.skedgo.tripkit.ui.BR
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.core.RxViewModel
@@ -37,15 +38,11 @@ import javax.inject.Provider
 class ServiceDetailViewModel @Inject constructor(
     private val context: Context,
     private val regionService: RegionService,
-    private val serviceApi: ServiceApi,
+    private val serviceDetailRepository: ServiceDetailRepository,
     val occupancyViewModel: OccupancyViewModel,
     private val serviceViewModelProvider: Provider<ServiceDetailItemViewModel>,
-    val serviceAlertViewModel: ServiceAlertViewModel,
-    private val loadServices: LoadServices,
-    private val getServiceTitleText: GetServiceTitleText,
     private val getServiceTertiaryText: GetServiceTertiaryText,
     private val getRealtimeText: GetRealtimeText,
-    private val errorLogger: ErrorLogger
 ) : RxViewModel() {
     val stationName = ObservableField<String>()
     val serviceColor: ObservableInt = ObservableInt()
@@ -85,12 +82,16 @@ class ServiceDetailViewModel @Inject constructor(
     private val _showBicycleAccessible = MutableLiveData(false)
     val showBicycleAccessible: LiveData<Boolean> = _showBicycleAccessible
 
+    private val _isLoading = MutableLiveData(false)
+    val isLoading: LiveData<Boolean> = _isLoading
+
     fun setAlerts(alerts: List<RealtimeAlert>?) {
         _alerts.postValue(alerts.orEmpty())
     }
 
     fun setup(
         region: String,
+        regionUrls: List<String>? = null,
         serviceId: String,
         serviceName: String?,
         serviceNumber: String?,
@@ -160,11 +161,40 @@ class ServiceDetailViewModel @Inject constructor(
             }
         }
 
-        serviceApi.getServiceAsync(
-            region, serviceId, operator, startStopCode, endStopCode,
-            embarkation, true
+        val request = if (regionUrls != null) {
+            serviceDetailRepository.getService(
+                baseUrls = regionUrls,
+                region = region,
+                serviceTripId = serviceId,
+                operator = operator,
+                startStopCode = startStopCode,
+                endStopCode = endStopCode,
+                embarkationTimeInSecs = embarkation,
+                encode = true
+            )
+        } else {
+            serviceDetailRepository.getService(
+                region = region,
+                serviceTripId = serviceId,
+                operator = operator,
+                startStopCode = startStopCode,
+                endStopCode = endStopCode,
+                embarkationTimeInSecs = embarkation,
+                encode = true
+            )
+        }
+
+        request.doOnSubscribe {
+            _isLoading.postValue(true)
+        }.subscribe(
+            {
+                _isLoading.postValue(false)
+                processResponse(it)
+            }, {
+                _isLoading.postValue(false)
+                Timber.e(it)
+            }
         )
-            .subscribe({ processResponse(it) }, { Timber.e(it) })
             .autoClear()
     }
 
@@ -174,6 +204,7 @@ class ServiceDetailViewModel @Inject constructor(
             .subscribe({
                 setup(
                     region = it.name.orEmpty(),
+                    regionUrls = it.getURLs(),
                     serviceId = segment.serviceTripId.orEmpty(),
                     serviceName = segment.serviceName,
                     serviceNumber = segment.serviceNumber,
@@ -204,6 +235,7 @@ class ServiceDetailViewModel @Inject constructor(
             .subscribe({
                 setup(
                     region = it.name.orEmpty(),
+                    regionUrls = it.getURLs(),
                     serviceId = _entry.serviceTripId.orEmpty(),
                     serviceName = if (!_entry.serviceName.isNullOrEmpty())
                         _entry.serviceName.orEmpty()

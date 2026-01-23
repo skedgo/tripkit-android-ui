@@ -87,7 +87,7 @@ class ServiceDetailFragment : BaseTripKitFragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         binding = ServiceDetailFragmentBinding.inflate(layoutInflater)
         binding.lifecycleOwner = viewLifecycleOwner
         binding.viewModel = viewModel
