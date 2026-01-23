@@ -1,7 +1,7 @@
 package com.skedgo.tripkit.ui.qrcode
 
-import android.annotation.SuppressLint
 import android.util.Log
+import androidx.camera.core.ExperimentalGetImage
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy
 import com.google.mlkit.vision.barcode.common.Barcode
@@ -12,7 +12,7 @@ import com.google.mlkit.vision.common.InputImage
 
 class QrCodeAnalyzer(private val onQrCodesDetected: (qrCodes: List<Barcode>) -> Unit) :
     ImageAnalysis.Analyzer {
-    @SuppressLint("UnsafeExperimentalUsageError", "UnsafeOptInUsageError")
+    @ExperimentalGetImage
     override fun analyze(imageProxy: ImageProxy) {
         val mediaImage = imageProxy.image
         if (mediaImage != null) {
