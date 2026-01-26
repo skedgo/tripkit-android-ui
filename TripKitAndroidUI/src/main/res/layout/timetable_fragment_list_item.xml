@@ -51,23 +51,26 @@
                 <androidx.cardview.widget.CardView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="4dp"
                     android:paddingLeft="4dp"
                     android:paddingRight="4dp"
-                    app:cardBackgroundColor="@{viewModel.serviceColor}"
+                    android:layout_marginEnd="4dp"
+                    android:layout_marginBottom="4dp"
+                    app:cardElevation="0dp"
                     app:cardCornerRadius="4dp"
-                    app:cardElevation="0dp">
+                    app:cardBackgroundColor="@{viewModel.serviceColor}"
+                    tools:cardBackgroundColor="@color/colorPrimary">
 
                     <TextView
-                        android:id="@+id/serviceLine"
                         style="@style/TextAppearance.MaterialComponents.Caption"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
+                        android:id="@+id/serviceLine"
+                        android:text="@{viewModel.serviceNumber}"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@android:color/white"
                         android:paddingLeft="4dp"
                         android:paddingRight="4dp"
-                        android:text="@{viewModel.serviceNumber}"
-                        android:textColor="@android:color/white"
-                        tools:text="U1" />
+                        tools:text="U1"/>
+
                 </androidx.cardview.widget.CardView>
 
                 <ImageView

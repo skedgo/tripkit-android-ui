@@ -264,7 +264,7 @@
     <!--This usually means that there's no discount for some service. For instance, a user may need to pay full fare for a transport mode not included in his/her mobility bundle.-->
     <string name="full_fare">Full fare</string>
     <!--No comment provided by engineer.-->
-    <string name="get_updated_etas_while_you_apostre_on_a_trip_by_reporting_you_current_location_back_to_our_servers_dot_this_also_helps_improve_our_travel_time_prediction_dot_we_may_share_this_data_with_our_partners_who_help_us_make_those_predictions_dot">Get updated ETAs while you\'re on a trip by reporting you current location back to our servers. This also helps improve our travel time prediction.
+    <string name="get_updated_etas_while_you_apostre_on_a_trip_by_reporting_you_current_location_back_to_our_servers_dot_this_also_helps_improve_our_travel_time_prediction_dot_we_may_share_this_data_with_our_partners_who_help_us_make_those_predictions_dot">Get updated ETAs while you\'re on a trip by reporting your current location back to our servers. This also helps improve our travel time prediction.
 We may share this data with our partners who help us make those predictions.</string>
     <!--No comment provided by engineer.-->
     <string name="help_improve_transport_services_in_your_area_by_allowing_us_to_collect_information_about_which_trips_you_select_in_the_app_dot_we_aggregate_the_anonymised_data_and_provide_it_to_researchers_coma_regulators_coma_and_transport_providers_dot">Help improve transport services in your area by allowing us to collect information about which trips you select in the app.
