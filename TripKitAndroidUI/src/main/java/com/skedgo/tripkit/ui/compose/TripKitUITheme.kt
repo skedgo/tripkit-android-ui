@@ -44,6 +44,8 @@ fun TripKitUITheme(
 
     val error = colorResource(id = R.color.tripKitError)
 
+    val labelPrimary = colorResource(id = R.color.labelPrimary)
+
     val fontFamily: FontFamily = remember(TripKitUITypography.getFontResId(), TripKitUITypography.getFontFamilyName()) {
         val fontResId = TripKitUITypography.getFontResId()
         val familyName = TripKitUITypography.getFontFamilyName()
@@ -67,7 +69,7 @@ fun TripKitUITheme(
             secondary = secondary,
             background = background,
             surface = surface,
-            onPrimary = Color.White,
+            onPrimary = labelPrimary,
             onSecondary = Color.White,
             onBackground = onBackground,
             onSurface = onSurface,
@@ -81,7 +83,7 @@ fun TripKitUITheme(
             secondary = secondary,
             background = background,
             surface = surface,
-            onPrimary = Color.White,
+            onPrimary = labelPrimary,
             onSecondary = Color.White,
             onBackground = onBackground,
             onSurface = onSurface,

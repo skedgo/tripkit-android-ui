@@ -110,4 +110,7 @@
     <color name="transport_mode_selector_unchecked">#AAFFFFFF</color>
 
     <color name="cardBackground">#3A3A3F</color>
+    <color name="subCardBackground">#424348</color>
+
+    <color name="labelPrimary">#FFFFFF</color>
 </resources>
