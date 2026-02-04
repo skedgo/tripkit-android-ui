@@ -154,7 +154,7 @@ interface FavoritesRepository {
         }.flowOn(Dispatchers.IO)
 
         override fun isFavoriteByStopCode(stopCode: String): Flow<Resource<Boolean>> =
-            flow {
+            flow<Resource<Boolean>> {
                 safeCall<Boolean> {
                     val userId = configs.userIdentifier()?.call()
                     emit(Resource.success(data = userId?.let {
@@ -164,7 +164,7 @@ interface FavoritesRepository {
             }.flowOn(Dispatchers.IO)
 
         override fun isFavoriteByLocation(location: LocationFavorite): Flow<Resource<Boolean>> =
-            flow {
+            flow<Resource<Boolean>> {
                 safeCall<Boolean> {
                     val userId = configs.userIdentifier()?.call()
                     emit(Resource.success(data = userId?.let {

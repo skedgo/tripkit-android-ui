@@ -1,4 +1,10 @@
-name: Crowdin Action
+name: Crowdin Action (DEPRECATED)
+
+# ⚠️ DEPRECATED: This workflow has been replaced by:
+# - crowdin_upload.yml (automatic upload on source changes)
+# - crowdin_download.yml (scheduled + manual downloads)
+# 
+# This file is kept for backward compatibility but will be removed in the future.
 
 on:
   workflow_dispatch:

@@ -47,7 +47,7 @@ fun ScheduledStop.createStopMarkerOptions(picasso: Picasso): Single<MarkerOption
         remoteMarkerIconFetcher.callAsync(markerOptions, stop)
     }.map {
         if(type == TRAIN || type == SUBWAY || type == FERRY) {
-            MapData.addRegionalStop(it)
+            MapData.addRegionalStop(it, this)
         }
         it
     }

@@ -47,6 +47,8 @@ class TripSegmentCustomRecyclerViewAdapter<T> : BindingRecyclerViewAdapter<T>() 
 
         if (item is TripSegmentItemViewModel) {
             item.generateRoadTags()
+            // Ensure we don't register multiple observers for the same lifecycle
+            item.roadTagChartItems.removeObservers(binding.lifecycleOwner!!)
             item.roadTagChartItems.observe(binding.lifecycleOwner!!) { chartItems ->
                 with(binding as TripSegmentBinding) {
                     val segmentLength = item.tripSegment?.metres ?: chartItems.maxOf { it.length }
@@ -58,16 +60,20 @@ class TripSegmentCustomRecyclerViewAdapter<T> : BindingRecyclerViewAdapter<T>() 
                         it
                     }.sortedBy { it.index }
 
-                    RoadTagChartAdapter().let { adapter ->
-                        binding.layoutRoadTags.rvRoadTagsChart.adapter = adapter
-                        adapter.collection = listOf(
-                            RoadTagChart(
-                                max = max,
-                                middle = middle,
-                                items = items
-                            )
+                    // Reuse existing adapter; only create once to avoid churn during layout
+                    val rv = binding.layoutRoadTags.rvRoadTagsChart
+                    val chartAdapter = (rv.adapter as? RoadTagChartAdapter)
+                        ?: RoadTagChartAdapter().also {
+                            rv.adapter = it
+                            rv.itemAnimator = null
+                        }
+                    chartAdapter.collection = listOf(
+                        RoadTagChart(
+                            max = max,
+                            middle = middle,
+                            items = items
                         )
-                    }
+                    )
                 }
             }
         }

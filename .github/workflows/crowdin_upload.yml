@@ -1,0 +1,36 @@
+name: Crowdin Upload Sources
+
+# Upload source strings to Crowdin when strings.xml changes
+# Only triggers after merge to develop/main/master to avoid noise from WIP feature branches
+on:
+  push:
+    branches:
+      - develop
+      - main
+      - master
+    paths:
+      - 'TripKitAndroidUI/src/main/res/values/strings.xml'
+  workflow_dispatch:  # Keep manual trigger as backup
+
+permissions:
+  contents: write
+
+jobs:
+  upload-sources:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Upload sources to Crowdin
+        uses: crowdin/github-action@v1
+        with:
+          upload_sources: true
+          upload_translations: false
+          download_translations: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CROWDIN_PROJECT_ID: ${{ secrets.CROWDIN_PROJECT_ID }}
+          CROWDIN_PERSONAL_TOKEN: ${{ secrets.CROWDIN_PERSONAL_TOKEN }}
+

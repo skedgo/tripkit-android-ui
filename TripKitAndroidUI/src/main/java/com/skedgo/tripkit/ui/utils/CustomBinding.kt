@@ -208,7 +208,8 @@ fun focusViewForAccessibility(view: View, focus: Boolean) {
 @BindingAdapter("app:cardBackgroundColor")
 fun setCardBackgroundColor(view: CardView, color: Int?) {
     color?.let {
-        view.setBackgroundColor(it)
+        // Use CardView API to preserve corner radius shape
+        view.setCardBackgroundColor(it)
     }
 }
 
