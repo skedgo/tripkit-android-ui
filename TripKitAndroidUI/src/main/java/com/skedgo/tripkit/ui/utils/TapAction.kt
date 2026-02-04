@@ -14,5 +14,12 @@ class TapAction<TSender> internal constructor(
     val observable: Observable<TSender>
         get() = onTap.hide()
 
-    fun perform() = onTap.onNext(getSender())
+        @Suppress("UNCHECKED_CAST")
+    fun perform() {
+        val sender = getSender()
+        // Kotlin 2.0 requires non-nullable type for RxJava onNext
+        // Cast to Any to satisfy Kotlin 2.0's stricter type checking
+        @Suppress("UNCHECKED_CAST")
+        (onTap as PublishSubject<Any>).onNext(sender as Any)
+    }
 }
