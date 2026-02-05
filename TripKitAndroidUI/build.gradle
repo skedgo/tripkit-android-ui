@@ -3,6 +3,7 @@ apply plugin: 'maven-publish'
 apply plugin: "kotlin-android"
 apply plugin: "kotlin-kapt"
 apply plugin: 'kotlin-parcelize'
+apply plugin: 'org.jetbrains.kotlin.plugin.compose'
 
 repositories {
     maven {url "https://raw.github.com/laenger/maven-releases/master/releases"}
@@ -62,10 +63,6 @@ android {
         viewBinding true
         dataBinding true
         compose true
-    }
-
-    composeOptions {
-        kotlinCompilerExtensionVersion versions.composeCompiler
     }
 
     lint {
