@@ -113,4 +113,5 @@
     <color name="subCardBackground">#424348</color>
 
     <color name="labelPrimary">#FFFFFF</color>
+    <color name="labelSecondary">#CECFD3</color>
 </resources>
