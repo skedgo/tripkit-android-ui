@@ -117,4 +117,6 @@
     <color name="labelPrimary">#2E2F31</color>
     <color name="labelSecondary">#585B62</color>
 
+    <color name="cardGrabHandleBackground">#CECFD3</color>
+
 </resources>
