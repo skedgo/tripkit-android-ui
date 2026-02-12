@@ -39,15 +39,15 @@ object ProviderUtils {
 
     fun upsert(db: SQLiteDatabase, table: DatabaseTable?, values: ContentValues?, fieldsToMatch: Array<DatabaseField?>?): Long {
         var newId: Long = -1
-        if (values != null) {
+        if (values != null && table != null) {
             val containsAllFieldsToMatch = fieldsToMatch?.all { values.containsKey(it?.name) } ?: false
 
             if (containsAllFieldsToMatch) {
-                val tableFields = table?.getFieldNames()
+                val tableFields = table.getFieldNames()
                 val sb = sSbPool.retrieve()
 
                 sb.append("INSERT OR REPLACE INTO ").append(table).append(" (")
-                    .append(TextUtils.join(", ", tableFields!!)).append(")")
+                    .append(TextUtils.join(", ", tableFields)).append(")")
                     .append(" VALUES (")
 
                 tableFields.forEachIndexed { index, field ->
@@ -77,7 +77,7 @@ object ProviderUtils {
                 newId = statement.executeInsert()
                 sSbPool.save(sb)
             } else {
-                newId = db.replaceOrThrow(table?.name, null, values)
+                newId = db.replaceOrThrow(table.name, null, values)
             }
         }
         return newId

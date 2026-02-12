@@ -65,10 +65,10 @@ class QrCodeScanActivity : AppCompatActivity() {
                 .build()
                 // The analyzer can then be assigned to the instance
                 .also {
-                    it.setAnalyzer(cameraExecutor, QrCodeAnalyzer { list ->
+                    it.setAnalyzer(cameraExecutor, QrCodeAnalyzer { barcodes ->
                         val results = mutableListOf<String>()
-                        list.forEach {
-                            it.rawValue?.let { results.add(it) }
+                        barcodes.forEach { barcode ->
+                            barcode.rawValue?.let { results.add(it) }
                         }
                         done(results.toTypedArray())
 
