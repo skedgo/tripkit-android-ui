@@ -6,8 +6,14 @@ apply plugin: 'kotlin-parcelize'
 
 def kotlinVersion = versions.kotlinVersion
 def useComposePlugin = kotlinVersion?.startsWith("2.")
+def composePluginApplied = false
 if (useComposePlugin) {
-    apply plugin: 'org.jetbrains.kotlin.plugin.compose'
+    try {
+        apply plugin: 'org.jetbrains.kotlin.plugin.compose'
+        composePluginApplied = true
+    } catch (Throwable ignored) {
+        logger.lifecycle("Compose plugin not found; falling back to composeOptions.")
+    }
 }
 
 repositories {
@@ -70,7 +76,7 @@ android {
         compose true
     }
 
-    if (!useComposePlugin) {
+    if (!composePluginApplied) {
         composeOptions {
             kotlinCompilerExtensionVersion versions.composeCompiler
         }
