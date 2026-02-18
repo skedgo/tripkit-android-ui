@@ -37,8 +37,7 @@
         android:padding="8dp"
         android:text="@string/available_bikes"
         android:textColor="@android:color/black"
-        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-        android:fontFamily="@font/aguafina_script" />
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
 
     <TextView
         android:id="@+id/availableBikes"
