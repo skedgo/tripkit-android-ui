@@ -65,6 +65,10 @@ android {
         compose true
     }
 
+    composeOptions {
+        kotlinCompilerExtensionVersion versions.composeCompiler
+    }
+
     lint {
         checkReleaseBuilds true
         abortOnError false
