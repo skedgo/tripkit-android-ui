@@ -7,6 +7,7 @@ import androidx.compose.material.Typography
 import androidx.compose.material.darkColors
 import androidx.compose.material.lightColors
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.graphics.Color
@@ -26,6 +27,8 @@ import androidx.compose.ui.text.font.FontFamily
 @Composable
 fun TripKitUITheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
+    textTokens: TripKitComposeTextTokens = TripKitComposeTextTokensDefaults.default(),
+    textTokensOverride: TripKitComposeTextTokensOverride = TripKitComposeTextTokensOverride(),
     content: @Composable () -> Unit
 ) {
     val context = LocalContext.current
@@ -92,11 +95,19 @@ fun TripKitUITheme(
         )
     }
 
-    MaterialTheme(
-        colors = colors,
-        typography = typography,
-        content = content
-    )
+    val resolvedTextTokens = remember(textTokens, textTokensOverride) {
+        textTokens.withOverride(textTokensOverride)
+    }
+
+    CompositionLocalProvider(
+        LocalTripKitComposeTextTokens provides resolvedTextTokens
+    ) {
+        MaterialTheme(
+            colors = colors,
+            typography = typography,
+            content = content
+        )
+    }
 }
 
 /**
@@ -109,6 +120,13 @@ fun TripKitUITheme(
 @Composable
 fun TripKitTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
+    textTokens: TripKitComposeTextTokens = TripKitComposeTextTokensDefaults.default(),
+    textTokensOverride: TripKitComposeTextTokensOverride = TripKitComposeTextTokensOverride(),
     content: @Composable () -> Unit
-) = TripKitUITheme(darkTheme = darkTheme, content = content)
+) = TripKitUITheme(
+    darkTheme = darkTheme,
+    textTokens = textTokens,
+    textTokensOverride = textTokensOverride,
+    content = content
+)
 

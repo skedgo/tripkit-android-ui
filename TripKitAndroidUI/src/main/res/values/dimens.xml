@@ -95,6 +95,7 @@
 
     <dimen name="icon_size_24">24dp</dimen>
     <dimen name="icon_size_36">36dp</dimen>
+    <dimen name="icon_size_40">40dp</dimen>
 
     <dimen name="divider_vertical_40">40dp</dimen>
 </resources>
