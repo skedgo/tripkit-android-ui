@@ -37,8 +37,14 @@ class FetchService @Inject constructor(
                 val shapeValuesList = ArrayList<ContentValues>()
                 val locationValuesList = ArrayList<ContentValues>()
                 val stopValuesList = ArrayList<ContentValues>()
-                val shapes =
-                    ServiceStopFetcher.getShapes(context, serviceTripId, region, timeInSeconds)
+                // Pass operator to align with iOS; required when serviceTripID matches multiple operators
+                val shapes = ServiceStopFetcher.getShapes(
+                    context,
+                    serviceTripId,
+                    region,
+                    timeInSeconds,
+                    service.operator ?: ""
+                )
 
                 val random = Random()
                 for (shape in shapes.orEmpty()) {
@@ -155,8 +161,14 @@ class FetchService @Inject constructor(
         val region = TripKitUI.getInstance().regionService().getRegionByLocationAsync(stop)
             .onErrorResumeNext(Observable.empty()).blockingFirst(null)
         val timeInSeconds = service.serviceTime
-        val shapes =
-            ServiceStopFetcher.getShapes(context, serviceTripId, region, timeInSeconds)
+        // Pass operator to align with iOS; required when serviceTripID matches multiple operators
+        val shapes = ServiceStopFetcher.getShapes(
+            context,
+            serviceTripId,
+            region,
+            timeInSeconds,
+            service.operator ?: ""
+        )
 
         val stopInfoList = mutableListOf<StopInfo>()
 

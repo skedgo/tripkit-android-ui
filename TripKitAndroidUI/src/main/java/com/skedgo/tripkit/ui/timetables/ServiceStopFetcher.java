@@ -21,10 +21,37 @@ import java.util.List;
 import androidx.core.util.Pair;
 import timber.log.Timber;
 
+/**
+ * Fetches service shapes and stops from the service.json API for map display and timetable.
+ *
+ * <p>Aligns with iOS TKBuzzInfoProvider: passes {@code operator} to ensure correct data when
+ * {@code serviceTripID} matches multiple operators. Without operator, the API may return a random
+ * operator's data, causing missing or wrong map markers.
+ *
+ * @deprecated Prefer {@link com.skedgo.tripkit.ServiceApi} where possible. This class remains
+ * in use for timetable map and service overlay flows.
+ */
 @Deprecated
 public class ServiceStopFetcher {
 
-    public static List<Shape> getShapes(Context context, String serviceTripId, Region region, long time) {
+    /**
+     * Fetches shapes (route geometry and stops) for a service from the service.json API.
+     *
+     * @param context       Application context for API path resolution
+     * @param serviceTripId Service trip identifier (required)
+     * @param region        Region for the service (required)
+     * @param time          Embarkation date in seconds since epoch
+     * @param operator      Operator identifier; use empty string if unknown. Recommended per
+     *                      tripgo-api spec to avoid random operator selection when serviceTripID
+     *                      matches multiple operators.
+     * @return List of shapes, or null if fetch failed or no shapes returned
+     */
+    public static List<Shape> getShapes(
+            Context context,
+            String serviceTripId,
+            Region region,
+            long time,
+            String operator) {
         if (TextUtils.isEmpty(serviceTripId) || region == null) {
             Timber.e("ServiceTripID or region were null!");
             return null;
@@ -32,9 +59,10 @@ public class ServiceStopFetcher {
 
         final String path = context.getString(R.string.api_service);
 
-        final List<Pair<String, Object>> params = new ArrayList<>(3);
+        final List<Pair<String, Object>> params = new ArrayList<>(5);
         params.add(new Pair<>("region", region.getName()));
         params.add(new Pair<>("serviceTripID", serviceTripId));
+        params.add(new Pair<>("operator", operator != null ? operator : ""));
         params.add(new Pair<>("embarkationDate", time));
         params.add(new Pair<>("encode", "true"));
 
