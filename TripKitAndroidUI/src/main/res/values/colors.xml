@@ -119,4 +119,6 @@
 
     <color name="cardGrabHandleBackground">#CECFD3</color>
 
+    <color name="inputBackground">#E5E6E8</color>
+
 </resources>

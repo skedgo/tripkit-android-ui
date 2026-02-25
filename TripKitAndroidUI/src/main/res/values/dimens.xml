@@ -5,6 +5,7 @@
     <dimen name="spacing_extra_small">4dp</dimen>
     <dimen name="spacing_small">8dp</dimen>
     <dimen name="spacing_12">12dp</dimen>
+    <dimen name="spacing_14">14dp</dimen>
     <dimen name="spacing_normal">16dp</dimen>
     <dimen name="spacing_20">20dp</dimen>
     <dimen name="spacing_medium">24dp</dimen>
@@ -93,6 +94,9 @@
 
     <dimen name="image_size_small">120dp</dimen>
 
+    <dimen name="icon_size_10">10dp</dimen>
+    <dimen name="icon_size_14">14dp</dimen>
+    <dimen name="icon_size_20">20dp</dimen>
     <dimen name="icon_size_24">24dp</dimen>
     <dimen name="icon_size_36">36dp</dimen>
     <dimen name="icon_size_40">40dp</dimen>
