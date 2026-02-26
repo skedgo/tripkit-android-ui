@@ -245,7 +245,9 @@ private fun RouteInputField(
                     Text(
                         text = hint,
                         style = TripKitComposeTextStyles.current.bodyLarge,
-                        color = colorResource(R.color.labelSecondary)
+                        color = colorResource(R.color.labelSecondary).copy(
+                            alpha = 0.6f
+                        )
                     )
                 }
                 innerTextField()

@@ -126,6 +126,13 @@ class TKUIRouteFragment : BaseFragment<FragmentTkuiRouteComposeBinding>() {
         setupLocations()
     }
 
+    override fun onResume() {
+        super.onResume()
+        // BaseFragment can reuse binding.root on back stack return.
+        // Re-attach a fresh composition for the compose header shell.
+        setupRouteCompose()
+    }
+
     private fun initSearchCard() {
         locationSearchFragment = TKUILocationSearchViewControllerFragment.newInstance(
             bounds, near, suggestionProvider, searchCardListener, false
@@ -141,55 +148,58 @@ class TKUIRouteFragment : BaseFragment<FragmentTkuiRouteComposeBinding>() {
     }
 
     private fun setupRouteCompose() {
-        binding.routeCompose.apply {
-            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
-            setContent {
-                TKUIRouteCardCompose(
-                    viewModel = viewModel,
-                    onClose = { eventBus.publish(ViewControllerEvent.OnCloseAction()) },
-                    onConfirm = { callRouteTrips() },
-                    onStartChange = { text ->
-                        val hasCurrentLocation =
-                            viewModel.startLocation?.locationType == Location.TYPE_CURRENT_LOCATION ||
-                                viewModel.startLocation?.name == getString(R.string.current_location)
-                        if (text.isEmpty() || hasCurrentLocation) {
-                            viewModel.startLocation = null
-                            toggleShowCurrentLocation()
-                        }
-                        viewModel.setStart(text)
-                        locationSearchFragment?.setQuery(text, true)
-                    },
-                    onDestinationChange = { text ->
-                        val hasCurrentLocation =
-                            viewModel.destinationLocation?.locationType == Location.TYPE_CURRENT_LOCATION ||
-                                viewModel.destinationLocation?.name == getString(R.string.current_location)
-                        if (text.isEmpty() || hasCurrentLocation) {
-                            viewModel.destinationLocation = null
-                            toggleShowCurrentLocation()
-                        }
-                        viewModel.setDestination(text)
-                        locationSearchFragment?.setQuery(text, true)
-                    },
-                    onStartFocused = {
-                        val query = if (viewModel.startLocation?.locationType == Location.TYPE_CURRENT_LOCATION) {
-                            ""
-                        } else {
-                            viewModel.start.value.orEmpty()
-                        }
-                        locationSearchFragment?.setQuery(query, true)
-                    },
-                    onDestinationFocused = {
-                        val query = if (viewModel.destinationLocation?.locationType == Location.TYPE_CURRENT_LOCATION) {
-                            ""
-                        } else {
-                            viewModel.destination.value.orEmpty()
-                        }
-                        locationSearchFragment?.setQuery(query, true)
-                    },
-                    onSwap = { viewModel.swap() }
-                )
-            }
+        val composeView = binding.routeCompose
+
+        // In a reused-view setup, clear stale composition before setting fresh content.
+        composeView.disposeComposition()
+        composeView.setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnDetachedFromWindow)
+        composeView.setContent {
+            TKUIRouteCardCompose(
+                viewModel = viewModel,
+                onClose = { eventBus.publish(ViewControllerEvent.OnCloseAction()) },
+                onConfirm = { callRouteTrips() },
+                onStartChange = { text ->
+                    val hasCurrentLocation =
+                        viewModel.startLocation?.locationType == Location.TYPE_CURRENT_LOCATION ||
+                            viewModel.startLocation?.name == getString(R.string.current_location)
+                    if (text.isEmpty() || hasCurrentLocation) {
+                        viewModel.startLocation = null
+                        toggleShowCurrentLocation()
+                    }
+                    viewModel.setStart(text)
+                    locationSearchFragment?.setQuery(text, true)
+                },
+                onDestinationChange = { text ->
+                    val hasCurrentLocation =
+                        viewModel.destinationLocation?.locationType == Location.TYPE_CURRENT_LOCATION ||
+                            viewModel.destinationLocation?.name == getString(R.string.current_location)
+                    if (text.isEmpty() || hasCurrentLocation) {
+                        viewModel.destinationLocation = null
+                        toggleShowCurrentLocation()
+                    }
+                    viewModel.setDestination(text)
+                    locationSearchFragment?.setQuery(text, true)
+                },
+                onStartFocused = {
+                    val query = if (viewModel.startLocation?.locationType == Location.TYPE_CURRENT_LOCATION) {
+                        ""
+                    } else {
+                        viewModel.start.value.orEmpty()
+                    }
+                    locationSearchFragment?.setQuery(query, true)
+                },
+                onDestinationFocused = {
+                    val query = if (viewModel.destinationLocation?.locationType == Location.TYPE_CURRENT_LOCATION) {
+                        ""
+                    } else {
+                        viewModel.destination.value.orEmpty()
+                    }
+                    locationSearchFragment?.setQuery(query, true)
+                },
+                onSwap = { viewModel.swap() }
+            )
         }
+        composeView.requestLayout()
     }
 
     private fun callRouteTrips() {
