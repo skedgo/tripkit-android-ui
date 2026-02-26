@@ -11,6 +11,7 @@ import com.skedgo.tripkit.ui.search.SuggestionViewModel
 
 @Immutable
 data class SearchResultRowUiModel(
+    val id: String,
     val title: String,
     val subtitle: String?,
     val matcher: String?,
@@ -18,6 +19,10 @@ data class SearchResultRowUiModel(
     val subtitleTextColor: Int,
     val icon: Drawable?,
     val shouldTintIcon: Boolean,
+    val groupKind: SearchResultGroupKind,
+    val isFirstInGroup: Boolean,
+    val isLastInGroup: Boolean,
+    val showGroupTopSpacing: Boolean,
     val showTimetableIcon: Boolean,
     val showInfoIcon: Boolean,
     val onRowClick: () -> Unit,
@@ -25,7 +30,75 @@ data class SearchResultRowUiModel(
     val onInfoClick: () -> Unit
 )
 
+enum class SearchResultGroupKind {
+    FIXED,
+    HISTORY,
+    GOOGLE_AND_TRIPGO
+}
+
+private data class GroupedSuggestion(
+    val item: SuggestionViewModel,
+    val groupKind: SearchResultGroupKind
+)
+
+fun mapSearchResultRows(items: List<SuggestionViewModel>): List<SearchResultRowUiModel> {
+    val fixed = items.filterIsInstance<FixedSuggestionViewModel>().map {
+        GroupedSuggestion(it, SearchResultGroupKind.FIXED)
+    }
+    val history = items.filterIsInstance<HistorySearchProviderSuggestionViewModel>().map {
+        GroupedSuggestion(it, SearchResultGroupKind.HISTORY)
+    }
+    val googleAndTripGo = items
+        .filter { it !is FixedSuggestionViewModel && it !is HistorySearchProviderSuggestionViewModel }
+        .map { GroupedSuggestion(it, SearchResultGroupKind.GOOGLE_AND_TRIPGO) }
+
+    return buildList {
+        addAll(groupToRows(fixed, showTopSpacing = false))
+        addAll(groupToRows(history, showTopSpacing = fixed.isNotEmpty()))
+        addAll(
+            groupToRows(
+                googleAndTripGo,
+                showTopSpacing = fixed.isNotEmpty() || history.isNotEmpty()
+            )
+        )
+    }
+}
+
 fun SuggestionViewModel.toSearchResultRowUiModel(): SearchResultRowUiModel {
+    val groupKind = when (this) {
+        is FixedSuggestionViewModel -> SearchResultGroupKind.FIXED
+        is HistorySearchProviderSuggestionViewModel -> SearchResultGroupKind.HISTORY
+        else -> SearchResultGroupKind.GOOGLE_AND_TRIPGO
+    }
+    return toSearchResultRowUiModel(
+        groupKind = groupKind,
+        isFirstInGroup = true,
+        isLastInGroup = true,
+        showGroupTopSpacing = false
+    )
+}
+
+private fun groupToRows(
+    groupedItems: List<GroupedSuggestion>,
+    showTopSpacing: Boolean
+): List<SearchResultRowUiModel> {
+    if (groupedItems.isEmpty()) return emptyList()
+    return groupedItems.mapIndexed { index, grouped ->
+        grouped.item.toSearchResultRowUiModel(
+            groupKind = grouped.groupKind,
+            isFirstInGroup = index == 0,
+            isLastInGroup = index == groupedItems.lastIndex,
+            showGroupTopSpacing = showTopSpacing && index == 0
+        )
+    }
+}
+
+private fun SuggestionViewModel.toSearchResultRowUiModel(
+    groupKind: SearchResultGroupKind,
+    isFirstInGroup: Boolean,
+    isLastInGroup: Boolean,
+    showGroupTopSpacing: Boolean
+): SearchResultRowUiModel {
     val tintIcon = shouldTintIcon()
     val resolvedIcon = icon.get()
         ?.constantState
@@ -38,6 +111,7 @@ fun SuggestionViewModel.toSearchResultRowUiModel(): SearchResultRowUiModel {
         } ?: icon.get()
 
     return SearchResultRowUiModel(
+        id = "${groupKind.name}:${System.identityHashCode(this)}:$title:${subtitle.orEmpty()}",
         title = title,
         subtitle = subtitle,
         matcher = term,
@@ -45,6 +119,10 @@ fun SuggestionViewModel.toSearchResultRowUiModel(): SearchResultRowUiModel {
         subtitleTextColor = subtitleTextColor,
         icon = resolvedIcon,
         shouldTintIcon = tintIcon,
+        groupKind = groupKind,
+        isFirstInGroup = isFirstInGroup,
+        isLastInGroup = isLastInGroup,
+        showGroupTopSpacing = showGroupTopSpacing,
         showTimetableIcon = showTimetableIcon,
         showInfoIcon = showInfoIcon,
         onRowClick = { onItemClicked.perform() },

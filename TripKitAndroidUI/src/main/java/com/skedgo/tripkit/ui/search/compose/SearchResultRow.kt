@@ -1,7 +1,9 @@
 package com.skedgo.tripkit.ui.search.compose
 
 import android.graphics.drawable.Drawable
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -12,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.material.ripple.rememberRipple
@@ -19,11 +22,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
+import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.colorResource
@@ -39,8 +43,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.foundation.Image
-import androidx.compose.ui.graphics.nativeCanvas
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.compose.TripKitUITheme
 import kotlin.math.roundToInt
@@ -52,20 +54,28 @@ fun SearchResultRow(
 ) {
     val isInPreview = LocalInspectionMode.current
     val interactionSource = remember { MutableInteractionSource() }
-    val iconTint = colorResource(id = R.color.labelTertiary)
-    val shape = androidx.compose.foundation.shape.RoundedCornerShape(
-        dimensionResource(id = R.dimen.cardview_corner_radius)
+    val iconTint = colorResource(id = R.color.icon_tint_default)
+    val cardRadius = dimensionResource(id = R.dimen.cardview_corner_radius)
+    val rowShape = RoundedCornerShape(
+        topStart = if (ui.isFirstInGroup) cardRadius else 0.dp,
+        topEnd = if (ui.isFirstInGroup) cardRadius else 0.dp,
+        bottomStart = if (ui.isLastInGroup) cardRadius else 0.dp,
+        bottomEnd = if (ui.isLastInGroup) cardRadius else 0.dp
     )
+    val dividerInset = dimensionResource(id = R.dimen.spacing_normal) +
+        dimensionResource(id = R.dimen.tripkit_search_result_icon_size) +
+        dimensionResource(id = R.dimen.spacing_12)
 
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(bottom = dimensionResource(R.dimen.spacing_small))
+            .padding(top = if (ui.showGroupTopSpacing) dimensionResource(R.dimen.spacing_normal) else 0.dp)
     ) {
         Row(
             modifier = modifier
                 .fillMaxWidth()
-                .background(colorResource(id = R.color.subCardBackground), shape)
+                .background(colorResource(id = R.color.subCardBackground), rowShape)
+                .border(0.5.dp, colorResource(id = R.color.black4), rowShape)
                 .clickable(
                     interactionSource = interactionSource,
                     indication = rememberRipple(),
@@ -126,7 +136,6 @@ fun SearchResultRow(
                         onClick = ui.onSuggestionActionClick
                     )
                 }
-
                 ui.showInfoIcon -> {
                     RowActionIcon(
                         painter = painterResource(id = R.drawable.ic_icon_info),
@@ -136,6 +145,16 @@ fun SearchResultRow(
                     )
                 }
             }
+        }
+
+        if (!ui.isLastInGroup) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = dividerInset)
+                    .size(width = 1.dp, height = 0.5.dp)
+                    .background(colorResource(id = R.color.black4))
+            )
         }
     }
 }
@@ -160,7 +179,7 @@ private fun SearchResultRowIcon(
 
 @Composable
 private fun RowActionIcon(
-    painter: androidx.compose.ui.graphics.painter.Painter,
+    painter: Painter,
     contentDescription: String,
     tint: Color?,
     onClick: () -> Unit
@@ -178,24 +197,15 @@ private fun RowActionIcon(
         contentAlignment = Alignment.Center
     ) {
         if (tint == null) {
-            Icon(
-                painter = painter,
-                contentDescription = contentDescription
-            )
+            Icon(painter = painter, contentDescription = contentDescription)
         } else {
-            Icon(
-                painter = painter,
-                contentDescription = contentDescription,
-                tint = tint
-            )
+            Icon(painter = painter, contentDescription = contentDescription, tint = tint)
         }
     }
 }
 
 private fun highlightedText(text: String, matcher: String?): AnnotatedString {
-    if (matcher.isNullOrBlank()) {
-        return AnnotatedString(text)
-    }
+    if (matcher.isNullOrBlank()) return AnnotatedString(text)
 
     return buildAnnotatedString {
         append(text)
@@ -214,35 +224,25 @@ private fun highlightedText(text: String, matcher: String?): AnnotatedString {
     }
 }
 
-private class DrawablePainter(
-    drawable: Drawable
-) : Painter() {
+private class DrawablePainter(drawable: Drawable) : Painter() {
     private val drawable: Drawable = drawable.mutate()
 
     override val intrinsicSize: Size
         get() {
             val width = drawable.intrinsicWidth
             val height = drawable.intrinsicHeight
-            return if (width > 0 && height > 0) {
-                Size(width.toFloat(), height.toFloat())
-            } else {
-                Size.Unspecified
-            }
+            return if (width > 0 && height > 0) Size(width.toFloat(), height.toFloat()) else Size.Unspecified
         }
 
     override fun DrawScope.onDraw() {
         drawable.setBounds(0, 0, size.width.roundToInt(), size.height.roundToInt())
-        drawIntoCanvas { canvas ->
-            drawable.draw(canvas.nativeCanvas)
-        }
+        drawIntoCanvas { canvas -> drawable.draw(canvas.nativeCanvas) }
     }
 }
 
 @Composable
 private fun rememberDrawablePainter(drawable: Drawable?): Painter? {
-    return remember(drawable) {
-        drawable?.let { DrawablePainter(it) }
-    }
+    return remember(drawable) { drawable?.let { DrawablePainter(it) } }
 }
 
 @Preview(showBackground = true, backgroundColor = 0xFFF5F5F6)
@@ -251,15 +251,20 @@ private fun SearchResultRowPreview() {
     TripKitUITheme {
         SearchResultRow(
             ui = SearchResultRowUiModel(
-                title = "Central Station",
-                subtitle = "12 Vale street",
-                matcher = "Central",
+                id = "preview_info",
+                title = "Current location",
+                subtitle = null,
+                matcher = "current",
                 titleTextColor = 0xFF2E2F31.toInt(),
                 subtitleTextColor = 0xFF585B62.toInt(),
                 icon = null,
-                shouldTintIcon = true,
+                shouldTintIcon = false,
+                groupKind = SearchResultGroupKind.FIXED,
+                isFirstInGroup = true,
+                isLastInGroup = false,
+                showGroupTopSpacing = false,
                 showTimetableIcon = false,
-                showInfoIcon = true,
+                showInfoIcon = false,
                 onRowClick = {},
                 onSuggestionActionClick = {},
                 onInfoClick = {}
@@ -272,25 +277,26 @@ private fun SearchResultRowPreview() {
 @Composable
 private fun SearchResultRowTimetablePreview() {
     TripKitUITheme {
-        Column(
-            modifier = Modifier.padding(vertical = 16.dp)
-        ) {
-            SearchResultRow(
-                ui = SearchResultRowUiModel(
-                    title = "Martin Place",
-                    subtitle = null,
-                    matcher = "Martin",
-                    titleTextColor = 0xFF2E2F31.toInt(),
-                    subtitleTextColor = 0xFF585B62.toInt(),
-                    icon = null,
-                    shouldTintIcon = true,
-                    showTimetableIcon = true,
-                    showInfoIcon = false,
-                    onRowClick = {},
-                    onSuggestionActionClick = {},
-                    onInfoClick = {}
-                )
+        SearchResultRow(
+            ui = SearchResultRowUiModel(
+                id = "preview_timetable",
+                title = "Central Station",
+                subtitle = "12 Vale street",
+                matcher = "central",
+                titleTextColor = 0xFF2E2F31.toInt(),
+                subtitleTextColor = 0xFF585B62.toInt(),
+                icon = null,
+                shouldTintIcon = true,
+                groupKind = SearchResultGroupKind.GOOGLE_AND_TRIPGO,
+                isFirstInGroup = false,
+                isLastInGroup = true,
+                showGroupTopSpacing = true,
+                showTimetableIcon = true,
+                showInfoIcon = false,
+                onRowClick = {},
+                onSuggestionActionClick = {},
+                onInfoClick = {}
             )
-        }
+        )
     }
 }

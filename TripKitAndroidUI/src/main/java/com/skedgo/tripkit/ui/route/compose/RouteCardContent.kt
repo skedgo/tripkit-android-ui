@@ -53,9 +53,9 @@ fun RouteCardContent(
     modifier: Modifier = Modifier,
     style: RouteUiStyle = RouteUiStyle()
 ) {
-    val primaryColor = style.primaryColor ?: MaterialTheme.colors.primary
+    val primaryColor = style.primaryColor ?: colorResource(R.color.colorPrimary)
     val confirmBackground = style.confirmButtonBackground ?: primaryColor
-    val titleColor = style.titleColor ?: MaterialTheme.colors.onBackground
+    val titleColor = style.titleColor ?: colorResource(R.color.labelPrimary)
     val inputBackground = style.inputBackground ?: colorResource(R.color.inputBackground)
     val iconTint = style.iconTint ?: colorResource(R.color.labelSecondary)
     val horizontalPadding = style.horizontalPadding ?: DefaultHorizontalPadding
@@ -109,7 +109,7 @@ fun RouteCardContent(
                     painter = painterResource(id = R.drawable.ic_route_check),
                     contentDescription = null,
                     tint = colorResource(R.color.white),
-                    modifier = Modifier.size(20.dp)
+                    modifier = Modifier.size(dimensionResource(R.dimen.icon_size_20))
                 )
             }
         }

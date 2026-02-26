@@ -57,9 +57,6 @@
                 android:paddingEnd="@dimen/spacing_normal"
                 android:scrollbarStyle="outsideOverlay"
                 android:visibility="@{viewModel.showList}"
-                app:itemBinding="@{viewModel.itemBinding}"
-                app:items="@{viewModel.allSuggestions}"
-                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                 tools:listitem="@android:layout/simple_list_item_1" />
 
             <!-- "Powered By Google" at the bottom -->

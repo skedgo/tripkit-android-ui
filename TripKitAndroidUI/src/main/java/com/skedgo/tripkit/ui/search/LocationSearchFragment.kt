@@ -13,9 +13,11 @@ import android.widget.Toast
 import androidx.appcompat.widget.SearchView
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.databinding.ObservableList
 import androidx.lifecycle.ViewModelProviders
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
@@ -29,6 +31,7 @@ import com.skedgo.tripkit.ui.core.addTo
 import com.skedgo.tripkit.ui.core.rxproperty.asObservable
 import com.skedgo.tripkit.ui.databinding.LocationSearchBinding
 import com.skedgo.tripkit.ui.search.compose.LocationSearchHeader
+import com.skedgo.tripkit.ui.search.compose.mapSearchResultRows
 import com.skedgo.tripkit.ui.utils.defocusAndHideKeyboard
 import com.skedgo.tripkit.ui.utils.isTalkBackOn
 import com.skedgo.tripkit.ui.utils.showKeyboard
@@ -167,6 +170,35 @@ class LocationSearchFragment : BaseTripKitFragment() {
     @Inject
     lateinit var errorLogger: ErrorLogger
     private var searchView: SearchView? = null
+    private var searchResultsAdapter: SearchResultsComposeAdapter? = null
+    private val suggestionListCallback =
+        object : ObservableList.OnListChangedCallback<ObservableList<SuggestionViewModel>>() {
+            override fun onChanged(sender: ObservableList<SuggestionViewModel>) = submitSearchRows()
+            override fun onItemRangeChanged(
+                sender: ObservableList<SuggestionViewModel>,
+                positionStart: Int,
+                itemCount: Int
+            ) = submitSearchRows()
+
+            override fun onItemRangeInserted(
+                sender: ObservableList<SuggestionViewModel>,
+                positionStart: Int,
+                itemCount: Int
+            ) = submitSearchRows()
+
+            override fun onItemRangeMoved(
+                sender: ObservableList<SuggestionViewModel>,
+                fromPosition: Int,
+                toPosition: Int,
+                itemCount: Int
+            ) = submitSearchRows()
+
+            override fun onItemRangeRemoved(
+                sender: ObservableList<SuggestionViewModel>,
+                positionStart: Int,
+                itemCount: Int
+            ) = submitSearchRows()
+        }
 
     var locationSearchIconProvider: LocationSearchIconProvider? = null
         set(value) {
@@ -237,8 +269,8 @@ class LocationSearchFragment : BaseTripKitFragment() {
 
         binding.viewModel = viewModel
         setupSearchHeaderCompose(binding.searchLayout.searchHeaderCompose)
+        setupResultsList()
 
-        //binding.resultView.addItemDecoration(buildItemDecoration())
         binding.resultView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
                 super.onScrollStateChanged(recyclerView, newState)
@@ -251,6 +283,22 @@ class LocationSearchFragment : BaseTripKitFragment() {
         })
 
         return binding.root
+    }
+
+    private fun setupResultsList() {
+        if (searchResultsAdapter == null) {
+            searchResultsAdapter = SearchResultsComposeAdapter()
+        }
+        binding.resultView.layoutManager = LinearLayoutManager(requireContext())
+        binding.resultView.adapter = searchResultsAdapter
+        viewModel.allSuggestions.removeOnListChangedCallback(suggestionListCallback)
+        viewModel.allSuggestions.addOnListChangedCallback(suggestionListCallback)
+        submitSearchRows()
+    }
+
+    private fun submitSearchRows() {
+        val source = ArrayList<SuggestionViewModel>().apply { addAll(viewModel.allSuggestions) }
+        searchResultsAdapter?.submitList(mapSearchResultRows(source))
     }
 
     private fun setupSearchHeaderCompose(composeView: ComposeView) {
@@ -379,6 +427,10 @@ class LocationSearchFragment : BaseTripKitFragment() {
      * @suppress
      */
     override fun onDestroy() {
+        if (::viewModel.isInitialized) {
+            viewModel.allSuggestions.removeOnListChangedCallback(suggestionListCallback)
+        }
+        searchResultsAdapter = null
         super.onDestroy()
         viewModel.onCleared()
     }
