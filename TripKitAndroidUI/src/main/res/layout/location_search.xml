@@ -14,7 +14,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/white"
+        android:background="@color/cardBackground"
         android:orientation="vertical">
 
         <include
@@ -51,6 +51,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_marginBottom="32dp"
+                android:clipToPadding="false"
+                android:paddingStart="@dimen/spacing_normal"
+                android:paddingTop="@dimen/spacing_extra_small"
+                android:paddingEnd="@dimen/spacing_normal"
                 android:scrollbarStyle="outsideOverlay"
                 android:visibility="@{viewModel.showList}"
                 app:itemBinding="@{viewModel.itemBinding}"
@@ -92,13 +96,15 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 app:viewModel="@{viewModel.errorViewModel}"
-                app:visibility="@{viewModel.showError}" />
+                app:visibility="@{viewModel.showError}"
+                tools:visibility="gone"/>
 
             <ProgressBar
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:visibility="@{viewModel.showMiddleProgressBar}" />
+                android:visibility="@{viewModel.showMiddleProgressBar}"
+                tools:visibility="gone"/>
         </FrameLayout>
     </LinearLayout>
 </layout>

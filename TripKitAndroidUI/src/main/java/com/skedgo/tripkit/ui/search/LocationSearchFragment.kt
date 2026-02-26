@@ -11,6 +11,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.widget.SearchView
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.lifecycle.ViewModelProviders
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DividerItemDecoration
@@ -21,10 +23,12 @@ import com.skedgo.tripkit.common.model.location.Location
 import com.skedgo.tripkit.logging.ErrorLogger
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.TripKitUI
+import com.skedgo.tripkit.ui.compose.TripKitUITheme
 import com.skedgo.tripkit.ui.core.BaseTripKitFragment
 import com.skedgo.tripkit.ui.core.addTo
 import com.skedgo.tripkit.ui.core.rxproperty.asObservable
 import com.skedgo.tripkit.ui.databinding.LocationSearchBinding
+import com.skedgo.tripkit.ui.search.compose.LocationSearchHeader
 import com.skedgo.tripkit.ui.utils.defocusAndHideKeyboard
 import com.skedgo.tripkit.ui.utils.isTalkBackOn
 import com.skedgo.tripkit.ui.utils.showKeyboard
@@ -163,7 +167,6 @@ class LocationSearchFragment : BaseTripKitFragment() {
     @Inject
     lateinit var errorLogger: ErrorLogger
     private var searchView: SearchView? = null
-    private var showSearchFieldBoolean = true
 
     var locationSearchIconProvider: LocationSearchIconProvider? = null
         set(value) {
@@ -229,12 +232,13 @@ class LocationSearchFragment : BaseTripKitFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        viewModel.handleArgs(arguments)
         binding = LocationSearchBinding.inflate(inflater)
 
         binding.viewModel = viewModel
-        searchView = binding.searchLayout.searchView
+        setupSearchHeaderCompose(binding.searchLayout.searchHeaderCompose)
 
-        binding.resultView.addItemDecoration(buildItemDecoration())
+        //binding.resultView.addItemDecoration(buildItemDecoration())
         binding.resultView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
                 super.onScrollStateChanged(recyclerView, newState)
@@ -246,9 +250,26 @@ class LocationSearchFragment : BaseTripKitFragment() {
             }
         })
 
-        initSearchView(binding.searchLayout.searchView)
-
         return binding.root
+    }
+
+    private fun setupSearchHeaderCompose(composeView: ComposeView) {
+        composeView.setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+        composeView.setContent {
+            TripKitUITheme {
+                LocationSearchHeader(
+                    showBackButton = arguments?.getBoolean(ARG_SHOW_BACK_BUTTON, true) ?: true,
+                    queryHint = arguments?.getString(ARG_QUERY_HINT),
+                    onBackClick = { viewModel.goBack() },
+                    onSearchViewCreated = { createdSearchView ->
+                        if (searchView !== createdSearchView) {
+                            searchView = createdSearchView
+                            initSearchView(createdSearchView)
+                        }
+                    }
+                )
+            }
+        }
     }
 
     private fun buildItemDecoration(): DividerItemDecoration {
@@ -390,7 +411,6 @@ class LocationSearchFragment : BaseTripKitFragment() {
             }
         })
 
-        viewModel.handleArgs(arguments)
         viewModel.loadCity()
         arguments?.let {
             handleArguments(it, searchView)
@@ -575,22 +595,22 @@ class LocationSearchFragment : BaseTripKitFragment() {
          * @return A usable LocationSearchFragment
          */
         fun build(): LocationSearchFragment {
-            val args = Bundle()
-            args.putParcelable(KEY_BOUNDS, bounds)
-            args.putParcelable(KEY_CENTER, near)
-            args.putString(ARG_QUERY_HINT, hint)
-            args.putString(ARG_INITIAL_QUERY, initialQuery)
-            args.putBoolean(ARG_CAN_OPEN_TIMETABLE, canOpenTimetable)
-            args.putBoolean(ARG_WITH_CURRENT_LOCATION, withCurrentLocation)
-            args.putBoolean(ARG_WITH_DROP_PIN, withDropPin)
-            args.putBoolean(ARG_SHOW_BACK_BUTTON, showBackButton)
-            args.putBoolean(ARG_SHOW_SEARCH_FIELD, showSearchField)
-            val fragment = LocationSearchFragment()
-            fragment.arguments = args
-            fragment.searchSuggestionProvider = searchProvider
-            fragment.locationSearchIconProvider = locationSearchIconProvider
-            fragment.fixedSuggestionsProvider = fixedSuggestionsProvider
-            return fragment
+            return LocationSearchCore.createFragment(
+                config = LocationSearchCoreConfig(
+                    bounds = bounds,
+                    near = near,
+                    initialQuery = initialQuery,
+                    hint = hint,
+                    canOpenTimetable = canOpenTimetable,
+                    withCurrentLocation = withCurrentLocation,
+                    withDropPin = withDropPin,
+                    showBackButton = showBackButton,
+                    showSearchField = showSearchField,
+                    locationSearchIconProvider = locationSearchIconProvider,
+                    fixedSuggestionsProvider = fixedSuggestionsProvider,
+                    searchProvider = searchProvider
+                )
+            )
         }
     }
 
