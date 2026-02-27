@@ -27,10 +27,10 @@
             android:layout_height="wrap_content"
             android:visibility="@{viewModel.showSearchBox}">
 
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/shadow_height"
-                android:background="@drawable/below_shadow" />
+<!--            <View-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="@dimen/shadow_height"-->
+<!--                android:background="@drawable/below_shadow" />-->
 
             <ProgressBar
                 style="@style/Base.Widget.AppCompat.ProgressBar.Horizontal"
@@ -44,7 +44,8 @@
 
         <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:paddingTop="@dimen/spacing_small">
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/resultView"

@@ -102,4 +102,6 @@
     <dimen name="icon_size_40">40dp</dimen>
 
     <dimen name="divider_vertical_40">40dp</dimen>
+
+    <dimen name="input_height_40">40dp</dimen>
 </resources>
