@@ -115,6 +115,7 @@ dependencies {
     implementation libs.composeUi
     implementation libs.composeFoundation
     implementation libs.composeMaterial
+    implementation libs.composeLiveData
     implementation libs.composeUiToolingPreview
     debugImplementation libs.composeUiTooling
 
