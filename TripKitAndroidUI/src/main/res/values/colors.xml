@@ -116,7 +116,10 @@
 
     <color name="labelPrimary">#2E2F31</color>
     <color name="labelSecondary">#585B62</color>
+    <color name="labelTertiary">#82868E</color>
 
     <color name="cardGrabHandleBackground">#CECFD3</color>
+
+    <color name="inputBackground">#E5E6E8</color>
 
 </resources>
