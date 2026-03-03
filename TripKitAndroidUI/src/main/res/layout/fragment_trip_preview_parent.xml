@@ -58,8 +58,8 @@
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
                         android:gravity="center_vertical"
-                        android:minWidth="48dp"
-                        android:minHeight="48dp">
+                        android:minWidth="@dimen/min_touch_target_size"
+                        android:minHeight="@dimen/min_touch_target_size">
 
                         <ImageView
                             android:id="@+id/ivBack"

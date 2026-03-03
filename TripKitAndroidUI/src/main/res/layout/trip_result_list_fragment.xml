@@ -162,8 +162,8 @@
                             app:appTextTint="@{@color/colorPrimary}"/>
 
                         <ImageView
-                            android:layout_width="16dp"
-                            android:layout_height="16dp"
+                            android:layout_width="@dimen/icon_small"
+                            android:layout_height="@dimen/icon_small"
                             android:layout_gravity="center_vertical"
                             app:srcCompat="@drawable/chevron_down"
                             app:appTint="@{@color/colorPrimary}"/>
