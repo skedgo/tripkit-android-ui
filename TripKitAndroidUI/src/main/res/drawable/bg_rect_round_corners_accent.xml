@@ -4,7 +4,7 @@
 
     <solid android:color="@color/colorAccent" />
 
-    <corners android:radius="@dimen/icon_small" />
+    <corners android:radius="@dimen/icon_large" />
 
     <padding
         android:right="@dimen/spacing_normal"

@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.DialogInterface
 import android.os.Bundle
 import android.view.View
+import android.view.ViewTreeObserver
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
@@ -39,6 +40,8 @@ open class TripPreviewParentFragment : BaseDialog<FragmentTripPreviewParentBindi
     protected val viewModel: TripPreviewParentViewModel by viewModels { viewModelFactory }
 
     protected lateinit var segment: TripSegment
+
+    private var toolbarLayoutListener: ViewTreeObserver.OnGlobalLayoutListener? = null
 
     companion object {
         fun newInstance(segment: TripSegment): TripPreviewParentFragment =
@@ -97,6 +100,14 @@ open class TripPreviewParentFragment : BaseDialog<FragmentTripPreviewParentBindi
 
     open fun goTo(fragment: Fragment) {}
 
+    override fun onDestroyView() {
+        toolbarLayoutListener?.let { listener ->
+            binding.toolbar.viewTreeObserver.removeOnGlobalLayoutListener(listener)
+        }
+        toolbarLayoutListener = null
+        super.onDestroyView()
+    }
+
     private fun initObservers() {
         viewModel.apply {
             observe(segmentItemType) {
@@ -108,6 +119,38 @@ open class TripPreviewParentFragment : BaseDialog<FragmentTripPreviewParentBindi
     private fun initViews() {
         binding.layoutBack.setOnClickListener { onBackPressed() }
         binding.tvSecondaryAction.setOnClickListener { onSecondaryActionClick(segment) }
+        updateToolbarTitlePadding()
+        val listener = ViewTreeObserver.OnGlobalLayoutListener { updateToolbarTitlePadding() }
+        toolbarLayoutListener = listener
+        binding.toolbar.viewTreeObserver.addOnGlobalLayoutListener(listener)
+        viewModel.toolbarState.observe(viewLifecycleOwner) {
+            if (view != null) binding.toolbar.post { updateToolbarTitlePadding() }
+        }
+    }
+
+    /**
+     * Inset title with padding so it stays in the middle zone (between back and secondary).
+     * Title wraps within that area instead of overflowing. When secondary is hidden,
+     * equal left/right padding keeps the title centered in the full toolbar.
+     */
+    private fun updateToolbarTitlePadding() {
+        if (view == null) return
+        val toolbar = binding.toolbar
+        val title = binding.toolbarTitle
+        val back = binding.layoutBack
+        val secondary = binding.tvSecondaryAction
+        if (toolbar.width == 0) return
+        val backWidth = if (back.visibility == View.VISIBLE) back.width else 0
+        val secondaryVisible = secondary.visibility == View.VISIBLE
+        val endPadding = if (secondaryVisible) secondary.width else backWidth
+        val top = title.paddingTop
+        val bottom = title.paddingBottom
+        title.setPadding(
+            backWidth.coerceAtLeast(0),
+            top,
+            endPadding.coerceAtLeast(0),
+            bottom
+        )
     }
 
     private fun handleItemType(type: Int) {
