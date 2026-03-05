@@ -110,4 +110,6 @@
     <!-- Transport mode selector colors -->
     <color name="transport_mode_selector_checked">#FFFFFF</color>
     <color name="transport_mode_selector_unchecked">#1F212A33</color>
+
+    <color name="wheelchair_bg">#0098de</color>
 </resources>

@@ -90,7 +90,13 @@
                     android:layout_marginEnd="@dimen/spacing_xx_small"
                     android:src="@{viewModel.wheelchairIcon}"
                     app:addRtlSupport="@{true}"
-                    app:tint="@{viewModel.wheelchairTint}" />
+                    app:tint="@{viewModel.wheelchairTint}"
+                    app:backgroundDrawable="@{viewModel.wheelchairBackgroundTint}"
+                    android:visibility="@{viewModel.wheelchairIcon != null}"
+                    tools:tint="@color/white"
+                    tools:src="@drawable/ic_wheelchair"
+                    tools:appBackgroundTint="@color/wheelchair_bg"
+                    />
 
                 <ImageView
                     android:id="@+id/ivBicycle"
