@@ -46,6 +46,8 @@ data class FavoriteV2(
     @PrimaryKey val uuid: String,
     val type: FavoriteType,
     var name: String? = null,
+    var stopName: String? = null,
+    var isUserCustomName: Boolean = false,
     val order: Int? = null,
     val region: String? = null,
     val stopCode: String? = null,
@@ -113,6 +115,8 @@ data class FavoriteV2(
         private val type: FavoriteType
     ) {
         private var name: String? = null
+        private var stopName: String? = null
+        private var isUserCustomName: Boolean = false
         private var uuid: String = UUID.randomUUID().toString()
         private var region: String? = null
         private var stopCode: String? = null
@@ -124,6 +128,10 @@ data class FavoriteV2(
         private var patterns: List<Waypoint>? = null
 
         fun name(name: String?) = apply { this.name = name }
+        fun stopName(stopName: String?) = apply { this.stopName = stopName }
+        fun isUserCustomName(isUserCustomName: Boolean) = apply {
+            this.isUserCustomName = isUserCustomName
+        }
         fun region(region: String?) = apply { this.region = region }
         fun uuid(uuid: String) = apply { this.uuid = uuid }
         fun stopCode(stopCode: String?) = apply { this.stopCode = stopCode }
@@ -169,6 +177,8 @@ data class FavoriteV2(
             return FavoriteV2(
                 uuid = uuid,
                 name = name,
+                stopName = stopName,
+                isUserCustomName = isUserCustomName,
                 order = order,
                 region = region,
                 type = type,

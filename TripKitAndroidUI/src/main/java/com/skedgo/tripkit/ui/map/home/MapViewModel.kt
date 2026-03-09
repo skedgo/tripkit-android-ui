@@ -17,7 +17,6 @@ import com.skedgo.tripkit.camera.GetInitialMapCameraPosition
 import com.skedgo.tripkit.camera.PutMapCameraPosition
 import com.skedgo.tripkit.common.model.location.Location
 import com.skedgo.tripkit.common.model.TransportMode
-import com.skedgo.tripkit.data.regions.RegionService
 import com.skedgo.tripkit.location.GeoPoint
 import com.skedgo.tripkit.location.GoToMyLocationRepository
 import com.skedgo.tripkit.logging.ErrorLogger
@@ -51,8 +50,7 @@ class MapViewModel @Inject internal constructor(
     private val fetchStopsByViewport: FetchStopsByViewport,
     private val getCellIdsFromViewPort: GetCellIdsFromViewPort,
     private val loadPOILocationsByViewPort: LoadPOILocationsByViewPort,
-    private val errorLogger: ErrorLogger,
-    private val regionService: RegionService
+    private val errorLogger: ErrorLogger
 ) : RxViewModel() {
     private val _myLocationError: PublishRelay<Throwable> = PublishRelay.create()
     val myLocationError: Observable<Throwable>
@@ -67,6 +65,7 @@ class MapViewModel @Inject internal constructor(
     var notIncludedTransportModes: List<TransportMode>? = null
 
     private val viewportChanged = PublishRelay.create<ViewPort>()
+    private var lastViewPort: ViewPort? = null
     val markers = viewportChanged.hide()
         .debounce(400, TimeUnit.MILLISECONDS)
         .flatMap { viewPort ->
@@ -81,9 +80,9 @@ class MapViewModel @Inject internal constructor(
             it.first
         }
         .observeOn(Schedulers.io())
-        .switchMap {
+        .switchMap { viewPort ->
             if (showMarkers.get()) {
-                loadPOILocationsByViewPort.fetch(it)
+                loadPOILocationsByViewPort.fetch(viewPort)
             } else {
                 Observable.empty()
             }
@@ -206,7 +205,10 @@ class MapViewModel @Inject internal constructor(
             it.name = resources.getString(R.string.current_location)
         }
 
-    fun onViewPortChanged(viewPort: ViewPort) = viewportChanged.accept(viewPort)
+    fun onViewPortChanged(viewPort: ViewPort) {
+        lastViewPort = viewPort
+        viewportChanged.accept(viewPort)
+    }
 
     fun prefetchMarkersForRegion(zoom: Float, bounds: LatLngBounds) {
         val initial = bounds.withBuffer(1.5)
