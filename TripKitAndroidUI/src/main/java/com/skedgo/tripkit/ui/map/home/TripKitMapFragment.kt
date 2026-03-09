@@ -192,6 +192,7 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
     private var transportModes: List<TransportMode>? = null
     private val infoWindowHandler = Handler(Looper.getMainLooper())
     private val markerHideCallbacks = WeakHashMap<Marker, Runnable>()
+    private var selectedStopMarkerPosition: LatLng? = null
 
     @Inject
     lateinit var stopInfoWindowAdapter: StopInfoWindowAdapter
@@ -1104,6 +1105,9 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
             val poiLocation = marker.tag as IMapPoiLocation?
             poiLocation?.let {
                 poiLocation.onMarkerClick(bus, eventTracker)
+                if (poiLocation is StopPOILocation) {
+                    selectedStopMarkerPosition = marker.position
+                }
                 marker.showInfoWindow()
                 val scrollY = ((resources.getDimensionPixelSize(R.dimen.routing_card_height)
                     + resources.getDimensionPixelSize(R.dimen.spacing_huge)
@@ -1184,6 +1188,7 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
         stop: ScheduledStop,
         shouldHideInfoWindow: Boolean = false
     ) {
+        selectedStopMarkerPosition = if (shouldHideInfoWindow) null else LatLng(stop.lat, stop.lon)
         if (stop.lat.isNaN() || stop.lon.isNaN()) {
             return
         }
@@ -1418,6 +1423,15 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
 
             if (marker.isVisible != shouldBeVisible) {
                 marker.isVisible = shouldBeVisible
+            }
+            if (
+                shouldBeVisible &&
+                marker.tag is StopPOILocation &&
+                selectedStopMarkerPosition != null &&
+                marker.position == selectedStopMarkerPosition &&
+                !marker.isInfoWindowShown
+            ) {
+                marker.showInfoWindow()
             }
         }
     }
