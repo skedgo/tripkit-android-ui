@@ -27,28 +27,47 @@
         <TextView
             android:id="@+id/title"
             style="@style/TextAppearance.MaterialComponents.Body1"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:alpha="@{viewModel.isMissedPreBooking() ? 0.3f : 1f}"
-            android:singleLine="true"
+            android:maxLines="3"
+            android:ellipsize="end"
+            android:breakStrategy="balanced"
+            android:layout_marginEnd="8dp"
             android:text="@{viewModel.title}"
             app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/subtitle"
             app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintHorizontal_bias="0"
+            app:layout_constraintHorizontal_chainStyle="spread_inside"
             tools:text="10:11" />
 
         <TextView
             android:id="@+id/subtitle"
             style="@style/TextAppearance.MaterialComponents.Body2"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="@{viewModel.subtitle}"
             android:textColor="@color/black1"
+            android:maxLines="3"
+            android:ellipsize="end"
+            android:breakStrategy="balanced"
+            android:gravity="end"
             android:visibility="@{!viewModel.isHideExactTimes}"
             android:paddingBottom="@dimen/spacing_extra_small"
-            app:layout_constraintBottom_toBottomOf="@+id/title"
+            app:layout_constraintStart_toEndOf="@+id/title"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/title"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintHorizontal_bias="1"
+            app:layout_constraintVertical_bias="0"
             tools:text="30 minutes" />
+
+        <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/timeBarrier"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:barrierDirection="bottom"
+            app:constraint_referenced_ids="title,subtitle" />
 
         <com.google.android.flexbox.FlexboxLayout
             android:id="@+id/segmentsLayout"
@@ -59,13 +78,15 @@
             app:entries="@{viewModel.segments}"
             app:flexDirection="row"
             app:flexWrap="wrap"
+            app:justifyContent="space_between"
+            app:alignItems="flex_start"
             android:scrollbars="none"
             android:scrollIndicators="none"
             android:layout_marginEnd="@dimen/spacing_small"
             app:layout="@{@layout/trip_result_segment_item}"
             app:layout_constraintEnd_toStartOf="@+id/bAction"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/title"/>
+            app:layout_constraintTop_toBottomOf="@+id/timeBarrier"/>
 
         <Button
             android:id="@+id/bAction"
@@ -74,11 +95,11 @@
             android:textColor="@android:color/white"
             tools:text="Action"
             android:textSize="@dimen/font_size_normal"
-            android:paddingTop="0dp"
             android:textAllCaps="false"
-            android:maxHeight="30dp"
             android:minHeight="0dp"
             android:minWidth="0dp"
+            android:paddingVertical="@dimen/spacing_extra_small"
+            android:paddingHorizontal="@dimen/content_padding"
             android:visibility="@{viewModel.hasQuickBooking}"
             android:text="@{viewModel.trip.quickBookingSegment.booking.title}"
             app:clickWithDebounce="@{() -> viewModel.onQuickBookingActionClicked()}"

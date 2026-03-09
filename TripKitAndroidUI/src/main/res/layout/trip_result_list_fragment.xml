@@ -127,70 +127,81 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/clLocations">
 
-            <LinearLayout
-                android:id="@+id/leaveNowLayout"
-                android:layout_width="wrap_content"
+            <HorizontalScrollView
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:background="@drawable/bg_round_rect_primary_alpha"
-                android:orientation="horizontal"
-                android:paddingHorizontal="@dimen/spacing_small"
-                android:paddingVertical="@dimen/spacing_small"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:appLayoutTint="@{@color/colorPrimary}">
-
-                <TextView
-                    style="@style/TextAppearance.MaterialComponents.Body2"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:text="@{viewModel.timeLabel}"
-                    app:appTextTint="@{@color/colorPrimary}"/>
-
-                <ImageView
-                    android:layout_width="16dp"
-                    android:layout_height="16dp"
-                    android:layout_gravity="center_vertical"
-                    app:srcCompat="@drawable/chevron_down"
-                    app:appTint="@{@color/colorPrimary}"/>
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/transportsLayout"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/spacing_small"
-                android:background="@drawable/bg_round_rect_transparent_black_border"
-                android:onClick="@{viewModel::transportLayoutClicked}"
-                android:orientation="horizontal"
-                android:paddingHorizontal="@dimen/spacing_small"
-                android:paddingVertical="@dimen/spacing_small"
-                android:visibility="@{viewModel.showTransportModeSelection}"
+                android:scrollbars="none"
+                android:clipToPadding="false"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0"
-                app:layout_constraintStart_toEndOf="@+id/leaveNowLayout"
+                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent">
 
-                <TextView
-                    style="@style/TextAppearance.MaterialComponents.Body2"
+                <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:text="@string/transport"
-                    app:appTextTint="@{@color/colorPrimary}"
-                    tools:text="Transports" />
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
 
-                <ImageView
-                    android:layout_width="@dimen/icon_small"
-                    android:layout_height="@dimen/icon_small"
-                    android:layout_gravity="center_vertical"
-                    android:src="@{viewModel.showTransport ? @drawable/chevron_up : @drawable/chevron_down}"
-                    app:tint="@color/colorPrimary"
-                    app:appTint="@{@color/colorPrimary}"
-                    tools:src="@drawable/chevron_down" />
-            </LinearLayout>
+                    <LinearLayout
+                        android:id="@+id/leaveNowLayout"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/bg_round_rect_primary_alpha"
+                        android:orientation="horizontal"
+                        android:paddingHorizontal="@dimen/spacing_small"
+                        android:paddingVertical="@dimen/spacing_small"
+                        app:appLayoutTint="@{@color/colorPrimary}">
+
+                        <TextView
+                            style="@style/TextAppearance.MaterialComponents.Body2"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_vertical"
+                            android:text="@{viewModel.timeLabel}"
+                            app:appTextTint="@{@color/colorPrimary}"/>
+
+                        <ImageView
+                            android:layout_width="@dimen/icon_small"
+                            android:layout_height="@dimen/icon_small"
+                            android:layout_gravity="center_vertical"
+                            app:srcCompat="@drawable/chevron_down"
+                            app:appTint="@{@color/colorPrimary}"/>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/transportsLayout"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/spacing_small"
+                        android:background="@drawable/bg_round_rect_transparent_black_border"
+                        android:onClick="@{viewModel::transportLayoutClicked}"
+                        android:orientation="horizontal"
+                        android:paddingHorizontal="@dimen/spacing_small"
+                        android:paddingVertical="@dimen/spacing_small"
+                        android:visibility="@{viewModel.showTransportModeSelection}">
+
+                        <TextView
+                            style="@style/TextAppearance.MaterialComponents.Body2"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_vertical"
+                            android:text="@string/transport"
+                            app:appTextTint="@{@color/colorPrimary}"
+                            tools:text="Transports" />
+
+                        <ImageView
+                            android:layout_width="@dimen/icon_small"
+                            android:layout_height="@dimen/icon_small"
+                            android:layout_gravity="center_vertical"
+                            android:src="@{viewModel.showTransport ? @drawable/chevron_up : @drawable/chevron_down}"
+                            app:tint="@color/colorPrimary"
+                            app:appTint="@{@color/colorPrimary}"
+                            tools:src="@drawable/chevron_down" />
+                    </LinearLayout>
+
+                </LinearLayout>
+            </HorizontalScrollView>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -241,19 +252,27 @@
                 android:layout_height="wrap_content"
                 android:paddingStart="@dimen/spacing_small"
                 android:paddingEnd="@dimen/spacing_small"
-                app:layout_constraintEnd_toEndOf="parent"
+                android:maxLines="2"
+                android:ellipsize="end"
+                app:layout_constrainedWidth="true"
+                app:layout_constraintEnd_toStartOf="@+id/tvLearnMore"
                 app:layout_constraintStart_toEndOf="@+id/ivHelpIcon"
                 app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintHorizontal_bias="0"
                 android:text="How to book transportation"
                 android:textColor="@color/black" />
 
             <TextView
+                android:id="@+id/tvLearnMore"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/spacing_small"
                 android:layout_marginEnd="@dimen/spacing_normal"
                 android:text="@string/learn_more"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
                 tools:textColor="@color/colorAccent"
                 app:appTextTint="@{@color/colorAccent}"/>
 

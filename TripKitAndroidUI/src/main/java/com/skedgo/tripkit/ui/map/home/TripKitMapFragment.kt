@@ -227,6 +227,10 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
         existingMarkerPositions.add(position)
     }
 
+    private fun removeMarkerPosition(position: LatLng) {
+        existingMarkerPositions.remove(position)
+    }
+
     /**
      * Clear all tracked marker positions
      */
@@ -425,6 +429,17 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({ (first, second) ->
+                if (second.isNotEmpty()) {
+                    poiMarkers?.markers
+                        ?.filter { marker ->
+                            val poi = marker.tag as? IMapPoiLocation ?: return@filter false
+                            poi.identifier in second
+                        }
+                        ?.forEach { marker ->
+                            removeMarkerPosition(marker.position)
+                            marker.remove()
+                        }
+                }
                 for ((first1, second1) in first) {
                     // Check if a marker with the same position already exists
                     if (!isMarkerPositionExists(first1.position)) {
