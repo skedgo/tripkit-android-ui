@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="rectangle"
+            >
+            <corners android:radius="@dimen/cardview_corner_radius_small" />
+            <solid android:color="@color/disabled" />
+            <padding android:bottom="@dimen/spacing_xx_small"
+                android:top="@dimen/spacing_xx_small"
+                android:left="@dimen/spacing_xx_small"
+                android:right="@dimen/spacing_xx_small"/>
+        </shape>
+    </item>
+
+</selector>
