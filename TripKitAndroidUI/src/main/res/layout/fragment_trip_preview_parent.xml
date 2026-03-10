@@ -24,64 +24,89 @@
             tools:background="@color/colorPrimaryDark"
             android:padding="@dimen/spacing_small">
 
-            <LinearLayout
-                android:id="@+id/layoutBack"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintStart_toStartOf="parent">
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
 
-                <ImageView
-                    android:id="@+id/ivBack"
-                    android:layout_width="@dimen/icon_regular"
-                    android:layout_height="@dimen/icon_regular"
-                    android:src="@drawable/ic_back_button"
-                    android:padding="@dimen/spacing_extra_small"
-                    app:appForeground="@{@color/colorAccent}"
-                    android:visibility="@{viewModel.toolbarState.showBackButton}"
-                    android:importantForAccessibility="no" />
-
+                <!-- Title in middle zone; padding set in code so it wraps between back and secondary -->
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:id="@+id/toolbarTitle"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:textColor="@android:color/white"
                     android:textSize="@dimen/font_size_medium"
-                    android:padding="@dimen/spacing_small"
-                    android:text="@{viewModel.toolbarState.backActionLabel}"
-                    app:appForeground="@{@color/colorAccent}"
-                    tools:textColor="@color/colorAccent"
-                    tools:text="Cancel" />
+                    android:text="@{viewModel.toolbarState.title}"
+                    android:maxLines="3"
+                    android:ellipsize="end"
+                    android:gravity="center"
+                    android:breakStrategy="balanced"
+                    android:clickable="false"
+                    android:focusable="false"
+                    tools:text="Add Booking Details" />
 
-            </LinearLayout>
+                <!-- Row on top so back/secondary stay clickable -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="@android:color/white"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
-                android:textSize="@dimen/font_size_medium"
-                android:text="@{viewModel.toolbarState.title}"
-                tools:text="Title" />
+                    <LinearLayout
+                        android:id="@+id/layoutBack"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:minWidth="@dimen/min_touch_target_size"
+                        android:minHeight="@dimen/min_touch_target_size">
 
-            <TextView
-                android:id="@+id/tvSecondaryAction"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="@dimen/font_size_medium"
-                android:padding="@dimen/spacing_small"
-                android:text="@{viewModel.toolbarState.secondaryActionLabel}"
-                android:visibility="@{viewModel.toolbarState.showSecondaryAction}"
-                tools:text="Action"
-                app:appForeground="@{@color/colorAccent}"
-                tools:textColor="@color/colorAccent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent" />
+                        <ImageView
+                            android:id="@+id/ivBack"
+                            android:layout_width="@dimen/icon_regular"
+                            android:layout_height="@dimen/icon_regular"
+                            android:src="@drawable/ic_back_button"
+                            android:padding="@dimen/spacing_extra_small"
+                            app:appForeground="@{@color/colorAccent}"
+                            android:visibility="@{viewModel.toolbarState.showBackButton}"
+                            android:importantForAccessibility="no" />
 
+                        <TextView
+                            android:id="@+id/tvBackAction"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textSize="@dimen/font_size_medium"
+                            android:padding="@dimen/spacing_small"
+                            android:maxLines="1"
+                            android:ellipsize="end"
+                            android:text="@{viewModel.toolbarState.backActionLabel}"
+                            app:appForeground="@{@color/colorAccent}"
+                            tools:textColor="@color/colorAccent"
+                            tools:text="Cancel" />
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:layout_weight="1" />
+
+                    <TextView
+                        android:id="@+id/tvSecondaryAction"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="@dimen/font_size_medium"
+                        android:padding="@dimen/spacing_small"
+                        android:minWidth="48dp"
+                        android:minHeight="48dp"
+                        android:maxLines="1"
+                        android:ellipsize="end"
+                        android:text="@{viewModel.toolbarState.secondaryActionLabel}"
+                        android:visibility="@{viewModel.toolbarState.showSecondaryAction}"
+                        tools:text="Action"
+                        app:appForeground="@{@color/colorAccent}"
+                        tools:textColor="@color/colorAccent" />
+                </LinearLayout>
+            </FrameLayout>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
