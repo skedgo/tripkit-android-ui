@@ -78,7 +78,7 @@
             app:entries="@{viewModel.segments}"
             app:flexDirection="row"
             app:flexWrap="wrap"
-            app:justifyContent="space_between"
+            app:justifyContent="flex_start"
             app:alignItems="flex_start"
             android:scrollbars="none"
             android:scrollIndicators="none"
