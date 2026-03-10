@@ -33,6 +33,10 @@ internal class ServiceViewModelImpl @Inject constructor(
     //  override val wheelchairAccessible = ObservableBoolean(false)
     override val wheelchairIcon = MutableLiveData<Drawable?>()
     override val wheelchairTint = MutableLiveData<Int>(Color.BLACK)
+    override val wheelchairBackgroundTint =
+        MutableLiveData<Drawable>(
+            ContextCompat.getDrawable(context, R.drawable.bg_round_corner_wheelchair)
+        )
 
     override val serviceNumber = MutableLiveData<String>()
     override val secondaryText = MutableLiveData<String>()
@@ -165,19 +169,24 @@ internal class ServiceViewModelImpl @Inject constructor(
     }
 
     private fun initHelpersVMs(service: TimetableEntry) {
-
+        wheelchairBackgroundTint.postValue(
+            ContextCompat.getDrawable(context, R.drawable.bg_round_corner_wheelchair)
+        )
         service.wheelchairAccessible?.let {
             if (it) {
                 wheelchairIcon.postValue(ContextCompat.getDrawable(context, R.drawable.ic_wheelchair))
-                wheelchairTint.postValue(ContextCompat.getColor(context, R.color.black2))
+                wheelchairTint.postValue(ContextCompat.getColor(context, R.color.white))
             } else {
+                wheelchairBackgroundTint.postValue(
+                    ContextCompat.getDrawable(context, R.drawable.bg_round_corner_no_wheelchair)
+                )
                 wheelchairIcon.postValue(
                     ContextCompat.getDrawable(
                         context,
                         R.drawable.ic_wheelchair_not_accessible
                     )
                 )
-                wheelchairTint.postValue(ContextCompat.getColor(context, R.color.tripKitWarning))
+                wheelchairTint.postValue(ContextCompat.getColor(context, R.color.divider))
             }
         }
         serviceAlertViewModel.setAlerts(service.alerts)
