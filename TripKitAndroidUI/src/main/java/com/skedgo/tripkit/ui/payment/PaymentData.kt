@@ -49,6 +49,28 @@ data class PaymentData(
         0.0
     }
 
+    /**
+     * Returns the numeric total (in dollars) for Stripe Payment Sheet IntentConfiguration.
+     * Uses the same logic as [getTotalValue]: when [review] is present, sums review prices;
+     * otherwise uses [getTotalPrice] or [total]. Caller should multiply by 100 for cents
+     * and use `coerceAtLeast(50)` for Stripe's minimum amount.
+     */
+    fun getTotalAmountForPayment(): Double = if (review.isNullOrEmpty()) {
+        if (paymentSummaryDetails.isNotEmpty()) getTotalPrice() else total
+    } else {
+        review!!.sumOf { it.getFormattedPrice() }
+    }
+
+    /**
+     * Returns currency for Stripe Payment Sheet (ISO 4217, e.g. "aud").
+     * Uses [currency] when non-blank; otherwise falls back to [review] or [paymentOptions].
+     * Defaults to "aud" when no source provides a valid currency.
+     */
+    fun getCurrencyForPayment(): String = currency.takeIf { it.isNotBlank() }
+        ?: review?.firstOrNull()?.currency?.takeIf { it.isNotBlank() }
+        ?: paymentOptions?.firstOrNull()?.currency?.takeIf { it.isNotBlank() }
+        ?: "aud"
+
     fun getTotalTickets() = (if (paymentSummaryDetails.isNotEmpty()) {
         paymentSummaryDetails.sumOf { it.breakdown ?: 0 }
     } else {
