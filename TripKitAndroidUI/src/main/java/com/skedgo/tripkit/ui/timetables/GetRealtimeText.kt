@@ -61,7 +61,9 @@ open class GetRealtimeText @Inject constructor(
             service.realTimeStatus == null || service.realTimeStatus == RealTimeStatus.INCAPABLE ->
                 "${context.getString(R.string.scheduled)} • $schedule" to R.color.black1
 
-            service.realTimeStatus == RealTimeStatus.CAPABLE -> context.getString(R.string.no_realtime_available) to R.color.black1
+            service.realTimeStatus == RealTimeStatus.CAPABLE &&
+                realTimeDeparture(service, vehicle) > TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()) ->
+                "${context.getString(R.string.scheduled)} • $schedule" to R.color.black1
             else -> {
 
                 val serviceTime =
