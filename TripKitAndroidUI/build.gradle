@@ -117,7 +117,7 @@ dependencies {
     implementation libs.composeMaterial
     implementation libs.composeLiveData
     implementation libs.composeUiToolingPreview
-    debugImplementation libs.composeUiTooling
+    implementation libs.composeUiTooling
 
     implementation libs.supportDesign
     implementation libs.appCompat

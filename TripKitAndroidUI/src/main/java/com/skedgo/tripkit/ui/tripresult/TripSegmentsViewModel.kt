@@ -41,6 +41,7 @@ import com.skedgo.tripkit.routing.timetableEndDateTime
 import com.skedgo.tripkit.routing.timetableStartDateTime
 import com.skedgo.tripkit.ui.BR
 import com.skedgo.tripkit.ui.R
+import com.skedgo.tripkit.ui.UiRenderToggles
 import com.skedgo.tripkit.ui.core.RxViewModel
 import com.skedgo.tripkit.ui.creditsources.CreditSourcesOfDataViewModel
 import com.skedgo.tripkit.ui.routing.settings.RemindersRepository
@@ -121,7 +122,14 @@ class TripSegmentsViewModel @Inject internal constructor(
     private val segmentViewModels: MutableList<TripSegmentItemViewModel> = mutableListOf()
     val buttons = MutableLiveData<MutableList<ActionButtonViewModel>>(mutableListOf())
     val buttonsBinding: ItemBinding<ActionButtonViewModel> by lazy {
-        ItemBinding.of<ActionButtonViewModel>(BR.viewModel, R.layout.trip_segment_action_button)
+        ItemBinding.of<ActionButtonViewModel>(
+            BR.viewModel,
+            if (UiRenderToggles.useComposeActionButtonUi) {
+                R.layout.trip_segment_action_button
+            } else {
+                R.layout.trip_segment_action_button_xml
+            }
+        )
             .bindExtra(BR.listener, this)
     }
 

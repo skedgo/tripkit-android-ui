@@ -22,6 +22,7 @@ import com.skedgo.tripkit.time.GetNow
 import com.skedgo.tripkit.ui.BR
 import com.skedgo.tripkit.ui.BuildConfig
 import com.skedgo.tripkit.ui.R
+import com.skedgo.tripkit.ui.UiRenderToggles
 import com.skedgo.tripkit.ui.core.RxViewModel
 import com.skedgo.tripkit.ui.core.isExecuting
 import com.skedgo.tripkit.ui.core.rxproperty.asObservable
@@ -81,7 +82,14 @@ class TimetableViewModel @Inject constructor(
     val stationName = MutableLiveData<String>()
     val stationType = MutableLiveData<String>()
     val itemBinding by lazy {
-        ItemBinding.of<ServiceViewModel>(BR.viewModel, R.layout.timetable_fragment_list_item)
+        ItemBinding.of<ServiceViewModel>(
+            BR.viewModel,
+            if (UiRenderToggles.useComposeTimetableUi) {
+                R.layout.timetable_fragment_list_item
+            } else {
+                R.layout.timetable_fragment_list_item_xml
+            }
+        )
     }
 
     val serviceItemBinding by lazy {
