@@ -67,6 +67,7 @@ class PoiDetailsMapContributor : TripKitMapContributor {
 
     private fun updateMarker() {
         val map = this.map ?: return
+        if (!this::tripLocationMarkerCreator.isInitialized) return
 
         if (location == null) {
             poiMarker?.remove()
