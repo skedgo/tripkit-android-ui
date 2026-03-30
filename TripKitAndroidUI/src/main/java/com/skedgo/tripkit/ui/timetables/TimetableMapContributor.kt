@@ -202,7 +202,6 @@ class TimetableMapContributor(val fragment: Fragment) : TripKitMapContributor {
                 } else {
                     setRealTimeVehicle(null) // Handle empty OptionalCompat
                 }
-                fitAllMapElementsToBounds()
             })
     }
 
