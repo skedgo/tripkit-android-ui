@@ -3,6 +3,7 @@ package com.skedgo.tripkit.ui.servicedetail
 import android.content.Context
 import android.database.ContentObserver
 import android.os.Handler
+import android.os.Looper
 import com.skedgo.tripkit.common.model.stop.ScheduledStop
 import com.skedgo.tripkit.ui.model.StopInfo
 import com.skedgo.tripkit.ui.model.TimetableEntry
@@ -15,6 +16,9 @@ import javax.inject.Inject
 
 typealias ServiceStopAndLine = Pair<List<StopInfo>, List<ServiceLineOverlayTask.ServiceLineInfo>>
 
+/**
+ * Loads service stops and line overlays and re-emits when underlying provider data changes.
+ */
 class LoadServices @Inject constructor(
     private val context: Context,
     private val serviceRepository: ServiceRepository
@@ -26,7 +30,7 @@ class LoadServices @Inject constructor(
 
     fun execute(service: TimetableEntry, stop: ScheduledStop): Flowable<ServiceStopAndLine> {
         return Flowable.create(FlowableOnSubscribe<Single<ServiceStopAndLine>>() {
-            val observer = object : ContentObserver(Handler()) {
+            val observer = object : ContentObserver(Handler(Looper.getMainLooper())) {
                 override fun onChange(selfChange: Boolean) {
                     it.onNext(serviceRepository.loadServices(service, stop))
                 }
@@ -37,7 +41,7 @@ class LoadServices @Inject constructor(
                 false,
                 observer
             )
-            it.setCancellable() { context.contentResolver.unregisterContentObserver(observer) }
+            it.setCancellable { context.contentResolver.unregisterContentObserver(observer) }
         }, BackpressureStrategy.LATEST)
             .observeOn(Schedulers.io())
             .flatMapSingle { it }
