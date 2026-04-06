@@ -355,6 +355,7 @@ class TripResultListViewModel @Inject constructor(
 
         regionService.getTransportModesByLocationsAsync(query.fromLocation!!, query.toLocation!!)
             .observeOn(AndroidSchedulers.mainThread())
+            .map { modes -> InjectedTransportModes.mergeWithInjectedModes(modes) }
             .flatMapIterable { value -> value }
             .filter {
                 transportModeFilter!!.useTransportMode(it.id.orEmpty())

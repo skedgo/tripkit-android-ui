@@ -18,8 +18,15 @@ class TripResultListViewTransportModeFilter(
     private var replacementModes: List<UserMode> = listOf()
 
     override fun useTransportMode(mode: String): Boolean {
+        val includedByInjectedMode = InjectedTransportModes.shouldIncludeBackendMode(mode) { injectedId ->
+            transportViewFilter.isSelected(injectedId)
+        }
         return transportModeFilter.useTransportMode(mode)
-            && (transportViewFilter.isSelected(mode) || transportViewFilter.isMinimized(mode))
+            && (
+                transportViewFilter.isSelected(mode) ||
+                    transportViewFilter.isMinimized(mode) ||
+                    includedByInjectedMode
+                )
     }
 
     override fun avoidTransportMode(mode: String): Boolean {
