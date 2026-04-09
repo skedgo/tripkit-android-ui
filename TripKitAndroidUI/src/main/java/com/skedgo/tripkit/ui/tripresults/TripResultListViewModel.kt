@@ -156,6 +156,7 @@ class TripResultListViewModel @Inject constructor(
     private var actionButtonHandlerFactory: ActionButtonHandlerFactory? = null
     private val networkRequests = CompositeDisposable()
     private var replaceModes: List<UserMode>? = null
+    private var activeQueryRequestId: String? = null
 
     private val _helpInfoVisible = MutableLiveData<Boolean>(true)
     val helpInfoVisible: LiveData<Boolean> = _helpInfoVisible
@@ -461,6 +462,9 @@ class TripResultListViewModel @Inject constructor(
         
         query = query.clone(true)
         query.setUseWheelchair(transportVisibilityFilter!!.isSelected(TransportMode.ID_WHEEL_CHAIR))
+        val requestQuery = query
+        val requestId = requestQuery.uuid()
+        activeQueryRequestId = requestId
         
         // Log query type for breakpointing
         val queryType = getQueryType()
@@ -476,12 +480,15 @@ class TripResultListViewModel @Inject constructor(
                 filter.replaceTransportModes(it)
             }
 
-            routeService.routeAsync(query = query, transportModeFilter = filter)
+            routeService.routeAsync(query = requestQuery, transportModeFilter = filter)
                 .flatMap {
+                    if (requestId != activeQueryRequestId) {
+                        return@flatMap Observable.empty<List<TripGroup>>()
+                    }
                     // Mark that we received new data from API
                     receivedNewApiData = true
                     tripGroupWithUrlList.addAll(it)
-                    tripGroupRepository.addTripGroups(query.uuid(), it)
+                    tripGroupRepository.addTripGroups(requestId, it)
                         .toObservable<List<TripGroup>>()
                 }
         }.observeOn(AndroidSchedulers.mainThread())
@@ -491,12 +498,12 @@ class TripResultListViewModel @Inject constructor(
                 networkRequests.add(
                     routingStatusRepositoryLazy.get().putRoutingStatus(
                         RoutingStatus(
-                            query.uuid(),
+                            requestId,
                             Status.InProgress()
                         )
                     ).subscribe()
                 )
-                loadFromStore()
+                loadFromStore(requestQuery, requestId)
             }.doOnError {
                 val message = when (it) {
                     is RoutingError -> it.message
@@ -505,7 +512,7 @@ class TripResultListViewModel @Inject constructor(
                 networkRequests.add(
                     routingStatusRepositoryLazy.get().putRoutingStatus(
                         RoutingStatus(
-                            query.uuid(),
+                            requestId,
                             Status.Error(message)
                         )
                     ).subscribe()
@@ -515,7 +522,7 @@ class TripResultListViewModel @Inject constructor(
                 networkRequests.add(
                     routingStatusRepositoryLazy.get().putRoutingStatus(
                         RoutingStatus(
-                            query.uuid(),
+                            requestId,
                             Status.Completed()
                         )
                     ).subscribe()
@@ -551,11 +558,11 @@ class TripResultListViewModel @Inject constructor(
         load()
     }
 
-    private fun loadFromStore() {
+    private fun loadFromStore(requestQuery: Query, requestId: String) {
         val tripFlow = MutableSharedFlow<Trip>()
         tripFlow.onEach {
             val clickEvent = ViewTrip(
-                query = this.query,
+                query = requestQuery,
                 tripGroupUUID = it.group?.uuid().orEmpty(),
                 sortOrder = 1, /* TODO Proper sorting */
                 displayTripID = it.tripId
@@ -569,13 +576,14 @@ class TripResultListViewModel @Inject constructor(
         }.launchIn(viewModelScope)
 
         val requestDisposable = getSortedTripGroupsWithRoutingStatusProvider.get()
-            .execute(query, 1, transportVisibilityFilter!!)
+            .execute(requestQuery, 1, transportVisibilityFilter!!)
+            .filter { requestId == activeQueryRequestId }
             .observeOn(AndroidSchedulers.mainThread())
             .map {
                 val list = it.first
 
                 // Determine if we should clear existing data based on time relevance
-                val currentQueryTime = query.timeTag?.timeInMillis ?: System.currentTimeMillis()
+                val currentQueryTime = requestQuery.timeTag?.timeInMillis ?: System.currentTimeMillis()
                 
                 // Load previous query time from SharedPreferences (survives app kills)
                 val persistedPreviousTime = loadPreviousQueryTime()
@@ -631,7 +639,7 @@ class TripResultListViewModel @Inject constructor(
                 // Update previous query time for next comparison (persist to survive app kills)
                 // Only save if we received new data from API (not just loading from store)
                 if (receivedNewApiData) {
-                    val currentTime = query.timeTag?.timeInMillis ?: System.currentTimeMillis()
+                    val currentTime = requestQuery.timeTag?.timeInMillis ?: System.currentTimeMillis()
                     previousQueryTime = currentTime
                     savePreviousQueryTime(currentTime)
                     Timber.d("$DEBUG_TAG: Saved new previous query time: ${formatTimeForDebug(currentTime)}")
