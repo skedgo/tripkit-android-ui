@@ -49,10 +49,6 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -145,7 +141,6 @@ class TripResultListViewModel @Inject constructor(
     val isError = ObservableBoolean(false)
     val showCloseButton = ObservableBoolean(false)
     private val transportModeChangeThrottle = PublishSubject.create<Unit>()
-    private val resultListUpdateThrottle = PublishSubject.create<Unit>()
 
     val tripGroupList = ObservableArrayList<TripGroup>()
     var tripGroupWithUrlList = arrayListOf<TripGroup>()
@@ -264,13 +259,6 @@ class TripResultListViewModel @Inject constructor(
         transportModeChangeThrottle.debounce(500, TimeUnit.MILLISECONDS)
             .subscribe(
                 { load() },
-                { errorLogger.trackError(it) })
-            .autoClear()
-
-        resultListUpdateThrottle.debounce(800, TimeUnit.MILLISECONDS)
-            .subscribeOn(AndroidSchedulers.mainThread())
-            .subscribe(
-                { customAdapter.notifyDataSetChanged() },
                 { errorLogger.trackError(it) })
             .autoClear()
     }
@@ -732,8 +720,13 @@ class TripResultListViewModel @Inject constructor(
         _showHelpInfo.value = show
     }
 
-    private var updateJob: Job? = null
-
+    /**
+     * Applies a list update to the adapter-backing [DiffObservableList].
+     *
+     * When a pre-computed [DiffUtil.DiffResult] is supplied (from [loadFromStore]),
+     * it dispatches granular insert/remove/move events automatically.
+     * Otherwise [DiffObservableList.update] calculates the diff internally.
+     */
     private fun updateResultList(
         list: List<TripResultViewModel>,
         diffResult: DiffUtil.DiffResult? = null
@@ -742,15 +735,6 @@ class TripResultListViewModel @Inject constructor(
             results.update(list, it)
         } ?: run {
             results.update(list)
-        }
-
-        // Cancel the previous job if it's still active
-        updateJob?.cancel()
-
-        // Launch a new job with a debounce delay
-        updateJob = CoroutineScope(Dispatchers.Main).launch {
-            delay(1000)
-            customAdapter.notifyDataSetChanged()
         }
     }
 
