@@ -28,8 +28,9 @@ class MyPersonalDataRepositoryImpl @Inject constructor(
 
     override fun isUploadTripSelectionEnabled(): Single<Boolean> {
         return Single.fromCallable {
-//      sharedPreferences.getBoolean(tripSelection, true) // TripSelection is opt-out
-            true
+            // Opt-in by default. This flag controls whether userToken is included
+            // in planned-trip reporting for de-duplication.
+            sharedPreferences.getBoolean(tripSelection, false)
         }
     }
 

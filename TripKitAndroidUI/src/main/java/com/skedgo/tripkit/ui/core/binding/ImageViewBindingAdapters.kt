@@ -107,6 +107,19 @@ object ImageViewBindingAdapters {
     fun bindModeIconId(view: ImageView, modeIconId: String?) {
         Timber.tag("ImageViewBindingAdapters: modeIconId").i("$modeIconId")
         val resId = getLocalIconResId(modeIconId)
+        if (resId != 0) {
+            view.setImageResource(resId)
+            return
+        }
+
+        if (!modeIconId.isNullOrBlank()) {
+            val customResId = view.resources.getIdentifier(modeIconId, "drawable", view.context.packageName)
+            if (customResId != 0) {
+                view.setImageResource(customResId)
+                return
+            }
+        }
+
         if (resId == 0) {
             if (!TextUtils.isEmpty(modeIconId)) {
                 val url = getIconUrlForId(view.resources, modeIconId)
