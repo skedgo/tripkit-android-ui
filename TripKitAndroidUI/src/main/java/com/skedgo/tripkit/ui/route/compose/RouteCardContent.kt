@@ -146,14 +146,15 @@ fun RouteCardContent(
                         verticalArrangement = Arrangement.SpaceAround
                     ) {
                         Icon(
-                            painter = painterResource(id = R.drawable.small_circle),
+                            painter = painterResource(id = R.drawable.ic_fiber_manual_record),
                             contentDescription = null,
                             tint = iconTint,
                             modifier = Modifier.size(iconSize)
+                                .padding(dimensionResource(R.dimen.spacing_xx_small))
                         )
 
                         Icon(
-                            painter = painterResource(id = R.drawable.ic_location_on_2),
+                            painter = painterResource(id = R.drawable.ic_location_on_new),
                             contentDescription = null,
                             tint = iconTint,
                             modifier = Modifier.size(iconSize)
@@ -197,13 +198,13 @@ fun RouteCardContent(
             IconButton(
                 onClick = model.onSwap,
                 modifier = Modifier
-                    .padding(start = 8.dp)
-                    .size(dimensionResource(R.dimen.icon_size_20))
+                    .padding(start = dimensionResource(R.dimen.spacing_small))
+                    .size(dimensionResource(R.dimen.icon_size_24))
             ) {
                 Icon(
-                    painter = painterResource(id = R.drawable.swap_vertical),
+                    painter = painterResource(id = R.drawable.ic_swap_vert),
                     contentDescription = "Swap locations",
-                    tint = iconTint
+                    tint = iconTint,
                 )
             }
         }

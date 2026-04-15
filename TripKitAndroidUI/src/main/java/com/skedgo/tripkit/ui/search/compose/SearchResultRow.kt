@@ -45,6 +45,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.compose.TripKitUITheme
+import com.skedgo.tripkit.ui.search.compose.styles.SearchTextStyles
 import kotlin.math.roundToInt
 
 @Composable
@@ -69,13 +70,16 @@ fun SearchResultRow(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = if (ui.showGroupTopSpacing) dimensionResource(R.dimen.spacing_normal) else 0.dp)
+            .padding(top = if (ui.showGroupTopSpacing)
+                dimensionResource(R.dimen.spacing_normal)
+            else
+                dimensionResource(R.dimen.spacing_xx_small)
+            )
     ) {
         Row(
             modifier = modifier
                 .fillMaxWidth()
                 .background(colorResource(id = R.color.subCardBackground), rowShape)
-                .border(0.5.dp, colorResource(id = R.color.black4), rowShape)
                 .clickable(
                     interactionSource = interactionSource,
                     indication = rememberRipple(),
@@ -107,9 +111,7 @@ fun SearchResultRow(
             ) {
                 Text(
                     text = highlightedText(ui.title, ui.matcher),
-                    style = TextStyle(
-                        fontSize = 16.sp,
-                        lineHeight = 24.sp,
+                    style = SearchTextStyles.Title.copy(
                         color = Color(ui.titleTextColor)
                     ),
                     maxLines = 1
@@ -117,8 +119,7 @@ fun SearchResultRow(
                 if (!ui.subtitle.isNullOrBlank()) {
                     Text(
                         text = highlightedText(ui.subtitle, ui.matcher),
-                        style = TextStyle(
-                            fontSize = 12.sp,
+                        style = SearchTextStyles.SubTitle.copy(
                             color = Color(ui.subtitleTextColor)
                         ),
                         modifier = Modifier.padding(top = dimensionResource(id = R.dimen.spacing_xx_small)),
@@ -138,23 +139,13 @@ fun SearchResultRow(
                 }
                 ui.showInfoIcon -> {
                     RowActionIcon(
-                        painter = painterResource(id = R.drawable.ic_icon_info),
+                        painter = painterResource(id = R.drawable.ic_material_info),
                         contentDescription = "Info",
                         tint = colorResource(id = R.color.colorPrimary),
                         onClick = ui.onInfoClick
                     )
                 }
             }
-        }
-
-        if (!ui.isLastInGroup) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = dividerInset)
-                    .size(width = 1.dp, height = 0.5.dp)
-                    .background(colorResource(id = R.color.black4))
-            )
         }
     }
 }
@@ -193,13 +184,22 @@ private fun RowActionIcon(
                 indication = rememberRipple(),
                 onClick = onClick
             )
-            .padding(dimensionResource(id = R.dimen.content_padding)),
+            .padding(dimensionResource(id = R.dimen.spacing_extra_small)),
         contentAlignment = Alignment.Center
     ) {
         if (tint == null) {
-            Icon(painter = painter, contentDescription = contentDescription)
+            Icon(
+                painter = painter,
+                contentDescription = contentDescription,
+                modifier = Modifier.size(dimensionResource(R.dimen.icon_size_24))
+            )
         } else {
-            Icon(painter = painter, contentDescription = contentDescription, tint = tint)
+            Icon(
+                painter = painter,
+                contentDescription = contentDescription,
+                tint = tint,
+                modifier = Modifier.size(dimensionResource(R.dimen.icon_size_24))
+            )
         }
     }
 }
@@ -277,26 +277,53 @@ private fun SearchResultRowPreview() {
 @Composable
 private fun SearchResultRowTimetablePreview() {
     TripKitUITheme {
-        SearchResultRow(
-            ui = SearchResultRowUiModel(
-                id = "preview_timetable",
-                title = "Central Station",
-                subtitle = "12 Vale street",
-                matcher = "central",
-                titleTextColor = 0xFF2E2F31.toInt(),
-                subtitleTextColor = 0xFF585B62.toInt(),
-                icon = null,
-                shouldTintIcon = true,
-                groupKind = SearchResultGroupKind.GOOGLE_AND_TRIPGO,
-                isFirstInGroup = false,
-                isLastInGroup = true,
-                showGroupTopSpacing = true,
-                showTimetableIcon = true,
-                showInfoIcon = false,
-                onRowClick = {},
-                onSuggestionActionClick = {},
-                onInfoClick = {}
+        Column(
+            modifier = Modifier.fillMaxWidth()
+                .padding(12.dp)
+        ) {
+            SearchResultRow(
+                ui = SearchResultRowUiModel(
+                    id = "preview_timetable",
+                    title = "Central Station",
+                    subtitle = "12 Vale street",
+                    matcher = "central",
+                    titleTextColor = 0xFF2E2F31.toInt(),
+                    subtitleTextColor = 0xFF585B62.toInt(),
+                    icon = null,
+                    shouldTintIcon = true,
+                    groupKind = SearchResultGroupKind.GOOGLE_AND_TRIPGO,
+                    isFirstInGroup = false,
+                    isLastInGroup = false,
+                    showGroupTopSpacing = true,
+                    showTimetableIcon = true,
+                    showInfoIcon = false,
+                    onRowClick = {},
+                    onSuggestionActionClick = {},
+                    onInfoClick = {}
+                )
             )
-        )
+
+            SearchResultRow(
+                ui = SearchResultRowUiModel(
+                    id = "preview_timetable",
+                    title = "Central Station",
+                    subtitle = "12 Vale street",
+                    matcher = "central",
+                    titleTextColor = 0xFF2E2F31.toInt(),
+                    subtitleTextColor = 0xFF585B62.toInt(),
+                    icon = null,
+                    shouldTintIcon = true,
+                    groupKind = SearchResultGroupKind.GOOGLE_AND_TRIPGO,
+                    isFirstInGroup = false,
+                    isLastInGroup = true,
+                    showGroupTopSpacing = false,
+                    showTimetableIcon = true,
+                    showInfoIcon = false,
+                    onRowClick = {},
+                    onSuggestionActionClick = {},
+                    onInfoClick = {},
+                )
+            )
+        }
     }
 }

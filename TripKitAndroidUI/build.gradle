@@ -118,6 +118,8 @@ dependencies {
     implementation libs.composeLiveData
     implementation libs.composeUiToolingPreview
     debugImplementation libs.composeUiTooling
+    stagingImplementation libs.composeUiTooling
+    releaseImplementation libs.composeUiTooling
 
     implementation libs.supportDesign
     implementation libs.appCompat
