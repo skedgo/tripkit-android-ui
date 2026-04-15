@@ -247,8 +247,6 @@ class TripResultMapContributor : TripKitMapContributor {
             // map.setOnInfoWindowClickListener(markerManager)
             map.isIndoorEnabled = false
             map.uiSettings.isRotateGesturesEnabled = true
-
-            drawSegmentMarkers(context)
         }
     }
 
@@ -259,6 +257,8 @@ class TripResultMapContributor : TripKitMapContributor {
         }
         
         observersSetUp = true
+
+        drawSegmentMarkers(context)
         
         autoDisposable.add(viewModel.vehicleMarkerViewModelsStream
             .observeOn(AndroidSchedulers.mainThread())

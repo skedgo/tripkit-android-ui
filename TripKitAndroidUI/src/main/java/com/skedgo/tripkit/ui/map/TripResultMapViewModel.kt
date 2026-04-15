@@ -62,6 +62,7 @@ class TripResultMapViewModel @Inject internal constructor(
     val mapTilesStream = PublishSubject.create<List<String>>()
 
     private val stopMarkerViewModelsDisposable = CompositeDisposable()
+    private val cameraUpdateDisposable = CompositeDisposable()
 
     // This is to ensure the previous observable is cleared when a new tripGroup is selected
     private val tripGroupDisposable = CompositeDisposable()
@@ -97,15 +98,14 @@ class TripResultMapViewModel @Inject internal constructor(
         }
         
         this.segmentList?.let { tripSegments ->
+            cameraUpdateDisposable.clear()
             Observable.timer(DELAY_MAP_CAMERA_UPDATE, TimeUnit.MILLISECONDS, Schedulers.io())
                 .subscribe({
-                    // Run after the delay to make sure markers and segments will be drawn first
                     val cameraUpdate = tripSegments.getVisibleGeoPointsOnMap().toCameraUpdate()
                     tripCameraUpdateStream.onNext(cameraUpdate)
                 }, {
-                    // Handle any potential error (although `timer` usually doesn't throw)
                     Timber.e(it, "Error while processing delayed camera update")
-                })
+                }).addTo(cameraUpdateDisposable)
         }
     }
 
@@ -200,10 +200,10 @@ class TripResultMapViewModel @Inject internal constructor(
         trip: Trip,
         travelled: Boolean
     ): Observable<StopMarkerViewModel> = Observable.fromIterable(trip.segmentList)
-        .flatMap { segment ->
+        .concatMap { segment ->
             getStopsByTravelTypeLazy.get()
                 .execute(segment, travelled)
-                .flatMap { stop ->
+                .concatMap { stop ->
                     val title = arrayOf(stop.arrivalDateTime, stop.departureDateTime)
                         .firstOrNull { it != null }
                         ?.let { printTimeLazy.get().execute(it).toObservable() }
@@ -220,6 +220,7 @@ class TripResultMapViewModel @Inject internal constructor(
         super.onCleared()
         tripGroupDisposable.clear()
         stopMarkerViewModelsDisposable.clear()
+        cameraUpdateDisposable.clear()
     }
 }
 

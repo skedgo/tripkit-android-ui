@@ -56,8 +56,7 @@ class TripGroupRepositoryImpl(
         _whenTripGroupIsUpdated.hide()
 
     override fun getTripGroup(tripGroupId: String): Observable<TripGroup> {
-//        return map[tripGroupId] ?: createQuery(tripGroupId)
-        return createQuery(tripGroupId)
+        return map[tripGroupId] ?: createQuery(tripGroupId)
     }
 
     private fun createQuery(tripGroupId: String): Observable<TripGroup> {
