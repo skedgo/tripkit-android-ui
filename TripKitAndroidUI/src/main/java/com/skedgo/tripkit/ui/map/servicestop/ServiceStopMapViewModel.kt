@@ -128,8 +128,8 @@ class ServiceStopMapViewModel @Inject constructor(
     val drawStops = serviceStopsAndLines
         .map { it.first }
         .compose(DiffTransformer<StopInfo, MarkerOptions>({ it.stop.code }, { stopInfo ->
-            getStopDisplayText.execute(stopInfo.stop)
-                .withLatestFrom(
+            Observable.combineLatest(
+                    getStopDisplayText.execute(stopInfo.stop),
                     region,
                     BiFunction { text: String, region: Region -> text to region })
                 .firstOrError()
