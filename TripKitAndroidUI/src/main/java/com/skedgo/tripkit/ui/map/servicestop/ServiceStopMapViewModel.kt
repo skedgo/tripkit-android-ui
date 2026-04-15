@@ -122,7 +122,7 @@ class ServiceStopMapViewModel @Inject constructor(
         serviceStop.hide()
             .flatMap { regionService.getRegionByLocationAsync(it) }
             .replay(1)
-            .autoConnect()
+            .refCount()
     }
 
     val drawStops = serviceStopsAndLines

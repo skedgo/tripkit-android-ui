@@ -1,5 +1,6 @@
 package com.skedgo.tripkit.ui.tripresult
 
+import android.util.Log
 import com.skedgo.tripkit.TripUpdater
 import com.skedgo.tripkit.ui.routingresults.FetchingRealtimeStatusRepository
 import com.skedgo.tripkit.ui.routingresults.TripGroupRepository
@@ -33,14 +34,17 @@ open class UpdateTripForRealtime @Inject internal constructor(
             .flatMap {
                 startAsync(it)
             }
-            .subscribe({
+            .concatMapCompletable { (updatedTrip, tripGroup) ->
                 tripGroupRepository.updateTrip(
-                    it.second.uuid(),
-                    it.second.displayTrip?.uuid.orEmpty(),
-                    it.first
-                )
-                    .subscribe({}, errorLogger::trackError)
-            }, errorLogger::logError)
+                    tripGroup.uuid(),
+                    tripGroup.displayTrip?.uuid.orEmpty(),
+                    updatedTrip
+                ).onErrorComplete {
+                    errorLogger.trackError(it)
+                    true
+                }
+            }
+            .subscribe({}, errorLogger::logError)
             .run {
                 subscriptions.add(this)
             }
@@ -52,14 +56,17 @@ open class UpdateTripForRealtime @Inject internal constructor(
                 getTripGroup,
                 BiFunction<Long, TripGroup, TripGroup> { _, tripGroup -> tripGroup })
             .flatMap { startAsync(it) }
-            .subscribe({
+            .concatMapCompletable { (updatedTrip, tripGroup) ->
                 tripGroupRepository.updateTrip(
-                    it.second.uuid(),
-                    it.second.displayTrip?.uuid.orEmpty(),
-                    it.first
-                )
-                    .subscribe({}, errorLogger::trackError)
-            }, errorLogger::logError)
+                    tripGroup.uuid(),
+                    tripGroup.displayTrip?.uuid.orEmpty(),
+                    updatedTrip
+                ).onErrorComplete {
+                    errorLogger.trackError(it)
+                    true
+                }
+            }
+            .subscribe({}, errorLogger::logError)
             .run {
                 subscriptions.add(this)
             }

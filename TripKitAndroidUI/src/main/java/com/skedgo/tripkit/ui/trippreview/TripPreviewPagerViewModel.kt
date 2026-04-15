@@ -2,6 +2,7 @@ package com.skedgo.tripkit.ui.trippreview
 
 import android.content.Context
 import android.graphics.drawable.Drawable
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.skedgo.rxtry.subscribeWithErrorHandling
@@ -108,15 +109,9 @@ class TripPreviewPagerViewModel @Inject constructor(
 
     fun startUpdateTripPolling(tripGroupId: String, scheduler: Scheduler = Schedulers.io()) {
         Observable.interval(10L, TimeUnit.SECONDS, scheduler)
-            .subscribeWithErrorHandling {
-                getUpdatedTrip(tripGroupId)
-            }.autoClear()
-    }
-
-    private fun getUpdatedTrip(
-        tripGroupId: String
-    ) {
-        tripGroupRepository.getTripGroup(tripGroupId)
+            .switchMapSingle {
+                tripGroupRepository.getTripGroup(tripGroupId).firstOrError()
+            }
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({ tripGroup ->
                 _tripGroupFromPolling.postValue(tripGroup)

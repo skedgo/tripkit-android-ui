@@ -64,7 +64,7 @@ class TripGroupRepositoryImpl(
             .repeatWhen { _whenTripGroupIsUpdated.hide().filter { it == tripGroupId } }
             .subscribeOn(io())
             .replay(1)
-            .autoConnect()
+            .refCount()
         map[tripGroupId] = query
         return query
     }

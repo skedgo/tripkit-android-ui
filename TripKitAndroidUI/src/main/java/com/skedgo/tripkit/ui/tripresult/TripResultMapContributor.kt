@@ -485,31 +485,33 @@ class TripResultMapContributor : TripKitMapContributor {
         }
     }
 
+    private data class DecodedPoint(val latitude: Double, val longitude: Double)
+
     private fun TripSegment.getPolyLines() =
         if (this.streets != null) {
-            tripLinesTravelled.filter {
-                it.points.any { point ->
-                    this.streets?.filter { it.encodedWaypoints() != null }?.any { street ->
-                        PolyUtil.decode(street.encodedWaypoints())
-                            .zipWithNext()
-                            .any { (start, end) ->
-                                (point.latitude == start.latitude && point.longitude == start.longitude) ||
-                                    (point.latitude == end.latitude && point.longitude == end.longitude)
-                            }
-                    } ?: false
+            val decodedStreetPoints = this.streets.orEmpty()
+                .asSequence()
+                .mapNotNull { it.encodedWaypoints() }
+                .flatMap { PolyUtil.decode(it).asSequence() }
+                .map { DecodedPoint(it.latitude, it.longitude) }
+                .toSet()
+
+            tripLinesTravelled.filter { polyline ->
+                polyline.points.any { point ->
+                    decodedStreetPoints.contains(DecodedPoint(point.latitude, point.longitude))
                 }
             }
         } else {
-            tripLinesTravelled.filter {
-                it.points.any { point ->
-                    this.shapes?.filter { it.isTravelled }?.any { shape ->
-                        PolyUtil.decode(shape.encodedWaypoints)
-                            .orEmpty().zipWithNext()
-                            .any { (start, end) ->
-                                (point.latitude == start.latitude && point.longitude == start.longitude) ||
-                                    (point.latitude == end.latitude && point.longitude == end.longitude)
-                            }
-                    } ?: false
+            val decodedShapePoints = this.shapes.orEmpty()
+                .asSequence()
+                .filter { it.isTravelled }
+                .flatMap { PolyUtil.decode(it.encodedWaypoints).orEmpty().asSequence() }
+                .map { DecodedPoint(it.latitude, it.longitude) }
+                .toSet()
+
+            tripLinesTravelled.filter { polyline ->
+                polyline.points.any { point ->
+                    decodedShapePoints.contains(DecodedPoint(point.latitude, point.longitude))
                 }
             }
         }
