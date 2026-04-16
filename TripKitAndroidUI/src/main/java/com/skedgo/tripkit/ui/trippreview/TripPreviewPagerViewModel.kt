@@ -2,7 +2,6 @@ package com.skedgo.tripkit.ui.trippreview
 
 import android.content.Context
 import android.graphics.drawable.Drawable
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.skedgo.rxtry.subscribeWithErrorHandling
@@ -20,6 +19,8 @@ import com.skedgo.tripkit.ui.utils.*
 import io.reactivex.Observable
 import io.reactivex.Scheduler
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.rxkotlin.addTo
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.PublishSubject
 import timber.log.Timber
@@ -30,6 +31,10 @@ class TripPreviewPagerViewModel @Inject constructor(
     private val tripGroupRepository: TripGroupRepository,
     private val printTime: PrintTime,
 ) : RxViewModel() {
+    private val previewHeaderDisposable = CompositeDisposable()
+    private val iconLoadDisposable = CompositeDisposable()
+    private val tripGroupLoadDisposable = CompositeDisposable()
+    private val pollingDisposable = CompositeDisposable()
 
     private val _headersData = MutableLiveData<TripSegmentsSummaryData>()
     val headersData: LiveData<TripSegmentsSummaryData> = _headersData
@@ -47,6 +52,9 @@ class TripPreviewPagerViewModel @Inject constructor(
         tripSegments: List<TripSegment>,
         getTransportIconTintStrategy: GetTransportIconTintStrategy,
     ) {
+        previewHeaderDisposable.clear()
+        iconLoadDisposable.clear()
+
         tripSummaryStream
             .debounce(500, TimeUnit.MILLISECONDS)
             .subscribeOn(Schedulers.io())
@@ -59,7 +67,7 @@ class TripPreviewPagerViewModel @Inject constructor(
                 //This will prevent app from crashing due to OnErrorNotImplementedException
                 it.printStackTrace()
             })
-            .autoClear()
+            .addTo(previewHeaderDisposable)
 
         val previewHeaders = mutableListOf<TripSegmentSummary>()
 
@@ -92,22 +100,24 @@ class TripPreviewPagerViewModel @Inject constructor(
             icon.invoke(it)
         }, {
             Timber.e(it)
-        }).autoClear()
+        }).addTo(iconLoadDisposable)
     }
 
     fun loadTripGroup(
         tripGroupId: String
     ) {
+        tripGroupLoadDisposable.clear()
         tripGroupRepository.getTripGroup(tripGroupId)
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({ tripGroup ->
                 _tripGroup.postValue(tripGroup)
             }, {
                 it.printStackTrace()
-            }).autoClear()
+            }).addTo(tripGroupLoadDisposable)
     }
 
     fun startUpdateTripPolling(tripGroupId: String, scheduler: Scheduler = Schedulers.io()) {
+        pollingDisposable.clear()
         Observable.interval(10L, TimeUnit.SECONDS, scheduler)
             .switchMapSingle {
                 tripGroupRepository.getTripGroup(tripGroupId).firstOrError()
@@ -117,7 +127,7 @@ class TripPreviewPagerViewModel @Inject constructor(
                 _tripGroupFromPolling.postValue(tripGroup)
             }, {
                 it.printStackTrace()
-            }).autoClear()
+            }).addTo(pollingDisposable)
     }
 
     fun updateTrip(
@@ -130,4 +140,11 @@ class TripPreviewPagerViewModel @Inject constructor(
             .autoClear()
     }
 
+    override fun onCleared() {
+        previewHeaderDisposable.clear()
+        iconLoadDisposable.clear()
+        tripGroupLoadDisposable.clear()
+        pollingDisposable.clear()
+        super.onCleared()
+    }
 }

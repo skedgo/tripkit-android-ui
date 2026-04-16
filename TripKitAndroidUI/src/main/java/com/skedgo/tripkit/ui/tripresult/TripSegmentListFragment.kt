@@ -316,6 +316,7 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
 //            }
 
                 }
+                .addTo(autoDisposable)
         }
     }
 

@@ -301,6 +301,16 @@ class TripResultPagerViewModel @Inject internal constructor(
         tripGroups.accept(tripGroup)
     }
 
+    override fun onCleared() {
+        updateTripProgressSubscription?.dispose()
+        tripGroups.accept(emptyList())
+        currentTripGroupId.set(null)
+        currentTrip.postValue(null)
+        defaultTrip = null
+        savedTripGroupUuid = null
+        super.onCleared()
+    }
+
     /**
      * Update the current trip when page changes
      * This ensures the OnTripUpdatedListener is called when switching between fragments

@@ -217,10 +217,19 @@ class TripResultMapViewModel @Inject internal constructor(
         }
 
     override fun onCleared() {
-        super.onCleared()
+        currentTrip = null
+        skipNextCameraUpdate = false
         tripGroupDisposable.clear()
         stopMarkerViewModelsDisposable.clear()
         cameraUpdateDisposable.clear()
+        tripCameraUpdateStream.onComplete()
+        segmentsStream.onComplete()
+        travelledStopMarkerViewModelsStream.onComplete()
+        nonTravelledStopMarkerViewModelsStream.onComplete()
+        alertMarkerViewModelsStream.onComplete()
+        vehicleMarkerViewModelsStream.onComplete()
+        mapTilesStream.onComplete()
+        super.onCleared()
     }
 }
 
