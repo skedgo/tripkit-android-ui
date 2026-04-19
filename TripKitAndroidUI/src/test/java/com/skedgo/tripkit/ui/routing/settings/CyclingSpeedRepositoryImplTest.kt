@@ -63,4 +63,15 @@ class CyclingSpeedRepositoryImplTest {
 
         assert(result == CyclingSpeed.Medium)
     }
+
+    @Test
+    fun `getCyclingSpeed should migrate legacy impaired -1 to Slow`() = runBlocking {
+        every { prefs.getString("pref_cycling_speed", null) } returns "-1"
+
+        val result = repository.getCyclingSpeed()
+
+        assert(result == CyclingSpeed.Slow)
+        verify { editor.putString("pref_cycling_speed", "0") }
+        verify { editor.apply() }
+    }
 }
