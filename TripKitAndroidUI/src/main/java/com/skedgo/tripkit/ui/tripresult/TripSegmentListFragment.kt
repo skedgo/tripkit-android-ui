@@ -182,6 +182,19 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
         return binding.root
     }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        viewModel.updatedState.observe(viewLifecycleOwner) {
+            updateStream?.onNext(Unit)
+        }
+
+        viewModel.geofenceCircles.observe(viewLifecycleOwner) {
+            tripResultMapContributor?.clearMapCircles()
+            showGeofences(it)
+        }
+    }
+
     override fun onStart() {
         super.onStart()
         viewModel.onStart()
@@ -235,19 +248,10 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
                 val dialog = TripSegmentAlertsSheet.newInstance(list)
                 dialog.show(requireFragmentManager(), "alerts_sheet")
             }.addTo(autoDisposable)
-        viewModel.updatedState
-            .observe(viewLifecycleOwner) {
-                updateStream?.onNext(Unit)
-            }
 
         updateStream?.subscribeWithErrorHandling {
             viewModel.validateGetOffAlerts()
         }?.addTo(autoDisposable)
-
-        viewModel.geofenceCircles.observe(viewLifecycleOwner) {
-            tripResultMapContributor?.clearMapCircles()
-            showGeofences(it)
-        }
     }
 
     private fun showGeofences(geofenceCoordinateList: List<Pair<LatLng, Double>>) {

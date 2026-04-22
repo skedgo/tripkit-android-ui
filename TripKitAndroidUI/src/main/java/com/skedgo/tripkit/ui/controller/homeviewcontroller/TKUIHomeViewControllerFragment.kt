@@ -17,7 +17,6 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import com.araujo.jordan.excuseme.ExcuseMe
 import com.bumptech.glide.load.resource.bitmap.CircleCrop
@@ -115,6 +114,13 @@ class TKUIHomeViewControllerFragment :
 
     private var onBackPressOnEmptyBottomSheetCallback: ((OnBackPressedCallback) -> Unit)? = null
 
+    private val tripPreviewTopSheetLayoutChangeListener =
+        View.OnLayoutChangeListener { view, _, _, _, _, _, _, _, _ ->
+            if (view.isVisible) {
+                bottomSheetBehavior.expandedOffset = binding.topSheet.height + 100
+            }
+        }
+
     /**
      * Listener for TKUILocationSearchViewControllerFragment actions
      */
@@ -162,6 +168,11 @@ class TKUIHomeViewControllerFragment :
         initViews()
         initMap()
         handleBackPress()
+        bottomSheetOffset.observe(viewLifecycleOwner) { offset ->
+            if (offset > 0) {
+                poiDetailsMapContributor?.setMarkerVerticalOffset(offset)
+            }
+        }
     }
 
     override fun onResume() {
@@ -670,15 +681,6 @@ class TKUIHomeViewControllerFragment :
                 }.addTo(autoDisposable)
         }
 
-        bottomSheetOffset.observe(
-            viewLifecycleOwner,
-            Observer { offset ->
-                if (offset > 0) {
-                    poiDetailsMapContributor?.setMarkerVerticalOffset(offset)
-                }
-            }
-        )
-
     }
 
     private fun updateFabMyLocationAnchor(anchorId: Int, anchorGravity: Int) {
@@ -877,11 +879,15 @@ class TKUIHomeViewControllerFragment :
         fragment.setOnCloseButtonListener { handleCloseAction() }
         updateBottomSheetFragment(fragment, TKUITripPreviewFragment.TAG)
 
-        binding.topSheet.addOnLayoutChangeListener { view, _, _, _, _, _, _, _, _ ->
-            if (view.isVisible) {
-                bottomSheetBehavior.expandedOffset = binding.topSheet.height + 100
-            }
+        binding.topSheet.removeOnLayoutChangeListener(tripPreviewTopSheetLayoutChangeListener)
+        binding.topSheet.addOnLayoutChangeListener(tripPreviewTopSheetLayoutChangeListener)
+    }
+
+    override fun onDestroyView() {
+        if (::binding.isInitialized) {
+            binding.topSheet.removeOnLayoutChangeListener(tripPreviewTopSheetLayoutChangeListener)
         }
+        super.onDestroyView()
     }
 
     //TODO breakdown the function and move all the logic to the viewmodel

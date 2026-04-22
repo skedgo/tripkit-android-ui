@@ -5,8 +5,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import androidx.viewpager.widget.ViewPager.OnPageChangeListener
 import androidx.viewpager2.widget.ViewPager2
 import com.skedgo.tripkit.common.model.location.Location
@@ -20,13 +18,13 @@ import com.skedgo.tripkit.ui.booking.BookViewClickEventHandler.Companion.create
 import com.skedgo.tripkit.ui.core.BaseFragment
 import com.skedgo.tripkit.ui.databinding.TripResultPagerBinding
 import com.skedgo.tripkit.ui.map.home.TripKitMapContributor
-import com.skedgo.tripkit.ui.model.TripKitButtonConfigurator
 import com.skedgo.tripkit.ui.tripresult.TripSegmentListFragment.OnTripKitButtonClickListener
 import com.skedgo.tripkit.ui.tripresult.TripSegmentListFragment.OnTripSegmentClickListener
 import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButtonHandlerFactory
 import com.squareup.otto.Bus
 import timber.log.Timber
 import javax.inject.Inject
+
 import com.skedgo.tripkit.ui.tripresult.v2.TripGroupsPagerAdapter
 
 class TripResultPagerFragment : BaseFragment<TripResultPagerBinding>(), OnPageChangeListener,
@@ -144,6 +142,10 @@ class TripResultPagerFragment : BaseFragment<TripResultPagerBinding>(), OnPageCh
 
         binding.tripGroupsPager.currentItem = currentPage
         viewModel.currentPage.set(currentPage)
+
+        viewModel.currentTrip.observe(viewLifecycleOwner) { trip: Trip? ->
+            tripUpdatedListener?.onTripUpdated(trip)
+        }
     }
 
     override fun onResume() {
@@ -198,12 +200,6 @@ class TripResultPagerFragment : BaseFragment<TripResultPagerBinding>(), OnPageCh
             )
         } else {
             Timber.w("$LOG_TAG - Cannot call getSortedTripGroups: args is null")
-        }
-
-        viewModel.currentTrip.observe(viewLifecycleOwner) { trip: Trip? ->
-            if (tripUpdatedListener != null) {
-                tripUpdatedListener!!.onTripUpdated(trip)
-            }
         }
 
         // Note: tripGroupsBinding is now ObservableField, updated via observeTripGroups() in onResume

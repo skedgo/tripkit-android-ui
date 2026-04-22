@@ -302,7 +302,7 @@ class TripResultMapContributor : TripKitMapContributor {
             }
         )
         autoDisposable.add(viewModel.segmentsStream
-            .flatMap { segments: List<TripSegment> ->
+            .switchMap { segments: List<TripSegment> ->
                 getTripLineLazy!!.get().execute(segments)
             }
             .subscribeOn(Schedulers.computation())
@@ -348,7 +348,7 @@ class TripResultMapContributor : TripKitMapContributor {
 
     private fun drawSegmentMarkers(context: Context) {
         autoDisposable.add(viewModel.segmentsStream
-            .flatMap { it: List<TripSegment> -> createSegmentMarkers.execute(it) }
+            .switchMap { it: List<TripSegment> -> createSegmentMarkers.execute(it) }
             .subscribeOn(Schedulers.computation())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(
