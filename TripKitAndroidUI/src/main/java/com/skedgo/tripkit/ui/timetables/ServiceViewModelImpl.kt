@@ -17,6 +17,7 @@ import com.skedgo.tripkit.ui.trip.details.viewmodel.ServiceAlertViewModel
 import com.skedgo.tripkit.ui.utils.TapAction
 import com.skedgo.tripkit.ui.utils.TimeSpanUtils
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
 import org.joda.time.DateTimeZone
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -61,6 +62,8 @@ internal class ServiceViewModelImpl @Inject constructor(
 
     override lateinit var service: TimetableEntry
     override lateinit var dateTimeZone: DateTimeZone
+    private val countdownDisposable = CompositeDisposable()
+    private val helperBindingsDisposable = CompositeDisposable()
 
     override fun getRealTimeDeparture() = realTimeDeparture(service, service.realtimeVehicle)
 
@@ -69,6 +72,8 @@ internal class ServiceViewModelImpl @Inject constructor(
         _service: TimetableEntry,
         _dateTimeZone: DateTimeZone
     ) {
+        countdownDisposable.clear()
+        helperBindingsDisposable.clear()
         service = _service
         this.isCurrentTrip.postValue(_currentTripId == service.serviceTripId)
         dateTimeZone = _dateTimeZone
@@ -114,11 +119,13 @@ internal class ServiceViewModelImpl @Inject constructor(
     }
 
     private fun presentCountDownTimeForFrequency() {
+        countdownDisposable.clear()
         if (!service.isFrequencyBased) {
-            service.getTimeLeftToDepartInterval(30, TimeUnit.SECONDS)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({ presentCountDownTime(it) }, errorLogger::logError)
-                .autoClear()
+            countdownDisposable.add(
+                service.getTimeLeftToDepartInterval(30, TimeUnit.SECONDS)
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe({ presentCountDownTime(it) }, errorLogger::logError)
+            )
         }
     }
 
@@ -169,6 +176,7 @@ internal class ServiceViewModelImpl @Inject constructor(
     }
 
     private fun initHelpersVMs(service: TimetableEntry) {
+        helperBindingsDisposable.clear()
         wheelchairBackgroundTint.postValue(
             ContextCompat.getDrawable(context, R.drawable.bg_round_corner_wheelchair)
         )
@@ -190,8 +198,15 @@ internal class ServiceViewModelImpl @Inject constructor(
             }
         }
         serviceAlertViewModel.setAlerts(service.alerts)
-        serviceAlertViewModel.showAlertsObservable
-            .subscribeWithErrorHandling { onAlertsClick.perform() }
-            .autoClear()
+        helperBindingsDisposable.add(
+            serviceAlertViewModel.showAlertsObservable
+                .subscribeWithErrorHandling { onAlertsClick.perform() }
+        )
+    }
+
+    override fun onCleared() {
+        countdownDisposable.clear()
+        helperBindingsDisposable.clear()
+        super.onCleared()
     }
 }

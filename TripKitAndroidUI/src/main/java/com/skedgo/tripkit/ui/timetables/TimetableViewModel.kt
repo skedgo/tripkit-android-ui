@@ -406,19 +406,32 @@ class TimetableViewModel @Inject constructor(
 
     private suspend fun applyServicesUpdateSafely(nextItems: List<ServiceViewModel>) {
         servicesUpdateMutex.withLock {
+            val previousItems = services.toList()
             val diff = withContext(Dispatchers.Default) { services.calculateDiff(nextItems) }
             withContext(Dispatchers.Main.immediate) {
                 runCatching {
                     services.update(nextItems, diff)
+                    disposeStaleServiceViewModels(previousItems, nextItems)
                 }.recoverCatching { firstError ->
                     Timber.w(firstError, "Primary timetable diff apply failed, retrying with fresh diff")
                     // Retry with a fresh diff against the latest adapter state.
                     services.update(nextItems)
+                    disposeStaleServiceViewModels(previousItems, nextItems)
                 }.onFailure { finalError ->
                     Timber.e(finalError, "Failed to apply timetable services update safely")
                 }
             }
         }
+    }
+
+    private fun disposeStaleServiceViewModels(
+        previousItems: List<ServiceViewModel>,
+        nextItems: List<ServiceViewModel>
+    ) {
+        val retainedItems = nextItems.toSet()
+        previousItems
+            .filterNot { retainedItems.contains(it) }
+            .forEach { it.onCleared() }
     }
 
     /**
