@@ -125,9 +125,9 @@ fun RouteCardContent(
                 ),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            val routeInputGap = dimensionResource(R.dimen.spacing_12)
+            val routeInputGap = dimensionResource(R.dimen.spacing_small)
             val routeInputHeight = dimensionResource(R.dimen.icon_size_40)
-            val iconSize = dimensionResource(R.dimen.icon_size_14)
+            val iconSize = dimensionResource(R.dimen.icon_size_20)
 
             Row(
                 modifier = Modifier.weight(1f)
