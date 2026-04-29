@@ -892,4 +892,5 @@ We aggregate the anonymised data and provide it to researchers, regulators, and 
     <string name="location_services_required">Location Services Required</string>
     <string name="plan_bottom_info_message">Your wallet can only be used with the transportation providers listed above. If you choose another provider, you will be responsible for the full cost of the trip.</string>
     <string name="my_tickets">My Tickets</string>
+    <string name="remember_me">Remember Me</string>
 </resources>
