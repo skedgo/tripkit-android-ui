@@ -36,6 +36,12 @@ abstract class BaseBottomSheetDialogFragment<V : ViewDataBinding> : BottomSheetD
         return baseView
     }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        // Apply configured font across TripKit UI views (if any).
+        TripKitUITypography.applyTo(view)
+    }
+
 //    override fun onCreateDialog(savedInstanceState: Bundle?): BottomSheetDialog {
 //        return object : BottomSheetDialog(requireContext(), theme) {
 //            override fun onAttachedToWindow() {

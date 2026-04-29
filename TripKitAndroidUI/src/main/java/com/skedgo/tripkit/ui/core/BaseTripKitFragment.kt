@@ -36,6 +36,9 @@ open class BaseTripKitFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // Apply configured font across TripKit UI views (if any).
+        TripKitUITypography.applyTo(view)
+
         accessibilityDefaultViewManager.setAccessibilityObserver()
         accessibilityDefaultViewManager.accessibilityListener = accessibilityListener
     }

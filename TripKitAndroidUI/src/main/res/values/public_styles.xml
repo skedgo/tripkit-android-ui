@@ -2,7 +2,8 @@
 <resources>
     <!-- Begin of styles that users can override -->
     <style name="tripkit_search_result_title">
-        <item name="android:textSize">22sp</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:lineHeight">24sp</item>
     </style>
 
     <style name="tripkit_search_result_subtitle">

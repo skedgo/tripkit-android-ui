@@ -4,6 +4,18 @@ apply plugin: "kotlin-android"
 apply plugin: "kotlin-kapt"
 apply plugin: 'kotlin-parcelize'
 
+def kotlinVersion = versions.kotlinVersion
+def useComposePlugin = kotlinVersion?.startsWith("2.")
+def composePluginApplied = false
+if (useComposePlugin) {
+    try {
+        apply plugin: 'org.jetbrains.kotlin.plugin.compose'
+        composePluginApplied = true
+    } catch (Throwable ignored) {
+        logger.lifecycle("Compose plugin not found; falling back to composeOptions.")
+    }
+}
+
 repositories {
     maven {url "https://raw.github.com/laenger/maven-releases/master/releases"}
 }
@@ -61,6 +73,17 @@ android {
     buildFeatures {
         viewBinding true
         dataBinding true
+        compose true
+    }
+
+    if (!composePluginApplied) {
+        composeOptions {
+            kotlinCompilerExtensionVersion versions.composeCompiler
+        }
+    }
+
+    composeOptions {
+        kotlinCompilerExtensionVersion versions.composeCompiler
     }
 
     lint {
@@ -85,6 +108,18 @@ android {
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     coreLibraryDesugaring libs.desugar
+
+    // Jetpack Compose (kept minimal; versions controlled via Compose BOM)
+    implementation platform(libs.composeBom)
+    implementation libs.activityCompose
+    implementation libs.composeUi
+    implementation libs.composeFoundation
+    implementation libs.composeMaterial
+    implementation libs.composeLiveData
+    implementation libs.composeUiToolingPreview
+    debugImplementation libs.composeUiTooling
+    stagingImplementation libs.composeUiTooling
+    releaseImplementation libs.composeUiTooling
 
     implementation libs.supportDesign
     implementation libs.appCompat
@@ -219,11 +254,14 @@ version = tripkitVersion
 publishing {
     repositories {
         maven {
-            url = "file://${localMaven}"
-            //url = publishMavenUrl
-            credentials {
-                username = publishMavenUsername
-                password = publishMavenToken
+            def repoUrl = "file://${localMaven}"
+            url = repoUrl
+            // url = publishMavenUrl
+            if (!repoUrl.startsWith("file:")) {
+                credentials {
+                    username = publishMavenUsername
+                    password = publishMavenToken
+                }
             }
         }
     }

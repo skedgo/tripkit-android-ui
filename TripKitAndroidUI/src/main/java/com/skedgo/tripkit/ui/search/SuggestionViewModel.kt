@@ -46,20 +46,25 @@ sealed class SuggestionViewModel(
     protected fun applyIconTintIfNeeded(drawable: Drawable?, id: Any?, locationType: Int?): Drawable? {
         if (drawable == null) return null
         
-        // Skip tinting for HOME and WORK icons (they have circular backgrounds that would break with tinting)
-        // Check ID first (for FixedSuggestions from either package), then fall back to location type
-        val isHomeOrWork = if (id is Enum<*>) {
-            val enumName = id.name
-            enumName == "HOME" || enumName == "WORK"
+        // Skip tinting for HOME/WORK/CURRENT_LOCATION icons (multi-color assets).
+        // Check enum ID first (for both FixedSuggestions enums), then fall back to location type.
+        val enumName = if (id is Enum<*>) {
+            id.name
         } else {
-            false
-        } || locationType == Location.TYPE_HOME || locationType == Location.TYPE_WORK
+            null
+        }
+        val isHomeOrWork = enumName == "HOME" || enumName == "WORK" ||
+            locationType == Location.TYPE_HOME || locationType == Location.TYPE_WORK
+        val isCurrentLocation = enumName == "CURRENT_LOCATION" ||
+            locationType == Location.TYPE_CURRENT_LOCATION
         
-        if (isHomeOrWork) {
+        if (isHomeOrWork || isCurrentLocation) {
+            // Return an untinted drawable instance.
+            drawable.mutate().clearColorFilter()
             return drawable
         }
         
-        // Apply tint for all other icons
+        // Apply tint for other icons.
         val tintColor = ContextCompat.getColor(context, R.color.icon_tint_default)
         drawable.mutate().setColorFilter(tintColor, PorterDuff.Mode.SRC_IN)
         return drawable
@@ -141,8 +146,8 @@ class GoogleAndTripGoSuggestionViewModel(
     val query: String?
 ) : SuggestionViewModel(context, query) {
 
-    override val titleTextColorRes: Int = R.color.title_text
-    override val subtitleTextColorRes: Int = R.color.description_text
+    override val titleTextColorRes: Int = R.color.labelPrimary
+    override val subtitleTextColorRes: Int = R.color.labelSecondary
     override val onItemClicked: TapAction<SuggestionViewModel> = TapAction.create { this }
     override val onInfoClicked: TapAction<SuggestionViewModel> = TapAction.create { this }
     override val onSuggestionActionClicked: TapAction<SuggestionViewModel> =
