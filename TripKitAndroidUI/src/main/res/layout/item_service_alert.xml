@@ -24,7 +24,6 @@
             android:src="@{item.severity()}"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:tint="@color/icon_tint_default"
             tools:src="@drawable/ic_action_warning" />
 
         <TextView
