@@ -3,13 +3,10 @@ package com.skedgo.tripkit.ui.controller.routeviewcontroller
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.os.Handler
 import android.provider.Settings
-import android.text.Editable
-import android.text.TextWatcher
 import android.view.View
-import android.view.inputmethod.EditorInfo
 import android.widget.Toast
+import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.araujo.jordan.excuseme.ExcuseMe
@@ -32,9 +29,8 @@ import com.skedgo.tripkit.ui.controller.locationsearchcontroller.TKUILocationSea
 import com.skedgo.tripkit.ui.controller.utils.LocationField
 import com.skedgo.tripkit.ui.core.BaseFragment
 import com.skedgo.tripkit.ui.core.addTo
-import com.skedgo.tripkit.ui.databinding.FragmentTkuiRouteBinding
+import com.skedgo.tripkit.ui.databinding.FragmentTkuiRouteComposeBinding
 import com.skedgo.tripkit.ui.search.FixedSuggestions
-import com.skedgo.tripkit.ui.utils.showKeyboard
 import com.skedgo.tripkit.ui.utils.showConfirmationPopUpDialog
 import com.skedgo.tripkit.checkIfLocationProviderIsEnabled
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -43,7 +39,7 @@ import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
 
-class TKUIRouteFragment : BaseFragment<FragmentTkuiRouteBinding>() {
+class TKUIRouteFragment : BaseFragment<FragmentTkuiRouteComposeBinding>() {
 
     @Inject
     lateinit var userGeoPointRepository: UserGeoPointRepository
@@ -59,99 +55,10 @@ class TKUIRouteFragment : BaseFragment<FragmentTkuiRouteBinding>() {
     var origin: Location? = null
     var destination: Location? = null
 
-    private var focusedField: View? = null
-
     private var locationSearchFragment: TKUILocationSearchViewControllerFragment? = null
 
     private var suggestionProvider: TKUIHomeViewFixedSuggestionsProvider? =
         ControllerDataProvider.suggestionProvider
-
-    // Used to keep from changing the query when we're pre-filling a text field. Otherwise the observer might
-    // fire when the initial destinationLocation is set.
-    private var ignoreNextTextChange = false
-
-    private var textChangedHandler = object : TextWatcher {
-        override fun afterTextChanged(text: Editable?) {
-            // Only pay attention if one of the EditText's has focus. When the swap button is pressed, both
-            // focuses are cleared so we won't trigger a new query
-            if (!ignoreNextTextChange && (binding.tieStartEdit.hasFocus() || binding.tieDestinationEdit.hasFocus())) {
-                locationSearchFragment?.let { fragment ->
-                    if (fragment.isAdded && fragment.isVisible) {
-                        fragment.setQuery(text.toString(), true)
-                    }
-                }
-
-                if (text.toString().isEmpty()) {
-                    setCorrectLocation(null)
-                }
-            } else {
-                ignoreNextTextChange = false
-            }
-
-        }
-
-        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-
-            if (after != count && start != 0) {
-                if (binding.tieStartEdit.hasFocus()) {
-                    if (viewModel.startLocation?.locationType == Location.TYPE_CURRENT_LOCATION || viewModel.startLocation?.name == "Current Location") {
-                        binding.tieStartEdit.apply {
-                            setText("")
-                            post { requestFocus() }
-                        }
-                        viewModel.startLocation = null
-                    }
-                } else {
-                    if (viewModel.destinationLocation?.locationType == Location.TYPE_CURRENT_LOCATION || viewModel.destinationLocation?.name == "Current Location") {
-                        binding.tieDestinationEdit.apply {
-                            setText("")
-                            post { requestFocus() }
-                        }
-                        viewModel.destinationLocation = null
-                    }
-                }
-            }
-        }
-
-        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-
-    }
-
-    private var focusChangeListener = { v: View, hasFocus: Boolean ->
-        if (v == binding.tieStartEdit && hasFocus) {
-            focusedField = binding.tieStartEdit
-            if (viewModel.startLocation?.locationType != Location.TYPE_CURRENT_LOCATION) {
-                locationSearchFragment?.let { fragment ->
-                    if (fragment.isAdded && fragment.isVisible) {
-                        fragment.setQuery(binding.tieStartEdit.text.toString(), true)
-                    }
-                }
-            } else {
-                locationSearchFragment?.let { fragment ->
-                    if (fragment.isAdded && fragment.isVisible) {
-                        fragment.setQuery("", true)
-                    }
-                }
-            }
-            viewModel.focusedField = TKUIRouteViewModel.FocusedField.START
-        } else if (v == binding.tieDestinationEdit && hasFocus) {
-            focusedField = binding.tieDestinationEdit
-            if (viewModel.destinationLocation?.locationType != Location.TYPE_CURRENT_LOCATION) {
-                locationSearchFragment?.let { fragment ->
-                    if (fragment.isAdded && fragment.isVisible) {
-                        fragment.setQuery(binding.tieDestinationEdit.text.toString(), true)
-                    }
-                }
-            } else {
-                locationSearchFragment?.let { fragment ->
-                    if (fragment.isAdded && fragment.isVisible) {
-                        fragment.setQuery("", true)
-                    }
-                }
-            }
-            viewModel.focusedField = TKUIRouteViewModel.FocusedField.DESTINATION
-        }
-    }
 
     private val currentGeoPointAsLocation = lazy {
         userGeoPointRepository.getFirstCurrentGeoPoint()
@@ -194,7 +101,7 @@ class TKUIRouteFragment : BaseFragment<FragmentTkuiRouteBinding>() {
         }
 
     override val layoutRes: Int
-        get() = R.layout.fragment_tkui_route
+        get() = R.layout.fragment_tkui_route_compose
 
     override val observeAccessibility: Boolean = false
 
@@ -210,69 +117,20 @@ class TKUIRouteFragment : BaseFragment<FragmentTkuiRouteBinding>() {
         destination = null
         locationSearchFragment = null
         suggestionProvider = null
-
-        binding.tieStartEdit.setOnFocusChangeListener(null)
-        binding.tieDestinationEdit.setOnFocusChangeListener(null)
-        binding.tilStartEdit.setEndIconOnClickListener(null)
-        binding.tilDestinationEdit.setEndIconOnClickListener(null)
-        binding.tieStartEdit.setOnEditorActionListener(null)
-        binding.tieDestinationEdit.setOnEditorActionListener(null)
     }
 
     override fun onCreated(savedInstance: Bundle?) {
-        binding.lifecycleOwner = viewLifecycleOwner
-        binding.viewModel = viewModel
-
         initSearchCard()
-        initViews()
+        setupRouteCompose()
         initObservers()
-
         setupLocations()
     }
 
     override fun onResume() {
         super.onResume()
-
-        initChangeListeners()
-    }
-
-    override fun onPause() {
-        super.onPause()
-        binding.tieStartEdit.removeTextChangedListener(textChangedHandler)
-        binding.tieDestinationEdit.removeTextChangedListener(textChangedHandler)
-    }
-
-    private fun initChangeListeners() {
-
-        toggleShowCurrentLocation()
-
-        binding.tieStartEdit.setOnFocusChangeListener(focusChangeListener)
-        binding.tieDestinationEdit.setOnFocusChangeListener(focusChangeListener)
-        binding.tieStartEdit.addTextChangedListener(textChangedHandler)
-        binding.tieDestinationEdit.addTextChangedListener(textChangedHandler)
-
-        binding.tilStartEdit.setEndIconOnClickListener {
-            ignoreNextTextChange = true
-            viewModel.startLocation = null
-            toggleShowCurrentLocation()
-            binding.tieStartEdit.requestFocus()
-            locationSearchFragment?.let { fragment ->
-                if (fragment.isAdded && fragment.isVisible) {
-                    fragment.setQuery("", true)
-                }
-            }
-        }
-        binding.tilDestinationEdit.setEndIconOnClickListener {
-            ignoreNextTextChange = true
-            viewModel.destinationLocation = null
-            toggleShowCurrentLocation()
-            binding.tieDestinationEdit.requestFocus()
-            locationSearchFragment?.let { fragment ->
-                if (fragment.isAdded && fragment.isVisible) {
-                    fragment.setQuery("", true)
-                }
-            }
-        }
+        // BaseFragment can reuse binding.root on back stack return.
+        // Re-attach a fresh composition for the compose header shell.
+        setupRouteCompose()
     }
 
     private fun initSearchCard() {
@@ -287,36 +145,61 @@ class TKUIRouteFragment : BaseFragment<FragmentTkuiRouteBinding>() {
                 .commitAllowingStateLoss()
         }
 
-        viewModel.destinationLocation?.let {
-            Handler().post {
-                binding.tieStartEdit.requestFocus()
-                showKeyboard(activity)
-            }
-        }
     }
 
-    private fun initViews() {
-        binding.tieStartEdit.setOnEditorActionListener { _, i, keyEvent ->
-            if (i == EditorInfo.IME_ACTION_DONE) {
-                callRouteTrips()
-                true
-            } else false
-        }
+    private fun setupRouteCompose() {
+        val composeView = binding.routeCompose
 
-        binding.tieDestinationEdit.setOnEditorActionListener { _, i, keyEvent ->
-            if (i == EditorInfo.IME_ACTION_DONE) {
-                callRouteTrips()
-                true
-            } else false
+        // In a reused-view setup, clear stale composition before setting fresh content.
+        composeView.disposeComposition()
+        composeView.setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnDetachedFromWindow)
+        composeView.setContent {
+            TKUIRouteCardCompose(
+                viewModel = viewModel,
+                onClose = { eventBus.publish(ViewControllerEvent.OnCloseAction()) },
+                onConfirm = { callRouteTrips() },
+                onStartChange = { text ->
+                    val hasCurrentLocation =
+                        viewModel.startLocation?.locationType == Location.TYPE_CURRENT_LOCATION ||
+                            viewModel.startLocation?.name == getString(R.string.current_location)
+                    if (text.isEmpty() || hasCurrentLocation) {
+                        viewModel.startLocation = null
+                        toggleShowCurrentLocation()
+                    }
+                    viewModel.setStart(text)
+                    locationSearchFragment?.setQuery(text, true)
+                },
+                onDestinationChange = { text ->
+                    val hasCurrentLocation =
+                        viewModel.destinationLocation?.locationType == Location.TYPE_CURRENT_LOCATION ||
+                            viewModel.destinationLocation?.name == getString(R.string.current_location)
+                    if (text.isEmpty() || hasCurrentLocation) {
+                        viewModel.destinationLocation = null
+                        toggleShowCurrentLocation()
+                    }
+                    viewModel.setDestination(text)
+                    locationSearchFragment?.setQuery(text, true)
+                },
+                onStartFocused = {
+                    val query = if (viewModel.startLocation?.locationType == Location.TYPE_CURRENT_LOCATION) {
+                        ""
+                    } else {
+                        viewModel.start.value.orEmpty()
+                    }
+                    locationSearchFragment?.setQuery(query, true)
+                },
+                onDestinationFocused = {
+                    val query = if (viewModel.destinationLocation?.locationType == Location.TYPE_CURRENT_LOCATION) {
+                        ""
+                    } else {
+                        viewModel.destination.value.orEmpty()
+                    }
+                    locationSearchFragment?.setQuery(query, true)
+                },
+                onSwap = { viewModel.swap() }
+            )
         }
-
-        binding.bClose.setOnClickListener {
-            eventBus.publish(ViewControllerEvent.OnCloseAction())
-        }
-
-        binding.tvRouteLabel.setOnClickListener {
-            callRouteTrips()
-        }
+        composeView.requestLayout()
     }
 
     private fun callRouteTrips() {
@@ -332,16 +215,10 @@ class TKUIRouteFragment : BaseFragment<FragmentTkuiRouteBinding>() {
 
     private fun initObservers() {
         viewModel.swap.observeOn(AndroidSchedulers.mainThread()).subscribe {
-            clearEditFocus()
             val startText = viewModel.start.value
             val destText = viewModel.destination.value
             viewModel.setStart(destText ?: "")
             viewModel.setDestination(startText ?: "")
-            if (startText.isNullOrBlank()) {
-                binding.tieDestinationEdit.post { binding.tieDestinationEdit.requestFocus() }
-            } else {
-                binding.tieStartEdit.post { binding.tieStartEdit.requestFocus() }
-            }
             viewModel.swapLocations()
         }.addTo(autoDisposable)
 
@@ -365,15 +242,9 @@ class TKUIRouteFragment : BaseFragment<FragmentTkuiRouteBinding>() {
     }
 
     private fun setupLocations() {
-        ignoreNextTextChange = (destination != null)
         viewModel.destinationLocation = destination
         viewModel.startLocation = origin
-    }
-
-    private fun clearEditFocus() {
-        // Clear the focus to prevent changing the search query just when we swap or a location is selected
-        binding.tieDestinationEdit.clearFocus()
-        binding.tieStartEdit.clearFocus()
+        toggleShowCurrentLocation()
     }
 
     private suspend fun getCurrentLocation() {
@@ -439,27 +310,19 @@ class TKUIRouteFragment : BaseFragment<FragmentTkuiRouteBinding>() {
 
     private fun setCorrectLocation(location: Location?) {
         when {
-            binding.tieStartEdit.hasFocus() -> {
+            viewModel.focusedField == TKUIRouteViewModel.FocusedField.START -> {
                 viewModel.startLocation = location
             }
 
-            binding.tieDestinationEdit.hasFocus() -> {
+            viewModel.focusedField == TKUIRouteViewModel.FocusedField.DESTINATION -> {
                 viewModel.destinationLocation = location
             }
 
-            focusedField != null -> {
-                if (focusedField == binding.tieStartEdit) {
-                    viewModel.startLocation = location
-                } else {
-                    viewModel.destinationLocation = location
-                }
-            }
-
-            binding.tieStartEdit.text.isNullOrBlank() -> {
+            viewModel.start.value.isNullOrBlank() -> {
                 viewModel.startLocation = location
             }
 
-            binding.tieDestinationEdit.text.isNullOrBlank() -> {
+            viewModel.destination.value.isNullOrBlank() -> {
                 viewModel.destinationLocation = location
             }
 
@@ -467,17 +330,14 @@ class TKUIRouteFragment : BaseFragment<FragmentTkuiRouteBinding>() {
                 viewModel.startLocation = location
             }
         }
-
-        clearEditFocus()
+        toggleShowCurrentLocation()
     }
 
     fun restoreFocusedEditTextAndSetLocation(location: Location?) {
         if (viewModel.focusedField == TKUIRouteViewModel.FocusedField.START) {
             viewModel.startLocation = location
-            binding.tieStartEdit.requestFocus()
         } else if (viewModel.focusedField == TKUIRouteViewModel.FocusedField.DESTINATION) {
             viewModel.destinationLocation = location
-            binding.tieDestinationEdit.requestFocus()
         }
         callRouteTrips()
 
@@ -526,14 +386,14 @@ class TKUIRouteFragment : BaseFragment<FragmentTkuiRouteBinding>() {
         }
     }
 
-    fun getLocationField(): LocationField = if (binding.tieStartEdit.hasFocus()) {
-        LocationField.ORIGIN
-    } else if (binding.tieDestinationEdit.hasFocus()) {
-        LocationField.DESTINATION
-    } else if (binding.tieStartEdit.text?.isNotEmpty() == true && binding.tieDestinationEdit.text.isNullOrEmpty()) {
-        LocationField.DESTINATION
-    } else {
-        LocationField.ORIGIN
+    fun getLocationField(): LocationField = when (viewModel.focusedField) {
+        TKUIRouteViewModel.FocusedField.START -> LocationField.ORIGIN
+        TKUIRouteViewModel.FocusedField.DESTINATION -> LocationField.DESTINATION
+        else -> if (viewModel.start.value?.isNotEmpty() == true && viewModel.destination.value.isNullOrBlank()) {
+            LocationField.DESTINATION
+        } else {
+            LocationField.ORIGIN
+        }
     }
 
     companion object {

@@ -112,4 +112,16 @@
     <color name="transport_mode_selector_unchecked">#1F212A33</color>
 
     <color name="wheelchair_bg">#0098de</color>
+
+    <color name="cardBackground">#F5F5F6</color>
+    <color name="subCardBackground">#FFFFFF</color>
+
+    <color name="labelPrimary">#2E2F31</color>
+    <color name="labelSecondary">#585B62</color>
+    <color name="labelTertiary">#82868E</color>
+
+    <color name="cardGrabHandleBackground">#CECFD3</color>
+
+    <color name="inputBackground">#E5E6E8</color>
+
 </resources>

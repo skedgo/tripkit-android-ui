@@ -199,7 +199,7 @@
     <!--Reminders title-->
     <string name="reminders">Reminders</string>
     <!--Remove favourite activity title-->
-    <string name="remove_favourite">Remove Favourite</string>
+    <string name="remove_favourite">Remove</string>
     <!--Report problem-->
     <string name="report_problem">Report \n Problem</string>
     <!--Title for action to perform by the user if an event is outside TripGos range The action will display a feedback form to request the region of that event-->
@@ -616,7 +616,7 @@ We aggregate the anonymised data and provide it to researchers, regulators, and 
     <string name="enter_work_address">Enter your Work address</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="select_time">Select Time</string>
-    <string name="edit_favorite">Edit Favourite</string>
+    <string name="edit_favorite">Edit</string>
     <string name="confirmation_allow_background_location_title">Background location access</string>
     <string name="confirmation_allow_background_location_message">"To enable background location, we'll redirect you to the app settings. Once there, go to: Permissions > Location > Allow all the time, then try again."</string>
     <string name="terms_of_use">Terms of Use</string>
@@ -891,4 +891,5 @@ We aggregate the anonymised data and provide it to researchers, regulators, and 
     <string name="cancellation_policy">Cancellation policy</string>
     <string name="location_services_required">Location Services Required</string>
     <string name="plan_bottom_info_message">Your wallet can only be used with the transportation providers listed above. If you choose another provider, you will be responsible for the full cost of the trip.</string>
+    <string name="my_tickets">My Tickets</string>
 </resources>

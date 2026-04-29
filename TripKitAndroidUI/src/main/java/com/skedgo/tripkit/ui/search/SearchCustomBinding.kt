@@ -5,7 +5,12 @@ import android.text.Spannable
 import android.text.SpannableString
 import android.text.style.StyleSpan
 import android.widget.TextView
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.databinding.BindingAdapter
+import com.skedgo.tripkit.ui.compose.TripKitUITheme
+import com.skedgo.tripkit.ui.search.compose.SearchResultRow
+import com.skedgo.tripkit.ui.search.compose.toSearchResultRowUiModel
 
 // Added for highlighting, setting to BOLD, matched words in the TextView text
 @BindingAdapter("matcher")
@@ -107,6 +112,22 @@ fun setMatcher(textView: TextView, matcher: List<String>?, matchByWord: Boolean 
             textView.text = spannableString
         } catch (e: IndexOutOfBoundsException) {
             e.printStackTrace()
+        }
+    }
+}
+
+@BindingAdapter("searchResultViewModel")
+fun setSearchResultRow(composeView: ComposeView, viewModel: SuggestionViewModel?) {
+    composeView.setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+    if (viewModel == null) {
+        composeView.setContent { }
+        return
+    }
+    composeView.setContent {
+        TripKitUITheme {
+            SearchResultRow(
+                ui = viewModel.toSearchResultRowUiModel()
+            )
         }
     }
 }
