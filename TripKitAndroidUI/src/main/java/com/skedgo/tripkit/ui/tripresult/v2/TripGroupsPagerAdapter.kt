@@ -69,6 +69,7 @@ class TripGroupsPagerAdapter(
                 listener?.let { setOnTripKitButtonClickListener(it) }
                 onCloseButtonListener = closeListener
                 segmentClickListener?.let { setOnTripSegmentClickListener(it) }
+                tripAlertChangeValidator?.let { setTripAlertChangeValidator(it) }
             }
     }
 }
