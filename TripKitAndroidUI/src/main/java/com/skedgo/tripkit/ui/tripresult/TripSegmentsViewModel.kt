@@ -757,11 +757,16 @@ class TripSegmentsViewModel @Inject internal constructor(
                 TripSegmentGetOffAlertsViewModel(trip, isOn, tripUpdater, remindersRepository)
 
             getOffAlertsViewModel.alertStateToggleCustomValidation = { context, isOn ->
-                // null tripAlertChangeValidator means no validations required
-                if(tripAlertChangeValidator == null || tripAlertChangeValidator?.invoke() == true) {
+                // Only validate when enabling alerts; disabling/reset should always proceed.
+                if (!isOn) {
                     getOffAlertsViewModel.onAlertChange(context, isOn)
                 } else {
-                    getOffAlertsViewModel.setGetOffAlertStateOn(false)
+                    // null tripAlertChangeValidator means no validations required
+                    if (tripAlertChangeValidator == null || tripAlertChangeValidator?.invoke() == true) {
+                        getOffAlertsViewModel.onAlertChange(context, isOn)
+                    } else {
+                        getOffAlertsViewModel.setGetOffAlertStateOn(false)
+                    }
                 }
             }
 
