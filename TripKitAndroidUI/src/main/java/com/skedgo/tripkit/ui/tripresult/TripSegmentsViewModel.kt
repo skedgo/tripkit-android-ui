@@ -680,6 +680,14 @@ class TripSegmentsViewModel @Inject internal constructor(
                         val bridgeModel = segmentViewModelProvider.get()
                         bridgeModel.tripSegment = segment
                         addMovingItem(bridgeModel, segment)
+                        bridgeModel.alertsClicked.subscribeWithErrorHandling {
+                            alertsClicked.accept(it)
+                        }.autoClear()
+
+                        bridgeModel.externalActionClicked.subscribeWithErrorHandling {
+                            externalActionClicked.accept(it)
+                        }.autoClear()
+
                         bridgeModel.onClick.observable.subscribeWithErrorHandling {
                             it.tripSegment?.let { segment ->
                                 segmentClicked.accept(segment)
