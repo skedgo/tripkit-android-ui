@@ -148,7 +148,7 @@ class TripSegmentItemViewModel @Inject internal constructor(
 
             segment.determineAndShowSegmentIcon(viewType, lineColor, tintWhite, segmentCircleColor)
 
-            segment.handleAlerts()
+            updateAlertStateForViewType(viewType, segment.alerts)
 
             _isHideExactTimes.postValue(segment.isHideExactTimes)
             if (!isStationaryItem) {
@@ -164,21 +164,28 @@ class TripSegmentItemViewModel @Inject internal constructor(
         }
     }
 
-    private fun TripSegment.handleAlerts() {
-        if (!this.alerts.isNullOrEmpty()) {
-            showAlerts.value = true
-            this.alerts?.groupConsecutiveBy { firstItem, secondItem ->
-                firstItem.title() == secondItem.title()
-            }?.let { sameTitleGroups ->
-                val alertsArray = ArrayList<RealtimeAlert>()
-                sameTitleGroups.forEach { group ->
-                    if (group.isNotEmpty()) {
-                        alertsArray.add(group.first())
-                    }
-                }
-                this@TripSegmentItemViewModel.alerts.value = alertsArray
+    @VisibleForTesting
+    internal fun updateAlertStateForViewType(
+        viewType: SegmentViewType,
+        alerts: List<RealtimeAlert>?
+    ) {
+        // iOS parity: service alerts are rendered for moving rows only.
+        if (viewType != SegmentViewType.MOVING || alerts.isNullOrEmpty()) {
+            showAlerts.value = false
+            this.alerts.value = arrayListOf()
+            return
+        }
+
+        showAlerts.value = true
+        val deduplicatedAlerts = arrayListOf<RealtimeAlert>()
+        alerts.groupConsecutiveBy { firstItem, secondItem ->
+            firstItem.title() == secondItem.title()
+        }.forEach { group ->
+            if (group.isNotEmpty()) {
+                deduplicatedAlerts.add(group.first())
             }
         }
+        this.alerts.value = deduplicatedAlerts
     }
 
     private fun TripSegment.determineAndShowSegmentIcon(
