@@ -49,10 +49,6 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -145,7 +141,6 @@ class TripResultListViewModel @Inject constructor(
     val isError = ObservableBoolean(false)
     val showCloseButton = ObservableBoolean(false)
     private val transportModeChangeThrottle = PublishSubject.create<Unit>()
-    private val resultListUpdateThrottle = PublishSubject.create<Unit>()
 
     val tripGroupList = ObservableArrayList<TripGroup>()
     var tripGroupWithUrlList = arrayListOf<TripGroup>()
@@ -156,6 +151,7 @@ class TripResultListViewModel @Inject constructor(
     private var actionButtonHandlerFactory: ActionButtonHandlerFactory? = null
     private val networkRequests = CompositeDisposable()
     private var replaceModes: List<UserMode>? = null
+    private var activeQueryRequestId: String? = null
 
     private val _helpInfoVisible = MutableLiveData<Boolean>(true)
     val helpInfoVisible: LiveData<Boolean> = _helpInfoVisible
@@ -266,13 +262,6 @@ class TripResultListViewModel @Inject constructor(
                 { load() },
                 { errorLogger.trackError(it) })
             .autoClear()
-
-        resultListUpdateThrottle.debounce(800, TimeUnit.MILLISECONDS)
-            .subscribeOn(AndroidSchedulers.mainThread())
-            .subscribe(
-                { customAdapter.notifyDataSetChanged() },
-                { errorLogger.trackError(it) })
-            .autoClear()
     }
 
     fun onStartLocationClicked() {
@@ -355,6 +344,7 @@ class TripResultListViewModel @Inject constructor(
 
         regionService.getTransportModesByLocationsAsync(query.fromLocation!!, query.toLocation!!)
             .observeOn(AndroidSchedulers.mainThread())
+            .map { modes -> InjectedTransportModes.mergeWithInjectedModes(modes) }
             .flatMapIterable { value -> value }
             .filter {
                 transportModeFilter!!.useTransportMode(it.id.orEmpty())
@@ -460,6 +450,9 @@ class TripResultListViewModel @Inject constructor(
         
         query = query.clone(true)
         query.setUseWheelchair(transportVisibilityFilter!!.isSelected(TransportMode.ID_WHEEL_CHAIR))
+        val requestQuery = query
+        val requestId = requestQuery.uuid()
+        activeQueryRequestId = requestId
         
         // Log query type for breakpointing
         val queryType = getQueryType()
@@ -475,12 +468,15 @@ class TripResultListViewModel @Inject constructor(
                 filter.replaceTransportModes(it)
             }
 
-            routeService.routeAsync(query = query, transportModeFilter = filter)
+            routeService.routeAsync(query = requestQuery, transportModeFilter = filter)
                 .flatMap {
+                    if (requestId != activeQueryRequestId) {
+                        return@flatMap Observable.empty<List<TripGroup>>()
+                    }
                     // Mark that we received new data from API
                     receivedNewApiData = true
                     tripGroupWithUrlList.addAll(it)
-                    tripGroupRepository.addTripGroups(query.uuid(), it)
+                    tripGroupRepository.addTripGroups(requestId, it)
                         .toObservable<List<TripGroup>>()
                 }
         }.observeOn(AndroidSchedulers.mainThread())
@@ -490,12 +486,12 @@ class TripResultListViewModel @Inject constructor(
                 networkRequests.add(
                     routingStatusRepositoryLazy.get().putRoutingStatus(
                         RoutingStatus(
-                            query.uuid(),
+                            requestId,
                             Status.InProgress()
                         )
                     ).subscribe()
                 )
-                loadFromStore()
+                loadFromStore(requestQuery, requestId)
             }.doOnError {
                 val message = when (it) {
                     is RoutingError -> it.message
@@ -504,7 +500,7 @@ class TripResultListViewModel @Inject constructor(
                 networkRequests.add(
                     routingStatusRepositoryLazy.get().putRoutingStatus(
                         RoutingStatus(
-                            query.uuid(),
+                            requestId,
                             Status.Error(message)
                         )
                     ).subscribe()
@@ -514,7 +510,7 @@ class TripResultListViewModel @Inject constructor(
                 networkRequests.add(
                     routingStatusRepositoryLazy.get().putRoutingStatus(
                         RoutingStatus(
-                            query.uuid(),
+                            requestId,
                             Status.Completed()
                         )
                     ).subscribe()
@@ -550,11 +546,11 @@ class TripResultListViewModel @Inject constructor(
         load()
     }
 
-    private fun loadFromStore() {
+    private fun loadFromStore(requestQuery: Query, requestId: String) {
         val tripFlow = MutableSharedFlow<Trip>()
         tripFlow.onEach {
             val clickEvent = ViewTrip(
-                query = this.query,
+                query = requestQuery,
                 tripGroupUUID = it.group?.uuid().orEmpty(),
                 sortOrder = 1, /* TODO Proper sorting */
                 displayTripID = it.tripId
@@ -568,13 +564,14 @@ class TripResultListViewModel @Inject constructor(
         }.launchIn(viewModelScope)
 
         val requestDisposable = getSortedTripGroupsWithRoutingStatusProvider.get()
-            .execute(query, 1, transportVisibilityFilter!!)
+            .execute(requestQuery, 1, transportVisibilityFilter!!)
+            .filter { requestId == activeQueryRequestId }
             .observeOn(AndroidSchedulers.mainThread())
             .map {
                 val list = it.first
 
                 // Determine if we should clear existing data based on time relevance
-                val currentQueryTime = query.timeTag?.timeInMillis ?: System.currentTimeMillis()
+                val currentQueryTime = requestQuery.timeTag?.timeInMillis ?: System.currentTimeMillis()
                 
                 // Load previous query time from SharedPreferences (survives app kills)
                 val persistedPreviousTime = loadPreviousQueryTime()
@@ -630,7 +627,7 @@ class TripResultListViewModel @Inject constructor(
                 // Update previous query time for next comparison (persist to survive app kills)
                 // Only save if we received new data from API (not just loading from store)
                 if (receivedNewApiData) {
-                    val currentTime = query.timeTag?.timeInMillis ?: System.currentTimeMillis()
+                    val currentTime = requestQuery.timeTag?.timeInMillis ?: System.currentTimeMillis()
                     previousQueryTime = currentTime
                     savePreviousQueryTime(currentTime)
                     Timber.d("$DEBUG_TAG: Saved new previous query time: ${formatTimeForDebug(currentTime)}")
@@ -732,8 +729,13 @@ class TripResultListViewModel @Inject constructor(
         _showHelpInfo.value = show
     }
 
-    private var updateJob: Job? = null
-
+    /**
+     * Applies a list update to the adapter-backing [DiffObservableList].
+     *
+     * When a pre-computed [DiffUtil.DiffResult] is supplied (from [loadFromStore]),
+     * it dispatches granular insert/remove/move events automatically.
+     * Otherwise [DiffObservableList.update] calculates the diff internally.
+     */
     private fun updateResultList(
         list: List<TripResultViewModel>,
         diffResult: DiffUtil.DiffResult? = null
@@ -742,15 +744,6 @@ class TripResultListViewModel @Inject constructor(
             results.update(list, it)
         } ?: run {
             results.update(list)
-        }
-
-        // Cancel the previous job if it's still active
-        updateJob?.cancel()
-
-        // Launch a new job with a debounce delay
-        updateJob = CoroutineScope(Dispatchers.Main).launch {
-            delay(1000)
-            customAdapter.notifyDataSetChanged()
         }
     }
 

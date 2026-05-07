@@ -365,7 +365,6 @@ class TripResultListFragment : BaseTripKitFragment() {
 
     fun updateTripGroup(updatedTripGroup: TripGroup) {
         viewModel.updateTripGroup(updatedTripGroup)
-        binding.recyclerView.adapter?.notifyDataSetChanged()
     }
 
     private fun showDateTimePicker(isCancelable: Boolean = true) {

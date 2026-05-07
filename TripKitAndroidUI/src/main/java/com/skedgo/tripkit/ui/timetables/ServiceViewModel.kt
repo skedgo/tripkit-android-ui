@@ -33,6 +33,7 @@ abstract class ServiceViewModel() : RxViewModel() {
 
     abstract val wheelchairIcon: MutableLiveData<Drawable?>
     abstract val wheelchairTint: MutableLiveData<Int>
+    abstract val wheelchairBackgroundTint: MutableLiveData<Drawable>
 
     abstract val modeInfo: MutableLiveData<ModeInfo>
     abstract val onItemClick: TapAction<TimetableEntry>
