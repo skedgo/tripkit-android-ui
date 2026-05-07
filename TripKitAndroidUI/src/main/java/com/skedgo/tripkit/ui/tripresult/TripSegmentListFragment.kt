@@ -10,6 +10,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.gms.maps.model.LatLng
 import com.skedgo.rxtry.subscribeWithErrorHandling
 import com.skedgo.tripkit.ExternalActionParams
@@ -176,6 +177,12 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
         // Reduce layout conflicts and detach issues: disable item animations on the main list
         binding.itemsView.itemAnimator = null
         binding.itemsView.setHasFixedSize(false)
+        // Let inner list consume vertical scroll before the parent bottom sheet.
+        binding.itemsView.isNestedScrollingEnabled = true
+        // Keep actions horizontally scrollable within nested bottom-sheet/pager hierarchy.
+        binding.buttonLayout.isNestedScrollingEnabled = true
+        binding.buttonLayout.layoutManager =
+            LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
 
         accessibilityDefaultViewManager.setDefaultViewForAccessibility(binding.duration)
         viewModel.tripAlertChangeValidator = tripAlertChangeValidator
