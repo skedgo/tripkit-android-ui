@@ -6,11 +6,14 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewConfiguration
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.viewpager2.widget.ViewPager2
 import com.google.android.gms.maps.model.LatLng
 import com.skedgo.rxtry.subscribeWithErrorHandling
 import com.skedgo.tripkit.ExternalActionParams
@@ -113,6 +116,7 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
     private var updateStream: PublishSubject<Unit>? = null
     private var queryFromLocation: Location? = null
     private var queryToLocation: Location? = null
+    private var touchSlop: Int = 0
 
     override fun onAttach(context: Context) {
         TripKitUI.getInstance().tripDetailsComponent().inject(this)
@@ -122,6 +126,7 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         viewModel.onCreate(savedInstanceState)
+        touchSlop = ViewConfiguration.get(requireContext()).scaledTouchSlop
         
         // Restore action button handler factory early in lifecycle
         ensureActionButtonHandlerFactory(savedInstanceState)
@@ -183,10 +188,66 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
         binding.buttonLayout.isNestedScrollingEnabled = true
         binding.buttonLayout.layoutManager =
             LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+        setupDirectionalTouchInterception(binding.itemsView, verticalPreferred = true)
+        setupDirectionalTouchInterception(binding.buttonLayout, verticalPreferred = false)
 
         accessibilityDefaultViewManager.setDefaultViewForAccessibility(binding.duration)
         viewModel.tripAlertChangeValidator = tripAlertChangeValidator
         return binding.root
+    }
+
+    private fun setupDirectionalTouchInterception(
+        recyclerView: androidx.recyclerview.widget.RecyclerView,
+        verticalPreferred: Boolean
+    ) {
+        recyclerView.setOnTouchListener(object : View.OnTouchListener {
+            var startX = 0f
+            var startY = 0f
+            var directionResolved = false
+
+            override fun onTouch(v: View?, event: MotionEvent): Boolean {
+                val pager = findParentViewPager(v)
+                when (event.actionMasked) {
+                    MotionEvent.ACTION_DOWN -> {
+                        startX = event.x
+                        startY = event.y
+                        directionResolved = false
+                        pager?.isUserInputEnabled = true
+                        recyclerView.parent?.requestDisallowInterceptTouchEvent(true)
+                    }
+
+                    MotionEvent.ACTION_MOVE -> {
+                        if (!directionResolved) {
+                            val dx = kotlin.math.abs(event.x - startX)
+                            val dy = kotlin.math.abs(event.y - startY)
+                            if (dx > touchSlop || dy > touchSlop) {
+                                directionResolved = true
+                                val isVertical = dy >= dx
+                                val childHandles = if (verticalPreferred) isVertical else !isVertical
+                                pager?.isUserInputEnabled = !isVertical
+                                recyclerView.parent?.requestDisallowInterceptTouchEvent(childHandles)
+                            }
+                        }
+                    }
+
+                    MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                        pager?.isUserInputEnabled = true
+                        directionResolved = false
+                        recyclerView.parent?.requestDisallowInterceptTouchEvent(false)
+                    }
+                }
+                return false
+            }
+        })
+    }
+
+    private fun findParentViewPager(view: View?): ViewPager2? {
+        var current = view?.parent
+        while (current is View) {
+            if (current is ViewPager2) return current
+            current = current.parent
+        }
+        return null
     }
 
     override fun onStart() {
