@@ -13,6 +13,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.TextView
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewModelScope
@@ -37,6 +39,11 @@ import com.skedgo.tripkit.ui.dialog.TimeDatePickerFragment
 import com.skedgo.tripkit.ui.model.TimetableEntry
 import com.skedgo.tripkit.ui.model.TripKitButton
 import com.skedgo.tripkit.ui.search.ARG_SHOW_SEARCH_FIELD
+import com.skedgo.tripkit.ui.tripresult.ActionButtonClickListener
+import com.skedgo.tripkit.ui.tripresult.ActionButtonViewModel
+import com.skedgo.tripkit.ui.tripresult.TripSegmentActionButton
+import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButton
+import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButtonHandler
 import com.skedgo.tripkit.ui.utils.OnSwipeTouchListener
 import com.skedgo.tripkit.ui.utils.observe
 import com.skedgo.tripkit.ui.views.MultiStateView
@@ -152,6 +159,8 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
     private lateinit var binding: TimetableFragmentBinding
     protected var buttons: List<TripKitButton> = emptyList()
     var servicesAreLoaded = false
+    private val composeButtons = mutableMapOf<String, ComposeButtonState>()
+    private var actionButtonTemplateProvider: ActionButtonTemplateProvider? = null
 
     override fun onAttach(context: Context) {
         TripKitUI.getInstance().inject(this);
@@ -440,16 +449,7 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
             }
         })
 
-        buttons.forEach {
-            try {
-                val button = layoutInflater.inflate(it.layoutResourceId, null, false)
-                button.tag = it.id
-                button.setOnClickListener(this)
-                binding.buttonLayout.addView(button)
-            } catch (e: InflateException) {
-                Timber.e("Invalid button layout ${it.layoutResourceId}", e)
-            }
-        }
+        buttons.forEach { addButtonView(it) }
 
         return binding.root
     }
@@ -457,6 +457,20 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
     fun replaceButton(id: String, newLayoutId: Int) {
         buttons.forEach { button ->
             if (button.id == id) {
+                composeButtons[id]?.let { composeState ->
+                    val updatedButton = TripKitButton(button.id, newLayoutId)
+                    val updatedState = buildComposeState(updatedButton) ?: return@let
+                    if (composeState.actionTag != updatedState.actionTag) return@let
+
+                    composeState.viewModel.update(
+                        requireContext(),
+                        resolveActionButton(updatedState.actionState)
+                    )
+                    button.layoutResourceId = newLayoutId
+                    return@forEach
+                }
+                composeButtons.remove(id)
+
                 val currentView = binding.buttonLayout.findViewWithTag<View?>(id)
                 currentView?.let {
                     val currentViewIndex = binding.buttonLayout.indexOfChild(currentView)
@@ -594,6 +608,157 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
         }
     }
 
+    private fun addButtonView(button: TripKitButton) {
+        val composeState = buildComposeState(button)
+        if (composeState != null) {
+            val composeView = ComposeView(requireContext()).apply {
+                tag = button.id
+                id = composeState.viewId
+                layoutParams = ViewGroup.LayoutParams(
+                    ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+                )
+                setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+                setContent {
+                    TripSegmentActionButton(
+                        viewModel = composeState.viewModel,
+                        listener = composeState.clickListener
+                    )
+                }
+            }
+            composeButtons[button.id] = composeState
+            binding.buttonLayout.addView(composeView)
+            return
+        }
+
+        try {
+            val inflatedButton = layoutInflater.inflate(button.layoutResourceId, null, false)
+            inflatedButton.tag = button.id
+            inflatedButton.setOnClickListener(this)
+            binding.buttonLayout.addView(inflatedButton)
+        } catch (e: InflateException) {
+            Timber.e("Invalid button layout ${button.layoutResourceId}", e)
+        }
+    }
+
+    private fun buildComposeState(button: TripKitButton): ComposeButtonState? {
+        val entryName = runCatching {
+            resources.getResourceEntryName(button.layoutResourceId)
+        }.getOrNull()
+
+        val actionTag = when {
+            button.id.equals("go", true) ||
+                button.id.equals(getString(R.string.go), true) ||
+                entryName == "go_button" ||
+                entryName == "layout_go_button" -> ActionTag.GO
+
+            button.id.equals("favorite", true) ||
+                button.id.equals("favourite", true) ||
+                button.id.equals(getString(R.string.favourite), true) ||
+                entryName == "favorite_button" ||
+                entryName == "layout_favorite_button" ||
+                entryName == "favorite_remove_button" -> ActionTag.FAVORITE
+
+            button.id.equals("share", true) ||
+                button.id.equals(getString(R.string.share), true) ||
+                button.id.equals(getString(R.string.share_arrival), true) ||
+                entryName == "share_button" ||
+                entryName == "layout_share_button" -> ActionTag.SHARE
+
+            else -> null
+        } ?: return null
+
+        val actionState = ComposeActionState(
+            actionTag = actionTag,
+            favoriteSelected = actionTag == ActionTag.FAVORITE && entryName == "favorite_remove_button"
+        )
+        val viewModel = ActionButtonViewModel(requireContext(), resolveActionButton(actionState))
+        val viewId = when (actionTag) {
+            ActionTag.GO -> R.id.goButton
+            ActionTag.FAVORITE -> R.id.favoriteButton
+            ActionTag.SHARE -> R.id.shareButton
+        }
+        val listener = object : ActionButtonClickListener {
+            override fun onItemClick(
+                tag: String,
+                actionButtonViewModel: ActionButtonViewModel,
+                context: Context
+            ) {
+                this@TimetableFragment.viewModel.stop.value?.let { stop ->
+                    tripButtonClickListener?.onTripButtonClicked(viewId, stop)
+                }
+            }
+        }
+        return ComposeButtonState(
+            actionTag = actionTag,
+            actionState = actionState,
+            viewModel = viewModel,
+            viewId = viewId,
+            clickListener = listener
+        )
+    }
+
+    private fun resolveActionButton(actionState: ComposeActionState): ActionButton {
+        val tag = when (actionState.actionTag) {
+            ActionTag.GO -> ActionButtonHandler.ACTION_TAG_GO
+            ActionTag.FAVORITE -> ActionButtonHandler.ACTION_TAG_FAVORITE
+            ActionTag.SHARE -> ActionButtonHandler.ACTION_TAG_SHARE
+        }
+        return actionButtonTemplateProvider
+            ?.getActionButton(requireContext(), tag, actionState.favoriteSelected)
+            ?: actionState.toActionButton(requireContext())
+    }
+
+    private enum class ActionTag {
+        GO, FAVORITE, SHARE
+    }
+
+    private data class ComposeActionState(
+        val actionTag: ActionTag,
+        val favoriteSelected: Boolean = false
+    ) {
+        fun toActionButton(context: Context): ActionButton {
+            return when (actionTag) {
+                ActionTag.GO -> ActionButton(
+                    text = context.getString(R.string.go),
+                    tag = ActionButtonHandler.ACTION_TAG_GO,
+                    icon = R.drawable.ic_directions,
+                    isPrimary = true
+                )
+
+                ActionTag.FAVORITE -> ActionButton(
+                    text = if (favoriteSelected) {
+                        context.getString(R.string.remove_favourite)
+                    } else {
+                        context.getString(R.string.favourite)
+                    },
+                    tag = ActionButtonHandler.ACTION_TAG_FAVORITE,
+                    icon = R.drawable.ic_favorite,
+                    isPrimary = false
+                )
+
+                ActionTag.SHARE -> ActionButton(
+                    text = context.getString(R.string.share_arrival),
+                    tag = ActionButtonHandler.ACTION_TAG_SHARE,
+                    icon = R.drawable.ic_share,
+                    isPrimary = false
+                )
+            }
+        }
+    }
+
+    private data class ComposeButtonState(
+        val actionTag: ActionTag,
+        val actionState: ComposeActionState,
+        val viewModel: ActionButtonViewModel,
+        val viewId: Int,
+        val clickListener: ActionButtonClickListener
+    )
+
+    fun interface ActionButtonTemplateProvider {
+        fun getActionButton(context: Context, tag: String, selected: Boolean): ActionButton?
+    }
+
 
     fun showShareDialog() {
         viewModel.getShareUrl(getString(R.string.share_url), stop!!)
@@ -624,6 +789,7 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
         private var buttons: MutableList<TripKitButton> = mutableListOf()
         private var actionStream: PublishSubject<TripSegment>? = null
         private var fromPreview: Boolean = false
+        private var actionButtonTemplateProvider: ActionButtonTemplateProvider? = null
 
         fun withStop(stop: ScheduledStop?): Builder {
             this.stop = stop
@@ -670,6 +836,11 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
             return this
         }
 
+        fun withActionButtonTemplateProvider(provider: ActionButtonTemplateProvider): Builder {
+            this.actionButtonTemplateProvider = provider
+            return this
+        }
+
         fun build(): TimetableFragment {
             val args = Bundle()
             val fragment = TimetableFragment()
@@ -685,6 +856,7 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
             fragment._tripSegment = tripSegment
             fragment.fromPreview = fromPreview
             fragment.cachedBookingActions = bookingActions
+            fragment.actionButtonTemplateProvider = actionButtonTemplateProvider
 
             return fragment
         }

@@ -99,6 +99,16 @@ open class ActionButtonHandler {
     ) {
     }
 
+    /**
+     * Optional lightweight action template used by non-trip screens (e.g. Timetable) that only
+     * need to render common actions through the same UI pipeline.
+     */
+    open fun getActionTemplate(
+        context: Context,
+        tag: String,
+        selected: Boolean = false
+    ): ActionButton? = null
+
     // Interim solution, should find a better workaround for this one
     open fun handleCustomAction(tag: String, data: Any) {}
 }

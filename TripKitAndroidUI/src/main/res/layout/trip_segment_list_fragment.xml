@@ -98,6 +98,7 @@
             android:orientation="horizontal"
             app:itemBinding="@{viewModel.buttonsBinding}"
             app:items="@{viewModel.buttons}"
+            android:paddingStart="@dimen/spacing_small"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"
             app:layout_constraintStart_toStartOf="parent"
