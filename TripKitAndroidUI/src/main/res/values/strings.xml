@@ -66,6 +66,10 @@
     <string name="permission_request_title">Permission Request</string>
     <string name="permission_request_notificaiton">Allow %s to send you notifications?</string>
     <string name="permission_request_notificaiton_open_settings_explanation">This permission is needed for you to receive notifications regarding your trips</string>
+    <string name="location_prominent_disclosure_title">Allow location access</string>
+    <string name="location_prominent_disclosure_body">This app uses your location to provide more relevant nearby results, improve search accuracy, and enhance your overall app experience. Your location is only used while using the app.</string>
+    <string name="location_prominent_disclosure_not_now">Not now</string>
+    <string name="location_prominent_disclosure_continue">Continue</string>
     <string name="location_provider_disabled">Location provider disabled</string>
     <string name="device_location_is_turned_off">Your device location is turned off, kindly enable it and try again</string>
     <string name="learn_more">Learn More</string>

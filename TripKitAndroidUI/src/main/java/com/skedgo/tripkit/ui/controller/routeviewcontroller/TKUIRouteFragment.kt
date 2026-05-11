@@ -411,6 +411,7 @@ class TKUIRouteFragment : BaseFragment<FragmentTkuiRouteBinding>() {
                     }
                 }, { Timber.e(it) }).addTo(autoDisposable)
         } else {
+            clearCurrentLocationSelection()
             Toast.makeText(
                 requireContext(),
                 R.string.could_not_determine_your_current_location_dot,
@@ -487,8 +488,7 @@ class TKUIRouteFragment : BaseFragment<FragmentTkuiRouteBinding>() {
         if (it is FixedSuggestions) {
             when (it) {
                 FixedSuggestions.CURRENT_LOCATION -> {
-                    val fixedLocation = Location()
-                        .apply {
+                    val fixedLocation = Location().apply {
                         locationType = Location.TYPE_CURRENT_LOCATION
                         name = getString(R.string.current_location)
                         lat = 0.0
@@ -524,6 +524,23 @@ class TKUIRouteFragment : BaseFragment<FragmentTkuiRouteBinding>() {
                 }
             }
         }
+    }
+
+    private fun clearCurrentLocationSelection() {
+        val currentLocationLabel = getString(R.string.current_location)
+        if (viewModel.startLocation?.locationType == Location.TYPE_CURRENT_LOCATION ||
+            viewModel.startLocation?.name == currentLocationLabel
+        ) {
+            viewModel.startLocation = null
+            binding.tieStartEdit.setText("")
+        }
+        if (viewModel.destinationLocation?.locationType == Location.TYPE_CURRENT_LOCATION ||
+            viewModel.destinationLocation?.name == currentLocationLabel
+        ) {
+            viewModel.destinationLocation = null
+            binding.tieDestinationEdit.setText("")
+        }
+        toggleShowCurrentLocation()
     }
 
     fun getLocationField(): LocationField = if (binding.tieStartEdit.hasFocus()) {
