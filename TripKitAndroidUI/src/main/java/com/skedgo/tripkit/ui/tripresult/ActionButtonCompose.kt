@@ -136,7 +136,7 @@ fun TripSegmentActionButton(
                 }
 
                 if (resolvedTitle.isNotEmpty()) {
-                    Spacer(modifier = Modifier.size(dimensionResource(R.dimen.spacing_small)))
+                    Spacer(modifier = Modifier.size(dimensionResource(R.dimen.spacing_extra_small)))
                     Text(
                         text = resolvedTitle,
                         style = ActionButtonTextStyles.Label,
