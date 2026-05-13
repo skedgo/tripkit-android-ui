@@ -2,6 +2,7 @@ package com.skedgo.tripkit.ui.utils
 
 import android.content.Context
 import android.os.Handler
+import android.os.Looper
 import android.view.View
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
@@ -30,7 +31,7 @@ open class AccessibilityDefaultViewManager constructor(
     }
 
     fun focusAccessibilityDefaultView(withDelay: Boolean, customDelay: Long? = null) {
-        Handler().postDelayed({
+        Handler(Looper.getMainLooper()).postDelayed({
             if (context?.isTalkBackOn() == true) {
                 viewForAccessibility?.apply {
                     performAccessibilityAction(
