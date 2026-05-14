@@ -41,6 +41,7 @@ import me.tatarka.bindingcollectionadapter2.BR
 import me.tatarka.bindingcollectionadapter2.ItemBinding
 import me.tatarka.bindingcollectionadapter2.collections.DiffObservableList
 import org.joda.time.DateTime
+import timber.log.Timber
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
@@ -108,61 +109,107 @@ class TripSegmentGetOffAlertsViewModel @Inject internal constructor(
     }
 
     fun onAlertChange(context: Context, isOn: Boolean) {
+        Timber.d("[GetOffAlerts] onAlertChange requested: isOn=%s currentState=%s tripUuid=%s", isOn, _getOffAlertStateOn.value, trip.getTripUuid())
 
         if(_getOffAlertStateOn.value == isOn) {
+            Timber.d("[GetOffAlerts] Ignoring toggle request because state is unchanged.")
             return
         }
 
-        trip.let {
-            GetOffAlertCache.setTripAlertOnState(
-                it.getTripUuid(), it.group?.uuid().orEmpty(), isOn
-            )
-        }
-
-        cancelStartTripAlarms(context) //this will cancel previous alarm that was setup
-        cancelNotifications(context) //will cancel trip start and geofence notifications
-        GeoLocation.clearGeofences()
-        showGeofencesOnMap.invoke(emptyList())
-
         if (isOn) {
             showProminentDisclosure(context) { isAccepted ->
+                Timber.d("[GetOffAlerts] Prominent disclosure result: accepted=%s", isAccepted)
                 if (isAccepted) {
-                    checkPermissions(context)
+                    checkPermissions(context) { permissionsOk ->
+                        if (permissionsOk) {
+                            enableAlerts(context)
+                        } else {
+                            _getOffAlertStateOn.postValue(false)
+                        }
+                    }
                 } else {
+                    Timber.w("[GetOffAlerts] Reverting switch OFF: prominent disclosure cancelled.")
                     _getOffAlertStateOn.postValue(false)
                 }
             }
         } else {
-            trip.unsubscribeURL?.let { unsubscribeUrl ->
-                tripUpdater.tripSubscription(unsubscribeUrl)
-                    .subscribe({
-                        //Do nothing
-                    }, { e ->
-                        if (BuildConfig.DEBUG) {
-                            e.printStackTrace()
-                        }
-                    }).addTo(disposable)
-            }
+            disableAlerts(context)
         }
-
-        alertStateListener.invoke(isOn)
-        _getOffAlertStateOn.postValue(isOn)
     }
 
-    private fun checkPermissions(context: Context) {
+    private fun enableAlerts(context: Context) {
+        Timber.d("[GetOffAlerts] Permissions approved. Enabling alerts.")
+        trip.let {
+            GetOffAlertCache.setTripAlertOnState(
+                it.getTripUuid(), it.group?.uuid().orEmpty(), true
+            )
+        }
+
+        _getOffAlertStateOn.postValue(true)
+        alertStateListener.invoke(true)
+
+        cancelStartTripAlarms(context)
+        cancelNotifications(context)
+        GeoLocation.clearGeofences()
+        showGeofencesOnMap.invoke(emptyList())
+
+        setupAlarmsGeofencesAndSubscription(context)
+    }
+
+    private fun disableAlerts(context: Context) {
+        Timber.d("[GetOffAlerts] Disabling alerts.")
+        trip.let {
+            GetOffAlertCache.setTripAlertOnState(
+                it.getTripUuid(), it.group?.uuid().orEmpty(), false
+            )
+        }
+
+        cancelStartTripAlarms(context)
+        cancelNotifications(context)
+        GeoLocation.clearGeofences()
+        showGeofencesOnMap.invoke(emptyList())
+
+        trip.unsubscribeURL?.let { unsubscribeUrl ->
+            tripUpdater.tripSubscription(unsubscribeUrl)
+                .subscribe({
+                    // Do nothing
+                }, { e ->
+                    if (BuildConfig.DEBUG) {
+                        e.printStackTrace()
+                    }
+                }).addTo(disposable)
+        }
+
+        _getOffAlertStateOn.postValue(false)
+        alertStateListener.invoke(false)
+    }
+
+    private fun checkPermissions(context: Context, onResult: (Boolean) -> Unit) {
         checkNotificationPermission(context) { isAccepted ->
+            Timber.d("[GetOffAlerts] Notification permission result: accepted=%s", isAccepted)
+            if (!isAccepted) {
+                Timber.w("[GetOffAlerts] Reverting switch OFF: POST_NOTIFICATIONS denied.")
+                showGoToSettingsDialog(
+                    context = context,
+                    message = context.getString(R.string.permission_request_notificaiton_open_settings_explanation)
+                )
+                onResult(false)
+                return@checkNotificationPermission
+            }
             val isLocationProviderEnabled = context.checkIfLocationProviderIsEnabled()
             if (!isLocationProviderEnabled) {
+                Timber.w("[GetOffAlerts] Reverting switch OFF: location provider disabled.")
                 context.showConfirmationPopUpDialog(
                     title = context.getString(R.string.location_provider_disabled),
                     message = context.getString(R.string.device_location_is_turned_off),
                     positiveLabel = context.getString(R.string.close),
                     positiveCallback = {
-                        _getOffAlertStateOn.postValue(false)
+                        Timber.w("[GetOffAlerts] Reverting switch OFF: user acknowledged location provider disabled dialog.")
                     }
                 )
+                onResult(false)
             } else {
-                checkAccessFineLocationPermission(context)
+                checkAccessFineLocationPermission(context, onResult)
             }
         }
     }
@@ -234,81 +281,54 @@ class TripSegmentGetOffAlertsViewModel @Inject internal constructor(
         )
     }
 
+    private fun showGoToSettingsDialog(context: Context, message: String) {
+        context.showConfirmationPopUpDialog(
+            title = context.getString(R.string.permission_required),
+            message = message,
+            positiveLabel = context.getString(R.string.permission_go_to_settings),
+            positiveCallback = {
+                val intent = Intent(
+                    Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                    Uri.fromParts("package", context.packageName, null)
+                )
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                context.startActivity(intent)
+            },
+            negativeLabel = context.getString(R.string.cancel)
+        )
+    }
+
     /*
     * There's an issue getting automatically rejected when asking ACCESS_FINE_LOCATION and
     * ACCESS_BACKGROUND_LOCATION at the same time. So will be asking one permission
     * after the other.
     */
-    private fun checkAccessFineLocationPermission(context: Context) {
+    private fun checkAccessFineLocationPermission(context: Context, onResult: (Boolean) -> Unit) {
         ExcuseMe.couldYouGive(context).permissionFor(
             android.Manifest.permission.ACCESS_FINE_LOCATION
         ) {
-
+            Timber.d("[GetOffAlerts] Fine location permission result: granted=%s denied=%s", it.granted, it.denied)
             if (it.denied.isNotEmpty()) {
-                _getOffAlertStateOn.postValue(false)
+                Timber.w("[GetOffAlerts] Reverting switch OFF: ACCESS_FINE_LOCATION denied.")
+                showGoToSettingsDialog(
+                    context = context,
+                    message = context.getString(R.string.permission_go_to_settings_message)
+                )
+                onResult(false)
             } else {
-                checkBackgroundLocationPermission(context)
+                checkBackgroundLocationPermission(context, onResult)
             }
         }
     }
 
-    private fun checkBackgroundLocationPermission(context: Context) {
+    private fun checkBackgroundLocationPermission(context: Context, onResult: (Boolean) -> Unit) {
         ExcuseMe.couldYouGive(context).permissionFor(
             android.Manifest.permission.ACCESS_BACKGROUND_LOCATION
         ) {
-
-            val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-            var pendingIntent: PendingIntent? = null
-            var startSegmentStartTimeInSecs = 0L
-            val reminderInMinutes =
-                runBlocking { remindersRepository.getTripNotificationReminderMinutes() }
-
-            trip.segmentList?.minByOrNull { it.startTimeInSecs }?.let { startSegment ->
-                startSegmentStartTimeInSecs = startSegment.startTimeInSecs
-                val alarmIntent = Intent(context, TripAlarmBroadcastReceiver::class.java)
-                alarmIntent.putExtra(TripAlarmBroadcastReceiver.ACTION_START_TRIP_EVENT, true)
-                alarmIntent.putExtra(
-                    TripAlarmBroadcastReceiver.EXTRA_START_TRIP_EVENT_TRIP,
-                    Gson().toJson(trip)
-                )
-                trip.group?.let {
-                    alarmIntent.putExtra(
-                        TripAlarmBroadcastReceiver.EXTRA_START_TRIP_EVENT_TRIP_GROUP_UUID,
-                        it.uuid()
-                    )
-                }
-                pendingIntent = PendingIntent.getBroadcast(
-                    context,
-                    0,
-                    alarmIntent,
-                    0 or PendingIntent.FLAG_IMMUTABLE
-                )
-            }
-
-            trip.subscribeURL?.let { url ->
-                tripUpdater.tripSubscription(url)
-                    .flatMap {
-                        val updateUrl = trip.updateURL ?: ""
-                        // remove hash to force get updated trip for getting the unsubscribeURL
-                        if (updateUrl.contains(URL_PARAM_HASH)) {
-                            updateUrl.removeQueryParamFromUrl(URL_PARAM_HASH)
-                        }
-                        tripUpdater.getUpdateAsync(updateUrl)
-                    }
-                    .subscribe({
-                        this.trip = it
-                    }, { e ->
-                        if (BuildConfig.DEBUG) {
-                            e.printStackTrace()
-                        }
-                    }).addTo(disposable)
-            }
+            Timber.d("[GetOffAlerts] Background location permission result: granted=%s denied=%s", it.granted, it.denied)
 
             if (it.denied.isNotEmpty()) {
-
-                _getOffAlertStateOn.postValue(false)
-                pendingIntent?.let { intent -> alarmManager.cancel(intent) }
-
+                Timber.w("[GetOffAlerts] Reverting switch OFF: ACCESS_BACKGROUND_LOCATION denied.")
                 context.showConfirmationPopUpDialog(
                     title = context.getString(R.string.confirmation_allow_background_location_title),
                     message = context.getString(R.string.confirmation_allow_background_location_message),
@@ -323,42 +343,94 @@ class TripSegmentGetOffAlertsViewModel @Inject internal constructor(
                     },
                     negativeLabel = context.getString(R.string.cancel)
                 )
+                onResult(false)
             } else {
+                Timber.d("[GetOffAlerts] Background location granted.")
+                onResult(true)
+            }
+        }
+    }
 
-                val reminder = TimeUnit.MINUTES.toSeconds(reminderInMinutes)
+    private fun setupAlarmsGeofencesAndSubscription(context: Context) {
+        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        var pendingIntent: PendingIntent? = null
+        var startSegmentStartTimeInSecs = 0L
+        val reminderInMinutes =
+            runBlocking { remindersRepository.getTripNotificationReminderMinutes() }
 
-                val currentDateTimeInSeconds = TimeUnit.MILLISECONDS.toSeconds(
-                    DateTime(System.currentTimeMillis(), trip.from?.dateTimeZone).millis
+        trip.segmentList?.minByOrNull { it.startTimeInSecs }?.let { startSegment ->
+            startSegmentStartTimeInSecs = startSegment.startTimeInSecs
+            val alarmIntent = Intent(context, TripAlarmBroadcastReceiver::class.java)
+            alarmIntent.putExtra(TripAlarmBroadcastReceiver.ACTION_START_TRIP_EVENT, true)
+            alarmIntent.putExtra(
+                TripAlarmBroadcastReceiver.EXTRA_START_TRIP_EVENT_TRIP,
+                Gson().toJson(trip)
+            )
+            trip.group?.let {
+                alarmIntent.putExtra(
+                    TripAlarmBroadcastReceiver.EXTRA_START_TRIP_EVENT_TRIP_GROUP_UUID,
+                    it.uuid()
                 )
+            }
+            pendingIntent = PendingIntent.getBroadcast(
+                context,
+                0,
+                alarmIntent,
+                0 or PendingIntent.FLAG_IMMUTABLE
+            )
+        }
 
-                if (startSegmentStartTimeInSecs > currentDateTimeInSeconds &&
-                    (startSegmentStartTimeInSecs - currentDateTimeInSeconds) >= reminder) {
-                    pendingIntent?.let { intent ->
-                        alarmManager.set(
-                            AlarmManager.RTC_WAKEUP,
-                            TimeUnit.SECONDS.toMillis(startSegmentStartTimeInSecs) - TimeUnit.MINUTES.toMillis(
-                                reminderInMinutes
-                            ),
-                            intent
-                        )
+        trip.subscribeURL?.let { url ->
+            tripUpdater.tripSubscription(url)
+                .flatMap {
+                    val updateUrl = trip.updateURL ?: ""
+                    // remove hash to force get updated trip for getting the unsubscribeURL
+                    if (updateUrl.contains(URL_PARAM_HASH)) {
+                        updateUrl.removeQueryParamFromUrl(URL_PARAM_HASH)
                     }
+                    tripUpdater.getUpdateAsync(updateUrl)
                 }
-                trip.segmentList?.mapNotNull { it.geofences }?.flatten()?.let { geofences ->
-                    GeoLocation.createGeoFences(
-                        trip,
-                        geofences.map { geofence ->
-                            geofence.computeAndSetTimeline(trip.endDateTime.millis)
-                            geofence
-                        }
-                    ) { added ->
-                        if (added && configs.showGeofences()) {
-                            showGeofencesOnMap.invoke(
-                                geofences.map {
-                                    LatLng(it.center.lat, it.center.lng) to it.radius
-                                }
-                            )
-                        }
+                .subscribe({
+                    this.trip = it
+                }, { e ->
+                    if (BuildConfig.DEBUG) {
+                        e.printStackTrace()
                     }
+                }).addTo(disposable)
+        }
+
+        val reminder = TimeUnit.MINUTES.toSeconds(reminderInMinutes)
+
+        val currentDateTimeInSeconds = TimeUnit.MILLISECONDS.toSeconds(
+            DateTime(System.currentTimeMillis(), trip.from?.dateTimeZone).millis
+        )
+
+        if (startSegmentStartTimeInSecs > currentDateTimeInSeconds &&
+            (startSegmentStartTimeInSecs - currentDateTimeInSeconds) >= reminder) {
+            pendingIntent?.let { intent ->
+                alarmManager.set(
+                    AlarmManager.RTC_WAKEUP,
+                    TimeUnit.SECONDS.toMillis(startSegmentStartTimeInSecs) - TimeUnit.MINUTES.toMillis(
+                        reminderInMinutes
+                    ),
+                    intent
+                )
+            }
+        }
+        trip.segmentList?.mapNotNull { it.geofences }?.flatten()?.let { geofences ->
+            GeoLocation.createGeoFences(
+                trip,
+                geofences.map { geofence ->
+                    geofence.computeAndSetTimeline(trip.endDateTime.millis)
+                    geofence
+                }
+            ) { added ->
+                if (added && configs.showGeofences()) {
+                    showGeofencesOnMap.invoke(
+                        geofences.map {
+                            LatLng(it.center.lat, it.center.lng) to it.radius
+                        }
+                    )
                 }
             }
         }
