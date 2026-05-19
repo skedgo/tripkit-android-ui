@@ -282,6 +282,15 @@ class TripSegmentsViewModel @Inject internal constructor(
             .autoClear()
     }
 
+    /**
+     * Creates or updates action buttons for the current display trip.
+     *
+     * During state restoration we may already have placeholder button view models from
+     * [restoreActionButtonState]. If the restored button count differs from the latest handler
+     * output, we rebuild the button list to avoid index-based mismatches and keep UI state valid.
+     * This guarantees we never read outside list bounds when action availability changes between
+     * save and restore events.
+     */
     private fun setupButtons(tripGroup: TripGroup) {
         if (tripGroup.displayTrip == null) return
         
@@ -295,70 +304,59 @@ class TripSegmentsViewModel @Inject internal constructor(
             
             // If we're restoring state and buttons are already restored, update them with proper data
             if (isRestoringState && buttons.value?.isNotEmpty() == true) {
-                // Update existing buttons with proper data from handler while preserving states
-                actions.forEachIndexed { i, actionButton ->
-                    val existingButton = buttons.value?.get(i)
-                    if (existingButton != null) {
-                        // Update the button with proper data but preserve dynamic states
-                        existingButton.update(context, actionButton)
-                        
-                        // Restore dynamic states for specific button types
-                        when (actionButton.tag) {
-                            ActionButtonHandler.ACTION_TAG_FAVORITE -> {
-                                // Check if this button was in favorite state
-                                val currentText = existingButton.title.get()
-                                if (currentText?.contains("Remove", ignoreCase = true) == true) {
-                                    existingButton.title.set(context.getString(R.string.remove_favourite))
-                                }
-                            }
-                            ActionButtonHandler.ACTION_TAG_ALERT -> {
-                                // Check if this button was in alert state
-                                val currentText = existingButton.title.get()
-                                if (currentText?.contains("Mute", ignoreCase = true) == true) {
-                                    existingButton.title.set(context.getString(R.string.action_mute))
-                                }
-                            }
-                        }
-                    }
+                val existingButtons = buttons.value.orEmpty()
+                if (existingButtons.size == actions.size) {
+                    updateButtonsPreservingDynamicStates(actions)
+                } else {
+                    recreateButtons(actions)
                 }
                 isRestoringState = false
             } else {
                 // Create new buttons or update existing ones
                 if (buttons.value.orEmpty().size != actions.size) {
-                    val newButtons = mutableListOf<ActionButtonViewModel>()
-                    actions.forEach { actionButton ->
-                        val buttonViewModel = ActionButtonViewModel(context, actionButton)
-                        newButtons.add(buttonViewModel)
-                    }
-                    buttons.value = newButtons
+                    recreateButtons(actions)
                 } else {
-                    // Update existing buttons while preserving dynamic states
-                    actions.forEachIndexed { i, actionButton ->
-                        val existingButton = buttons.value?.get(i)
-                        if (existingButton != null) {
-                            // Always update the button with proper data first, then preserve dynamic states
-                            existingButton.update(context, actionButton)
-                            
-                            // Preserve dynamic states for specific button types
-                            when (actionButton.tag) {
-                                ActionButtonHandler.ACTION_TAG_FAVORITE -> {
-                                    // Keep existing favorite state if available
-                                    val currentText = existingButton.title.get()
-                                    if (currentText?.contains("Remove", ignoreCase = true) == true) {
-                                        // Button is already in favorite state, preserve it
-                                        existingButton.title.set(context.getString(R.string.remove_favourite))
-                                    }
-                                }
-                                ActionButtonHandler.ACTION_TAG_ALERT -> {
-                                    // Keep existing alert state if available
-                                    val currentText = existingButton.title.get()
-                                    if (currentText?.contains("Mute", ignoreCase = true) == true) {
-                                        // Button is already in alert state, preserve it
-                                        existingButton.title.set(context.getString(R.string.action_mute))
-                                    }
-                                }
-                            }
-                        }
+                    updateButtonsPreservingDynamicStates(actions)
+                }
+            }
+        }
+    }
+
+    /**
+     * Recreates button view models from handler output.
+     */
+    private fun recreateButtons(actions: List<ActionButton>) {
+        val newButtons = mutableListOf<ActionButtonViewModel>()
+        actions.forEach { actionButton ->
+            val buttonViewModel = ActionButtonViewModel(context, actionButton)
+            newButtons.add(buttonViewModel)
+        }
+        buttons.value = newButtons
+    }
+
+    /**
+     * Updates existing button view models while preserving dynamic text-based states
+     * (favorite and alert toggles).
+     */
+    private fun updateButtonsPreservingDynamicStates(actions: List<ActionButton>) {
+        val existingButtons = buttons.value.orEmpty()
+        actions.forEachIndexed { i, actionButton ->
+            val existingButton = existingButtons.getOrNull(i) ?: return@forEachIndexed
+            // Update with latest action metadata first.
+            existingButton.update(context, actionButton)
+
+            // Reapply dynamic states derived from current UI text.
+            when (actionButton.tag) {
+                ActionButtonHandler.ACTION_TAG_FAVORITE -> {
+                    val currentText = existingButton.title.get()
+                    if (currentText?.contains("Remove", ignoreCase = true) == true) {
+                        existingButton.title.set(context.getString(R.string.remove_favourite))
+                    }
+                }
+                ActionButtonHandler.ACTION_TAG_ALERT -> {
+                    val currentText = existingButton.title.get()
+                    if (currentText?.contains("Mute", ignoreCase = true) == true) {
+                        existingButton.title.set(context.getString(R.string.action_mute))
                     }
                 }
             }
