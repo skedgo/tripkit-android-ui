@@ -75,6 +75,8 @@ abstract class BaseDialog<V : ViewDataBinding> : DialogFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        // Apply configured font across TripKit UI views (if any).
+        TripKitUITypography.applyTo(view)
         onCreated(savedInstanceState)
     }
 

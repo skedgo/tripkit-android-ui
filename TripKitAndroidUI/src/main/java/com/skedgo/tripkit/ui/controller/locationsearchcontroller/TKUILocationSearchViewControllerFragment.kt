@@ -19,6 +19,9 @@ import com.skedgo.tripkit.ui.core.BaseFragment
 import com.skedgo.tripkit.ui.databinding.FragmentTkuiLocationSearchViewControllerBinding
 import com.skedgo.tripkit.ui.search.FixedSuggestionsProvider
 import com.skedgo.tripkit.ui.search.LocationSearchFragment
+import com.skedgo.tripkit.ui.search.LocationSearchCore
+import com.skedgo.tripkit.ui.search.LocationSearchCoreConfig
+import com.skedgo.tripkit.ui.search.LocationSearchCoreListeners
 import javax.inject.Inject
 
 class TKUILocationSearchViewControllerFragment :
@@ -92,55 +95,33 @@ class TKUILocationSearchViewControllerFragment :
     }
 
     private fun initSearchFragment() {
-        val locationSearchFragmentBuilder = LocationSearchFragment.Builder()
-            .withBounds(mapBounds)
-            .near(nearLatLng)
-            .withHint(getString(R.string.where_do_you_want_to_go_question))
-            .allowDropPin()
-            .showBackButton(false)
-            .showSearchField(withHeaders)
-            .withLocationSearchIconProvider(TKUILocationSearchIconProvider())
-
-        fixedSuggestionsProvider?.let {
-            locationSearchFragmentBuilder.withFixedSuggestionsProvider(it)
-        }
-
-        ControllerDataProvider.favoriteProvider?.let {
-            locationSearchFragmentBuilder.withLocationSearchProvider(it)
-        } ?: kotlin.run {
-            locationSearchFragmentBuilder.withLocationSearchProvider(TKUIFavoritesSuggestionProvider())
-        }
-
-        locationSearchFragment = locationSearchFragmentBuilder
-            .build().apply {
-                setOnLocationSelectedListener { location ->
-                    listener?.onLocationSelected(location)
-                }
-                setOnFixedSuggestionSelectedListener {
-                    listener?.onFixedSuggestionSelected(it)
-                }
-                setOnCitySelectedListener {
-                    listener?.onCitySelected(it)
-                }
-                setOnAttachFragmentListener(object :
-                    LocationSearchFragment.OnAttachFragmentListener {
-                    override fun onAttachFragment() {}
-                })
-                setOnItemActionClickListener(object :
-                    LocationSearchFragment.OnItemActionClickListener {
-                    override fun onInfoClick(location: Location) {
-                        listener?.onInfoSelected(location)
+        val searchProvider = ControllerDataProvider.favoriteProvider ?: TKUIFavoritesSuggestionProvider()
+        locationSearchFragment = LocationSearchCore.createFragment(
+            config = LocationSearchCoreConfig(
+                bounds = mapBounds,
+                near = nearLatLng,
+                hint = getString(R.string.where_do_you_want_to_go_question),
+                withDropPin = true,
+                showBackButton = false,
+                showSearchField = withHeaders,
+                locationSearchIconProvider = TKUILocationSearchIconProvider(),
+                fixedSuggestionsProvider = fixedSuggestionsProvider,
+                searchProvider = searchProvider
+            ),
+            listeners = LocationSearchCoreListeners(
+                onLocationSelected = { location -> listener?.onLocationSelected(location) },
+                onFixedSuggestionSelected = { suggestion -> listener?.onFixedSuggestionSelected(suggestion) },
+                onCitySelected = { city -> listener?.onCitySelected(city) },
+                onAttachFragment = { /* no-op to preserve previous behavior */ },
+                onInfoClick = { infoLocation -> listener?.onInfoSelected(infoLocation) },
+                onSuggestionActionClick = { suggestionLocation ->
+                    // Preserve current controller behavior: no timetable action here.
+                    if (suggestionLocation is ScheduledStop) {
+                        // TODO update to handle timetable click on controller
                     }
-
-                    override fun onSuggestionActionClick(location: Location) {
-                        // Right now, we only have scenario for Timetable entry so adding this validation
-                        // to check if the location is a ScheduledStop
-                        if (location is ScheduledStop) {
-                            //TODO update to handle timetable click on controller
-                        }
-                    }
-                })
-            }
+                }
+            )
+        )
 
         locationSearchFragment?.let {
             childFragmentManager

@@ -341,5 +341,26 @@ abstract class TripKitUI {
                     .build()
             }
         }
+
+        /**
+         * Configure the font family used by TripKit Android UI Views.
+         *
+         * - Default (null) means "leave as is".
+         * - Use `"sans-serif"` for the platform Roboto.
+         */
+        @JvmStatic
+        fun setUIFontFamily(fontFamilyName: String?) {
+            com.skedgo.tripkit.ui.core.TripKitUITypography.setFontFamilyName(fontFamilyName)
+        }
+
+        /**
+         * Configure the font used by TripKit Android UI Views using a font resource.
+         *
+         * Example: `TripKitUI.setUIFont(R.font.roboto)`
+         */
+        @JvmStatic
+        fun setUIFont(@androidx.annotation.FontRes fontResId: Int?) {
+            com.skedgo.tripkit.ui.core.TripKitUITypography.setFont(fontResId)
+        }
     }
 }
