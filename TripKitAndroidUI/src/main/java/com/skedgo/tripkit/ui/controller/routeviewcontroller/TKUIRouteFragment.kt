@@ -392,13 +392,11 @@ class TKUIRouteFragment : BaseFragment<FragmentTkuiRouteComposeBinding>() {
             viewModel.startLocation?.name == currentLocationLabel
         ) {
             viewModel.startLocation = null
-            binding.tieStartEdit.setText("")
         }
         if (viewModel.destinationLocation?.locationType == Location.TYPE_CURRENT_LOCATION ||
             viewModel.destinationLocation?.name == currentLocationLabel
         ) {
             viewModel.destinationLocation = null
-            binding.tieDestinationEdit.setText("")
         }
         toggleShowCurrentLocation()
     }
