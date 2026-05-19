@@ -45,6 +45,7 @@ import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.compose.TripKitComposeTextStyles
 import com.skedgo.tripkit.ui.compose.TripKitUITheme
 import com.skedgo.tripkit.ui.core.binding.ImageViewBindingAdapters
+import com.skedgo.tripkit.ui.timetables.styles.TimetableTextStyles
 
 @BindingAdapter("timetableServiceViewModel")
 fun bindTimetableServiceCompose(
@@ -180,7 +181,7 @@ private fun TimetableServiceItemCard(
                         text = title,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
-                        style = TripKitComposeTextStyles.current.titleMedium,
+                        style = TimetableTextStyles.ServiceItemTitle,
                         color = colorResource(R.color.labelPrimary)
                     )
 
@@ -236,7 +237,7 @@ private fun TimetableServiceItemCard(
                         Spacer(modifier = Modifier.width(dimensionResource(R.dimen.spacing_extra_small)))
                         Text(
                             text = statusText,
-                            style = TripKitComposeTextStyles.current.bodyMedium,
+                            style = TimetableTextStyles.ServiceItemStatusText,
                             color = statusColor
                         )
                     }
@@ -257,13 +258,13 @@ private fun TimetableServiceItemCard(
                 ) {
                     Text(
                         text = countdownValue,
-                        style = TripKitComposeTextStyles.current.valueLg,
+                        style = TimetableTextStyles.ServiceItemTimeValue,
                         color = countdownColor
                     )
                     countdownUnit?.let { unit ->
                         Text(
                             text = unit,
-                            style = TripKitComposeTextStyles.current.bodyMedium,
+                            style = TimetableTextStyles.ServiceItemTimeUnit,
                             color = countdownColor
                         )
                     }
@@ -297,7 +298,7 @@ private fun ModeIcon(modeInfo: ModeInfo?) {
                 )
             )
         },
-        modifier = Modifier.size(dimensionResource(R.dimen.icon_regular))
+        modifier = Modifier.size(dimensionResource(R.dimen.icon_size_24))
     )
 }
 
