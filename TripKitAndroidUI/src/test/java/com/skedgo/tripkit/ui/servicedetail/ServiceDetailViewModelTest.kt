@@ -5,22 +5,19 @@ import android.graphics.Color
 import android.graphics.drawable.Drawable
 import androidx.core.content.ContextCompat
 import com.skedgo.TripKit
-import com.skedgo.tripkit.ServiceApi
 import com.skedgo.tripkit.ServiceResponse
 import com.skedgo.tripkit.common.model.stop.ScheduledStop
 import com.skedgo.tripkit.data.regions.RegionService
-import com.skedgo.tripkit.logging.ErrorLogger
 import com.skedgo.tripkit.routing.ModeInfo
 import com.skedgo.tripkit.routing.RealTimeVehicle
 import com.skedgo.tripkit.routing.ServiceColor
+import com.skedgo.tripkit.servicedetail.ServiceDetailRepository
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.base.MockKTest
 import com.skedgo.tripkit.ui.model.TimetableEntry
 import com.skedgo.tripkit.ui.timetables.GetRealtimeText
 import com.skedgo.tripkit.ui.timetables.GetServiceTertiaryText
-import com.skedgo.tripkit.ui.timetables.GetServiceTitleText
 import com.skedgo.tripkit.ui.trip.details.viewmodel.OccupancyViewModel
-import com.skedgo.tripkit.ui.trip.details.viewmodel.ServiceAlertViewModel
 import io.mockk.*
 import io.reactivex.Observable
 import org.junit.After
@@ -41,15 +38,11 @@ class ServiceDetailViewModelTest: MockKTest() {
     private val context: Context = mockk(relaxed = true)
     private val tripKit: TripKit = mockk(relaxed = true)
     private val regionService: RegionService = mockk()
-    private val serviceApi: ServiceApi = mockk()
+    private val serviceDetailRepository: ServiceDetailRepository = mockk()
     private val occupancyViewModel: OccupancyViewModel = mockk(relaxed = true)
     private val serviceViewModelProvider: Provider<ServiceDetailItemViewModel> = mockk()
-    private val serviceAlertViewModel: ServiceAlertViewModel = mockk()
-    private val loadServices: LoadServices = mockk()
-    private val getServiceTitleText: GetServiceTitleText = mockk()
     private val getServiceTertiaryText: GetServiceTertiaryText = mockk()
     private val getRealtimeText: GetRealtimeText = mockk()
-    private val errorLogger: ErrorLogger = mockk()
 
     private val stop: ScheduledStop = mockk()
     private val entry: TimetableEntry = mockk()
@@ -68,20 +61,21 @@ class ServiceDetailViewModelTest: MockKTest() {
         every { context.getString(R.string.not_wheelchair_accessible) } returns "Not Wheelchair Accessible"
         every { ContextCompat.getDrawable(context, R.drawable.ic_wheelchair) } returns drawable
         every { ContextCompat.getDrawable(context, R.drawable.ic_wheelchair_not_accessible) } returns drawable
-        every { serviceApi.getServiceAsync(any(), any(), any(), any(), any(), any(), any()) } returns Observable.just(mockk())
+        every {
+            serviceDetailRepository.getService(any<String>(), any<String>(), any(), any(), any(), any(), any())
+        } returns Observable.just(mockk(relaxed = true))
+        every {
+            serviceDetailRepository.getService(any<List<String>>(), any(), any(), any(), any(), any(), any(), any())
+        } returns Observable.just(mockk(relaxed = true))
 
         viewModel = ServiceDetailViewModel(
             context,
             regionService,
-            serviceApi,
+            serviceDetailRepository,
             occupancyViewModel,
             serviceViewModelProvider,
-            serviceAlertViewModel,
-            loadServices,
-            getServiceTitleText,
             getServiceTertiaryText,
-            getRealtimeText,
-            errorLogger
+            getRealtimeText
         )
     }
 
