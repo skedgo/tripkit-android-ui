@@ -82,7 +82,8 @@
             android:layout_marginEnd="@dimen/spacing_normal"
             app:layout_constraintTop_toTopOf="parent"
             android:visibility="@{viewModel.isCancelled()}"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            tools:visibility="gone">
 
             <TextView
                 android:layout_width="match_parent"
@@ -229,6 +230,22 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="@+id/title"
                 app:layout_constraintTop_toBottomOf="@+id/title"
+                tools:text="Do something" />
+
+            <TextView
+                android:id="@+id/notes"
+                style="@style/TextAppearance.MaterialComponents.Caption"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/spacing_normal"
+                android:gravity="start"
+                android:text="@{viewModel.notes}"
+                android:textColor="@color/black1"
+                android:textDirection="locale"
+                android:visibility="@{viewModel.showNotes}"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="@+id/description"
+                app:layout_constraintTop_toBottomOf="@+id/description"
                 tools:text="Do something" />
 
             <TextView
