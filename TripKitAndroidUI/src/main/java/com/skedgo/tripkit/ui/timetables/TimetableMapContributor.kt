@@ -2,6 +2,8 @@ package com.skedgo.tripkit.ui.timetables
 
 import android.content.Context
 import android.graphics.Color
+import android.os.Handler
+import android.os.Looper
 import android.text.TextUtils
 import android.util.Log
 import android.view.View
@@ -99,7 +101,7 @@ class TimetableMapContributor(val fragment: Fragment) : TripKitMapContributor {
 
     private var pulseOverlay: GroundOverlay? = null
 
-    private val handler = android.os.Handler()
+    private val handler = Handler(Looper.getMainLooper())
 
     override fun initialize() {
         TripKitUI.getInstance()

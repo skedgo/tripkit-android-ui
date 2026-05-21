@@ -2,6 +2,7 @@ package com.skedgo.tripkit.ui.core
 
 import android.os.Bundle
 import android.os.Handler
+import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -91,7 +92,7 @@ abstract class BaseFragment<V : ViewDataBinding> : BaseTripKitPagerFragment() {
 
     protected fun focusAccessibilityDefaultView(withDelay: Boolean) {
         try {
-            Handler().postDelayed({
+            Handler(Looper.getMainLooper()).postDelayed({
                 try {
                     if (context?.isTalkBackOn() == true) {
                         getDefaultViewForAccessibility()?.apply {
