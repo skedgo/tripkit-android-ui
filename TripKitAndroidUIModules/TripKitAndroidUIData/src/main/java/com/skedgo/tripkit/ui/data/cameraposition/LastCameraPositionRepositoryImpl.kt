@@ -77,7 +77,11 @@ open class LastCameraPositionRepositoryImpl(
     private fun getDefaultMapCameraPositionSync(): MapCameraPosition {
         return if (!resources.getBoolean(R.bool.trip_kit_map_override_default_latlon)) {
             // First, try to get a matching region based on the city name
-            val matchingRegion = executeWithCityString(resources.getString(R.string.default_city)).blockingFirst()
+            val matchingRegion = executeWithCityString(resources.getString(R.string.default_city))
+                // This can fetch regions from network; avoid crashing on transient network/DNS errors.
+                .onErrorResumeNext(Observable.empty())
+                .firstElement()
+                .blockingGet()
             if (matchingRegion != null) {
                 // Return the map position based on the matching city's lat/lng
                 val matchingCity = matchingRegion.cities?.firstOrNull {
