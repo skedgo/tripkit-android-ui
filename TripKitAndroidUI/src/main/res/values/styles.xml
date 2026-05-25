@@ -96,4 +96,6 @@
     <style name="MyDialogTextButton.Negative" parent="MyDialogTextButton">
         <item name="android:textColor">@color/colorAccent</item>
     </style>
+
+
 </resources>

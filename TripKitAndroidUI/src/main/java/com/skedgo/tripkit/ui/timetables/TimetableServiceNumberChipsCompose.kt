@@ -49,7 +49,10 @@ private fun TimetableServiceNumberChip(
 ) {
     Surface(
         shape = RoundedCornerShape(dimensionResource(R.dimen.button_radius_small)),
-        color = serviceColor
+        color = serviceColor,
+        modifier = Modifier.padding(
+            vertical = dimensionResource(R.dimen.spacing_extra_small)
+        )
     ) {
         Text(
             text = serviceNumber,

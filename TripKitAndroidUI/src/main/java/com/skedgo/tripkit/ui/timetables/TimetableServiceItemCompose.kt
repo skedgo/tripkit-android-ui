@@ -91,6 +91,7 @@ fun TimetableServiceItemCompose(
     val wheelchairBackground by viewModel.wheelchairBackgroundTint.observeAsState()
     val showBicycleAccessible by viewModel.showBicycleAccessible.observeAsState(false)
     val showOccupancyInfo by viewModel.showOccupancyInfo.observeAsState(false)
+    val isOnTime by viewModel.isOnTime.observeAsState(false)
 
     val countdownParts = parseCountdown(countdownText.orEmpty())
     val hasAlerts = viewModel.service.alerts.orEmpty().isNotEmpty()
@@ -116,6 +117,7 @@ fun TimetableServiceItemCompose(
         routeColor = Color(serviceColorInt),
         isCurrentTrip = isCurrentTrip,
         alphaValue = alphaValue,
+        isOnTime = isOnTime,
         itemShape = itemShape,
         onClick = { viewModel.onItemClick.perform() }
     )
@@ -142,6 +144,7 @@ private fun TimetableServiceItemCard(
     routeColor: Color,
     isCurrentTrip: Boolean,
     alphaValue: Float,
+    isOnTime: Boolean,
     itemShape: RoundedCornerShape = RoundedCornerShape(
         dimensionResource(R.dimen.cardview_corner_radius_small)
     ),
@@ -232,19 +235,15 @@ private fun TimetableServiceItemCard(
                     Row(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-//                        Box(
-//                            modifier = Modifier
-//                                .size(dimensionResource(R.dimen.icon_size_20))
-//                                .background(colorResource(R.color.tripKitSuccess), CircleShape),
-//                            contentAlignment = Alignment.Center
-//                        ) {
-//                            Spacer(
-//                                modifier = Modifier
-//                                    .size(dimensionResource(R.dimen.spacing_xx_small))
-//                                    .background(colorResource(R.color.white), CircleShape)
-//                            )
-//                        }
-                        Spacer(modifier = Modifier.width(dimensionResource(R.dimen.spacing_extra_small)))
+                        if (isOnTime) {
+                            Icon(
+                                painter = painterResource(R.drawable.ic_check_circle),
+                                contentDescription = null,
+                                tint = Color.Unspecified,
+                                modifier = Modifier.size(dimensionResource(R.dimen.icon_20))
+                            )
+                            Spacer(modifier = Modifier.width(dimensionResource(R.dimen.spacing_extra_small)))
+                        }
                         Text(
                             text = statusText,
                             style = TimetableTextStyles.ServiceItemStatusText,
@@ -361,7 +360,7 @@ private fun DrawableIcon(icon: Drawable) {
 
 private fun parseCountdown(text: String): Pair<String, String?> {
     val trimmed = text.trim()
-    val regex = Regex("^(\\d+)\\s*([A-Za-z]+)$")
+    val regex = Regex("^(-?\\d+)\\s*([A-Za-z]+)$")
     val match = regex.matchEntire(trimmed)
     if (match != null) {
         return match.groupValues[1] to match.groupValues[2]
@@ -399,6 +398,7 @@ private fun TimetableServiceItemPreview() {
                 statusColor = colorResource(R.color.labelSecondary),
                 routeColor = colorResource(R.color.classification_cheapest),
                 isCurrentTrip = false,
+                isOnTime = false,
                 alphaValue = 1f,
                 onClick = {}
             )
@@ -422,6 +422,7 @@ private fun TimetableServiceItemPreview() {
                 routeColor = colorResource(R.color.classification_cheapest),
                 isCurrentTrip = false,
                 alphaValue = 1f,
+                isOnTime = true,
                 onClick = {}
             )
         }
@@ -452,6 +453,7 @@ private fun TimetableServiceItemLongTitlePreview() {
             routeColor = colorResource(R.color.classification_cheapest),
             isCurrentTrip = true,
             alphaValue = 1f,
+            isOnTime = true,
             onClick = {}
         )
     }
@@ -481,6 +483,7 @@ private fun TimetableServiceItemDelayedPreview() {
             routeColor = colorResource(R.color.classification_cheapest),
             isCurrentTrip = false,
             alphaValue = 1f,
+            isOnTime = false,
             onClick = {}
         )
     }

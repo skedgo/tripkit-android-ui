@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <style name="TimetableTitleLarge">
+        <item name="android:fontFamily">sans</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:textSize">22sp</item>
+        <item name="android:lineHeight" tools:targetApi="28">28sp</item>
+        <item name="android:letterSpacing">0</item>
+        <item name="android:textColor">@color/labelPrimary</item>
+    </style>
+
+</resources>
