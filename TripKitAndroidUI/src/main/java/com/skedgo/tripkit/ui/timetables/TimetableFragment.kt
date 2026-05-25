@@ -444,7 +444,8 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
                             lastLoadRequestSize = servicesForCompose.size
                             viewModel.downloadMoreTimetableAsync()
                         }
-                    }
+                    },
+                    fromPreview = fromPreview
                 )
             }
         }
