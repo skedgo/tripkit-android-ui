@@ -136,17 +136,12 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/contSearchBar">
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/recyclerView"
+            <androidx.compose.ui.platform.ComposeView
+                android:id="@+id/composeServicesList"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="@drawable/bg_round_corners_16_sub_card_background"
-                android:layout_marginHorizontal="@dimen/spacing_normal"
                 android:focusableInTouchMode="true"
                 android:layout_marginTop="@dimen/spacing_normal"
-                app:itemBinding="@{viewModel.itemBinding}"
-                app:items="@{viewModel.services}"
-                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                 app:layout_behavior="@string/appbar_scrolling_view_behavior"
                 tools:listitem="@layout/timetable_fragment_list_item" />
 

@@ -10,14 +10,17 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.TextView
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewModelScope
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.LinearSmoothScroller
-import androidx.recyclerview.widget.RecyclerView
 import com.google.android.flexbox.FlexDirection
 import com.google.android.flexbox.FlexboxLayoutManager
 import com.skedgo.rxtry.subscribeWithErrorHandling
@@ -41,7 +44,6 @@ import com.skedgo.tripkit.ui.tripresult.ActionButtonViewModel
 import com.skedgo.tripkit.ui.tripresult.TripSegmentActionButton
 import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButton
 import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButtonHandler
-import com.skedgo.tripkit.ui.utils.OnSwipeTouchListener
 import com.skedgo.tripkit.ui.utils.observe
 import com.skedgo.tripkit.ui.views.MultiStateView
 import io.reactivex.Observable
@@ -156,6 +158,9 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
     private lateinit var binding: TimetableFragmentBinding
     protected var buttons: List<TripKitButton> = emptyList()
     var servicesAreLoaded = false
+    private var servicesForCompose by mutableStateOf<List<ServiceViewModel>>(emptyList())
+    private var servicesLazyListState: LazyListState? = null
+    private var lastLoadRequestSize = -1
     private val composeButtons = mutableMapOf<String, ComposeButtonState>()
     private var actionButtonTemplateProvider: ActionButtonTemplateProvider? = null
 
@@ -184,8 +189,6 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
         super.onResume()
 
         setObservers()
-
-        binding.recyclerView.scrollToPosition(0)
 
         if (stop == null) {
             stop = cachedStop
@@ -246,15 +249,7 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
                 TimeUnit.MILLISECONDS
             ) // 500 ms is a guess, wait for the data to be set to the adapter.
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribeWithErrorHandling { integer ->
-                val smoothScroller = object : LinearSmoothScroller(context) {
-                    override fun getVerticalSnapPreference(): Int {
-                        return SNAP_TO_START
-                    }
-                }
-
-                smoothScroller.targetPosition = integer.toInt()
-//                binding.recyclerView.layoutManager?.startSmoothScroll(smoothScroller)
+            .subscribeWithErrorHandling {
                 scrollToNowPosition()
             }.addTo(autoDisposable)
 
@@ -334,6 +329,7 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
         viewModel.servicesObservable
             .observeOn(AndroidSchedulers.mainThread())
             .subscribeWithErrorHandling { servicesList ->
+                servicesForCompose = servicesList
                 if(!servicesAreLoaded) {
                     scrollToNowPosition()
                     servicesAreLoaded = true
@@ -369,12 +365,8 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
 
         binding.viewModel = viewModel
         binding.serviceLineRecyclerView.isNestedScrollingEnabled = false
-        binding.recyclerView.isNestedScrollingEnabled = true
-        // Frequent realtime + pagination updates can overlap with item animations and cause
-        // transient RecyclerView inconsistencies on some devices.
-        binding.recyclerView.itemAnimator = null
-        binding.recyclerView.setHasFixedSize(false)
         setupSearchSetTimeCompose()
+        setupServicesListCompose()
 
 //        val swipeListener = OnSwipeTouchListener(requireContext(),
 //            object : OnSwipeTouchListener.SwipeGestureListener {
@@ -395,31 +387,6 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
 //        binding.recyclerView.setOnTouchListener(swipeListener)
 
 
-        binding.recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-
-            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                super.onScrolled(recyclerView, dx, dy)
-
-                val nowPosition = viewModel.getFirstNowPosition()
-
-                (binding.recyclerView.layoutManager as LinearLayoutManager).let {
-                    if (nowPosition in it.findFirstVisibleItemPosition()..it.findLastVisibleItemPosition()) {
-                        binding.goToNowButton.visibility = View.GONE
-                    } else {
-                        binding.goToNowButton.visibility = View.VISIBLE
-                    }
-                }
-            }
-
-            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
-                super.onScrollStateChanged(recyclerView, newState)
-
-                if (!recyclerView.canScrollVertically(1) && viewModel.showLoading.value != true) {
-                    viewModel.downloadMoreTimetableAsync()
-                }
-            }
-        })
-
         buttons.forEach { addButtonView(it) }
 
         return binding.root
@@ -436,6 +403,41 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
                         filterThrottle.onNext(searchText)
                     },
                     onTimeClick = ::selectTime
+                )
+            }
+        }
+    }
+
+    private fun setupServicesListCompose() {
+        binding.composeServicesList.setViewCompositionStrategy(
+            ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed
+        )
+        binding.composeServicesList.setContent {
+            TripKitUITheme {
+                val lazyListState = rememberLazyListState()
+                DisposableEffect(lazyListState) {
+                    servicesLazyListState = lazyListState
+                    onDispose {
+                        if (servicesLazyListState === lazyListState) {
+                            servicesLazyListState = null
+                        }
+                    }
+                }
+                TimetableServicesListCompose(
+                    services = servicesForCompose,
+                    listState = lazyListState,
+                    onVisibleRangeChanged = { firstVisible, lastVisible ->
+                        val nowPosition = viewModel.getFirstNowPosition()
+                        binding.goToNowButton.visibility =
+                            if (nowPosition in firstVisible..lastVisible) View.GONE else View.VISIBLE
+                    },
+                    onReachedEnd = {
+                        if (viewModel.showLoading.value == true || servicesForCompose.isEmpty()) return@TimetableServicesListCompose
+                        if (lastLoadRequestSize != servicesForCompose.size) {
+                            lastLoadRequestSize = servicesForCompose.size
+                            viewModel.downloadMoreTimetableAsync()
+                        }
+                    }
                 )
             }
         }
@@ -528,18 +530,12 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
         lifecycleScope.launch {
             delay(loadDelay)
             withContext(Dispatchers.Main) {
-                val layoutManager = binding.recyclerView.layoutManager as LinearLayoutManager
+                val listState = servicesLazyListState ?: return@withContext
                 val firstNowPosition = viewModel.getFirstNowPosition()
-                val itemCount = binding.recyclerView.adapter?.itemCount ?: 0
+                val itemCount = servicesForCompose.size
 
                 if (firstNowPosition in 0 until itemCount) {
-                    // If it's not at the bottom, make sure it stays at the top
-                    if (firstNowPosition < itemCount - 1) {
-                        layoutManager.scrollToPositionWithOffset(firstNowPosition, 0)
-                    } else {
-                        // If it's the last item, just scroll smoothly to it
-                        binding.recyclerView.smoothScrollToPosition(firstNowPosition)
-                    }
+                    listState.scrollToItem(firstNowPosition)
                 }
             }
         }
@@ -555,9 +551,7 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
     }
 
     private fun removeViewLsiteners() {
-        binding.recyclerView.setOnTouchListener(null)
-        binding.recyclerView.clearOnScrollListeners()
-
+        // No-op: service list is Compose-based.
     }
 
     fun clearInstances() {

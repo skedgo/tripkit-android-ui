@@ -63,7 +63,12 @@ fun bindTimetableServiceCompose(
 }
 
 @Composable
-fun TimetableServiceItemCompose(viewModel: ServiceViewModel) {
+fun TimetableServiceItemCompose(
+    viewModel: ServiceViewModel,
+    itemShape: RoundedCornerShape = RoundedCornerShape(
+        dimensionResource(R.dimen.cardview_corner_radius_small)
+    ),
+) {
     val title by viewModel.tertiaryText.observeAsState("")
     val statusText by viewModel.secondaryText.observeAsState("")
     val routeNumber by viewModel.serviceNumber.observeAsState("")
@@ -111,6 +116,7 @@ fun TimetableServiceItemCompose(viewModel: ServiceViewModel) {
         routeColor = Color(serviceColorInt),
         isCurrentTrip = isCurrentTrip,
         alphaValue = alphaValue,
+        itemShape = itemShape,
         onClick = { viewModel.onItemClick.perform() }
     )
 }
@@ -136,13 +142,17 @@ private fun TimetableServiceItemCard(
     routeColor: Color,
     isCurrentTrip: Boolean,
     alphaValue: Float,
+    itemShape: RoundedCornerShape = RoundedCornerShape(
+        dimensionResource(R.dimen.cardview_corner_radius_small)
+    ),
     onClick: () -> Unit
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(
-                vertical = dimensionResource(R.dimen.spacing_normal)
+                horizontal = dimensionResource(R.dimen.spacing_normal),
+                vertical = dimensionResource(R.dimen.spacing_xx_small)
             )
     ) {
         if (isCurrentTrip) {
@@ -155,7 +165,7 @@ private fun TimetableServiceItemCard(
             )
         }
         Surface(
-            shape = RoundedCornerShape(dimensionResource(R.dimen.cardview_corner_radius_8)),
+            shape = itemShape,
             color = colorResource(R.color.subCardBackground),
 
             modifier = Modifier
