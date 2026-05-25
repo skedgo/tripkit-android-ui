@@ -69,7 +69,7 @@
             android:divider="@drawable/empty_space_narrow"
             android:orientation="horizontal"
             android:showDividers="none"
-            android:paddingStart="@dimen/spacing_small"
+            android:paddingStart="@dimen/spacing_normal"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/serviceLineRecyclerView" />
@@ -117,12 +117,11 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
+            android:paddingBottom="@dimen/spacing_normal"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/contBookingActionButton">
-
-            <include
-                android:id="@+id/departuresSearchSetTime"
-                layout="@layout/timetable_search_set_time"
+            <androidx.compose.ui.platform.ComposeView
+                android:id="@+id/departuresSearchSetTimeCompose"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:visibility="@{viewModel.showSearch}" />
@@ -141,7 +140,10 @@
                 android:id="@+id/recyclerView"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:background="@drawable/bg_round_corners_16_sub_card_background"
+                android:layout_marginHorizontal="@dimen/spacing_normal"
                 android:focusableInTouchMode="true"
+                android:layout_marginTop="@dimen/spacing_normal"
                 app:itemBinding="@{viewModel.itemBinding}"
                 app:items="@{viewModel.services}"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"

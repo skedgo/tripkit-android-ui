@@ -4,9 +4,6 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.os.Handler
-import android.text.Editable
-import android.text.TextWatcher
 import android.view.InflateException
 import android.view.LayoutInflater
 import android.view.View
@@ -30,6 +27,7 @@ import com.skedgo.tripkit.routing.TripSegment
 import com.skedgo.tripkit.ui.BuildConfig
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.TripKitUI
+import com.skedgo.tripkit.ui.compose.TripKitUITheme
 import com.skedgo.tripkit.ui.core.BaseTripKitPagerFragment
 import com.skedgo.tripkit.ui.core.OnResultStateListener
 import com.skedgo.tripkit.ui.core.addTo
@@ -376,6 +374,7 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
         // transient RecyclerView inconsistencies on some devices.
         binding.recyclerView.itemAnimator = null
         binding.recyclerView.setHasFixedSize(false)
+        setupSearchSetTimeCompose()
 
 //        val swipeListener = OnSwipeTouchListener(requireContext(),
 //            object : OnSwipeTouchListener.SwipeGestureListener {
@@ -421,29 +420,25 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
             }
         })
 
-        binding.departuresSearchSetTime.timeSet.setOnClickListener {
-            selectTime()
-        }
-
-        val search = binding.departuresSearchSetTime.stationSearch
-        search.isSelected = false
-        search.addTextChangedListener(object : TextWatcher {
-            override fun afterTextChanged(p0: Editable?) {
-            }
-
-            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-            }
-
-            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-                p0?.let {
-                    filterThrottle.onNext(it.toString())
-                }
-            }
-        })
-
         buttons.forEach { addButtonView(it) }
 
         return binding.root
+    }
+
+    private fun setupSearchSetTimeCompose() {
+        binding.departuresSearchSetTimeCompose.setViewCompositionStrategy(
+            ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed
+        )
+        binding.departuresSearchSetTimeCompose.setContent {
+            TripKitUITheme {
+                TimetableSearchSetTimeCompose(
+                    onSearchTextChanged = { searchText ->
+                        filterThrottle.onNext(searchText)
+                    },
+                    onTimeClick = ::selectTime
+                )
+            }
+        }
     }
 
     fun replaceButton(id: String, newLayoutId: Int) {

@@ -40,6 +40,7 @@
 
     <dimen name="icon_x_small">12dp</dimen>
     <dimen name="icon_small">16dp</dimen>
+    <dimen name="icon_20">20dp</dimen>
     <dimen name="icon_regular">24dp</dimen>
     <dimen name="icon_medium">32dp</dimen>
     <dimen name="icon_large">64dp</dimen>
@@ -77,6 +78,7 @@
     <dimen name="cardview_corner_radius_medium">16dp</dimen>
     <dimen name="cardview_corner_radius">12dp</dimen>
     <dimen name="cardview_corner_radius_small">4dp</dimen>
+    <dimen name="cardview_corner_radius_8">8dp</dimen>
     <dimen name="button_radius_small">8dp</dimen>
 
     <dimen name="induction_detail_icon_size">40dp</dimen>

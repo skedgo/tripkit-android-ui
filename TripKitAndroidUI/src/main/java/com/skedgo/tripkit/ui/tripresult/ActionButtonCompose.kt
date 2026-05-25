@@ -22,6 +22,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -60,23 +61,25 @@ fun TripSegmentActionButton(
     val iconTint by viewModel.iconTint.observeAsState()
     val outlineTint by viewModel.outlineTint.observeAsState()
     val backgroundTint by viewModel.backgroundTint.observeAsState()
+    val actionButton by viewModel.actionButton.observeAsState()
 
     val resolvedTitle = title.orEmpty()
     val primaryBackground = backgroundTint?.getColorForState(
         intArrayOf(android.R.attr.state_enabled),
         colorResource(R.color.colorPrimary).toArgb()
     ) ?: colorResource(R.color.colorPrimary).toArgb()
-    val isPrimary = primaryBackground != 0 || outlineTint == Color.TRANSPARENT
+    val isPrimary = actionButton?.isPrimary == true
     val backgroundColor = if (isPrimary) {
         ComposeColor(if (primaryBackground != 0) primaryBackground else Color.WHITE)
     } else {
-        colorResource(R.color.cardBackground)
+        colorResource(R.color.inputBackground)
     }
     val contentColor = if (isPrimary) {
         colorResource(R.color.white)
     } else {
-        colorResource(R.color.black1)
+        colorResource(R.color.labelPrimary)
     }
+
     val borderStroke = if (isPrimary) {
         null
     } else {
@@ -85,8 +88,9 @@ fun TripSegmentActionButton(
 
     Box(
         modifier = Modifier.padding(
-            vertical = dimensionResource(R.dimen.spacing_12),
-            horizontal = dimensionResource(R.dimen.spacing_extra_small),
+            top = dimensionResource(R.dimen.spacing_12),
+            bottom = dimensionResource(R.dimen.spacing_12),
+            end = dimensionResource(R.dimen.spacing_small),
         )
     ) {
         Surface(
@@ -104,7 +108,7 @@ fun TripSegmentActionButton(
                         listener?.onItemClick(viewModel.tag, viewModel, context)
                     }
                     .padding(
-                        horizontal = dimensionResource(R.dimen.spacing_10),
+                        horizontal = dimensionResource(R.dimen.spacing_12),
                         vertical = dimensionResource(R.dimen.spacing_small)
                     )
             ) {
@@ -130,6 +134,7 @@ fun TripSegmentActionButton(
                         Image(
                             bitmap = it,
                             contentDescription = null,
+
                             modifier = Modifier.size(dimensionResource(R.dimen.icon_size_24))
                         )
                     }
