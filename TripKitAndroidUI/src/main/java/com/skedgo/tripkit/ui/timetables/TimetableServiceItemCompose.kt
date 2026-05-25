@@ -220,7 +220,7 @@ private fun TimetableServiceItemCard(
                             Icon(
                                 painter = painterResource(R.drawable.ic_bike_accessible),
                                 contentDescription = null,
-                                tint = colorResource(R.color.labelSecondary),
+                                tint = Color.Unspecified,
                                 modifier = Modifier.size(dimensionResource(R.dimen.icon_20))
                             )
                         }

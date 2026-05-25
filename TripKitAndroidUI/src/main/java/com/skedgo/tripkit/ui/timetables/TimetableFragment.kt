@@ -15,14 +15,13 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewModelScope
-import com.google.android.flexbox.FlexDirection
-import com.google.android.flexbox.FlexboxLayoutManager
 import com.skedgo.rxtry.subscribeWithErrorHandling
 import com.skedgo.tripkit.common.model.stop.ScheduledStop
 import com.skedgo.tripkit.common.util.TimeUtils
@@ -359,12 +358,8 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
         binding = TimetableFragmentBinding.inflate(layoutInflater)
         binding.lifecycleOwner = viewLifecycleOwner
 
-        val layoutManager = FlexboxLayoutManager(context)
-        layoutManager.flexDirection = FlexDirection.ROW
-        binding.serviceLineRecyclerView.layoutManager = layoutManager
-
         binding.viewModel = viewModel
-        binding.serviceLineRecyclerView.isNestedScrollingEnabled = false
+        setupServiceNumberChipsCompose()
         setupSearchSetTimeCompose()
         setupServicesListCompose()
 
@@ -404,6 +399,18 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
                     },
                     onTimeClick = ::selectTime
                 )
+            }
+        }
+    }
+
+    private fun setupServiceNumberChipsCompose() {
+        binding.serviceLineRecyclerView.setViewCompositionStrategy(
+            ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed
+        )
+        binding.serviceLineRecyclerView.setContent {
+            TripKitUITheme {
+                val chips by viewModel.serviceNumbers.observeAsState(emptyList())
+                TimetableServiceNumberChips(items = chips)
             }
         }
     }
