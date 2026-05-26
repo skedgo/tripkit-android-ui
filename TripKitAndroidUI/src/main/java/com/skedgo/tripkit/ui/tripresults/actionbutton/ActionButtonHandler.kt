@@ -34,6 +34,7 @@ open class ActionButtonHandler {
 
     companion object {
         const val ACTION_TAG_GO = "go"
+        const val ACTION_TAG_GO_NOT_PRIMARY = "go_not_primary"
         const val ACTION_TAG_SHARE = "share"
         const val ACTION_TAG_FAVORITE = "favorite"
         const val ACTION_TAG_REPORT = "report"

@@ -168,7 +168,7 @@ open class GetRealtimeText @Inject constructor(
                         endTimeHM.second == realtimeDepartureHM.second
                 }
 
-                val (status, delayed) = when {
+                val (status, delayed, isOnTime) = when {
                     abs(timeDiff.toInt()) < 60 && isSameHourAndMinutes ->
                         Triple(context.getString(R.string.on_time), R.color.tripKitSuccess, true)
 
@@ -187,7 +187,7 @@ open class GetRealtimeText @Inject constructor(
                 }
 
                 /*"$status • $serviceTime" to delayed*/
-                Triple("$status • $schedule", delayed, false)
+                Triple("$status • $schedule", delayed, isOnTime)
             }
         }
     }

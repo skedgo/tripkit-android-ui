@@ -239,8 +239,8 @@ private fun TimetableServiceItemCard(
                             Icon(
                                 painter = painterResource(R.drawable.ic_check_circle),
                                 contentDescription = null,
-                                tint = Color.Unspecified,
-                                modifier = Modifier.size(dimensionResource(R.dimen.icon_20))
+                                tint = statusColor,
+                                modifier = Modifier.size(dimensionResource(R.dimen.icon_small))
                             )
                             Spacer(modifier = Modifier.width(dimensionResource(R.dimen.spacing_extra_small)))
                         }

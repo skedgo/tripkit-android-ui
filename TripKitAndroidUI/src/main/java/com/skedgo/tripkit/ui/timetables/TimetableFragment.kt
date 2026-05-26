@@ -635,37 +635,18 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
             resources.getResourceEntryName(button.layoutResourceId)
         }.getOrNull()
 
-        val actionTag = when {
-            button.id.equals("go", true) ||
-                button.id.equals(getString(R.string.go), true) ||
-                entryName == "go_button" ||
-                entryName == "layout_go_button" -> ActionTag.GO
-
-            button.id.equals("favorite", true) ||
-                button.id.equals("favourite", true) ||
-                button.id.equals(getString(R.string.favourite), true) ||
-                entryName == "favorite_button" ||
-                entryName == "layout_favorite_button" ||
-                entryName == "favorite_remove_button" -> ActionTag.FAVORITE
-
-            button.id.equals("share", true) ||
-                button.id.equals(getString(R.string.share), true) ||
-                button.id.equals(getString(R.string.share_arrival), true) ||
-                entryName == "share_button" ||
-                entryName == "layout_share_button" -> ActionTag.SHARE
-
-            else -> null
-        } ?: return null
+        val actionTag = button.id
 
         val actionState = ComposeActionState(
             actionTag = actionTag,
-            favoriteSelected = actionTag == ActionTag.FAVORITE && entryName == "favorite_remove_button"
+            favoriteSelected = actionTag == ActionButtonHandler.ACTION_TAG_FAVORITE &&
+                entryName == "favorite_remove_button"
         )
         val viewModel = ActionButtonViewModel(requireContext(), resolveActionButton(actionState))
         val viewId = when (actionTag) {
-            ActionTag.GO -> R.id.goButton
-            ActionTag.FAVORITE -> R.id.favoriteButton
-            ActionTag.SHARE -> R.id.shareButton
+            ActionButtonHandler.ACTION_TAG_FAVORITE -> R.id.favoriteButton
+            ActionButtonHandler.ACTION_TAG_SHARE -> R.id.shareButton
+            else -> R.id.goButton
         }
         val listener = object : ActionButtonClickListener {
             override fun onItemClick(
@@ -688,34 +669,19 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
     }
 
     private fun resolveActionButton(actionState: ComposeActionState): ActionButton {
-        val tag = when (actionState.actionTag) {
-            ActionTag.GO -> ActionButtonHandler.ACTION_TAG_GO
-            ActionTag.FAVORITE -> ActionButtonHandler.ACTION_TAG_FAVORITE
-            ActionTag.SHARE -> ActionButtonHandler.ACTION_TAG_SHARE
-        }
+        val tag = actionState.actionTag
         return actionButtonTemplateProvider
             ?.getActionButton(requireContext(), tag, actionState.favoriteSelected)
             ?: actionState.toActionButton(requireContext())
     }
 
-    private enum class ActionTag {
-        GO, FAVORITE, SHARE
-    }
-
     private data class ComposeActionState(
-        val actionTag: ActionTag,
+        val actionTag: String,
         val favoriteSelected: Boolean = false
     ) {
         fun toActionButton(context: Context): ActionButton {
             return when (actionTag) {
-                ActionTag.GO -> ActionButton(
-                    text = context.getString(R.string.go),
-                    tag = ActionButtonHandler.ACTION_TAG_GO,
-                    icon = R.drawable.ic_directions,
-                    isPrimary = true
-                )
-
-                ActionTag.FAVORITE -> ActionButton(
+                ActionButtonHandler.ACTION_TAG_FAVORITE -> ActionButton(
                     text = if (favoriteSelected) {
                         context.getString(R.string.remove_favourite)
                     } else {
@@ -726,10 +692,17 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
                     isPrimary = false
                 )
 
-                ActionTag.SHARE -> ActionButton(
+                ActionButtonHandler.ACTION_TAG_SHARE -> ActionButton(
                     text = context.getString(R.string.share_arrival),
                     tag = ActionButtonHandler.ACTION_TAG_SHARE,
                     icon = R.drawable.ic_share,
+                    isPrimary = false
+                )
+
+                else -> ActionButton(
+                    text = context.getString(R.string.go),
+                    tag = ActionButtonHandler.ACTION_TAG_GO_NOT_PRIMARY,
+                    icon = R.drawable.ic_directions,
                     isPrimary = false
                 )
             }
@@ -737,7 +710,7 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
     }
 
     private data class ComposeButtonState(
-        val actionTag: ActionTag,
+        val actionTag: String,
         val actionState: ComposeActionState,
         val viewModel: ActionButtonViewModel,
         val viewId: Int,
