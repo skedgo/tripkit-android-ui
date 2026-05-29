@@ -13,9 +13,9 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="?android:attr/selectableItemBackground">
-        <!--                                                       android:onClick="@{() -> viewModel.onItemClick.perform()}"-->
-        <!--    >-->
+        android:background="?android:attr/selectableItemBackground"
+        android:onClick="@{() -> viewModel.onItemClick.perform()}"
+        android:alpha="@{viewModel.isTravelled() ? 0.5f : 1f}">
         <TextView
             android:id="@+id/time"
             style="@style/TextAppearance.MaterialComponents.Caption"
@@ -37,10 +37,12 @@
             android:layout_height="0dp"
             android:layout_marginStart="8dp"
             android:scaleType="fitXY"
+            android:elevation="1dp"
             android:src="@{viewModel.lineDrawable}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toEndOf="@+id/time"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            tools:src="@drawable/service_line_middle"/>
 
         <TextView
             android:id="@+id/stopName"
@@ -61,6 +63,27 @@
             app:layout_constraintTop_toTopOf="parent"
             tools:text="Stop Name" />
 
+        <ImageView
+            android:id="@+id/ivWheelchair"
+            android:layout_width="@dimen/icon_small"
+            android:layout_height="@dimen/icon_small"
+            android:layout_marginTop="@dimen/spacing_extra_small"
+            android:background="@drawable/bg_round_corner_wheelchair"
+            android:src="@drawable/ic_wheelchair"
+            android:visibility="@{viewModel.isWheelchairAccessible}"
+            app:addRtlSupport="@{true}"
+            app:layout_constraintStart_toStartOf="@+id/stopName"
+            app:layout_constraintTop_toBottomOf="@+id/stopName"
+            app:tint="@color/white"
+            tools:src="@drawable/ic_wheelchair"
+            tools:tint="@color/white" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/divider"
+            android:layout_marginTop="@dimen/spacing_small"
+            app:layout_constraintTop_toBottomOf="@+id/ivWheelchair"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
