@@ -77,6 +77,8 @@ class TripSegmentItemViewModel @Inject internal constructor(
 
     val description = MutableLiveData<String>()
     val showDescription = MutableLiveData(false)
+    val notes = MutableLiveData<String>()
+    val showNotes = MutableLiveData(false)
     val showTicketInfo = MutableLiveData(false)
     val icon = MutableLiveData<Drawable?>()
     val showBackgroundCircle = MutableLiveData(false)
@@ -116,6 +118,7 @@ class TripSegmentItemViewModel @Inject internal constructor(
         viewType: SegmentViewType,
         title: String,
         description: String? = null,
+        notes: String? = null,
         startTime: String? = null,
         endTime: String? = null,
         delay: Long = 0,
@@ -134,6 +137,9 @@ class TripSegmentItemViewModel @Inject internal constructor(
 
             this.description.value = description.orEmpty()
             this.showDescription.value = description != null
+
+            this.notes.value = notes.orEmpty()
+            this.showNotes.value = !notes.isNullOrEmpty()
 
             segment.verifyAndUpdateExternalAction(viewType)
 
