@@ -2,6 +2,7 @@ package com.technologies.tripkituisample.map
 
 import android.os.Bundle
 import android.os.Handler
+import android.os.Looper
 import com.skedgo.geocoding.LatLng
 import com.skedgo.tripkit.ui.core.BaseActivity
 import com.skedgo.tripkit.ui.map.home.TripKitMapFragment
@@ -17,7 +18,7 @@ class MapActivity : BaseActivity<ActivityMapBinding>() {
 
         val mapFragment = supportFragmentManager.findFragmentById(R.id.mapFragment) as TripKitMapFragment
         mapFragment.getMapAsync { _ ->
-            Handler().postDelayed({
+            Handler(Looper.getMainLooper()).postDelayed({
                 mapFragment.moveToLatLng(
                     LatLng(-27.470125, 153.021072)
                 )

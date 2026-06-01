@@ -2,6 +2,8 @@ package com.skedgo.tripkit.ui.timetables
 
 import android.content.Context
 import android.graphics.Color
+import android.os.Handler
+import android.os.Looper
 import android.text.TextUtils
 import android.util.Log
 import android.view.View
@@ -99,7 +101,7 @@ class TimetableMapContributor(val fragment: Fragment) : TripKitMapContributor {
 
     private var pulseOverlay: GroundOverlay? = null
 
-    private val handler = android.os.Handler()
+    private val handler = Handler(Looper.getMainLooper())
 
     override fun initialize() {
         TripKitUI.getInstance()
@@ -220,8 +222,13 @@ class TimetableMapContributor(val fragment: Fragment) : TripKitMapContributor {
     private fun cleanupServiceDetailVehicleUpdates() {
         // Stop real-time updates - only if viewModel is initialized
         // This can happen when cleanup is called before fragment is attached (e.g., during contributor switching)
-        if (::viewModel.isInitialized) {
-            viewModel.stopRealtimeUpdates()
+        try {
+            if (::viewModel.isInitialized) {
+                viewModel.stopRealtimeUpdates()
+            }
+        } catch (e: UninitializedPropertyAccessException) {
+            // Defensive: cleanup may be called before initialize()/injection runs.
+            Timber.w(e, "TimetableMapContributor cleanup called before viewModel init; skipping stopRealtimeUpdates")
         }
 
         // Cleanup pulse animation

@@ -40,6 +40,7 @@ import javax.inject.Provider
 import javax.inject.Singleton
 import com.skedgo.tripkit.ui.database.scheduled_stops.ScheduledStopDatabase
 import com.skedgo.tripkit.ui.database.scheduled_stops.ScheduledStopMapper
+import com.skedgo.tripkit.servicedetail.ServiceDetailApi
 
 
 @Module
@@ -135,6 +136,19 @@ class TripKitUIModule {
             .client(httpClient)
             .build()
             .create(ServiceApi::class.java)
+    }
+
+    @Singleton
+    @Provides
+    fun getServiceDetailApi(httpClient: OkHttpClient, gson: Gson): ServiceDetailApi {
+        return Retrofit.Builder()
+            /* This base url is ignored as the api relies on @Url. */
+            .baseUrl(ServerManager.configuration.apiTripGoUrl)
+            .addConverterFactory(GsonConverterFactory.create(gson))
+            .addCallAdapterFactory(RxJava2CallAdapterFactory.createWithScheduler(Schedulers.io()))
+            .client(httpClient)
+            .build()
+            .create(ServiceDetailApi::class.java)
     }
 
     @Provides

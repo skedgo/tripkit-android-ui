@@ -1,6 +1,7 @@
 package com.skedgo.tripkit.ui.search
 
 import android.annotation.SuppressLint
+import android.content.pm.PackageManager
 import android.app.SearchManager
 import android.content.Context
 import android.graphics.drawable.InsetDrawable
@@ -34,6 +35,7 @@ import com.skedgo.tripkit.ui.search.compose.LocationSearchHeader
 import com.skedgo.tripkit.ui.search.compose.mapSearchResultRows
 import com.skedgo.tripkit.ui.utils.defocusAndHideKeyboard
 import com.skedgo.tripkit.ui.utils.isTalkBackOn
+import com.skedgo.tripkit.ui.utils.showConfirmationPopUpDialog
 import com.skedgo.tripkit.ui.utils.showKeyboard
 import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
 import kotlinx.coroutines.Dispatchers
@@ -343,7 +345,7 @@ class LocationSearchFragment : BaseTripKitFragment() {
         viewModel.fixedLocationChosen
             .observeOn(mainThread())
             .subscribe({
-                fixedSuggestionSelectedListener?.onFixedSuggestionSelected(it)
+                handleFixedSuggestionSelection(it)
             }, errorLogger::trackError).addTo(autoDisposable)
         viewModel.cityLocationChosen
             .observeOn(mainThread())
@@ -467,6 +469,37 @@ class LocationSearchFragment : BaseTripKitFragment() {
         arguments?.let {
             handleArguments(it, searchView)
         }
+    }
+
+    private fun handleFixedSuggestionSelection(suggestionId: Any) {
+        if (!isCurrentLocationSuggestion(suggestionId) || !shouldShowCurrentLocationDisclosure()) {
+            fixedSuggestionSelectedListener?.onFixedSuggestionSelected(suggestionId)
+            return
+        }
+
+        requireContext().showConfirmationPopUpDialog(
+            title = getString(R.string.location_prominent_disclosure_title),
+            message = getString(R.string.location_prominent_disclosure_body),
+            positiveLabel = getString(R.string.location_prominent_disclosure_continue),
+            positiveCallback = {
+                fixedSuggestionSelectedListener?.onFixedSuggestionSelected(suggestionId)
+            },
+            negativeLabel = getString(R.string.location_prominent_disclosure_not_now),
+            cancellable = false
+        )
+    }
+
+    private fun isCurrentLocationSuggestion(suggestionId: Any): Boolean {
+        return suggestionId == DefaultFixedSuggestionType.CURRENT_LOCATION ||
+            (suggestionId is Enum<*> && suggestionId.name == "CURRENT_LOCATION")
+    }
+
+    private fun shouldShowCurrentLocationDisclosure(): Boolean {
+        val requestedPermissions = requireContext().packageManager
+            .getPackageInfo(requireContext().packageName, PackageManager.GET_PERMISSIONS)
+            .requestedPermissions
+            ?: return false
+        return requestedPermissions.contains(android.Manifest.permission.ACCESS_BACKGROUND_LOCATION)
     }
 
 
