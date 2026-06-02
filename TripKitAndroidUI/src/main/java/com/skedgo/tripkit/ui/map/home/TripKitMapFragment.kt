@@ -435,7 +435,14 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({ (first, second) ->
+                // Ignore late/in-flight marker emissions while markers are disabled.
+                if (!viewModel.showMarkers.get()) {
+                    return@subscribe
+                }
                 for ((first1, second1) in first) {
+                    if (!viewModel.showMarkers.get()) {
+                        return@subscribe
+                    }
                     // Check if a marker with the same position already exists
                     if (!isMarkerPositionExists(first1.position)) {
                         val marker = poiMarkers!!.addMarker(first1)
@@ -1148,10 +1155,8 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
             savePoiMarkersState()
         }
 
-        //viewModel.notIncludedTransportModes = notIncludedModes
-        notIncludedModes?.let {
-            transportModes = it
-        }
+        viewModel.notIncludedTransportModes = notIncludedModes
+        transportModes = notIncludedModes
 
         viewModel.showMarkers.set(show)
         if (show) {
@@ -1170,6 +1175,8 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
 
         }
     }
+
+    fun shouldMarkersShow(): Boolean = viewModel.showMarkers.get()
 
     /**
      * Save the current POI markers state before disabling them
@@ -1192,6 +1199,10 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
         stop: ScheduledStop,
         shouldHideInfoWindow: Boolean = false
     ) {
+        // Default POI stop markers must stay suppressed while service-detail mode is active.
+        if (!viewModel.showMarkers.get()) {
+            return
+        }
         selectedStopMarkerPosition = if (shouldHideInfoWindow) null else LatLng(stop.lat, stop.lon)
         if (stop.lat.isNaN() || stop.lon.isNaN()) {
             return
@@ -1206,6 +1217,9 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
         }
 
         fun addMarkerIfNeeded() {
+            if (!viewModel.showMarkers.get()) {
+                return
+            }
             val collection = poiMarkers ?: return
             if (isMarkerPositionExists(targetPosition)) {
                 return
@@ -1215,6 +1229,9 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({ markerOptions ->
+                    if (!viewModel.showMarkers.get()) {
+                        return@subscribe
+                    }
                     val position = markerOptions.position
                     if (isMarkerPositionExists(position)) {
                         return@subscribe
@@ -1247,6 +1264,9 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
         shouldHideInfoWindow: Boolean = false
     ) {
         fun showInfoWindow() {
+            if (!viewModel.showMarkers.get()) {
+                return
+            }
             val collection = poiMarkers ?: return
             val marker = collection.markers.firstOrNull { it.position == position } ?: return
             marker.isVisible = true

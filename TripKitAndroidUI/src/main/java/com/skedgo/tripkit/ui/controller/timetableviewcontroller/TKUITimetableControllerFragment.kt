@@ -171,6 +171,13 @@ class TKUITimetableControllerFragment : BaseFragment<FragmentTkuiTimetableContro
                     popServiceFragment()
                     resetMapState()
                 }
+                addOnScheduledStopClickListener {
+                    eventBus.publish(
+                        ViewControllerEvent.OnUpdateBottomSheetState(
+                            BottomSheetBehavior.STATE_HALF_EXPANDED
+                        )
+                    )
+                }
             }
 
         // We need to manually pop the backstack when necessary, as the HomeFragment won't know to do it.
