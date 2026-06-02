@@ -3,6 +3,7 @@ package com.skedgo.tripkit.ui.map.home
 import com.skedgo.tripkit.common.model.region.Region
 import com.skedgo.tripkit.data.locations.StopsFetcher
 import com.skedgo.tripkit.data.regions.RegionService
+import com.skedgo.tripkit.location.GeoPoint
 import com.skedgo.tripkit.ui.utils.ignoreNetworkErrors
 import io.reactivex.Completable
 import io.reactivex.Observable
@@ -27,8 +28,9 @@ open class FetchStopsByViewport @Inject constructor(
                 )
                     .ignoreOutOfRegionsException()
                     .flatMap { region ->
+                        val center = viewPort.visibleBounds.center()
                         val defaultParams = FetchStopParams(
-                            listOf(region.name!!),
+                            StopLoaderArgs.getCellIdsForRegionalLevel(center),
                             region,
                             ApiZoomLevels.REGION
                         )
@@ -68,8 +70,9 @@ open class FetchStopsByViewport @Inject constructor(
                 )
                     .ignoreOutOfRegionsException()
                     .flatMap { region ->
+                        val center = viewPort.visibleBounds.center()
                         val defaultParams = FetchStopParams(
-                            listOf(region.name!!),
+                            StopLoaderArgs.getCellIdsForRegionalLevel(center),
                             region,
                             ApiZoomLevels.REGION
                         )
@@ -113,3 +116,9 @@ open class FetchStopsByViewport @Inject constructor(
 
 
 class FetchStopParams(val cellIds: List<String>, val region: Region, val level: Int)
+
+private fun com.skedgo.tripkit.ui.data.places.LatLngBounds.center(): GeoPoint {
+    val lat = (southwest.latitude + northeast.latitude) / 2
+    val lng = (southwest.longitude + northeast.longitude) / 2
+    return GeoPoint(lat, lng)
+}
