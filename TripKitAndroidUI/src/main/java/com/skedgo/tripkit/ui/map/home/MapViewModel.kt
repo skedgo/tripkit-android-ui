@@ -12,7 +12,6 @@ import com.jakewharton.rxrelay2.PublishRelay
 import com.skedgo.rxtry.Failure
 import com.skedgo.rxtry.Success
 import com.skedgo.rxtry.Try
-import com.skedgo.rxtry.printThrowableStackTrace
 import com.skedgo.tripkit.camera.GetInitialMapCameraPosition
 import com.skedgo.tripkit.camera.PutMapCameraPosition
 import com.skedgo.tripkit.common.model.location.Location
@@ -149,20 +148,11 @@ class MapViewModel @Inject internal constructor(
             .debounce(500, TimeUnit.MILLISECONDS)!!
             .distinctViewPortUntilChanged(getCellIdsFromViewPort)
             .switchMapDelayError { viewPort ->
-                fetchStopsByViewport.fetch(viewPort)
-                    .andThen(
-                        // Perform broader prefetch with buffer = 3.0
-                        Completable.fromAction {
-                            if (viewPort is ViewPort.CloseEnough) {
-                                val broaderBounds = viewPort.visibleBounds.withBuffer(3.0)
-                                val broaderViewPort = ViewPort.CloseEnough(viewPort.zoom, broaderBounds)
-                                fetchStopsByViewport
-                                    .fetch(broaderViewPort).subscribe({
-                                    }, { errorLogger.logError(it) }).autoClear()
-                            }
-                        }
-                    )
-                    .toObservable<Unit>()
+                // Fetch only the actually-visible viewport. The previous 3x buffer prefetch
+                // was firing a 9x-area POST on every distinct viewport change and amplified
+                // the API volume (#25753). The data-layer TTL cache + in-flight de-dup
+                // (LocationsFetchCoordinator) now make adjacent panning cheap on its own.
+                fetchStopsByViewport.fetch(viewPort).toObservable<Unit>()
             }
             .subscribe({
             }, { errorLogger.logError(it) })
@@ -211,24 +201,18 @@ class MapViewModel @Inject internal constructor(
     }
 
     fun prefetchMarkersForRegion(zoom: Float, bounds: LatLngBounds) {
-        val initial = bounds.withBuffer(1.5)
-        val broader = bounds.withBuffer(5.0)
-
-        val initialViewport = ViewPort.CloseEnough(zoom, initial)
-        val broaderViewport = ViewPort.CloseEnough(zoom, broader)
-
-        // Fast initial fetch
-        fetchStopsByViewport.fetch(initialViewport)
-            .andThen(Completable.fromAction {
-                viewportChanged.accept(initialViewport)
-            })
-            .subscribe({}, { it.printThrowableStackTrace() })
-            .autoClear()
-
-        // to cache a broader reach
-        fetchStopsByViewport.fetch(broaderViewport)
-            .subscribe({}, { it.printThrowableStackTrace() })
-            .autoClear()
+        // Previously this method fired four /satapp/locations.json POSTs per invocation
+        // (1.5x direct + 5.0x direct + 1.5x via relay + 4.5x via relay's broader prefetch),
+        // which compounded the API explosion (#25753) every time the user picked a city
+        // or the app reached the home screen.
+        //
+        // Now we just nudge the viewport pipeline with a small 1.5x buffer so the visible
+        // area + an immediate margin is loaded. Cache TTL + in-flight de-dup in
+        // LocationsFetchCoordinator prevent duplicate calls if the camera-change listener
+        // emits a near-identical viewport at the same time.
+        val primed = bounds.withBuffer(1.5)
+        val primedViewport = ViewPort.CloseEnough(zoom, primed)
+        viewportChanged.accept(primedViewport)
     }
 }
 
