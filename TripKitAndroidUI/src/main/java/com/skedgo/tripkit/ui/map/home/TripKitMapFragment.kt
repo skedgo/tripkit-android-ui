@@ -95,11 +95,9 @@ import io.reactivex.functions.Consumer
 import io.reactivex.schedulers.Schedulers
 import java.util.LinkedList
 import javax.inject.Inject
-import io.reactivex.subjects.PublishSubject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import java.util.concurrent.TimeUnit
 import timber.log.Timber
 import java.util.*
 
@@ -182,9 +180,6 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
     private lateinit var geocoder: AndroidGeocoder
 
     private var contributor: TripKitMapContributor? = null
-
-    // Track viewport bounds for performance optimization
-    private var lastViewportBounds: LatLngBounds? = null
 
     // There doesn't seem to be a way to show an info window when a POI is clicked, so work-around that
     // by using an invisible marker on the map that is moved to the POI's location when clicked.
@@ -413,18 +408,6 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
         ) {
             appDeactivatedListener?.invoke()
         }
-
-        // Set up the throttle for clearing non-regional markers
-        clearNonRegionalMarkersThrottle.debounce(500, TimeUnit.MILLISECONDS)
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(
-                {
-                    clearNonRegionalMarkers()
-                },
-                { e ->
-                    e.printStackTrace()
-                }
-            ).addTo(autoDisposable)
     }
 
     /**
@@ -439,21 +422,48 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
                 if (!viewModel.showMarkers.get()) {
                     return@subscribe
                 }
-                for ((first1, second1) in first) {
+                // Remove no-longer-present/changed markers first so reinsertions (same position,
+                // different source level) are not blocked by position de-dup.
+                removePoiMarkersByDiffKeys(second)
+                val mapRef = map
+                val mode = mapRef?.let { ZoomLevel.markerModeFor(it.cameraPosition.zoom) }
+                val viewportBounds = mapRef?.projection?.visibleRegion?.latLngBounds
+                for ((markerOptions, poi) in first) {
                     if (!viewModel.showMarkers.get()) {
                         return@subscribe
                     }
                     // Check if a marker with the same position already exists
-                    if (!isMarkerPositionExists(first1.position)) {
-                        val marker = poiMarkers!!.addMarker(first1)
-                        marker.tag = second1
-                        addMarkerPosition(first1.position)
+                    if (!isMarkerPositionExists(markerOptions.position)) {
+                        // Decide visibility BEFORE adding so wrong-level markers never show, even for one frame.
+                        if (mode != null && viewportBounds != null) {
+                            markerOptions.visible(
+                                shouldPoiMarkerBeVisible(poi, markerOptions.position, mode, viewportBounds)
+                            )
+                        }
+                        val marker = poiMarkers!!.addMarker(markerOptions)
+                        marker.tag = poi
+                        addMarkerPosition(markerOptions.position)
                     }
                 }
             }, {
                 errorLogger.logError(it)
             })
             .addTo(autoDisposable)
+    }
+
+    private fun removePoiMarkersByDiffKeys(diffKeysToRemove: Set<String>) {
+        if (diffKeysToRemove.isEmpty()) return
+        val collection = poiMarkers ?: return
+        val markersToRemove = collection.markers.filter { marker ->
+            val poi = marker.tag as? IMapPoiLocation ?: return@filter false
+            diffKeysToRemove.contains(markerDiffKey(poi))
+        }
+        markersToRemove.forEach { marker ->
+            markerHideCallbacks[marker]?.let { infoWindowHandler.removeCallbacks(it) }
+            markerHideCallbacks.remove(marker)
+            removeMarkerPosition(marker.position)
+            marker.remove()
+        }
     }
 
     override fun onPause() { //    bus.unregister(this);
@@ -680,72 +690,102 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
             )
         }
 
-        if (position.zoom <= ZoomLevel.ZOOM_VALUE_TO_SHOW_CITIES) {
-            toggleLocationMarkers(show = false)
-            showCities(map!!, regions)
-        } else {
-            toggleLocationMarkers(show = viewModel.showMarkers.get())
-            removeAllCities()
-        }
-
-        if(position.zoom > ZoomLevel.ZOOM_VALUE_TO_SHOW_CITIES) {
-            Timber.i("========== ${position.zoom} ============")
-            if (position.zoom > ZoomLevel.ZOOM_START_VALUE_TO_SHOW_REGIONAL && position.zoom <= 12.0f) {
-                clearNonRegionalMarkersThrottle.onNext(System.currentTimeMillis())
-            } else {
-                hideMarkersOutsideViewport()
-            }
-        }
+        // One authoritative marker-level decision per camera change, shared with the fetch path.
+        applyMarkerMode(ZoomLevel.markerModeFor(position.zoom), visibleBounds)
     }
 
-    private fun toggleLocationMarkers(show: Boolean) {
+    /**
+     * Applies the authoritative [MarkerZoomMode] to all marker collections in a single,
+     * deterministic pass. Stop/POI markers are shown/hidden per their region-vs-local
+     * classification and the viewport; city markers are only shown in [MarkerZoomMode.CITY_ONLY].
+     * Trip / arrival / departure / current-location and individual markers keep their existing
+     * viewport-based behavior.
+     */
+    private fun applyMarkerMode(mode: MarkerZoomMode, viewportBounds: LatLngBounds) {
         val mapRef = map ?: return
 
-        if (show) {
-            val viewportBounds = mapRef.projection.visibleRegion.latLngBounds
-            val zoom = mapRef.cameraPosition.zoom
-            val isPOIZoom = zoom > 12.1f && zoom < 14.5f
-
-            // Show non-POI collections first (these can use showAll safely)
-            tripLocationMarkers?.showAll()
-            arrivalMarkers?.showAll()
-            departureMarkers?.showAll()
-
-            // POIs: avoid showAll during POI zoom to prevent the flash
-            if (isPOIZoom) {
-                poiMarkers?.let { collection ->
-                    // Authoritatively set per marker in the same frame
-                    for (marker in collection.markers) {
-                        val inViewport = viewportBounds.contains(marker.position)
-                        val shouldBeVisible = inViewport && (marker.tag is StopPOILocation)
-                        if (marker.isVisible != shouldBeVisible) {
-                            marker.isVisible = shouldBeVisible
-                        }
-                    }
-                }
-            } else {
-                // Outside the POI zoom band we can safely showAll
-                poiMarkers?.showAll()
-            }
-
-            // Apply viewport filtering to all collections immediately (same frame, no blink)
-            hideMarkersInCollection(poiMarkers, viewportBounds)
-            hideMarkersInCollection(cityMarkers, viewportBounds)
-            hideMarkersInCollection(tripLocationMarkers, viewportBounds)
-            hideMarkersInCollection(departureMarkers, viewportBounds)
-            hideMarkersInCollection(arrivalMarkers, viewportBounds)
-            hideMarkersInCollection(currentLocationMarkers, viewportBounds)
-            hideIndividualMarkers(viewportBounds)
-
-        } else {
-            // Hiding is unchanged
-            tripLocationMarkers?.hideAll()
+        if (mode == MarkerZoomMode.CITY_ONLY) {
+            // Super zoomed out: only city markers; all stop/POI + trip markers hidden.
             poiMarkers?.hideAll()
+            tripLocationMarkers?.hideAll()
             arrivalMarkers?.hideAll()
             departureMarkers?.hideAll()
+            showCities(mapRef, regions)
+            return
+        }
+
+        // REGION_ONLY / REGION_AND_LOCAL: cities are never shown.
+        removeAllCities()
+
+        if (!viewModel.showMarkers.get()) {
+            // Markers suppressed (e.g. ServiceDetail). Preserve existing hide behavior.
+            poiMarkers?.hideAll()
+            tripLocationMarkers?.hideAll()
+            arrivalMarkers?.hideAll()
+            departureMarkers?.hideAll()
+            return
+        }
+
+        // Stop/POI markers: deterministic per-marker visibility by mode + classification + viewport.
+        updatePoiVisibility(mode, viewportBounds)
+
+        // Trip / arrival / departure / current-location + individual markers keep existing filtering.
+        tripLocationMarkers?.showAll()
+        arrivalMarkers?.showAll()
+        departureMarkers?.showAll()
+        hideMarkersInCollection(tripLocationMarkers, viewportBounds)
+        hideMarkersInCollection(departureMarkers, viewportBounds)
+        hideMarkersInCollection(arrivalMarkers, viewportBounds)
+        hideMarkersInCollection(currentLocationMarkers, viewportBounds)
+        hideIndividualMarkers(viewportBounds)
+    }
+
+    /**
+     * Deterministically updates visibility of every stop/POI marker for the given [mode]
+     * and viewport. No showAll()-then-hide, so wrong-level markers never flash.
+     */
+    private fun updatePoiVisibility(mode: MarkerZoomMode, viewportBounds: LatLngBounds) {
+        val collection = poiMarkers ?: return
+        for (marker in collection.markers) {
+            val shouldShow = shouldPoiMarkerBeVisible(marker.tag, marker.position, mode, viewportBounds)
+            if (marker.isVisible != shouldShow) {
+                marker.isVisible = shouldShow
+            }
+            if (shouldShow &&
+                marker.tag is StopPOILocation &&
+                selectedStopMarkerPosition != null &&
+                marker.position == selectedStopMarkerPosition &&
+                !marker.isInfoWindowShown
+            ) {
+                marker.showInfoWindow()
+            }
         }
     }
 
+    /**
+     * Single rule for whether a stop/POI marker is visible:
+     * - CITY_ONLY: never (cities are shown instead).
+     * - REGION_ONLY: only region-level (parent) stops, in viewport.
+     * - REGION_AND_LOCAL: any POI in viewport.
+     */
+    private fun shouldPoiMarkerBeVisible(
+        tag: Any?,
+        position: LatLng,
+        mode: MarkerZoomMode,
+        viewportBounds: LatLngBounds
+    ): Boolean {
+        if (!viewModel.showMarkers.get()) return false
+        if (!viewportBounds.contains(position)) return false
+        val stop = (tag as? StopPOILocation)?.scheduledStop
+        if (stop != null) {
+            return isStopVisibleForMarkerMode(stop, mode)
+        }
+        return when (mode) {
+            MarkerZoomMode.CITY_ONLY -> false
+            MarkerZoomMode.REGION_ONLY -> false
+            MarkerZoomMode.REGION_AND_LOCAL -> true
+        }
+    }
 
     fun moveToLatLng(latLng: com.skedgo.geocoding.LatLng) {
         whenSafeToUseMap(Consumer { map ->
@@ -1161,7 +1201,14 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
         viewModel.showMarkers.set(show)
         if (show) {
             tripLocationMarkers?.showAll()
-            poiMarkers?.showAll()
+            // Re-apply deterministic POI visibility for the current zoom instead of a blanket
+            // showAll() (which would flash wrong-level markers).
+            map?.let { m ->
+                updatePoiVisibility(
+                    ZoomLevel.markerModeFor(m.cameraPosition.zoom),
+                    m.projection.visibleRegion.latLngBounds
+                )
+            }
             loadMarkers()
         } else {
             if (fromTripList) {
@@ -1355,70 +1402,6 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
     }
 
     /**
-     * Clear all LOCAL level markers when transitioning to regional level
-     * This ensures that existing LOCAL markers are removed when zooming out
-     */
-    val clearNonRegionalMarkersThrottle = PublishSubject.create<Long>()
-
-    private fun clearNonRegionalMarkers() {
-        val mapRef = map ?: return
-        val zoom = mapRef.cameraPosition.zoom
-        val isCityZoom = zoom <= ZoomLevel.ZOOM_VALUE_TO_SHOW_CITIES
-        
-        // Don't re-add markers when at city zoom level
-        if(viewModel.showMarkers.get() && !isCityZoom) {
-            poiMarkers?.clear()
-            clearMarkerPositions()
-            // Re-add cached regional stop markers and restore StopPOILocation tags
-            MapData.getRegionalStops().forEach { cached ->
-                val marker = poiMarkers?.addMarker(cached.markerOptions)
-                marker?.let { m ->
-                    m.tag = com.skedgo.tripkit.ui.map.StopPOILocation(
-                        cached.stop,
-                        stopInfoWindowAdapter
-                    )
-                    addMarkerPosition(m.position)
-                }
-            }
-        }
-    }
-
-    /**
-     * Hide markers that are outside the current camera viewport for performance optimization
-     * Uses MarkerManager collections for efficient marker management
-     */
-    private fun hideMarkersOutsideViewport() {
-        val map = this.map ?: return
-        val currentBounds = map.projection.visibleRegion.latLngBounds
-
-        // Only update if viewport has changed significantly
-        if (lastViewportBounds != null && boundsAreSimilar(lastViewportBounds!!, currentBounds)) {
-            return
-        }
-
-        if(!viewModel.showMarkers.get()) {
-            tripLocationMarkers?.hideAll()
-            poiMarkers?.hideAll()
-            arrivalMarkers?.hideAll()
-            departureMarkers?.hideAll()
-            return
-        }
-
-        lastViewportBounds = currentBounds
-
-        // Hide/show markers in each collection based on viewport
-        hideMarkersInCollection(poiMarkers, currentBounds)
-        hideMarkersInCollection(cityMarkers, currentBounds)
-        hideMarkersInCollection(tripLocationMarkers, currentBounds)
-        hideMarkersInCollection(departureMarkers, currentBounds)
-        hideMarkersInCollection(arrivalMarkers, currentBounds)
-        hideMarkersInCollection(currentLocationMarkers, currentBounds)
-
-        // Handle individual markers that aren't in collections
-        hideIndividualMarkers(currentBounds)
-    }
-
-    /**
      * Hide/show markers in a collection based on viewport and zoom.
      * - For zoom in (12.1f, 14.5f): only show markers with tag is StopPOILocation AND in viewport.
      * - Otherwise: standard viewport-based visibility.
@@ -1499,19 +1482,6 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
         longPressMarker?.let { marker ->
             marker.isVisible = bounds.contains(marker.position)
         }
-    }
-
-    /**
-     * Check if two bounds are similar enough to avoid unnecessary updates
-     */
-    private fun boundsAreSimilar(bounds1: LatLngBounds, bounds2: LatLngBounds): Boolean {
-        val latDiff = kotlin.math.abs(bounds1.northeast.latitude - bounds2.northeast.latitude) +
-                     kotlin.math.abs(bounds1.southwest.latitude - bounds2.southwest.latitude)
-        val lngDiff = kotlin.math.abs(bounds1.northeast.longitude - bounds2.northeast.longitude) +
-                     kotlin.math.abs(bounds1.southwest.longitude - bounds2.southwest.longitude)
-
-        // Consider bounds similar if the difference is less than 0.001 degrees (roughly 100m)
-        return latDiff < 0.001 && lngDiff < 0.001
     }
 
     /**

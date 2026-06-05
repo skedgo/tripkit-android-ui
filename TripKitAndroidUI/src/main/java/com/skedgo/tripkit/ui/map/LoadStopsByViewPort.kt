@@ -44,10 +44,14 @@ open class LoadStopsByViewPort @Inject constructor(
                             .map { region to it }
                     }
                     .flatMap { (region, cellIds) ->
+                        // Some regions can return/retain stop groups keyed by region name
+                        // instead of numeric grid cell ids. Query both to avoid missing
+                        // freshly persisted level-tagged rows.
+                        val queryCellIds = buildQueryCellIds(cellIds, region.name)
                         // For Room-based approach, we create a selection string that includes
                         // cell codes and bounds, which ScheduledStopRepository will parse
-                        val selection = createRoomSelection(cellIds.size)
-                        val selectionArgs = createRoomSelectionArgs(cellIds, bounds)
+                        val selection = createRoomSelection(queryCellIds.size)
+                        val selectionArgs = createRoomSelectionArgs(queryCellIds, bounds)
                         
                         scheduledStopRepository.queryStops(
                             null, // projection not needed for Room
@@ -96,4 +100,10 @@ open class LoadStopsByViewPort @Inject constructor(
         
         return selectionArgs
     }
+
+}
+
+internal fun buildQueryCellIds(cellIds: List<String>, regionName: String?): List<String> {
+    val regionKey = regionName?.takeIf { it.isNotBlank() } ?: return cellIds
+    return (cellIds + regionKey).distinct()
 }

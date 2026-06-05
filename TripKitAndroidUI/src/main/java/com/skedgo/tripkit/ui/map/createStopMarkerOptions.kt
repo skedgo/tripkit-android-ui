@@ -6,10 +6,6 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.skedgo.tripkit.common.model.stop.ScheduledStop
-import com.skedgo.tripkit.common.model.stop.StopType.FERRY
-import com.skedgo.tripkit.common.model.stop.StopType.SUBWAY
-import com.skedgo.tripkit.common.model.stop.StopType.TRAIN
-import com.skedgo.tripkit.ui.map.home.MapData
 import com.skedgo.tripkit.ui.utils.BindingConversions
 import com.squareup.picasso.Picasso
 import io.reactivex.Single
@@ -45,11 +41,6 @@ fun ScheduledStop.createStopMarkerOptions(picasso: Picasso): Single<MarkerOption
     return kotlin.run {
         val remoteMarkerIconFetcher = RemoteMarkerIconFetcher(picasso)
         remoteMarkerIconFetcher.callAsync(markerOptions, stop)
-    }.map {
-        if(type == TRAIN || type == SUBWAY || type == FERRY) {
-            MapData.addRegionalStop(it, this)
-        }
-        it
     }
 }
 

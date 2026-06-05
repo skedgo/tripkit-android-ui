@@ -19,8 +19,14 @@ open class FetchStopsByViewport @Inject constructor(
         CAR_PODS
     }
 
-    open fun execute(viewPort: ViewPort): Completable =
-        when (viewPort) {
+    open fun execute(viewPort: ViewPort): Completable {
+        if (viewPort is ViewPort.CloseEnough &&
+            ZoomLevel.markerModeFor(viewPort.zoom) == MarkerZoomMode.CITY_ONLY
+        ) {
+            // Super zoomed out: city markers come from region metadata, no locations.json fetch.
+            return Completable.complete()
+        }
+        return when (viewPort) {
             is ViewPort.CloseEnough -> {
                 regionService.getRegionByLocationAsync(
                     viewPort.visibleBounds.southwest.latitude,
@@ -28,15 +34,14 @@ open class FetchStopsByViewport @Inject constructor(
                 )
                     .ignoreOutOfRegionsException()
                     .flatMap { region ->
-                        val center = viewPort.visibleBounds.center()
-                        val defaultParams = FetchStopParams(
-                            StopLoaderArgs.getCellIdsForRegionalLevel(center),
-                            region,
-                            ApiZoomLevels.REGION
-                        )
-
-                        if (viewPort.isInner()) {
-                            // Local level (> 15.0f) - load local stops + regional for cities
+                        if (ZoomLevel.markerModeFor(viewPort.zoom) == MarkerZoomMode.REGION_AND_LOCAL) {
+                            // Zoomed in - region (parent, centre cell) + local stops across the viewport
+                            val center = viewPort.visibleBounds.center()
+                            val defaultParams = FetchStopParams(
+                                StopLoaderArgs.getCellIdsForRegionalLevel(center),
+                                region,
+                                ApiZoomLevels.REGION
+                            )
                             val localParams = getCellIdsFromViewPort.execute(viewPort)
                                 .map { cellIds ->
                                     FetchStopParams(
@@ -45,12 +50,21 @@ open class FetchStopsByViewport @Inject constructor(
                                         ApiZoomLevels.LOCAL
                                     )
                                 }
-                            
+
                             // Start with region level, then add local level
                             localParams.startWith(defaultParams)
                         } else {
-                            // Regional level (<= 15.0f) - only load regional stops
-                            Observable.just(defaultParams)
+                            // REGION_ONLY - request region-level (parent) stops across the
+                            // WHOLE visible viewport, not just the centre cell, so multiple
+                            // region markers appear when zoomed out. No local cells are requested.
+                            getCellIdsFromViewPort.execute(viewPort)
+                                .map { cellIds ->
+                                    FetchStopParams(
+                                        cellIds,
+                                        region,
+                                        ApiZoomLevels.REGION
+                                    )
+                                }
                         }
                     }
             }
@@ -60,8 +74,15 @@ open class FetchStopsByViewport @Inject constructor(
                 .ignoreNetworkErrors()
                 .ignoreElements()
         }
+    }
 
     open fun fetch(viewPort: ViewPort): Completable {
+        if (viewPort is ViewPort.CloseEnough &&
+            ZoomLevel.markerModeFor(viewPort.zoom) == MarkerZoomMode.CITY_ONLY
+        ) {
+            // Super zoomed out: city markers come from region metadata, no locations.json fetch.
+            return Completable.complete()
+        }
         return when (viewPort) {
             is ViewPort.CloseEnough -> {
                 regionService.getRegionByLocationAsync(
@@ -70,15 +91,14 @@ open class FetchStopsByViewport @Inject constructor(
                 )
                     .ignoreOutOfRegionsException()
                     .flatMap { region ->
-                        val center = viewPort.visibleBounds.center()
-                        val defaultParams = FetchStopParams(
-                            StopLoaderArgs.getCellIdsForRegionalLevel(center),
-                            region,
-                            ApiZoomLevels.REGION
-                        )
-
-                        if (viewPort.isInner()) {
-                            // Local level (> 15.0f) - load local stops + regional for cities
+                        if (ZoomLevel.markerModeFor(viewPort.zoom) == MarkerZoomMode.REGION_AND_LOCAL) {
+                            // Zoomed in - region (parent, centre cell) + local stops across the viewport
+                            val center = viewPort.visibleBounds.center()
+                            val defaultParams = FetchStopParams(
+                                StopLoaderArgs.getCellIdsForRegionalLevel(center),
+                                region,
+                                ApiZoomLevels.REGION
+                            )
                             val localParams = getCellIdsFromViewPort.fetch(viewPort)
                                 .map { cellIds ->
                                     FetchStopParams(
@@ -87,12 +107,21 @@ open class FetchStopsByViewport @Inject constructor(
                                         ApiZoomLevels.LOCAL
                                     )
                                 }
-                            
+
                             // Start with region level, then add local level
                             localParams.startWith(defaultParams)
                         } else {
-                            // Regional level (<= 15.0f) - only load regional stops
-                            Observable.just(defaultParams)
+                            // REGION_ONLY - request region-level (parent) stops across the
+                            // WHOLE visible viewport, not just the centre cell, so multiple
+                            // region markers appear when zoomed out. No local cells are requested.
+                            getCellIdsFromViewPort.fetch(viewPort)
+                                .map { cellIds ->
+                                    FetchStopParams(
+                                        cellIds,
+                                        region,
+                                        ApiZoomLevels.REGION
+                                    )
+                                }
                         }
                     }
             }

@@ -113,9 +113,9 @@ open class ScheduledStopRepository @Inject constructor(
     fun deleteByCellCodesSync(cellCodes: List<String>) {
         if (cellCodes.isEmpty()) return
         
-        // Delete in single transaction via Room - efficient for bulk operations
-        val deletedStops = scheduledStopDatabase.scheduledStopDao().deleteScheduledStopsByCellCodes(cellCodes)
+        // Delete locations first (subquery depends on scheduled_stops rows), then stops.
         val deletedLocations = scheduledStopDatabase.scheduledStopDao().deleteLocationsByCellCodes(cellCodes)
+        val deletedStops = scheduledStopDatabase.scheduledStopDao().deleteScheduledStopsByCellCodes(cellCodes)
         
         Timber.d("Deleted old data for ${cellCodes.size} cells: $deletedStops stops, $deletedLocations locations")
     }
@@ -228,6 +228,7 @@ open class ScheduledStopRepository @Inject constructor(
                     services = "1,2,3",
                     parentId = null,
                     isParent = 0,
+                    apiZoomLevel = 2,
                     modeInfo = "{\"type\":\"bus\"}",
                     filter = null
                 )
@@ -316,6 +317,7 @@ open class ScheduledStopRepository @Inject constructor(
             services = contentValues.getAsString("services"),
             parentId = contentValues.getAsString("parent_id"),
             isParent = contentValues.getAsInteger("is_parent") ?: 0,
+            apiZoomLevel = contentValues.getAsInteger("api_zoom_level") ?: 0,
             modeInfo = contentValues.getAsString("mode_info"),
             filter = contentValues.getAsString("filter")
         )
