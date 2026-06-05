@@ -20,15 +20,6 @@ object StopLoaderArgs {
     const val KEY_CELL_IDS: String = "cellIds"
     const val KEY_VISIBLE_BOUND: String = "visibleBounds"
 
-    /**
-     * Upper bound on how many regional grid cells we are willing to request for a single
-     * viewport. At very far (near-city) zoom the visible span covers a huge number of
-     * [CELLS_PER_DEGREE] cells; rather than send an enormous /satapp/locations.json body
-     * (the #25753 concern), we fall back to the single centre cell beyond this limit.
-     * The cap is generous enough to cover normal regional viewing (roughly zoom >= 9.5).
-     */
-    const val MAX_REGIONAL_CELLS: Int = 2500
-
     fun newArgsForStopsLoader(
         cellIds: List<String>,
         region: Region,
@@ -53,10 +44,8 @@ object StopLoaderArgs {
                 getCellIdsForRegionalLevel(geoPoint)
             }
             zoom > ZOOM_START_VALUE_TO_SHOW_REGIONAL && zoom <= ZOOM_START_VALUE_FOR_LOCAL -> {
-                // Regional level - load regional (parent) stops across the WHOLE visible
-                // viewport, not just the centre cell. Requesting only the centre cell made
-                // a single marker appear in the middle of the screen when zoomed out.
-                getCellIdsForRegionalLevel(geoPoint, span)
+                // Regional level - load regional stops
+                getCellIdsForRegionalLevel(geoPoint)
             }
             else -> {
                 // Local level (> 15.0f) - load local stops + regional for cities
@@ -68,8 +57,7 @@ object StopLoaderArgs {
     }
 
     /**
-     * @return A list containing a single numeric regional cell id (lat#lng) for the
-     * centre point. Used as a cheap fallback and for the parent-stop request while zoomed in.
+     * @return A list containing a numeric regional cell id (lat#lng) for regional level.
      */
     fun getCellIdsForRegionalLevel(geoPoint: GeoPoint): ArrayList<String> {
         val ids = ArrayList<String>()
@@ -77,26 +65,6 @@ object StopLoaderArgs {
         val lngCell = (geoPoint.longitude * CELLS_PER_DEGREE).toInt()
         ids.add("$latCell#$lngCell")
         return ids
-    }
-
-    /**
-     * @return Numeric regional cell ids (lat#lng) covering the visible [span].
-     *
-     * Regional and local levels share the same [CELLS_PER_DEGREE] grid; the only
-     * difference at fetch time is the API level flag (parent vs non-parent stops).
-     * When the viewport is so far out that the grid would exceed [MAX_REGIONAL_CELLS],
-     * we fall back to the single centre cell to keep the request body small (#25753).
-     */
-    fun getCellIdsForRegionalLevel(
-        geoPoint: GeoPoint,
-        span: LatLngBounds
-    ): ArrayList<String> {
-        val cells = getCellIdsForLocalLevel(geoPoint, span)
-        return if (cells.size > MAX_REGIONAL_CELLS) {
-            getCellIdsForRegionalLevel(geoPoint)
-        } else {
-            cells
-        }
     }
 
     /**

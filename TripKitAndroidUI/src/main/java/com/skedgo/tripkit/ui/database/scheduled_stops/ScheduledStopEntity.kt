@@ -22,7 +22,6 @@ data class ScheduledStopEntity(
     val services: String?,
     val parentId: String?,
     val isParent: Int,
-    val apiZoomLevel: Int,
     val modeInfo: String?,
     val filter: String?
 )

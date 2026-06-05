@@ -30,7 +30,6 @@ import com.skedgo.tripkit.ui.data.extensions.withBuffer
 import com.skedgo.tripkit.ui.data.places.LatLngBounds
 import com.skedgo.tripkit.ui.map.IMapPoiLocation
 import com.skedgo.tripkit.ui.map.LoadPOILocationsByViewPort
-import com.skedgo.tripkit.ui.map.StopPOILocation
 import com.squareup.picasso.Picasso
 import io.reactivex.Completable
 import io.reactivex.Observable
@@ -92,7 +91,7 @@ class MapViewModel @Inject internal constructor(
         }
         .compose(
             DiffTransformer<IMapPoiLocation, MarkerOptions>(
-                { markerDiffKey(it) },
+                { it.identifier },
                 { it.createMarkerOptions(resources, picasso) }
             )
         )
@@ -214,13 +213,6 @@ class MapViewModel @Inject internal constructor(
         val primed = bounds.withBuffer(1.5)
         val primedViewport = ViewPort.CloseEnough(zoom, primed)
         viewportChanged.accept(primedViewport)
-    }
-}
-
-internal fun markerDiffKey(poi: IMapPoiLocation): String {
-    return when (poi) {
-        is StopPOILocation -> "${poi.identifier}:${poi.scheduledStop.apiZoomLevel}"
-        else -> poi.identifier
     }
 }
 

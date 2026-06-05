@@ -4,15 +4,12 @@ import android.util.Pair
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
-import com.jakewharton.rxrelay2.PublishRelay
 import com.skedgo.tripkit.common.model.region.Region
 import com.skedgo.tripkit.common.model.stop.ScheduledStop
 import com.skedgo.tripkit.data.database.locations.freefloating.FreeFloatingLocationEntity
 import com.skedgo.tripkit.data.regions.RegionService
 import com.skedgo.tripkit.location.GeoPoint
 import com.skedgo.tripkit.ui.base.MockKTest
-import com.skedgo.tripkit.ui.data.places.LatLng as DomainLatLng
-import com.skedgo.tripkit.ui.data.places.LatLngBounds as DomainLatLngBounds
 import com.skedgo.tripkit.ui.map.home.GetCellIdsFromViewPort
 import com.skedgo.tripkit.ui.map.home.StopLoaderArgs
 import com.skedgo.tripkit.ui.map.home.ViewPort
@@ -21,7 +18,6 @@ import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.verify
 import io.reactivex.Observable
-import org.junit.Assert.assertTrue
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -46,7 +42,6 @@ class LoadStopsByViewPortTest: MockKTest() {
         getCellIdsFromViewPort = mockk()
         scheduledStopRepository = mockk()
         regionService = mockk()
-        every { scheduledStopRepository.changes } returns PublishRelay.create()
         loadStopsByViewPort = LoadStopsByViewPort(getCellIdsFromViewPort, scheduledStopRepository, regionService)
     }
 
@@ -117,16 +112,5 @@ class LoadStopsByViewPortTest: MockKTest() {
 
         testObserver.assertComplete()
         testObserver.assertValue(emptyList())
-    }
-
-    @Test
-    fun `buildQueryCellIds includes region key alongside numeric cells`() {
-        val queryCellIds = buildQueryCellIds(
-            listOf("10#20", "11#21"),
-            "AU_NT_Darwin"
-        )
-        assertTrue(queryCellIds.contains("10#20"))
-        assertTrue(queryCellIds.contains("11#21"))
-        assertTrue(queryCellIds.contains("AU_NT_Darwin"))
     }
 }

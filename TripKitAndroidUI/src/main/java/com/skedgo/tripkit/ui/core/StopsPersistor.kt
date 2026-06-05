@@ -25,7 +25,7 @@ class StopsPersistor @Inject constructor(
         private const val INSERT_BATCH_SIZE = 100
     }
 
-    override fun saveStopsSync(cells: List<LocationsResponse.Group>, level: Int) {
+    override fun saveStopsSync(cells: List<LocationsResponse.Group>) {
         Timber.i("DEBUG: StopsPersistor.saveStopsSync called with ${cells.size} cells")
         
         // Fix: Delete old stops for cells being updated to remove decommissioned stops
@@ -52,7 +52,6 @@ class StopsPersistor @Inject constructor(
                 cellId,
                 getCodeToIdMapping(cellId),
                 stops,
-                level,
                 scheduledStops,
                 locations
             )
@@ -80,7 +79,6 @@ class StopsPersistor @Inject constructor(
         cellCode: String?,
         codeToIdMap: Map<String, Int>?,
         stops: MutableList<ScheduledStop>,
-        apiZoomLevel: Int,
         scheduledStops: MutableList<ScheduledStopEntity>,
         locations: MutableList<LocationEntity>
     ) {
@@ -106,7 +104,6 @@ class StopsPersistor @Inject constructor(
                     services = stop.services,
                     parentId = null,
                     isParent = if (stop.hasChildren()) 1 else 0,
-                    apiZoomLevel = apiZoomLevel,
                     modeInfo = gson.toJson(stop.modeInfo),
                     filter = null
                 )
@@ -158,7 +155,6 @@ class StopsPersistor @Inject constructor(
                             services = child.services,
                             parentId = parentStopId.toString(),
                             isParent = 0,
-                            apiZoomLevel = apiZoomLevel,
                             modeInfo = null,
                             filter = null
                         )

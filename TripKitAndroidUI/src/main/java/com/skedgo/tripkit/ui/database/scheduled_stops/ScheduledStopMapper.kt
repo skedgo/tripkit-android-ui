@@ -16,9 +16,6 @@ class ScheduledStopMapper @Inject constructor(
         stop.type = entity.scheduledStop.stopType?.let { StopType.from(it) }
         stop.shortName = entity.scheduledStop.shortName
         stop.services = entity.scheduledStop.services
-        // Legacy parent-level signal. Source-level visibility must use apiZoomLevel.
-        stop.isRegionalStop = entity.scheduledStop.isParent == 1
-        stop.apiZoomLevel = entity.scheduledStop.apiZoomLevel
         // Note: parentId setter is private in ScheduledStop, so we can't set it directly
         
         entity.scheduledStop.modeInfo?.let { modeInfoJson ->
@@ -56,7 +53,6 @@ class ScheduledStopMapper @Inject constructor(
             services = domain.services,
             parentId = null, // Note: parentId getter is private in ScheduledStop
             isParent = if (domain.hasChildren()) 1 else 0,
-            apiZoomLevel = domain.apiZoomLevel,
             modeInfo = domain.modeInfo?.let { gson.toJson(it) },
             filter = null
         )
