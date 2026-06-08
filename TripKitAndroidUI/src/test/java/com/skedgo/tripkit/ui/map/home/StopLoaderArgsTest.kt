@@ -4,14 +4,14 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
 import com.skedgo.tripkit.common.model.region.Region
 import com.skedgo.tripkit.location.GeoPoint
-import org.junit.Assert.assertFalse
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class StopLoaderArgsTest {
 
     @Test
-    fun `regional cell ids are numeric and not region name`() {
+    fun `regional cell ids include region name`() {
         val regionName = "AU_NT_Darwin"
         val region = Region().apply { name = regionName }
         val center = GeoPoint(-12.4634, 130.8456)
@@ -28,7 +28,6 @@ class StopLoaderArgsTest {
         )
 
         assertTrue(regional.isNotEmpty())
-        assertFalse(regional.contains(regionName))
-        assertTrue(regional.all { it.matches(Regex("-?\\d+#-?\\d+")) })
+        assertEquals(listOf(regionName), regional)
     }
 }

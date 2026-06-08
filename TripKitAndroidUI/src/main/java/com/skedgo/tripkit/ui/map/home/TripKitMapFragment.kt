@@ -848,7 +848,7 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
                         val city = cities[j]
                         // If the city is in viewport, add markers if hasn't added.
                         if (bounds.contains(LatLng(city.lat, city.lon))) {
-                            if (cityMarkerMap[city.name] == null) { // Marker for this city hasn't been added yet.
+                            if (cityMarkerMap[city.displayName] == null) { // Marker for this city hasn't been added yet.
                                 addCityMarker(city)
                             }
                         } else {
@@ -863,8 +863,8 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
     }
 
     private fun removeCity(city: City) {
-        cityMarkers!!.remove(cityMarkerMap[city.name])
-        cityMarkerMap.remove(city.name)
+        cityMarkers!!.remove(cityMarkerMap[city.displayName])
+        cityMarkerMap.remove(city.displayName)
     }
 
     @SuppressLint("MissingPermission")

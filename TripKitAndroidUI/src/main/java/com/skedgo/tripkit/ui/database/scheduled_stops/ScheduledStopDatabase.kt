@@ -2,8 +2,10 @@ package com.skedgo.tripkit.ui.database.scheduled_stops
 
 import android.content.Context
 import androidx.room.Database
+import androidx.room.migration.Migration
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.sqlite.db.SupportSQLiteDatabase
 
 @Database(
     entities = [
@@ -11,7 +13,7 @@ import androidx.room.RoomDatabase
         LocationEntity::class,
         ScheduledStopDownloadHistoryEntity::class
     ],
-    version = 1,
+    version = 2,
     exportSchema = false
 )
 abstract class ScheduledStopDatabase : RoomDatabase() {
@@ -20,6 +22,11 @@ abstract class ScheduledStopDatabase : RoomDatabase() {
     companion object {
         @Volatile
         private var INSTANCE: ScheduledStopDatabase? = null
+        private val MIGRATION_1_2 = object : Migration(1, 2) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                // No schema change required; keep explicit migration to avoid 1 -> 2 crash.
+            }
+        }
 
         fun getDatabase(context: Context): ScheduledStopDatabase {
             return INSTANCE ?: synchronized(this) {
@@ -27,7 +34,10 @@ abstract class ScheduledStopDatabase : RoomDatabase() {
                     context.applicationContext,
                     ScheduledStopDatabase::class.java,
                     "scheduled_stop_database"
-                ).build()
+                )
+                    .addMigrations(MIGRATION_1_2)
+                    .fallbackToDestructiveMigration(true)
+                    .build()
                 INSTANCE = instance
                 instance
             }

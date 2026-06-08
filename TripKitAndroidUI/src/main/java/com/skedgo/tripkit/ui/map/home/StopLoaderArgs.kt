@@ -41,29 +41,27 @@ object StopLoaderArgs {
         return when {
             zoom <= ZOOM_VALUE_TO_SHOW_CITIES -> {
                 // City level - load regional stops for cities
-                getCellIdsForRegionalLevel(geoPoint)
+                getCellIdsForRegionalLevel(region)
             }
             zoom > ZOOM_START_VALUE_TO_SHOW_REGIONAL && zoom <= ZOOM_START_VALUE_FOR_LOCAL -> {
                 // Regional level - load regional stops
-                getCellIdsForRegionalLevel(geoPoint)
+                getCellIdsForRegionalLevel(region)
             }
             else -> {
                 // Local level (> 15.0f) - load local stops + regional for cities
                 val localCellIds = getCellIdsForLocalLevel(geoPoint, span)
-                localCellIds.addAll(getCellIdsForRegionalLevel(geoPoint))
+                localCellIds.addAll(getCellIdsForRegionalLevel(region))
                 localCellIds
             }
         }
     }
 
     /**
-     * @return A list containing a numeric regional cell id (lat#lng) for regional level.
+     * @return A list containing region name used as cell id for regional level
      */
-    fun getCellIdsForRegionalLevel(geoPoint: GeoPoint): ArrayList<String> {
+    fun getCellIdsForRegionalLevel(region: Region): ArrayList<String> {
         val ids = ArrayList<String>()
-        val latCell = (geoPoint.latitude * CELLS_PER_DEGREE).toInt()
-        val lngCell = (geoPoint.longitude * CELLS_PER_DEGREE).toInt()
-        ids.add("$latCell#$lngCell")
+        ids.add(region.name.orEmpty())
         return ids
     }
 
@@ -120,6 +118,12 @@ object StopLoaderArgs {
         cellIds: List<String>,
         region: Region
     ): ArrayList<String> {
-        return ArrayList(cellIds)
+        if (!cellIds.contains(region.name)) {
+            val result = ArrayList(cellIds)
+            result.addAll(getCellIdsForRegionalLevel(region))
+            return result
+        } else {
+            return ArrayList(cellIds)
+        }
     }
 }

@@ -8,6 +8,7 @@ object MapData {
     data class RegionalStopMarker(val markerOptions: MarkerOptions, val stop: ScheduledStop)
 
     private val regionalStops = mutableListOf<RegionalStopMarker>()
+    private val regionalSourceStopCodes = mutableSetOf<String>()
 
     fun getRegionalStops(): List<RegionalStopMarker> = regionalStops
 
@@ -17,6 +18,15 @@ object MapData {
             it.markerOptions.position == markerOptions.position
         }
         regionalStops.add(RegionalStopMarker(markerOptions, stop))
+    }
+
+    fun replaceRegionalSourceStopCodes(codes: Set<String>) {
+        regionalSourceStopCodes.clear()
+        regionalSourceStopCodes.addAll(codes)
+    }
+
+    fun isRegionalSourceStop(stopCode: String?): Boolean {
+        return !stopCode.isNullOrEmpty() && regionalSourceStopCodes.contains(stopCode)
     }
 
     fun clearRegionalStops() {
