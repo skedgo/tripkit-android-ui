@@ -36,6 +36,8 @@ class ScheduledStopMapper @Inject constructor(
             stop.bearing = location.bearing
             stop.locationType = location.locationType
         }
+        stop.cellCode = entity.scheduledStop.cellCode
+        stop.cellHashCode = entity.downloadHistory?.hashCode2
         
         return stop
     }

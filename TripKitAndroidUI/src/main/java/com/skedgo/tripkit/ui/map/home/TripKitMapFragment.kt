@@ -215,6 +215,7 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
 
     // Track existing marker positions to prevent duplicates
     private val existingMarkerPositions = mutableSetOf<LatLng>()
+    private val poiMarkersByIdentifier = mutableMapOf<String, Marker>()
 
     /**
      * Check if a marker with the given position already exists
@@ -242,6 +243,7 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
      */
     private fun clearMarkerPositions() {
         existingMarkerPositions.clear()
+        poiMarkersByIdentifier.clear()
     }
 
     /**
@@ -434,21 +436,35 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
         viewModel.markers
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe({ (first, second) ->
+            .subscribe({ (newMarkers, removedMarkerIds) ->
                 // Ignore late/in-flight marker emissions while markers are disabled.
                 if (!viewModel.showMarkers.get()) {
                     return@subscribe
                 }
-                for ((first1, second1) in first) {
+
+                for (removedId in removedMarkerIds) {
+                    val marker = poiMarkersByIdentifier.remove(removedId) ?: continue
+                    removeMarkerPosition(marker.position)
+                    marker.remove()
+                }
+
+                for ((markerOptions, poiLocation) in newMarkers) {
                     if (!viewModel.showMarkers.get()) {
                         return@subscribe
                     }
-                    // Check if a marker with the same position already exists
-                    if (!isMarkerPositionExists(first1.position)) {
-                        val marker = poiMarkers!!.addMarker(first1)
-                        marker.tag = second1
-                        addMarkerPosition(first1.position)
+                    val identifier = poiLocation.identifier
+                    poiMarkersByIdentifier[identifier]?.let { existing ->
+                        removeMarkerPosition(existing.position)
+                        existing.remove()
+                        poiMarkersByIdentifier.remove(identifier)
                     }
+                    if (isMarkerPositionExists(markerOptions.position)) {
+                        continue
+                    }
+                    val marker = poiMarkers!!.addMarker(markerOptions)
+                    marker.tag = poiLocation
+                    addMarkerPosition(markerOptions.position)
+                    poiMarkersByIdentifier[identifier] = marker
                 }
             }, {
                 errorLogger.logError(it)
@@ -690,11 +706,7 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
 
         if(position.zoom > ZoomLevel.ZOOM_VALUE_TO_SHOW_CITIES) {
             Timber.i("========== ${position.zoom} ============")
-            if (position.zoom > ZoomLevel.ZOOM_START_VALUE_TO_SHOW_REGIONAL && position.zoom <= 12.0f) {
-                clearNonRegionalMarkersThrottle.onNext(System.currentTimeMillis())
-            } else {
-                hideMarkersOutsideViewport()
-            }
+            hideMarkersOutsideViewport()
         }
     }
 
@@ -1364,6 +1376,7 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
         val mapRef = map ?: return
         val zoom = mapRef.cameraPosition.zoom
         val isCityZoom = zoom <= ZoomLevel.ZOOM_VALUE_TO_SHOW_CITIES
+        val markerCountBefore = poiMarkers?.markers?.size ?: 0
         
         // Don't re-add markers when at city zoom level
         if(viewModel.showMarkers.get() && !isCityZoom) {
@@ -1379,6 +1392,14 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
                     )
                     addMarkerPosition(m.position)
                 }
+            }
+            if (DEBUG_MARKER_RETENTION) {
+                val markerCountAfter = poiMarkers?.markers?.size ?: 0
+                Timber.d(
+                    "marker-retention: regional rebuild applied (before=%d, after=%d)",
+                    markerCountBefore,
+                    markerCountAfter
+                )
             }
         }
     }
@@ -1630,6 +1651,7 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
         private const val KEY_SHOW_MARKERS = "show_markers"
         private const val KEY_LAST_ZOOM_LEVEL = "last_zoom_level"
         private const val KEY_CONTRIBUTOR_CLASS = "contributor_class"
+        private const val DEBUG_MARKER_RETENTION = false
 
         private fun asMarkerIcon(mode: SelectionType): BitmapDescriptor {
             return if (mode === SelectionType.DEPARTURE) {
