@@ -44,10 +44,11 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.functions.BiFunction
 import io.reactivex.rxkotlin.Observables
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.rx2.await
 import kotlinx.coroutines.rx2.awaitFirstOrNull
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import me.tatarka.bindingcollectionadapter2.ItemBinding
 import me.tatarka.bindingcollectionadapter2.collections.DiffObservableList
@@ -76,6 +77,12 @@ class TimetableViewModel @Inject constructor(
     private val getTripFromWaypoints: GetTripFromWaypoints,
     private val tripGroupRepository: TripGroupRepository
 ) : RxViewModel() {
+    /**
+     * Serializes adapter list mutations so we do not interleave diff dispatches while RecyclerView
+     * is still applying a previous update.
+     */
+    private val servicesUpdateMutex = Mutex()
+
     var stop: BehaviorRelay<ScheduledStop> = BehaviorRelay.create()
     var serviceTripId: BehaviorRelay<String> = BehaviorRelay.create()
 
@@ -309,21 +316,7 @@ class TimetableViewModel @Inject constructor(
                 }
 
                 viewModelScope.launch {
-                    withContext(Dispatchers.Default) {
-                        val diff = services.calculateDiff(it)
-                        withContext(Dispatchers.Main) {
-                            // Use delay to ensure RecyclerView is not in the middle of a layout pass
-                            delay(1) // Minimal delay to yield to the main thread
-                            try {
-                                services.update(it, diff)
-                            } catch (e: IndexOutOfBoundsException) {
-                                Timber.e("IndexOutOfBoundsException in services update", e)
-                                // If there's still a race condition, clear and rebuild the list
-                                services.clear()
-                                services.addAll(it)
-                            }
-                        }
-                    }
+                    applyServicesUpdateSafely(it)
                 }
                 val tmpServiceList: MutableList<TimetableHeaderLineItem> =
                     arrayListOf<TimetableHeaderLineItem>()
@@ -418,6 +411,23 @@ class TimetableViewModel @Inject constructor(
 
     fun getShareUrl(shareUrl: String, stop: ScheduledStop) =
         createShareContent.execute(shareUrl, stop, services.map { it.service })
+
+    private suspend fun applyServicesUpdateSafely(nextItems: List<ServiceViewModel>) {
+        servicesUpdateMutex.withLock {
+            val diff = withContext(Dispatchers.Default) { services.calculateDiff(nextItems) }
+            withContext(Dispatchers.Main.immediate) {
+                runCatching {
+                    services.update(nextItems, diff)
+                }.recoverCatching { firstError ->
+                    Timber.w(firstError, "Primary timetable diff apply failed, retrying with fresh diff")
+                    // Retry with a fresh diff against the latest adapter state.
+                    services.update(nextItems)
+                }.onFailure { finalError ->
+                    Timber.e(finalError, "Failed to apply timetable services update safely")
+                }
+            }
+        }
+    }
 
     /**
      * Handles [TimetableEntry] item click

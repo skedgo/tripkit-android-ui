@@ -19,6 +19,10 @@ internal class CyclingSpeedRepositoryImpl constructor(
 
     override fun getCyclingSpeed(): CyclingSpeed {
         val speed = prefs.getString(resources.getString(R.string.pref_cycling_speed), null)?.toInt()
+        if (speed == -1) {
+            putCyclingSpeed(CyclingSpeed.Slow)
+            return CyclingSpeed.Slow
+        }
         return speed?.toCyclingSpeed() ?: CyclingSpeed.Medium
     }
 }

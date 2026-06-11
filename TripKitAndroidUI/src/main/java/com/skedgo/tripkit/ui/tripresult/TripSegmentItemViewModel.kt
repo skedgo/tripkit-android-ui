@@ -77,6 +77,8 @@ class TripSegmentItemViewModel @Inject internal constructor(
 
     val description = MutableLiveData<String>()
     val showDescription = MutableLiveData(false)
+    val notes = MutableLiveData<String>()
+    val showNotes = MutableLiveData(false)
     val showTicketInfo = MutableLiveData(false)
     val icon = MutableLiveData<Drawable?>()
     val showBackgroundCircle = MutableLiveData(false)
@@ -116,6 +118,7 @@ class TripSegmentItemViewModel @Inject internal constructor(
         viewType: SegmentViewType,
         title: String,
         description: String? = null,
+        notes: String? = null,
         startTime: String? = null,
         endTime: String? = null,
         delay: Long = 0,
@@ -135,6 +138,9 @@ class TripSegmentItemViewModel @Inject internal constructor(
             this.description.value = description.orEmpty()
             this.showDescription.value = description != null
 
+            this.notes.value = notes.orEmpty()
+            this.showNotes.value = !notes.isNullOrEmpty()
+
             segment.verifyAndUpdateExternalAction(viewType)
 
             verifyAndSetTime(hasRealtime, startTime, endTime, delay)
@@ -148,7 +154,7 @@ class TripSegmentItemViewModel @Inject internal constructor(
 
             segment.determineAndShowSegmentIcon(viewType, lineColor, tintWhite, segmentCircleColor)
 
-            segment.handleAlerts()
+            updateAlertStateForViewType(viewType, segment.alerts)
 
             _isHideExactTimes.postValue(segment.isHideExactTimes)
             if (!isStationaryItem) {
@@ -164,21 +170,28 @@ class TripSegmentItemViewModel @Inject internal constructor(
         }
     }
 
-    private fun TripSegment.handleAlerts() {
-        if (!this.alerts.isNullOrEmpty()) {
-            showAlerts.value = true
-            this.alerts?.groupConsecutiveBy { firstItem, secondItem ->
-                firstItem.title() == secondItem.title()
-            }?.let { sameTitleGroups ->
-                val alertsArray = ArrayList<RealtimeAlert>()
-                sameTitleGroups.forEach { group ->
-                    if (group.isNotEmpty()) {
-                        alertsArray.add(group.first())
-                    }
-                }
-                this@TripSegmentItemViewModel.alerts.value = alertsArray
+    @VisibleForTesting
+    internal fun updateAlertStateForViewType(
+        viewType: SegmentViewType,
+        alerts: List<RealtimeAlert>?
+    ) {
+        // iOS parity: service alerts are rendered for moving rows only.
+        if (viewType != SegmentViewType.MOVING || alerts.isNullOrEmpty()) {
+            showAlerts.value = false
+            this.alerts.value = arrayListOf()
+            return
+        }
+
+        showAlerts.value = true
+        val deduplicatedAlerts = arrayListOf<RealtimeAlert>()
+        alerts.groupConsecutiveBy { firstItem, secondItem ->
+            firstItem.title() == secondItem.title()
+        }.forEach { group ->
+            if (group.isNotEmpty()) {
+                deduplicatedAlerts.add(group.first())
             }
         }
+        this.alerts.value = deduplicatedAlerts
     }
 
     private fun TripSegment.determineAndShowSegmentIcon(

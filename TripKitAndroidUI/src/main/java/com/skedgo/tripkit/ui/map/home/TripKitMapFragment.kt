@@ -11,6 +11,7 @@ import android.os.Looper
 import android.provider.Settings
 import android.view.View
 import android.widget.Toast
+import androidx.lifecycle.lifecycleScope
 import com.araujo.jordan.excuseme.ExcuseMe
 import com.google.android.gms.maps.CameraUpdate
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -32,6 +33,7 @@ import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.maps.model.PointOfInterest
 import com.google.maps.android.collections.MarkerManager
+import com.skedgo.rxtry.printThrowableStackTrace
 import com.skedgo.rxtry.subscribeWithErrorHandling
 import com.skedgo.tripkit.AndroidGeocoder
 import com.skedgo.tripkit.TripKitConstants.Companion.PREF_NAME_APP
@@ -94,6 +96,9 @@ import io.reactivex.schedulers.Schedulers
 import java.util.LinkedList
 import javax.inject.Inject
 import io.reactivex.subjects.PublishSubject
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
 import timber.log.Timber
 import java.util.*
@@ -187,6 +192,7 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
     private var transportModes: List<TransportMode>? = null
     private val infoWindowHandler = Handler(Looper.getMainLooper())
     private val markerHideCallbacks = WeakHashMap<Marker, Runnable>()
+    private var selectedStopMarkerPosition: LatLng? = null
 
     @Inject
     lateinit var stopInfoWindowAdapter: StopInfoWindowAdapter
@@ -429,17 +435,6 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({ (first, second) ->
-                if (second.isNotEmpty()) {
-                    poiMarkers?.markers
-                        ?.filter { marker ->
-                            val poi = marker.tag as? IMapPoiLocation ?: return@filter false
-                            poi.identifier in second
-                        }
-                        ?.forEach { marker ->
-                            removeMarkerPosition(marker.position)
-                            marker.remove()
-                        }
-                }
                 for ((first1, second1) in first) {
                     // Check if a marker with the same position already exists
                     if (!isMarkerPositionExists(first1.position)) {
@@ -1114,6 +1109,9 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
             val poiLocation = marker.tag as IMapPoiLocation?
             poiLocation?.let {
                 poiLocation.onMarkerClick(bus, eventTracker)
+                if (poiLocation is StopPOILocation) {
+                    selectedStopMarkerPosition = marker.position
+                }
                 marker.showInfoWindow()
                 val scrollY = ((resources.getDimensionPixelSize(R.dimen.routing_card_height)
                     + resources.getDimensionPixelSize(R.dimen.spacing_huge)
@@ -1190,7 +1188,11 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
         }
     }
 
-    fun ensureStopMarker(stop: ScheduledStop) {
+    fun ensureStopMarker(
+        stop: ScheduledStop,
+        shouldHideInfoWindow: Boolean = false
+    ) {
+        selectedStopMarkerPosition = if (shouldHideInfoWindow) null else LatLng(stop.lat, stop.lon)
         if (stop.lat.isNaN() || stop.lon.isNaN()) {
             return
         }
@@ -1199,7 +1201,7 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
         }
         val targetPosition = LatLng(stop.lat, stop.lon)
         if (isMarkerPositionExists(targetPosition)) {
-            showExistingStopMarkerInfoWindow(targetPosition)
+            showExistingStopMarkerInfoWindow(targetPosition, shouldHideInfoWindow)
             return
         }
 
@@ -1221,7 +1223,10 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
                     marker.tag = poiLocation
                     addMarkerPosition(position)
                     marker.showInfoWindow()
-                    hideInfoWindowLater(marker)
+                    if (shouldHideInfoWindow) {
+                        hideInfoWindowLater(marker)
+                    }
+                    map?.moveToMarkerWithInfoWindow(marker)
                 }, { error ->
                     errorLogger.logError(error)
                 })
@@ -1237,13 +1242,19 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
         }
     }
 
-    private fun showExistingStopMarkerInfoWindow(position: LatLng) {
+    private fun showExistingStopMarkerInfoWindow(
+        position: LatLng,
+        shouldHideInfoWindow: Boolean = false
+    ) {
         fun showInfoWindow() {
             val collection = poiMarkers ?: return
             val marker = collection.markers.firstOrNull { it.position == position } ?: return
             marker.isVisible = true
             marker.showInfoWindow()
-            hideInfoWindowLater(marker)
+            if (shouldHideInfoWindow) {
+                hideInfoWindowLater(marker)
+            }
+            map?.moveToMarkerWithInfoWindow(marker)
         }
 
         if (map != null && poiMarkers != null) {
@@ -1276,6 +1287,31 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
 
         markerHideCallbacks[marker] = hideRunnable
         infoWindowHandler.postDelayed(hideRunnable, INFO_WINDOW_AUTO_HIDE_DELAY_MS)
+    }
+
+    private fun GoogleMap.moveToMarkerWithInfoWindow(marker: Marker, offsetPx: Int = 50) {
+        var done = false
+
+        setOnCameraIdleListener {
+            if (done) return@setOnCameraIdleListener
+            done = true
+
+            animateCamera(CameraUpdateFactory.scrollBy(0f, -offsetPx.toFloat()))
+            marker.showInfoWindow()
+
+            setOnCameraIdleListener(null)
+        }
+
+        try {
+            lifecycleScope.launch {
+                delay(500)
+                launch(Dispatchers.Main) {
+                    animateCamera(CameraUpdateFactory.newLatLng(marker.position))
+                }
+            }
+        } catch (e: Exception) {
+            e.printThrowableStackTrace()
+        }
     }
 
     fun moveToCameraPosition(cameraPosition: CameraPosition) {
@@ -1391,6 +1427,15 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
 
             if (marker.isVisible != shouldBeVisible) {
                 marker.isVisible = shouldBeVisible
+            }
+            if (
+                shouldBeVisible &&
+                marker.tag is StopPOILocation &&
+                selectedStopMarkerPosition != null &&
+                marker.position == selectedStopMarkerPosition &&
+                !marker.isInfoWindowShown
+            ) {
+                marker.showInfoWindow()
             }
         }
     }

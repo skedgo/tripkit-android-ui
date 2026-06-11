@@ -78,11 +78,13 @@ class GetRealtimeTextTest {
 
     @Test
     fun `should return no real-time available when real-time status is CAPABLE`() {
+        val nowSeconds = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis())
         val service: TimetableEntry = mockk {
             every { realTimeStatus } returns RealTimeStatus.CAPABLE
+            every { serviceTime } returns nowSeconds + 3600
             every { realtimeVehicle } returns null
             every { realTimeDeparture } returns -1
-            every { startTimeInSecs } returns 1617187200L
+            every { startTimeInSecs } returns nowSeconds + 3600
             every { endTimeInSecs } returns -1
             every { realTimeArrival } returns -1
             every { isCancelled } returns false
@@ -90,11 +92,78 @@ class GetRealtimeTextTest {
 
         val dateTimeZone = DateTimeZone.UTC
 
-        every { context.getString(R.string.no_realtime_available) } returns "No Real-Time Available"
+        every { context.getString(R.string.scheduled) } returns "Scheduled"
+
+        val expectedSchedule = DateTime(TimeUnit.SECONDS.toMillis(nowSeconds + 3600))
+            .toString("H:mm")
 
         val result = getRealtimeText.execute(dateTimeZone, service)
 
-        assertEquals("No Real-Time Available" to R.color.black1, result)
+        assertEquals("Scheduled • $expectedSchedule" to R.color.black1, result)
+    }
+
+    @Test
+    fun `should return scheduled time if real-time status is INCAPABLE`() {
+        val service: TimetableEntry = mockk {
+            every { realTimeStatus } returns RealTimeStatus.INCAPABLE
+            every { serviceTime } returns 1617187200L
+            every { realtimeVehicle } returns null
+            every { realTimeDeparture } returns 1617187200
+            every { startTimeInSecs } returns 1617187200L
+            every { endTimeInSecs } returns -1
+            every { realTimeArrival } returns -1
+            every { isCancelled } returns false
+        }
+
+        val dateTimeZone = DateTimeZone.UTC
+        every { context.getString(R.string.scheduled) } returns "Scheduled"
+
+        val result = getRealtimeText.execute(dateTimeZone, service)
+
+        assertEquals("Scheduled • 10:40" to R.color.black1, result)
+    }
+
+    @Test
+    fun `should return realtime info when CAPABLE and service already started`() {
+        val nowSeconds = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis())
+        val service: TimetableEntry = mockk {
+            every { realTimeStatus } returns RealTimeStatus.CAPABLE
+            every { serviceTime } returns nowSeconds - 60
+            every { realtimeVehicle } returns null
+            every { realTimeDeparture } returns (nowSeconds - 60).toInt()
+            every { startTimeInSecs } returns nowSeconds - 60
+            every { endTimeInSecs } returns -1
+            every { realTimeArrival } returns -1
+            every { isCancelled } returns false
+        }
+
+        val dateTimeZone = DateTimeZone.UTC
+        every { printTime.print(any()) } returns "10:40"
+        every { context.getString(R.string.on_time) } returns "On Time"
+
+        val expectedSchedule = DateTime(TimeUnit.SECONDS.toMillis(nowSeconds - 60))
+            .toString("H:mm")
+        val result = getRealtimeText.execute(dateTimeZone, service)
+
+        assertEquals("On Time • $expectedSchedule" to R.color.tripKitSuccess, result)
+    }
+
+    @Test
+    fun `should keep cancelled behavior unchanged`() {
+        val service: TimetableEntry = mockk {
+            every { realTimeStatus } returns RealTimeStatus.CANCELLED
+            every { isCancelled } returns false
+            every { realtimeVehicle } returns null
+            every { realTimeDeparture } returns -1
+            every { startTimeInSecs } returns 1617187200L
+            every { endTimeInSecs } returns -1
+            every { realTimeArrival } returns -1
+        }
+        every { context.getString(R.string.cancelled) } returns "Cancelled"
+
+        val result = getRealtimeText.execute(DateTimeZone.UTC, service)
+
+        assertEquals("CANCELLED" to R.color.tripKitError, result)
     }
 
     @Test

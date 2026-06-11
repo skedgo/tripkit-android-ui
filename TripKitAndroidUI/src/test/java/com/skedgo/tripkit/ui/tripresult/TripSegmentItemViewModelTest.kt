@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.res.Resources
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.core.content.ContextCompat
+import com.skedgo.tripkit.common.model.realtimealert.RealtimeAlert
 import com.skedgo.tripkit.datetime.PrintTime
 import com.skedgo.tripkit.routing.Occupancy
 import com.skedgo.tripkit.routing.RealTimeVehicle
@@ -23,6 +24,9 @@ import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.spyk
 import io.mockk.verify
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -96,6 +100,40 @@ class TripSegmentItemViewModelTest : MockKTest() {
         every { mockTripSegment.realTimeVehicle } returns null
         viewModel.initOccupancy(mockTripSegment)
         verify(exactly = 0) { occupancyViewModel.setOccupancy(any(), any()) }
+    }
+
+    @Test
+    fun `updateAlertStateForViewType - shows deduplicated alerts for moving segment`() {
+        val firstAlert = mockk<RealtimeAlert>()
+        val duplicateFirstAlert = mockk<RealtimeAlert>()
+        val secondAlert = mockk<RealtimeAlert>()
+        every { firstAlert.title() } returns "Weekday track closure"
+        every { duplicateFirstAlert.title() } returns "Weekday track closure"
+        every { secondAlert.title() } returns "Other disruption"
+
+        viewModel.updateAlertStateForViewType(
+            TripSegmentItemViewModel.SegmentViewType.MOVING,
+            listOf(firstAlert, duplicateFirstAlert, secondAlert)
+        )
+
+        assertTrue(viewModel.showAlerts.value == true)
+        assertEquals(2, viewModel.alerts.value?.size)
+        assertEquals(firstAlert, viewModel.alerts.value?.first())
+        assertEquals(secondAlert, viewModel.alerts.value?.get(1))
+    }
+
+    @Test
+    fun `updateAlertStateForViewType - hides alerts for stationary bridge segment`() {
+        val alert = mockk<RealtimeAlert>()
+        every { alert.title() } returns "Weekday track closure"
+
+        viewModel.updateAlertStateForViewType(
+            TripSegmentItemViewModel.SegmentViewType.STATIONARY_BRIDGE,
+            listOf(alert)
+        )
+
+        assertFalse(viewModel.showAlerts.value == true)
+        assertTrue(viewModel.alerts.value?.isEmpty() == true)
     }
 
 }

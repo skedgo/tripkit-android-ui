@@ -363,6 +363,10 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
         binding.viewModel = viewModel
         binding.serviceLineRecyclerView.isNestedScrollingEnabled = false
         binding.recyclerView.isNestedScrollingEnabled = true
+        // Frequent realtime + pagination updates can overlap with item animations and cause
+        // transient RecyclerView inconsistencies on some devices.
+        binding.recyclerView.itemAnimator = null
+        binding.recyclerView.setHasFixedSize(false)
 
 //        val swipeListener = OnSwipeTouchListener(requireContext(),
 //            object : OnSwipeTouchListener.SwipeGestureListener {

@@ -58,7 +58,7 @@ class LegacyLocationSearchIconProvider : LocationSearchIconProvider {
             LocationSearchIconProvider.SearchResultType.FOURSQUARE -> R.drawable.ic_foursquare_search
             LocationSearchIconProvider.SearchResultType.GOOGLE -> R.drawable.ic_googleresult
             LocationSearchIconProvider.SearchResultType.FAVORITE -> R.drawable.ic_favorite
-            LocationSearchIconProvider.SearchResultType.HISTORY -> R.drawable.ic_timetable_search
+            LocationSearchIconProvider.SearchResultType.HISTORY -> R.drawable.ic_timetable_search_new
             LocationSearchIconProvider.SearchResultType.REGION -> R.drawable.ic_city
             LocationSearchIconProvider.SearchResultType.SCHOOL -> R.drawable.ic_search_school
             else -> R.drawable.ic_pin
