@@ -137,7 +137,6 @@
                 android:id="@+id/composeServicesList"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:focusableInTouchMode="true"
                 android:layout_marginTop="@dimen/spacing_normal"
                 app:layout_behavior="@string/appbar_scrolling_view_behavior"
                 tools:listitem="@layout/timetable_fragment_list_item" />

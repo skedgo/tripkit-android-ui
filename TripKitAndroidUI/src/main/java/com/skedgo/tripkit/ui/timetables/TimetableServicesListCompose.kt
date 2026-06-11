@@ -11,6 +11,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.unit.dp
@@ -43,9 +45,11 @@ fun TimetableServicesListCompose(
         state = listState,
         modifier = if (fromPreview) {
             modifier.fillMaxSize()
+                .nestedScroll(rememberNestedScrollInteropConnection())
                 .background(colorResource(R.color.cardBackground))
          } else {
             modifier.fillMaxSize()
+                .nestedScroll(rememberNestedScrollInteropConnection())
          },
         contentPadding = PaddingValues(bottom = 0.dp),
     ) {
