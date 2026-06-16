@@ -28,7 +28,7 @@ open class FetchStopsByViewport @Inject constructor(
                     .ignoreOutOfRegionsException()
                     .flatMap { region ->
                         val defaultParams = FetchStopParams(
-                            listOf(region.name!!),
+                            StopLoaderArgs.getCellIdsForRegionalLevel(region),
                             region,
                             ApiZoomLevels.REGION
                         )
@@ -69,7 +69,7 @@ open class FetchStopsByViewport @Inject constructor(
                     .ignoreOutOfRegionsException()
                     .flatMap { region ->
                         val defaultParams = FetchStopParams(
-                            listOf(region.name!!),
+                            StopLoaderArgs.getCellIdsForRegionalLevel(region),
                             region,
                             ApiZoomLevels.REGION
                         )

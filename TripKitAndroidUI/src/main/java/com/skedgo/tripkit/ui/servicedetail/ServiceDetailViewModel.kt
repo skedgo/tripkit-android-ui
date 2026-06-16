@@ -29,6 +29,7 @@ import com.skedgo.tripkit.ui.timetables.GetServiceTertiaryText
 import com.skedgo.tripkit.ui.timetables.GetServiceTitleText
 import com.skedgo.tripkit.ui.trip.details.viewmodel.OccupancyViewModel
 import com.skedgo.tripkit.ui.trip.details.viewmodel.ServiceAlertViewModel
+import com.skedgo.tripkit.ui.utils.TapAction
 import io.reactivex.android.schedulers.AndroidSchedulers
 import me.tatarka.bindingcollectionadapter2.ItemBinding
 import timber.log.Timber
@@ -55,6 +56,10 @@ class ServiceDetailViewModel @Inject constructor(
 
     val wheelchairAccessibleText = ObservableField<String>()
     val showExpandableMenu = ObservableBoolean(false)
+    val isExpandableMenuExpanded = ObservableBoolean(false)
+    val onExpandMenuClick = TapAction.create {
+        isExpandableMenuExpanded.set(!isExpandableMenuExpanded.get())
+    }
     val modeInfo = ObservableField<ModeInfo>()
 
     val wheelchairIcon = ObservableField<Drawable?>()
@@ -126,8 +131,8 @@ class ServiceDetailViewModel @Inject constructor(
         realTimeVehicle?.let { occupancyViewModel.setOccupancy(it, false) }
         showOccupancyInfo.set(occupancyViewModel.hasInformation())
 
+        showWheelchairAccessible.set(wheelchairAccessible == true)
         wheelchairAccessible?.let {
-            showWheelchairAccessible.set(true)
             if (it) {
                 wheelchairAccessibleText.set(context.getString(R.string.wheelchair_accessible))
                 wheelchairIcon.set(ContextCompat.getDrawable(context, R.drawable.ic_wheelchair))
@@ -145,9 +150,13 @@ class ServiceDetailViewModel @Inject constructor(
         _showBicycleAccessible.postValue(bicycleAccessible ?: false)
 
         showExpandableMenu.set(
-            showOccupancyInfo.get() || showWheelchairAccessible.get() || (showBicycleAccessible.value
-                ?: false)
+            showOccupancyInfo.get() ||
+                showWheelchairAccessible.get() ||
+                (showBicycleAccessible.value ?: false)
         )
+        if (!showExpandableMenu.get()) {
+            isExpandableMenuExpanded.set(false)
+        }
 
         serviceColor?.let {
             when (it.color) {
