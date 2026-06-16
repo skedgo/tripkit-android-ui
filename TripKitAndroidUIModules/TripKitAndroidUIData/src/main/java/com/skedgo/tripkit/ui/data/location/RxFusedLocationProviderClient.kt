@@ -18,74 +18,105 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.mapNotNull
-import java.lang.ref.WeakReference
+import java.util.concurrent.atomic.AtomicBoolean
 
+/**
+ * Reactive wrapper around [FusedLocationProviderClient] exposing location updates as
+ * RxJava [Flowable]s and Kotlin [Flow]s.
+ *
+ * [removeLocationUpdates] is async, so GMS may still deliver callbacks after disposal.
+ * The RxJava path guards against this with an [AtomicBoolean] cancellation flag; the
+ * [Flow] path relies on [callbackFlow]/[awaitClose] where [trySend] on a closed channel
+ * is already a safe no-op.
+ */
 open class RxFusedLocationProviderClient(
     private val client: FusedLocationProviderClient
 ) {
     /**
-     * @see [The Tasks API](https://developers.google.com/android/guides/tasks).
+     * Emits the most recent known location as [LastLocation.Available], or
+     * [LastLocation.NotAvailable] when no cached fix exists.
+     *
+     * @see [The Tasks API](https://developers.google.com/android/guides/tasks)
      */
     @SuppressLint("MissingPermission")
     open fun getLastLocation(): Flowable<LastLocation> =
-        Flowable.create<LastLocation>({
-            val emitterWeakRef = WeakReference(it)
-            client.lastLocation.addOnCompleteListener {
-                when (it.isSuccessful) {
-                    true -> when (it.result) {
-                        null -> emitterWeakRef.get()?.onNext(LastLocation.NotAvailable)
-                        else -> emitterWeakRef.get()?.onNext(LastLocation.Available(it.result!!))
-                    }
-                    false -> emitterWeakRef.get()?.onError(it.exception!!)
+        Flowable.create<LastLocation>({ emitter ->
+            client.lastLocation.addOnCompleteListener { task ->
+                when {
+                    task.isSuccessful && task.result != null ->
+                        emitter.onNext(LastLocation.Available(task.result!!))
+                    task.isSuccessful ->
+                        emitter.onNext(LastLocation.NotAvailable)
+                    else ->
+                        emitter.onError(task.exception!!)
                 }
             }
         }, BackpressureStrategy.BUFFER)
 
     /**
-     * A RxJava-based version of [FusedLocationProviderClient.requestLocationUpdates].
+     * Streams [LocationUpdates] via [FusedLocationProviderClient.requestLocationUpdates].
+     * Disposing the subscription calls [removeLocationUpdates] and sets an [AtomicBoolean]
+     * cancellation flag *before* the removal request, so any in-flight GMS callbacks
+     * arriving during the async removal window are silently dropped.
      *
-     * @see [The Tasks API](https://developers.google.com/android/guides/tasks).
+     * @param request Frequency and accuracy parameters for location updates.
+     * @see [The Tasks API](https://developers.google.com/android/guides/tasks)
      */
     @SuppressLint("MissingPermission")
     open fun requestLocationUpdates(request: LocationRequest): Flowable<LocationUpdates> =
         Flowable.create<LocationUpdates>({ emitter ->
-            // FIXME: The `client` still references to `callback` even after calling `removeLocationUpdates`.
-            // This is why we gotta make this weak as a temporary fix.
-            val emitterWeakRef = WeakReference(emitter)
+            val isCancelled = AtomicBoolean(false)
+
             val callback = object : LocationCallback() {
                 override fun onLocationAvailability(availability: LocationAvailability?) {
+                    if (isCancelled.get()) return
                     availability?.let {
-                        emitterWeakRef.get()?.onNext(LocationUpdates.Availability(it))
+                        emitter.onNext(LocationUpdates.Availability(it))
                     }
                 }
 
                 override fun onLocationResult(result: LocationResult?) {
-                    result?.let { emitterWeakRef.get()?.onNext(LocationUpdates.Result(it)) }
+                    if (isCancelled.get()) return
+                    result?.let { emitter.onNext(LocationUpdates.Result(it)) }
                 }
             }
+
             client.requestLocationUpdates(request, callback, Looper.getMainLooper())
-                .addOnFailureListener { emitter.onError(it) }
-            emitter.setCancellable() {
+                .addOnFailureListener { error ->
+                    if (!isCancelled.get()) emitter.onError(error)
+                }
+
+            emitter.setCancellable {
+                isCancelled.set(true)
                 client.removeLocationUpdates(callback)
-                    .addOnFailureListener { Log.e("removeLocationUpdates", it.message, it) }
+                    .addOnFailureListener { Log.e(TAG, "removeLocationUpdates failed", it) }
             }
         }, BackpressureStrategy.BUFFER)
 
+    /**
+     * Projects [requestLocationUpdates] to raw [Location] objects, discarding availability
+     * events. Subscribes on IO, observes on the main thread.
+     *
+     * @param request Frequency and accuracy parameters for location updates.
+     */
     open fun requestLocationStream(request: LocationRequest): Observable<Location> =
         requestLocationUpdates(request).toObservable()
-            .flatMap {
-                when (it) {
-                    is LocationUpdates.Result -> {
-                        it.value.lastLocation?.let {
-                            Observable.just(it)
-                        } ?: Observable.empty()
-                    }
+            .flatMap { update ->
+                when (update) {
+                    is LocationUpdates.Result ->
+                        update.value.lastLocation?.let { Observable.just(it) }
+                            ?: Observable.empty()
                     else -> Observable.empty()
                 }
             }
             .subscribeOn(io())
             .observeOn(AndroidSchedulers.mainThread())
 
+    /**
+     * [Flow] counterpart of [requestLocationStream]; emits non-null [Location] values only.
+     *
+     * @param request Frequency and accuracy parameters for location updates.
+     */
     open fun requestLocationStreamFlow(request: LocationRequest): Flow<Location> =
         requestLocationUpdatesFlow(request)
             .mapNotNull { update ->
@@ -95,24 +126,36 @@ open class RxFusedLocationProviderClient(
                 }
             }
 
+    /**
+     * [Flow]-based equivalent of [requestLocationUpdates]. [awaitClose] ensures
+     * [removeLocationUpdates] is called on cancellation; stale callbacks after removal
+     * are silently dropped via [trySend] on a closed channel.
+     *
+     * @param request Frequency and accuracy parameters for location updates.
+     */
     @SuppressLint("MissingPermission")
-    open fun requestLocationUpdatesFlow(request: LocationRequest): Flow<LocationUpdates> = callbackFlow {
-        val callback = object : LocationCallback() {
-            override fun onLocationAvailability(availability: LocationAvailability) {
-                trySend(LocationUpdates.Availability(availability))
+    open fun requestLocationUpdatesFlow(request: LocationRequest): Flow<LocationUpdates> =
+        callbackFlow {
+            val callback = object : LocationCallback() {
+                override fun onLocationAvailability(availability: LocationAvailability) {
+                    trySend(LocationUpdates.Availability(availability))
+                }
+
+                override fun onLocationResult(result: LocationResult) {
+                    trySend(LocationUpdates.Result(result))
+                }
             }
 
-            override fun onLocationResult(result: LocationResult) {
-                trySend(LocationUpdates.Result(result))
+            client.requestLocationUpdates(request, callback, Looper.getMainLooper())
+                .addOnFailureListener { close(it) }
+
+            awaitClose {
+                client.removeLocationUpdates(callback)
+                    .addOnFailureListener { Log.e(TAG, "removeLocationUpdates failed", it) }
             }
         }
 
-        client.requestLocationUpdates(request, callback, Looper.getMainLooper())
-            .addOnFailureListener { close(it) }
-
-        awaitClose {
-            client.removeLocationUpdates(callback)
-                .addOnFailureListener { Log.e("removeLocationUpdates", it.message, it) }
-        }
+    companion object {
+        private const val TAG = "RxFusedLocationClient"
     }
 }

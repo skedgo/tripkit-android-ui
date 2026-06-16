@@ -60,7 +60,14 @@ import timber.log.Timber
 import java.util.Collections
 import javax.inject.Inject
 
-
+/**
+ * Map contributor for timetable / service-detail screens.
+ *
+ * Draws service stops, route polylines, and a real-time vehicle marker with periodic fade updates.
+ * A main-thread [Handler] drives the fade loop; [cleanup] must be invoked (via [TripKitMapContributor]
+ * or fragment destruction) so pending callbacks are cleared and the contributor does not outlive
+ * its host fragment.
+ */
 class TimetableMapContributor(val fragment: Fragment) : TripKitMapContributor {
     protected val autoDisposable: CompositeDisposable by lazy {
         CompositeDisposable()
@@ -101,7 +108,11 @@ class TimetableMapContributor(val fragment: Fragment) : TripKitMapContributor {
 
     private var pulseOverlay: GroundOverlay? = null
 
+    /** Schedules real-time vehicle marker fade updates on the main looper. Cleared in [cleanup]. */
     private val handler = Handler(Looper.getMainLooper())
+
+    /** When false, [fadeRunnable] will not reschedule itself (e.g. after [cleanup]). */
+    private var markerUpdatesActive = false
 
     override fun initialize() {
         TripKitUI.getInstance()
@@ -127,6 +138,7 @@ class TimetableMapContributor(val fragment: Fragment) : TripKitMapContributor {
 
     private val fadeRunnable = object : Runnable {
         override fun run() {
+            if (!markerUpdatesActive) return
             updateVehicleMarkerAppearance()
             handler.postDelayed(this, 1000) // Schedule next update after 1 second
         }
@@ -212,9 +224,13 @@ class TimetableMapContributor(val fragment: Fragment) : TripKitMapContributor {
     }
 
     override fun cleanup() {
-        stopMarkerUpdateInterval() // Stop periodic updates
+        stopMarkerUpdateInterval()
+        googleMap?.setOnCameraIdleListener(null)
+        googleMap = null
         stopCodesToMarkerMap.forEach { it.value.remove() }
+        stopCodesToMarkerMap.clear()
         serviceLines.forEach { it.remove() }
+        serviceLines.clear()
         autoDisposable.clear()
         cleanupServiceDetailVehicleUpdates()
     }
@@ -428,16 +444,24 @@ class TimetableMapContributor(val fragment: Fragment) : TripKitMapContributor {
 
     /**
      * Starts the periodic updates for marker fading and snippet updates.
+     *
+     * Cancels any existing fade loop first so [safeToUseMap] can be called more than once
+     * without stacking multiple [Handler] runnables.
      */
     private fun startMarkerUpdateInterval() {
-        // Delay the first execution to avoid immediate update showing "1 second ago" twice
+        stopMarkerUpdateInterval()
+        markerUpdatesActive = true
         handler.postDelayed(fadeRunnable, 1000) // 1-second delay
     }
 
     /**
      * Stops the periodic updates for marker fading and snippet updates.
+     *
+     * Removes all pending callbacks and messages on [handler] so it cannot retain this
+     * contributor after [cleanup] or contributor switching.
      */
     private fun stopMarkerUpdateInterval() {
+        markerUpdatesActive = false
         handler.removeCallbacks(fadeRunnable)
     }
 
