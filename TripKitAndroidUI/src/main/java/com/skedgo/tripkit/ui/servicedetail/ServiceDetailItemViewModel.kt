@@ -6,6 +6,7 @@ import android.graphics.drawable.NinePatchDrawable
 import androidx.core.content.ContextCompat
 import androidx.databinding.ObservableField
 import androidx.databinding.ObservableInt
+import androidx.lifecycle.MutableLiveData
 import com.skedgo.tripkit.common.model.stop.ServiceStop
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.core.RxViewModel
@@ -29,6 +30,8 @@ class ServiceDetailItemViewModel @Inject constructor(val getStopTimeDisplayText:
     val stopName = ObservableField<String>()
     val stopNameColor = ObservableInt()
     val onItemClick = TapAction.create { stop }
+    val isTravelled = MutableLiveData(false)
+    val isWheelchairAccessible = MutableLiveData(false)
 
     fun setDrawable(context: Context, direction: LineDirection) {
         when (direction) {
@@ -59,6 +62,8 @@ class ServiceDetailItemViewModel @Inject constructor(val getStopTimeDisplayText:
         this.stop = stop
         lineColor = _lineColor
         stopName.set(stop.name)
+        isTravelled.postValue(travelled)
+        isWheelchairAccessible.postValue(stop.wheelchairAccessible)
         if (travelled) {
             scheduledTimeTextColor.set(ContextCompat.getColor(context, R.color.black2))
             stopNameColor.set(ContextCompat.getColor(context, R.color.black2))

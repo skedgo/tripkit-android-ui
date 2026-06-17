@@ -201,4 +201,7 @@ interface ScheduledStopDao {
 
     @Query("SELECT * FROM scheduled_stops_download_history")
     fun getAllDownloadHistorySync(): List<ScheduledStopDownloadHistoryEntity>
+
+    @Query("SELECT * FROM scheduled_stops_download_history WHERE cellCode IN (:cellCodes)")
+    fun getDownloadHistoryByCellCodes(cellCodes: List<String>): List<ScheduledStopDownloadHistoryEntity>
 }

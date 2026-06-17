@@ -11,6 +11,7 @@ import com.skedgo.tripkit.data.locations.StopsFetcher.IStopsPersistor
 import com.skedgo.tripkit.ui.database.scheduled_stops.LocationEntity
 import com.skedgo.tripkit.ui.database.scheduled_stops.ScheduledStopEntity
 import com.skedgo.tripkit.ui.map.ScheduledStopRepository
+import com.skedgo.tripkit.ui.map.home.MapData
 import timber.log.Timber
 import java.util.Random
 import javax.inject.Inject
@@ -23,10 +24,16 @@ class StopsPersistor @Inject constructor(
 
     companion object {
         private const val INSERT_BATCH_SIZE = 100
+        private val gridCellIdRegex = Regex("^-?\\d+#-?\\d+$")
     }
 
     override fun saveStopsSync(cells: List<LocationsResponse.Group>) {
         Timber.i("DEBUG: StopsPersistor.saveStopsSync called with ${cells.size} cells")
+
+        val regionalSourceStopCodes = collectRegionalSourceStopCodes(cells)
+        if (regionalSourceStopCodes.isNotEmpty()) {
+            MapData.replaceRegionalSourceStopCodes(regionalSourceStopCodes)
+        }
         
         // Fix: Delete old stops for cells being updated to remove decommissioned stops
         // Efficient: Only deletes for specific cells, not entire database. Room uses indexed WHERE clause.
@@ -230,5 +237,19 @@ class StopsPersistor @Inject constructor(
         // For now, return empty map to avoid breaking existing logic
         // TODO: Update this to use Room database query
         return emptyMap()
+    }
+
+    private fun collectRegionalSourceStopCodes(cells: List<LocationsResponse.Group>): Set<String> {
+        val result = linkedSetOf<String>()
+        for (cell in cells) {
+            val key = cell.key
+            if (key.isNullOrEmpty() || gridCellIdRegex.matches(key)) {
+                continue
+            }
+            for (stop in cell.stops.orEmpty()) {
+                stop.code?.takeIf { it.isNotEmpty() }?.let(result::add)
+            }
+        }
+        return result
     }
 }

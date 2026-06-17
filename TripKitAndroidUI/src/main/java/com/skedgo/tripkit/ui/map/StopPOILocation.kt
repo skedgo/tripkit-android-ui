@@ -37,5 +37,6 @@ class StopPOILocation(
     override fun onMarkerClick(bus: Bus, eventTracker: EventTracker) {
     }
 
-    override val identifier: String = scheduledStop.code.orEmpty()
+    override val identifier: String =
+        "${scheduledStop.code.orEmpty()}@${scheduledStop.cellCode.orEmpty()}#${scheduledStop.cellHashCode ?: -1L}"
 }

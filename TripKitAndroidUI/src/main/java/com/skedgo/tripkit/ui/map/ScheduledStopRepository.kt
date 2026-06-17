@@ -61,6 +61,20 @@ open class ScheduledStopRepository @Inject constructor(
         }.subscribeOn(Schedulers.io())
     }
 
+    fun getCellHashCodes(cellCodes: List<String>): Observable<Map<String, Long?>> {
+        return Observable.fromCallable {
+            if (cellCodes.isEmpty()) {
+                return@fromCallable emptyMap<String, Long?>()
+            }
+            val hashByCell = cellCodes.associateWith { null as Long? }.toMutableMap()
+            val histories = scheduledStopDatabase.scheduledStopDao().getDownloadHistoryByCellCodes(cellCodes)
+            for (history in histories) {
+                hashByCell[history.cellCode] = history.hashCode2
+            }
+            hashByCell
+        }.subscribeOn(Schedulers.io())
+    }
+
     fun insertStops(contentValues: ContentValues): Completable {
         return Completable
             .fromAction {

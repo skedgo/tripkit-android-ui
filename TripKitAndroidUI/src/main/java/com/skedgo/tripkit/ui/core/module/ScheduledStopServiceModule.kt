@@ -11,6 +11,7 @@ import com.skedgo.tripkit.data.database.locations.freefloating.FreeFloatingRepos
 import com.skedgo.tripkit.data.database.locations.onstreetparking.OnStreetParkingMapper
 import com.skedgo.tripkit.data.database.locations.onstreetparking.OnStreetParkingPersistor
 import com.skedgo.tripkit.data.locations.LocationsApi
+import com.skedgo.tripkit.data.locations.LocationsFetchCoordinator
 import com.skedgo.tripkit.data.locations.StopsFetcher
 import com.skedgo.tripkit.data.locations.StopsFetcher.ICellsLoader
 import com.skedgo.tripkit.data.locations.StopsFetcher.ICellsPersistor
@@ -20,7 +21,26 @@ import dagger.Provides
 
 @Module
 class ScheduledStopServiceModule {
+
+    /**
+     * Activity-scoped so the TTL cache and in-flight de-duplication maps are shared across
+     * every viewport/prefetch call that targets the active map fragment. This is the scope
+     * where /satapp/locations.json is actually invoked (TripKitMapFragment lives here), so
+     * activity scope is sufficient to prevent the duplicate-call explosion (#25753). Without
+     * any scope each call site would create its own coordinator and dedup would be useless.
+     */
     @Provides
+    @ActivityScope
+    fun provideLocationsFetchCoordinator(): LocationsFetchCoordinator =
+        LocationsFetchCoordinator()
+
+    /**
+     * Activity-scoped for the same reason as [provideLocationsFetchCoordinator]: it owns no
+     * per-screen state, and sharing it within the activity lets every caller of
+     * [StopsFetcher.fetchAsync] go through the same coordinator instance.
+     */
+    @Provides
+    @ActivityScope
     fun provideStopsFetcher(
         api: LocationsApi,
         cellsLoader: ICellsLoader,
@@ -35,7 +55,8 @@ class ScheduledStopServiceModule {
         freeFloatingRepository: FreeFloatingRepository,
         carPodMapper: CarPodMapper,
         carPodRepository: CarPodRepository,
-        facilityRepository: FacilityRepository
+        facilityRepository: FacilityRepository,
+        fetchCoordinator: LocationsFetchCoordinator,
     ): StopsFetcher {
         return StopsFetcher(
             api,
@@ -51,7 +72,8 @@ class ScheduledStopServiceModule {
             carPodMapper,
             onStreetParkingMapper,
             carPodRepository,
-            facilityRepository
+            facilityRepository,
+            fetchCoordinator,
         )
     }
 }

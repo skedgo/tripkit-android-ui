@@ -2,7 +2,6 @@ package com.skedgo.tripkit.ui.core
 
 import android.content.ContentValues
 import android.content.Context
-import com.google.android.gms.common.util.CollectionUtils
 import com.skedgo.tripkit.data.database.DbFields
 import com.skedgo.tripkit.data.locations.LocationsResponse.Group
 import com.skedgo.tripkit.data.locations.StopsFetcher.ICellsPersistor
@@ -10,25 +9,25 @@ import com.skedgo.tripkit.ui.provider.ScheduledStopsProvider
 
 class CellsPersistor(private val appContext: Context) : ICellsPersistor {
     override fun saveCellsSync(cells: List<Group>) {
-        val valuesArray = arrayOfNulls<ContentValues>(cells.size)
+        if (cells.isEmpty()) return
 
-        var i = 0
-        for (cell in cells) {
-            if (CollectionUtils.isEmpty(cell.stops)) {
-                continue
+        // Persist metadata for ALL cells in the response (including those with no stops/POIs).
+        // Skipping empty cells caused sparse regions (e.g. AU_NT_Darwin) to be re-fetched on
+        // every viewport change because the cache never recorded that we already asked for them.
+        // Cells without a key are still skipped because the cache is keyed by cellCode.
+        val values = cells.mapNotNull { cell ->
+            val key = cell.key ?: return@mapNotNull null
+            ContentValues(3).apply {
+                put(DbFields.CELL_CODE.name, key)
+                put(DbFields.HASH_CODE_2.name, cell.hashCode)
+                put(DbFields.DOWNLOAD_TIME.name, System.currentTimeMillis())
             }
-
-            val values = ContentValues(3)
-            values.put(DbFields.CELL_CODE.name, cell.key)
-            values.put(DbFields.HASH_CODE_2.name, cell.hashCode)
-            values.put(DbFields.DOWNLOAD_TIME.name, System.currentTimeMillis())
-
-            valuesArray[i++] = values
         }
+        if (values.isEmpty()) return
 
         appContext.contentResolver.bulkInsert(
             ScheduledStopsProvider.DOWNLOAD_HISTORY_URI,
-            valuesArray
+            values.toTypedArray()
         )
     }
 }
