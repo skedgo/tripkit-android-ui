@@ -84,11 +84,11 @@ class ServiceTripPreviewItemFragment : BaseTripKitPagerFragment() {
         val binding = TripPreviewServiceItemBinding.inflate(inflater)
         binding.viewModel = viewModel
         binding.lifecycleOwner = this
-        binding.occupancyList.layoutManager =
+        binding.content.occupancyList.layoutManager =
             LinearLayoutManager(context, RecyclerView.HORIZONTAL, false)
 
-        binding.occupancyList.isNestedScrollingEnabled = false
-        binding.recyclerView.isNestedScrollingEnabled = true
+        binding.content.occupancyList.isNestedScrollingEnabled = false
+        binding.content.recyclerView.isNestedScrollingEnabled = true
 
         val swipeListener = OnSwipeTouchListener(requireContext(),
             object : OnSwipeTouchListener.SwipeGestureListener {
@@ -106,7 +106,7 @@ class ServiceTripPreviewItemFragment : BaseTripKitPagerFragment() {
             v?.onTouchEvent(event)
         }
 
-        binding.recyclerView.setOnTouchListener(swipeListener)
+        binding.content.recyclerView.setOnTouchListener(swipeListener)
 
         binding.closeButton.setOnClickListener(onCloseButtonListener)
 
