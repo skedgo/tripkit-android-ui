@@ -14,260 +14,267 @@
 
     <merge>
 
-        <TextView
-            android:id="@+id/details"
-            style="@style/TextAppearance.MaterialComponents.Caption"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="@{viewModel.tertiaryText}"
-            android:textColor="@color/black1"
-            app:layout_constraintStart_toStartOf="@+id/iconLayout"
-            app:layout_constraintTop_toBottomOf="@+id/iconLayout"
-            tools:text="Fürth" />
-
-        <!--        <View-->
-        <!--            android:id="@+id/firstDividingLine"-->
-        <!--            android:layout_width="match_parent"-->
-        <!--            android:layout_height="1dp"-->
-        <!--            android:layout_marginTop="8dp"-->
-        <!--            android:background="@color/black4"-->
-        <!--            android:visibility="@{viewModel.showExpandableMenu}"-->
-        <!--            app:layout_constraintStart_toStartOf="parent"-->
-        <!--            app:layout_constraintTop_toBottomOf="@+id/details" />-->
-
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/motionLayout"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing_small"
-            android:padding="@dimen/spacing_small"
-            android:background="@drawable/bg_round_corners_16_sub_card_background"
-            android:visibility="@{viewModel.showExpandableMenu}"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/details">
+            android:orientation="vertical">
 
-            <LinearLayout
-                android:id="@+id/collapsedIconRow"
-                android:layout_width="0dp"
+            <TextView
+                android:id="@+id/details"
+                style="@style/TextAppearance.MaterialComponents.Caption"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="@dimen/spacing_small"
-                android:orientation="horizontal"
-                android:visibility="@{viewModel.isExpandableMenuExpanded ? View.GONE : View.VISIBLE}"
-                app:layout_constraintBottom_toBottomOf="@+id/expandButton"
-                app:layout_constraintEnd_toStartOf="@+id/expandButton"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="@+id/expandButton">
+                android:layout_marginTop="8dp"
+                android:text="@{viewModel.tertiaryText}"
+                android:textColor="@color/black1"
+                app:layout_constraintStart_toStartOf="@+id/iconLayout"
+                app:layout_constraintTop_toBottomOf="@+id/iconLayout"
+                tools:text="Fürth" />
 
-                <ImageView
-                    android:id="@+id/wheelchair"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:layout_marginEnd="8dp"
-                    android:background="@drawable/bg_round_corner_wheelchair"
-                    android:src="@{viewModel.wheelchairIcon}"
-                    android:visibility="@{viewModel.showWheelchairAccessible ? View.VISIBLE : View.GONE}"
-                    app:tint="@color/white"
-                    tools:src="@drawable/ic_wheelchair" />
+            <!--        <View-->
+            <!--            android:id="@+id/firstDividingLine"-->
+            <!--            android:layout_width="match_parent"-->
+            <!--            android:layout_height="1dp"-->
+            <!--            android:layout_marginTop="8dp"-->
+            <!--            android:background="@color/black4"-->
+            <!--            android:visibility="@{viewModel.showExpandableMenu}"-->
+            <!--            app:layout_constraintStart_toStartOf="parent"-->
+            <!--            app:layout_constraintTop_toBottomOf="@+id/details" />-->
 
-                <ImageView
-                    android:id="@+id/ivBicycle"
-                    android:layout_width="@dimen/service_detail_icon_size"
-                    android:layout_height="@dimen/service_detail_icon_size"
-                    android:layout_marginStart="@dimen/spacing_small"
-                    android:src="@drawable/ic_bike"
-                    android:visibility="@{viewModel.showBicycleAccessible}" />
-
-                <ImageView
-                    android:id="@+id/occupancyView"
-                    android:layout_width="@dimen/service_detail_icon_size"
-                    android:layout_height="@dimen/service_detail_icon_size"
-                    android:layout_marginStart="@dimen/spacing_small"
-                    android:src="@{viewModel.occupancyViewModel.drawableLeft}"
-                    android:visibility="@{viewModel.showOccupancyInfo}"
-                    tools:src="@drawable/ic_occupancy_25" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/expandedDetailsColumn"
-                android:layout_width="0dp"
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/motionLayout"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="@dimen/spacing_small"
-                android:layout_marginTop="@dimen/spacing_xx_small"
-                android:orientation="vertical"
-                android:visibility="@{viewModel.isExpandableMenuExpanded ? View.VISIBLE : View.GONE}"
-                app:layout_constraintEnd_toStartOf="@+id/expandButton"
+                android:layout_marginTop="@dimen/spacing_small"
+                android:padding="@dimen/spacing_small"
+                android:background="@drawable/bg_round_corners_16_sub_card_background"
+                android:visibility="@{viewModel.showExpandableMenu}"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent">
+                app:layout_constraintTop_toBottomOf="@+id/details">
 
                 <LinearLayout
-                    android:layout_width="wrap_content"
+                    android:id="@+id/collapsedIconRow"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginEnd="@dimen/spacing_small"
                     android:orientation="horizontal"
-                    android:visibility="@{viewModel.showWheelchairAccessible ? View.VISIBLE : View.GONE}">
+                    android:visibility="@{viewModel.isExpandableMenuExpanded ? View.GONE : View.VISIBLE}"
+                    app:layout_constraintBottom_toBottomOf="@+id/expandButton"
+                    app:layout_constraintEnd_toStartOf="@+id/expandButton"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="@+id/expandButton">
 
                     <ImageView
+                        android:id="@+id/wheelchair"
                         android:layout_width="24dp"
                         android:layout_height="24dp"
-                        android:src="@{viewModel.wheelchairIcon}"
+                        android:layout_marginEnd="8dp"
                         android:background="@drawable/bg_round_corner_wheelchair"
+                        android:src="@{viewModel.wheelchairIcon}"
+                        android:visibility="@{viewModel.showWheelchairAccessible ? View.VISIBLE : View.GONE}"
                         app:tint="@color/white"
                         tools:src="@drawable/ic_wheelchair" />
 
-                    <TextView
-                        android:id="@+id/wheelchairLabel"
-                        style="@style/TextAppearance.MaterialComponents.Body1"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="@dimen/spacing_normal"
-                        android:text="@{viewModel.wheelchairAccessibleText}"
-                        tools:text="Label w" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/spacing_xx_small"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal"
-                    android:visibility="@{viewModel.showBicycleAccessible}">
-
                     <ImageView
+                        android:id="@+id/ivBicycle"
                         android:layout_width="@dimen/service_detail_icon_size"
                         android:layout_height="@dimen/service_detail_icon_size"
-                        android:src="@drawable/ic_bike" />
-
-                    <TextView
-                        android:id="@+id/tvBicycleLabel"
-                        style="@style/TextAppearance.MaterialComponents.Body1"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="@dimen/spacing_normal"
-                        android:text="@string/bicycle_accessible"
-                        tools:text="Label B" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/spacing_xx_small"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal"
-                    android:visibility="@{viewModel.showOccupancyInfo}">
+                        android:layout_marginStart="@dimen/spacing_small"
+                        android:src="@drawable/ic_bike"
+                        android:visibility="@{viewModel.showBicycleAccessible}" />
 
                     <ImageView
+                        android:id="@+id/occupancyView"
                         android:layout_width="@dimen/service_detail_icon_size"
                         android:layout_height="@dimen/service_detail_icon_size"
+                        android:layout_marginStart="@dimen/spacing_small"
                         android:src="@{viewModel.occupancyViewModel.drawableLeft}"
+                        android:visibility="@{viewModel.showOccupancyInfo}"
                         tools:src="@drawable/ic_occupancy_25" />
-
-                    <TextView
-                        android:id="@+id/occupancyLabel"
-                        style="@style/TextAppearance.MaterialComponents.Body1"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="@dimen/spacing_normal"
-                        android:text="@{viewModel.occupancyViewModel.occupancyText}"
-                        tools:text="Label O" />
                 </LinearLayout>
 
-                <TextView
-                    android:id="@+id/tvLastUpdatedLabel"
-                    style="@style/TextAppearance.MaterialComponents.Caption"
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:id="@+id/expandedDetailsColumn"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:text="@{viewModel.lastUpdatedText}"
-                    android:textColor="@color/black1"
-                    android:visibility="@{viewModel.showOccupancyInfo}"
-                    tools:text="Label O" />
+                    android:layout_marginStart="16dp"
+                    android:layout_marginEnd="@dimen/spacing_small"
+                    android:layout_marginTop="@dimen/spacing_xx_small"
+                    android:orientation="vertical"
+                    android:visibility="@{viewModel.isExpandableMenuExpanded ? View.VISIBLE : View.GONE}"
+                    app:layout_constraintEnd_toStartOf="@+id/expandButton"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent">
 
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/occupancyList"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    android:nestedScrollingEnabled="false"
-                    android:visibility="@{viewModel.showOccupancyInfo}"
-                    app:itemBinding="@{viewModel.occupancyViewModel.itemBinding}"
-                    app:items="@{viewModel.occupancyViewModel.items}" />
-            </LinearLayout>
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:visibility="@{viewModel.showWheelchairAccessible ? View.VISIBLE : View.GONE}">
 
-            <ImageView
-                android:id="@+id/expandButton"
-                android:layout_width="@dimen/icon_medium"
-                android:layout_height="@dimen/icon_medium"
-                android:padding="@dimen/spacing_small"
-                android:layout_marginEnd="@dimen/spacing_normal"
-                android:src="@drawable/chevron_down"
-                android:rotation="@{viewModel.isExpandableMenuExpanded ? 180f : 0f}"
-                android:onClick="@{() -> viewModel.onExpandMenuClick.perform()}"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@{viewModel.wheelchairIcon}"
+                            android:background="@drawable/bg_round_corner_wheelchair"
+                            app:tint="@color/white"
+                            tools:src="@drawable/ic_wheelchair" />
 
-        </androidx.constraintlayout.widget.ConstraintLayout>
+                        <TextView
+                            android:id="@+id/wheelchairLabel"
+                            style="@style/TextAppearance.MaterialComponents.Body1"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/spacing_normal"
+                            android:text="@{viewModel.wheelchairAccessibleText}"
+                            tools:text="Label w" />
+                    </LinearLayout>
 
-        <!--        <View-->
-        <!--            android:id="@+id/secondDividingLine"-->
-        <!--            android:layout_width="match_parent"-->
-        <!--            android:layout_height="1dp"-->
-        <!--            android:layout_marginTop="8dp"-->
-        <!--            android:background="@color/black4"-->
-        <!--            android:visibility="@{viewModel.showExpandableMenu}"-->
-        <!--            app:layout_constraintStart_toStartOf="parent"-->
-        <!--            app:layout_constraintTop_toBottomOf="@+id/motionLayout" />-->
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/spacing_xx_small"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:visibility="@{viewModel.showBicycleAccessible}">
 
-        <ProgressBar
-            style="?android:attr/progressBarStyleHorizontal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:indeterminate="true"
-            android:visibility="@{viewModel.isLoading()}"
-            app:layout_constraintTop_toBottomOf="@id/motionLayout" />
+                        <ImageView
+                            android:layout_width="@dimen/service_detail_icon_size"
+                            android:layout_height="@dimen/service_detail_icon_size"
+                            android:src="@drawable/ic_bike" />
 
-        <!--
-            nestedScrollingEnabled="false" is required so that BottomSheetBehavior's
-            findScrollingChild() unambiguously picks the main stop-list RecyclerView below
-            as the nested scrolling child. Otherwise rvAlerts (appearing first in the view
-            tree) would be cached as nestedScrollingChildRef in older Material Library
-            versions, breaking both the list→sheet drag handoff and the header drag.
-        -->
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rvAlerts"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="@dimen/spacing_extra_small"
-            android:layout_marginTop="@dimen/spacing_normal"
-            android:nestedScrollingEnabled="false"
-            android:visibility="@{viewModel.alerts.size() > 0}"
-            app:alertClickListener="@{viewModel.alertClickListener}"
-            app:alerts="@{viewModel.alerts}"
-            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            app:layout_constraintTop_toBottomOf="@id/motionLayout"
-            tools:itemCount="2"
-            tools:listitem="@layout/item_service_alert"
-            tools:visibility="visible" />
+                        <TextView
+                            android:id="@+id/tvBicycleLabel"
+                            style="@style/TextAppearance.MaterialComponents.Body1"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/spacing_normal"
+                            android:text="@string/bicycle_accessible"
+                            tools:text="Label B" />
+                    </LinearLayout>
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recyclerView"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_marginTop="@dimen/spacing_normal"
-            android:background="@drawable/bg_round_corners_16_sub_card_background"
-            android:focusableInTouchMode="true"
-            android:nestedScrollingEnabled="true"
-            android:requiresFadingEdge="vertical|horizontal"
-            app:itemBinding="@{viewModel.itemBinding}"
-            app:items="@{viewModel.items}"
-            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/rvAlerts"
-            tools:visibility="visible"
-            tools:listitem="@layout/service_detail_fragment_list_item" />
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/spacing_xx_small"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:visibility="@{viewModel.showOccupancyInfo}">
+
+                        <ImageView
+                            android:layout_width="@dimen/service_detail_icon_size"
+                            android:layout_height="@dimen/service_detail_icon_size"
+                            android:src="@{viewModel.occupancyViewModel.drawableLeft}"
+                            tools:src="@drawable/ic_occupancy_25" />
+
+                        <TextView
+                            android:id="@+id/occupancyLabel"
+                            style="@style/TextAppearance.MaterialComponents.Body1"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/spacing_normal"
+                            android:text="@{viewModel.occupancyViewModel.occupancyText}"
+                            tools:text="Label O" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/tvLastUpdatedLabel"
+                        style="@style/TextAppearance.MaterialComponents.Caption"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="@{viewModel.lastUpdatedText}"
+                        android:textColor="@color/black1"
+                        android:visibility="@{viewModel.showOccupancyInfo}"
+                        tools:text="Label O" />
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/occupancyList"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:nestedScrollingEnabled="false"
+                        android:visibility="@{viewModel.showOccupancyInfo}"
+                        app:itemBinding="@{viewModel.occupancyViewModel.itemBinding}"
+                        app:items="@{viewModel.occupancyViewModel.items}" />
+                </LinearLayout>
+
+                <ImageView
+                    android:id="@+id/expandButton"
+                    android:layout_width="@dimen/icon_medium"
+                    android:layout_height="@dimen/icon_medium"
+                    android:padding="@dimen/spacing_small"
+                    android:layout_marginEnd="@dimen/spacing_normal"
+                    android:src="@drawable/chevron_down"
+                    android:rotation="@{viewModel.isExpandableMenuExpanded ? 180f : 0f}"
+                    android:onClick="@{() -> viewModel.onExpandMenuClick.perform()}"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <!--        <View-->
+            <!--            android:id="@+id/secondDividingLine"-->
+            <!--            android:layout_width="match_parent"-->
+            <!--            android:layout_height="1dp"-->
+            <!--            android:layout_marginTop="8dp"-->
+            <!--            android:background="@color/black4"-->
+            <!--            android:visibility="@{viewModel.showExpandableMenu}"-->
+            <!--            app:layout_constraintStart_toStartOf="parent"-->
+            <!--            app:layout_constraintTop_toBottomOf="@+id/motionLayout" />-->
+
+            <ProgressBar
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:indeterminate="true"
+                android:visibility="@{viewModel.isLoading()}"
+                app:layout_constraintTop_toBottomOf="@id/motionLayout" />
+
+            <!--
+                nestedScrollingEnabled="false" is required so that BottomSheetBehavior's
+                findScrollingChild() unambiguously picks the main stop-list RecyclerView below
+                as the nested scrolling child. Otherwise rvAlerts (appearing first in the view
+                tree) would be cached as nestedScrollingChildRef in older Material Library
+                versions, breaking both the list→sheet drag handoff and the header drag.
+            -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvAlerts"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="@dimen/spacing_extra_small"
+                android:layout_marginTop="@dimen/spacing_normal"
+                android:nestedScrollingEnabled="false"
+                android:visibility="@{viewModel.alerts.size() > 0}"
+                app:alertClickListener="@{viewModel.alertClickListener}"
+                app:alerts="@{viewModel.alerts}"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                app:layout_constraintTop_toBottomOf="@id/motionLayout"
+                tools:itemCount="2"
+                tools:listitem="@layout/item_service_alert"
+                tools:visibility="visible" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_normal"
+                android:background="@drawable/bg_round_corners_16_sub_card_background"
+                android:focusableInTouchMode="true"
+                android:nestedScrollingEnabled="false"
+                android:requiresFadingEdge="vertical|horizontal"
+                app:itemBinding="@{viewModel.itemBinding}"
+                app:items="@{viewModel.items}"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/rvAlerts"
+                tools:visibility="visible"
+                tools:listitem="@layout/service_detail_fragment_list_item" />
+
+        </LinearLayout>
 
     </merge>
 </layout>
