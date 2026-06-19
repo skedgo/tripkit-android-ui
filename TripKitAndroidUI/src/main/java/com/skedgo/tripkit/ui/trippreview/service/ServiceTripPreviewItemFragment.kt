@@ -5,19 +5,17 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.net.Uri
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.gson.Gson
 import com.skedgo.tripkit.common.model.realtimealert.RealtimeAlert
 import com.skedgo.tripkit.data.regions.RegionService
 import com.skedgo.tripkit.routing.Trip
 import com.skedgo.tripkit.routing.TripGroup
 import com.skedgo.tripkit.routing.TripSegment
+import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.TripKitUI
-import com.skedgo.tripkit.ui.core.BaseTripKitPagerFragment
+import com.skedgo.tripkit.ui.core.BaseFragment
 import com.skedgo.tripkit.ui.databinding.TripPreviewServiceItemBinding
 import com.skedgo.tripkit.ui.servicedetail.AlertClickListener
 import com.skedgo.tripkit.ui.servicedetail.ServiceDetailViewModel
@@ -26,11 +24,10 @@ import com.skedgo.tripkit.ui.utils.OnSwipeTouchListener
 import javax.inject.Inject
 
 
-class ServiceTripPreviewItemFragment : BaseTripKitPagerFragment() {
+class ServiceTripPreviewItemFragment : BaseFragment<TripPreviewServiceItemBinding>() {
     var time = 0L
 
     var segment: TripSegment? = null
-    private val gson = Gson()
 
     @Inject
     lateinit var fetchAndLoadTimetable: FetchAndLoadTimetable
@@ -47,6 +44,13 @@ class ServiceTripPreviewItemFragment : BaseTripKitPagerFragment() {
     var positionInAdapter = 0
 
     private var showCloseButton = false
+
+    override val layoutRes: Int
+        get() = R.layout.trip_preview_service_item
+
+    override val observeAccessibility: Boolean = false
+
+    override fun getDefaultViewForAccessibility(): View? = null
 
     override fun refresh(position: Int) {
         positionInAdapter = position
@@ -76,14 +80,9 @@ class ServiceTripPreviewItemFragment : BaseTripKitPagerFragment() {
         }
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        val binding = TripPreviewServiceItemBinding.inflate(inflater)
+    override fun onCreated(savedInstance: Bundle?) {
         binding.viewModel = viewModel
-        binding.lifecycleOwner = this
+        binding.lifecycleOwner = viewLifecycleOwner
         binding.content.occupancyList.layoutManager =
             LinearLayoutManager(context, RecyclerView.HORIZONTAL, false)
 
@@ -119,8 +118,6 @@ class ServiceTripPreviewItemFragment : BaseTripKitPagerFragment() {
                 }
             }
         }
-
-        return binding.root
     }
 
     private fun handleSegment() {
