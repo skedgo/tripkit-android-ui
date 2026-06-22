@@ -1,24 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <com.skedgo.tripkit.ui.utils.TKUIBottomSheetScrollView
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:fillViewport="true">
+        android:layout_height="match_parent">
 
-        <FrameLayout
+        <com.skedgo.tripkit.ui.utils.TKUIBottomSheetScrollView
+            android:id="@+id/legacyTripPreviewContainer"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:focusable="false"
-            android:importantForAccessibility="no">
+            android:fillViewport="true">
 
-            <androidx.viewpager2.widget.ViewPager2
-                android:id="@+id/tripSegmentPager"
+            <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:focusable="false"
-                android:importantForAccessibility="no" />
-        </FrameLayout>
+                android:importantForAccessibility="no">
 
-    </com.skedgo.tripkit.ui.utils.TKUIBottomSheetScrollView>
+                <androidx.viewpager2.widget.ViewPager2
+                    android:id="@+id/tripSegmentPager"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:focusable="false"
+                    android:importantForAccessibility="no" />
+            </FrameLayout>
+
+        </com.skedgo.tripkit.ui.utils.TKUIBottomSheetScrollView>
+
+        <androidx.compose.ui.platform.ComposeView
+            android:id="@+id/composeTripPreviewPager"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone" />
+    </FrameLayout>
 </layout>

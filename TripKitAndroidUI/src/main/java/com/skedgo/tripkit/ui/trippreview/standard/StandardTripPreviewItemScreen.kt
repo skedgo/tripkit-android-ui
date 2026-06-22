@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Icon
@@ -24,14 +25,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import android.util.Log
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.snapshotFlow
 import androidx.core.graphics.drawable.toBitmap
 import com.skedgo.tripkit.booking.LinkFormField
 import com.skedgo.tripkit.ui.R
@@ -47,19 +49,29 @@ fun StandardTripPreviewScreen(
     messageVisible: Boolean,
     actionButtons: List<LinkFormField>,
     onActionClicked: (LinkFormField) -> Unit,
-    onCloseClicked: (() -> Unit)? = null
+    onCloseClicked: (() -> Unit)? = null,
+    diagnosticsEnabled: Boolean = false
 ) {
     val context = LocalContext.current
+    val listState = rememberLazyListState()
     val title = viewModel.title.get().orEmpty()
     val description = viewModel.description.get().orEmpty()
     val notes = viewModel.notes.get().orEmpty()
     val showDescription = viewModel.showDescription.get()
     val showOpenIn = viewModel.showLaunchInMaps.get()
 
+    LaunchedEffect(diagnosticsEnabled, listState) {
+        if (!diagnosticsEnabled) return@LaunchedEffect
+        snapshotFlow { listState.canScrollBackward to listState.canScrollForward }
+            .collect { (backward, forward) ->
+                Log.d(DIAG_TAG, "page=STANDARD canScrollBackward=$backward canScrollForward=$forward")
+            }
+    }
+
     LazyColumn(
         modifier = Modifier
-            .fillMaxWidth()
-            .nestedScroll(rememberNestedScrollInteropConnection())
+            .fillMaxWidth(),
+        state = listState
     ) {
         item {
             Row(
@@ -190,6 +202,8 @@ fun StandardTripPreviewScreen(
         }
     }
 }
+
+private const val DIAG_TAG = "TripPreviewComposeDiag"
 
 @Preview(showBackground = true)
 @Composable

@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.Card
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
@@ -20,20 +21,20 @@ import androidx.compose.material.LinearProgressIndicator
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import android.util.Log
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.toBitmap
 import com.skedgo.tripkit.common.model.realtimealert.RealtimeAlert
@@ -108,44 +109,22 @@ fun ServiceTripPreviewItemScreen(
     onStopClicked: (ServiceStopUiState) -> Unit,
     onRetry: () -> Unit,
     onPreviousPage: () -> Unit,
-    onNextPage: () -> Unit
+    onNextPage: () -> Unit,
+    diagnosticsEnabled: Boolean = false
 ) {
     val context = LocalContext.current
+    val listState = rememberLazyListState()
+    LaunchedEffect(diagnosticsEnabled, listState) {
+        if (!diagnosticsEnabled) return@LaunchedEffect
+        snapshotFlow { listState.canScrollBackward to listState.canScrollForward }
+            .collect { (backward, forward) ->
+                Log.d(DIAG_TAG, "page=SERVICE canScrollBackward=$backward canScrollForward=$forward")
+            }
+    }
     LazyColumn(
         modifier = Modifier
-            .fillMaxWidth()
-            .nestedScroll(rememberNestedScrollInteropConnection())
-            .pointerInput(onPreviousPage, onNextPage) {
-                awaitPointerEventScope {
-                    while (true) {
-                        val down = awaitPointerEvent().changes.firstOrNull() ?: continue
-                        if (!down.pressed) continue
-                        val start = down.position
-                        var end = start
-                        while (true) {
-                            val event = awaitPointerEvent()
-                            event.changes.firstOrNull()?.let { change ->
-                                end = change.position
-                            }
-                            if (event.changes.none { it.pressed }) {
-                                break
-                            }
-                        }
-                        val distanceX = end.x - start.x
-                        val distanceY = end.y - start.y
-                        if (kotlin.math.abs(distanceX) > kotlin.math.abs(distanceY) &&
-                            kotlin.math.abs(distanceX) > 100f
-                        ) {
-                            // Preserve legacy callback behavior from ServiceTripPreviewItemFragment.
-                            if (distanceX > 0f) {
-                                onPreviousPage()
-                            } else {
-                                onNextPage()
-                            }
-                        }
-                    }
-                }
-            }
+            .fillMaxWidth(),
+        state = listState
     ) {
         item(key = "service_header") {
             Row(
@@ -489,6 +468,8 @@ fun ServiceTripPreviewItemScreen(
         }
     }
 }
+
+private const val DIAG_TAG = "TripPreviewComposeDiag"
 
 @Preview(showBackground = true)
 @Composable

@@ -9,22 +9,24 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.OutlinedButton
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.input.nestedscroll.nestedScroll
+import android.util.Log
 import androidx.core.graphics.drawable.toBitmap
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.compose.TripKitComposeTextStyles
@@ -42,12 +44,21 @@ fun ExternalActionTripPreviewItemScreen(
     viewModel: TripPreviewPagerItemViewModel,
     actions: List<ExternalActionRowState>,
     onActionClicked: (Action) -> Unit,
-    onCloseClicked: () -> Unit
+    onCloseClicked: () -> Unit,
+    diagnosticsEnabled: Boolean = false
 ) {
+    val listState = rememberLazyListState()
+    LaunchedEffect(diagnosticsEnabled, listState) {
+        if (!diagnosticsEnabled) return@LaunchedEffect
+        snapshotFlow { listState.canScrollBackward to listState.canScrollForward }
+            .collect { (backward, forward) ->
+                Log.d(DIAG_TAG, "page=EXTERNAL canScrollBackward=$backward canScrollForward=$forward")
+            }
+    }
     LazyColumn(
         modifier = Modifier
-            .fillMaxWidth()
-            .nestedScroll(rememberNestedScrollInteropConnection())
+            .fillMaxWidth(),
+        state = listState
     ) {
         item {
             Row(
@@ -113,6 +124,8 @@ fun ExternalActionTripPreviewItemScreen(
         }
     }
 }
+
+private const val DIAG_TAG = "TripPreviewComposeDiag"
 
 @Preview(showBackground = true)
 @Composable
