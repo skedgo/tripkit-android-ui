@@ -45,6 +45,13 @@
     <dimen name="icon_medium">32dp</dimen>
     <dimen name="icon_large">64dp</dimen>
     <dimen name="icon_huge">120dp</dimen>
+    <dimen name="icon_size_10">10dp</dimen>
+    <dimen name="icon_size_14">14dp</dimen>
+    <dimen name="icon_size_20">20dp</dimen>
+    <dimen name="icon_size_22">22dp</dimen>
+    <dimen name="icon_size_24">24dp</dimen>
+    <dimen name="icon_size_36">36dp</dimen>
+    <dimen name="icon_size_40">40dp</dimen>
 
     <dimen name="fab_icon_my_location">40dp</dimen>
 
@@ -101,13 +108,6 @@
     <dimen name="min_touch_target_size">48dp</dimen>
     <dimen name="image_size_small">120dp</dimen>
 
-    <dimen name="icon_size_10">10dp</dimen>
-    <dimen name="icon_size_14">14dp</dimen>
-    <dimen name="icon_size_20">20dp</dimen>
-    <dimen name="icon_size_22">22dp</dimen>
-    <dimen name="icon_size_24">24dp</dimen>
-    <dimen name="icon_size_36">36dp</dimen>
-    <dimen name="icon_size_40">40dp</dimen>
 
     <dimen name="divider_vertical_40">40dp</dimen>
 

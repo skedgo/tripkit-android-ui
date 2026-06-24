@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
 
     <style name="AppTheme" parent="Theme.MaterialComponents.DayNight" />
 
@@ -97,5 +97,32 @@
         <item name="android:textColor">@color/colorAccent</item>
     </style>
 
+    <style name="ActionText">
+        <item name="android:fontFamily">sans</item>
+        <item name="android:fontWeight" tools:targetApi="26">500</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:lineHeight" tools:targetApi="28">20sp</item>
+        <item name="android:letterSpacing">0.007</item>
+        <item name="android:textColor">@color/labelPrimary</item>
+    </style>
+
+    <style name="LabelTitleLarge">
+        <item name="android:fontFamily">sans</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:textSize">22sp</item>
+        <item name="android:lineHeight" tools:targetApi="28">28sp</item>
+        <item name="android:letterSpacing">0</item>
+        <item name="android:textColor">@color/labelPrimary</item>
+    </style>
+
+    <style name="LabelBodyMedium">
+        <item name="android:fontFamily">sans</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:lineHeight" tools:targetApi="28">20sp</item>
+        <item name="android:letterSpacing">0</item>
+        <item name="android:textColor">@color/labelSecondary</item>
+    </style>
 
 </resources>

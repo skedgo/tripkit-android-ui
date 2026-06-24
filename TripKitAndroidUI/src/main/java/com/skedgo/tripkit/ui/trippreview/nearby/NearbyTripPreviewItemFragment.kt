@@ -1,32 +1,39 @@
 package com.skedgo.tripkit.ui.trippreview.nearby
 
 import android.content.Context
-import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
-import androidx.lifecycle.ViewModelProviders
+import androidx.fragment.app.viewModels
 import com.google.android.flexbox.FlexDirection
 import com.google.android.flexbox.FlexboxLayoutManager
 import com.skedgo.rxtry.subscribeWithErrorHandling
 import com.skedgo.tripkit.routing.TripSegment
+import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.TripKitUI
-import com.skedgo.tripkit.ui.core.BaseTripKitFragment
+import com.skedgo.tripkit.ui.core.BaseFragment
 import com.skedgo.tripkit.ui.core.addTo
 import com.skedgo.tripkit.ui.databinding.TripPreviewPagerNearbyItemBinding
 import io.reactivex.android.schedulers.AndroidSchedulers
 import javax.inject.Inject
 
 
-class NearbyTripPreviewItemFragment() : BaseTripKitFragment() {
+class NearbyTripPreviewItemFragment : BaseFragment<TripPreviewPagerNearbyItemBinding>() {
     @Inject
     lateinit var sharedViewModelFactory: SharedNearbyTripPreviewItemViewModelFactory
-    lateinit var sharedViewModel: SharedNearbyTripPreviewItemViewModel
-    lateinit var viewModel: NearbyTripPreviewItemViewModel
+    private val sharedViewModel: SharedNearbyTripPreviewItemViewModel by viewModels(
+        ownerProducer = { requireParentFragment() },
+        factoryProducer = { sharedViewModelFactory }
+    )
+    private val viewModel: NearbyTripPreviewItemViewModel by viewModels()
 
     var segment: TripSegment? = null
+
+    override val layoutRes: Int
+        get() = R.layout.trip_preview_pager_nearby_item
+
+    override val observeAccessibility: Boolean = false
+
+    override fun getDefaultViewForAccessibility(): View? = null
 
     override fun onAttach(context: Context) {
         TripKitUI.getInstance().tripPreviewComponent().inject(this)
@@ -35,10 +42,6 @@ class NearbyTripPreviewItemFragment() : BaseTripKitFragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        viewModel = ViewModelProviders.of(this)
-            .get("nearbyViewModel", NearbyTripPreviewItemViewModel::class.java)
-        sharedViewModel = ViewModelProviders.of(requireParentFragment(), sharedViewModelFactory)
-            .get("sharedNearbyViewModel", SharedNearbyTripPreviewItemViewModel::class.java)
         sharedViewModel.closeClicked.observable.observeOn(AndroidSchedulers.mainThread())
             .subscribeWithErrorHandling { onCloseButtonListener?.onClick(null) }.addTo(autoDisposable)
         //sharedViewModel.setSegment(context!!, segment)
@@ -47,19 +50,13 @@ class NearbyTripPreviewItemFragment() : BaseTripKitFragment() {
         }
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        val binding = TripPreviewPagerNearbyItemBinding.inflate(inflater)
+    override fun onCreated(savedInstance: Bundle?) {
         val layoutManager = FlexboxLayoutManager(context)
         layoutManager.flexDirection = FlexDirection.ROW
         binding.transportItemsView.layoutManager = layoutManager
-        binding.lifecycleOwner = this
+        binding.lifecycleOwner = viewLifecycleOwner
         binding.sharedViewModel = sharedViewModel
         binding.viewModel = viewModel
-        return binding.root
     }
 
     override fun onResume() {
