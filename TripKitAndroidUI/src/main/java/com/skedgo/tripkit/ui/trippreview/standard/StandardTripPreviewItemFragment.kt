@@ -2,85 +2,62 @@ package com.skedgo.tripkit.ui.trippreview.standard
 
 import android.content.Context
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.platform.ComposeView
-import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
+import com.google.android.material.button.MaterialButton
 import com.skedgo.rxtry.subscribeWithErrorHandling
 import com.skedgo.tripkit.booking.BookingForm
 import com.skedgo.tripkit.booking.BookingService
 import com.skedgo.tripkit.booking.LinkFormField
 import com.skedgo.tripkit.routing.TripSegment
+import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.TripKitUI
-import com.skedgo.tripkit.ui.compose.TripKitUITheme
-import com.skedgo.tripkit.ui.core.BaseTripKitFragment
+import com.skedgo.tripkit.ui.core.BaseFragment
 import com.skedgo.tripkit.ui.core.addTo
+import com.skedgo.tripkit.ui.databinding.TripPreviewPagerItemBinding
 import com.skedgo.tripkit.ui.trippreview.TripPreviewPagerItemViewModel
 import com.skedgo.tripkit.ui.trippreview.nearby.SharedNearbyTripPreviewItemViewModel
 import com.skedgo.tripkit.ui.trippreview.nearby.SharedNearbyTripPreviewItemViewModelFactory
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
-import timber.log.Timber
 import javax.inject.Inject
+import kotlin.getValue
 
 
-class StandardTripPreviewItemFragment : BaseTripKitFragment() {
+class StandardTripPreviewItemFragment : BaseFragment<TripPreviewPagerItemBinding>() {
 
     @Inject
     lateinit var sharedViewModelFactory: SharedNearbyTripPreviewItemViewModelFactory
-    lateinit var sharedViewModel: SharedNearbyTripPreviewItemViewModel
+    private val sharedViewModel: SharedNearbyTripPreviewItemViewModel by viewModels(
+        ownerProducer = { requireParentFragment() },
+        factoryProducer = { sharedViewModelFactory }
+    )
     private val vm: TripPreviewPagerItemViewModel by viewModels()
 
     @Inject
     lateinit var bookingService: BookingService
 
     var segment: TripSegment? = null
-    private var messageTitleState by mutableStateOf("")
-    private var messageState by mutableStateOf("")
-    private var messageVisibleState by mutableStateOf(false)
-    private val actionButtons = mutableStateListOf<LinkFormField>()
+
+    override val layoutRes: Int
+        get() = R.layout.trip_preview_pager_item
+
+    override val observeAccessibility: Boolean = false
+
+    override fun getDefaultViewForAccessibility(): View? = null
 
     override fun onAttach(context: Context) {
         TripKitUI.getInstance().tripPreviewComponent().inject(this)
         super.onAttach(context)
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        sharedViewModel = ViewModelProvider(requireParentFragment(), sharedViewModelFactory)
-            .get("sharedNearbyViewModel", SharedNearbyTripPreviewItemViewModel::class.java)
-    }
-
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
+    override fun onCreated(savedInstance: Bundle?) {
         segment?.let {
             vm.setSegment(requireContext(), it)
         }
-        return ComposeView(requireContext()).apply {
-            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
-            setContent {
-                TripKitUITheme {
-                    StandardTripPreviewScreen(
-                        viewModel = vm,
-                        messageTitle = messageTitleState,
-                        message = messageState,
-                        messageVisible = messageVisibleState,
-                        actionButtons = actionButtons,
-                        onActionClicked = ::runAction
-                    )
-                }
-            }
-        }
+        binding.lifecycleOwner = this
+        binding.viewModel = vm
     }
 
     override fun onResume() {
@@ -89,6 +66,7 @@ class StandardTripPreviewItemFragment : BaseTripKitFragment() {
             .subscribeWithErrorHandling { onCloseButtonListener?.onClick(null) }.addTo(autoDisposable)
         sharedViewModel.bookingForm.observeOn(AndroidSchedulers.mainThread())
             .subscribeWithErrorHandling {
+                binding.actionButtonLayout.removeAllViews()
                 processForm(it)
             }
             .addTo(autoDisposable)
@@ -96,19 +74,20 @@ class StandardTripPreviewItemFragment : BaseTripKitFragment() {
     }
 
     private fun processForm(form: BookingForm) {
-        actionButtons.clear()
-        messageVisibleState = false
         form.form.forEach { formGroup ->
             formGroup.fields.forEach { formField ->
                 if (formField.id == "booking_status") {
                     vm.messageTitle.set(formField.title)
                     vm.message.set(formField.sidetitle)
                     vm.messageVisible.set(true)
-                    messageTitleState = formField.title.orEmpty()
-                    messageState = formField.sidetitle.orEmpty()
-                    messageVisibleState = true
                 } else if (formField.id == "end_booking" && formField is LinkFormField) {
-                    actionButtons.add(formField)
+                    val newButton =
+                        MaterialButton(requireContext(), null, R.attr.borderlessButtonStyle)
+                    newButton.text = formField.title
+                    newButton.setOnClickListener {
+                        runAction(formField)
+                    }
+                    binding.actionButtonLayout.addView(newButton)
                 }
 
             }
