@@ -51,27 +51,31 @@
             android:id="@+id/closeButton"
             android:layout_width="@dimen/close_button_size"
             android:layout_height="@dimen/close_button_size"
-            android:layout_marginEnd="16dp"
+            android:layout_marginEnd="@dimen/spacing_normal"
             android:layout_marginTop="@dimen/spacing_small"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="@string/desc_close"
             android:src="@drawable/close"
             android:visibility="@{viewModel.showCloseButton}"
-            app:layout_constraintBottom_toBottomOf="@+id/nameOfStation"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/nameOfStation" />
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/headerActionsBarrier"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:barrierDirection="bottom"
+            app:constraint_referenced_ids="titleIcon,closeButton, nameOfStation"/>
 
         <androidx.compose.ui.platform.ComposeView
             android:id="@+id/serviceLineRecyclerView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="@dimen/spacing_small"
-            android:layout_marginTop="@dimen/spacing_normal"
-            android:paddingLeft="8dp"
-            android:paddingRight="8dp"
+            android:paddingHorizontal="@dimen/spacing_small"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="@+id/nameOfStation"
-            app:layout_constraintTop_toBottomOf="@+id/closeButton"
+            app:layout_constraintTop_toBottomOf="@+id/headerActionsBarrier"
             tools:listitem="@layout/timetable_header_line_item" />
 
         <LinearLayout

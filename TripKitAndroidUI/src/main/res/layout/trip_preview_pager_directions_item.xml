@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:bind="http://schemas.android.com/apk/res-auto">
+    xmlns:bind="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
 
     <data>
@@ -25,7 +26,8 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/headerLayout">
+            app:layout_constraintTop_toBottomOf="@+id/headerLayout"
+            android:paddingBottom="150dp">
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rvDirections"
@@ -37,7 +39,9 @@
                 app:adapter="@{viewModel.customAdapter}"
                 app:itemBinding="@{viewModel.itemBinding}"
                 app:items="@{viewModel.items}"
-                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                tools:listitem="@layout/trip_preview_step"
+                tools:itemCount="10"/>
 
         </FrameLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
