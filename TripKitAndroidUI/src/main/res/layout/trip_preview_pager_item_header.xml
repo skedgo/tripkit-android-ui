@@ -22,7 +22,7 @@
             android:layout_height="@dimen/icon_size_40"
             android:background="@drawable/bg_circle_transparent_black_border"
             android:layout_marginStart="@dimen/spacing_normal"
-            android:layout_marginTop="@dimen/spacing_normal"
+            android:layout_marginTop="@dimen/spacing_small"
             android:src="@{viewModel.icon}"
             tools:src="@drawable/ic_walk" />
 
@@ -38,7 +38,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="@dimen/spacing_normal"
-                android:layout_marginTop="@dimen/spacing_normal"
+                android:layout_marginTop="@dimen/spacing_small"
                 android:text="@{viewModel.title}"
                 android:textColor="@color/labelPrimary"
                 tools:text="Walk Somewhere" />

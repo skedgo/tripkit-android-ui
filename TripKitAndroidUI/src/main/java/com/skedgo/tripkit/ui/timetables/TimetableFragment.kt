@@ -22,9 +22,12 @@ import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewModelScope
+import androidx.core.content.ContextCompat
 import com.skedgo.rxtry.subscribeWithErrorHandling
+import com.skedgo.tripkit.common.model.TransportMode
 import com.skedgo.tripkit.common.model.stop.ScheduledStop
 import com.skedgo.tripkit.common.util.TimeUtils
+import com.skedgo.tripkit.routing.SegmentType
 import com.skedgo.tripkit.routing.TripSegment
 import com.skedgo.tripkit.ui.BuildConfig
 import com.skedgo.tripkit.ui.R
@@ -41,8 +44,11 @@ import com.skedgo.tripkit.ui.search.ARG_SHOW_SEARCH_FIELD
 import com.skedgo.tripkit.ui.tripresult.ActionButtonClickListener
 import com.skedgo.tripkit.ui.tripresult.ActionButtonViewModel
 import com.skedgo.tripkit.ui.tripresult.TripSegmentActionButton
+import com.skedgo.tripkit.ui.tripresults.GetTransportIconTintStrategy
 import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButton
 import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButtonHandler
+import com.skedgo.tripkit.ui.utils.createSummaryIcon
+import com.skedgo.tripkit.ui.utils.getSegmentIconObservable
 import com.skedgo.tripkit.ui.utils.observe
 import com.skedgo.tripkit.ui.views.MultiStateView
 import io.reactivex.Observable
@@ -144,6 +150,7 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
     var cachedStop: ScheduledStop? = null
     var cachedShowSearchBar: Boolean = true
     var fromPreview: Boolean = false
+    var showTitleIconInHeader: Boolean = false
     var cachedBookingActions: ArrayList<String>? = null
 
     var bookingActions: ArrayList<String>? = null
@@ -363,25 +370,8 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
         setupSearchSetTimeCompose()
         setupServicesListCompose()
 
-//        val swipeListener = OnSwipeTouchListener(requireContext(),
-//            object : OnSwipeTouchListener.SwipeGestureListener {
-//                override fun onSwipeRight() {
-//                    onNextPage?.invoke()
-//                }
-//
-//                override fun onSwipeLeft() {
-//                    onPreviousPage?.invoke()
-//                }
-//            })
-//
-//        swipeListener.touchCallback = { v, event ->
-//            v?.parent?.requestDisallowInterceptTouchEvent(true)
-//            v?.onTouchEvent(event)
-//        }
-//
-//        binding.recyclerView.setOnTouchListener(swipeListener)
-
-
+        composeButtons.clear()
+        binding.buttonLayout.removeAllViews()
         buttons.forEach { addButtonView(it) }
 
         return binding.root
@@ -507,6 +497,7 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
             stop = cachedStop
         }
         tripSegment = _tripSegment
+        updateTitleIcon()
 
         binding.goToNowButton.setOnClickListener {
             scrollToNowPosition()
@@ -531,6 +522,56 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
                     setBookingActions(it.booking?.externalActions)
                 }, { it.printStackTrace() })
                 .addTo(autoDisposable)
+        }
+    }
+
+    private fun updateTitleIcon() {
+        if (!showTitleIconInHeader) {
+            binding.titleIcon.visibility = View.GONE
+            return
+        }
+
+        val segment = tripSegment
+        if (segment == null) {
+            binding.titleIcon.visibility = View.GONE
+            return
+        }
+
+        val canUseHeaderPipeline = segment.modeInfo?.localIconName != null && segment.darkVehicleIcon != 0
+        if (!canUseHeaderPipeline) {
+            val fallback = getLegacyFallbackIcon(segment)
+            binding.titleIcon.setImageDrawable(fallback)
+            binding.titleIcon.visibility = if (fallback != null) View.VISIBLE else View.GONE
+            return
+        }
+
+        segment.getSegmentIconObservable(
+            requireContext(),
+            GetTransportIconTintStrategy(resources)
+        ).map { drawable ->
+            drawable?.let { segment.createSummaryIcon(requireContext(), it) }
+        }.observeOn(AndroidSchedulers.mainThread())
+            .subscribe({ summaryIcon ->
+                val finalIcon = summaryIcon ?: getLegacyFallbackIcon(segment)
+                binding.titleIcon.setImageDrawable(finalIcon)
+                binding.titleIcon.visibility = if (finalIcon != null) View.VISIBLE else View.GONE
+            }, {
+                val fallback = getLegacyFallbackIcon(segment)
+                binding.titleIcon.setImageDrawable(fallback)
+                binding.titleIcon.visibility = if (fallback != null) View.VISIBLE else View.GONE
+            }).addTo(autoDisposable)
+    }
+
+    private fun getLegacyFallbackIcon(segment: TripSegment): android.graphics.drawable.Drawable? {
+        val localIconResId = TransportMode.getLocalIconResId(segment.transportModeId)
+        return when {
+            segment.getType() == SegmentType.ARRIVAL || segment.getType() == SegmentType.DEPARTURE ->
+                ContextCompat.getDrawable(requireContext(), R.drawable.v4_ic_map_location)
+            localIconResId != 0 ->
+                ContextCompat.getDrawable(requireContext(), localIconResId)
+            segment.action?.contains("<TIME>: Wait") == true ->
+                ContextCompat.getDrawable(requireContext(), R.drawable.ic_wait)
+            else -> null
         }
     }
 
@@ -751,6 +792,7 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
         private var buttons: MutableList<TripKitButton> = mutableListOf()
         private var actionStream: PublishSubject<TripSegment>? = null
         private var fromPreview: Boolean = false
+        private var showTitleIconInHeader: Boolean = false
         private var actionButtonTemplateProvider: ActionButtonTemplateProvider? = null
 
         fun withStop(stop: ScheduledStop?): Builder {
@@ -798,6 +840,11 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
             return this
         }
 
+        fun showTitleIconInHeader(show: Boolean): Builder {
+            this.showTitleIconInHeader = show
+            return this
+        }
+
         fun withActionButtonTemplateProvider(provider: ActionButtonTemplateProvider): Builder {
             this.actionButtonTemplateProvider = provider
             return this
@@ -817,6 +864,7 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
             fragment.cachedShowSearchBar = showSearchBar
             fragment._tripSegment = tripSegment
             fragment.fromPreview = fromPreview
+            fragment.showTitleIconInHeader = showTitleIconInHeader
             fragment.cachedBookingActions = bookingActions
             fragment.actionButtonTemplateProvider = actionButtonTemplateProvider
 

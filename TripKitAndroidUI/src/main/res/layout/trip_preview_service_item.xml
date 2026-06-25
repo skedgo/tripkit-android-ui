@@ -19,16 +19,28 @@
         android:clickable="true"
         android:focusable="true">
 
+        <ImageView
+            android:id="@+id/titleIcon"
+            android:layout_width="@dimen/icon_size_40"
+            android:layout_height="@dimen/icon_size_40"
+            android:layout_marginTop="@dimen/spacing_small"
+            android:background="@drawable/bg_circle_transparent_black_border"
+            android:visibility="gone"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:src="@drawable/ic_walk" />
+
         <TextView
             android:id="@+id/stopName"
             style="@style/TimetableTitleLarge"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/spacing_normal"
             android:layout_marginTop="8dp"
             android:layout_marginBottom="8dp"
             android:text="@{viewModel.stationName}"
             app:layout_constraintEnd_toStartOf="@+id/closeButton"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/titleIcon"
             app:layout_constraintTop_toTopOf="parent"
             tools:text="Stop Name" />
 

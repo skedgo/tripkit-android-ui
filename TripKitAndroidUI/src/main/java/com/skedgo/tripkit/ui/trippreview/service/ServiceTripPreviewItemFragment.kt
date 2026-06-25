@@ -6,21 +6,29 @@ import android.content.SharedPreferences
 import android.net.Uri
 import android.os.Bundle
 import android.view.View
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.skedgo.tripkit.common.model.TransportMode
 import com.skedgo.tripkit.common.model.realtimealert.RealtimeAlert
 import com.skedgo.tripkit.data.regions.RegionService
+import com.skedgo.tripkit.routing.SegmentType
 import com.skedgo.tripkit.routing.Trip
 import com.skedgo.tripkit.routing.TripGroup
 import com.skedgo.tripkit.routing.TripSegment
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.TripKitUI
 import com.skedgo.tripkit.ui.core.BaseFragment
+import com.skedgo.tripkit.ui.core.addTo
 import com.skedgo.tripkit.ui.databinding.TripPreviewServiceItemBinding
 import com.skedgo.tripkit.ui.servicedetail.AlertClickListener
 import com.skedgo.tripkit.ui.servicedetail.ServiceDetailViewModel
 import com.skedgo.tripkit.ui.timetables.FetchAndLoadTimetable
+import com.skedgo.tripkit.ui.tripresults.GetTransportIconTintStrategy
+import com.skedgo.tripkit.ui.utils.createSummaryIcon
+import com.skedgo.tripkit.ui.utils.getSegmentIconObservable
 import com.skedgo.tripkit.ui.utils.OnSwipeTouchListener
+import io.reactivex.android.schedulers.AndroidSchedulers
 import javax.inject.Inject
 
 
@@ -123,6 +131,7 @@ class ServiceTripPreviewItemFragment : BaseFragment<TripPreviewServiceItemBindin
     private fun handleSegment() {
         segment?.let {
             viewModel.setup(it)
+            updateTitleIcon(it)
         } ?: kotlin.run {
             checkSegmentOnPrefs()
         }
@@ -167,12 +176,51 @@ class ServiceTripPreviewItemFragment : BaseFragment<TripPreviewServiceItemBindin
             segment?.let {
                 this@ServiceTripPreviewItemFragment.segment = it
                 viewModel.setup(it)
+                updateTitleIcon(it)
             }
 
             if (contains("${positionInAdapter}_$ARGS_SHOW_CLOSE_BUTTON")) {
                 showCloseButton = getBoolean("${positionInAdapter}_$ARGS_SHOW_CLOSE_BUTTON", false)
                 prefs.edit().remove("${positionInAdapter}_$ARGS_SHOW_CLOSE_BUTTON").apply()
             }
+        }
+    }
+
+    private fun updateTitleIcon(segment: TripSegment) {
+        val canUseHeaderPipeline = segment.modeInfo?.localIconName != null && segment.darkVehicleIcon != 0
+        if (!canUseHeaderPipeline) {
+            val fallback = getLegacyFallbackIcon(segment)
+            binding.titleIcon.setImageDrawable(fallback)
+            binding.titleIcon.visibility = if (fallback != null) View.VISIBLE else View.GONE
+            return
+        }
+
+        segment.getSegmentIconObservable(
+            requireContext(),
+            GetTransportIconTintStrategy(resources)
+        ).map { drawable ->
+            drawable?.let { segment.createSummaryIcon(requireContext(), it) }
+        }.observeOn(AndroidSchedulers.mainThread())
+            .subscribe({ summaryIcon ->
+                val finalIcon = summaryIcon ?: getLegacyFallbackIcon(segment)
+                binding.titleIcon.setImageDrawable(finalIcon)
+                binding.titleIcon.visibility = if (finalIcon != null) View.VISIBLE else View.GONE
+            }, {
+                val fallback = getLegacyFallbackIcon(segment)
+                binding.titleIcon.setImageDrawable(fallback)
+                binding.titleIcon.visibility = if (fallback != null) View.VISIBLE else View.GONE
+            }).addTo(autoDisposable)
+    }
+
+    private fun getLegacyFallbackIcon(segment: TripSegment): android.graphics.drawable.Drawable? {
+        val localIconResId = TransportMode.getLocalIconResId(segment.transportModeId)
+        return when {
+            segment.getType() == SegmentType.ARRIVAL || segment.getType() == SegmentType.DEPARTURE ->
+                ContextCompat.getDrawable(requireContext(), R.drawable.v4_ic_map_location)
+            localIconResId != 0 -> ContextCompat.getDrawable(requireContext(), localIconResId)
+            segment.action?.contains("<TIME>: Wait") == true ->
+                ContextCompat.getDrawable(requireContext(), R.drawable.ic_wait)
+            else -> null
         }
     }
 
