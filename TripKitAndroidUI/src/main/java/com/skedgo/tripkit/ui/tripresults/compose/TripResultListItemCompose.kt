@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -27,6 +28,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
@@ -35,10 +37,13 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.databinding.BindingAdapter
+import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.toBitmap
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.compose.TripKitUITheme
+import com.skedgo.tripkit.ui.tripresults.TripResultTripViewModel
 import com.skedgo.tripkit.ui.tripresults.TripResultViewModel
+import com.skedgo.tripkit.ui.utils.resolveComposeColor
 
 @BindingAdapter("tripResultsItemViewModel")
 fun bindTripResultsListItemCompose(
@@ -75,84 +80,36 @@ fun TripResultListItemCompose(
     val moreButtonText by viewModel.moreButtonText.observeAsState("")
     val actionEnabled by viewModel.isActionEnabled.observeAsState(true)
 
-    TripResultListItemContent(
-        hasTripLabels = hasTripLabels,
-        badgeVisible = badgeVisible,
-        badgeDrawable = badgeDrawable,
-        badgeText = badgeText.orEmpty(),
-        badgeTextColor = badgeTextColor,
-        rowsCount = tripRows.size,
-        renderRow = { index ->
-            TripResultLegRowCompose(viewModel = tripRows[index])
-        },
-        alternateTripVisible = alternateTripVisible,
-        costVisible = costVisible,
-        cost = cost.orEmpty(),
-        moneyCostVisible = moneyCostVisible,
-        moneyCost = moneyCost.orEmpty(),
-        availabilityInfo = availabilityInfo.orEmpty(),
-        moreButtonVisible = moreButtonVisible,
-        moreButtonText = moreButtonText.orEmpty(),
-        actionEnabled = actionEnabled,
-        onMoreClick = { viewModel.onMoreButtonClicked.perform() }
+    TripResultListItemCompose(
+        ui = TripResultListItemUi(
+            hasTripLabels = hasTripLabels,
+            badgeVisible = badgeVisible,
+            badgeDrawable = badgeDrawable,
+            badgeText = badgeText.orEmpty(),
+            badgeTextColor = badgeTextColor,
+            rows = tripRows.map { TripResultListItemRowUi.Runtime(viewModel = it) },
+            alternateTripVisible = alternateTripVisible,
+            costVisible = costVisible,
+            cost = cost.orEmpty(),
+            moneyCostVisible = moneyCostVisible,
+            moneyCost = moneyCost.orEmpty(),
+            availabilityInfo = availabilityInfo.orEmpty(),
+            moreButtonVisible = moreButtonVisible,
+            moreButtonText = moreButtonText.orEmpty(),
+            actionEnabled = actionEnabled,
+            onMoreClick = { viewModel.onMoreButtonClicked.perform() }
+        )
     )
 }
 
 @Composable
 fun TripResultListItemCompose(
-    previewUi: TripResultListItemPreviewUi
+    ui: TripResultListItemUi
 ) {
-    TripResultListItemContent(
-        hasTripLabels = previewUi.hasTripLabels,
-        badgeVisible = previewUi.badgeVisible,
-        badgeDrawable = null,
-        badgeText = previewUi.badgeText,
-        badgeTextColor = previewUi.badgeTextColor,
-        rowsCount = previewUi.rows.size,
-        renderRow = { index ->
-            val row = previewUi.rows[index]
-            TripResultLegRowCompose(
-                title = row.title,
-                subtitle = row.subtitle,
-                hideExactTimes = row.hideExactTimes,
-                hasQuickBooking = row.hasQuickBooking,
-                quickBookingTitle = row.quickBookingTitle,
-                segments = row.segments
-            )
-        },
-        alternateTripVisible = previewUi.alternateTripVisible,
-        costVisible = previewUi.costVisible,
-        cost = previewUi.cost,
-        moneyCostVisible = previewUi.moneyCostVisible,
-        moneyCost = previewUi.moneyCost,
-        availabilityInfo = previewUi.availabilityInfo,
-        moreButtonVisible = previewUi.moreButtonVisible,
-        moreButtonText = previewUi.moreButtonText,
-        actionEnabled = previewUi.actionEnabled,
-        onMoreClick = {}
+    val accentColor = resolveComposeColor(
+        default = ContextCompat.getColor(LocalContext.current, R.color.colorAccent)
     )
-}
 
-@Composable
-private fun TripResultListItemContent(
-    hasTripLabels: Boolean,
-    badgeVisible: Boolean,
-    badgeDrawable: Drawable?,
-    badgeText: String,
-    badgeTextColor: Int?,
-    rowsCount: Int,
-    renderRow: @Composable (Int) -> Unit,
-    alternateTripVisible: Boolean,
-    costVisible: Boolean,
-    cost: String,
-    moneyCostVisible: Boolean,
-    moneyCost: String,
-    availabilityInfo: String,
-    moreButtonVisible: Boolean,
-    moreButtonText: String,
-    actionEnabled: Boolean,
-    onMoreClick: () -> Unit
-) {
     Card(
         shape = RoundedCornerShape(dimensionResource(R.dimen.cardview_corner_radius_medium)),
         backgroundColor = Color.Transparent,
@@ -169,7 +126,7 @@ private fun TripResultListItemContent(
         Column(
             modifier = Modifier.fillMaxWidth()
         ) {
-            if (hasTripLabels && badgeVisible) {
+            if (ui.hasTripLabels && ui.badgeVisible) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.padding(
@@ -179,29 +136,41 @@ private fun TripResultListItemContent(
                         bottom = dimensionResource(R.dimen.spacing_10)
                     )
                 ) {
-                    BadgeDrawable(badgeDrawable)
+                    BadgeDrawable(ui.badgeDrawable)
                     Text(
-                        text = badgeText,
+                        text = ui.badgeText,
                         style = androidx.compose.material.MaterialTheme.typography.overline,
-                        color = Color(badgeTextColor ?: colorResource(R.color.black).toArgb())
+                        color = Color(ui.badgeTextColor ?: colorResource(R.color.black).toArgb())
                     )
                 }
             }
 
-            repeat(rowsCount) { index ->
-                renderRow(index)
-                if (index < rowsCount - 1) {
-                    Box(
-                        modifier = Modifier
-                            .padding(horizontal = dimensionResource(R.dimen.spacing_normal))
-                            .fillMaxWidth()
-                            .height(dimensionResource(R.dimen.divider_size))
-                            .background(colorResource(R.color.black3))
+            ui.rows.forEachIndexed { index, row ->
+                when (row) {
+                    is TripResultListItemRowUi.Runtime -> {
+                        TripResultLegRowCompose(viewModel = row.viewModel)
+                    }
+
+                    is TripResultListItemRowUi.Static -> {
+                        TripResultLegRowCompose(
+                            title = row.title,
+                            subtitle = row.subtitle,
+                            hideExactTimes = row.hideExactTimes,
+                            hasQuickBooking = row.hasQuickBooking,
+                            quickBookingTitle = row.quickBookingTitle,
+                            segments = row.segments
+                        )
+                    }
+                }
+
+                if (index < ui.rows.lastIndex) {
+                    Spacer(
+                        modifier = Modifier.height(dimensionResource(R.dimen.spacing_xx_small))
                     )
                 }
             }
 
-            if (alternateTripVisible) {
+            if (ui.alternateTripVisible) {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -216,38 +185,32 @@ private fun TripResultListItemContent(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(
-                        start = dimensionResource(R.dimen.spacing_normal),
-                        top = dimensionResource(R.dimen.spacing_12),
-                        end = dimensionResource(R.dimen.spacing_xx_small),
-                        bottom = dimensionResource(R.dimen.spacing_12)
+                        horizontal = dimensionResource(R.dimen.spacing_normal),
                     )
             ) {
-                if (costVisible) {
+                if (ui.costVisible) {
                     Text(
-                        text = cost,
+                        text = ui.cost,
                         style = androidx.compose.material.MaterialTheme.typography.caption,
                         color = colorResource(R.color.black1),
                         maxLines = 3,
                         overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier.weight(1f, fill = false)
                     )
                 }
 
-                if (moneyCostVisible) {
+                if (ui.moneyCostVisible) {
                     Text(
-                        text = moneyCost,
+                        text = ui.moneyCost,
                         style = androidx.compose.material.MaterialTheme.typography.caption,
                         color = colorResource(R.color.black1),
                         maxLines = 3,
                         overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier.weight(1f, fill = false)
                     )
                 }
 
-                if (availabilityInfo.isNotBlank()) {
+                if (ui.availabilityInfo.isNotBlank()) {
                     Row(
                         verticalAlignment = Alignment.Top,
-                        modifier = Modifier.weight(1f)
                     ) {
                         Icon(
                             painter = painterResource(R.drawable.ic_action_warning),
@@ -256,7 +219,7 @@ private fun TripResultListItemContent(
                             modifier = Modifier.size(dimensionResource(R.dimen.icon_small))
                         )
                         Text(
-                            text = availabilityInfo,
+                            text = ui.availabilityInfo,
                             style = androidx.compose.material.MaterialTheme.typography.caption,
                             color = colorResource(R.color.tripKitError),
                             maxLines = 3,
@@ -266,21 +229,56 @@ private fun TripResultListItemContent(
                     }
                 }
 
-                if (moreButtonVisible) {
+                if (ui.moreButtonVisible) {
+                    Spacer(modifier = Modifier.weight(1f))
                     TextButton(
-                        enabled = actionEnabled,
-                        onClick = onMoreClick
+                        enabled = ui.actionEnabled,
+                        onClick = ui.onMoreClick
                     ) {
                         Text(
-                            text = moreButtonText,
+                            text = ui.moreButtonText,
                             style = androidx.compose.material.MaterialTheme.typography.button,
-                            color = colorResource(R.color.colorAccent)
+                            color = accentColor
                         )
                     }
                 }
             }
         }
     }
+}
+
+data class TripResultListItemUi(
+    val hasTripLabels: Boolean,
+    val badgeVisible: Boolean,
+    val badgeDrawable: Drawable?,
+    val badgeText: String,
+    val badgeTextColor: Int? = null,
+    val rows: List<TripResultListItemRowUi>,
+    val alternateTripVisible: Boolean,
+    val costVisible: Boolean,
+    val cost: String,
+    val moneyCostVisible: Boolean,
+    val moneyCost: String,
+    val availabilityInfo: String,
+    val moreButtonVisible: Boolean,
+    val moreButtonText: String,
+    val actionEnabled: Boolean,
+    val onMoreClick: () -> Unit = {}
+)
+
+sealed interface TripResultListItemRowUi {
+    data class Runtime(
+        val viewModel: TripResultTripViewModel
+    ) : TripResultListItemRowUi
+
+    data class Static(
+        val title: String,
+        val subtitle: String,
+        val hideExactTimes: Boolean,
+        val hasQuickBooking: Boolean,
+        val quickBookingTitle: String,
+        val segments: List<TripResultLegPreviewSegmentUi>
+    ) : TripResultListItemRowUi
 }
 
 @Composable
@@ -299,43 +297,18 @@ private fun BadgeDrawable(
     }
 }
 
-data class TripResultListItemPreviewUi(
-    val hasTripLabels: Boolean,
-    val badgeVisible: Boolean,
-    val badgeText: String,
-    val badgeTextColor: Int? = null,
-    val rows: List<TripResultListItemPreviewRowUi>,
-    val alternateTripVisible: Boolean,
-    val costVisible: Boolean,
-    val cost: String,
-    val moneyCostVisible: Boolean,
-    val moneyCost: String,
-    val availabilityInfo: String,
-    val moreButtonVisible: Boolean,
-    val moreButtonText: String,
-    val actionEnabled: Boolean
-)
-
-data class TripResultListItemPreviewRowUi(
-    val title: String,
-    val subtitle: String,
-    val hideExactTimes: Boolean,
-    val hasQuickBooking: Boolean,
-    val quickBookingTitle: String,
-    val segments: List<TripResultLegPreviewSegmentUi>
-)
-
 @Preview(showBackground = true, backgroundColor = 0xFF5F5F60)
 @Composable
 private fun TripResultListItemComposePreview() {
     TripKitUITheme {
         TripResultListItemCompose(
-            previewUi = TripResultListItemPreviewUi(
+            ui = TripResultListItemUi(
                 hasTripLabels = true,
                 badgeVisible = true,
+                badgeDrawable = null,
                 badgeText = "FASTEST",
                 rows = listOf(
-                    TripResultListItemPreviewRowUi(
+                    TripResultListItemRowUi.Static(
                         title = "10:11 - 10:41",
                         subtitle = "30 mins",
                         hideExactTimes = false,

@@ -1,12 +1,14 @@
 package com.skedgo.tripkit.ui.tripresults.compose
 
+import android.graphics.drawable.Drawable
 import android.widget.TextView
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -27,9 +29,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
@@ -47,6 +52,7 @@ import com.skedgo.tripkit.ui.compose.TripKitUITheme
 import com.skedgo.tripkit.ui.tripresults.TripResultTripViewModel
 import com.skedgo.tripkit.ui.tripresults.TripSegmentViewModel
 import com.skedgo.tripkit.ui.tripresults.compose.styles.TripResultStyles
+import com.skedgo.tripkit.ui.utils.resolveComposeColor
 
 @Composable
 fun TripResultLegRowCompose(
@@ -63,7 +69,7 @@ fun TripResultLegRowCompose(
         onQuickBookingClick = { viewModel.onQuickBookingActionClicked() }
     ) {
         viewModel.segments.forEach { segment ->
-            SegmentSummaryCompose(viewModel = segment)
+            SegmentSummaryCompose(ui = rememberSegmentSummaryUi(segment))
         }
     }
 }
@@ -90,12 +96,24 @@ fun TripResultLegRowCompose(
         onQuickBookingClick = onQuickBookingClick
     ) {
         segments.forEach { segment ->
-            PreviewSegmentSummaryCompose(segment = segment)
+            SegmentSummaryCompose(
+                ui = SegmentSummaryUi(
+                    showPrimary = true,
+                    primaryText = segment.primaryText,
+                    secondaryText = segment.secondaryText,
+                    isHideExactTimes = false,
+                    isRealtime = segment.showWifi,
+                    isBicycleAccessible = segment.showBike,
+                    isCancelled = false,
+                    iconRes = segment.iconRes
+                )
+            )
         }
     }
 }
 
 @Composable
+@OptIn(ExperimentalLayoutApi::class)
 private fun TripResultLegRowContent(
     title: String,
     subtitle: String,
@@ -107,6 +125,13 @@ private fun TripResultLegRowContent(
     onQuickBookingClick: () -> Unit,
     segmentsContent: @Composable () -> Unit
 ) {
+    val accentColor = resolveComposeColor(
+        default = ContextCompat.getColor(
+            LocalContext.current,
+            R.color.colorAccent
+        )
+    )
+
     Card(
         shape = RoundedCornerShape(dimensionResource(R.dimen.cardview_corner_radius_medium)),
         backgroundColor = Color.White,
@@ -147,18 +172,20 @@ private fun TripResultLegRowContent(
                 modifier = Modifier
                     .fillMaxWidth()
             ) {
-                segmentsContent()
-                Spacer(
-                    modifier = Modifier.weight(1f)
-                )
+                FlowRow(
+                    modifier = Modifier.weight(1f),
+                    horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_small))
+                ) {
+                    segmentsContent()
+                }
                 if (hasQuickBooking) {
                     Button(
                         onClick = onQuickBookingClick,
                         colors = ButtonDefaults.buttonColors(
-                            backgroundColor = colorResource(R.color.colorAccent),
+                            backgroundColor = accentColor,
                             contentColor = colorResource(R.color.white)
                         ),
-                        modifier = Modifier.defaultMinSize(minHeight = dimensionResource(R.dimen.trip_result_action_height))
+                        modifier = Modifier.padding(start = dimensionResource(R.dimen.spacing_small))
                     ) {
                         Text(
                             text = quickBookingTitle,
@@ -172,9 +199,7 @@ private fun TripResultLegRowContent(
 }
 
 @Composable
-private fun SegmentSummaryCompose(
-    viewModel: TripSegmentViewModel
-) {
+private fun rememberSegmentSummaryUi(viewModel: TripSegmentViewModel): SegmentSummaryUi {
     val icon by viewModel.icon.observeAsState()
     val showPrimary by viewModel.showPrimary.observeAsState(false)
     val primaryText by viewModel.primaryText.observeAsState()
@@ -184,86 +209,16 @@ private fun SegmentSummaryCompose(
     val isBicycleAccessible by viewModel.isBicycleAccessible.observeAsState(false)
     val isCancelled by viewModel.isCancelled.observeAsState(false)
 
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.defaultMinSize(minHeight = 40.dp)
-    ) {
-        val iconBitmap = remember(icon) { icon?.toBitmap()?.asImageBitmap() }
-        iconBitmap?.let { bitmap ->
-            Image(
-                bitmap = bitmap,
-                contentDescription = null,
-                colorFilter = if (isCancelled) {
-                    ColorFilter.tint(colorResource(R.color.light_grey_3))
-                } else {
-                    null
-                },
-                modifier = Modifier.size(dimensionResource(R.dimen.icon_regular))
-            )
-        }
-
-        Column(
-            modifier = Modifier.padding(start = dimensionResource(R.dimen.spacing_extra_small))
-        ) {
-            if (showPrimary) {
-                Text(
-                    text = primaryText.orEmpty(),
-                    style = androidx.compose.material.MaterialTheme.typography.caption,
-                    color = if (isCancelled) {
-                        colorResource(R.color.light_grey_3)
-                    } else {
-                        colorResource(R.color.black)
-                    },
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-            }
-
-            if (!isHideExactTimes && !secondaryText.isNullOrEmpty()) {
-                AndroidView(
-                    factory = { context ->
-                        TextView(context).apply {
-                            TextViewCompat.setTextAppearance(
-                                this,
-                                com.google.android.material.R.style.TextAppearance_MaterialComponents_Caption
-                            )
-                        }
-                    },
-                    update = { textView ->
-                        textView.text = secondaryText
-                        textView.setTextColor(
-                            ContextCompat.getColor(
-                                textView.context,
-                                if (isCancelled) R.color.light_grey_3 else R.color.black1
-                            )
-                        )
-                    }
-                )
-            }
-        }
-
-        if (isRealtime) {
-            Icon(
-                painter = painterResource(R.drawable.ic_wifi),
-                contentDescription = null,
-                tint = colorResource(R.color.icon_tint_default),
-                modifier = Modifier
-                    .padding(start = dimensionResource(R.dimen.spacing_extra_small))
-                    .size(dimensionResource(R.dimen.icon_x_small))
-            )
-        }
-
-        if (isBicycleAccessible) {
-            Icon(
-                painter = painterResource(R.drawable.ic_bike),
-                contentDescription = null,
-                tint = colorResource(R.color.icon_tint_default),
-                modifier = Modifier
-                    .padding(start = dimensionResource(R.dimen.spacing_extra_small))
-                    .size(dimensionResource(R.dimen.icon_x_small))
-            )
-        }
-    }
+    return SegmentSummaryUi(
+        showPrimary = showPrimary,
+        primaryText = primaryText.orEmpty(),
+        secondaryText = secondaryText,
+        isHideExactTimes = isHideExactTimes,
+        isRealtime = isRealtime,
+        isBicycleAccessible = isBicycleAccessible,
+        isCancelled = isCancelled,
+        iconDrawable = icon
+    )
 }
 
 data class TripResultLegPreviewSegmentUi(
@@ -275,60 +230,124 @@ data class TripResultLegPreviewSegmentUi(
 )
 
 @Composable
-private fun PreviewSegmentSummaryCompose(
-    segment: TripResultLegPreviewSegmentUi
+private fun SegmentSummaryCompose(
+    ui: SegmentSummaryUi
 ) {
+    val primaryTextColor = if (ui.isCancelled) {
+        colorResource(R.color.light_grey_3)
+    } else {
+        colorResource(R.color.labelPrimary)
+    }
+    val secondaryTextColor = if (ui.isCancelled) {
+        colorResource(R.color.light_grey_3)
+    } else {
+        colorResource(R.color.labelSecondary)
+    }
+    val iconBitmap = remember(ui.iconDrawable) { ui.iconDrawable?.toBitmap()?.asImageBitmap() }
+
     Row(
         verticalAlignment = Alignment.Bottom,
         modifier = Modifier.defaultMinSize(minHeight = 40.dp)
     ) {
         Row(
+            modifier = Modifier.align(Alignment.CenterVertically),
+            horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_extra_small)),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_extra_small))
         ) {
-            Icon(
-                painter = painterResource(segment.iconRes),
-                contentDescription = null,
-                tint = Color.Unspecified,
-                modifier = Modifier.size(dimensionResource(R.dimen.icon_20))
-            )
-            Column(modifier = Modifier.padding(start = dimensionResource(R.dimen.spacing_extra_small))) {
-                Text(
-                    text = segment.primaryText,
-                    style = TripResultStyles.BodySmall,
-                    color = colorResource(R.color.labelPrimary)
-                )
-                if (segment.secondaryText.isNotEmpty()) {
+            when {
+                iconBitmap != null -> {
+                    Image(
+                        bitmap = iconBitmap,
+                        contentDescription = null,
+                        colorFilter = if (ui.isCancelled) ColorFilter.tint(colorResource(R.color.light_grey_3)) else null,
+                        modifier = Modifier.size(dimensionResource(R.dimen.icon_size_20))
+                    )
+                }
+
+                ui.iconRes != null -> {
+                    Icon(
+                        painter = painterResource(ui.iconRes),
+                        contentDescription = null,
+                        tint = if (ui.isCancelled) colorResource(R.color.light_grey_3) else Color.Unspecified,
+                        modifier = Modifier.size(dimensionResource(R.dimen.icon_size_20))
+                    )
+                }
+            }
+
+            Column(
+                modifier = Modifier.padding(start = dimensionResource(R.dimen.spacing_extra_small))
+            ) {
+                if (ui.showPrimary) {
                     Text(
-                        text = segment.secondaryText,
+                        text = ui.primaryText,
                         style = TripResultStyles.BodySmall,
-                        color = colorResource(R.color.labelSecondary)
+                        color = primaryTextColor,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+
+                if (!ui.isHideExactTimes && !ui.secondaryText.isNullOrEmpty()) {
+                    AndroidView(
+                        factory = { context ->
+                            TextView(context).apply {
+                                TextViewCompat.setTextAppearance(
+                                    this,
+                                    com.google.android.material.R.style.TextAppearance_MaterialComponents_Caption
+                                )
+                            }
+                        },
+                        update = { textView ->
+                            textView.text = ui.secondaryText
+                            textView.setTextColor(secondaryTextColor.toArgb())
+                        }
                     )
                 }
             }
         }
-        if (segment.showWifi) {
+
+        if (ui.isRealtime) {
             Icon(
                 painter = painterResource(R.drawable.ic_wifi),
                 contentDescription = null,
-                tint = colorResource(R.color.icon_tint_default),
+                tint = primaryTextColor,
                 modifier = Modifier
-                    .padding(start = dimensionResource(R.dimen.spacing_extra_small))
+                    .padding(
+                        start = dimensionResource(R.dimen.spacing_xx_small),
+                        bottom = dimensionResource(R.dimen.spacing_extra_small)
+                    )
                     .size(dimensionResource(R.dimen.icon_x_small))
+                    .rotate(45f)
             )
         }
-        if (segment.showBike) {
+
+        if (ui.isBicycleAccessible) {
             Icon(
                 painter = painterResource(R.drawable.ic_bike),
                 contentDescription = null,
-                tint = colorResource(R.color.icon_tint_default),
+                tint = primaryTextColor,
                 modifier = Modifier
-                    .padding(start = dimensionResource(R.dimen.spacing_extra_small))
+                    .padding(
+                        start = dimensionResource(R.dimen.spacing_xx_small),
+                        bottom = dimensionResource(R.dimen.spacing_extra_small)
+                    )
                     .size(dimensionResource(R.dimen.icon_x_small))
             )
         }
     }
 }
+
+private data class SegmentSummaryUi(
+    val showPrimary: Boolean,
+    val primaryText: String,
+    val secondaryText: CharSequence?,
+    val isHideExactTimes: Boolean,
+    val isRealtime: Boolean,
+    val isBicycleAccessible: Boolean,
+    val isCancelled: Boolean,
+    val iconDrawable: Drawable? = null,
+    val iconRes: Int? = null
+)
 
 @Composable
 private fun <T> ObservableField<T>.observeAsState(): State<T?> {
@@ -365,7 +384,28 @@ private fun TripResultLegRowComposePreview() {
                     primaryText = "Walk",
                     secondaryText = "4 mins",
                     showBike = true
-                )
+                ),
+                TripResultLegPreviewSegmentUi(
+                    primaryText = "",
+                    secondaryText = "4 mins",
+                ),
+                TripResultLegPreviewSegmentUi(
+                    primaryText = "",
+                    secondaryText = "",
+                ),
+                TripResultLegPreviewSegmentUi(
+                    primaryText = "Walk",
+                    secondaryText = "4 mins",
+                    showBike = true
+                ),
+                TripResultLegPreviewSegmentUi(
+                    primaryText = "",
+                    secondaryText = "",
+                ),
+                TripResultLegPreviewSegmentUi(
+                    primaryText = "",
+                    secondaryText = "4 mins",
+                ),
             )
         )
     }
