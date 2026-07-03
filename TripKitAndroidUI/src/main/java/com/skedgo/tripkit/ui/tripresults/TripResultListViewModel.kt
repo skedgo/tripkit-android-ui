@@ -139,11 +139,7 @@ class TripResultListViewModel @Inject constructor(
     val transportBinding by lazy {
         ItemBinding.of<TripResultTransportItemViewModel>(
             BR.viewModel,
-            if (TripResultsDesignFlags.USE_NEW_TRIP_RESULTS_DESIGN_DEV_FLAG) {
-                R.layout.trip_result_list_transport_item_v2
-            } else {
-                R.layout.trip_result_list_transport_item
-            }
+            R.layout.trip_result_list_transport_item
         )
     }
     val transportModes: MutableLiveData<List<TripResultTransportItemViewModel>> =

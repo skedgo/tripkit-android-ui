@@ -123,6 +123,7 @@
             app:layout_constraintTop_toBottomOf="@id/clLocations">
 
             <HorizontalScrollView
+                android:id="@+id/legacyHeaderActions"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:scrollbars="none"
@@ -198,6 +199,17 @@
 
                 </LinearLayout>
             </HorizontalScrollView>
+
+            <androidx.compose.ui.platform.ComposeView
+                android:id="@+id/composeHeaderActions"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:layout_height="40dp" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
