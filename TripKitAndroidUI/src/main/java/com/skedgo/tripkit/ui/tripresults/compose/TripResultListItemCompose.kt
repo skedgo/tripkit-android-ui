@@ -43,6 +43,7 @@ import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.compose.TripKitUITheme
 import com.skedgo.tripkit.ui.tripresults.TripResultTripViewModel
 import com.skedgo.tripkit.ui.tripresults.TripResultViewModel
+import com.skedgo.tripkit.ui.tripresults.compose.styles.TripResultStyles
 import com.skedgo.tripkit.ui.utils.resolveComposeColor
 
 @BindingAdapter("tripResultsItemViewModel")
@@ -78,6 +79,8 @@ fun TripResultListItemCompose(
     val availabilityInfo by viewModel.availabilityInfo.observeAsState("")
     val moreButtonVisible by viewModel.moreButtonVisible.observeAsState(false)
     val moreButtonText by viewModel.moreButtonText.observeAsState("")
+    val actionButtonVisible by viewModel.actionButtonVisible.observeAsState(false)
+    val actionButtonText by viewModel.actionButtonText.observeAsState("")
     val actionEnabled by viewModel.isActionEnabled.observeAsState(true)
 
     TripResultListItemCompose(
@@ -96,6 +99,8 @@ fun TripResultListItemCompose(
             availabilityInfo = availabilityInfo.orEmpty(),
             moreButtonVisible = moreButtonVisible,
             moreButtonText = moreButtonText.orEmpty(),
+            actionButtonVisible = actionButtonVisible,
+            actionButtonText = actionButtonText.orEmpty(),
             actionEnabled = actionEnabled,
             onMoreClick = { viewModel.onMoreButtonClicked.perform() }
         )
@@ -131,7 +136,7 @@ fun TripResultListItemCompose(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.padding(
                         start = dimensionResource(R.dimen.spacing_normal),
-                        top = dimensionResource(R.dimen.spacing_normal),
+//                        top = dimensionResource(R.dimen.spacing_normal),
                         end = dimensionResource(R.dimen.spacing_normal),
                         bottom = dimensionResource(R.dimen.spacing_10)
                     )
@@ -139,8 +144,8 @@ fun TripResultListItemCompose(
                     BadgeDrawable(ui.badgeDrawable)
                     Text(
                         text = ui.badgeText,
-                        style = androidx.compose.material.MaterialTheme.typography.overline,
-                        color = Color(ui.badgeTextColor ?: colorResource(R.color.black).toArgb())
+                        style = TripResultStyles.LabelLarge,
+                        color = Color(ui.badgeTextColor ?: colorResource(R.color.labelPrimary).toArgb())
                     )
                 }
             }
@@ -185,14 +190,14 @@ fun TripResultListItemCompose(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(
-                        horizontal = dimensionResource(R.dimen.spacing_normal),
+                        start = dimensionResource(R.dimen.spacing_small),
                     )
             ) {
                 if (ui.costVisible) {
                     Text(
                         text = ui.cost,
-                        style = androidx.compose.material.MaterialTheme.typography.caption,
-                        color = colorResource(R.color.black1),
+                        style = TripResultStyles.BodyMedium,
+                        color = colorResource(R.color.labelSecondary),
                         maxLines = 3,
                         overflow = TextOverflow.Ellipsis,
                     )
@@ -201,8 +206,8 @@ fun TripResultListItemCompose(
                 if (ui.moneyCostVisible) {
                     Text(
                         text = ui.moneyCost,
-                        style = androidx.compose.material.MaterialTheme.typography.caption,
-                        color = colorResource(R.color.black1),
+                        style = TripResultStyles.BodyMedium,
+                        color = colorResource(R.color.labelSecondary),
                         maxLines = 3,
                         overflow = TextOverflow.Ellipsis,
                     )
@@ -220,7 +225,7 @@ fun TripResultListItemCompose(
                         )
                         Text(
                             text = ui.availabilityInfo,
-                            style = androidx.compose.material.MaterialTheme.typography.caption,
+                            style = TripResultStyles.BodyMedium,
                             color = colorResource(R.color.tripKitError),
                             maxLines = 3,
                             overflow = TextOverflow.Ellipsis,
@@ -237,7 +242,7 @@ fun TripResultListItemCompose(
                     ) {
                         Text(
                             text = ui.moreButtonText,
-                            style = androidx.compose.material.MaterialTheme.typography.button,
+                            style = TripResultStyles.LabelLarge,
                             color = accentColor
                         )
                     }
@@ -262,6 +267,8 @@ data class TripResultListItemUi(
     val availabilityInfo: String,
     val moreButtonVisible: Boolean,
     val moreButtonText: String,
+    val actionButtonVisible: Boolean,
+    val actionButtonText: String,
     val actionEnabled: Boolean,
     val onMoreClick: () -> Unit = {}
 )
@@ -291,8 +298,11 @@ private fun BadgeDrawable(
             bitmap = it,
             contentDescription = null,
             modifier = Modifier
-                .size(dimensionResource(R.dimen.icon_small))
-                .padding(end = dimensionResource(R.dimen.spacing_small))
+                .size(dimensionResource(R.dimen.icon_size_20))
+                .padding(
+                    end = dimensionResource(R.dimen.spacing_extra_small),
+                    top = dimensionResource(R.dimen.spacing_xx_small),
+                )
         )
     }
 }
@@ -306,7 +316,7 @@ private fun TripResultListItemComposePreview() {
                 hasTripLabels = true,
                 badgeVisible = true,
                 badgeDrawable = null,
-                badgeText = "FASTEST",
+                badgeText = "Recommended",
                 rows = listOf(
                     TripResultListItemRowUi.Static(
                         title = "10:11 - 10:41",
@@ -328,6 +338,8 @@ private fun TripResultListItemComposePreview() {
                 availabilityInfo = "",
                 moreButtonVisible = true,
                 moreButtonText = "More",
+                actionButtonVisible = true,
+                actionButtonText = "Ride Taxi",
                 actionEnabled = true
             )
         )

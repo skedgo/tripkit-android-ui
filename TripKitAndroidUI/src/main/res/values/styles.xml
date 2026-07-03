@@ -125,4 +125,13 @@
         <item name="android:textColor">@color/labelSecondary</item>
     </style>
 
+    <style name="LabelLarge">
+        <item name="android:fontFamily">sans</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:fontWeight" tools:targetApi="26">500</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:lineHeight" tools:targetApi="28">20sp</item>
+        <item name="android:letterSpacing">0</item>
+    </style>
+
 </resources>

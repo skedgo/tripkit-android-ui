@@ -9,6 +9,9 @@ internal object TripResultStyles {
     val BodyLarge: TextStyle
         @Composable get() = TripKitComposeTextStyles.current.bodyLarge
 
+    val BodyMedium: TextStyle
+        @Composable get() = TripKitComposeTextStyles.current.bodyMedium
+
     val BodySmall: TextStyle
         @Composable get() = TripKitComposeTextStyles.current.bodySmall
 
