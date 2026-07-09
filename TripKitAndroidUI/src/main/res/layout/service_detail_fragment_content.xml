@@ -74,8 +74,7 @@
                     android:layout_height="@dimen/service_detail_icon_size"
                     android:layout_marginStart="@dimen/spacing_small"
                     android:src="@drawable/ic_bike"
-                    android:visibility="@{viewModel.showBicycleAccessible}"
-                    app:tint="@color/black2" />
+                    android:visibility="@{viewModel.showBicycleAccessible}" />
 
                 <ImageView
                     android:id="@+id/occupancyView"
@@ -136,8 +135,7 @@
                     <ImageView
                         android:layout_width="@dimen/service_detail_icon_size"
                         android:layout_height="@dimen/service_detail_icon_size"
-                        android:src="@drawable/ic_bike"
-                        app:tint="@color/black2" />
+                        android:src="@drawable/ic_bike" />
 
                     <TextView
                         android:id="@+id/tvBicycleLabel"
