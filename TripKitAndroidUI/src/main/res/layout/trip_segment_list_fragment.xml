@@ -13,7 +13,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/white"
+        android:background="@android:color/transparent"
         android:focusable="false"
         android:importantForAccessibility="no">
 
@@ -114,22 +114,34 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/buttonLayout" />
 
-        <!-- NOTE: This view MUST have a tag called "segmentList". For more information, see the TripGroupPagerAdapter's setPrimaryItem function -->
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/itemsView"
+        <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:tag="segmentList"
-            android:nestedScrollingEnabled="false"
-            app:adapter="@{viewModel.customAdapter}"
-            app:itemBinding="@{viewModel.itemBinding}"
-            app:items="@{viewModel.itemViewModels}"
-            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            app:layout_behavior="@string/bottom_sheet_behavior"
-            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="@dimen/cardview_corner_radius_medium"
+            android:layout_margin="@dimen/spacing_normal"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/divider" />
+            app:layout_constraintTop_toBottomOf="@+id/divider">
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingBottom="@dimen/spacing_xx_large">
+                <!-- NOTE: This view MUST have a tag called "segmentList". For more information, see the TripGroupPagerAdapter's setPrimaryItem function -->
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/itemsView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:tag="segmentList"
+                    android:nestedScrollingEnabled="false"
+                    app:adapter="@{viewModel.customAdapter}"
+                    app:itemBinding="@{viewModel.segmentItemBinding}"
+                    app:items="@{viewModel.itemViewModels}"
+                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                    app:layout_behavior="@string/bottom_sheet_behavior" />
+            </FrameLayout>
+
+        </androidx.cardview.widget.CardView>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
