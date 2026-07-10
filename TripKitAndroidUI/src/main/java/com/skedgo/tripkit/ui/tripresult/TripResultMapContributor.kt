@@ -117,6 +117,9 @@ class TripResultMapContributor : TripKitMapContributor {
     protected val autoDisposable: CompositeDisposable by lazy {
         CompositeDisposable()
     }
+    private val segmentMarkerIconDisposables: CompositeDisposable by lazy {
+        CompositeDisposable()
+    }
 
     private var context: Context? = null
     private lateinit var map: GoogleMap
@@ -248,7 +251,6 @@ class TripResultMapContributor : TripKitMapContributor {
             map.isIndoorEnabled = false
             map.uiSettings.isRotateGesturesEnabled = true
 
-            drawSegmentMarkers(context)
         }
     }
 
@@ -335,6 +337,7 @@ class TripResultMapContributor : TripKitMapContributor {
                     processMapTiles(it)
                 }, { Timber.e(it) })
         )
+        drawSegmentMarkers(context)
     }
 
     fun processMapTiles(tripKitMapTiles: List<String>) {
@@ -369,6 +372,7 @@ class TripResultMapContributor : TripKitMapContributor {
         observersSetUp = false
         
         autoDisposable.clear()
+        segmentMarkerIconDisposables.clear()
         travelledStopMarkers?.clear()
         vehicleMarkers?.clear()
         segmentMarkers?.clear()
@@ -573,6 +577,7 @@ class TripResultMapContributor : TripKitMapContributor {
         context: Context,
         segmentMarkerViewModels: List<Pair<TripSegment, MarkerOptions>>
     ) {
+        segmentMarkerIconDisposables.clear()
         segmentMarkers?.clear()
         for (viewModel in segmentMarkerViewModels) {
             showSegmentMarker(context, viewModel)
@@ -588,7 +593,7 @@ class TripResultMapContributor : TripKitMapContributor {
         marker?.tag = segment
         val url = TransportModeUtils.getIconUrlForModeInfo(context.resources, segment.modeInfo)
         if (url != null) {
-            autoDisposable.add(picasso.fetchAsync(url)
+            segmentMarkerIconDisposables.add(picasso.fetchAsync(url)
                 .map { it: Bitmap? -> BitmapDrawable(context.resources, it) }
                 .map { it: BitmapDrawable? -> segmentMarkerIconMaker.make(segment, it) }
                 .compose(toTrySingle { error: Throwable? -> error is UnableToFetchBitmapError })

@@ -28,7 +28,7 @@ class StopsPersistor @Inject constructor(
     }
 
     override fun saveStopsSync(cells: List<LocationsResponse.Group>) {
-        Timber.i("DEBUG: StopsPersistor.saveStopsSync called with ${cells.size} cells")
+        // Timber.i("DEBUG: StopsPersistor.saveStopsSync called with ${cells.size} cells")
 
         val regionalSourceStopCodes = collectRegionalSourceStopCodes(cells)
         if (regionalSourceStopCodes.isNotEmpty()) {
@@ -48,10 +48,10 @@ class StopsPersistor @Inject constructor(
         for (cell in cells) {
             val cellId = cell.key
             val stops = cell.stops
-            Timber.i("DEBUG: Processing cell: $cellId with ${stops?.size ?: 0} stops")
+            // Timber.i("DEBUG: Processing cell: $cellId with ${stops?.size ?: 0} stops")
             
             if (cellId.isNullOrEmpty() || stops.isNullOrEmpty()) {
-                Timber.i("DEBUG: Skipping cell $cellId - empty or null")
+                // Timber.i("DEBUG: Skipping cell $cellId - empty or null")
                 continue
             }
 
@@ -64,7 +64,7 @@ class StopsPersistor @Inject constructor(
             )
         }
 
-        Timber.i("DEBUG: Created ${scheduledStops.size} scheduled stops and ${locations.size} locations")
+        // Timber.i("DEBUG: Created ${scheduledStops.size} scheduled stops and ${locations.size} locations")
 
         val coreCount = Runtime.getRuntime().availableProcessors()
         val sleepTime = when {
@@ -74,9 +74,9 @@ class StopsPersistor @Inject constructor(
         }
 
         if (scheduledStops.isNotEmpty() && locations.isNotEmpty()) {
-            Timber.i("DEBUG: Starting batch insertion")
+            // Timber.i("DEBUG: Starting batch insertion")
             insertInBatches(scheduledStops, locations, sleepTime)
-            Timber.i("DEBUG: Batch insertion completed")
+            // Timber.i("DEBUG: Batch insertion completed")
         } else {
             Timber.i("DEBUG: No data to insert - scheduledStops: ${scheduledStops.size}, locations: ${locations.size}")
         }
@@ -136,11 +136,11 @@ class StopsPersistor @Inject constructor(
                 )
                 
                 // Debug: Print the actual coordinate values being stored
-                Timber.i("DEBUG: Creating LocationEntity for stop $stopCode:")
-                Timber.i("  - lat: ${stop.lat}")
-                Timber.i("  - lon: ${stop.lon}")
-                Timber.i("  - name: ${stop.name}")
-                Timber.i("  - address: ${stop.address}")
+                // Timber.i("DEBUG: Creating LocationEntity for stop $stopCode:")
+                // Timber.i("  - lat: ${stop.lat}")
+                // Timber.i("  - lon: ${stop.lon}")
+                // Timber.i("  - name: ${stop.name}")
+                // Timber.i("  - address: ${stop.address}")
                 
                 locations.add(parentLocationEntity)
 

@@ -41,6 +41,14 @@ class RemoteMarkerIconFetcher @Inject constructor(
         private val descriptorCacheLock = Any()
         private val descriptorCache =
             LruCache<MarkerIconDescriptorCacheKey, BitmapDescriptor>(DESCRIPTOR_CACHE_MAX_ENTRIES)
+
+        // Coalesces concurrent requests for the same icon so a burst of markers
+        // sharing an icon (e.g. many-segment routes) decodes the bitmap once
+        // instead of once per marker, avoiding the allocation spike that triggers
+        // blocking-GC ANRs / OOM.
+        private val inFlightLock = Any()
+        private val inFlightRequests =
+            HashMap<MarkerIconDescriptorCacheKey, Single<BitmapDescriptor>>()
     }
 
     fun call(markerOptions: MarkerOptions, modeInfo: ModeInfo?) {
@@ -82,15 +90,43 @@ class RemoteMarkerIconFetcher @Inject constructor(
             }
 
             TripGoMapMarkerDiag.recordBitmapDescriptorCacheMiss(descriptorCacheSize())
-            Single.create { emitter ->
+            loadRemoteDescriptor(cacheKey, iconUrl, tintColor, circleColor)
+                .map { icon ->
+                    markerOptions.icon(icon)
+                    markerOptions
+                }
+                .onErrorResumeNext {
+                    // Fallback to local resource-based marker icon
+                    getMapIconFromResource(markerOptions, stop.type, densityDpiName)
+                }
+        }.subscribeOn(AndroidSchedulers.mainThread())
+    }
+
+    /**
+     * Returns a shared [Single] that decodes the remote icon and builds a
+     * [BitmapDescriptor] exactly once per [cacheKey]. Concurrent callers reuse the
+     * same in-flight request (or the cached descriptor), so a burst of markers
+     * sharing an icon no longer spawns one Picasso decode + multiple bitmap
+     * allocations per marker.
+     */
+    private fun loadRemoteDescriptor(
+        cacheKey: MarkerIconDescriptorCacheKey,
+        iconUrl: String?,
+        tintColor: Int,
+        circleColor: Int
+    ): Single<BitmapDescriptor> {
+        synchronized(inFlightLock) {
+            getCachedDescriptor(cacheKey)?.let { return Single.just(it) }
+            inFlightRequests[cacheKey]?.let { return it }
+
+            val request = Single.create<BitmapDescriptor> { emitter ->
                 picasso.load(iconUrl)
                     .into(object : com.squareup.picasso.Target {
                         override fun onBitmapLoaded(bitmap: Bitmap?, from: Picasso.LoadedFrom?) {
                             bitmap?.let {
                                 getCachedDescriptor(cacheKey)?.let { cachedIcon ->
                                     TripGoMapMarkerDiag.recordBitmapDescriptorCacheHit(descriptorCacheSize())
-                                    markerOptions.icon(cachedIcon)
-                                    emitter.onSuccess(markerOptions)
+                                    emitter.onSuccess(cachedIcon)
                                     return
                                 }
 
@@ -105,8 +141,7 @@ class RemoteMarkerIconFetcher @Inject constructor(
                                 TripGoMapMarkerDiag.recordBitmapDescriptorFromBitmap()
                                 putCachedDescriptor(cacheKey, icon)
                                 markerBitmap.recycleOwnedBitmaps()
-                                markerOptions.icon(icon)
-                                emitter.onSuccess(markerOptions)
+                                emitter.onSuccess(icon)
                             } ?: run {
                                 emitter.onError(Throwable("Bitmap is null"))
                             }
@@ -123,11 +158,16 @@ class RemoteMarkerIconFetcher @Inject constructor(
                             // Placeholder if needed
                         }
                     })
-            }.onErrorResumeNext {
-                // Fallback to local resource-based marker icon
-                getMapIconFromResource(markerOptions, stop.type, densityDpiName)
             }
-        }.subscribeOn(AndroidSchedulers.mainThread())
+                .doFinally {
+                    synchronized(inFlightLock) { inFlightRequests.remove(cacheKey) }
+                }
+                .subscribeOn(AndroidSchedulers.mainThread())
+                .cache()
+
+            inFlightRequests[cacheKey] = request
+            return request
+        }
     }
 
     private fun getMapIconFromResource(
