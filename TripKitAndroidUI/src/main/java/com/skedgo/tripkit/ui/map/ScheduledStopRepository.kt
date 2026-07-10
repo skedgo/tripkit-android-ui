@@ -47,7 +47,13 @@ open class ScheduledStopRepository @Inject constructor(
             result
         }
 
-        return scheduledStopMapper.mapToDomainList(entities)
+        val stops = scheduledStopMapper.mapToDomainList(entities)
+        TripGoMapMarkerDiag.recordDbQuery(
+            cellCount = cellCodes.size,
+            returnedStopCount = stops.size,
+            usedBounds = bounds != null
+        )
+        return stops
     }
 
     fun queryStops(

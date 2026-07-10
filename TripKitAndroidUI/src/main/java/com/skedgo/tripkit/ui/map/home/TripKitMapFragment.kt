@@ -60,6 +60,7 @@ import com.skedgo.tripkit.ui.map.MapCameraController
 import com.skedgo.tripkit.ui.map.MapMarkerUtils
 import com.skedgo.tripkit.ui.map.StopMarkerIconFetcher
 import com.skedgo.tripkit.ui.map.StopPOILocation
+import com.skedgo.tripkit.ui.map.TripGoMapMarkerDiag
 import com.skedgo.tripkit.ui.map.TripLocationMarkerCreator
 import com.skedgo.tripkit.ui.map.adapter.CityInfoWindowAdapter
 import com.skedgo.tripkit.ui.map.adapter.NoActionWindowAdapter
@@ -442,10 +443,13 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
                     return@subscribe
                 }
 
+                var removedCount = 0
+                var addedCount = 0
+
                 for (removedId in removedMarkerIds) {
                     val marker = poiMarkersByIdentifier.remove(removedId) ?: continue
-                    removeMarkerPosition(marker.position)
-                    marker.remove()
+                    removePoiMarker(marker)
+                    removedCount++
                 }
 
                 for ((markerOptions, poiLocation) in newMarkers) {
@@ -453,10 +457,18 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
                         return@subscribe
                     }
                     val identifier = poiLocation.identifier
-                    poiMarkersByIdentifier[identifier]?.let { existing ->
-                        removeMarkerPosition(existing.position)
-                        existing.remove()
+                    val existing = poiMarkersByIdentifier[identifier]
+                    if (existing != null && existing.position == markerOptions.position) {
+                        existing.tag = poiLocation
+                        if (!isMarkerPositionExists(existing.position)) {
+                            addMarkerPosition(existing.position)
+                        }
+                        continue
+                    }
+                    existing?.let {
                         poiMarkersByIdentifier.remove(identifier)
+                        removePoiMarker(it)
+                        removedCount++
                     }
                     if (isMarkerPositionExists(markerOptions.position)) {
                         continue
@@ -465,6 +477,16 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
                     marker.tag = poiLocation
                     addMarkerPosition(markerOptions.position)
                     poiMarkersByIdentifier[identifier] = marker
+                    addedCount++
+                }
+                if (TripGoMapMarkerDiag.isEnabled()) {
+                    TripGoMapMarkerDiag.recordMarkerBatch(
+                        newMarkerOptions = newMarkers.size,
+                        removedIds = removedMarkerIds.size,
+                        added = addedCount,
+                        removed = removedCount,
+                        snapshot = markerDiagSnapshot()
+                    )
                 }
             }, {
                 errorLogger.logError(it)
@@ -647,6 +669,7 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
     }
 
     override fun onCameraChange(position: CameraPosition) {
+        TripGoMapMarkerDiag.recordCameraEvent()
         if (!isAdded) { // To investigate further this scenario.
             return
         }
@@ -1155,6 +1178,9 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
                 onZoomLevelChangedListener?.onZoomLevelChanged(lastZoomLevel)
             }
         }
+        if (TripGoMapMarkerDiag.isEnabled()) {
+            TripGoMapMarkerDiag.recordCameraIdle(markerDiagSnapshot())
+        }
     }
 
     fun setShowMarkers(
@@ -1401,6 +1427,14 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
                     markerCountAfter
                 )
             }
+            if (TripGoMapMarkerDiag.isEnabled()) {
+                TripGoMapMarkerDiag.recordMarkerCleanup(
+                    event = "clearNonRegionalMarkers",
+                    before = markerCountBefore,
+                    after = poiMarkers?.markers?.size ?: 0,
+                    snapshot = markerDiagSnapshot()
+                )
+            }
         }
     }
 
@@ -1422,21 +1456,37 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
             poiMarkers?.hideAll()
             arrivalMarkers?.hideAll()
             departureMarkers?.hideAll()
+            if (TripGoMapMarkerDiag.isEnabled()) {
+                TripGoMapMarkerDiag.recordMarkerVisibility(
+                    hidden = 0,
+                    shown = 0,
+                    snapshot = markerDiagSnapshot()
+                )
+            }
             return
         }
 
         lastViewportBounds = currentBounds
 
         // Hide/show markers in each collection based on viewport
-        hideMarkersInCollection(poiMarkers, currentBounds)
-        hideMarkersInCollection(cityMarkers, currentBounds)
-        hideMarkersInCollection(tripLocationMarkers, currentBounds)
-        hideMarkersInCollection(departureMarkers, currentBounds)
-        hideMarkersInCollection(arrivalMarkers, currentBounds)
-        hideMarkersInCollection(currentLocationMarkers, currentBounds)
+        val countVisibilityChanges = TripGoMapMarkerDiag.isEnabled()
+        var visibilityChanges = 0L
+        visibilityChanges += hideMarkersInCollection(poiMarkers, currentBounds, countVisibilityChanges)
+        visibilityChanges += hideMarkersInCollection(cityMarkers, currentBounds, countVisibilityChanges)
+        visibilityChanges += hideMarkersInCollection(tripLocationMarkers, currentBounds, countVisibilityChanges)
+        visibilityChanges += hideMarkersInCollection(departureMarkers, currentBounds, countVisibilityChanges)
+        visibilityChanges += hideMarkersInCollection(arrivalMarkers, currentBounds, countVisibilityChanges)
+        visibilityChanges += hideMarkersInCollection(currentLocationMarkers, currentBounds, countVisibilityChanges)
 
         // Handle individual markers that aren't in collections
         hideIndividualMarkers(currentBounds)
+        if (countVisibilityChanges) {
+            TripGoMapMarkerDiag.recordMarkerVisibility(
+                hidden = hiddenCount(visibilityChanges),
+                shown = shownCount(visibilityChanges),
+                snapshot = markerDiagSnapshot()
+            )
+        }
     }
 
     /**
@@ -1446,12 +1496,15 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
      */
     private fun hideMarkersInCollection(
         collection: MarkerManager.Collection?,
-        viewportBounds: LatLngBounds
-    ) {
-        collection ?: return
+        viewportBounds: LatLngBounds,
+        countVisibilityChanges: Boolean = false
+    ): Long {
+        collection ?: return 0L
 
         val zoom = map?.cameraPosition?.zoom ?: 0f
         val isPOIZoom = zoom > 12.1f && zoom < 14.5f
+        var hidden = 0
+        var shown = 0
 
         // Iterate once and set visibility based on the rule for this zoom level
         for (marker in collection.markers) {
@@ -1467,6 +1520,9 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
                 }
 
             if (marker.isVisible != shouldBeVisible) {
+                if (countVisibilityChanges) {
+                    if (shouldBeVisible) shown++ else hidden++
+                }
                 marker.isVisible = shouldBeVisible
             }
             if (
@@ -1479,6 +1535,7 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
                 marker.showInfoWindow()
             }
         }
+        return visibilityChangeCounts(hidden, shown)
     }
 
 
@@ -1521,6 +1578,37 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
             marker.isVisible = bounds.contains(marker.position)
         }
     }
+
+    private fun markerDiagSnapshot(): TripGoMapMarkerDiag.MarkerSnapshot =
+        TripGoMapMarkerDiag.snapshot(
+            collections = listOf(
+                poiMarkers,
+                cityMarkers,
+                tripLocationMarkers,
+                departureMarkers,
+                arrivalMarkers,
+                currentLocationMarkers
+            ),
+            poiMarkers = poiMarkers,
+            byIdentifierSize = poiMarkersByIdentifier.size,
+            positionsSize = existingMarkerPositions.size,
+            regionalCount = MapData.getRegionalStops().size
+        )
+
+    private fun removePoiMarker(marker: Marker) {
+        markerHideCallbacks.remove(marker)
+        removeMarkerPosition(marker.position)
+        if (poiMarkers?.remove(marker) != true) {
+            marker.remove()
+        }
+    }
+
+    private fun visibilityChangeCounts(hidden: Int, shown: Int): Long =
+        (hidden.toLong() shl 32) or (shown.toLong() and 0xffffffffL)
+
+    private fun hiddenCount(counts: Long): Int = (counts shr 32).toInt()
+
+    private fun shownCount(counts: Long): Int = counts.toInt()
 
     /**
      * Check if two bounds are similar enough to avoid unnecessary updates

@@ -8,6 +8,7 @@ import android.graphics.PorterDuff
 import android.graphics.PorterDuff.Mode.SRC_IN
 import android.graphics.PorterDuffColorFilter
 import android.graphics.drawable.Drawable
+import android.util.LruCache
 import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.MarkerOptions
@@ -32,6 +33,14 @@ class RemoteMarkerIconFetcher @Inject constructor(
     companion object {
         const val SIZE_CIRCULAR_BITMAP = 30
         const val TINT_BITMAP_RGB = 255
+
+        private const val DESCRIPTOR_CACHE_MAX_ENTRIES = 200
+        private const val CACHE_SOURCE_REMOTE = "remote"
+        private const val CACHE_SOURCE_RESOURCE = "resource"
+        private const val CACHE_SOURCE_DEFAULT = "default"
+        private val descriptorCacheLock = Any()
+        private val descriptorCache =
+            LruCache<MarkerIconDescriptorCacheKey, BitmapDescriptor>(DESCRIPTOR_CACHE_MAX_ENTRIES)
     }
 
     fun call(markerOptions: MarkerOptions, modeInfo: ModeInfo?) {
@@ -43,30 +52,59 @@ class RemoteMarkerIconFetcher @Inject constructor(
 
     fun callAsync(markerOptions: MarkerOptions, stop: ScheduledStop): Single<MarkerOptions> {
         val modeInfo = stop.modeInfo
+        val densityDpiName = DeviceInfo.getDensityDpiName()
         val iconUrl =
             if(modeInfo?.remoteIconIsTemplate == true) {
-                getRemoteMapIconUrlForModeInfo(DeviceInfo.getDensityDpiName(), modeInfo)
+                getRemoteMapIconUrlForModeInfo(densityDpiName, modeInfo)
             } else {
-                getLocalMapIconUrlForModeInfo(DeviceInfo.getDensityDpiName(), modeInfo)
+                getLocalMapIconUrlForModeInfo(densityDpiName, modeInfo)
             }
+        val tintColor = Color.rgb(TINT_BITMAP_RGB, TINT_BITMAP_RGB, TINT_BITMAP_RGB)
+        val circleColor = Color.rgb(
+            modeInfo?.getServiceColor()?.red ?: 0,
+            modeInfo?.getServiceColor()?.green ?: 0,
+            modeInfo?.getServiceColor()?.blue ?: 0
+        )
+        val cacheKey = MarkerIconDescriptorCacheKey(
+            source = CACHE_SOURCE_REMOTE,
+            sourceId = iconUrl.orEmpty(),
+            densityDpiName = densityDpiName,
+            circleRadius = SIZE_CIRCULAR_BITMAP,
+            tintColor = tintColor,
+            circleColor = circleColor
+        )
+        TripGoMapMarkerDiag.recordIconFetch()
         return Single.defer {
+            getCachedDescriptor(cacheKey)?.let { cachedIcon ->
+                TripGoMapMarkerDiag.recordBitmapDescriptorCacheHit(descriptorCacheSize())
+                markerOptions.icon(cachedIcon)
+                return@defer Single.just(markerOptions)
+            }
+
+            TripGoMapMarkerDiag.recordBitmapDescriptorCacheMiss(descriptorCacheSize())
             Single.create { emitter ->
                 picasso.load(iconUrl)
                     .into(object : com.squareup.picasso.Target {
                         override fun onBitmapLoaded(bitmap: Bitmap?, from: Picasso.LoadedFrom?) {
                             bitmap?.let {
-                                val circularBitmap = createCircularMarkerBitmap(
+                                getCachedDescriptor(cacheKey)?.let { cachedIcon ->
+                                    TripGoMapMarkerDiag.recordBitmapDescriptorCacheHit(descriptorCacheSize())
+                                    markerOptions.icon(cachedIcon)
+                                    emitter.onSuccess(markerOptions)
+                                    return
+                                }
+
+                                val markerBitmap = createCircularMarkerBitmap(
                                     it,
-                                    Color.rgb(TINT_BITMAP_RGB, TINT_BITMAP_RGB, TINT_BITMAP_RGB),
-                                    Color.rgb(
-                                        modeInfo?.getServiceColor()?.red ?: 0,
-                                        modeInfo?.getServiceColor()?.green ?: 0,
-                                        modeInfo?.getServiceColor()?.blue ?: 0
-                                    ),
+                                    tintColor,
+                                    circleColor,
                                     SIZE_CIRCULAR_BITMAP
                                 )
 
-                                val icon = BitmapDescriptorFactory.fromBitmap(circularBitmap)
+                                val icon = BitmapDescriptorFactory.fromBitmap(markerBitmap.bitmap)
+                                TripGoMapMarkerDiag.recordBitmapDescriptorFromBitmap()
+                                putCachedDescriptor(cacheKey, icon)
+                                markerBitmap.recycleOwnedBitmaps()
                                 markerOptions.icon(icon)
                                 emitter.onSuccess(markerOptions)
                             } ?: run {
@@ -87,19 +125,39 @@ class RemoteMarkerIconFetcher @Inject constructor(
                     })
             }.onErrorResumeNext {
                 // Fallback to local resource-based marker icon
-                getMapIconFromResource(markerOptions, stop.type)
+                getMapIconFromResource(markerOptions, stop.type, densityDpiName)
             }
         }.subscribeOn(AndroidSchedulers.mainThread())
     }
 
-    private fun getMapIconFromResource(markerOptions: MarkerOptions, type: StopType?): Single<MarkerOptions> {
+    private fun getMapIconFromResource(
+        markerOptions: MarkerOptions,
+        type: StopType?,
+        densityDpiName: String
+    ): Single<MarkerOptions> {
         return Single.fromCallable {
             val iconRes = BindingConversions.convertStopTypeToMapIconRes(type)
+            val cacheKey = MarkerIconDescriptorCacheKey(
+                source = if (iconRes == 0) CACHE_SOURCE_DEFAULT else CACHE_SOURCE_RESOURCE,
+                sourceId = iconRes.toString(),
+                densityDpiName = densityDpiName,
+                circleRadius = 0,
+                tintColor = 0,
+                circleColor = 0
+            )
+            getCachedDescriptor(cacheKey)?.let { cachedIcon ->
+                TripGoMapMarkerDiag.recordBitmapDescriptorCacheHit(descriptorCacheSize())
+                markerOptions.icon(cachedIcon)
+                return@fromCallable markerOptions
+            }
+
+            TripGoMapMarkerDiag.recordBitmapDescriptorCacheMiss(descriptorCacheSize())
             val icon: BitmapDescriptor = if (iconRes == 0) {
                 BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW)
             } else {
                 BitmapDescriptorFactory.fromResource(iconRes)
             }
+            putCachedDescriptor(cacheKey, icon)
             markerOptions.icon(icon)
             markerOptions
         }
@@ -110,9 +168,10 @@ class RemoteMarkerIconFetcher @Inject constructor(
         tintColor: Int,
         circleColor: Int,
         circleRadius: Int
-    ): Bitmap {
+    ): CreatedMarkerBitmap {
         // Create a new bitmap for the output
         val output = Bitmap.createBitmap(circleRadius * 2, circleRadius * 2, Bitmap.Config.ARGB_8888)
+        TripGoMapMarkerDiag.recordBitmapCreation()
         val canvas = Canvas(output)
 
         // Draw the white border
@@ -133,6 +192,7 @@ class RemoteMarkerIconFetcher @Inject constructor(
 
         // Apply tint to the bitmap
         val tintedBitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true)
+        TripGoMapMarkerDiag.recordBitmapCreation(scaleOrCopy = 1)
         val bitmapCanvas = Canvas(tintedBitmap)
         val tintPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             colorFilter = PorterDuffColorFilter(tintColor, PorterDuff.Mode.SRC_IN)
@@ -163,12 +223,67 @@ class RemoteMarkerIconFetcher @Inject constructor(
             targetHeight,
             true
         )
+        TripGoMapMarkerDiag.recordBitmapCreation(scaleOrCopy = 1)
 
         // Draw the scaled bitmap at the center of the circular background
         val left = (output.width - scaledBitmap.width) / 2f
         val top = (output.height - scaledBitmap.height) / 2f
         canvas.drawBitmap(scaledBitmap, left, top, null)
 
-        return output
+        return CreatedMarkerBitmap(
+            bitmap = output,
+            sourceBitmap = bitmap,
+            tintedBitmap = tintedBitmap,
+            scaledBitmap = scaledBitmap
+        )
     }
+
+    private fun getCachedDescriptor(key: MarkerIconDescriptorCacheKey): BitmapDescriptor? =
+        synchronized(descriptorCacheLock) {
+            descriptorCache.get(key)
+        }
+
+    private fun putCachedDescriptor(key: MarkerIconDescriptorCacheKey, descriptor: BitmapDescriptor) {
+        synchronized(descriptorCacheLock) {
+            descriptorCache.put(key, descriptor)
+        }
+    }
+
+    private fun descriptorCacheSize(): Int =
+        synchronized(descriptorCacheLock) {
+            descriptorCache.size()
+        }
+
+    private data class CreatedMarkerBitmap(
+        val bitmap: Bitmap,
+        val sourceBitmap: Bitmap,
+        val tintedBitmap: Bitmap,
+        val scaledBitmap: Bitmap
+    ) {
+        fun recycleOwnedBitmaps() {
+            // Picasso owns the source bitmap. Only recycle bitmaps allocated in this class.
+            recycleIfOwned(scaledBitmap)
+            recycleIfOwned(tintedBitmap)
+            recycleIfOwned(bitmap)
+        }
+
+        private fun recycleIfOwned(candidate: Bitmap) {
+            if (
+                candidate !== sourceBitmap &&
+                !candidate.isRecycled
+            ) {
+                candidate.recycle()
+                TripGoMapMarkerDiag.recordBitmapRecycle()
+            }
+        }
+    }
+
+    internal data class MarkerIconDescriptorCacheKey(
+        val source: String,
+        val sourceId: String,
+        val densityDpiName: String,
+        val circleRadius: Int,
+        val tintColor: Int,
+        val circleColor: Int
+    )
 }
