@@ -113,6 +113,7 @@ internal fun createVisibleServiceViewModels(
                     .subscribeWithErrorHandling { entry ->
                         timetableEntryChosen.accept(entry)
                     }
+                    .autoClear()
             }
         }
 }
@@ -166,11 +167,13 @@ class TimetableViewModel @Inject constructor(
         override fun areContentsTheSame(
             oldItem: ServiceViewModel,
             newItem: ServiceViewModel
-        ): Boolean =
-            oldItem.serviceNumber.value == newItem.serviceNumber.value
+        ): Boolean {
+            if (oldItem !== newItem) return false
+            return oldItem.serviceNumber.value == newItem.serviceNumber.value
                 && oldItem.secondaryText.value == newItem.secondaryText.value
                 && oldItem.tertiaryText.value == newItem.tertiaryText.value
                 && oldItem.countDownTimeText.value == newItem.countDownTimeText.value
+        }
 
 
     }
@@ -244,7 +247,9 @@ class TimetableViewModel @Inject constructor(
                                 request.isSelectedTime
                             )
                         )
-                        timeInSecs.set(it.first.last().startTimeInSecs + 1)
+                        it.first.lastOrNull()?.let { lastService ->
+                            timeInSecs.set(lastService.startTimeInSecs + 1)
+                        }
                     }, {
                         it.printStackTrace()
                         emitter.onError(it)
@@ -478,6 +483,9 @@ class TimetableViewModel @Inject constructor(
 
     private suspend fun applyServicesUpdateSafely(nextItems: List<ServiceViewModel>) {
         servicesUpdateMutex.withLock {
+            val itemsToClear = services.filter { oldItem ->
+                nextItems.none { newItem -> newItem === oldItem }
+            }
             val diff = withContext(Dispatchers.Default) { services.calculateDiff(nextItems) }
             withContext(Dispatchers.Main.immediate) {
                 runCatching {
@@ -486,6 +494,8 @@ class TimetableViewModel @Inject constructor(
                     Timber.w(firstError, "Primary timetable diff apply failed, retrying with fresh diff")
                     // Retry with a fresh diff against the latest adapter state.
                     services.update(nextItems)
+                }.onSuccess {
+                    itemsToClear.forEach { it.onCleared() }
                 }.onFailure { finalError ->
                     Timber.e(finalError, "Failed to apply timetable services update safely")
                 }

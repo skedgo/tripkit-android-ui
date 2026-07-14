@@ -63,6 +63,11 @@ import java.util.Collections
 import javax.inject.Inject
 
 class TripResultMapContributor : TripKitMapContributor {
+    private companion object {
+        const val MAX_TRAVELLED_POLYLINES_TO_HIGHLIGHT = 300
+        const val MIN_FREE_HEAP_BYTES_FOR_POLYLINE_HIGHLIGHT = 8 * 1024 * 1024L
+    }
+
     private var travelledStopMarkers: MarkerManager.Collection? = null
     private var vehicleMarkers: MarkerManager.Collection? = null
     private var segmentMarkers: MarkerManager.Collection? = null
@@ -456,16 +461,22 @@ class TripResultMapContributor : TripKitMapContributor {
     }
 
     fun focusTripLine(segment: TripSegment) {
-        val segmentPolyLines = segment.getPolyLines()
+        val segmentPolyLines = if (shouldHighlightTravelledPolyLines()) {
+            segment.getPolyLines()
+        } else {
+            emptyList()
+        }
 
-        updateTravelledPolyLinesHighlight(segmentPolyLines)
+        if (segmentPolyLines.isNotEmpty()) {
+            updateTravelledPolyLinesHighlight(segmentPolyLines)
+        }
 
         val bounds = segmentPolyLines
             .flatMap { it.points }
             .takeIf { it.isNotEmpty() }
             ?.let { points ->
                 LatLngBounds.builder().apply { points.forEach(::include) }.build()
-            }
+            } ?: segment.getFallbackBounds()
 
         if (bounds != null) {
             val cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, 50)
@@ -479,14 +490,38 @@ class TripResultMapContributor : TripKitMapContributor {
         }
     }
 
+    private fun shouldHighlightTravelledPolyLines(): Boolean {
+        val runtime = Runtime.getRuntime()
+        val freeHeapBytes = runtime.maxMemory() - (runtime.totalMemory() - runtime.freeMemory())
+        return tripLinesTravelled.size <= MAX_TRAVELLED_POLYLINES_TO_HIGHLIGHT &&
+            freeHeapBytes >= MIN_FREE_HEAP_BYTES_FOR_POLYLINE_HIGHLIGHT
+    }
+
     private fun updateTravelledPolyLinesHighlight(segmentPolyLines: List<Polyline>) {
         tripLinesTravelled.forEach { polyLine ->
-            if (segmentPolyLines.any { it == polyLine }) {
-                polyLine.color = polyLine.color.removeAlpha()
+            val targetColor = if (segmentPolyLines.any { it == polyLine }) {
+                polyLine.color.removeAlpha()
             } else {
-                polyLine.color = polyLine.color.adjustAlpha(0.25f)
+                polyLine.color.adjustAlpha(0.25f)
+            }
+            if (polyLine.color != targetColor) {
+                try {
+                    polyLine.color = targetColor
+                } catch (error: OutOfMemoryError) {
+                    Timber.e(error, "Skipping trip line highlight due to low memory.")
+                    return
+                }
             }
         }
+    }
+
+    private fun TripSegment.getFallbackBounds(): LatLngBounds? {
+        val points = listOfNotNull(from, singleLocation, to).map { it.toLatLng() }
+        return points
+            .takeIf { it.isNotEmpty() }
+            ?.let {
+                LatLngBounds.builder().apply { it.forEach(::include) }.build()
+            }
     }
 
     private fun TripSegment.getPolyLines() =

@@ -728,7 +728,7 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
         }
 
         if(position.zoom > ZoomLevel.ZOOM_VALUE_TO_SHOW_CITIES) {
-            Timber.i("========== ${position.zoom} ============")
+//            Timber.i("========== ${position.zoom} ============")
             hideMarkersOutsideViewport()
         }
     }
