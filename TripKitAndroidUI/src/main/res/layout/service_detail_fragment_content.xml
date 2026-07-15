@@ -11,18 +11,26 @@
             type="com.skedgo.tripkit.ui.servicedetail.ServiceDetailViewModel" />
     </data>
 
-    <merge>
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
 
         <TextView
             android:id="@+id/details"
             style="@style/TextAppearance.MaterialComponents.Caption"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
             android:layout_marginTop="8dp"
             android:text="@{viewModel.tertiaryText}"
             android:textColor="@color/black1"
-            app:layout_constraintStart_toStartOf="@+id/iconLayout"
-            app:layout_constraintTop_toBottomOf="@+id/iconLayout"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
             tools:text="Fürth" />
 
         <View
@@ -225,13 +233,6 @@
             android:visibility="@{viewModel.isLoading()}"
             app:layout_constraintTop_toBottomOf="@id/secondDividingLine"/>
 
-        <!--
-            nestedScrollingEnabled="false" is required so that BottomSheetBehavior's
-            findScrollingChild() unambiguously picks the main stop-list RecyclerView below
-            as the nested scrolling child. Otherwise rvAlerts (appearing first in the view
-            tree) would be cached as nestedScrollingChildRef in older Material Library
-            versions, breaking both the list→sheet drag handoff and the header drag.
-        -->
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvAlerts"
             android:layout_width="match_parent"
@@ -250,9 +251,9 @@
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerView"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
+            android:layout_height="wrap_content"
             android:focusableInTouchMode="true"
-            android:nestedScrollingEnabled="true"
+            android:nestedScrollingEnabled="false"
             android:requiresFadingEdge="vertical|horizontal"
             app:itemBinding="@{viewModel.itemBinding}"
             app:items="@{viewModel.items}"
@@ -263,5 +264,7 @@
             tools:visibility="visible"
             tools:listitem="@layout/service_detail_fragment_list_item"/>
 
-    </merge>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.core.widget.NestedScrollView>
 </layout>
