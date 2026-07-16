@@ -21,6 +21,7 @@ import com.skedgo.tripkit.ui.utils.DeviceInfo
 import com.skedgo.tripkit.ui.utils.StopMarkerUtils.getLocalMapIconUrlForModeInfo
 import com.skedgo.tripkit.ui.utils.StopMarkerUtils.getRemoteMapIconUrlForModeInfo
 import com.squareup.picasso.Picasso
+import com.squareup.picasso.Target
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import java.lang.ref.WeakReference
@@ -49,6 +50,8 @@ class RemoteMarkerIconFetcher @Inject constructor(
         private val inFlightLock = Any()
         private val inFlightRequests =
             HashMap<MarkerIconDescriptorCacheKey, Single<BitmapDescriptor>>()
+        private val inFlightTargets =
+            HashMap<MarkerIconDescriptorCacheKey, Target>()
     }
 
     fun call(markerOptions: MarkerOptions, modeInfo: ModeInfo?) {
@@ -120,47 +123,56 @@ class RemoteMarkerIconFetcher @Inject constructor(
             inFlightRequests[cacheKey]?.let { return it }
 
             val request = Single.create<BitmapDescriptor> { emitter ->
+                val target = object : Target {
+                    override fun onBitmapLoaded(bitmap: Bitmap?, from: Picasso.LoadedFrom?) {
+                        bitmap?.let {
+                            getCachedDescriptor(cacheKey)?.let { cachedIcon ->
+                                TripGoMapMarkerDiag.recordBitmapDescriptorCacheHit(descriptorCacheSize())
+                                emitter.onSuccess(cachedIcon)
+                                return
+                            }
+
+                            val markerBitmap = createCircularMarkerBitmap(
+                                it,
+                                tintColor,
+                                circleColor,
+                                SIZE_CIRCULAR_BITMAP
+                            )
+
+                            val icon = BitmapDescriptorFactory.fromBitmap(markerBitmap.bitmap)
+                            TripGoMapMarkerDiag.recordBitmapDescriptorFromBitmap()
+                            putCachedDescriptor(cacheKey, icon)
+                            markerBitmap.recycleOwnedBitmaps()
+                            emitter.onSuccess(icon)
+                        } ?: run {
+                            emitter.onError(Throwable("Bitmap is null"))
+                        }
+                    }
+
+                    override fun onBitmapFailed(e: Exception?, errorDrawable: Drawable?) {
+                        if(BuildConfig.DEBUG) {
+                            e?.printStackTrace()
+                        }
+                        emitter.onError(e ?: Throwable("Bitmap failed to load"))
+                    }
+
+                    override fun onPrepareLoad(placeHolderDrawable: Drawable?) {
+                        // Placeholder if needed
+                    }
+                }
+                // Picasso keeps Target instances weakly. Retain this target until the
+                // shared request terminates so its callback can complete the Single.
+                synchronized(inFlightLock) {
+                    inFlightTargets[cacheKey] = target
+                }
                 picasso.load(iconUrl)
-                    .into(object : com.squareup.picasso.Target {
-                        override fun onBitmapLoaded(bitmap: Bitmap?, from: Picasso.LoadedFrom?) {
-                            bitmap?.let {
-                                getCachedDescriptor(cacheKey)?.let { cachedIcon ->
-                                    TripGoMapMarkerDiag.recordBitmapDescriptorCacheHit(descriptorCacheSize())
-                                    emitter.onSuccess(cachedIcon)
-                                    return
-                                }
-
-                                val markerBitmap = createCircularMarkerBitmap(
-                                    it,
-                                    tintColor,
-                                    circleColor,
-                                    SIZE_CIRCULAR_BITMAP
-                                )
-
-                                val icon = BitmapDescriptorFactory.fromBitmap(markerBitmap.bitmap)
-                                TripGoMapMarkerDiag.recordBitmapDescriptorFromBitmap()
-                                putCachedDescriptor(cacheKey, icon)
-                                markerBitmap.recycleOwnedBitmaps()
-                                emitter.onSuccess(icon)
-                            } ?: run {
-                                emitter.onError(Throwable("Bitmap is null"))
-                            }
-                        }
-
-                        override fun onBitmapFailed(e: Exception?, errorDrawable: Drawable?) {
-                            if(BuildConfig.DEBUG) {
-                                e?.printStackTrace()
-                            }
-                            emitter.onError(e ?: Throwable("Bitmap failed to load"))
-                        }
-
-                        override fun onPrepareLoad(placeHolderDrawable: Drawable?) {
-                            // Placeholder if needed
-                        }
-                    })
+                    .into(target)
             }
                 .doFinally {
-                    synchronized(inFlightLock) { inFlightRequests.remove(cacheKey) }
+                    synchronized(inFlightLock) {
+                        inFlightRequests.remove(cacheKey)
+                        inFlightTargets.remove(cacheKey)
+                    }
                 }
                 .subscribeOn(AndroidSchedulers.mainThread())
                 .cache()

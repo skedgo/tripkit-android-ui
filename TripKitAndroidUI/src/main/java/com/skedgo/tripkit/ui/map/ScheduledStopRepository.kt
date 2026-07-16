@@ -132,12 +132,17 @@ open class ScheduledStopRepository @Inject constructor(
      */
     fun deleteByCellCodesSync(cellCodes: List<String>) {
         if (cellCodes.isEmpty()) return
-        
-        // Delete in single transaction via Room - efficient for bulk operations
-        val deletedStops = scheduledStopDatabase.scheduledStopDao().deleteScheduledStopsByCellCodes(cellCodes)
-        val deletedLocations = scheduledStopDatabase.scheduledStopDao().deleteLocationsByCellCodes(cellCodes)
-        
-        Timber.d("Deleted old data for ${cellCodes.size} cells: $deletedStops stops, $deletedLocations locations")
+
+        scheduledStopDatabase.runInTransaction {
+            // Locations must be deleted before stops: location delete uses a subquery on scheduled_stops.
+            val deletedLocations =
+                scheduledStopDatabase.scheduledStopDao().deleteLocationsByCellCodes(cellCodes)
+            val deletedStops =
+                scheduledStopDatabase.scheduledStopDao().deleteScheduledStopsByCellCodes(cellCodes)
+            Timber.d(
+                "Deleted old data for ${cellCodes.size} cells: $deletedStops stops, $deletedLocations locations"
+            )
+        }
     }
 
     fun update(
@@ -379,4 +384,5 @@ open class ScheduledStopRepository @Inject constructor(
             isDynamic = isDynamic
         )
     }
+
 }

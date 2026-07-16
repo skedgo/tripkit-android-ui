@@ -13,7 +13,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
         LocationEntity::class,
         ScheduledStopDownloadHistoryEntity::class
     ],
-    version = 3,
+    version = 4,
     exportSchema = false
 )
 abstract class ScheduledStopDatabase : RoomDatabase() {
@@ -28,6 +28,34 @@ abstract class ScheduledStopDatabase : RoomDatabase() {
             }
         }
 
+        private val MIGRATION_3_4 = object : Migration(3, 4) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    """
+                    DELETE FROM locations
+                    WHERE scheduledStopCode IS NOT NULL
+                    AND id NOT IN (
+                        SELECT MAX(id)
+                        FROM locations
+                        WHERE scheduledStopCode IS NOT NULL
+                        GROUP BY scheduledStopCode
+                    )
+                    """.trimIndent()
+                )
+                db.execSQL(
+                    """
+                    DELETE FROM locations
+                    WHERE scheduledStopCode IS NULL
+                    OR scheduledStopCode NOT IN (SELECT code FROM scheduled_stops)
+                    """.trimIndent()
+                )
+                db.execSQL("DROP INDEX IF EXISTS index_locations_scheduledStopCode")
+                db.execSQL(
+                    "CREATE UNIQUE INDEX index_locations_scheduledStopCode ON locations(scheduledStopCode)"
+                )
+            }
+        }
+
         fun getDatabase(context: Context): ScheduledStopDatabase {
             return INSTANCE ?: synchronized(this) {
                 val instance = Room.databaseBuilder(
@@ -35,7 +63,7 @@ abstract class ScheduledStopDatabase : RoomDatabase() {
                     ScheduledStopDatabase::class.java,
                     "scheduled_stop_database"
                 )
-                    .addMigrations(MIGRATION_1_2)
+                    .addMigrations(MIGRATION_1_2, MIGRATION_3_4)
                     .fallbackToDestructiveMigration(true)
                     .build()
                 INSTANCE = instance
