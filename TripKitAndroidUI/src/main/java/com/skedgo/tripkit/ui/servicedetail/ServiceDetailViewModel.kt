@@ -211,11 +211,16 @@ class ServiceDetailViewModel @Inject constructor(
         regionService.getRegionByLocationAsync(segment.from)
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({
+                val serviceName = if (segment.serviceName != segment.serviceDirection) {
+                    segment.serviceDirection
+                } else {
+                    segment.serviceName
+                }
                 setup(
                     region = it.name.orEmpty(),
                     regionUrls = it.getURLs(),
                     serviceId = segment.serviceTripId.orEmpty(),
-                    serviceName = segment.serviceName,
+                    serviceName = serviceName,
                     serviceNumber = segment.serviceNumber,
                     serviceColor = segment.serviceColor,
                     operator = segment.serviceOperator,
@@ -242,14 +247,18 @@ class ServiceDetailViewModel @Inject constructor(
         regionService.getRegionByLocationAsync(_stop)
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({
+                val serviceName = if (_entry.serviceName.isNullOrEmpty()) {
+                    getServiceTertiaryText.execute(_entry)
+                } else if (_entry.serviceName != _entry.serviceDirection) {
+                    _entry.serviceDirection
+                } else {
+                    _entry.serviceName
+                }
                 setup(
                     region = it.name.orEmpty(),
                     regionUrls = it.getURLs(),
                     serviceId = _entry.serviceTripId.orEmpty(),
-                    serviceName = if (!_entry.serviceName.isNullOrEmpty())
-                        _entry.serviceName.orEmpty()
-                    else
-                        getServiceTertiaryText.execute(_entry),
+                    serviceName = serviceName,
                     serviceNumber = _entry.serviceNumber,
                     serviceColor = _entry.serviceColor,
                     operator = _entry.operator,
