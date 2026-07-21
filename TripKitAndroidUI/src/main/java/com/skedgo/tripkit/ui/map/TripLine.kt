@@ -72,31 +72,8 @@ open class GetTripLine @Inject internal constructor(
     private fun createPolylineListForTravelledLines(results: List<List<LineSegment>>?): List<SegmentsPolyLineOptions> {
         val polylineOptionsList = mutableListOf<PolylineOptions>()
         if (!results.isNullOrEmpty()) {
-            val lines = LinkedList<LatLng>()
             for (list in results) {
-
-                list.forEach {
-                    lines.clear()
-                    lines.add(LatLng(it.start.latitude, it.start.longitude))
-                    lines.add(LatLng(it.end.latitude, it.end.longitude))
-
-                    //Background only for non-black color lines to standout in map
-                    if (it.color != Color.BLACK) {
-                        polylineOptionsList.add(
-                            PolylineOptions()
-                                .addAll(lines)
-                                .color(Color.BLACK)
-                                .width(20f)
-                        )
-                    }
-
-                    polylineOptionsList.add(
-                        PolylineOptions()
-                            .addAll(lines)
-                            .color(it.color)
-                            .width((if (it.color != Color.BLACK) 14 else 15).toFloat())
-                    )
-                }
+                polylineOptionsList.addAll(list.toPolylineOptions())
             }
         }
         return listOf(
@@ -110,32 +87,16 @@ open class GetTripLine @Inject internal constructor(
     ): List<SegmentsPolyLineOptions> {
         val polylineOptionsList = mutableListOf<PolylineOptions>()
         if (!results.isNullOrEmpty()) {
-            val lines = LinkedList<LatLng>()
-            results.forEachIndexed { index, list ->
-                list.forEach {
-                    val color: Int
-                    val zIndex: Float
-                    if(config.activeTripUuid != null &&
-                        config.activeTripUuid == it.tripUuid) {
-                        color = config.activeColor
-                        zIndex = 5.0f
-                    } else {
-                        color = config.inActiveColor
-                        zIndex = 2.0f
+            results.forEach { list ->
+                polylineOptionsList.addAll(
+                    list.toPolylineOptions { lineSegment ->
+                        if (config.activeTripUuid != null && config.activeTripUuid == lineSegment.tripUuid) {
+                            PolylineStyle(config.activeColor, 5.0f)
+                        } else {
+                            PolylineStyle(config.inActiveColor, 2.0f)
+                        }
                     }
-
-                    lines.clear()
-                    lines.add(LatLng(it.start.latitude, it.start.longitude))
-                    lines.add(LatLng(it.end.latitude, it.end.longitude))
-
-                    polylineOptionsList.add(
-                        PolylineOptions()
-                            .addAll(lines)
-                            .color(color)
-                            .width((if (it.color != Color.BLACK) 14 else 15).toFloat())
-                            .zIndex(zIndex)
-                    )
-                }
+                )
             }
         }
         return listOf(
@@ -143,5 +104,59 @@ open class GetTripLine @Inject internal constructor(
                 polylineOptionsList, true
             )
         )
+    }
+
+    private data class PolylineStyle(
+        val color: Int,
+        val zIndex: Float? = null
+    )
+
+    private fun List<LineSegment>.toPolylineOptions(
+        styleProvider: (LineSegment) -> PolylineStyle = { PolylineStyle(it.color) }
+    ): List<PolylineOptions> {
+        val polylineOptionsList = mutableListOf<PolylineOptions>()
+        var currentStyle: PolylineStyle? = null
+        var currentPoints = LinkedList<LatLng>()
+
+        fun flushCurrentLine() {
+            val style = currentStyle ?: return
+            if (currentPoints.size < 2) return
+
+            if (style.color != Color.BLACK) {
+                polylineOptionsList.add(
+                    PolylineOptions()
+                        .addAll(currentPoints)
+                        .color(Color.BLACK)
+                        .width(20f)
+                        .apply { style.zIndex?.let(::zIndex) }
+                )
+            }
+
+            polylineOptionsList.add(
+                PolylineOptions()
+                    .addAll(currentPoints)
+                    .color(style.color)
+                    .width((if (style.color != Color.BLACK) 14 else 15).toFloat())
+                    .apply { style.zIndex?.let(::zIndex) }
+            )
+        }
+
+        forEach { lineSegment ->
+            val style = styleProvider(lineSegment)
+            val start = LatLng(lineSegment.start.latitude, lineSegment.start.longitude)
+            val end = LatLng(lineSegment.end.latitude, lineSegment.end.longitude)
+            val continuesCurrentLine = currentPoints.lastOrNull() == start
+
+            if (currentStyle != style || !continuesCurrentLine) {
+                flushCurrentLine()
+                currentStyle = style
+                currentPoints = LinkedList()
+                currentPoints.add(start)
+            }
+            currentPoints.add(end)
+        }
+
+        flushCurrentLine()
+        return polylineOptionsList
     }
 }

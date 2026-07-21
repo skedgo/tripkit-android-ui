@@ -59,6 +59,7 @@ class TripGroupsPagerAdapter(
         return TripSegmentListFragment.Builder()
             .withTripGroupId(tripGroup.uuid())
             .withTripId(tripId ?: tripGroup.displayTripId)
+            .withTripGroup(tripGroup)
             .withActionButtonHandlerFactory(actionButtonHandlerFactory)
             .withMapContributor(tripResultMapContributor)
             .showCloseButton(showCloseButton)

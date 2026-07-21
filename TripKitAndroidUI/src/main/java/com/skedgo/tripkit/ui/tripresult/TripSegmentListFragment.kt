@@ -111,6 +111,7 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
     lateinit var binding: TripSegmentListFragmentBinding
     private var tripGroupId: String? = null
     private var tripId: Long? = null
+    private var preloadedTripGroup: TripGroup? = null
     var actionButtonHandlerFactory: ActionButtonHandlerFactory? = null
     private var tripResultMapContributor: TripResultMapContributor? = null
     private var updateStream: PublishSubject<Unit>? = null
@@ -142,13 +143,13 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        viewModel.tripGroupObservable
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe { tripGroup ->
-                /* FIXME: Check if this could be removed */
-                tripGroup.displayTrip?.getBookingSegment()?.booking
-                    ?.externalActions?.forEach {}
-            }.addTo(autoDisposable)
+//        viewModel.tripGroupObservable
+//            .observeOn(AndroidSchedulers.mainThread())
+//            .subscribe { tripGroup ->
+//                /* FIXME: Check if this could be removed */
+//                tripGroup.displayTrip?.getBookingSegment()?.booking
+//                    ?.externalActions?.forEach {}
+//            }.addTo(autoDisposable)
     }
 
     override fun onCreateView(
@@ -175,8 +176,14 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
         viewModel.showCloseButton.value = showCloseButton
         binding.closeButton.setOnClickListener(onCloseButtonListener)
 
-        tripGroupId?.let {
-            viewModel.loadTripGroup(it, tripId ?: -1L, savedInstanceState)
+        tripGroupId?.let { id ->
+            // Paint immediately from the already-parsed group when available (avoids the
+            // 2-3s blank from re-reading + deserializing a many-segment group), then keep the
+            // DB/realtime subscription so subsequent updates still flow in.
+            preloadedTripGroup?.let { group ->
+                viewModel.renderTripGroup(group, tripId ?: -1L, savedInstanceState)
+            }
+            viewModel.loadTripGroup(id, tripId ?: -1L, savedInstanceState)
         }
 
         // Reduce layout conflicts and detach issues: disable item animations on the main list
@@ -256,17 +263,6 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
         
         // Ensure action button handler factory is available
         ensureActionButtonHandlerFactory()
-//        viewModel.tripGroupObservable
-//                .observeOn(mainThread())
-//                .take(1)
-//                .subscribe { tripGroup ->
-//                    buttonConfigurator?.let { configurator ->
-//                        binding.buttonLayout.forEach {
-//                            configurator.configureButton(context!!, it, tripGroup)
-//                        }
-//                    }
-//
-//                }.addTo(autoDisposable)
     }
 
     override fun onResume() {
@@ -576,6 +572,7 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
     class Builder {
         private var tripGroupId: String? = null
         private var tripId: Long? = null
+        private var preloadedTripGroup: TripGroup? = null
         private var buttons: List<TripKitButton>? = null
         private var buttonConfigurator: TripKitButtonConfigurator? = null
         private var showCloseButton = false
@@ -594,6 +591,11 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
             tripId?.let {
                 this.tripId = it
             }
+            return this
+        }
+
+        fun withTripGroup(tripGroup: TripGroup?): Builder {
+            this.preloadedTripGroup = tripGroup
             return this
         }
 
@@ -635,6 +637,7 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
             fragment.arguments = args
             fragment.tripGroupId = tripGroupId
             fragment.tripId = tripId ?: -1
+            fragment.preloadedTripGroup = preloadedTripGroup
             fragment.actionButtonHandlerFactory = actionButtonHandlerFactory
             fragment.tripResultMapContributor = tripResultMapContributor
             fragment.updateStream = updateStream
