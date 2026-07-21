@@ -28,6 +28,6 @@ object TimeSpanUtils {
                 timeUnit = StyleManager.FORMAT_TIME_SPAN_HOUR
             }
         }
-        return String.format(FORMAT_TIME_SPAN, sign * timeNumber, timeUnit)
+        return (sign * timeNumber).toString() + " " + timeUnit
     }
 }

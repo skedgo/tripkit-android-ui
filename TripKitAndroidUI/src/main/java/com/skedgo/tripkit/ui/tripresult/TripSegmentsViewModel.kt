@@ -283,6 +283,25 @@ class TripSegmentsViewModel @Inject internal constructor(
     }
 
     /**
+     * Immediately renders an already-parsed [TripGroup] that the caller holds in memory
+     * (e.g. the pager's initial list), so the segment list can paint without waiting for a
+     * fresh DB read + full deserialization. [loadTripGroup] is still used afterwards to keep
+     * receiving DB/realtime updates for the same group.
+     */
+    fun renderTripGroup(
+        tripGroup: TripGroup,
+        tripId: Long,
+        savedInstanceState: Bundle?
+    ) {
+        if (tripId != -1L) {
+            tripGroup.displayTripId = tripId
+        }
+        setTitleAndSubtitle(tripGroup, tripId)
+        setTripGroup(tripGroup, tripId, savedInstanceState)
+        setupButtons(tripGroup)
+    }
+
+    /**
      * Creates or updates action buttons for the current display trip.
      *
      * During state restoration we may already have placeholder button view models from

@@ -51,7 +51,7 @@ data class Waypoint(
             try {
                 val mode = segment.getModeForWayPoint()
                 var vehicleUUID: String? = null
-                segment.realTimeVehicle?.id?.let {
+                segment.realTimeVehicle?.id?.takeIf { it > 0 }?.let {
                     vehicleUUID = it.toString()
                 }
 

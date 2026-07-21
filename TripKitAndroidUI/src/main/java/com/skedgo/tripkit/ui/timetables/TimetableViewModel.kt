@@ -54,6 +54,7 @@ import me.tatarka.bindingcollectionadapter2.collections.DiffObservableList
 import org.joda.time.DateTimeZone
 import timber.log.Timber
 import java.util.concurrent.atomic.AtomicLong
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Provider
 import kotlin.math.max
@@ -63,6 +64,59 @@ data class ShowTimetableEntry(
     val trip: Trip,
     val tripSegment: TripSegment
 )
+
+private data class TimetableRequest(
+    val sinceTimeInSecs: Long,
+    val region: Region,
+    val stop: ScheduledStop,
+    val isSelectedTime: Boolean
+)
+
+private data class TimetableServicesResult(
+    val services: List<TimetableEntry>,
+    val parentStop: Optional<ScheduledStop>,
+    val isSelectedTime: Boolean
+)
+
+internal fun TimetableEntry.departureCountDownTimeInMins(nowInMillis: Long): Long {
+    val secsToDepart = TimeUnit.SECONDS.toMillis(realTimeDeparture(this, realtimeVehicle)) - nowInMillis
+    return TimeUnit.MILLISECONDS.toMinutes(secsToDepart)
+}
+
+internal fun TimetableEntry.shouldHideServiceViewModelInCurrentTimeMode(
+    isSelectedTime: Boolean,
+    nowInMillis: Long
+): Boolean {
+    if (isSelectedTime) return false
+
+    val hasDepartedCountdown = !isFrequencyBased && departureCountDownTimeInMins(nowInMillis) < 0
+    return hasDepartedCountdown || isCancelled
+}
+
+internal fun createVisibleServiceViewModels(
+    services: List<TimetableEntry>,
+    currentTripId: String,
+    timeZone: DateTimeZone,
+    isSelectedTime: Boolean,
+    nowInMillis: Long,
+    serviceViewModelProvider: Provider<ServiceViewModel>,
+    timetableEntryChosen: PublishRelay<TimetableEntry>
+): List<ServiceViewModel> {
+    return services
+        .filterNot {
+            it.shouldHideServiceViewModelInCurrentTimeMode(isSelectedTime, nowInMillis)
+        }
+        .map {
+            serviceViewModelProvider.get().apply {
+                this.setService(currentTripId, it, timeZone)
+                this.onItemClick.observable.observeOn(AndroidSchedulers.mainThread())
+                    .subscribeWithErrorHandling { entry ->
+                        timetableEntryChosen.accept(entry)
+                    }
+                    .autoClear()
+            }
+        }
+}
 
 class TimetableViewModel @Inject constructor(
     private val realTimeChoreographer: RealTimeChoreographer,
@@ -113,11 +167,13 @@ class TimetableViewModel @Inject constructor(
         override fun areContentsTheSame(
             oldItem: ServiceViewModel,
             newItem: ServiceViewModel
-        ): Boolean =
-            oldItem.serviceNumber.value == newItem.serviceNumber.value
+        ): Boolean {
+            if (oldItem !== newItem) return false
+            return oldItem.serviceNumber.value == newItem.serviceNumber.value
                 && oldItem.secondaryText.value == newItem.secondaryText.value
                 && oldItem.tertiaryText.value == newItem.tertiaryText.value
                 && oldItem.countDownTimeText.value == newItem.countDownTimeText.value
+        }
 
 
     }
@@ -149,28 +205,34 @@ class TimetableViewModel @Inject constructor(
     }
     private var _currentServiceTripId: String? = null
 
-    val minStartTime = onDateChanged.mergeWith(downloadTimetable).map { it }
+    private val minStartTimeWithMode = Observable.merge(
+        downloadTimetable.map { it to false },
+        onDateChanged.map { it to true }
+    )
+
+    val minStartTime = minStartTimeWithMode.map { it.first }
 
     private val servicesAndParentStop = Observables
-        .combineLatest(minStartTime, currentServiceTripId, regionObservable, stop)
-        { sinceTimeInSecs, currentServiceTripId, region, stop ->
+        .combineLatest(minStartTimeWithMode, currentServiceTripId, regionObservable, stop)
+        { minStartTimeWithMode, currentServiceTripId, region, stop ->
+            val sinceTimeInSecs = minStartTimeWithMode.first
             val time = if (currentServiceTripId.isNullOrEmpty()) {
                 sinceTimeInSecs / 1000
             } else {
                 sinceTimeInSecs
             }
-            Triple(time, region, stop)
+            TimetableRequest(time, region, stop, minStartTimeWithMode.second)
         }
-        .switchMap { (sinceTimeInSecs, region, stop) ->
-            Flowable.create<Pair<List<TimetableEntry>, Optional<ScheduledStop>>>({ emitter ->
-                val timeInSecs = AtomicLong(sinceTimeInSecs)
+        .switchMap { request ->
+            Flowable.create<TimetableServicesResult>({ emitter ->
+                val timeInSecs = AtomicLong(request.sinceTimeInSecs)
                 val subscription = loadMore
                     .startWith(Unit)
                     .switchMap {
                         fetchAndLoadTimetable.execute(
-                            stop.embarkationStopCode,
-                            stop.disembarkationStopCode,
-                            region,
+                            request.stop.embarkationStopCode,
+                            request.stop.disembarkationStopCode,
+                            request.region,
                             timeInSecs.get()
                         )
                             .toObservable()
@@ -178,8 +240,16 @@ class TimetableViewModel @Inject constructor(
                             .isExecuting { showLoading.postValue(it) }
                     }
                     .subscribe({
-                        emitter.onNext(it)
-                        timeInSecs.set(it.first.last().startTimeInSecs + 1)
+                        emitter.onNext(
+                            TimetableServicesResult(
+                                it.first,
+                                it.second,
+                                request.isSelectedTime
+                            )
+                        )
+                        it.first.lastOrNull()?.let { lastService ->
+                            timeInSecs.set(lastService.startTimeInSecs + 1)
+                        }
                     }, {
                         it.printStackTrace()
                         emitter.onError(it)
@@ -190,7 +260,13 @@ class TimetableViewModel @Inject constructor(
                     throwable.printStackTrace()
                     Timber.e("An error occurred", throwable)
                 }
-                .scan { a, b -> (a.first + b.first) to b.second }
+                .scan { a, b ->
+                    TimetableServicesResult(
+                        a.services + b.services,
+                        b.parentStop,
+                        b.isSelectedTime
+                    )
+                }
         }
         .doOnError { throwable: Throwable ->
             throwable.printStackTrace()
@@ -200,7 +276,7 @@ class TimetableViewModel @Inject constructor(
         .refCount()
 
     private val parentStop = servicesAndParentStop
-        .map { it.second }
+        .map { it.parentStop }
         .ignoreNetworkErrors()
         .withLatestFrom(
             stop,
@@ -215,13 +291,14 @@ class TimetableViewModel @Inject constructor(
     private val realtimeRelay = PublishRelay.create<Unit>()
 
     private val servicesVMs = Observables.combineLatest(
-        servicesAndParentStop.map { it.first },
+        servicesAndParentStop,
         regionObservable,
         currentServiceTripId
-    ) { services: List<TimetableEntry>, region: Region, currentTripId: String ->
-        Triple(services, region, currentTripId)
+    ) { servicesResult: TimetableServicesResult, region: Region, currentTripId: String ->
+        Triple(servicesResult, region, currentTripId)
     }.flatMap {
-        val services = it.first
+        val servicesResult = it.first
+        val services = servicesResult.services
         val region = it.second
         _currentServiceTripId = it.third
         realTimeChoreographer.getRealTimeResultsFromCleanElements(region, elements = services)
@@ -236,22 +313,22 @@ class TimetableViewModel @Inject constructor(
                 }
                 services
             }
-            .map { it to region }
-            .startWith(services to region)
+            .map { Triple(it, region, servicesResult.isSelectedTime) }
+            .startWith(Triple(services, region, servicesResult.isSelectedTime))
     }.map {
         val services = it.first
         val region = it.second
         val timeZone = DateTimeZone.forID(region.timezone)
 
-        services.map {
-            serviceViewModelProvider.get().apply {
-                this.setService(_currentServiceTripId ?: "", it, timeZone)
-                this.onItemClick.observable.observeOn(AndroidSchedulers.mainThread())
-                    .subscribeWithErrorHandling { entry ->
-                        timetableEntryChosen.accept(entry)
-                    }
-            }
-        }
+        createVisibleServiceViewModels(
+            services,
+            _currentServiceTripId ?: "",
+            timeZone,
+            it.third,
+            getNow.execute().millis,
+            serviceViewModelProvider,
+            timetableEntryChosen
+        )
     }.map {
         it.sortedBy { it.getRealTimeDeparture() }
     }.let {
@@ -406,6 +483,9 @@ class TimetableViewModel @Inject constructor(
 
     private suspend fun applyServicesUpdateSafely(nextItems: List<ServiceViewModel>) {
         servicesUpdateMutex.withLock {
+            val itemsToClear = services.filter { oldItem ->
+                nextItems.none { newItem -> newItem === oldItem }
+            }
             val diff = withContext(Dispatchers.Default) { services.calculateDiff(nextItems) }
             withContext(Dispatchers.Main.immediate) {
                 runCatching {
@@ -414,6 +494,8 @@ class TimetableViewModel @Inject constructor(
                     Timber.w(firstError, "Primary timetable diff apply failed, retrying with fresh diff")
                     // Retry with a fresh diff against the latest adapter state.
                     services.update(nextItems)
+                }.onSuccess {
+                    itemsToClear.forEach { it.onCleared() }
                 }.onFailure { finalError ->
                     Timber.e(finalError, "Failed to apply timetable services update safely")
                 }

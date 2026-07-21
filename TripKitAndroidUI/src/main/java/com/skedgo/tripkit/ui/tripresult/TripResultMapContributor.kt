@@ -63,6 +63,11 @@ import java.util.Collections
 import javax.inject.Inject
 
 class TripResultMapContributor : TripKitMapContributor {
+    private companion object {
+        const val MAX_TRAVELLED_POLYLINES_TO_HIGHLIGHT = 300
+        const val MIN_FREE_HEAP_BYTES_FOR_POLYLINE_HIGHLIGHT = 8 * 1024 * 1024L
+    }
+
     private var travelledStopMarkers: MarkerManager.Collection? = null
     private var vehicleMarkers: MarkerManager.Collection? = null
     private var segmentMarkers: MarkerManager.Collection? = null
@@ -115,6 +120,9 @@ class TripResultMapContributor : TripKitMapContributor {
 
     var markerManager: MarkerManager? = null
     protected val autoDisposable: CompositeDisposable by lazy {
+        CompositeDisposable()
+    }
+    private val segmentMarkerIconDisposables: CompositeDisposable by lazy {
         CompositeDisposable()
     }
 
@@ -248,7 +256,6 @@ class TripResultMapContributor : TripKitMapContributor {
             map.isIndoorEnabled = false
             map.uiSettings.isRotateGesturesEnabled = true
 
-            drawSegmentMarkers(context)
         }
     }
 
@@ -335,6 +342,7 @@ class TripResultMapContributor : TripKitMapContributor {
                     processMapTiles(it)
                 }, { Timber.e(it) })
         )
+        drawSegmentMarkers(context)
     }
 
     fun processMapTiles(tripKitMapTiles: List<String>) {
@@ -369,6 +377,7 @@ class TripResultMapContributor : TripKitMapContributor {
         observersSetUp = false
         
         autoDisposable.clear()
+        segmentMarkerIconDisposables.clear()
         travelledStopMarkers?.clear()
         vehicleMarkers?.clear()
         segmentMarkers?.clear()
@@ -452,16 +461,22 @@ class TripResultMapContributor : TripKitMapContributor {
     }
 
     fun focusTripLine(segment: TripSegment) {
-        val segmentPolyLines = segment.getPolyLines()
+        val segmentPolyLines = if (shouldHighlightTravelledPolyLines()) {
+            segment.getPolyLines()
+        } else {
+            emptyList()
+        }
 
-        updateTravelledPolyLinesHighlight(segmentPolyLines)
+        if (segmentPolyLines.isNotEmpty()) {
+            updateTravelledPolyLinesHighlight(segmentPolyLines)
+        }
 
         val bounds = segmentPolyLines
             .flatMap { it.points }
             .takeIf { it.isNotEmpty() }
             ?.let { points ->
                 LatLngBounds.builder().apply { points.forEach(::include) }.build()
-            }
+            } ?: segment.getFallbackBounds()
 
         if (bounds != null) {
             val cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, 50)
@@ -475,14 +490,38 @@ class TripResultMapContributor : TripKitMapContributor {
         }
     }
 
+    private fun shouldHighlightTravelledPolyLines(): Boolean {
+        val runtime = Runtime.getRuntime()
+        val freeHeapBytes = runtime.maxMemory() - (runtime.totalMemory() - runtime.freeMemory())
+        return tripLinesTravelled.size <= MAX_TRAVELLED_POLYLINES_TO_HIGHLIGHT &&
+            freeHeapBytes >= MIN_FREE_HEAP_BYTES_FOR_POLYLINE_HIGHLIGHT
+    }
+
     private fun updateTravelledPolyLinesHighlight(segmentPolyLines: List<Polyline>) {
         tripLinesTravelled.forEach { polyLine ->
-            if (segmentPolyLines.any { it == polyLine }) {
-                polyLine.color = polyLine.color.removeAlpha()
+            val targetColor = if (segmentPolyLines.any { it == polyLine }) {
+                polyLine.color.removeAlpha()
             } else {
-                polyLine.color = polyLine.color.adjustAlpha(0.25f)
+                polyLine.color.adjustAlpha(0.25f)
+            }
+            if (polyLine.color != targetColor) {
+                try {
+                    polyLine.color = targetColor
+                } catch (error: OutOfMemoryError) {
+                    Timber.e(error, "Skipping trip line highlight due to low memory.")
+                    return
+                }
             }
         }
+    }
+
+    private fun TripSegment.getFallbackBounds(): LatLngBounds? {
+        val points = listOfNotNull(from, singleLocation, to).map { it.toLatLng() }
+        return points
+            .takeIf { it.isNotEmpty() }
+            ?.let {
+                LatLngBounds.builder().apply { it.forEach(::include) }.build()
+            }
     }
 
     private fun TripSegment.getPolyLines() =
@@ -573,6 +612,7 @@ class TripResultMapContributor : TripKitMapContributor {
         context: Context,
         segmentMarkerViewModels: List<Pair<TripSegment, MarkerOptions>>
     ) {
+        segmentMarkerIconDisposables.clear()
         segmentMarkers?.clear()
         for (viewModel in segmentMarkerViewModels) {
             showSegmentMarker(context, viewModel)
@@ -588,7 +628,7 @@ class TripResultMapContributor : TripKitMapContributor {
         marker?.tag = segment
         val url = TransportModeUtils.getIconUrlForModeInfo(context.resources, segment.modeInfo)
         if (url != null) {
-            autoDisposable.add(picasso.fetchAsync(url)
+            segmentMarkerIconDisposables.add(picasso.fetchAsync(url)
                 .map { it: Bitmap? -> BitmapDrawable(context.resources, it) }
                 .map { it: BitmapDrawable? -> segmentMarkerIconMaker.make(segment, it) }
                 .compose(toTrySingle { error: Throwable? -> error is UnableToFetchBitmapError })

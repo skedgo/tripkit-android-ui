@@ -7,7 +7,7 @@ import androidx.room.PrimaryKey
 @Entity(
     tableName = "locations",
     indices = [
-        Index(value = ["scheduledStopCode"]),
+        Index(value = ["scheduledStopCode"], unique = true),
         Index(value = ["lat", "lon"]),
         Index(value = ["favouriteSortOrderPosition"])
     ]
