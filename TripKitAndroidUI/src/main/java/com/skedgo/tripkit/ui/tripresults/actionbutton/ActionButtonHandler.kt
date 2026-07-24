@@ -34,6 +34,7 @@ open class ActionButtonHandler {
 
     companion object {
         const val ACTION_TAG_GO = "go"
+        const val ACTION_TAG_GO_NOT_PRIMARY = "go_not_primary"
         const val ACTION_TAG_SHARE = "share"
         const val ACTION_TAG_FAVORITE = "favorite"
         const val ACTION_TAG_REPORT = "report"
@@ -98,6 +99,16 @@ open class ActionButtonHandler {
         viewModel: ActionButtonViewModel
     ) {
     }
+
+    /**
+     * Optional lightweight action template used by non-trip screens (e.g. Timetable) that only
+     * need to render common actions through the same UI pipeline.
+     */
+    open fun getActionTemplate(
+        context: Context,
+        tag: String,
+        selected: Boolean = false
+    ): ActionButton? = null
 
     // Interim solution, should find a better workaround for this one
     open fun handleCustomAction(tag: String, data: Any) {}

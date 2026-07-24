@@ -149,6 +149,34 @@ class TripSegmentsViewModel @Inject internal constructor(
                 )
         )
     }
+
+    val composeItemBinding: ItemBinding<Any> by lazy {
+        ItemBinding.of(
+            OnItemBindClass<Any>()
+                .map(
+                    CreditSourcesOfDataViewModel::class.java,
+                    BR.viewModel,
+                    R.layout.credit_sources_of_data
+                )
+                .map(
+                    TripSegmentItemViewModel::class.java,
+                    BR.viewModel,
+                    R.layout.trip_segment_compose
+                )
+                .map(
+                    TripSegmentGetOffAlertsViewModel::class.java,
+                    BR.viewModel,
+                    R.layout.trip_segment_get_off_alert
+                )
+        )
+    }
+
+    val segmentItemBinding: ItemBinding<Any>
+        get() = if (TripSegmentItemRendererFlags.USE_COMPOSE_TRIP_SEGMENT_ITEM_DEV_FLAG) {
+            composeItemBinding
+        } else {
+            itemBinding
+        }
     val showCloseButton = MutableLiveData(false)
     val isHideExactTimes = MutableLiveData(false)
     val isCancelled = MutableLiveData(false)

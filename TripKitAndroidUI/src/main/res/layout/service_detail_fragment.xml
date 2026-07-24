@@ -17,18 +17,16 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/white"
+        android:paddingHorizontal="@dimen/spacing_normal"
         android:clickable="true"
         android:focusable="true">
 
         <TextView
             android:id="@+id/stopName"
-            style="@style/TextAppearance.MaterialComponents.Headline6"
+            style="@style/TimetableTitleLarge"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
             android:layout_marginTop="8dp"
-            android:layout_marginEnd="16dp"
             android:layout_marginBottom="8dp"
             android:text="@{viewModel.stationName}"
             app:layout_constraintEnd_toStartOf="@+id/closeButton"
@@ -40,7 +38,6 @@
             android:id="@+id/closeButton"
             android:layout_width="@dimen/close_button_size"
             android:layout_height="@dimen/close_button_size"
-            android:layout_marginEnd="16dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="@string/desc_close"
             android:src="@drawable/close"
@@ -54,16 +51,17 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
+            android:layout_marginTop="@dimen/spacing_small"
             app:layout_constraintStart_toStartOf="@+id/stopName"
             app:layout_constraintTop_toBottomOf="@+id/stopName">
 
             <ImageView
                 android:id="@+id/serviceType"
-                android:layout_width="16dp"
-                android:layout_height="16dp"
+                android:layout_width="@dimen/icon_size_20"
+                android:layout_height="@dimen/icon_size_20"
                 android:visibility="@{viewModel.modeInfo != null}"
                 app:srcCompat="@{viewModel.modeInfo}"
-                app:tint="@color/black2" />
+                app:tint="@color/labelPrimary" />
 
             <androidx.cardview.widget.CardView
                 android:layout_width="wrap_content"
@@ -90,7 +88,7 @@
 
             <TextView
                 android:id="@+id/status"
-                style="@style/TextAppearance.MaterialComponents.Body2"
+                style="@style/TimetableBodyMedium"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="4dp"

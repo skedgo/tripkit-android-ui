@@ -2,20 +2,17 @@ package com.skedgo.tripkit.ui.trippreview.standard
 
 import android.content.Context
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
-import androidx.lifecycle.ViewModelProviders
+import androidx.fragment.app.viewModels
 import com.google.android.material.button.MaterialButton
 import com.skedgo.rxtry.subscribeWithErrorHandling
 import com.skedgo.tripkit.booking.BookingForm
 import com.skedgo.tripkit.booking.BookingService
-import com.skedgo.tripkit.booking.FormField
 import com.skedgo.tripkit.booking.LinkFormField
 import com.skedgo.tripkit.routing.TripSegment
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.TripKitUI
-import com.skedgo.tripkit.ui.core.BaseTripKitFragment
+import com.skedgo.tripkit.ui.core.BaseFragment
 import com.skedgo.tripkit.ui.core.addTo
 import com.skedgo.tripkit.ui.databinding.TripPreviewPagerItemBinding
 import com.skedgo.tripkit.ui.trippreview.TripPreviewPagerItemViewModel
@@ -23,47 +20,43 @@ import com.skedgo.tripkit.ui.trippreview.nearby.SharedNearbyTripPreviewItemViewM
 import com.skedgo.tripkit.ui.trippreview.nearby.SharedNearbyTripPreviewItemViewModelFactory
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
-import timber.log.Timber
 import javax.inject.Inject
+import kotlin.getValue
 
 
-class StandardTripPreviewItemFragment : BaseTripKitFragment() {
+class StandardTripPreviewItemFragment : BaseFragment<TripPreviewPagerItemBinding>() {
 
     @Inject
     lateinit var sharedViewModelFactory: SharedNearbyTripPreviewItemViewModelFactory
-    lateinit var sharedViewModel: SharedNearbyTripPreviewItemViewModel
-    lateinit var vm: TripPreviewPagerItemViewModel
-    lateinit var binding: TripPreviewPagerItemBinding
+    private val sharedViewModel: SharedNearbyTripPreviewItemViewModel by viewModels(
+        ownerProducer = { requireParentFragment() },
+        factoryProducer = { sharedViewModelFactory }
+    )
+    private val vm: TripPreviewPagerItemViewModel by viewModels()
 
     @Inject
     lateinit var bookingService: BookingService
 
     var segment: TripSegment? = null
 
+    override val layoutRes: Int
+        get() = R.layout.trip_preview_pager_item
+
+    override val observeAccessibility: Boolean = false
+
+    override fun getDefaultViewForAccessibility(): View? = null
+
     override fun onAttach(context: Context) {
         TripKitUI.getInstance().tripPreviewComponent().inject(this)
         super.onAttach(context)
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        sharedViewModel = ViewModelProviders.of(requireParentFragment(), sharedViewModelFactory)
-            .get("sharedNearbyViewModel", SharedNearbyTripPreviewItemViewModel::class.java)
-        vm = ViewModelProviders.of(this).get(TripPreviewPagerItemViewModel::class.java)
-    }
-
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        binding = TripPreviewPagerItemBinding.inflate(inflater)
+    override fun onCreated(savedInstance: Bundle?) {
         segment?.let {
             vm.setSegment(requireContext(), it)
         }
-        binding.viewModel = vm
         binding.lifecycleOwner = this
-        return binding.root
+        binding.viewModel = vm
     }
 
     override fun onResume() {
@@ -94,7 +87,6 @@ class StandardTripPreviewItemFragment : BaseTripKitFragment() {
                         runAction(formField)
                     }
                     binding.actionButtonLayout.addView(newButton)
-
                 }
 
             }

@@ -23,6 +23,8 @@ import android.widget.TextView
 import androidx.annotation.ColorInt
 import androidx.appcompat.widget.SwitchCompat
 import androidx.cardview.widget.CardView
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.ColorUtils
 import androidx.core.graphics.drawable.DrawableCompat
@@ -35,6 +37,9 @@ import com.skedgo.tripkit.common.model.alert.AlertSeverity
 import com.skedgo.tripkit.common.model.realtimealert.RealtimeAlert
 import com.skedgo.tripkit.ui.GlideApp
 import com.skedgo.tripkit.ui.R
+import com.skedgo.tripkit.ui.tripresult.ActionButtonClickListener
+import com.skedgo.tripkit.ui.tripresult.ActionButtonViewModel
+import com.skedgo.tripkit.ui.tripresult.TripSegmentActionButton
 
 //To databind resource id(int) on image views
 @BindingAdapter("android:src")
@@ -280,6 +285,23 @@ fun setBackground(view: View, drawable: StateListDrawable?) {
 fun clearTag(view: View, clear: Boolean) {
     if (clear) {
         view.tag = ""
+    }
+}
+
+@BindingAdapter(value = ["actionButtonViewModel", "actionButtonListener"], requireAll = true)
+fun bindActionButtonCompose(
+    view: ComposeView,
+    viewModel: ActionButtonViewModel?,
+    listener: ActionButtonClickListener?
+) {
+    view.setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+    view.setContent {
+        if (viewModel != null) {
+            TripSegmentActionButton(
+                viewModel = viewModel,
+                listener = listener
+            )
+        }
     }
 }
 
