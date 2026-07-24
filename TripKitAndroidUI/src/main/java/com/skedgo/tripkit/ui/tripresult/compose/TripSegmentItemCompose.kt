@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -52,6 +53,7 @@ import androidx.databinding.ObservableBoolean
 import androidx.databinding.ObservableField
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.skedgo.tripkit.common.model.realtimealert.ImmutableRealtimeAlert
 import com.skedgo.tripkit.common.model.realtimealert.RealtimeAlert
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.compose.TripKitUITheme
@@ -170,9 +172,9 @@ private fun TripSegmentItemContent(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(colorResource(R.color.white))
+            .background(colorResource(R.color.subCardBackground))
             .clickable { callbacks.onRowClick() }
-            .padding(start = dimensionResource(R.dimen.spacing_normal))
+            .padding(horizontal = dimensionResource(R.dimen.spacing_normal))
     ) {
         if (state.isCancelled) {
             CancelledSegment(message = state.cancelledMessage)
@@ -502,8 +504,8 @@ private fun TripSegmentAlerts(
     AndroidView(
         modifier = Modifier
             .fillMaxWidth()
+            .offset(x = -dimensionResource(R.dimen.spacing_small))
             .padding(
-                start = dimensionResource(R.dimen.segment_item_spacing_start) + dimensionResource(R.dimen.spacing_small),
                 top = dimensionResource(R.dimen.spacing_small),
                 end = dimensionResource(R.dimen.spacing_normal)
             ),
@@ -561,10 +563,8 @@ private fun SegmentDivider() {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(
-                start = dimensionResource(R.dimen.segment_item_spacing_start),
-                top = dimensionResource(R.dimen.spacing_12),
-            )
+            .padding(top = dimensionResource(R.dimen.spacing_12))
+            .offset(x = -dimensionResource(R.dimen.spacing_small))
             .height(dimensionResource(R.dimen.divider_size))
             .background(colorResource(R.color.black4))
     )
@@ -724,6 +724,52 @@ private fun TripSegmentCancelledPreview() {
     }
 }
 
+@Preview(showBackground = true, backgroundColor = 0xFFF5F5F6)
+@Composable
+private fun TripSegmentAlertsPreview() {
+    TripKitUITheme {
+        val transitColor = colorResource(R.color.favorite_bus).toArgb()
+        TripSegmentItemContent(
+            state = previewTripSegmentState(
+                title = "Take 379",
+                iconRes = R.drawable.ic_search_bus,
+                startTime = "12:02 AM",
+                endTime = "12:20 AM",
+                detailRows = listOf(TripSegmentDetailRow(text = "Direction: Railway sq")),
+                showTopLine = true,
+                topLineTint = transitColor,
+                showBottomLine = true,
+                bottomLineTint = transitColor,
+                backgroundCircleTint = transitColor,
+                showAlerts = true,
+                alerts = arrayListOf(
+                    previewRealtimeAlert(
+                        title = "Delays expected",
+                        text = "Buses on this route are running with delays of up to 10 minutes.",
+                        severity = RealtimeAlert.SEVERITY_WARNING
+                    ),
+                    previewRealtimeAlert(
+                        title = "Stop closed",
+                        text = "The Railway Square stop is temporarily closed. Please use the nearest alternative stop.",
+                        severity = RealtimeAlert.SEVERITY_ALERT
+                    )
+                )
+            )
+        )
+    }
+}
+
+private fun previewRealtimeAlert(
+    title: String,
+    text: String,
+    severity: String
+): RealtimeAlert = ImmutableRealtimeAlert.builder()
+    .title(title)
+    .text(text)
+    .severity(severity)
+    .remoteHashCode(title.hashCode().toLong())
+    .build()
+
 @Composable
 private fun previewTripSegmentState(
     title: String,
@@ -739,6 +785,8 @@ private fun previewTripSegmentState(
     bottomLineTint: Int = TRANSPARENT,
     backgroundCircleTint: Int = TRANSPARENT,
     showStartTime: Boolean = startTime != null,
+    showAlerts: Boolean = false,
+    alerts: ArrayList<RealtimeAlert>? = null,
     isCancelled: Boolean = false,
     cancelledMessage: String = ""
 ): TripSegmentItemState {
@@ -764,6 +812,8 @@ private fun previewTripSegmentState(
         detailRows = detailRows,
         primaryActionText = primaryActionText,
         showTicketInfo = showTicketInfo,
+        showAlerts = showAlerts,
+        alerts = alerts,
         isCancelled = isCancelled,
         cancelledMessage = cancelledMessage
     )

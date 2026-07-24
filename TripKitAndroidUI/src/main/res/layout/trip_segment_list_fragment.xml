@@ -19,16 +19,16 @@
 
         <TextView
             android:id="@+id/duration"
-            style="@style/TextAppearance.MaterialComponents.Headline6"
+            style="@style/LabelTitleLarge"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            android:layout_marginTop="16dp"
             android:layout_marginEnd="16dp"
             android:contentDescription="@{`Duration` + viewModel.durationTitle}"
             android:focusable="true"
             android:importantForAccessibility="yes"
             android:text="@{viewModel.durationTitle}"
+            android:textColor="@color/labelPrimary"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             tools:text="30 Minutes" />
@@ -50,12 +50,13 @@
 
         <TextView
             android:id="@+id/arrive"
-            style="@style/TextAppearance.MaterialComponents.Body2"
+            style="@style/LabelBodyMedium"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_marginEnd="16dp"
             android:layout_marginBottom="16dp"
+            android:textColor="@color/labelSecondary"
             android:text="@{viewModel.arriveAtTitle}"
             android:visibility="@{!viewModel.isHideExactTimes}"
             app:layout_constraintStart_toStartOf="parent"
@@ -114,34 +115,40 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/buttonLayout" />
 
-        <androidx.cardview.widget.CardView
+        <androidx.core.widget.NestedScrollView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:cardCornerRadius="@dimen/cardview_corner_radius_medium"
+            android:layout_height="0dp"
             android:layout_margin="@dimen/spacing_normal"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/divider">
+            app:layout_constraintTop_toBottomOf="@+id/divider"
+            app:layout_constraintBottom_toBottomOf="parent">
 
-            <FrameLayout
+            <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingBottom="@dimen/spacing_xx_large">
-                <!-- NOTE: This view MUST have a tag called "segmentList". For more information, see the TripGroupPagerAdapter's setPrimaryItem function -->
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/itemsView"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:tag="segmentList"
-                    android:nestedScrollingEnabled="false"
-                    app:adapter="@{viewModel.customAdapter}"
-                    app:itemBinding="@{viewModel.segmentItemBinding}"
-                    app:items="@{viewModel.itemViewModels}"
-                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                    app:layout_behavior="@string/bottom_sheet_behavior" />
-            </FrameLayout>
+                app:cardCornerRadius="@dimen/cardview_corner_radius_medium">
 
-        </androidx.cardview.widget.CardView>
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+                    <!-- NOTE: This view MUST have a tag called "segmentList". For more information, see the TripGroupPagerAdapter's setPrimaryItem function -->
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/itemsView"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:tag="segmentList"
+                        android:nestedScrollingEnabled="false"
+                        app:adapter="@{viewModel.customAdapter}"
+                        app:itemBinding="@{viewModel.segmentItemBinding}"
+                        app:items="@{viewModel.itemViewModels}"
+                        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                        app:layout_behavior="@string/bottom_sheet_behavior" />
+                </FrameLayout>
+
+            </androidx.cardview.widget.CardView>
+
+        </androidx.core.widget.NestedScrollView>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
