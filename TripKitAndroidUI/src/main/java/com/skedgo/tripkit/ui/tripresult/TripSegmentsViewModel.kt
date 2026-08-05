@@ -354,31 +354,17 @@ class TripSegmentsViewModel @Inject internal constructor(
     }
 
     /**
-     * Updates existing button view models while preserving dynamic text-based states
-     * (favorite and alert toggles).
+     * Updates existing button view models while preserving dynamic states (favorite and alert
+     * toggles). Realtime trip updates can arrive after a toggle and contain stale action metadata,
+     * so the current title and icon must be captured before applying the refreshed action.
      */
     private fun updateButtonsPreservingDynamicStates(actions: List<ActionButton>) {
         val existingButtons = buttons.value.orEmpty()
         actions.forEachIndexed { i, actionButton ->
             val existingButton = existingButtons.getOrNull(i) ?: return@forEachIndexed
-            // Update with latest action metadata first.
-            existingButton.update(context, actionButton)
-
-            // Reapply dynamic states derived from current UI text.
-            when (actionButton.tag) {
-                ActionButtonHandler.ACTION_TAG_FAVORITE -> {
-                    val currentText = existingButton.title.get()
-                    if (currentText?.contains("Remove", ignoreCase = true) == true) {
-                        existingButton.title.set(context.getString(R.string.remove_favourite))
-                    }
-                }
-                ActionButtonHandler.ACTION_TAG_ALERT -> {
-                    val currentText = existingButton.title.get()
-                    if (currentText?.contains("Mute", ignoreCase = true) == true) {
-                        existingButton.title.set(context.getString(R.string.action_mute))
-                    }
-                }
-            }
+            val hasDynamicState = actionButton.tag == ActionButtonHandler.ACTION_TAG_FAVORITE ||
+                actionButton.tag == ActionButtonHandler.ACTION_TAG_ALERT
+            existingButton.update(context, actionButton, preserveDynamicState = hasDynamicState)
         }
     }
 

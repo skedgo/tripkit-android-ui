@@ -30,7 +30,17 @@ class ActionButtonViewModel constructor(context: Context, button: ActionButton) 
         update(context, button)
     }
 
-    fun update(context: Context, button: ActionButton) {
+    fun update(
+        context: Context,
+        button: ActionButton,
+        preserveDynamicState: Boolean = false
+    ) {
+        // Favorite and alert actions can be updated asynchronously by their handlers. A
+        // realtime trip refresh may ask us to apply older action metadata before the backing
+        // action has caught up, so capture the user-visible state before applying that refresh.
+        val preservedTitle = title.get().takeIf { preserveDynamicState }
+        val preservedIcon = icon.get().takeIf { preserveDynamicState }
+
         this.showSpinner.set(false)
         this.title.set(button.text)
         // Only set icon if it's a valid resource ID (not 0)
@@ -64,6 +74,9 @@ class ActionButtonViewModel constructor(context: Context, button: ActionButton) 
                 )
             )
         }
+
+        preservedTitle?.let(title::set)
+        preservedIcon?.let(icon::set)
     }
 
     fun showSpinner(show: Boolean) {
