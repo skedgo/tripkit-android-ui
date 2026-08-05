@@ -7,9 +7,16 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.skedgo.tripkit.ui.R
 
-private const val ANDROID_16_API_LEVEL = 36
+private const val EDGE_TO_EDGE_ENFORCEMENT_API_LEVEL = 35
 
 private data class OriginalMargins(
+    val left: Int,
+    val top: Int,
+    val right: Int,
+    val bottom: Int,
+)
+
+private data class OriginalPadding(
     val left: Int,
     val top: Int,
     val right: Int,
@@ -26,8 +33,7 @@ fun View.applyEdgeToEdgeSafeAreaMargins(
     applyRight: Boolean = false,
     applyBottom: Boolean = false,
 ) {
-    // Older Android versions still honor this app's edge-to-edge opt-out theme attribute.
-    if (Build.VERSION.SDK_INT < ANDROID_16_API_LEVEL) return
+    if (Build.VERSION.SDK_INT < EDGE_TO_EDGE_ENFORCEMENT_API_LEVEL) return
 
     val marginLayoutParams = layoutParams as? ViewGroup.MarginLayoutParams ?: return
     val originalMargins =
@@ -56,6 +62,58 @@ fun View.applyEdgeToEdgeSafeAreaMargins(
         ) {
             params.setMargins(left, top, right, bottom)
             view.layoutParams = params
+        }
+        windowInsets
+    }
+
+    if (isAttachedToWindow) {
+        ViewCompat.requestApplyInsets(this)
+    } else {
+        addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
+            override fun onViewAttachedToWindow(view: View) {
+                view.removeOnAttachStateChangeListener(this)
+                ViewCompat.requestApplyInsets(view)
+            }
+
+            override fun onViewDetachedFromWindow(view: View) = Unit
+        })
+    }
+}
+
+/**
+ * Adds the safe drawing area to a container's existing padding when Android enforces edge-to-edge.
+ * This lets the container background continue behind the system bars while keeping its content safe.
+ */
+fun View.applyEdgeToEdgeSafeAreaPadding(
+    applyLeft: Boolean = false,
+    applyTop: Boolean = false,
+    applyRight: Boolean = false,
+    applyBottom: Boolean = false,
+) {
+    if (Build.VERSION.SDK_INT < EDGE_TO_EDGE_ENFORCEMENT_API_LEVEL) return
+
+    val originalPadding =
+        (getTag(R.id.edge_to_edge_original_padding) as? OriginalPadding)
+            ?: OriginalPadding(
+                left = paddingLeft,
+                top = paddingTop,
+                right = paddingRight,
+                bottom = paddingBottom,
+            ).also { setTag(R.id.edge_to_edge_original_padding, it) }
+
+    ViewCompat.setOnApplyWindowInsetsListener(this) { view, windowInsets ->
+        val safeArea = windowInsets.getInsets(
+            WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout()
+        )
+        val left = originalPadding.left + if (applyLeft) safeArea.left else 0
+        val top = originalPadding.top + if (applyTop) safeArea.top else 0
+        val right = originalPadding.right + if (applyRight) safeArea.right else 0
+        val bottom = originalPadding.bottom + if (applyBottom) safeArea.bottom else 0
+
+        if (view.paddingLeft != left || view.paddingTop != top ||
+            view.paddingRight != right || view.paddingBottom != bottom
+        ) {
+            view.setPadding(left, top, right, bottom)
         }
         windowInsets
     }

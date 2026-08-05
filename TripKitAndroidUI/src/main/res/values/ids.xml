@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <item name="edge_to_edge_original_margins" type="id" />
+    <item name="edge_to_edge_original_padding" type="id" />
     <item name="onPageChangeListener" type="id" />
 </resources>
