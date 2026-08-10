@@ -143,27 +143,30 @@ fun setImageFromUrlWithPlaceholder(
     tripGoClientId: String?,
     userToken: String?
 ) {
-    source?.let {
-        if (it.isNotBlank()) {
-            val headersBuilder = LazyHeaders.Builder()
-                .addHeader("X-TripGo-Key", tripGoKey)
-                .addHeader("Accept", "image/*")
-            tripGoClientId?.let {
-                headersBuilder.addHeader("X-TripGo-Client-Id", it)
-            }
-            userToken?.let {
-                headersBuilder.addHeader("userToken", userToken)
-            }
-            val glideUrl = GlideUrl(it, headersBuilder.build())
-            GlideApp.with(imageView.context)
-                .load(glideUrl)
-                .apply(
-                    RequestOptions()
-                        .placeholder(placeholder)
-                )
-                .into(imageView)
-        }
+    if (source.isNullOrBlank()) {
+        GlideApp.with(imageView.context).clear(imageView)
+        imageView.setImageResource(placeholder)
+        return
     }
+
+    val headersBuilder = LazyHeaders.Builder()
+        .addHeader("X-TripGo-Key", tripGoKey)
+        .addHeader("Accept", "image/*")
+    tripGoClientId?.let {
+        headersBuilder.addHeader("X-TripGo-Client-Id", it)
+    }
+    userToken?.let {
+        headersBuilder.addHeader("userToken", userToken)
+    }
+    val glideUrl = GlideUrl(source, headersBuilder.build())
+    GlideApp.with(imageView.context)
+        .load(glideUrl)
+        .apply(
+            RequestOptions()
+                .placeholder(placeholder)
+                .error(placeholder)
+        )
+        .into(imageView)
 }
 
 @BindingAdapter("mirrorImage")
