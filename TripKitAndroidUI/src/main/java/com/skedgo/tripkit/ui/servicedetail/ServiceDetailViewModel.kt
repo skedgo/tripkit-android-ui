@@ -32,6 +32,7 @@ import com.skedgo.tripkit.ui.trip.details.viewmodel.ServiceAlertViewModel
 import com.skedgo.tripkit.ui.utils.TapAction
 import io.reactivex.android.schedulers.AndroidSchedulers
 import me.tatarka.bindingcollectionadapter2.ItemBinding
+import org.joda.time.DateTimeZone
 import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Provider
@@ -102,14 +103,15 @@ class ServiceDetailViewModel @Inject constructor(
         serviceNumber: String?,
         serviceColor: ServiceColor?,
         operator: String?,
-        startStopCode: String,
+        startStopCode: String?,
         endStopCode: String?,
         embarkation: Long,
         realTimeVehicle: RealTimeVehicle?,
         wheelchairAccessible: Boolean?,
         bicycleAccessible: Boolean?,
         schedule: Pair<String, Int>? = null,
-        modeInfo: ModeInfo? = null
+        modeInfo: ModeInfo? = null,
+        travelledBoundaryStopCode: String? = null
     ) {
         this.stationName.set(serviceName)
         this.serviceNumber.set(serviceNumber)
@@ -198,7 +200,7 @@ class ServiceDetailViewModel @Inject constructor(
         }.subscribe(
             {
                 _isLoading.postValue(false)
-                processResponse(it)
+                processResponse(it, travelledBoundaryStopCode)
             }, {
                 _isLoading.postValue(false)
                 Timber.e(it)
@@ -262,34 +264,45 @@ class ServiceDetailViewModel @Inject constructor(
                     serviceNumber = _entry.serviceNumber,
                     serviceColor = _entry.serviceColor,
                     operator = _entry.operator,
-                    startStopCode = _entry.startStopCode.orEmpty(),
+                    // A stop-based service detail should show the complete service. Supplying the
+                    // selected stop code makes service.json return only a partial set of shapes.
+                    startStopCode = null,
                     endStopCode = null,
                     embarkation = _entry.startTimeInSecs,
                     realTimeVehicle = _entry.realtimeVehicle,
                     wheelchairAccessible = _entry.wheelchairAccessible,
                     bicycleAccessible = _entry.bicycleAccessible,
-                    schedule = getRealtimeText.execute(_stop.dateTimeZone, _entry, _entry.realtimeVehicle),
-                    modeInfo = _entry.modeInfo
+                    schedule = getRealtimeText.execute(
+                        it.timezone?.let(DateTimeZone::forID) ?: _stop.dateTimeZone,
+                        _entry,
+                        _entry.realtimeVehicle
+                    ),
+                    modeInfo = _entry.modeInfo,
+                    travelledBoundaryStopCode = _entry.startStopCode
                 )
             }, {
                 it.printStackTrace()
             }).autoClear()
     }
 
-    fun processResponse(response: ServiceResponse) {
-        var list = mutableListOf<ServiceDetailItemViewModel>()
-        response.shapes().forEach { shape ->
-            shape.stops?.forEach { stop ->
-                list.add(serviceViewModelProvider.get().apply {
-                    // isTravelled indicates whether or not the *traveller* has travelled the stop, which will always
-                    // be false for stops on a line prior to the displayed station, and true for stops after. So for our purposes here,
-                    // invert it.
-                    this.setStop(context, stop, shape.serviceColor.color, !shape.isTravelled)
-                    this.setDrawable(context, ServiceDetailItemViewModel.LineDirection.MIDDLE)
-                    this.onItemClick.observable.subscribe { stopInfo ->
-                        stopInfo?.let { onItemClicked.accept(it) }
-                    }.autoClear()
-                })
+    fun processResponse(response: ServiceResponse, travelledBoundaryStopCode: String? = null) {
+        val stops = response.shapes().flatMap { shape ->
+            shape.stops.orEmpty().map { stop -> shape to stop }
+        }
+        val travelledBoundaryIndex = travelledBoundaryStopCode?.let { stopCode ->
+            stops.indexOfFirst { (_, stop) -> stop.code == stopCode }.takeIf { it >= 0 }
+        }
+        val list = stops.mapIndexed { index, (shape, stop) ->
+            serviceViewModelProvider.get().apply {
+                // A complete service response can contain a single shape with one travelled value
+                // for the whole route. In that case, use the selected timetable stop as the local
+                // boundary so earlier stops remain visually travelled without trimming the list.
+                val isTravelled = travelledBoundaryIndex?.let { index < it } ?: !shape.isTravelled
+                this.setStop(context, stop, shape.serviceColor.color, isTravelled)
+                this.setDrawable(context, ServiceDetailItemViewModel.LineDirection.MIDDLE)
+                this.onItemClick.observable.subscribe { stopInfo ->
+                    stopInfo?.let { onItemClicked.accept(it) }
+                }.autoClear()
             }
         }
 
