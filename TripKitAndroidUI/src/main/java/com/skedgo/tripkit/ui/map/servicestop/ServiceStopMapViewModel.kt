@@ -67,7 +67,7 @@ class ServiceStopMapViewModel @Inject constructor(
      * first response from being lost between the old fire-and-forget request and PublishRelay
      * subscriptions.
      */
-    private val realtimeVehicles = Observables.combineLatest(
+    private val realtimeVehicleUpdates = Observables.combineLatest(
         service,
         serviceStop.hide().switchMap { regionService.getRegionByLocationAsync(it) }
     ) { service, region -> service to region }
@@ -102,15 +102,17 @@ class ServiceStopMapViewModel @Inject constructor(
             .replay(1)
             .refCount()
 
-    val realtimeVehicle = realtimeVehicles
+    val realtimeVehicles = realtimeVehicleUpdates
         .map { (service, vehicles) ->
-            OptionalCompat.ofNullable(
-                vehicles.firstOrNull { vehicle ->
-                    vehicle.serviceTripId == service.serviceTripId
-                }
-            )
+            vehicles.filter { vehicle ->
+                vehicle.serviceTripId == service.serviceTripId && vehicle.hasLocationInformation()
+            }
         }
         .observeOn(AndroidSchedulers.mainThread())
+        .autoClear()
+
+    val realtimeVehicle = realtimeVehicles
+        .map { vehicles -> OptionalCompat.ofNullable(vehicles.firstOrNull()) }
         .autoClear()
 
     val region by lazy {
