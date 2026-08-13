@@ -44,66 +44,70 @@ open class GetTripLine @Inject internal constructor(
             .map { createPolylineListForTravelledLines(polylineConfig, it) }
 
     private fun createPolylineListForNonTravelledLines(nonTravelledLinesToDraw: List<List<LineSegment>>?): List<SegmentsPolyLineOptions> {
-        val polylineOptionsList = mutableListOf<PolylineOptions>()
-        if (!nonTravelledLinesToDraw.isNullOrEmpty()) {
-            val lines = mutableListOf<LatLng>()
-            for (list in nonTravelledLinesToDraw) {
-                lines.clear()
-                for (line in list) {
-                    lines.add(LatLng(line.start.latitude, line.start.longitude))
-                    lines.add(LatLng(line.end.latitude, line.end.longitude))
-                }
+        if (nonTravelledLinesToDraw.isNullOrEmpty()) {
+            return listOf(SegmentsPolyLineOptions(emptyList(), false))
+        }
 
-                if (!lines.isEmpty()) {
-                    polylineOptionsList.add(
+        return nonTravelledLinesToDraw.map { lineSegments ->
+            val points = lineSegments.flatMap { line ->
+                listOf(
+                    LatLng(line.start.latitude, line.start.longitude),
+                    LatLng(line.end.latitude, line.end.longitude)
+                )
+            }
+            val polylineOptions = points.takeIf { it.isNotEmpty() }
+                ?.let {
+                    listOf(
                         PolylineOptions()
-                            .addAll(lines)
+                            .addAll(it)
                             .color(NON_TRAVELLED_LINE_COLOR)
                             .width(7f)
                     )
                 }
-            }
+                .orEmpty()
+            SegmentsPolyLineOptions(
+                polylineOptions,
+                false,
+                lineSegments.firstOrNull()?.segmentId
+            )
         }
-        return listOf(
-            SegmentsPolyLineOptions(polylineOptionsList, false)
-        )
     }
 
     private fun createPolylineListForTravelledLines(results: List<List<LineSegment>>?): List<SegmentsPolyLineOptions> {
-        val polylineOptionsList = mutableListOf<PolylineOptions>()
-        if (!results.isNullOrEmpty()) {
-            for (list in results) {
-                polylineOptionsList.addAll(list.toPolylineOptions())
-            }
+        if (results.isNullOrEmpty()) {
+            return listOf(SegmentsPolyLineOptions(emptyList(), true))
         }
-        return listOf(
-            SegmentsPolyLineOptions(polylineOptionsList, true)
-        )
+
+        return results.map { lineSegments ->
+            SegmentsPolyLineOptions(
+                lineSegments.toPolylineOptions(),
+                true,
+                lineSegments.firstOrNull()?.segmentId
+            )
+        }
     }
 
     private fun createPolylineListForTravelledLines(
         config: PolylineConfig,
         results: List<List<LineSegment>>?
     ): List<SegmentsPolyLineOptions> {
-        val polylineOptionsList = mutableListOf<PolylineOptions>()
-        if (!results.isNullOrEmpty()) {
-            results.forEach { list ->
-                polylineOptionsList.addAll(
-                    list.toPolylineOptions { lineSegment ->
-                        if (config.activeTripUuid != null && config.activeTripUuid == lineSegment.tripUuid) {
-                            PolylineStyle(config.activeColor, 5.0f)
-                        } else {
-                            PolylineStyle(config.inActiveColor, 2.0f)
-                        }
-                    }
-                )
-            }
+        if (results.isNullOrEmpty()) {
+            return listOf(SegmentsPolyLineOptions(emptyList(), true))
         }
-        return listOf(
+
+        return results.map { lineSegments ->
             SegmentsPolyLineOptions(
-                polylineOptionsList, true
+                lineSegments.toPolylineOptions { lineSegment ->
+                    if (config.activeTripUuid != null && config.activeTripUuid == lineSegment.tripUuid) {
+                        PolylineStyle(config.activeColor, 5.0f)
+                    } else {
+                        PolylineStyle(config.inActiveColor, 2.0f)
+                    }
+                },
+                true,
+                lineSegments.firstOrNull()?.segmentId
             )
-        )
+        }
     }
 
     private data class PolylineStyle(
