@@ -81,9 +81,11 @@ import com.skedgo.tripkit.ui.map.MarkerIconManager
 import com.skedgo.tripkit.ui.poidetails.PoiDetailsFragment
 import com.skedgo.tripkit.ui.poidetails.PoiDetailsMapContributor
 import com.skedgo.tripkit.ui.routingresults.TripGroupRepository
+import com.skedgo.tripkit.ui.routing.settings.UnitsRepository
 import com.skedgo.tripkit.ui.search.FetchSuggestions
 import com.skedgo.tripkit.ui.servicedetail.ServiceDetailFragment
 import com.skedgo.tripkit.ui.timetables.TimetableFragment
+import com.skedgo.tripkit.ui.utils.DistanceFormatter
 import com.squareup.otto.Bus
 import com.squareup.picasso.Picasso
 import com.uber.rxdogtag.RxDogTag
@@ -185,6 +187,8 @@ abstract class TripKitUI {
     abstract fun dbHelper(): DbHelper
 
     abstract fun tripGroupRepository(): TripGroupRepository
+
+    abstract fun unitsRepository(): UnitsRepository
 
     abstract fun routeStore(): RouteStore
 
@@ -339,6 +343,7 @@ abstract class TripKitUI {
 
                 instance = builder.contextModule(ContextModule(context))
                     .build()
+                DistanceFormatter.initialize(instance!!.unitsRepository())
             }
         }
 

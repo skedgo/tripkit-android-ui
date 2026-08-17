@@ -40,7 +40,6 @@ object DistanceFormatter {
      * @param distanceInMeters the actual distance in meters.
      * @return distance string formatted according to the rules of hte formatter.
      */
-    @JvmOverloads
     fun format(distanceInMeters: Int): String {
         val locale = Locale.getDefault()
         return format(distanceInMeters, locale)
@@ -66,6 +65,25 @@ object DistanceFormatter {
      */
     fun format(distanceInMeters: Int, locale: Locale): String {
         return format(distanceInMeters, locale, getDistanceUnit(locale))
+    }
+
+    /**
+     * Formats a distance using the selected unit preference. When the preference is automatic,
+     * the trip region takes precedence over the device locale so locally formatted values match
+     * the units resolved by the routing API.
+     */
+    fun format(distanceInMeters: Int, regionName: String?): String {
+        val locale = Locale.getDefault()
+        val unitPreference = if (this::unitsRepository.isInitialized) {
+            unitsRepository.getUnit()
+        } else {
+            "auto"
+        }
+        return format(
+            distanceInMeters,
+            locale,
+            resolveDistanceUnit(locale, unitPreference, regionName)
+        )
     }
 
     /**
@@ -108,7 +126,8 @@ object DistanceFormatter {
     }
 
     private fun useMiles(locale: Locale): Boolean {
-        return locale == Locale.US || locale == Locale.UK
+        return locale.country.equals(Locale.US.country, ignoreCase = true) ||
+            locale.country.equals(Locale.UK.country, ignoreCase = true)
     }
 
     private fun formatDistanceInMeters(distanceInMeters: Int): String {
@@ -137,19 +156,36 @@ object DistanceFormatter {
     }
 
     private fun getDistanceUnit(locale: Locale): DistanceUnits {
-        return if (
-            !this::unitsRepository.isInitialized ||
-            (this::unitsRepository.isInitialized && unitsRepository.getUnit() == "auto")
-        ) {
-            if (useMiles(locale)) {
-                DistanceUnits.MILES
-            } else {
-                DistanceUnits.KILOMETERS
-            }
-        } else if (unitsRepository.getUnit() == "metric") {
-            DistanceUnits.KILOMETERS
+        val unitPreference = if (this::unitsRepository.isInitialized) {
+            unitsRepository.getUnit()
         } else {
+            "auto"
+        }
+        return resolveDistanceUnit(locale, unitPreference, null)
+    }
+
+    internal fun resolveDistanceUnit(
+        locale: Locale,
+        unitPreference: String,
+        regionName: String?
+    ): DistanceUnits = when (unitPreference) {
+        "metric" -> DistanceUnits.KILOMETERS
+        "imperial" -> DistanceUnits.MILES
+        else -> getRegionDistanceUnit(regionName)
+            ?: if (useMiles(locale)) DistanceUnits.MILES else DistanceUnits.KILOMETERS
+    }
+
+    private fun getRegionDistanceUnit(regionName: String?): DistanceUnits? {
+        val countryCode = regionName
+            ?.substringBefore('_')
+            ?.takeIf { it.length == 2 }
+            ?.uppercase(Locale.US)
+            ?: return null
+
+        return if (countryCode == "US" || countryCode == "GB" || countryCode == "UK") {
             DistanceUnits.MILES
+        } else {
+            DistanceUnits.KILOMETERS
         }
     }
 }
