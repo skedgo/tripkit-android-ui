@@ -206,7 +206,7 @@ private fun TripSegment.getTitle(): String {
     }
 }
 
-private fun TripSegment.getDistanceRegion(): String? =
+internal fun TripSegment.getDistanceRegion(): String? =
     from?.region
         ?: to?.region
         ?: singleLocation?.region

@@ -32,6 +32,10 @@ object DistanceFormatter {
     private const val METERS_IN_ONE_MILE = 1609.0
     private const val METERS_IN_ONE_FOOT = 0.3048
     private const val FEET_IN_ONE_MILE = 5280.0
+    private val DISTANCE_IN_TEXT_PATTERN = Regex(
+        """\b\d+(?:[.,]\d+)?\s*(?:kilometers?|kilometres?|miles?|meters?|metres?|feet|km|mi|ft|m)(?![A-Za-z])""",
+        RegexOption.IGNORE_CASE
+    )
     private var decimalFormat: DecimalFormat? = null
 
     /**
@@ -84,6 +88,15 @@ object DistanceFormatter {
             locale,
             resolveDistanceUnit(locale, unitPreference, regionName)
         )
+    }
+
+    /**
+     * Replaces a distance embedded in API-provided display text while preserving any other
+     * details, such as traffic or toll information.
+     */
+    internal fun replaceDistanceInText(text: String?, formattedDistance: String): String? {
+        if (text == null || formattedDistance.isBlank()) return text
+        return DISTANCE_IN_TEXT_PATTERN.replaceFirst(text, formattedDistance)
     }
 
     /**

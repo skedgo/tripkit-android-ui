@@ -47,4 +47,31 @@ class DistanceFormatterTest {
             )
         )
     }
+
+    @Test
+    fun `replaceDistanceInText updates compact API distance and preserves other notes`() {
+        assertEquals(
+            "Traffic ⋅ 15.5 mi ⋅ Includes toll ($4.00)",
+            DistanceFormatter.replaceDistanceInText(
+                "Traffic ⋅ 25km ⋅ Includes toll ($4.00)",
+                "15.5 mi"
+            )
+        )
+    }
+
+    @Test
+    fun `replaceDistanceInText updates spaced distance`() {
+        assertEquals(
+            "9.7 mi",
+            DistanceFormatter.replaceDistanceInText("16 km", "9.7 mi")
+        )
+    }
+
+    @Test
+    fun `replaceDistanceInText does not treat minutes as metres`() {
+        assertEquals(
+            "Ride Bicycle for 51 mins",
+            DistanceFormatter.replaceDistanceInText("Ride Bicycle for 51 mins", "9.7 mi")
+        )
+    }
 }
