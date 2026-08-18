@@ -68,6 +68,18 @@ class DistanceFormatterTest {
     }
 
     @Test
+    fun `replaceDistanceInText replaces the complete mixed fraction distance`() {
+        assertEquals(
+            "6.4 mi",
+            DistanceFormatter.replaceDistanceInText("6 1/2 mi", "6.4 mi")
+        )
+        assertEquals(
+            "1.5 mi",
+            DistanceFormatter.replaceDistanceInText("1 1/2 mi", "1.5 mi")
+        )
+    }
+
+    @Test
     fun `replaceDistanceInText does not treat minutes as metres`() {
         assertEquals(
             "Ride Bicycle for 51 mins",

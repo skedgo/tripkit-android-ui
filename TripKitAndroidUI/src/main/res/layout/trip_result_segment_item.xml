@@ -97,7 +97,6 @@
             android:layoutDirection="locale"
             android:layout_marginStart="@dimen/spacing_extra_small"
             android:src="@drawable/ic_bike"
-            app:tint="@color/icon_tint_default"
             android:visibility="@{viewModel.isBicycleAccessible()}"
             app:isDisabled="@{viewModel.isCancelled()}"
             app:layout_constraintBottom_toBottomOf="@+id/secondary"

@@ -32,8 +32,10 @@ object DistanceFormatter {
     private const val METERS_IN_ONE_MILE = 1609.0
     private const val METERS_IN_ONE_FOOT = 0.3048
     private const val FEET_IN_ONE_MILE = 5280.0
+    private const val UNICODE_FRACTIONS = "¼½¾⅐⅑⅒⅓⅔⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞"
     private val DISTANCE_IN_TEXT_PATTERN = Regex(
-        """\b\d+(?:[.,]\d+)?\s*(?:kilometers?|kilometres?|miles?|meters?|metres?|feet|km|mi|ft|m)(?![A-Za-z])""",
+        """(?<![\d/])(?:\d+\s+\d+\s*/\s*\d+|\d+\s*/\s*\d+|\d+\s*[$UNICODE_FRACTIONS]|\d+(?:[.,]\d+)?|[$UNICODE_FRACTIONS])""" +
+            """\s*(?:kilometers?|kilometres?|miles?|meters?|metres?|feet|km|mi|ft|m)(?![A-Za-z])""",
         RegexOption.IGNORE_CASE
     )
     private var decimalFormat: DecimalFormat? = null
