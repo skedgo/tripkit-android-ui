@@ -69,7 +69,6 @@ import com.skedgo.tripkit.ui.map.adapter.StopInfoWindowAdapter
 import com.skedgo.tripkit.ui.map.adapter.ViewableInfoWindowAdapter
 import com.skedgo.tripkit.ui.map.convertToDomainLatLngBounds
 import com.skedgo.tripkit.ui.map.home.ViewPort.CloseEnough
-import com.skedgo.tripkit.ui.map.home.ViewPort.NotCloseEnough
 import com.skedgo.tripkit.ui.tracking.EventTracker
 import com.skedgo.tripkit.ui.tripresult.TripResultMapContributor
 import com.skedgo.tripkit.ui.trip.options.SelectionType
@@ -96,11 +95,9 @@ import io.reactivex.functions.Consumer
 import io.reactivex.schedulers.Schedulers
 import java.util.LinkedList
 import javax.inject.Inject
-import io.reactivex.subjects.PublishSubject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import java.util.concurrent.TimeUnit
 import timber.log.Timber
 import java.util.*
 
@@ -171,11 +168,9 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
     private var departureMarkers: MarkerManager.Collection? = null
     private var arrivalMarkers: MarkerManager.Collection? = null
     private var currentLocationMarkers: MarkerManager.Collection? = null
-    private var tipTapIsDeleted = false
-    private var tipZoomIsDeleted = false
-    private var checkZoomOutFlag = false
     private var map: GoogleMap? = null
     private var lastZoomLevel: Float = 0f
+    private var activeMarkerZoomLevel: ZoomLevel? = null
 
     private var fromMarker: Marker? = null
     private var toMarker: Marker? = null
@@ -417,17 +412,6 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
             appDeactivatedListener?.invoke()
         }
 
-        // Set up the throttle for clearing non-regional markers
-        clearNonRegionalMarkersThrottle.debounce(500, TimeUnit.MILLISECONDS)
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(
-                {
-                    clearNonRegionalMarkers()
-                },
-                { e ->
-                    e.printStackTrace()
-                }
-            ).addTo(autoDisposable)
     }
 
     /**
@@ -460,6 +444,7 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
                     val existing = poiMarkersByIdentifier[identifier]
                     if (existing != null && existing.position == markerOptions.position) {
                         existing.tag = poiLocation
+                        existing.isVisible = shouldShowPoiMarker(poiLocation, existing.position)
                         if (!isMarkerPositionExists(existing.position)) {
                             addMarkerPosition(existing.position)
                         }
@@ -473,8 +458,15 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
                     if (isMarkerPositionExists(markerOptions.position)) {
                         continue
                     }
+                    markerOptions.visible(
+                        shouldShowPoiMarker(poiLocation, markerOptions.position)
+                    )
                     val marker = poiMarkers!!.addMarker(markerOptions)
                     marker.tag = poiLocation
+                    // Marker creation is asynchronous. Re-check the current zoom band here so a
+                    // response requested at regional/local zoom cannot become visible after the
+                    // camera has already entered city-only mode.
+                    marker.isVisible = shouldShowPoiMarker(poiLocation, marker.position)
                     addMarkerPosition(markerOptions.position)
                     poiMarkersByIdentifier[identifier] = marker
                     addedCount++
@@ -673,10 +665,6 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
         if (!isAdded) { // To investigate further this scenario.
             return
         }
-        //    boolean tipZoomToSeeTimetable = mPrefUtils.get(TooltipFragment.PREF_ZOOM_TO_SEE_TIMETABLE, false);
-//    boolean tipTapPublicStops = mPrefUtils.get(TooltipFragment.PREF_TAP_PUBLIC_STOPS, false);
-        val tipZoomToSeeTimetable = false
-        val tipTapPublicStops = true
         if (map == null) {
             return
         }
@@ -686,50 +674,41 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
 //reason to keep zoomLevel is because it's used in so many loader classes
         val zoomLevel = ZoomLevel.fromLevel(position.zoom)
 
-        if (zoomLevel != null) {
-            if (!tipZoomIsDeleted && tipTapPublicStops && checkZoomOutFlag) {
-                //        bus.post(new TooltipFragment.TooltipClose(TooltipFragment.PREF_ZOOM_TO_SEE_TIMETABLE));
-                tipZoomIsDeleted = true
-            }
-            if (!tipTapPublicStops) {
-                //        bus.post(new RequestShowTip(TooltipFragment.PREF_TAP_PUBLIC_STOPS, getString(R.string.tap_public_transport_stops_for_access_to_timetable)));
-            }
-
-            viewModel.onViewPortChanged(
-                CloseEnough(
-                    position.zoom,
-                    visibleBounds.convertToDomainLatLngBounds()
-                )
+        viewModel.onViewPortChanged(
+            CloseEnough(
+                position.zoom,
+                visibleBounds.convertToDomainLatLngBounds()
             )
-        } else {
-            if (!tipTapIsDeleted) {
-                //        bus.post(new TooltipFragment.TooltipClose(TooltipFragment.PREF_TAP_PUBLIC_STOPS));
-                tipTapIsDeleted = true
+        )
+
+        applyMarkerZoomLevel(zoomLevel)
+    }
+
+    /** Applies one mutually-exclusive marker policy for the current camera zoom. */
+    private fun applyMarkerZoomLevel(zoomLevel: ZoomLevel) {
+        val previousZoomLevel = activeMarkerZoomLevel
+        activeMarkerZoomLevel = zoomLevel
+
+        when (zoomLevel) {
+            ZoomLevel.CITY -> {
+                toggleLocationMarkers(show = false)
+                map?.let { showCities(it, regions) }
             }
-            if (!tipZoomToSeeTimetable) {
-                //        bus.post(new RequestShowTip(TooltipFragment.PREF_ZOOM_TO_SEE_TIMETABLE, getString(R.string.zoom_into_map_to_view_public_transport_stops)));
-                checkZoomOutFlag = true
+
+            ZoomLevel.REGIONAL -> {
+                removeAllCities()
+                if (previousZoomLevel == ZoomLevel.LOCAL) {
+                    retainRegionalMarkersOnly()
+                }
+                toggleLocationMarkers(show = viewModel.showMarkers.get())
+                hideMarkersOutsideViewport(force = true)
             }
 
-            viewModel.onViewPortChanged(
-                NotCloseEnough(
-                    position.zoom,
-                    visibleBounds.convertToDomainLatLngBounds()
-                )
-            )
-        }
-
-        if (position.zoom <= ZoomLevel.ZOOM_VALUE_TO_SHOW_CITIES) {
-            toggleLocationMarkers(show = false)
-            showCities(map!!, regions)
-        } else {
-            toggleLocationMarkers(show = viewModel.showMarkers.get())
-            removeAllCities()
-        }
-
-        if(position.zoom > ZoomLevel.ZOOM_VALUE_TO_SHOW_CITIES) {
-//            Timber.i("========== ${position.zoom} ============")
-            hideMarkersOutsideViewport()
+            ZoomLevel.LOCAL -> {
+                removeAllCities()
+                toggleLocationMarkers(show = viewModel.showMarkers.get())
+                hideMarkersOutsideViewport(force = true)
+            }
         }
     }
 
@@ -738,29 +717,23 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
 
         if (show) {
             val viewportBounds = mapRef.projection.visibleRegion.latLngBounds
-            val zoom = mapRef.cameraPosition.zoom
-            val isPOIZoom = zoom > 12.1f && zoom < 14.5f
 
             // Show non-POI collections first (these can use showAll safely)
             tripLocationMarkers?.showAll()
             arrivalMarkers?.showAll()
             departureMarkers?.showAll()
 
-            // POIs: avoid showAll during POI zoom to prevent the flash
-            if (isPOIZoom) {
-                poiMarkers?.let { collection ->
-                    // Authoritatively set per marker in the same frame
-                    for (marker in collection.markers) {
-                        val inViewport = viewportBounds.contains(marker.position)
-                        val shouldBeVisible = inViewport && (marker.tag is StopPOILocation)
-                        if (marker.isVisible != shouldBeVisible) {
-                            marker.isVisible = shouldBeVisible
-                        }
+            // Never call showAll() for POIs. A collection can contain results produced for a
+            // previous zoom band, so every marker must pass the current band policy first.
+            poiMarkers?.let { collection ->
+                for (marker in collection.markers) {
+                    val poiLocation = marker.tag as? IMapPoiLocation
+                    val shouldBeVisible = poiLocation != null &&
+                        shouldShowPoiMarker(poiLocation, marker.position)
+                    if (marker.isVisible != shouldBeVisible) {
+                        marker.isVisible = shouldBeVisible
                     }
                 }
-            } else {
-                // Outside the POI zoom band we can safely showAll
-                poiMarkers?.showAll()
             }
 
             // Apply viewport filtering to all collections immediately (same frame, no blink)
@@ -778,6 +751,38 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
             poiMarkers?.hideAll()
             arrivalMarkers?.hideAll()
             departureMarkers?.hideAll()
+        }
+    }
+
+    private fun currentMarkerZoomLevel(): ZoomLevel? =
+        map?.cameraPosition?.zoom?.let(ZoomLevel::fromLevel)
+
+    /**
+     * Final visibility gate used both for existing markers and asynchronous marker additions.
+     */
+    private fun shouldShowPoiMarker(
+        poiLocation: IMapPoiLocation,
+        position: LatLng
+    ): Boolean {
+        val mapRef = map ?: return false
+        if (!viewModel.showMarkers.get()) return false
+        if (!mapRef.projection.visibleRegion.latLngBounds.contains(position)) return false
+
+        return when (ZoomLevel.fromLevel(mapRef.cameraPosition.zoom)) {
+            ZoomLevel.CITY -> false
+            ZoomLevel.REGIONAL -> {
+                if (poiLocation !is StopPOILocation) {
+                    true
+                } else {
+                    val cellCode = poiLocation.scheduledStop.cellCode
+                    cellCode?.let { !LOCAL_STOP_CELL_ID.matches(it) }
+                        ?: MapData.isRegionalSourceStop(poiLocation.scheduledStop.code)
+                }
+            }
+            ZoomLevel.LOCAL -> {
+                val zoom = mapRef.cameraPosition.zoom
+                !(zoom > 12.1f && zoom < 14.5f) || poiLocation is StopPOILocation
+            }
         }
     }
 
@@ -821,7 +826,13 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
                     .edit().putBoolean(APP_PREF_DEACTIVATED, false)
                     .apply()
                 this.regions = regions
-                whenSafeToUseMap { m: GoogleMap -> showCities(m, regions) }
+                whenSafeToUseMap { m: GoogleMap ->
+                    if (ZoomLevel.fromLevel(m.cameraPosition.zoom) == ZoomLevel.CITY) {
+                        showCities(m, regions)
+                    } else {
+                        removeAllCities()
+                    }
+                }
             }) { error: Throwable? ->
                 error?.let {
                     it.printStackTrace()
@@ -1198,8 +1209,10 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
 
         viewModel.showMarkers.set(show)
         if (show) {
-            tripLocationMarkers?.showAll()
-            poiMarkers?.showAll()
+            val zoomLevel = map?.cameraPosition?.zoom?.let(ZoomLevel::fromLevel)
+            if (zoomLevel != null) {
+                applyMarkerZoomLevel(zoomLevel)
+            }
             loadMarkers()
         } else {
             if (fromTripList) {
@@ -1238,7 +1251,7 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
         shouldHideInfoWindow: Boolean = false
     ) {
         // Default POI stop markers must stay suppressed while service-detail mode is active.
-        if (!viewModel.showMarkers.get()) {
+        if (!viewModel.showMarkers.get() || currentMarkerZoomLevel() == ZoomLevel.CITY) {
             return
         }
         selectedStopMarkerPosition = if (shouldHideInfoWindow) null else LatLng(stop.lat, stop.lon)
@@ -1255,7 +1268,7 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
         }
 
         fun addMarkerIfNeeded() {
-            if (!viewModel.showMarkers.get()) {
+            if (!viewModel.showMarkers.get() || currentMarkerZoomLevel() == ZoomLevel.CITY) {
                 return
             }
             val collection = poiMarkers ?: return
@@ -1267,7 +1280,7 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({ markerOptions ->
-                    if (!viewModel.showMarkers.get()) {
+                    if (!viewModel.showMarkers.get() || currentMarkerZoomLevel() == ZoomLevel.CITY) {
                         return@subscribe
                     }
                     val position = markerOptions.position
@@ -1302,7 +1315,7 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
         shouldHideInfoWindow: Boolean = false
     ) {
         fun showInfoWindow() {
-            if (!viewModel.showMarkers.get()) {
+            if (!viewModel.showMarkers.get() || currentMarkerZoomLevel() == ZoomLevel.CITY) {
                 return
             }
             val collection = poiMarkers ?: return
@@ -1392,20 +1405,12 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
         }
     }
 
-    /**
-     * Clear all LOCAL level markers when transitioning to regional level
-     * This ensures that existing LOCAL markers are removed when zooming out
-     */
-    val clearNonRegionalMarkersThrottle = PublishSubject.create<Long>()
-
-    private fun clearNonRegionalMarkers() {
-        val mapRef = map ?: return
-        val zoom = mapRef.cameraPosition.zoom
-        val isCityZoom = zoom <= ZoomLevel.ZOOM_VALUE_TO_SHOW_CITIES
+    /** Keeps only cached regional markers when transitioning out of local zoom. */
+    private fun retainRegionalMarkersOnly() {
+        map ?: return
         val markerCountBefore = poiMarkers?.markers?.size ?: 0
-        
-        // Don't re-add markers when at city zoom level
-        if(viewModel.showMarkers.get() && !isCityZoom) {
+
+        if (viewModel.showMarkers.get()) {
             poiMarkers?.clear()
             clearMarkerPositions()
             // Re-add cached regional stop markers and restore StopPOILocation tags
@@ -1442,12 +1447,12 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
      * Hide markers that are outside the current camera viewport for performance optimization
      * Uses MarkerManager collections for efficient marker management
      */
-    private fun hideMarkersOutsideViewport() {
+    private fun hideMarkersOutsideViewport(force: Boolean = false) {
         val map = this.map ?: return
         val currentBounds = map.projection.visibleRegion.latLngBounds
 
         // Only update if viewport has changed significantly
-        if (lastViewportBounds != null && boundsAreSimilar(lastViewportBounds!!, currentBounds)) {
+        if (!force && lastViewportBounds != null && boundsAreSimilar(lastViewportBounds!!, currentBounds)) {
             return
         }
 
@@ -1510,14 +1515,20 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
         for (marker in collection.markers) {
             val inViewport = viewportBounds.contains(marker.position)
 
-            val shouldBeVisible =
-                viewModel.showMarkers.get() && if (isPOIZoom) {
-                    // Show only StopPOILocation markers within viewport
+            val shouldBeVisible = when (collection) {
+                poiMarkers -> {
+                    val poiLocation = marker.tag as? IMapPoiLocation
+                    poiLocation != null && shouldShowPoiMarker(poiLocation, marker.position)
+                }
+                cityMarkers -> {
+                    currentMarkerZoomLevel() == ZoomLevel.CITY && inViewport
+                }
+                else -> viewModel.showMarkers.get() && if (isPOIZoom) {
                     inViewport && (marker.tag is StopPOILocation)
                 } else {
-                    // Standard: any marker within viewport
                     inViewport
                 }
+            }
 
             if (marker.isVisible != shouldBeVisible) {
                 if (countVisibilityChanges) {
@@ -1740,6 +1751,7 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
         private const val KEY_LAST_ZOOM_LEVEL = "last_zoom_level"
         private const val KEY_CONTRIBUTOR_CLASS = "contributor_class"
         private const val DEBUG_MARKER_RETENTION = false
+        private val LOCAL_STOP_CELL_ID = Regex("^-?\\d+#-?\\d+$")
 
         private fun asMarkerIcon(mode: SelectionType): BitmapDescriptor {
             return if (mode === SelectionType.DEPARTURE) {

@@ -4,5 +4,6 @@ import com.google.android.gms.maps.model.PolylineOptions
 
 data class SegmentsPolyLineOptions(
     val polyLineOptions: List<PolylineOptions>,
-    val isTravelled: Boolean
+    val isTravelled: Boolean,
+    val segmentId: Long? = null
 )

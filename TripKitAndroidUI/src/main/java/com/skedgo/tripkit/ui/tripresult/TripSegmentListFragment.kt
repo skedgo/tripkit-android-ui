@@ -199,6 +199,10 @@ class TripSegmentListFragment : BaseTripKitFragment(), View.OnClickListener {
 
     override fun onResume() {
         super.onResume()
+
+        // Segment notes come from the routing response, so reformat their distance token using
+        // the latest preference whenever this screen becomes active again.
+        viewModel.refreshDistanceUnits()
         
         // Ensure action button handler factory is available
         ensureActionButtonHandlerFactory()

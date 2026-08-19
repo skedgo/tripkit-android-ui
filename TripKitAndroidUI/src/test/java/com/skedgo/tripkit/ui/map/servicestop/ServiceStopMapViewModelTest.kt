@@ -129,19 +129,57 @@ class ServiceStopMapViewModelTest: MockKTest() {
     }
 
     @Test
-    fun `test realtimeVehicle observable`() {
+    fun `test realtimeVehicle fetches location for scheduled service`() {
         val service = mockk<TimetableEntry>(relaxed = true)
+        val stop = mockk<ScheduledStop>(relaxed = true)
+        val region = mockk<Region>(relaxed = true)
         val realTimeVehicle = mockk<RealTimeVehicle>(relaxed = true)
 
-        every { service.realTimeStatus } returns RealTimeStatus.IS_REAL_TIME
-        every { realtimeViewModel.realTimeVehicleObservable(service) } returns Observable.just(
-            realTimeVehicle
-        )
-
-        viewModel.service.accept(service)
+        every { service.serviceTripId } returns "service-trip-id"
+        every { service.realTimeStatus } returns RealTimeStatus.INCAPABLE
+        every { service.realtimeVehicle } returns null
+        every { realTimeVehicle.serviceTripId } returns "service-trip-id"
+        every { realTimeVehicle.hasLocationInformation() } returns true
+        every { regionService.getRegionByLocationAsync(stop) } returns Observable.just(region)
+        every {
+            realtimeViewModel.getRealTimeVehicles(region, listOf(service))
+        } returns Observable.just(listOf(realTimeVehicle))
 
         val testObserver = viewModel.realtimeVehicle.test()
-        testObserver.assertNoErrors()
-        verify { realtimeViewModel.realTimeVehicleObservable(service) }
+        viewModel.service.accept(service)
+        viewModel.stop.accept(stop)
+
+        testObserver.assertValueAt(0) { !it.isPresent() }
+        testObserver.assertValueAt(1) { it.isPresent() && it.get() === realTimeVehicle }
+        verify { realtimeViewModel.getRealTimeVehicles(region, listOf(service)) }
+    }
+
+    @Test
+    fun `test realtimeVehicles preserves all alternatives for selected service`() {
+        val service = mockk<TimetableEntry>(relaxed = true)
+        val stop = mockk<ScheduledStop>(relaxed = true)
+        val region = mockk<Region>(relaxed = true)
+        val firstVehicle = mockk<RealTimeVehicle>(relaxed = true)
+        val secondVehicle = mockk<RealTimeVehicle>(relaxed = true)
+
+        every { service.serviceTripId } returns "service-trip-id"
+        every { service.realtimeVehicle } returns null
+        every { firstVehicle.serviceTripId } returns "service-trip-id"
+        every { firstVehicle.hasLocationInformation() } returns true
+        every { secondVehicle.serviceTripId } returns "service-trip-id"
+        every { secondVehicle.hasLocationInformation() } returns true
+        every { regionService.getRegionByLocationAsync(stop) } returns Observable.just(region)
+        every {
+            realtimeViewModel.getRealTimeVehicles(region, listOf(service))
+        } returns Observable.just(listOf(firstVehicle, secondVehicle))
+
+        val testObserver = viewModel.realtimeVehicles.test()
+        viewModel.service.accept(service)
+        viewModel.stop.accept(stop)
+
+        testObserver.assertValues(
+            emptyList(),
+            listOf(firstVehicle, secondVehicle)
+        )
     }
 }
