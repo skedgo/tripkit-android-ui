@@ -109,4 +109,42 @@ class ActionButtonViewModelTest {
         viewModel.showSpinner(false)
         assertFalse(viewModel.showSpinner.get())
     }
+
+    @Test
+    fun `update preserving dynamic state keeps toggled title and icon`() {
+        val selectedDrawable = mockk<Drawable>(relaxed = true)
+        val staleDrawable = mockk<Drawable>(relaxed = true)
+        every {
+            ContextCompat.getDrawable(mockContext, R.drawable.ic_launcher)
+        } returns selectedDrawable
+        every {
+            ContextCompat.getDrawable(mockContext, R.drawable.ic_share)
+        } returns staleDrawable
+
+        val viewModel = ActionButtonViewModel(
+            mockContext,
+            ActionButton(
+                text = "Remove favourite",
+                tag = "favorite",
+                icon = R.drawable.ic_launcher,
+                isPrimary = false,
+                useIconTint = false
+            )
+        )
+
+        viewModel.update(
+            mockContext,
+            ActionButton(
+                text = "Favourite",
+                tag = "favorite",
+                icon = R.drawable.ic_share,
+                isPrimary = false,
+                useIconTint = false
+            ),
+            preserveDynamicState = true
+        )
+
+        assertEquals("Remove favourite", viewModel.title.get())
+        assertSame(selectedDrawable, viewModel.icon.get())
+    }
 }

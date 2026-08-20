@@ -6,7 +6,6 @@ import androidx.annotation.VisibleForTesting
 import com.google.android.gms.maps.model.MarkerOptions
 import com.jakewharton.rxrelay2.BehaviorRelay
 import com.jakewharton.rxrelay2.PublishRelay
-import com.skedgo.tripkit.common.model.realtimealert.RealTimeStatus
 import com.skedgo.tripkit.common.model.region.Region
 import com.skedgo.tripkit.common.model.stop.ScheduledStop
 import com.skedgo.tripkit.data.regions.RegionService
@@ -55,42 +54,40 @@ class ServiceStopMapViewModel @Inject constructor(
     lateinit var realtimeViewModel: RealTimeChoreographerViewModel
     lateinit var serviceStopMarkerCreator: ServiceStopMarkerCreator
 
-    init {
-        Observables.combineLatest(
-            service,
-            serviceStop.hide().flatMap { regionService.getRegionByLocationAsync(it) }
-        ) { service, region -> service to region }
-            .distinctUntilChanged()
-            .observeOn(Schedulers.io())
-            .switchMap { (service, region) ->
-                if (service.realTimeStatus in listOf(
-                        RealTimeStatus.IS_REAL_TIME,
-                        RealTimeStatus.CAPABLE
-                    )
-                ) {
-                    realtimeViewModel.getRealTimeVehicles(region, listOf(service))
-                        .takeUntil(stopRealtimeRelay) // Stop when stopRealtimeRelay emits
-                        .doOnNext { vehicles ->
-                            Timber.d("Fetched real-time vehicles: $vehicles")
-                        }
-                        .onErrorResumeNext { throwable: Throwable ->
-                            Timber.e(throwable, "Error fetching real-time vehicles")
-                            Observable.empty() // Emit nothing in case of an error
-                        }
-                } else {
-                    Timber.d("Service not real-time capable")
-                    Observable.just(service to region)
-                }
-            }
-            .replay(1)
-            .refCount()
-            .subscribe()
-            .autoClear()
-    }
-
     fun stopRealtimeUpdates() {
         stopRealtimeRelay.accept(Unit)
     }
+
+    /**
+     * Vehicle locations are independent of whether a service has real-time arrival predictions.
+     * A service can be labelled "Scheduled" and still have a tracked vehicle, so always ask the
+     * latest endpoint while service details are visible.
+     *
+     * Keeping the request and selected-vehicle lookup in one replaying stream also prevents the
+     * first response from being lost between the old fire-and-forget request and PublishRelay
+     * subscriptions.
+     */
+    private val realtimeVehicleUpdates = Observables.combineLatest(
+        service,
+        serviceStop.hide().switchMap { regionService.getRegionByLocationAsync(it) }
+    ) { service, region -> service to region }
+        .distinctUntilChanged()
+        .observeOn(Schedulers.io())
+        .switchMap { (service, region) ->
+            realtimeViewModel.getRealTimeVehicles(region, listOf(service))
+                .startWith(service.realtimeVehicle?.let(::listOf).orEmpty())
+                .takeUntil(stopRealtimeRelay)
+                .doOnNext { vehicles ->
+                    Timber.d("Fetched real-time vehicles: $vehicles")
+                }
+                .onErrorResumeNext { throwable: Throwable ->
+                    Timber.e(throwable, "Error fetching real-time vehicles")
+                    Observable.empty()
+                }
+                .map { vehicles -> service to vehicles }
+        }
+        .replay(1)
+        .refCount()
 
     private val serviceStopsAndLines =
         Observable.combineLatest(
@@ -105,17 +102,17 @@ class ServiceStopMapViewModel @Inject constructor(
             .replay(1)
             .refCount()
 
-    val realtimeVehicle = service
-        .observeOn(Schedulers.io())
-        .switchMap {
-            if (it.realTimeStatus in listOf(RealTimeStatus.IS_REAL_TIME, RealTimeStatus.CAPABLE)) {
-                realtimeViewModel.realTimeVehicleObservable(it)
-                    .map { OptionalCompat.ofNullable(it) }
-            } else {
-                Observable.just(OptionalCompat.empty())
+    val realtimeVehicles = realtimeVehicleUpdates
+        .map { (service, vehicles) ->
+            vehicles.filter { vehicle ->
+                vehicle.serviceTripId == service.serviceTripId && vehicle.hasLocationInformation()
             }
         }
         .observeOn(AndroidSchedulers.mainThread())
+        .autoClear()
+
+    val realtimeVehicle = realtimeVehicles
+        .map { vehicles -> OptionalCompat.ofNullable(vehicles.firstOrNull()) }
         .autoClear()
 
     val region by lazy {

@@ -197,7 +197,7 @@ private fun TripSegment.getTitle(): String {
         }
 
         this.transportModeId != TransportMode.ID_WALK -> {
-            DistanceFormatter.format(this.metres)
+            DistanceFormatter.format(this.metres, getDistanceRegion())
         }
 
         else -> {
@@ -205,6 +205,13 @@ private fun TripSegment.getTitle(): String {
         }
     }
 }
+
+internal fun TripSegment.getDistanceRegion(): String? =
+    from?.region
+        ?: to?.region
+        ?: singleLocation?.region
+        ?: trip?.from?.region
+        ?: trip?.to?.region
 
 private fun TripSegment.getTimeText(context: Context): String {
     val timePattern = SystemTimeFormatManager.getTimeFormatPattern()

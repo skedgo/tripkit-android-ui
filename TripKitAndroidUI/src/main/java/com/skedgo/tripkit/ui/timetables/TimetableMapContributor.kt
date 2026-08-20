@@ -63,7 +63,7 @@ import javax.inject.Inject
 /**
  * Map contributor for timetable / service-detail screens.
  *
- * Draws service stops, route polylines, and a real-time vehicle marker with periodic fade updates.
+ * Draws service stops, route polylines, and real-time vehicle markers with periodic fade updates.
  * A main-thread [Handler] drives the fade loop; [cleanup] must be invoked (via [TripKitMapContributor]
  * or fragment destruction) so pending callbacks are cleared and the contributor does not outlive
  * its host fragment.
@@ -99,14 +99,18 @@ class TimetableMapContributor(val fragment: Fragment) : TripKitMapContributor {
 
     private var mStop: ScheduledStop? = null
     private var service: TimetableEntry? = null
-    private var realTimeVehicleMarker: Marker? = null
+    private data class RealTimeVehicleMarkerState(
+        val marker: Marker,
+        var vehicle: RealTimeVehicle,
+        val pulseOverlay: GroundOverlay?
+    )
+
+    private val realTimeVehicleMarkers = mutableListOf<RealTimeVehicleMarkerState>()
     private val stopCodesToMarkerMap = HashMap<String, Marker>()
     private val serviceLines = Collections.synchronizedList(ArrayList<Polyline>())
     private var googleMap: GoogleMap? = null
 
     private var previousCameraPosition: CameraPosition? = null
-
-    private var pulseOverlay: GroundOverlay? = null
 
     /** Schedules real-time vehicle marker fade updates on the main looper. Cleared in [cleanup]. */
     private val handler = Handler(Looper.getMainLooper())
@@ -151,7 +155,9 @@ class TimetableMapContributor(val fragment: Fragment) : TripKitMapContributor {
 
         googleMap?.setOnCameraIdleListener {
             val zoomLevel = googleMap?.cameraPosition?.zoom ?: return@setOnCameraIdleListener
-            animatePulseOverlay(pulseOverlay, zoomLevel)
+            realTimeVehicleMarkers.forEach { state ->
+                animatePulseOverlay(state.pulseOverlay, zoomLevel)
+            }
         }
 
         // Start periodic updates
@@ -209,13 +215,9 @@ class TimetableMapContributor(val fragment: Fragment) : TripKitMapContributor {
                 fitAllMapElementsToBounds()
             })
 
-        autoDisposable.add(viewModel.realtimeVehicle
-            .subscribeWithErrorHandling { realTimeVehicleOptional ->
-                if (realTimeVehicleOptional.isPresent()) { // Check if the value is present
-                    setRealTimeVehicle(realTimeVehicleOptional.get()) // Get the value from OptionalCompat
-                } else {
-                    setRealTimeVehicle(null) // Handle empty OptionalCompat
-                }
+        autoDisposable.add(viewModel.realtimeVehicles
+            .subscribeWithErrorHandling { vehicles ->
+                setRealTimeVehicles(vehicles)
             })
     }
 
@@ -248,15 +250,7 @@ class TimetableMapContributor(val fragment: Fragment) : TripKitMapContributor {
         }
 
         // Cleanup pulse animation
-        hidePulseOverlay(pulseOverlay)
-        pulseOverlay = null
-
-        // Safely remove the real-time vehicle marker if it exists
-        realTimeVehicleMarker?.let { marker ->
-            marker.remove()
-            realTimeVehicleMarker = null // Clear the reference to avoid memory leaks
-            Timber.d("Real-time vehicle marker removed")
-        }
+        clearRealTimeVehicleMarkers()
     }
 
     fun setService(service: TimetableEntry?) {
@@ -295,43 +289,45 @@ class TimetableMapContributor(val fragment: Fragment) : TripKitMapContributor {
         }
     }
 
-    private fun setRealTimeVehicle(realTimeVehicle: RealTimeVehicle?) {
-        googleMap?.let { map ->
-            realTimeVehicleMarker?.let { marker ->
-                // Animate existing marker if it already exists
-                if (realTimeVehicle != null && realTimeVehicle.hasLocationInformation()) {
-                    val newLatLng =
-                        LatLng(realTimeVehicle.location.lat, realTimeVehicle.location.lon)
+    private fun setRealTimeVehicles(vehicles: List<RealTimeVehicle>) {
+        val map = googleMap ?: return
 
-                    animateMarkerToPosition(marker, newLatLng)
-                    marker.rotation = realTimeVehicle.location.bearing.toFloat()
-                    pulseOverlay?.position = newLatLng
-
-                    // Check if the location has changed
-                    if (marker.position != newLatLng) {
-                        // Update independent last known update time
-                        service?.realtimeVehicle?.lastUpdateTime = System.currentTimeMillis()
-                    }
-                }
-                return
-            }
-
-            // Create a new marker and pulse overlay if it doesn't exist
-            if (realTimeVehicle != null && realTimeVehicle.hasLocationInformation()) {
-                if (service != null && TextUtils.equals(
-                        realTimeVehicle.serviceTripId,
-                        service!!.serviceTripId
-                    )
-                ) {
-                    realTimeVehicle.lastUpdateTime = System.currentTimeMillis()
-                    service!!.realtimeVehicle = realTimeVehicle
-                    createVehicleMarker(realTimeVehicle)
-                }
+        while (realTimeVehicleMarkers.size > vehicles.size) {
+            realTimeVehicleMarkers.removeAt(realTimeVehicleMarkers.lastIndex).also { state ->
+                state.marker.remove()
+                hidePulseOverlay(state.pulseOverlay)
             }
         }
+
+        vehicles.forEachIndexed { index, vehicle ->
+            val location = LatLng(vehicle.location.lat, vehicle.location.lon)
+            val state = realTimeVehicleMarkers.getOrNull(index)
+            if (state == null) {
+                realTimeVehicleMarkers += createVehicleMarker(map, vehicle)
+            } else {
+                state.vehicle = vehicle
+                animateMarkerToPosition(state.marker, location)
+                state.marker.rotation = vehicle.location.bearing.toFloat()
+                state.pulseOverlay?.position = location
+            }
+        }
+
+        service?.realtimeVehicle = vehicles.firstOrNull()
     }
 
-    private fun createVehicleMarker(vehicle: RealTimeVehicle) {
+    private fun clearRealTimeVehicleMarkers() {
+        realTimeVehicleMarkers.forEach { state ->
+            state.marker.remove()
+            hidePulseOverlay(state.pulseOverlay)
+        }
+        realTimeVehicleMarkers.clear()
+        Timber.d("Real-time vehicle markers removed")
+    }
+
+    private fun createVehicleMarker(
+        map: GoogleMap,
+        vehicle: RealTimeVehicle
+    ): RealTimeVehicleMarkerState {
         var title: String? = null
         if (TextUtils.isEmpty(service!!.serviceNumber)) {
             title = "Your upcoming service"
@@ -358,8 +354,8 @@ class TimetableMapContributor(val fragment: Fragment) : TripKitMapContributor {
             }
         val icon = vehicleMarkerIconCreatorLazy.get().call(bearing, color, text)
         val markerTitle = title
-        googleMap?.let { map: GoogleMap ->
-            val millis = vehicle.lastUpdateTime * 1000
+        return run {
+            val millis = vehicle.lastUpdateTime.toMillisFromApiSeconds()
             val time = DateTimeFormats.printTime(fragment.context, millis, null)
             val location = LatLng(vehicle.location.lat, vehicle.location.lon)
             val snippet: String = if (TextUtils.isEmpty(vehicle.label)) {
@@ -367,7 +363,7 @@ class TimetableMapContributor(val fragment: Fragment) : TripKitMapContributor {
             } else {
                 "Vehicle " + vehicle.label + " location as at " + time
             }
-            realTimeVehicleMarker = map.addMarker(
+            val marker = map.addMarker(
                 MarkerOptions()
                     .icon(BitmapDescriptorFactory.fromBitmap(icon))
                     .rotation(bearing.toFloat())
@@ -379,10 +375,6 @@ class TimetableMapContributor(val fragment: Fragment) : TripKitMapContributor {
                     .position(location)
                     .draggable(false)
             )
-
-            // Cleanup pulse animation
-            hidePulseOverlay(pulseOverlay)
-            pulseOverlay = null
 
             // Create the pulse overlay
             val bitmap = getBitmapFromDrawable(
@@ -397,24 +389,24 @@ class TimetableMapContributor(val fragment: Fragment) : TripKitMapContributor {
                 .image(BitmapDescriptorFactory.fromBitmap(bitmap))
                 .transparency(0.5f)
 
-            pulseOverlay = map.addGroundOverlay(overlayOptions)
+            val overlay = map.addGroundOverlay(overlayOptions)
 
             // Get the current zoom level
             val zoomLevel = map.cameraPosition.zoom
 
             // Start the pulse animation with zoom level
-            animatePulseOverlay(pulseOverlay, zoomLevel)
+            animatePulseOverlay(overlay, zoomLevel)
+
+            RealTimeVehicleMarkerState(marker, vehicle, overlay)
         }
     }
 
     private fun updateVehicleMarkerAppearance() {
-        val realTimeVehicle = service?.realtimeVehicle ?: return
-
-        realTimeVehicleMarker?.let { marker ->
-            pulseOverlay?.let { overlay ->
+        realTimeVehicleMarkers.forEach { state ->
+            state.pulseOverlay?.let { overlay ->
                 // Calculate time since the last known update
                 val currentTimeMillis = System.currentTimeMillis()
-                val lastUpdateTimeMillis = realTimeVehicle.lastUpdateTime // Already in milliseconds
+                val lastUpdateTimeMillis = state.vehicle.lastUpdateTime.toMillisFromApiSeconds()
                 val ageInSeconds =
                     ((currentTimeMillis - lastUpdateTimeMillis) / 1000) // Start from 1 second
 
@@ -423,17 +415,17 @@ class TimetableMapContributor(val fragment: Fragment) : TripKitMapContributor {
                 val fadeLevel = calculateFadeFromAgeFactor(ageFactor)
 
                 // Update marker opacity and snippet
-                updateMarkerOpacity(marker, fadeLevel)
+                updateMarkerOpacity(state.marker, fadeLevel)
 
                 // Post the formatted elapsed time
                 _formattedElapsedTime.postValue(formatElapsedTime(ageInSeconds))
 
-                marker.snippet = formatElapsedTime(ageInSeconds, realTimeVehicle)
+                state.marker.snippet = formatElapsedTime(ageInSeconds, state.vehicle)
 
                 if (ageFactor < 0.1f) {
-                    pulseOverlay?.isVisible = false
+                    overlay.isVisible = false
                 } else {
-                    pulseOverlay?.isVisible = true
+                    overlay.isVisible = true
                     // Update overlay transparency using age factor directly
                     updateOverlayTransparency(overlay, fadeLevel)
                 }
@@ -500,7 +492,8 @@ class TimetableMapContributor(val fragment: Fragment) : TripKitMapContributor {
 
         // 3) Realtime vehicle marker
         if (includeRealtimeVehicle) {
-            realTimeVehicleMarker?.position?.let { p ->
+            realTimeVehicleMarkers.forEach { state ->
+                val p = state.marker.position
                 builder.include(p)
                 if (count == 0) firstPoint = p
                 count++
@@ -529,5 +522,8 @@ class TimetableMapContributor(val fragment: Fragment) : TripKitMapContributor {
             e.printThrowableStackTrace()
         }
     }
+
+    private fun Long.toMillisFromApiSeconds(): Long =
+        if (this < 10_000_000_000L) this * 1000 else this
 
 }

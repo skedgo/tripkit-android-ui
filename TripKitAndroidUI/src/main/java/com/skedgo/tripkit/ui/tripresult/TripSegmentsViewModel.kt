@@ -52,8 +52,10 @@ import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButtonContainer
 import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButtonHandler
 import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButtonHandlerFactory
 import com.skedgo.tripkit.ui.utils.TripSegmentActionProcessor
+import com.skedgo.tripkit.ui.utils.DistanceFormatter
 import com.skedgo.tripkit.ui.utils.createSummaryIcon
 import com.skedgo.tripkit.ui.utils.generateTripPreviewHeader
+import com.skedgo.tripkit.ui.utils.getDistanceRegion
 import com.skedgo.tripkit.ui.utils.getSegmentIconObservable
 import com.squareup.otto.Bus
 import io.reactivex.Observable
@@ -119,6 +121,7 @@ class TripSegmentsViewModel @Inject internal constructor(
     private var isRestoringState = false
 
     private val segmentViewModels: MutableList<TripSegmentItemViewModel> = mutableListOf()
+    private val movingSegmentViewModels: MutableList<TripSegmentItemViewModel> = mutableListOf()
     val buttons = MutableLiveData<MutableList<ActionButtonViewModel>>(mutableListOf())
     val buttonsBinding: ItemBinding<ActionButtonViewModel> by lazy {
         ItemBinding.of<ActionButtonViewModel>(BR.viewModel, R.layout.trip_segment_action_button)
@@ -354,31 +357,17 @@ class TripSegmentsViewModel @Inject internal constructor(
     }
 
     /**
-     * Updates existing button view models while preserving dynamic text-based states
-     * (favorite and alert toggles).
+     * Updates existing button view models while preserving dynamic states (favorite and alert
+     * toggles). Realtime trip updates can arrive after a toggle and contain stale action metadata,
+     * so the current title and icon must be captured before applying the refreshed action.
      */
     private fun updateButtonsPreservingDynamicStates(actions: List<ActionButton>) {
         val existingButtons = buttons.value.orEmpty()
         actions.forEachIndexed { i, actionButton ->
             val existingButton = existingButtons.getOrNull(i) ?: return@forEachIndexed
-            // Update with latest action metadata first.
-            existingButton.update(context, actionButton)
-
-            // Reapply dynamic states derived from current UI text.
-            when (actionButton.tag) {
-                ActionButtonHandler.ACTION_TAG_FAVORITE -> {
-                    val currentText = existingButton.title.get()
-                    if (currentText?.contains("Remove", ignoreCase = true) == true) {
-                        existingButton.title.set(context.getString(R.string.remove_favourite))
-                    }
-                }
-                ActionButtonHandler.ACTION_TAG_ALERT -> {
-                    val currentText = existingButton.title.get()
-                    if (currentText?.contains("Mute", ignoreCase = true) == true) {
-                        existingButton.title.set(context.getString(R.string.action_mute))
-                    }
-                }
-            }
+            val hasDynamicState = actionButton.tag == ActionButtonHandler.ACTION_TAG_FAVORITE ||
+                actionButton.tag == ActionButtonHandler.ACTION_TAG_ALERT
+            existingButton.update(context, actionButton, preserveDynamicState = hasDynamicState)
         }
     }
 
@@ -440,6 +429,15 @@ class TripSegmentsViewModel @Inject internal constructor(
 
     fun onStop() {
         updateTripForRealtime.stop()
+    }
+
+    /** Refreshes locally formatted distance labels after the user changes distance units. */
+    fun refreshDistanceUnits() {
+        movingSegmentViewModels.forEach { viewModel ->
+            viewModel.tripSegment?.let { segment ->
+                updateMovingItemDescription(viewModel, segment)
+            }
+        }
     }
 
     override fun onCleared() {
@@ -637,14 +635,32 @@ class TripSegmentsViewModel @Inject internal constructor(
         viewModel: TripSegmentItemViewModel,
         tripSegment: TripSegment
     ) {
-
+        movingSegmentViewModels.add(viewModel)
         viewModel.setupSegment(
             viewType = TripSegmentItemViewModel.SegmentViewType.MOVING,
             title = processedText(tripSegment, tripSegment.action),
-            description = tripSegment.getDisplayNotes(context, false),
+            description = getMovingItemDescription(tripSegment),
             lineColor = tripSegment.lineColor(),
             isCancelled = tripSegment.availability.equals(Cancelled.value, ignoreCase = true)
         )
+    }
+
+    private fun updateMovingItemDescription(
+        viewModel: TripSegmentItemViewModel,
+        tripSegment: TripSegment
+    ) {
+        val description = getMovingItemDescription(tripSegment)
+        viewModel.description.value = description.orEmpty()
+        viewModel.showDescription.value = description != null
+    }
+
+    private fun getMovingItemDescription(tripSegment: TripSegment): String? {
+        val displayNotes = tripSegment.getDisplayNotes(context, false)
+        val formattedDistance = DistanceFormatter.format(
+            tripSegment.metres,
+            tripSegment.getDistanceRegion()
+        )
+        return DistanceFormatter.replaceDistanceInText(displayNotes, formattedDistance)
     }
 
     private fun setTripGroup(tripGroup: TripGroup, tripId: Long, savedInstanceState: Bundle?) {
@@ -656,6 +672,7 @@ class TripSegmentsViewModel @Inject internal constructor(
             isCancelled.value = trip.getAvailability() == Cancelled
             val tripSegments = trip.segmentList
             segmentViewModels.clear()
+            movingSegmentViewModels.clear()
 
             _mapTiles.postValue(tripSegments.firstOrNull { it.mapTiles != null }?.mapTiles)
 
