@@ -2,7 +2,14 @@ package com.skedgo.tripkit.ui.map
 
 import android.graphics.Color
 import com.google.android.gms.maps.model.LatLng
+import com.skedgo.tripkit.LineSegment
+import com.skedgo.tripkit.a2brouting.GetNonTravelledLineForTrip
+import com.skedgo.tripkit.a2brouting.GetTravelledLineForTrip
+import com.skedgo.tripkit.common.util.TripKitLatLng
 import com.skedgo.tripkit.ui.utils.ServiceLineOverlayTask
+import io.mockk.every
+import io.mockk.mockk
+import io.reactivex.Observable
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
@@ -59,5 +66,52 @@ class GetTripLineTest {
 
         // Check non-traveled line
         assertEquals(ServiceLineOverlayTask.NON_TRAVELLED_LINE_COLOR, polylineOptionsList[2].color) // Non-traveled color
+    }
+
+    @Test
+    fun `execute preserves segment ownership when adjacent lines share an endpoint`() {
+        val getTravelledLineForTrip = mockk<GetTravelledLineForTrip>()
+        val getNonTravelledLineForTrip = mockk<GetNonTravelledLineForTrip>()
+        val firstSegmentId = 101L
+        val secondSegmentId = 202L
+        val sharedPoint = TripKitLatLng(37.7750, -122.4195)
+        val firstSegmentLine = LineSegment(
+            start = TripKitLatLng(37.7749, -122.4194),
+            end = sharedPoint,
+            color = Color.BLUE,
+            tag = LineSegment.Tag.SHAPE.toString(),
+            segmentId = firstSegmentId
+        )
+        val secondSegmentLine = LineSegment(
+            start = sharedPoint,
+            end = TripKitLatLng(37.7751, -122.4196),
+            color = Color.RED,
+            tag = LineSegment.Tag.SHAPE.toString(),
+            segmentId = secondSegmentId
+        )
+        every {
+            getTravelledLineForTrip.execute(any(), any())
+        } returns Observable.fromIterable(
+            listOf(listOf(firstSegmentLine), listOf(secondSegmentLine))
+        )
+        every {
+            getNonTravelledLineForTrip.execute(any())
+        } returns Observable.empty()
+
+        val result = GetTripLine(
+            getNonTravelledLineForTrip,
+            getTravelledLineForTrip
+        ).execute(emptyList()).blockingFirst()
+
+        val travelledLines = result.filter { it.isTravelled && it.polyLineOptions.isNotEmpty() }
+        assertEquals(listOf(firstSegmentId, secondSegmentId), travelledLines.map { it.segmentId })
+        assertEquals(
+            setOf(LatLng(37.7749, -122.4194), LatLng(37.7750, -122.4195)),
+            travelledLines.first().polyLineOptions.first().points.toSet()
+        )
+        assertEquals(
+            setOf(LatLng(37.7750, -122.4195), LatLng(37.7751, -122.4196)),
+            travelledLines.last().polyLineOptions.first().points.toSet()
+        )
     }
 }

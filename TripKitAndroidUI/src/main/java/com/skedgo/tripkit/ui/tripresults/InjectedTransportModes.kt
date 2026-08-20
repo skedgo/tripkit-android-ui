@@ -10,8 +10,8 @@ import com.skedgo.tripkit.common.model.TransportMode
  *    `mergeWithInjectedModes(...)` combines backend modes with injected modes so the mode is visible
  *    and toggleable in Transport Selector + Trip Results transport chips.
  * 2) Request behavior:
- *    `shouldIncludeBackendMode(...)` maps a selected injected mode into real backend mode ids used by routing.
- *    Example: Park & Ride selected -> include both Public Transport + Car in route request filtering.
+ *    `getSelectedModeRequestGroups(...)` maps a selected injected mode to an explicit backend
+ *    request group. The group is kept separate from normally selected backend modes.
  *
  * This keeps custom mode behavior centralized so adding another custom mode is mostly adding one config entry.
  */
@@ -64,14 +64,14 @@ object InjectedTransportModes {
         return byId.values.toList()
     }
 
-    // Used by routing filter to translate selected injected mode -> effective backend mode ids.
-    fun shouldIncludeBackendMode(
-        backendModeId: String,
+    fun getSelectedModeRequestGroups(
         isInjectedModeSelected: (String) -> Boolean
-    ): Boolean {
-        return injectedModes.any { mode ->
-            isInjectedModeSelected(mode.identifier) &&
-                mode.effectiveRoutingModes.contains(backendModeId)
-        }
-    }
+    ): List<List<String>> =
+        injectedModes
+            .filter { mode -> isInjectedModeSelected(mode.identifier) }
+            .mapNotNull { mode ->
+                mode.effectiveRoutingModes
+                    .takeIf { it.isNotEmpty() }
+                    ?.toList()
+            }
 }

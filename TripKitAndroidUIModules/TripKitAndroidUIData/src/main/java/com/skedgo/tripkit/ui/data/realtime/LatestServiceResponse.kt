@@ -19,6 +19,7 @@ interface LatestServiceResponse {
     fun endTime(): Long? = 0
     fun lastUpdate(): Long?
     fun realtimeVehicle(): RealTimeVehicle?
+    fun realtimeVehicleAlternatives(): List<RealTimeVehicle>?
     fun realtimeAlternativeVehicle(): List<RealTimeVehicle>?
     fun alerts(): List<RealtimeAlert>?
 }

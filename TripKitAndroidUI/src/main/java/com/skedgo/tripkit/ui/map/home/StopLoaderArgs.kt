@@ -4,9 +4,6 @@ import android.util.Pair
 import com.google.android.gms.maps.model.LatLngBounds
 import com.skedgo.tripkit.common.model.region.Region
 import com.skedgo.tripkit.location.GeoPoint
-import com.skedgo.tripkit.ui.map.home.ZoomLevel.Companion.ZOOM_START_VALUE_FOR_LOCAL
-import com.skedgo.tripkit.ui.map.home.ZoomLevel.Companion.ZOOM_START_VALUE_TO_SHOW_REGIONAL
-import com.skedgo.tripkit.ui.map.home.ZoomLevel.Companion.ZOOM_VALUE_TO_SHOW_CITIES
 
 object StopLoaderArgs {
     /**
@@ -38,17 +35,17 @@ object StopLoaderArgs {
         zoom: Float,
         span: LatLngBounds
     ): ArrayList<String> {
-        return when {
-            zoom <= ZOOM_VALUE_TO_SHOW_CITIES -> {
+        return when (ZoomLevel.fromLevel(zoom)) {
+            ZoomLevel.CITY -> {
                 // City level - load regional stops for cities
                 getCellIdsForRegionalLevel(region)
             }
-            zoom > ZOOM_START_VALUE_TO_SHOW_REGIONAL && zoom <= ZOOM_START_VALUE_FOR_LOCAL -> {
+            ZoomLevel.REGIONAL -> {
                 // Regional level - load regional stops
                 getCellIdsForRegionalLevel(region)
             }
-            else -> {
-                // Local level (> 15.0f) - load local stops + regional for cities
+            ZoomLevel.LOCAL -> {
+                // Local level (>= 13.5f) - load local stops + regional for cities
                 val localCellIds = getCellIdsForLocalLevel(geoPoint, span)
                 localCellIds.addAll(getCellIdsForRegionalLevel(region))
                 localCellIds

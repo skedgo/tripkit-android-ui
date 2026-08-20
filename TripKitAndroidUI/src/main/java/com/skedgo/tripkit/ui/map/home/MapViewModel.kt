@@ -274,10 +274,10 @@ class MapViewModel @Inject internal constructor(
     }
 
     private fun markerModeForLog(zoom: Float): String {
-        return when {
-            zoom <= ZoomLevel.ZOOM_VALUE_TO_SHOW_CITIES -> "CITY_ONLY"
-            zoom > ZoomLevel.ZOOM_START_VALUE_FOR_LOCAL -> "REGION_AND_LOCAL"
-            else -> "REGION_ONLY"
+        return when (ZoomLevel.fromLevel(zoom)) {
+            ZoomLevel.CITY -> "CITY_ONLY"
+            ZoomLevel.REGIONAL -> "REGION_ONLY"
+            ZoomLevel.LOCAL -> "REGION_AND_LOCAL"
         }
     }
 }

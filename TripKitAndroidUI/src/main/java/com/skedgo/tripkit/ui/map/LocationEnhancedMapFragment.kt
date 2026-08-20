@@ -16,6 +16,7 @@ import com.google.android.material.button.MaterialButton
 import com.skedgo.tripkit.logging.ErrorLogger
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.core.addTo
+import com.skedgo.tripkit.ui.utils.applyEdgeToEdgeSafeAreaMargins
 import com.skedgo.tripkit.ui.utils.showConfirmationPopUpDialog
 import com.skedgo.tripkit.checkIfLocationProviderIsEnabled
 import io.reactivex.Observable
@@ -68,6 +69,11 @@ open class LocationEnhancedMapFragment : BaseMapFragment() {
                 false
             ) as MaterialButton
             settingsButton!!.visibility = View.GONE
+            settingsButton!!.applyEdgeToEdgeSafeAreaMargins(
+                applyLeft = true,
+                applyTop = true,
+                applyRight = true,
+            )
             originalView.addView(settingsButton)
 
             /*

@@ -21,7 +21,6 @@ import com.google.android.gms.maps.model.TileProvider
 import com.google.android.gms.maps.model.UrlTileProvider
 import com.google.maps.android.collections.MarkerManager
 import com.skedgo.rxtry.toTrySingle
-import com.skedgo.tripkit.common.util.PolyUtil
 import com.skedgo.tripkit.common.util.TransportModeUtils
 import com.skedgo.tripkit.logging.ErrorLogger
 import com.skedgo.tripkit.routing.TripSegment
@@ -78,6 +77,7 @@ class TripResultMapContributor : TripKitMapContributor {
     private val alertIdToMarkerCache: HashMap<Long, Marker> = LinkedHashMap()
     private val tripLines = Collections.synchronizedList(ArrayList<Polyline>())
     private val tripLinesTravelled = Collections.synchronizedList(ArrayList<Polyline>())
+    private val tripLinesBySegmentId = HashMap<Long, MutableList<Polyline>>()
 
     @Inject
     lateinit var segmentStopMarkerMaker: SegmentStopMarkerMaker
@@ -388,6 +388,7 @@ class TripResultMapContributor : TripKitMapContributor {
         tripLines.forEach { it.remove() }
         tripLines.clear()
         tripLinesTravelled.clear()
+        tripLinesBySegmentId.clear()
         removeTileOverlay()
         tileProvider?.let {
             if (it is CustomUrlTileProvider) {
@@ -415,11 +416,15 @@ class TripResultMapContributor : TripKitMapContributor {
         }
         tripLines.clear()
         tripLinesTravelled.clear()
+        tripLinesBySegmentId.clear()
         segmentsPolyLineOptions.forEach { segment ->
             segment.polyLineOptions.forEach { polylineOption ->
                 polylineOption.zIndex(2.0f)
                 val polyLine = map.addPolyline(polylineOption)
                 tripLines.add(polyLine)
+                segment.segmentId?.let { segmentId ->
+                    tripLinesBySegmentId.getOrPut(segmentId, ::ArrayList).add(polyLine)
+                }
                 if (segment.isTravelled) {
                     tripLinesTravelled.add(polyLine)
                 }
@@ -461,13 +466,9 @@ class TripResultMapContributor : TripKitMapContributor {
     }
 
     fun focusTripLine(segment: TripSegment) {
-        val segmentPolyLines = if (shouldHighlightTravelledPolyLines()) {
-            segment.getPolyLines()
-        } else {
-            emptyList()
-        }
+        val segmentPolyLines = tripLinesBySegmentId[segment.segmentId].orEmpty()
 
-        if (segmentPolyLines.isNotEmpty()) {
+        if (segmentPolyLines.isNotEmpty() && shouldHighlightTravelledPolyLines()) {
             updateTravelledPolyLinesHighlight(segmentPolyLines)
         }
 
@@ -523,35 +524,6 @@ class TripResultMapContributor : TripKitMapContributor {
                 LatLngBounds.builder().apply { it.forEach(::include) }.build()
             }
     }
-
-    private fun TripSegment.getPolyLines() =
-        if (this.streets != null) {
-            tripLinesTravelled.filter {
-                it.points.any { point ->
-                    this.streets?.filter { it.encodedWaypoints() != null }?.any { street ->
-                        PolyUtil.decode(street.encodedWaypoints())
-                            .zipWithNext()
-                            .any { (start, end) ->
-                                (point.latitude == start.latitude && point.longitude == start.longitude) ||
-                                    (point.latitude == end.latitude && point.longitude == end.longitude)
-                            }
-                    } ?: false
-                }
-            }
-        } else {
-            tripLinesTravelled.filter {
-                it.points.any { point ->
-                    this.shapes?.filter { it.isTravelled }?.any { shape ->
-                        PolyUtil.decode(shape.encodedWaypoints)
-                            .orEmpty().zipWithNext()
-                            .any { (start, end) ->
-                                (point.latitude == start.latitude && point.longitude == start.longitude) ||
-                                    (point.latitude == end.latitude && point.longitude == end.longitude)
-                            }
-                    } ?: false
-                }
-            }
-        }
 
     private fun Int.adjustAlpha(alpha: Float): Int {
         val red = Color.red(this)

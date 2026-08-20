@@ -6,7 +6,9 @@ import android.graphics.drawable.Drawable
 import androidx.core.content.ContextCompat
 import com.skedgo.TripKit
 import com.skedgo.tripkit.ServiceResponse
+import com.skedgo.tripkit.common.model.region.Region
 import com.skedgo.tripkit.common.model.stop.ScheduledStop
+import com.skedgo.tripkit.common.model.stop.ServiceStop
 import com.skedgo.tripkit.data.regions.RegionService
 import com.skedgo.tripkit.routing.ModeInfo
 import com.skedgo.tripkit.routing.RealTimeVehicle
@@ -25,6 +27,7 @@ import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.joda.time.DateTimeZone
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import javax.inject.Provider
@@ -109,6 +112,68 @@ class ServiceDetailViewModelTest: MockKTest() {
     }
 
     @Test
+    fun `setup from timetable should request complete service and use region timezone`() {
+        val region: Region = mockk()
+        val regionUrls = arrayListOf("https://api.example.com/")
+        val timetableEntry = TimetableEntry().apply {
+            serviceTripId = "service-trip-id"
+            serviceName = "Haymarket Bus Station"
+            serviceDirection = "Haymarket Bus Station"
+            serviceNumber = "44"
+            operator = "First Leicester"
+            startStopCode = "lecdpmtw"
+            startTimeInSecs = 1_786_551_900
+        }
+
+        every { regionService.getRegionByLocationAsync(stop) } returns Observable.just(region)
+        every { region.name } returns "GB_ENG_Leicester"
+        every { region.getURLs() } returns regionUrls
+        every { region.timezone } returns "UTC"
+        every { stop.timeZone } returns "+08:00"
+        every {
+            getRealtimeText.execute(
+                DateTimeZone.UTC,
+                timetableEntry,
+                null
+            )
+        } returns Pair("Scheduled", R.color.black1)
+        every {
+            serviceDetailRepository.getService(
+                baseUrls = regionUrls,
+                region = "GB_ENG_Leicester",
+                serviceTripId = "service-trip-id",
+                operator = "First Leicester",
+                startStopCode = null,
+                endStopCode = null,
+                embarkationTimeInSecs = 1_786_551_900,
+                encode = true
+            )
+        } returns Observable.just(mockk(relaxed = true))
+
+        viewModel.setup(stop, timetableEntry)
+
+        verify(exactly = 1) {
+            getRealtimeText.execute(
+                DateTimeZone.UTC,
+                timetableEntry,
+                null
+            )
+        }
+        verify(exactly = 1) {
+            serviceDetailRepository.getService(
+                baseUrls = regionUrls,
+                region = "GB_ENG_Leicester",
+                serviceTripId = "service-trip-id",
+                operator = "First Leicester",
+                startStopCode = null,
+                endStopCode = null,
+                embarkationTimeInSecs = 1_786_551_900,
+                encode = true
+            )
+        }
+    }
+
+    @Test
     fun `processResponse should update items`() {
         val response: ServiceResponse = mockk()
         val serviceItemViewModel: ServiceDetailItemViewModel = mockk(relaxed = true)
@@ -128,5 +193,39 @@ class ServiceDetailViewModelTest: MockKTest() {
         assertFalse(viewModel.items.get()!!.isEmpty())
         verify { serviceItemViewModel.setStop(context, any(), Color.GREEN, true) }
         verify { serviceItemViewModel.setDrawable(context, ServiceDetailItemViewModel.LineDirection.MIDDLE) }
+    }
+
+    @Test
+    fun `processResponse should mark stops before timetable stop as travelled`() {
+        val response: ServiceResponse = mockk()
+        val passedStop: ServiceStop = mockk {
+            every { code } returns "passed"
+        }
+        val selectedStop: ServiceStop = mockk {
+            every { code } returns "selected"
+        }
+        val upcomingStop: ServiceStop = mockk {
+            every { code } returns "upcoming"
+        }
+        val passedItem: ServiceDetailItemViewModel = mockk(relaxed = true)
+        val selectedItem: ServiceDetailItemViewModel = mockk(relaxed = true)
+        val upcomingItem: ServiceDetailItemViewModel = mockk(relaxed = true)
+
+        every { response.shapes() } returns listOf(mockk {
+            every { stops } returns listOf(passedStop, selectedStop, upcomingStop)
+            every { serviceColor.color } returns Color.GREEN
+            every { isTravelled } returns true
+        })
+        every { serviceViewModelProvider.get() } returnsMany listOf(
+            passedItem,
+            selectedItem,
+            upcomingItem
+        )
+
+        viewModel.processResponse(response, travelledBoundaryStopCode = "selected")
+
+        verify { passedItem.setStop(context, passedStop, Color.GREEN, true) }
+        verify { selectedItem.setStop(context, selectedStop, Color.GREEN, false) }
+        verify { upcomingItem.setStop(context, upcomingStop, Color.GREEN, false) }
     }
 }

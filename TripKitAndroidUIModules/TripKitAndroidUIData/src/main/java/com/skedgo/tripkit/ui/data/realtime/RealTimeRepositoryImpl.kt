@@ -53,8 +53,8 @@ class RealTimeRepositoryImpl @Inject constructor(
             .lastOrError()
             .flatMap { it }
             .map { latestResponse ->
-                latestResponse.services().map {
-                    it.toRealTimeVehicle()
+                latestResponse.services().flatMap {
+                    it.toRealTimeVehicles()
                 }
             }
 }
