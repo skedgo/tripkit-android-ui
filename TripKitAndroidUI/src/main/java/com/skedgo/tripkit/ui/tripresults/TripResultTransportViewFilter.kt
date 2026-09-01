@@ -5,6 +5,7 @@ import android.content.SharedPreferences
 import com.skedgo.TripKit
 import com.skedgo.tripkit.common.model.TransportMode
 import com.skedgo.tripkit.ui.utils.PREF_KEY_TRANSPORT_MODE
+import com.skedgo.tripkit.ui.utils.isWheelchairModeSelected
 import com.skedgo.tripkit.ui.utils.TransportModeDefaults
 
 
@@ -39,7 +40,7 @@ class PrefsBasedTransportViewFilter(val context: Context) : TripResultTransportV
 
     override fun isSelected(mode: String): Boolean {
         if (mode == TransportMode.ID_WHEEL_CHAIR) {
-            return !prefs.getBoolean(TransportMode.ID_WALK, true)
+            return prefs.isWheelchairModeSelected()
         }
 
         return prefs.getBoolean(mode, false)
