@@ -21,6 +21,7 @@ import com.skedgo.tripkit.ui.model.TimetableEntry
 import com.skedgo.tripkit.ui.tripresult.WayPointTaskParam.ForChangingService
 import com.skedgo.tripkit.ui.tripresult.WayPointTaskParam.ForChangingStop
 import com.skedgo.tripkit.ui.utils.HttpUtils
+import com.skedgo.tripkit.ui.utils.isWheelchairModeSelected
 import io.reactivex.SingleEmitter
 import io.reactivex.SingleOnSubscribe
 import java.io.IOException
@@ -57,7 +58,7 @@ class WaypointTask(
                 val isGetOn = param.isGetOn
 
                 postData = createPostDataForChangingStop(
-                    configCreator.call(),
+                    routingConfig(),
                     createJsonSegments(
                         segments,
                         prototypeSegment,
@@ -129,10 +130,20 @@ class WaypointTask(
         }
 
         val jsonPostData = JsonObject()
-        jsonPostData.add(KEY_CONFIG, configCreator.call())
+        jsonPostData.add(KEY_CONFIG, routingConfig())
         jsonPostData.add(KEY_SEGMENTS, jsonSegments)
 
         return jsonPostData.toString()
+    }
+
+    /**
+     * The config for a re-plan must describe how the user asked to *travel*, so the wheelchair
+     * flag follows the wheelchair transport-mode selection — the same source the A2B routing
+     * request uses. [ConfigRepository] derives it from the separate "wheelchair information"
+     * option, which would otherwise turn a walking trip into a wheelchair trip here.
+     */
+    private fun routingConfig(): JsonObject = configCreator.call().apply {
+        addProperty(KEY_WHEELCHAIR, context.isWheelchairModeSelected())
     }
 
     private fun convertServiceToJson(region: Region, service: TimetableEntry): JsonObject {
@@ -164,6 +175,7 @@ class WaypointTask(
         const val KEY_END: String = "end"
         const val KEY_START: String = "start"
         const val KEY_CONFIG: String = "config"
+        const val KEY_WHEELCHAIR: String = "wheelchair"
         const val FORMAT_COORDINATES: String = "(%f,%f)"
 
         fun createJsonSegments(
