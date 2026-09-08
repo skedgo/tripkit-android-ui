@@ -115,6 +115,25 @@ class TripSegmentsViewModel @Inject internal constructor(
         const val KEY_ACTION_BUTTON_FAVORITE_STATE = "action_button_favorite_state_"
         const val KEY_ACTION_BUTTON_ALERT_STATE = "action_button_alert_state_"
         const val KEY_IS_RESTORING_STATE = "is_restoring_state"
+
+        /**
+         * Favorite and alert actions carry state the user toggles, which a realtime trip refresh
+         * can arrive too late to know about, so their on-screen title and icon are normally kept
+         * (see [ActionButtonViewModel.update]).
+         *
+         * [refreshDynamicStateForTag] is the action whose backing state has just authoritatively
+         * changed. That action must take the freshly generated title and icon, otherwise the
+         * control could never reflect the new state.
+         */
+        @VisibleForTesting
+        internal fun shouldPreserveDynamicState(
+            tag: String,
+            refreshDynamicStateForTag: String?
+        ): Boolean {
+            val isDynamic = tag == ActionButtonHandler.ACTION_TAG_FAVORITE ||
+                tag == ActionButtonHandler.ACTION_TAG_ALERT
+            return isDynamic && tag != refreshDynamicStateForTag
+        }
     }
 
     // State restoration flag to prevent conflicts during restoration
@@ -313,7 +332,7 @@ class TripSegmentsViewModel @Inject internal constructor(
      * This guarantees we never read outside list bounds when action availability changes between
      * save and restore events.
      */
-    private fun setupButtons(tripGroup: TripGroup) {
+    private fun setupButtons(tripGroup: TripGroup, refreshDynamicStateForTag: String? = null) {
         if (tripGroup.displayTrip == null) return
         
         viewModelScope.launch {
@@ -328,7 +347,7 @@ class TripSegmentsViewModel @Inject internal constructor(
             if (isRestoringState && buttons.value?.isNotEmpty() == true) {
                 val existingButtons = buttons.value.orEmpty()
                 if (existingButtons.size == actions.size) {
-                    updateButtonsPreservingDynamicStates(actions)
+                    updateButtonsPreservingDynamicStates(actions, refreshDynamicStateForTag)
                 } else {
                     recreateButtons(actions)
                 }
@@ -338,7 +357,7 @@ class TripSegmentsViewModel @Inject internal constructor(
                 if (buttons.value.orEmpty().size != actions.size) {
                     recreateButtons(actions)
                 } else {
-                    updateButtonsPreservingDynamicStates(actions)
+                    updateButtonsPreservingDynamicStates(actions, refreshDynamicStateForTag)
                 }
             }
         }
@@ -360,13 +379,21 @@ class TripSegmentsViewModel @Inject internal constructor(
      * Updates existing button view models while preserving dynamic states (favorite and alert
      * toggles). Realtime trip updates can arrive after a toggle and contain stale action metadata,
      * so the current title and icon must be captured before applying the refreshed action.
+     *
+     * [refreshDynamicStateForTag] names the action whose backing state has just authoritatively
+     * changed - that one must take the freshly generated title and icon instead of keeping what
+     * is currently on screen, otherwise the control can never reflect the new state. Every other
+     * dynamic action keeps its preserved state.
      */
-    private fun updateButtonsPreservingDynamicStates(actions: List<ActionButton>) {
+    private fun updateButtonsPreservingDynamicStates(
+        actions: List<ActionButton>,
+        refreshDynamicStateForTag: String? = null
+    ) {
         val existingButtons = buttons.value.orEmpty()
         actions.forEachIndexed { i, actionButton ->
             val existingButton = existingButtons.getOrNull(i) ?: return@forEachIndexed
-            val hasDynamicState = actionButton.tag == ActionButtonHandler.ACTION_TAG_FAVORITE ||
-                actionButton.tag == ActionButtonHandler.ACTION_TAG_ALERT
+            val hasDynamicState =
+                shouldPreserveDynamicState(actionButton.tag, refreshDynamicStateForTag)
             existingButton.update(context, actionButton, preserveDynamicState = hasDynamicState)
         }
     }
@@ -817,7 +844,9 @@ class TripSegmentsViewModel @Inject internal constructor(
             getOffAlertsViewModel.showGeofencesOnMap = { _geofenceCircles.postValue(it) }
 
             getOffAlertsViewModel.alertStateListener = {
-                setupButtons(tripGroup)
+                // The alert state has just been written to GetOffAlertCache, so the alert action
+                // must be rebuilt from it rather than keeping the title/icon currently on screen.
+                setupButtons(tripGroup, ActionButtonHandler.ACTION_TAG_ALERT)
                 _updatedState.postValue(Unit)
             }
             val messageTypes =
@@ -898,8 +927,8 @@ class TripSegmentsViewModel @Inject internal constructor(
                 tripSegmentGetOffAlertsViewModel?.apply {
                     setAlertState(context, getOffAlertStateOn.value?.not() ?: false)
                 }
-                // Update button state after alert toggle
-                updateButtonStateAfterAction(tag, viewModel, context)
+                // The button is refreshed by alertStateListener once the asynchronous
+                // disclosure/permission flow has actually written the new state.
             }
             ActionButtonHandler.ACTION_EXTERNAL_SHOW_TICKET -> {
                 getTicket()
@@ -908,30 +937,7 @@ class TripSegmentsViewModel @Inject internal constructor(
                 actionButtonHandler?.actionClicked(
                     context, tag, this.trip ?: tripGroup.displayTrip!!, viewModel
                 )
-                // Update button state after action
-                updateButtonStateAfterAction(tag, viewModel, context)
             }
-        }
-    }
-
-    /**
-     * Update button state after user interaction
-     */
-    private fun updateButtonStateAfterAction(tag: String, viewModel: ActionButtonViewModel, context: Context) {
-        when (tag) {
-            ActionButtonHandler.ACTION_TAG_ALERT -> {
-                val trip = this.trip ?: tripGroup.displayTrip
-                if (trip != null) {
-                    val isAlertOn = GetOffAlertCache.isTripAlertStateOn(trip.getTripUuid())
-                    val newText = if (isAlertOn) {
-                        context.getString(R.string.action_mute)
-                    } else {
-                        context.getString(R.string.action_alert_me)
-                    }
-                    viewModel.title.set(newText)
-                }
-            }
-            // Add other dynamic button states as needed
         }
     }
 
