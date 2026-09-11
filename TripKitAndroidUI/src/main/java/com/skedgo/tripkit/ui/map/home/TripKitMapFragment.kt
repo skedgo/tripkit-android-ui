@@ -213,6 +213,9 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
     private val existingMarkerPositions = mutableSetOf<LatLng>()
     private val poiMarkersByIdentifier = mutableMapOf<String, Marker>()
 
+    /** The single live subscription to [MapViewModel.markers]; see [loadMarkers]. */
+    private var markersDisposable: io.reactivex.disposables.Disposable? = null
+
     /**
      * Check if a marker with the given position already exists
      * @param position The LatLng position to check
@@ -418,7 +421,15 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
      * Load POI markers from the view model, preventing duplicate markers at the same position
      */
     private fun loadMarkers() {
-        viewModel.markers
+        // `viewModel.markers` is a cold chain: `RxViewModel.autoClear()` is `takeUntil(...)`,
+        // not a shared/replayed source, and its DiffTransformer keeps the previous marker list
+        // in a per-subscription `scan`. Subscribing more than once therefore gives two
+        // independent diffs mutating the same `poiMarkersByIdentifier`/`poiMarkers`, so one
+        // subscriber removes the markers the other just added and every marker's icon is
+        // fetched twice. loadMarkers() is reached both from map setup and from the
+        // show-markers/transport-mode path, so keep exactly one live subscription (#25936).
+        markersDisposable?.dispose()
+        markersDisposable = viewModel.markers
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({ (newMarkers, removedMarkerIds) ->
@@ -483,7 +494,7 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
             }, {
                 errorLogger.logError(it)
             })
-            .addTo(autoDisposable)
+            .also { it.addTo(autoDisposable) }
     }
 
     override fun onPause() { //    bus.unregister(this);
@@ -662,16 +673,34 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
 
     override fun onCameraChange(position: CameraPosition) {
         TripGoMapMarkerDiag.recordCameraEvent()
+        publishViewPort(position)
+    }
+
+    /**
+     * Pushes the settled camera to [MapViewModel] so stops for the new viewport get loaded.
+     *
+     * Called from both camera callbacks on purpose. `setOnCameraChangeListener` is deprecated
+     * and the Maps SDK backs it with the same camera-callback slot as `OnCameraIdleListener`,
+     * and this fragment registers an idle listener (`getMapAsync`), then the change listener
+     * (`setupMap`), then another idle listener that is later cleared. Whichever registration
+     * won the race decided whether `onCameraChange` fired at all - so a programmatic move such
+     * as picking a city could leave the map without any viewport emission, and therefore
+     * without stops, until the user happened to pan. That race is much easier to lose on a
+     * fresh install, where startup is slower (#25936).
+     *
+     * Driving the emission from `onCameraIdle` as well makes it independent of that ordering.
+     * The duplicate emission when both fire is harmless: `debounce` and
+     * `distinctViewPortUntilChanged` collapse it, and the LocationsFetchCoordinator TTL means
+     * no extra network call.
+     */
+    private fun publishViewPort(position: CameraPosition) {
         if (!isAdded) { // To investigate further this scenario.
             return
         }
-        if (map == null) {
-            return
-        }
+        val currentMap = map ?: return
 
-        val visibleBounds = map!!.projection.visibleRegion.latLngBounds
-        //    bus.post(new CameraChangeEvent(position, visibleBounds));
-//reason to keep zoomLevel is because it's used in so many loader classes
+        val visibleBounds = currentMap.projection.visibleRegion.latLngBounds
+        //reason to keep zoomLevel is because it's used in so many loader classes
         val zoomLevel = ZoomLevel.fromLevel(position.zoom)
 
         viewModel.onViewPortChanged(
@@ -1192,6 +1221,8 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
                 lastZoomLevel = it.cameraPosition.zoom
                 onZoomLevelChangedListener?.onZoomLevelChanged(lastZoomLevel)
             }
+            // See publishViewPort: this must not depend on the deprecated change listener.
+            publishViewPort(it.cameraPosition)
         }
         if (TripGoMapMarkerDiag.isEnabled()) {
             TripGoMapMarkerDiag.recordCameraIdle(markerDiagSnapshot())

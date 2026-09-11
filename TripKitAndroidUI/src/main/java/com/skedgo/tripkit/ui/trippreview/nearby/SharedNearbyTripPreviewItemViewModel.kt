@@ -13,7 +13,9 @@ import com.skedgo.tripkit.common.model.location.Location.Companion.ZERO_LON
 import com.skedgo.tripkit.common.util.SphericalUtil
 import com.skedgo.tripkit.data.database.stops.toModeInfo
 import com.skedgo.tripkit.data.locations.LocationsApi
+import com.skedgo.tripkit.data.locations.LocationsFetchCoordinator
 import com.skedgo.tripkit.data.regions.RegionService
+import com.skedgo.tripkit.ui.core.module.NearbyLocationsFetch
 import com.skedgo.tripkit.routing.TripSegment
 import com.skedgo.tripkit.ui.BR
 import com.skedgo.tripkit.ui.R
@@ -31,7 +33,8 @@ import javax.inject.Inject
 
 class SharedNearbyTripPreviewItemViewModel @Inject constructor(
     private val regionService: RegionService,
-    private val locationsApi: LocationsApi
+    private val locationsApi: LocationsApi,
+    @NearbyLocationsFetch private val fetchCoordinator: LocationsFetchCoordinator
 ) : TripPreviewPagerItemViewModel() {
 
     val externalActions = ObservableArrayList<ExternalActionViewModel>()
@@ -82,17 +85,29 @@ class SharedNearbyTripPreviewItemViewModel @Inject constructor(
                         else -> segment.transportModeId
                     }
 
-                    locationsApi.fetchLocationsAsync(
-                        url.toString(),
-                        segment.singleLocation?.lat ?: ZERO_LAT,
-                        segment.singleLocation?.lon ?: ZERO_LON,
-                        1000, // Limit
-                        1124, // Radius
-                        listOf(mode)
-                    )
-                        .subscribe({
+                    val lat = segment.singleLocation?.lat ?: ZERO_LAT
+                    val lng = segment.singleLocation?.lon ?: ZERO_LON
+
+                    // ViewPager2 keeps up to three preview pages alive (offscreenPageLimit 1-2)
+                    // and this ViewModel is shared across them via requireParentFragment(), so
+                    // the single `loadedSegment` guard above cannot stop the same segment being
+                    // requested again while its previous request is still in flight. Share the
+                    // call instead of issuing a duplicate (#25936).
+                    fetchCoordinator.shareInFlight(
+                        nearbyRequestKey(url.toString(), lat, lng, mode)
+                    ) {
+                        locationsApi.fetchLocationsAsync(
+                            url.toString(),
+                            lat,
+                            lng,
+                            NEARBY_LIMIT,
+                            NEARBY_RADIUS_METRES,
+                            listOf(mode)
+                        ).map { response -> response.groups }
+                    }
+                        .subscribe({ groups ->
                             val newList = mutableListOf<NearbyLocation>()
-                            it.groups.forEach {
+                            groups.forEach {
                                 it.bikePods?.forEach {
                                     newList.add(
                                         NearbyLocation(
@@ -314,5 +329,33 @@ class SharedNearbyTripPreviewItemViewModel @Inject constructor(
             }
 
         return null
+    }
+
+    companion object {
+        private const val NEARBY_LIMIT = 1000
+        private const val NEARBY_RADIUS_METRES = 1124
+
+        /**
+         * Identity of one Nearby radius query, used as the in-flight de-duplication key.
+         *
+         * Every input that can change the response is included: the region base URL, the
+         * segment's coordinates, the radius/limit, and the mode filter.
+         *
+         * The coordinates are deliberately used at full precision. They are copied straight
+         * from `TripSegment.singleLocation` rather than derived from a map gesture, so the same
+         * segment always produces an identical key while two genuinely different segments never
+         * collide. Rounding would risk serving one segment's nearby list for another.
+         *
+         * Note this key is only used for in-flight sharing, never for TTL suppression. Nearby
+         * results are free-floating vehicle and parking availability, which is time-sensitive,
+         * and this ViewModel has no persistence layer — suppressing a call without caching the
+         * payload would leave the previously shown segment's list on screen.
+         */
+        internal fun nearbyRequestKey(
+            url: String,
+            lat: Double,
+            lng: Double,
+            mode: String?
+        ): String = "$url|$lat|$lng|$NEARBY_RADIUS_METRES|$NEARBY_LIMIT|${mode.orEmpty()}"
     }
 }
