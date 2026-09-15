@@ -1164,6 +1164,10 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
                 poiLocation.onMarkerClick(bus, eventTracker)
                 if (poiLocation is StopPOILocation) {
                     selectedStopMarkerPosition = marker.position
+                    // The user has taken over this marker, so drop any pending temporary hide
+                    // left over from a favourite focus on the same stop.
+                    markerHideCallbacks.remove(marker)
+                        ?.let { infoWindowHandler.removeCallbacks(it) }
                 }
                 marker.showInfoWindow()
                 val scrollY = ((resources.getDimensionPixelSize(R.dimen.routing_card_height)
@@ -1246,15 +1250,34 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
         }
     }
 
+    /**
+     * Shows [stop]'s marker and its info window, adding the marker first if it is not on the map.
+     *
+     * @param shouldHideInfoWindow when true the info window is auto-hidden after
+     * [INFO_WINDOW_AUTO_HIDE_DELAY_MS] and the stop is not kept as the persistent selection.
+     * @param keepInfoWindowUntilAutoHide opt-in, and only meaningful alongside
+     * [shouldHideInfoWindow]. The viewport marker refresh toggles marker visibility and re-adds
+     * markers, which destroys an open info window; without this the window disappears about a
+     * second in, long before the auto-hide runs. When true the window is restored across those
+     * refreshes until the auto-hide fires. Defaults to false so existing callers are unchanged.
+     */
     fun ensureStopMarker(
         stop: ScheduledStop,
-        shouldHideInfoWindow: Boolean = false
+        shouldHideInfoWindow: Boolean = false,
+        keepInfoWindowUntilAutoHide: Boolean = false
     ) {
         // Default POI stop markers must stay suppressed while service-detail mode is active.
         if (!viewModel.showMarkers.get() || currentMarkerZoomLevel() == ZoomLevel.CITY) {
             return
         }
-        selectedStopMarkerPosition = if (shouldHideInfoWindow) null else LatLng(stop.lat, stop.lon)
+        // Keeping the stop as the selected position is what lets the marker refresh restore its
+        // info window; the auto-hide below clears it again so the window is still temporary.
+        selectedStopMarkerPosition =
+            if (shouldHideInfoWindow && !keepInfoWindowUntilAutoHide) {
+                null
+            } else {
+                LatLng(stop.lat, stop.lon)
+            }
         if (stop.lat.isNaN() || stop.lon.isNaN()) {
             return
         }
@@ -1342,6 +1365,11 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
 
         val hideRunnable = Runnable {
             markerHideCallbacks.remove(marker)
+            // Release the selection this auto-hide owns. A later tap on a different marker has
+            // already replaced it, so the positions will not match and it is left alone.
+            if (selectedStopMarkerPosition == marker.position) {
+                selectedStopMarkerPosition = null
+            }
 
             if (!isAdded || !isVisible) {
                 return@Runnable

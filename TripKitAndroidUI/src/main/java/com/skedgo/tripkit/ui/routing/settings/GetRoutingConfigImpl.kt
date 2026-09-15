@@ -4,6 +4,7 @@ import com.skedgo.tripkit.TripPreferences
 import com.skedgo.tripkit.ui.routing.GetRoutingConfig
 import com.skedgo.tripkit.ui.routing.PreferredTransferTimeRepository
 import com.skedgo.tripkit.ui.routing.RoutingConfig
+import com.skedgo.tripkit.ui.utils.TransportModeSharedPreference
 import javax.inject.Inject
 
 internal class GetRoutingConfigImpl @Inject constructor(
@@ -13,7 +14,8 @@ internal class GetRoutingConfigImpl @Inject constructor(
     private val unitsRepository: UnitsRepository,
     private val tripPreferences: TripPreferences,
     private val preferredTransferTimeRepository: PreferredTransferTimeRepository,
-    private val prioritiesRepository: PrioritiesRepository
+    private val prioritiesRepository: PrioritiesRepository,
+    private val transportModeSharedPreference: TransportModeSharedPreference
 ) : GetRoutingConfig {
     override suspend fun execute(): RoutingConfig {
         return RoutingConfig(
@@ -23,7 +25,11 @@ internal class GetRoutingConfigImpl @Inject constructor(
             cyclingSpeed = cyclingSpeedRepository.getCyclingSpeed(),
             rollingSpeed = rollingSpeedRepository.getRollingSpeed(),
             shouldUseConcessionPricing = tripPreferences.isConcessionPricingPreferred(),
-            isOnWheelchair = tripPreferences.isWheelchairPreferred(),
+            // The wheelchair flag must follow the wheelchair *transport mode* selection, exactly
+            // like the A2B routing request does in TripResultListViewModel.load(). Reading
+            // TripPreferences.isWheelchairPreferred() here made a walking trip come back as a
+            // wheelchair trip after picking a service from the timetable card.
+            isOnWheelchair = transportModeSharedPreference.isWheelchairModeSelected(),
             weightingProfile = WeightingProfile(
                 budgetPriority = prioritiesRepository.getBudgetPriority(),
                 environmentPriority = prioritiesRepository.getEnvironmentPriority(),
