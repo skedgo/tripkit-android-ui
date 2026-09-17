@@ -47,10 +47,11 @@ class TripSegmentCustomRecyclerViewAdapter<T> : BindingRecyclerViewAdapter<T>() 
 
         if (item is TripSegmentItemViewModel) {
             item.generateRoadTags()
+            if (binding !is TripSegmentBinding) return
             // Ensure we don't register multiple observers for the same lifecycle
             item.roadTagChartItems.removeObservers(binding.lifecycleOwner!!)
             item.roadTagChartItems.observe(binding.lifecycleOwner!!) { chartItems ->
-                with(binding as TripSegmentBinding) {
+                with(binding) {
                     val segmentLength = item.tripSegment?.metres ?: chartItems.maxOf { it.length }
                         .roundToNearestHundred()
                     val max = segmentLength

@@ -85,7 +85,7 @@ class ActionButtonViewModelTest {
         assertEquals(mockDrawable, viewModel.icon.get())
         assertEquals("secondaryTag", viewModel.tag)
         assertEquals(Color.BLACK, viewModel.iconTint.get()) // From mocked ContextCompat.getColor
-        assertEquals(Color.BLACK, viewModel.outlineTint.get())
+        assertEquals(Color.TRANSPARENT, viewModel.outlineTint.get())
         assertNotNull(viewModel.background.get())
         assertNotNull(viewModel.backgroundTint.get())
 

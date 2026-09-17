@@ -27,6 +27,7 @@ abstract class ServiceViewModel() : RxViewModel() {
     abstract val showOccupancyInfo: MutableLiveData<Boolean>
     abstract val showBicycleAccessible: MutableLiveData<Boolean>
     abstract val isCurrentTrip: MutableLiveData<Boolean>
+    abstract val isOnTime: MutableLiveData<Boolean>
 
 //    abstract val wheelchairAccessible: ObservableBoolean
 //    abstract val wheelchairInaccessible: ObservableBoolean

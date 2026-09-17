@@ -195,7 +195,7 @@
     <!--Remove favourite activity title-->
     <string name="remove_favourite">Verwijder favoriet</string>
     <!--Report problem-->
-    <string name="report_problem">Report \n Problem</string>
+    <string name="report_problem">Report Problem</string>
     <!--Title for action to perform by the user if an event is outside TripGos range The action will display a feedback form to request the region of that event-->
     <string name="request">Aanvragen</string>
     <!--Header for section to configure return trip-->

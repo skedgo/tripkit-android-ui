@@ -7,6 +7,7 @@ import android.graphics.drawable.Drawable
 import androidx.core.content.ContextCompat
 import androidx.databinding.ObservableBoolean
 import androidx.databinding.ObservableField
+import androidx.lifecycle.MutableLiveData
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButton
 import com.skedgo.tripkit.ui.utils.DynamicAppColor
@@ -24,6 +25,7 @@ class ActionButtonViewModel constructor(context: Context, button: ActionButton) 
     val outlineTint = ObservableField<Int>()
     val backgroundTint = ObservableField<ColorStateList>()
     val background = ObservableField<Drawable>()
+    val actionButton = MutableLiveData<ActionButton>()
     var tag: String = ""
 
     init {
@@ -35,6 +37,7 @@ class ActionButtonViewModel constructor(context: Context, button: ActionButton) 
         button: ActionButton,
         preserveDynamicState: Boolean = false
     ) {
+        this.actionButton.value = button
         // Favorite and alert actions can be updated asynchronously by their handlers. A
         // realtime trip refresh may ask us to apply older action metadata before the backing
         // action has caught up, so capture the user-visible state before applying that refresh.
@@ -63,8 +66,9 @@ class ActionButtonViewModel constructor(context: Context, button: ActionButton) 
             this.background.set(ContextCompat.getDrawable(context, R.drawable.bg_circle_primary))
         } else {
             if (button.useIconTint)
-                this.iconTint.set(ContextCompat.getColor(context, R.color.black1))
-            this.outlineTint.set(ContextCompat.getColor(context, R.color.black4))
+                this.iconTint.set(ContextCompat.getColor(context, R.color.labelPrimary))
+            // this.outlineTint.set(ContextCompat.getColor(context, R.color.black4))
+            this.outlineTint.set(Color.TRANSPARENT)
             val backgroundColorList = intArrayOf(0, 0)
             this.backgroundTint.set(ColorStateList(stateList, backgroundColorList))
             this.background.set(

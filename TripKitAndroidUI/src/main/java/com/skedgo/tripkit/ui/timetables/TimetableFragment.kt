@@ -4,31 +4,35 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.os.Handler
-import android.text.Editable
-import android.text.TextWatcher
 import android.view.InflateException
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.TextView
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewModelScope
-import androidx.recyclerview.widget.DividerItemDecoration
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.LinearSmoothScroller
-import androidx.recyclerview.widget.RecyclerView
-import com.google.android.flexbox.FlexDirection
-import com.google.android.flexbox.FlexboxLayoutManager
+import androidx.core.content.ContextCompat
 import com.skedgo.rxtry.subscribeWithErrorHandling
+import com.skedgo.tripkit.common.model.TransportMode
 import com.skedgo.tripkit.common.model.stop.ScheduledStop
 import com.skedgo.tripkit.common.util.TimeUtils
+import com.skedgo.tripkit.routing.SegmentType
 import com.skedgo.tripkit.routing.TripSegment
 import com.skedgo.tripkit.ui.BuildConfig
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.TripKitUI
+import com.skedgo.tripkit.ui.compose.TripKitUITheme
 import com.skedgo.tripkit.ui.core.BaseTripKitPagerFragment
 import com.skedgo.tripkit.ui.core.OnResultStateListener
 import com.skedgo.tripkit.ui.core.addTo
@@ -37,7 +41,14 @@ import com.skedgo.tripkit.ui.dialog.TimeDatePickerFragment
 import com.skedgo.tripkit.ui.model.TimetableEntry
 import com.skedgo.tripkit.ui.model.TripKitButton
 import com.skedgo.tripkit.ui.search.ARG_SHOW_SEARCH_FIELD
-import com.skedgo.tripkit.ui.utils.OnSwipeTouchListener
+import com.skedgo.tripkit.ui.tripresult.ActionButtonClickListener
+import com.skedgo.tripkit.ui.tripresult.ActionButtonViewModel
+import com.skedgo.tripkit.ui.tripresult.TripSegmentActionButton
+import com.skedgo.tripkit.ui.tripresults.GetTransportIconTintStrategy
+import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButton
+import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButtonHandler
+import com.skedgo.tripkit.ui.utils.createSummaryIcon
+import com.skedgo.tripkit.ui.utils.getSegmentIconObservable
 import com.skedgo.tripkit.ui.utils.observe
 import com.skedgo.tripkit.ui.views.MultiStateView
 import io.reactivex.Observable
@@ -139,6 +150,7 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
     var cachedStop: ScheduledStop? = null
     var cachedShowSearchBar: Boolean = true
     var fromPreview: Boolean = false
+    var showTitleIconInHeader: Boolean = false
     var cachedBookingActions: ArrayList<String>? = null
 
     var bookingActions: ArrayList<String>? = null
@@ -152,6 +164,11 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
     private lateinit var binding: TimetableFragmentBinding
     protected var buttons: List<TripKitButton> = emptyList()
     var servicesAreLoaded = false
+    private var servicesForCompose by mutableStateOf<List<ServiceViewModel>>(emptyList())
+    private var servicesLazyListState: LazyListState? = null
+    private var lastLoadRequestSize = -1
+    private val composeButtons = mutableMapOf<String, ComposeButtonState>()
+    private var actionButtonTemplateProvider: ActionButtonTemplateProvider? = null
 
     override fun onAttach(context: Context) {
         TripKitUI.getInstance().inject(this);
@@ -178,8 +195,6 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
         super.onResume()
 
         setObservers()
-
-        binding.recyclerView.scrollToPosition(0)
 
         if (stop == null) {
             stop = cachedStop
@@ -240,15 +255,7 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
                 TimeUnit.MILLISECONDS
             ) // 500 ms is a guess, wait for the data to be set to the adapter.
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribeWithErrorHandling { integer ->
-                val smoothScroller = object : LinearSmoothScroller(context) {
-                    override fun getVerticalSnapPreference(): Int {
-                        return SNAP_TO_START
-                    }
-                }
-
-                smoothScroller.targetPosition = integer.toInt()
-//                binding.recyclerView.layoutManager?.startSmoothScroll(smoothScroller)
+            .subscribeWithErrorHandling {
                 scrollToNowPosition()
             }.addTo(autoDisposable)
 
@@ -328,6 +335,7 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
         viewModel.servicesObservable
             .observeOn(AndroidSchedulers.mainThread())
             .subscribeWithErrorHandling { servicesList ->
+                servicesForCompose = servicesList
                 if(!servicesAreLoaded) {
                     scrollToNowPosition()
                     servicesAreLoaded = true
@@ -357,106 +365,99 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
         binding = TimetableFragmentBinding.inflate(layoutInflater)
         binding.lifecycleOwner = viewLifecycleOwner
 
-        val layoutManager = FlexboxLayoutManager(context)
-        layoutManager.flexDirection = FlexDirection.ROW
-        binding.serviceLineRecyclerView.layoutManager = layoutManager
-
         binding.viewModel = viewModel
-        binding.serviceLineRecyclerView.isNestedScrollingEnabled = false
-        binding.recyclerView.isNestedScrollingEnabled = true
-        // Frequent realtime + pagination updates can overlap with item animations and cause
-        // transient RecyclerView inconsistencies on some devices.
-        binding.recyclerView.itemAnimator = null
-        binding.recyclerView.setHasFixedSize(false)
+        setupServiceNumberChipsCompose()
+        setupSearchSetTimeCompose()
+        setupServicesListCompose()
 
-//        val swipeListener = OnSwipeTouchListener(requireContext(),
-//            object : OnSwipeTouchListener.SwipeGestureListener {
-//                override fun onSwipeRight() {
-//                    onNextPage?.invoke()
-//                }
-//
-//                override fun onSwipeLeft() {
-//                    onPreviousPage?.invoke()
-//                }
-//            })
-//
-//        swipeListener.touchCallback = { v, event ->
-//            v?.parent?.requestDisallowInterceptTouchEvent(true)
-//            v?.onTouchEvent(event)
-//        }
-//
-//        binding.recyclerView.setOnTouchListener(swipeListener)
-
-
-        binding.recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-
-            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                super.onScrolled(recyclerView, dx, dy)
-
-                val nowPosition = viewModel.getFirstNowPosition()
-
-                (binding.recyclerView.layoutManager as LinearLayoutManager).let {
-                    if (nowPosition in it.findFirstVisibleItemPosition()..it.findLastVisibleItemPosition()) {
-                        binding.goToNowButton.visibility = View.GONE
-                    } else {
-                        binding.goToNowButton.visibility = View.VISIBLE
-                    }
-                }
-            }
-
-            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
-                super.onScrollStateChanged(recyclerView, newState)
-
-                if (!recyclerView.canScrollVertically(1) && viewModel.showLoading.value != true) {
-                    viewModel.downloadMoreTimetableAsync()
-                }
-            }
-        })
-
-        binding.recyclerView.addItemDecoration(
-            DividerItemDecoration(
-                context,
-                DividerItemDecoration.VERTICAL
-            )
-        )
-
-        binding.departuresSearchSetTime.timeSet.setOnClickListener {
-            selectTime()
-        }
-
-        val search = binding.departuresSearchSetTime.stationSearch
-        search.isSelected = false
-        search.addTextChangedListener(object : TextWatcher {
-            override fun afterTextChanged(p0: Editable?) {
-            }
-
-            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-            }
-
-            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-                p0?.let {
-                    filterThrottle.onNext(it.toString())
-                }
-            }
-        })
-
-        buttons.forEach {
-            try {
-                val button = layoutInflater.inflate(it.layoutResourceId, null, false)
-                button.tag = it.id
-                button.setOnClickListener(this)
-                binding.buttonLayout.addView(button)
-            } catch (e: InflateException) {
-                Timber.e("Invalid button layout ${it.layoutResourceId}", e)
-            }
-        }
+        composeButtons.clear()
+        binding.buttonLayout.removeAllViews()
+        buttons.forEach { addButtonView(it) }
 
         return binding.root
+    }
+
+    private fun setupSearchSetTimeCompose() {
+        binding.departuresSearchSetTimeCompose.setViewCompositionStrategy(
+            ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed
+        )
+        binding.departuresSearchSetTimeCompose.setContent {
+            TripKitUITheme {
+                TimetableSearchSetTimeCompose(
+                    onSearchTextChanged = { searchText ->
+                        filterThrottle.onNext(searchText)
+                    },
+                    onTimeClick = ::selectTime
+                )
+            }
+        }
+    }
+
+    private fun setupServiceNumberChipsCompose() {
+        binding.serviceLineRecyclerView.setViewCompositionStrategy(
+            ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed
+        )
+        binding.serviceLineRecyclerView.setContent {
+            TripKitUITheme {
+                val chips by viewModel.serviceNumbers.observeAsState(emptyList())
+                TimetableServiceNumberChips(items = chips)
+            }
+        }
+    }
+
+    private fun setupServicesListCompose() {
+        binding.composeServicesList.setViewCompositionStrategy(
+            ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed
+        )
+        binding.composeServicesList.setContent {
+            TripKitUITheme {
+                val lazyListState = rememberLazyListState()
+                DisposableEffect(lazyListState) {
+                    servicesLazyListState = lazyListState
+                    onDispose {
+                        if (servicesLazyListState === lazyListState) {
+                            servicesLazyListState = null
+                        }
+                    }
+                }
+                TimetableServicesListCompose(
+                    services = servicesForCompose,
+                    listState = lazyListState,
+                    onVisibleRangeChanged = { firstVisible, lastVisible ->
+                        val nowPosition = viewModel.getFirstNowPosition()
+                        binding.goToNowButton.visibility =
+                            if (nowPosition in firstVisible..lastVisible) View.GONE else View.VISIBLE
+                    },
+                    onReachedEnd = {
+                        if (viewModel.showLoading.value == true || servicesForCompose.isEmpty()) return@TimetableServicesListCompose
+                        if (lastLoadRequestSize != servicesForCompose.size) {
+                            lastLoadRequestSize = servicesForCompose.size
+                            viewModel.downloadMoreTimetableAsync()
+                        }
+                    },
+                    fromPreview = fromPreview
+                )
+            }
+        }
     }
 
     fun replaceButton(id: String, newLayoutId: Int) {
         buttons.forEach { button ->
             if (button.id == id) {
+                composeButtons[id]?.let { composeState ->
+                    val updatedButton = TripKitButton(button.id, newLayoutId)
+                    val updatedState = buildComposeState(updatedButton) ?: return@let
+                    if (composeState.actionTag != updatedState.actionTag) return@let
+
+                    composeState.viewModel.update(
+                        requireContext(),
+                        resolveActionButton(updatedState.actionState)
+                    )
+                    button.layoutResourceId = newLayoutId
+                    return@forEach
+                }
+                composeButtons.remove(id)
+
                 val currentView = binding.buttonLayout.findViewWithTag<View?>(id)
                 currentView?.let {
                     val currentViewIndex = binding.buttonLayout.indexOfChild(currentView)
@@ -496,6 +497,7 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
             stop = cachedStop
         }
         tripSegment = _tripSegment
+        updateTitleIcon()
 
         binding.goToNowButton.setOnClickListener {
             scrollToNowPosition()
@@ -523,22 +525,66 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
         }
     }
 
+    private fun updateTitleIcon() {
+        if (!showTitleIconInHeader) {
+            binding.titleIcon.visibility = View.GONE
+            return
+        }
+
+        val segment = tripSegment
+        if (segment == null) {
+            binding.titleIcon.visibility = View.GONE
+            return
+        }
+
+        val canUseHeaderPipeline = segment.modeInfo?.localIconName != null && segment.darkVehicleIcon != 0
+        if (!canUseHeaderPipeline) {
+            val fallback = getLegacyFallbackIcon(segment)
+            binding.titleIcon.setImageDrawable(fallback)
+            binding.titleIcon.visibility = if (fallback != null) View.VISIBLE else View.GONE
+            return
+        }
+
+        segment.getSegmentIconObservable(
+            requireContext(),
+            GetTransportIconTintStrategy(resources)
+        ).map { drawable ->
+            drawable?.let { segment.createSummaryIcon(requireContext(), it) }
+        }.observeOn(AndroidSchedulers.mainThread())
+            .subscribe({ summaryIcon ->
+                val finalIcon = summaryIcon ?: getLegacyFallbackIcon(segment)
+                binding.titleIcon.setImageDrawable(finalIcon)
+                binding.titleIcon.visibility = if (finalIcon != null) View.VISIBLE else View.GONE
+            }, {
+                val fallback = getLegacyFallbackIcon(segment)
+                binding.titleIcon.setImageDrawable(fallback)
+                binding.titleIcon.visibility = if (fallback != null) View.VISIBLE else View.GONE
+            }).addTo(autoDisposable)
+    }
+
+    private fun getLegacyFallbackIcon(segment: TripSegment): android.graphics.drawable.Drawable? {
+        val localIconResId = TransportMode.getLocalIconResId(segment.transportModeId)
+        return when {
+            segment.getType() == SegmentType.ARRIVAL || segment.getType() == SegmentType.DEPARTURE ->
+                ContextCompat.getDrawable(requireContext(), R.drawable.v4_ic_map_location)
+            localIconResId != 0 ->
+                ContextCompat.getDrawable(requireContext(), localIconResId)
+            segment.action?.contains("<TIME>: Wait") == true ->
+                ContextCompat.getDrawable(requireContext(), R.drawable.ic_wait)
+            else -> null
+        }
+    }
+
     private fun scrollToNowPosition(loadDelay: Long = 0) {
         lifecycleScope.launch {
             delay(loadDelay)
             withContext(Dispatchers.Main) {
-                val layoutManager = binding.recyclerView.layoutManager as LinearLayoutManager
+                val listState = servicesLazyListState ?: return@withContext
                 val firstNowPosition = viewModel.getFirstNowPosition()
-                val itemCount = binding.recyclerView.adapter?.itemCount ?: 0
+                val itemCount = servicesForCompose.size
 
                 if (firstNowPosition in 0 until itemCount) {
-                    // If it's not at the bottom, make sure it stays at the top
-                    if (firstNowPosition < itemCount - 1) {
-                        layoutManager.scrollToPositionWithOffset(firstNowPosition, 0)
-                    } else {
-                        // If it's the last item, just scroll smoothly to it
-                        binding.recyclerView.smoothScrollToPosition(firstNowPosition)
-                    }
+                    listState.scrollToItem(firstNowPosition)
                 }
             }
         }
@@ -554,9 +600,7 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
     }
 
     private fun removeViewLsiteners() {
-        binding.recyclerView.setOnTouchListener(null)
-        binding.recyclerView.clearOnScrollListeners()
-
+        // No-op: service list is Compose-based.
     }
 
     fun clearInstances() {
@@ -594,6 +638,130 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
         }
     }
 
+    private fun addButtonView(button: TripKitButton) {
+        val composeState = buildComposeState(button)
+        if (composeState != null) {
+            val composeView = ComposeView(requireContext()).apply {
+                tag = button.id
+                id = composeState.viewId
+                layoutParams = ViewGroup.LayoutParams(
+                    ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+                )
+                setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+                setContent {
+                    TripSegmentActionButton(
+                        viewModel = composeState.viewModel,
+                        listener = composeState.clickListener
+                    )
+                }
+            }
+            composeButtons[button.id] = composeState
+            binding.buttonLayout.addView(composeView)
+            return
+        }
+
+        try {
+            val inflatedButton = layoutInflater.inflate(button.layoutResourceId, null, false)
+            inflatedButton.tag = button.id
+            inflatedButton.setOnClickListener(this)
+            binding.buttonLayout.addView(inflatedButton)
+        } catch (e: InflateException) {
+            Timber.e("Invalid button layout ${button.layoutResourceId}", e)
+        }
+    }
+
+    private fun buildComposeState(button: TripKitButton): ComposeButtonState? {
+        val entryName = runCatching {
+            resources.getResourceEntryName(button.layoutResourceId)
+        }.getOrNull()
+
+        val actionTag = button.id
+
+        val actionState = ComposeActionState(
+            actionTag = actionTag,
+            favoriteSelected = actionTag == ActionButtonHandler.ACTION_TAG_FAVORITE &&
+                entryName == "favorite_remove_button"
+        )
+        val viewModel = ActionButtonViewModel(requireContext(), resolveActionButton(actionState))
+        val viewId = when (actionTag) {
+            ActionButtonHandler.ACTION_TAG_FAVORITE -> R.id.favoriteButton
+            ActionButtonHandler.ACTION_TAG_SHARE -> R.id.shareButton
+            else -> R.id.goButton
+        }
+        val listener = object : ActionButtonClickListener {
+            override fun onItemClick(
+                tag: String,
+                actionButtonViewModel: ActionButtonViewModel,
+                context: Context
+            ) {
+                this@TimetableFragment.viewModel.stop.value?.let { stop ->
+                    tripButtonClickListener?.onTripButtonClicked(viewId, stop)
+                }
+            }
+        }
+        return ComposeButtonState(
+            actionTag = actionTag,
+            actionState = actionState,
+            viewModel = viewModel,
+            viewId = viewId,
+            clickListener = listener
+        )
+    }
+
+    private fun resolveActionButton(actionState: ComposeActionState): ActionButton {
+        val tag = actionState.actionTag
+        return actionButtonTemplateProvider
+            ?.getActionButton(requireContext(), tag, actionState.favoriteSelected)
+            ?: actionState.toActionButton(requireContext())
+    }
+
+    private data class ComposeActionState(
+        val actionTag: String,
+        val favoriteSelected: Boolean = false
+    ) {
+        fun toActionButton(context: Context): ActionButton {
+            return when (actionTag) {
+                ActionButtonHandler.ACTION_TAG_FAVORITE -> ActionButton(
+                    text = if (favoriteSelected) {
+                        context.getString(R.string.remove_favourite)
+                    } else {
+                        context.getString(R.string.favourite)
+                    },
+                    tag = ActionButtonHandler.ACTION_TAG_FAVORITE,
+                    icon = R.drawable.ic_favorite,
+                    isPrimary = false
+                )
+
+                ActionButtonHandler.ACTION_TAG_SHARE -> ActionButton(
+                    text = context.getString(R.string.share_arrival),
+                    tag = ActionButtonHandler.ACTION_TAG_SHARE,
+                    icon = R.drawable.ic_share,
+                    isPrimary = false
+                )
+
+                else -> ActionButton(
+                    text = context.getString(R.string.go),
+                    tag = ActionButtonHandler.ACTION_TAG_GO_NOT_PRIMARY,
+                    icon = R.drawable.ic_directions,
+                    isPrimary = false
+                )
+            }
+        }
+    }
+
+    private data class ComposeButtonState(
+        val actionTag: String,
+        val actionState: ComposeActionState,
+        val viewModel: ActionButtonViewModel,
+        val viewId: Int,
+        val clickListener: ActionButtonClickListener
+    )
+
+    fun interface ActionButtonTemplateProvider {
+        fun getActionButton(context: Context, tag: String, selected: Boolean): ActionButton?
+    }
+
 
     fun showShareDialog() {
         viewModel.getShareUrl(getString(R.string.share_url), stop!!)
@@ -624,6 +792,8 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
         private var buttons: MutableList<TripKitButton> = mutableListOf()
         private var actionStream: PublishSubject<TripSegment>? = null
         private var fromPreview: Boolean = false
+        private var showTitleIconInHeader: Boolean = false
+        private var actionButtonTemplateProvider: ActionButtonTemplateProvider? = null
 
         fun withStop(stop: ScheduledStop?): Builder {
             this.stop = stop
@@ -670,6 +840,16 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
             return this
         }
 
+        fun showTitleIconInHeader(show: Boolean): Builder {
+            this.showTitleIconInHeader = show
+            return this
+        }
+
+        fun withActionButtonTemplateProvider(provider: ActionButtonTemplateProvider): Builder {
+            this.actionButtonTemplateProvider = provider
+            return this
+        }
+
         fun build(): TimetableFragment {
             val args = Bundle()
             val fragment = TimetableFragment()
@@ -684,7 +864,9 @@ class TimetableFragment : BaseTripKitPagerFragment(), View.OnClickListener {
             fragment.cachedShowSearchBar = showSearchBar
             fragment._tripSegment = tripSegment
             fragment.fromPreview = fromPreview
+            fragment.showTitleIconInHeader = showTitleIconInHeader
             fragment.cachedBookingActions = bookingActions
+            fragment.actionButtonTemplateProvider = actionButtonTemplateProvider
 
             return fragment
         }

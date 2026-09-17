@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:bind="http://schemas.android.com/apk/res-auto">
+    xmlns:bind="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
 
     <data>
@@ -19,16 +20,29 @@
             layout="@layout/trip_preview_pager_item_header"
             bind:viewModel="@{viewModel}" />
 
-        <androidx.recyclerview.widget.RecyclerView
+        <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            app:adapter="@{viewModel.customAdapter}"
-            app:itemBinding="@{viewModel.itemBinding}"
-            app:items="@{viewModel.items}"
-            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textBarrier" />
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/headerLayout"
+            android:paddingBottom="150dp">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvDirections"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_round_corners_16_sub_card_background"
+                android:layout_marginHorizontal="@dimen/spacing_12"
+                android:layout_marginTop="@dimen/spacing_small"
+                app:adapter="@{viewModel.customAdapter}"
+                app:itemBinding="@{viewModel.itemBinding}"
+                app:items="@{viewModel.items}"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                tools:listitem="@layout/trip_preview_step"
+                tools:itemCount="10"/>
+
+        </FrameLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
