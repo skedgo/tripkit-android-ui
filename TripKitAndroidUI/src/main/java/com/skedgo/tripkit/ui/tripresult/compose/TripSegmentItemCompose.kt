@@ -1,5 +1,7 @@
 package com.skedgo.tripkit.ui.tripresult.compose
 
+import android.content.res.Configuration
+import android.graphics.Color as AndroidColor
 import android.graphics.Color.TRANSPARENT
 import android.graphics.drawable.Drawable
 import android.text.SpannableString
@@ -22,6 +24,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
@@ -37,6 +40,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.layout.layout
+import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
@@ -44,25 +50,27 @@ import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.databinding.BindingAdapter
 import androidx.databinding.Observable
 import androidx.databinding.ObservableBoolean
 import androidx.databinding.ObservableField
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.skedgo.tripkit.common.model.realtimealert.ImmutableRealtimeAlert
 import com.skedgo.tripkit.common.model.realtimealert.RealtimeAlert
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.compose.TripKitUITheme
 import com.skedgo.tripkit.ui.tripresult.RoadTagChart
-import com.skedgo.tripkit.ui.tripresult.RoadTagChartAdapter
 import com.skedgo.tripkit.ui.tripresult.RoadTagChartItem
 import com.skedgo.tripkit.ui.tripresult.TripSegmentItemViewModel
 import com.skedgo.tripkit.ui.tripresults.compose.styles.TripResultStyles
 import com.skedgo.tripkit.ui.views.TripSegmentAlertView
+import kotlin.math.roundToInt
 
 @BindingAdapter("tripSegmentItemViewModel")
 fun bindTripSegmentItemCompose(
@@ -525,37 +533,250 @@ private fun TripSegmentAlerts(
     )
 }
 
+/**
+ * Cycle infrastructure breakdown shown underneath a bicycle segment.
+ *
+ * Mirrors the production `layout_road_tags` / `item_fake_graph` / `item_road_tag_chart`
+ * stack: a separator, an axis with a "middle" and "max" distance label plus their
+ * grid lines, one label-and-bar row per road tag, and a closing separator.
+ */
 @Composable
 private fun TripSegmentRoadTags(
     items: List<RoadTagChartItem>,
     segmentLength: Int?
 ) {
-    val max = remember(items, segmentLength) {
-        (segmentLength ?: items.maxOfOrNull { it.length } ?: 0).roundToNearestHundred()
+    val chart = remember(items, segmentLength) { buildRoadTagChart(items, segmentLength) }
+    if (chart.items.isEmpty()) {
+        SegmentDivider()
+        return
     }
-    val middle = max / 2
-    val chartItems = remember(items, max) {
-        items.map { item ->
-            item.apply { maxProgress = max }
-        }.sortedBy { it.index }
-    }
-    AndroidView(
+
+    // Production draws `line` above the include and `divider` below it.
+    SegmentDivider()
+    Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(start = dimensionResource(R.dimen.segment_item_spacing_start)),
-        factory = { context ->
-            RecyclerView(context).apply {
-                layoutManager = LinearLayoutManager(context)
-                itemAnimator = null
-                adapter = RoadTagChartAdapter()
+            // Production anchors the chart to `leftGuide` (8dp left of the content column)
+            // while leaving its end at the container edge, so the block grows to the start
+            // rather than sliding across.
+            .extendToStart(dimensionResource(R.dimen.spacing_small))
+            // item_fake_graph root padding.
+            .padding(dimensionResource(R.dimen.spacing_small))
+    ) {
+        RoadTagChartGraph(chart = chart)
+    }
+    SegmentDivider()
+}
+
+/**
+ * Reproduces the production chart calculation from
+ * `TripSegmentCustomRecyclerViewAdapter` and `RoadTagChartAdapter`: the segment length
+ * is used verbatim as the axis maximum and only the fallback is rounded, items are
+ * ordered by road-safety index, and tags sharing a label are merged by summing lengths.
+ */
+internal fun buildRoadTagChart(
+    items: List<RoadTagChartItem>,
+    segmentLength: Int?
+): RoadTagChart {
+    val max = segmentLength ?: (items.maxOfOrNull { it.length } ?: 0).roundToNearestHundred()
+    return RoadTagChart(
+        max = max,
+        middle = max / 2,
+        items = items.sortedBy { it.index }
+            .groupBy { it.label }
+            .map { (_, grouped) ->
+                grouped.first().copy(
+                    length = grouped.sumOf { it.length },
+                    maxProgress = max
+                )
             }
-        },
-        update = { recyclerView ->
-            (recyclerView.adapter as? RoadTagChartAdapter)?.collection = listOf(
-                RoadTagChart(max = max, middle = middle, items = chartItems)
-            )
-        }
     )
+}
+
+/**
+ * Grows a full-width child by [extra] towards the layout start without giving up any width at
+ * the end, mirroring `layoutRoadTags` being constrained `start_toStartOf @id/line` and
+ * `end_toEndOf parent`. Plain `offset` would slide the block instead, costing it [extra] of
+ * width on the end side.
+ */
+private fun Modifier.extendToStart(extra: Dp) = layout { measurable, constraints ->
+    val extraPx = extra.roundToPx()
+    val placeable = measurable.measure(
+        constraints.copy(
+            minWidth = constraints.minWidth + extraPx,
+            maxWidth = if (constraints.hasBoundedWidth) {
+                constraints.maxWidth + extraPx
+            } else {
+                constraints.maxWidth
+            }
+        )
+    )
+    layout(placeable.width - extraPx, placeable.height) {
+        placeable.place(-extraPx, 0)
+    }
+}
+
+private const val ROAD_TAG_AXIS_START = "axisStart"
+private const val ROAD_TAG_AXIS_MIDDLE = "axisMiddle"
+private const val ROAD_TAG_AXIS_MAX = "axisMax"
+private const val ROAD_TAG_AXIS_DIVIDER = "axisDivider"
+private const val ROAD_TAG_GRID_MIDDLE = "gridMiddle"
+private const val ROAD_TAG_GRID_MAX = "gridMax"
+private const val ROAD_TAG_ROWS = "rows"
+
+/** `item_fake_graph` positions the middle axis label at this bias between "0" and the max label. */
+private const val ROAD_TAG_MIDDLE_BIAS = 0.7f
+private const val ROAD_TAG_LABEL_WEIGHT = 1f
+private const val ROAD_TAG_BAR_WEIGHT = 2f
+
+@Composable
+private fun RoadTagChartGraph(chart: RoadTagChart) {
+    val gridColor = colorResource(R.color.black4)
+    val labelColor = colorResource(R.color.labelPrimary)
+    // item_road_tag_chart / item_fake_graph use plain TextViews, so the tracking that
+    // BodyMedium adds is dropped here; it is enough to wrap "Cycle Network" onto a
+    // second line at the widths this chart runs at.
+    val labelStyle = TripResultStyles.BodyMedium.copy(letterSpacing = 0.sp)
+
+    val inset = dimensionResource(R.dimen.spacing_small)
+    val dividerSize = dimensionResource(R.dimen.divider_size)
+    val gridTopSpacing = dimensionResource(R.dimen.spacing_extra_small)
+    val rowsTopSpacing = dimensionResource(R.dimen.spacing_small)
+    val rowsBottomSpacing = dimensionResource(R.dimen.spacing_medium)
+
+    Layout(
+        modifier = Modifier.fillMaxWidth(),
+        content = {
+            // Mirrors item_fake_graph's invisible "0" label, which anchors the middle bias.
+            Text(
+                text = "0",
+                style = labelStyle,
+                color = Color.Transparent,
+                maxLines = 1,
+                modifier = Modifier.layoutId(ROAD_TAG_AXIS_START)
+            )
+            Text(
+                text = chart.getMiddleDistance(),
+                style = labelStyle,
+                color = labelColor,
+                maxLines = 1,
+                modifier = Modifier.layoutId(ROAD_TAG_AXIS_MIDDLE)
+            )
+            Text(
+                text = chart.getMaxDistance(),
+                style = labelStyle,
+                color = labelColor,
+                maxLines = 1,
+                modifier = Modifier.layoutId(ROAD_TAG_AXIS_MAX)
+            )
+            Box(
+                modifier = Modifier
+                    .layoutId(ROAD_TAG_AXIS_DIVIDER)
+                    .background(gridColor)
+            )
+            Box(
+                modifier = Modifier
+                    .layoutId(ROAD_TAG_GRID_MIDDLE)
+                    .background(gridColor)
+            )
+            Box(
+                modifier = Modifier
+                    .layoutId(ROAD_TAG_GRID_MAX)
+                    .background(gridColor)
+            )
+            Column(modifier = Modifier.layoutId(ROAD_TAG_ROWS)) {
+                chart.items.forEach { item ->
+                    RoadTagChartRow(
+                        item = item,
+                        labelStyle = labelStyle,
+                        labelColor = labelColor
+                    )
+                }
+            }
+        }
+    ) { measurables, constraints ->
+        val width = if (constraints.hasBoundedWidth) constraints.maxWidth else constraints.minWidth
+        val insetPx = inset.roundToPx()
+        val dividerPx = dividerSize.roundToPx()
+
+        fun measurableFor(id: String) = measurables.first { it.layoutId == id }
+
+        val labelConstraints = Constraints(maxWidth = width)
+        val startLabel = measurableFor(ROAD_TAG_AXIS_START).measure(labelConstraints)
+        val middleLabel = measurableFor(ROAD_TAG_AXIS_MIDDLE).measure(labelConstraints)
+        val maxLabel = measurableFor(ROAD_TAG_AXIS_MAX).measure(labelConstraints)
+
+        // vTopDivider: match_parent with an 8dp start margin, sitting 8dp under the labels.
+        val dividerY = maxOf(startLabel.height, middleLabel.height, maxLabel.height) + insetPx
+        val dividerWidth = (width - insetPx).coerceAtLeast(0)
+        val axisDivider = measurableFor(ROAD_TAG_AXIS_DIVIDER)
+            .measure(Constraints.fixed(dividerWidth, dividerPx))
+
+        // tvMax is end-aligned to vTopDivider; tvMiddle sits at ROAD_TAG_MIDDLE_BIAS between them.
+        val maxLabelX = (width - maxLabel.width).coerceAtLeast(0)
+        val middleSpan = (maxLabelX - startLabel.width - middleLabel.width).coerceAtLeast(0)
+        val middleLabelX = startLabel.width + (middleSpan * ROAD_TAG_MIDDLE_BIAS).roundToInt()
+
+        val rowsWidth = (width - insetPx * 2).coerceAtLeast(0)
+        val rowsY = dividerY + dividerPx + rowsTopSpacing.roundToPx()
+        val rows = measurableFor(ROAD_TAG_ROWS)
+            .measure(Constraints(minWidth = rowsWidth, maxWidth = rowsWidth))
+
+        val height = rowsY + rows.height + rowsBottomSpacing.roundToPx()
+        val gridY = dividerY + dividerPx + gridTopSpacing.roundToPx()
+        val gridConstraints = Constraints.fixed(dividerPx, (height - gridY).coerceAtLeast(0))
+        val gridMiddle = measurableFor(ROAD_TAG_GRID_MIDDLE).measure(gridConstraints)
+        val gridMax = measurableFor(ROAD_TAG_GRID_MAX).measure(gridConstraints)
+
+        layout(width, height) {
+            startLabel.place(0, 0)
+            middleLabel.place(middleLabelX, 0)
+            maxLabel.place(maxLabelX, 0)
+            axisDivider.place(insetPx, dividerY)
+            gridMiddle.place(middleLabelX + (middleLabel.width - dividerPx) / 2, gridY)
+            gridMax.place(maxLabelX + (maxLabel.width - dividerPx) / 2, gridY)
+            rows.place(insetPx, rowsY)
+        }
+    }
+}
+
+@Composable
+private fun RoadTagChartRow(
+    item: RoadTagChartItem,
+    labelStyle: TextStyle,
+    labelColor: Color
+) {
+    val barHeight = dimensionResource(R.dimen.segment_progress_height)
+    val fraction = if (item.maxProgress > 0) {
+        (item.length.toFloat() / item.maxProgress).coerceIn(0f, 1f)
+    } else {
+        0f
+    }
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Text(
+            text = item.label,
+            style = labelStyle,
+            color = labelColor,
+            modifier = Modifier.weight(ROAD_TAG_LABEL_WEIGHT)
+        )
+        Box(
+            modifier = Modifier
+                .weight(ROAD_TAG_BAR_WEIGHT)
+                .height(barHeight)
+        ) {
+            if (fraction > 0f) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth(fraction)
+                        .height(barHeight)
+                        .background(Color(item.color), CircleShape)
+                )
+            }
+        }
+    }
 }
 
 @Composable
@@ -759,6 +980,44 @@ private fun TripSegmentAlertsPreview() {
     }
 }
 
+@Preview(name = "Cycle - light", showBackground = true, backgroundColor = 0xFFF5F5F6)
+@Preview(
+    name = "Cycle - dark",
+    showBackground = true,
+    backgroundColor = 0xFF1C1C1E,
+    uiMode = Configuration.UI_MODE_NIGHT_YES
+)
+@Composable
+private fun TripSegmentCyclePreview() {
+    TripKitUITheme {
+        val cycleColor = colorResource(R.color.classification_greenest).toArgb()
+        TripSegmentItemContent(
+            state = previewTripSegmentState(
+                title = "Ride Bicycle",
+                iconRes = R.drawable.ic_bike_accessible,
+                detailRows = listOf(TripSegmentDetailRow(text = "10mins \u00b7 3.1 km")),
+                showTopLine = true,
+                topLineTint = cycleColor,
+                showBottomLine = true,
+                bottomLineTint = cycleColor,
+                backgroundCircleTint = cycleColor,
+                segmentLength = 3147,
+                roadTags = previewRoadTags()
+            )
+        )
+    }
+}
+
+private fun previewRoadTags(): List<RoadTagChartItem> = listOf(
+    RoadTagChartItem(label = "Cycle Lane", length = 820, color = AndroidColor.parseColor("#008000"), index = 0),
+    RoadTagChartItem(label = "Cycle Track", length = 210, color = AndroidColor.parseColor("#0000b3"), index = 1),
+    RoadTagChartItem(label = "Cycle Network", length = 2747, color = AndroidColor.parseColor("#0000b3"), index = 1),
+    RoadTagChartItem(label = "Designated for Cyclists", length = 190, color = AndroidColor.parseColor("#0000b3"), index = 1),
+    RoadTagChartItem(label = "Side Road", length = 1010, color = AndroidColor.parseColor("#8080ff"), index = 2),
+    RoadTagChartItem(label = "Main Road", length = 120, color = AndroidColor.parseColor("#ffa500"), index = 3),
+    RoadTagChartItem(label = "Other", length = 12, color = AndroidColor.DKGRAY, index = 4)
+)
+
 private fun previewRealtimeAlert(
     title: String,
     text: String,
@@ -788,7 +1047,9 @@ private fun previewTripSegmentState(
     showAlerts: Boolean = false,
     alerts: ArrayList<RealtimeAlert>? = null,
     isCancelled: Boolean = false,
-    cancelledMessage: String = ""
+    cancelledMessage: String = "",
+    roadTags: List<RoadTagChartItem> = emptyList(),
+    segmentLength: Int? = null
 ): TripSegmentItemState {
     val context = LocalContext.current
     val circleTint = if (backgroundCircleTint == TRANSPARENT) {
@@ -814,6 +1075,8 @@ private fun previewTripSegmentState(
         showTicketInfo = showTicketInfo,
         showAlerts = showAlerts,
         alerts = alerts,
+        roadTags = roadTags,
+        segmentLength = segmentLength,
         isCancelled = isCancelled,
         cancelledMessage = cancelledMessage
     )
