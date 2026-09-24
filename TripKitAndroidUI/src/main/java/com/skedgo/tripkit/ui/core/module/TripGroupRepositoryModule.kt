@@ -6,9 +6,12 @@ import com.skedgo.tripkit.ui.data.routingresults.TripGroupRepositoryImpl
 import com.skedgo.tripkit.ui.routingresults.TripGroupRepository
 import dagger.Module
 import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
 @Module
+@InstallIn(SingletonComponent::class)
 class TripGroupRepositoryModule {
     @Provides
     @Singleton

@@ -205,6 +205,13 @@ dependencies {
     implementation libs.timber
     kapt libs.daggerCompiler
     kapt libs.daggerAndroidProcessor
+
+    // Hilt (#25836): the singleton-scoped, collision-free modules below are @InstallIn-ready.
+    // TripKitUI itself stays a plain Dagger @Component - it is a published SDK graph built
+    // manually with runtime config, and its Context/Application/Gson bindings still duplicate
+    // the :tripgosdk ones, so the two roots cannot share a Hilt SingletonComponent yet.
+    implementation libs.hiltAndroid
+    kapt libs.hiltCompiler
     kapt libs.lifecycleCompiler
 //    implementation "biz.laenger.android:vpbs:0.0.6"
     implementation libs.excuseMe
@@ -320,4 +327,12 @@ afterEvaluate {
             gradle.startParameter.taskNames.any { it.toLowerCase().contains("dokka") }
         }
     }
+}
+
+kapt {
+    // Most @Module classes here stay non-@InstallIn for #25836: they are owned by
+    // @ActivityScope subcomponents, take constructor arguments, or provide keys that the
+    // parallel :tripgosdk modules also provide (Context, Application, Resources, Gson,
+    // ViewModel/Factory, the databases). Those need the root merge in #25837.
+    arguments { arg("dagger.hilt.disableModulesHaveInstallInCheck", "true") }
 }

@@ -13,10 +13,13 @@ import com.skedgo.tripkit.data.routingstatus.RoutingStatusRepositoryImpl
 import com.skedgo.tripkit.routingstatus.RoutingStatusRepository
 import dagger.Module
 import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
 
 @Module
+@InstallIn(SingletonComponent::class)
 class RouteStoreModule {
 
     @Provides

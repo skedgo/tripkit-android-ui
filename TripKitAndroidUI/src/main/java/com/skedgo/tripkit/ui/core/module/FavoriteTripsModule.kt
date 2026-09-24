@@ -6,11 +6,14 @@ import com.skedgo.tripkit.ui.favorites.trips.FavoriteTripsRepository
 import com.skedgo.tripkit.ui.favorites.trips.FavoriteTripsRepositoryImpl
 import dagger.Module
 import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
 
 @Deprecated("Replaced by [FavoritesModule]")
 @Module
+@InstallIn(SingletonComponent::class)
 class FavoriteTripsModule {
     @Provides
     @Singleton
