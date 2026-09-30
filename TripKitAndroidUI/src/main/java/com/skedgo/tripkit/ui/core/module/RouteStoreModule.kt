@@ -16,6 +16,15 @@ import dagger.Provides
 import javax.inject.Singleton
 
 
+/**
+ * Owns `routes.db`.
+ *
+ * Deliberately **not** `@InstallIn`: the annotation added in #25836 was reverted in #25837
+ * because this module is already installed in `TripKitUI` and in every per-flavor
+ * `@Component`, so letting Hilt install it as well would open a further `SQLiteOpenHelper`
+ * on the same database file. `TripKitUI` is the canonical owner, and `:app`'s
+ * `LegacyDaggerBridge` hands that one instance to the Hilt `SingletonComponent`.
+ */
 @Module
 class RouteStoreModule {
 

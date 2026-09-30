@@ -8,6 +8,8 @@ import com.skedgo.tripkit.ui.routing.GetRoutingConfig
 import com.skedgo.tripkit.ui.routing.settings.GetRoutingConfigImpl
 import dagger.Module
 import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
 
 @Module(
     includes = [CyclingSpeedRepositoryModule::class,
@@ -16,6 +18,7 @@ import dagger.Provides
         UnitsRepositoryModule::class,
         PreferredTransferTimeRepositoryModule::class]
 )
+@InstallIn(SingletonComponent::class)
 class GetRoutingConfigModule {
     @Provides
     internal fun getRoutingConfig(getRoutingConfigImpl: GetRoutingConfigImpl)

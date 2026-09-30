@@ -9,6 +9,8 @@ import com.skedgo.tripkit.ui.favorites.GetTripFromWaypointsImpl
 import com.skedgo.tripkit.ui.favorites.waypoints.Waypoint
 import dagger.Module
 import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
 import io.reactivex.schedulers.Schedulers
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
@@ -16,6 +18,7 @@ import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
 
 @Module
+@InstallIn(SingletonComponent::class)
 class WaypointsModule {
 
     @Provides
