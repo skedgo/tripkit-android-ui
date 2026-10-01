@@ -14,7 +14,7 @@ class RoadTagChartAdapter @Inject constructor() :
     RecyclerView.Adapter<RoadTagChartAdapter.Holder>(),
     AutoUpdatableAdapter {
 
-    internal var collection: List<RoadTagChart> by Delegates.observable(emptyList()) { prop, old, new ->
+    var collection: List<RoadTagChart> by Delegates.observable(emptyList()) { prop, old, new ->
         autoNotify(old, new) { o, n -> o.items == n.items }
     }
 

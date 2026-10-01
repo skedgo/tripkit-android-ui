@@ -1,10 +1,8 @@
 package com.skedgo.tripkit.ui.trippreview
 
 import android.content.Context
-import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.text.TextUtils
-import android.text.format.DateUtils
 import androidx.core.content.ContextCompat
 import androidx.databinding.ObservableBoolean
 import androidx.databinding.ObservableField
@@ -18,13 +16,14 @@ import com.skedgo.tripkit.ui.BuildConfig
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.TripKitUI
 import com.skedgo.tripkit.ui.core.RxViewModel
-import com.skedgo.tripkit.ui.core.fetchAsync
 import com.skedgo.tripkit.ui.generic.transport.TransportDetails
+import com.skedgo.tripkit.ui.tripresults.GetTransportIconTintStrategy
 import com.skedgo.tripkit.ui.utils.DistanceFormatter
+import com.skedgo.tripkit.ui.utils.createSummaryIcon
+import com.skedgo.tripkit.ui.utils.getSegmentIconObservable
 import com.skedgo.tripkit.ui.utils.TapAction
 import com.skedgo.tripkit.ui.utils.TapStateFlow
 import com.skedgo.tripkit.ui.utils.checkDateForStringLabel
-import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import org.joda.time.DateTime
@@ -106,40 +105,7 @@ open class TripPreviewPagerItemViewModel : RxViewModel() {
         showDescription.set(!instruction.isNullOrBlank())
         val url = TransportModeUtils.getIconUrlForModeInfo(context.resources, segment.modeInfo)
         modeIconUrl.set(url)
-        var remoteIcon = Observable.empty<Drawable>()
-        if (segment.getType() == SegmentType.ARRIVAL || segment.getType() == SegmentType.DEPARTURE) {
-            icon.set(ContextCompat.getDrawable(context, R.drawable.v4_ic_map_location))
-        } else {
-            if (segment.modeInfo == null || segment.modeInfo!!.modeCompat == null) {
-                val localResource = TransportMode.getLocalIconResId(segment.transportModeId)
-                when {
-                    localResource > 0 -> {
-                        icon.set(ContextCompat.getDrawable(context, localResource))
-                    }
-                    segment.action?.contains("<TIME>: Wait") == true -> {
-                        icon.set(ContextCompat.getDrawable(context, R.drawable.ic_wait))
-                    }
-                    else -> {
-                        icon.set(null)
-                    }
-                }
-            } else {
-                if (url != null) {
-                    remoteIcon = TripKitUI.getInstance().picasso().fetchAsync(url).toObservable()
-                        .map { bitmap -> BitmapDrawable(context.resources, bitmap) }
-                }
-                Observable
-                    .just(ContextCompat.getDrawable(context, segment.darkVehicleIcon))
-                    .concatWith(remoteIcon)
-                    .map { it }
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe({ drawable:
-                                 Drawable ->
-                        icon.set(drawable)
-                    }, { e -> Timber.e(e) }).autoClear()
-
-            }
-        }
+        setIconUsingHeaderPipeline(context, segment)
 
         fromLocation.set(segment.from?.address ?: "")
         toLocation.set(segment.to?.address ?: "")
@@ -211,6 +177,77 @@ open class TripPreviewPagerItemViewModel : RxViewModel() {
                 duration.set(segment.startDateTime.toString(DateTimeFormat.forPattern("MMMM dd $timePattern")))
             }
         }
+    }
+
+    private fun setIconUsingHeaderPipeline(context: Context, segment: TripSegment) {
+        val canUseHeaderPipeline = segment.modeInfo?.localIconName != null && segment.darkVehicleIcon != 0
+        Timber.tag("TripPreviewIconDebug").d(
+            "segmentId=%s modeId=%s canUseHeader=%s darkVehicleIcon=%s localIconName=%s",
+            segment.segmentId,
+            segment.transportModeId,
+            canUseHeaderPipeline,
+            segment.darkVehicleIcon,
+            segment.modeInfo?.localIconName
+        )
+        if (!canUseHeaderPipeline) {
+            val fallback = getLegacyFallbackIcon(context, segment)
+            Timber.tag("TripPreviewIconDebug").d(
+                "segmentId=%s using fallback directly => %s",
+                segment.segmentId,
+                fallback.describe()
+            )
+            icon.set(fallback)
+            return
+        }
+
+        segment.getSegmentIconObservable(
+            context,
+            GetTransportIconTintStrategy(context.resources)
+        ).map { drawable ->
+            drawable?.let { segment.createSummaryIcon(context, it) }
+        }.subscribe({ summaryIcon ->
+            val fallback = getLegacyFallbackIcon(context, segment)
+            val finalIcon = summaryIcon ?: fallback
+            Timber.tag("TripPreviewIconDebug").d(
+                "segmentId=%s summaryIcon=%s fallback=%s final=%s",
+                segment.segmentId,
+                summaryIcon.describe(),
+                fallback.describe(),
+                finalIcon.describe()
+            )
+            icon.set(finalIcon)
+        }, { error ->
+            Timber.e(error)
+            val fallback = getLegacyFallbackIcon(context, segment)
+            Timber.tag("TripPreviewIconDebug").e(
+                error,
+                "segmentId=%s pipeline error, fallback=%s",
+                segment.segmentId,
+                fallback.describe()
+            )
+            icon.set(fallback)
+        }).autoClear()
+    }
+
+    private fun getLegacyFallbackIcon(context: Context, segment: TripSegment): Drawable? {
+        if (segment.getType() == SegmentType.ARRIVAL || segment.getType() == SegmentType.DEPARTURE) {
+            return ContextCompat.getDrawable(context, R.drawable.v4_ic_map_location)
+        }
+
+        val localResource = TransportMode.getLocalIconResId(segment.transportModeId)
+        return when {
+            localResource > 0 -> ContextCompat.getDrawable(context, localResource)
+            segment.action?.contains("<TIME>: Wait") == true -> ContextCompat.getDrawable(
+                context,
+                R.drawable.ic_wait
+            )
+            else -> null
+        }
+    }
+
+    private fun Drawable?.describe(): String {
+        if (this == null) return "null"
+        return "${this.javaClass.simpleName}(w=${intrinsicWidth},h=${intrinsicHeight},alpha=$alpha)"
     }
 
     private fun fetchRegionAndSetupPickUpMessage(trip: Trip) {

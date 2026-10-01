@@ -18,6 +18,7 @@ import com.skedgo.tripkit.routing.TripSegment
 import com.skedgo.tripkit.ui.BR
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.trippreview.Action
+import com.skedgo.tripkit.ui.trippreview.GetInstructionIcon
 import com.skedgo.tripkit.ui.trippreview.TripPreviewPagerItemViewModel
 import com.skedgo.tripkit.ui.trippreview.external.ExternalActionViewModel
 import com.skedgo.tripkit.ui.trippreview.handleExternalAction
@@ -57,7 +58,6 @@ class SharedNearbyTripPreviewItemViewModel @Inject constructor(
         super.setSegment(context, segment)
         if (segment != loadedSegment) {
             loadedSegment = segment
-
             val details = NearbyLocation(
                 lat = segment.singleLocation?.lat ?: ZERO_LAT,
                 lng = segment.singleLocation?.lon ?: ZERO_LON,

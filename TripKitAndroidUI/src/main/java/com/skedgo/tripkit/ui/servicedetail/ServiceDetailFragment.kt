@@ -2,17 +2,16 @@ package com.skedgo.tripkit.ui.servicedetail
 
 import android.content.Context
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.skedgo.rxtry.subscribeWithErrorHandling
 import com.skedgo.tripkit.common.model.stop.ScheduledStop
 import com.skedgo.tripkit.common.model.stop.ServiceStop
 import com.skedgo.tripkit.ui.ARG_SHOW_CLOSE_BUTTON
+import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.TripKitUI
-import com.skedgo.tripkit.ui.core.BaseTripKitFragment
+import com.skedgo.tripkit.ui.core.BaseFragment
 import com.skedgo.tripkit.ui.core.addTo
 import com.skedgo.tripkit.ui.databinding.ServiceDetailFragmentBinding
 import com.skedgo.tripkit.ui.map.home.TripKitMapContributor
@@ -22,7 +21,7 @@ import com.skedgo.tripkit.ui.timetables.TimetableMapContributor
 import io.reactivex.android.schedulers.AndroidSchedulers
 import javax.inject.Inject
 
-class ServiceDetailFragment : BaseTripKitFragment() {
+class ServiceDetailFragment : BaseFragment<ServiceDetailFragmentBinding>() {
     interface OnScheduledStopClickListener {
         fun onScheduledStopClicked(stop: ServiceStop)
     }
@@ -54,12 +53,18 @@ class ServiceDetailFragment : BaseTripKitFragment() {
 
     @Inject
     lateinit var viewModel: ServiceDetailViewModel
-    lateinit var binding: ServiceDetailFragmentBinding
     private var stop: ScheduledStop? = null
     private var timetableEntry: TimetableEntry? = null
 
     private var mapContributor = TimetableMapContributor(this)
     fun contributor(): TripKitMapContributor = mapContributor
+
+    override val layoutRes: Int
+        get() = R.layout.service_detail_fragment
+
+    override val observeAccessibility: Boolean = false
+
+    override fun getDefaultViewForAccessibility(): View? = null
 
     override fun onAttach(context: Context) {
         TripKitUI.getInstance().inject(this);
@@ -84,21 +89,11 @@ class ServiceDetailFragment : BaseTripKitFragment() {
             }.addTo(autoDisposable)
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        binding = ServiceDetailFragmentBinding.inflate(layoutInflater)
+    override fun onCreated(savedInstance: Bundle?) {
         binding.lifecycleOwner = viewLifecycleOwner
         binding.viewModel = viewModel
         binding.content.occupancyList.layoutManager =
             LinearLayoutManager(context, RecyclerView.HORIZONTAL, false)
-
-        return binding.root
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
         stop = arguments?.getParcelable(ARG_STOP)
         timetableEntry = arguments?.getParcelable(ARG_TIMETABLE_ENTRY)
         val showCloseButton =
@@ -110,10 +105,6 @@ class ServiceDetailFragment : BaseTripKitFragment() {
 
         // Notify listener that onViewCreated is triggered
         viewCreatedListener?.onServiceDetailViewCreated(true)
-    }
-
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
         if (stop != null && timetableEntry != null) {
             viewModel.setup(stop!!, timetableEntry!!)
             mapContributor.setStop(stop)
