@@ -385,7 +385,7 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
             .subscribeWithErrorHandling { pinUpdate: PinUpdate -> updateArrivalMarker(pinUpdate) }
             .addTo(autoDisposable)
         viewModel.myLocation
-            .subscribeOn(AndroidSchedulers.mainThread())
+            .observeOn(AndroidSchedulers.mainThread())
             .subscribe({ myLocation: Location -> showMyLocation(myLocation) }) { error: Throwable? ->
                 errorLogger!!.trackError(
                     error!!
@@ -394,7 +394,7 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
             .addTo(autoDisposable)
 
         viewModel.myLocationError
-            .subscribeOn(AndroidSchedulers.mainThread())
+            .observeOn(AndroidSchedulers.mainThread())
             .subscribe({ _: Throwable? -> showMyLocationError() }) { error: Throwable? ->
                 errorLogger!!.trackError(
                     error!!
@@ -1009,9 +1009,19 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
         }
     }
 
+    /**
+     * Shows the "could not determine your location" toast.
+     *
+     * [MapViewModel.myLocationError] is a hot relay fed from a `Schedulers.io()` subscription
+     * whose 1.5s location timeout fires on the computation scheduler, so the subscription in
+     * [onResume] has to hop to the main thread before reaching this method. The fragment can
+     * also be torn down while that emission is in flight, so read the context defensively
+     * instead of passing the nullable [activity] straight to [Toast.makeText].
+     */
     private fun showMyLocationError() {
+        val context = context ?: return
         Toast.makeText(
-            activity,
+            context,
             R.string.could_not_determine_your_current_location_dot,
             Toast.LENGTH_SHORT
         ).show()

@@ -6,6 +6,8 @@ import com.squareup.picasso.Picasso
 import com.squareup.picasso.Picasso.Builder
 import dagger.Module
 import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
 import okhttp3.Cache
 import okhttp3.OkHttpClient
 import java.io.File
@@ -15,6 +17,7 @@ import javax.inject.Singleton
  * Defines components fetching and loading images.
  */
 @Module
+@InstallIn(SingletonComponent::class)
 class PicassoModule {
     @Provides
     @Singleton

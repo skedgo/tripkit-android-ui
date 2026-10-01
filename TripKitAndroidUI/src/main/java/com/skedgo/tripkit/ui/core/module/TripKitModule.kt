@@ -16,10 +16,13 @@ import com.skedgo.tripkit.ui.core.ConfigCreator
 import com.skedgo.tripkit.ui.core.settings.BaseUrlAdapter
 import dagger.Module
 import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
 import java.util.concurrent.Callable
 import javax.inject.Singleton
 
 @Module
+@InstallIn(SingletonComponent::class)
 class TripKitModule {
     @Provides
     internal fun regionService(): RegionService = TripKit.getInstance().regionService
