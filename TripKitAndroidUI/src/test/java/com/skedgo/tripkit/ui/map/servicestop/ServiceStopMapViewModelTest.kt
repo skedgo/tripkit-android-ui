@@ -24,8 +24,10 @@ import io.mockk.spyk
 import io.mockk.verify
 import io.reactivex.Observable
 import io.reactivex.Single
+import io.reactivex.subjects.PublishSubject
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -181,5 +183,35 @@ class ServiceStopMapViewModelTest: MockKTest() {
             emptyList(),
             listOf(firstVehicle, secondVehicle)
         )
+    }
+
+    @Test
+    fun `header and map share one request while header receives prediction without location`() {
+        val service = mockk<TimetableEntry>(relaxed = true)
+        val stop = mockk<ScheduledStop>(relaxed = true)
+        val region = mockk<Region>(relaxed = true)
+        val prediction = mockk<RealTimeVehicle>(relaxed = true)
+        val source = PublishSubject.create<List<RealTimeVehicle>>()
+        every { service.serviceTripId } returns "selected"
+        every { service.realtimeVehicle } returns null
+        every { prediction.serviceTripId } returns "selected"
+        every { prediction.hasLocationInformation() } returns false
+        every { regionService.getRegionByLocationAsync(stop) } returns Observable.just(region)
+        every { realtimeViewModel.getRealTimeVehicles(region, listOf(service)) } returns source
+
+        val map = viewModel.realtimeVehicles.test()
+        val header = viewModel.realtimeServiceUpdates.test()
+        viewModel.service.accept(service)
+        viewModel.stop.accept(stop)
+        source.onNext(listOf(prediction))
+
+        verify(exactly = 1) { realtimeViewModel.getRealTimeVehicles(region, listOf(service)) }
+        map.assertValues(emptyList(), emptyList())
+        header.assertValues(service to emptyList(), service to listOf(prediction))
+        header.dispose()
+        source.onNext(listOf(prediction))
+        map.assertValueCount(3)
+        map.dispose()
+        assertFalse(source.hasObservers())
     }
 }

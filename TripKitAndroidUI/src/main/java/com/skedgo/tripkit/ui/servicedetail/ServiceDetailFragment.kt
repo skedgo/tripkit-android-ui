@@ -77,6 +77,23 @@ class ServiceDetailFragment : BaseFragment<ServiceDetailFragmentBinding>() {
         mapContributor.cleanup()
     }
 
+    override fun onStart() {
+        super.onStart()
+        if (stop != null && timetableEntry != null) {
+            viewModel.bindRealtimeHeader(mapContributor.viewModel.realtimeServiceUpdates)
+        }
+    }
+
+    override fun onStop() {
+        viewModel.unbindRealtimeHeader()
+        super.onStop()
+    }
+
+    override fun onDestroyView() {
+        viewModel.unbindRealtimeHeader()
+        super.onDestroyView()
+    }
+
     override fun onResume() {
         super.onResume()
         viewModel.onItemClicked

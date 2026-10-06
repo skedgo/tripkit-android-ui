@@ -62,6 +62,7 @@ open class GetRealtimeText @Inject constructor(
                 "${context.getString(R.string.scheduled)} • $schedule" to R.color.black1
 
             service.realTimeStatus == RealTimeStatus.CAPABLE &&
+                !hasRealtimeDeparturePrediction(service, vehicle) &&
                 realTimeDeparture(service, vehicle) > TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()) ->
                 "${context.getString(R.string.scheduled)} • $schedule" to R.color.black1
             else -> {
@@ -147,6 +148,7 @@ open class GetRealtimeText @Inject constructor(
                 Triple("${context.getString(R.string.scheduled)} • $schedule", R.color.black1, false)
 
             service.realTimeStatus == RealTimeStatus.CAPABLE &&
+                !hasRealtimeDeparturePrediction(service, vehicle) &&
                 realTimeDeparture(service, vehicle) > TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()) ->
                 Triple("${context.getString(R.string.scheduled)} • $schedule", R.color.black1, false)
             else -> {
@@ -191,6 +193,10 @@ open class GetRealtimeText @Inject constructor(
             }
         }
     }
+
+    // Match realTimeDeparture's positive timestamp rule, excluding its scheduled-time fallback.
+    private fun hasRealtimeDeparturePrediction(service: TimetableEntry, vehicle: RealTimeVehicle?): Boolean =
+        (vehicle?.arriveAtStartStopTime ?: 0L) > 0L || service.realTimeDeparture > 0
 
     private fun truncateToHourAndMinute(timeInSeconds: Long): Pair<Long, Long> {
         val hours = timeInSeconds / TimeUtils.InSeconds.HOUR

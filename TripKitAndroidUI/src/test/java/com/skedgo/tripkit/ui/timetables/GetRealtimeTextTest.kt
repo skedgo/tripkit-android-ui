@@ -246,4 +246,75 @@ class GetRealtimeTextTest {
 
         assertEquals("10 min late • 10:38" to R.color.tripKitError, result)
     }
+
+    private fun futureService(status: RealTimeStatus = RealTimeStatus.CAPABLE) = TimetableEntry().apply {
+        serviceTime = DateTime.now(DateTimeZone.UTC).plusDays(1).withTime(10, 45, 0, 0).millis / 1000
+        startTimeInSecs = serviceTime
+        realTimeStatus = status
+    }
+
+    private fun stubRealtimeStrings() {
+        every { printTime.print(any()) } returns "10:45"
+        every { context.getString(R.string.scheduled) } returns "Scheduled"
+        every { context.getString(R.string.on_time) } returns "On time"
+        every { context.getString(R.string.realtime_late, any()) } returns "Late"
+        every { context.getString(R.string.realtime_early, any()) } returns "Early"
+        every { resources.getQuantityString(com.skedgo.tripkit.common.R.plurals.str_minutes, any(), any()) } returns "mins"
+    }
+
+    private fun assertBoth(service: TimetableEntry, vehicle: RealTimeVehicle?, text: String, color: Int, onTime: Boolean = false) {
+        assertEquals(text to color, getRealtimeText.execute(DateTimeZone.UTC, service, vehicle))
+        assertEquals(Triple(text, color, onTime), getRealtimeText.getWithIsOnTime(DateTimeZone.UTC, service, vehicle))
+    }
+
+    @Test
+    fun `capable valid carrier prediction uses realtime semantics in both presentations`() {
+        stubRealtimeStrings()
+        val service = futureService()
+        for ((minutes, status, color) in listOf(
+            Triple(4, "Late", R.color.tripKitError),
+            Triple(-2, "Early", R.color.tripKitWarning),
+            Triple(0, "On time", R.color.tripKitSuccess)
+        )) {
+            val vehicle = RealTimeVehicle().apply { arriveAtStartStopTime = service.serviceTime + minutes * 60 }
+            service.realtimeVehicle = vehicle
+            val time = DateTime(vehicle.arriveAtStartStopTime * 1000, DateTimeZone.UTC).toString("H:mm")
+            assertBoth(service, vehicle, "$status • $time", color, minutes == 0)
+        }
+        assertEquals(RealTimeStatus.CAPABLE, service.realTimeStatus)
+    }
+
+    @Test
+    fun `capable positive entry prediction works without a carrier`() {
+        stubRealtimeStrings()
+        val service = futureService().apply { realTimeDeparture = (serviceTime + 240).toInt() }
+        assertBoth(service, null, "Late • 10:49", R.color.tripKitError)
+    }
+
+    @Test
+    fun `capable null zero and sentinel predictions remain scheduled in both presentations`() {
+        stubRealtimeStrings()
+        val service = futureService()
+        for (timestamp in listOf(-1L, 0L)) {
+            service.realTimeDeparture = timestamp.toInt()
+            service.realtimeVehicle = RealTimeVehicle().apply { arriveAtStartStopTime = timestamp }
+            assertBoth(service, service.realtimeVehicle, "Scheduled • 10:45", R.color.black1)
+            service.realtimeVehicle = null
+            assertBoth(service, null, "Scheduled • 10:45", R.color.black1)
+        }
+    }
+
+    @Test
+    fun `capable prediction removed returns to scheduled and realtime status fallback is unchanged`() {
+        stubRealtimeStrings()
+        val service = futureService()
+        service.realtimeVehicle = RealTimeVehicle().apply { arriveAtStartStopTime = service.serviceTime + 240 }
+        assertBoth(service, service.realtimeVehicle, "Late • 10:49", R.color.tripKitError)
+        service.realtimeVehicle = null
+        assertBoth(service, null, "Scheduled • 10:45", R.color.black1)
+        service.realTimeStatus = RealTimeStatus.IS_REAL_TIME
+        assertBoth(service, null, "On time • 10:45", R.color.tripKitSuccess, true)
+        service.realtimeVehicle = RealTimeVehicle().apply { arriveAtStartStopTime = service.serviceTime + 240 }
+        assertBoth(service, service.realtimeVehicle, "Late • 10:49", R.color.tripKitError)
+    }
 }
