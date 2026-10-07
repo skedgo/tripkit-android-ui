@@ -14,7 +14,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:importantForAccessibility="no"
-        android:background="@color/grey2">
+        android:background="@android:color/transparent">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/clLocations"
@@ -22,7 +22,7 @@
             android:layout_height="wrap_content"
             android:paddingTop="@dimen/spacing_small"
             android:focusable="true"
-            android:background="@color/white"
+            android:background="@android:color/transparent"
             android:importantForAccessibility="yes"
             android:contentDescription="@{viewModel.toContentDescription + viewModel.fromContentDescription}"
             app:layout_constraintStart_toStartOf="parent"
@@ -30,7 +30,7 @@
 
             <TextView
                 android:id="@+id/toLocation"
-                style="@style/TextAppearance.MaterialComponents.Headline6"
+                style="@style/LabelTitleLarge"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
@@ -64,7 +64,7 @@
 
             <TextView
                 android:id="@+id/fromLabel"
-                style="@style/TextAppearance.MaterialComponents.Body2"
+                style="@style/LabelLarge"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:focusable="false"
@@ -72,17 +72,16 @@
                 android:text="@string/from_with_colon"
                 android:paddingTop="@dimen/spacing_extra_small"
                 android:paddingBottom="@dimen/spacing_extra_small"
-                android:textColor="@color/black1"
+                android:textColor="@color/colorPrimary"
                 app:layout_constraintStart_toStartOf="@id/toLocation"
                 app:layout_constraintTop_toBottomOf="@+id/toLocation" />
 
             <TextView
                 android:id="@+id/from"
-                style="@style/TextAppearance.MaterialComponents.Body2"
+                style="@style/LabelLarge"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="4dp"
-                android:layout_marginEnd="@dimen/spacing_small"
                 android:ellipsize="end"
                 android:focusable="false"
                 android:paddingTop="@dimen/spacing_extra_small"
@@ -92,7 +91,6 @@
                 android:text="@{viewModel.fromName}"
                 android:importantForAccessibility="no"
                 android:textDirection="locale"
-                app:layout_constraintEnd_toStartOf="@+id/fromAction"
                 app:layout_constraintStart_toEndOf="@+id/fromLabel"
                 app:layout_constraintTop_toTopOf="@+id/fromLabel"
                 tools:text="Current Location"
@@ -101,14 +99,12 @@
 
             <ImageView
                 android:id="@+id/fromAction"
-                android:layout_width="36dp"
+                android:layout_width="24dp"
                 android:layout_height="22dp"
-                android:paddingTop="@dimen/spacing_extra_small"
-                android:paddingBottom="@dimen/spacing_extra_small"
                 android:onClick="@{() -> viewModel.onStartLocationClicked()}"
                 android:layout_marginEnd="12dp"
                 app:layout_constraintBottom_toBottomOf="@id/from"
-                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/from"
                 app:layout_constraintTop_toTopOf="@+id/from"
                 app:srcCompat="@drawable/chevron_right"
                 app:tint="@color/colorPrimary" />
@@ -122,12 +118,12 @@
             android:paddingTop="@dimen/spacing_large"
             android:paddingBottom="@dimen/spacing_small"
             android:paddingHorizontal="@dimen/spacing_small"
-            android:background="@color/white"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/clLocations">
 
             <HorizontalScrollView
+                android:id="@+id/legacyHeaderActions"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:scrollbars="none"
@@ -159,7 +155,8 @@
                             android:layout_height="wrap_content"
                             android:layout_gravity="center_vertical"
                             android:text="@{viewModel.timeLabel}"
-                            app:appTextTint="@{@color/colorPrimary}"/>
+                            app:appTextTint="@{@color/colorPrimary}"
+                            tools:text="Leave now"/>
 
                         <ImageView
                             android:layout_width="@dimen/icon_small"
@@ -202,6 +199,17 @@
 
                 </LinearLayout>
             </HorizontalScrollView>
+
+            <androidx.compose.ui.platform.ComposeView
+                android:id="@+id/composeHeaderActions"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:layout_height="40dp" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

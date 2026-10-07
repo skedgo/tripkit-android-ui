@@ -85,7 +85,7 @@ class ActionButtonViewModelTest {
         assertEquals(mockDrawable, viewModel.icon.get())
         assertEquals("secondaryTag", viewModel.tag)
         assertEquals(Color.BLACK, viewModel.iconTint.get()) // From mocked ContextCompat.getColor
-        assertEquals(Color.BLACK, viewModel.outlineTint.get())
+        assertEquals(Color.TRANSPARENT, viewModel.outlineTint.get())
         assertNotNull(viewModel.background.get())
         assertNotNull(viewModel.backgroundTint.get())
 
@@ -147,4 +147,25 @@ class ActionButtonViewModelTest {
         assertEquals("Remove favourite", viewModel.title.get())
         assertSame(selectedDrawable, viewModel.icon.get())
     }
+    @Test
+    fun `rebinding an untinted action clears the restored placeholder tint`() {
+        val placeholder = ActionButton("Alert Me", "alert", 0, false, true)
+        val viewModel = ActionButtonViewModel(mockContext, placeholder)
+        assertEquals(Color.BLACK, viewModel.iconTint.get())
+
+        viewModel.update(mockContext, ActionButton("Alert Me", "alert", R.drawable.ic_launcher, false, false))
+
+        assertNull(viewModel.iconTint.get())
+    }
+
+    @Test
+    fun `primary to untinted secondary to primary resets the icon tint in both directions`() {
+        val primary = ActionButton("Go", "go", R.drawable.ic_launcher, true)
+        val viewModel = ActionButtonViewModel(mockContext, primary)
+        viewModel.update(mockContext, ActionButton("Favorite", "favorite", R.drawable.ic_share, false, false))
+        assertNull(viewModel.iconTint.get())
+        viewModel.update(mockContext, primary)
+        assertEquals(Color.WHITE, viewModel.iconTint.get())
+    }
+
 }

@@ -1,0 +1,1053 @@
+[
+  {
+    "trips": [
+      {
+        "caloriesCost": 49.0,
+        "moneyCost": -10000.0,
+        "moneyUSDCost": -10000.0,
+        "carbonCost": 0.4000000059604645,
+        "hassleCost": 3.700000047683716,
+        "weightedScore": 19.5,
+        "availability": "AVAILABLE",
+        "segments": [
+          {
+            "modeIdentifier": "wa_wal"
+          },
+          {
+            "modeIdentifier": "pt_pub"
+          },
+          {
+            "modeIdentifier": "wa_wal"
+          }
+        ],
+        "startTimeInSecs": 1791303489,
+        "endTimeInSecs": 1791305402
+      },
+      {
+        "caloriesCost": 49.0,
+        "moneyCost": -10000.0,
+        "moneyUSDCost": -10000.0,
+        "carbonCost": 0.30000001192092896,
+        "hassleCost": 3.700000047683716,
+        "weightedScore": 20.0,
+        "availability": "AVAILABLE",
+        "segments": [
+          {
+            "modeIdentifier": "wa_wal"
+          },
+          {
+            "modeIdentifier": "pt_pub"
+          },
+          {
+            "modeIdentifier": "wa_wal"
+          }
+        ],
+        "startTimeInSecs": 1791304689,
+        "endTimeInSecs": 1791306422
+      },
+      {
+        "caloriesCost": 50.0,
+        "moneyCost": -10000.0,
+        "moneyUSDCost": -10000.0,
+        "carbonCost": 0.30000001192092896,
+        "hassleCost": 3.700000047683716,
+        "weightedScore": 20.5,
+        "availability": "AVAILABLE",
+        "segments": [
+          {
+            "modeIdentifier": "wa_wal"
+          },
+          {
+            "modeIdentifier": "pt_pub"
+          },
+          {
+            "modeIdentifier": "wa_wal"
+          }
+        ],
+        "startTimeInSecs": 1791303785,
+        "endTimeInSecs": 1791305882
+      },
+      {
+        "caloriesCost": 50.0,
+        "moneyCost": -10000.0,
+        "moneyUSDCost": -10000.0,
+        "carbonCost": 0.30000001192092896,
+        "hassleCost": 3.700000047683716,
+        "weightedScore": 21.299999237060547,
+        "availability": "AVAILABLE",
+        "segments": [
+          {
+            "modeIdentifier": "wa_wal"
+          },
+          {
+            "modeIdentifier": "pt_pub"
+          },
+          {
+            "modeIdentifier": "wa_wal"
+          }
+        ],
+        "startTimeInSecs": 1791304985,
+        "endTimeInSecs": 1791306962
+      },
+      {
+        "caloriesCost": 50.0,
+        "moneyCost": -10000.0,
+        "moneyUSDCost": -10000.0,
+        "carbonCost": 0.30000001192092896,
+        "hassleCost": 3.700000047683716,
+        "weightedScore": 22.200000762939453,
+        "availability": "AVAILABLE",
+        "segments": [
+          {
+            "modeIdentifier": "wa_wal"
+          },
+          {
+            "modeIdentifier": "pt_pub"
+          },
+          {
+            "modeIdentifier": "wa_wal"
+          }
+        ],
+        "startTimeInSecs": 1791306185,
+        "endTimeInSecs": 1791308042
+      },
+      {
+        "caloriesCost": 50.0,
+        "moneyCost": -10000.0,
+        "moneyUSDCost": -10000.0,
+        "carbonCost": 0.30000001192092896,
+        "hassleCost": 3.700000047683716,
+        "weightedScore": 23.299999237060547,
+        "availability": "AVAILABLE",
+        "segments": [
+          {
+            "modeIdentifier": "wa_wal"
+          },
+          {
+            "modeIdentifier": "pt_pub"
+          },
+          {
+            "modeIdentifier": "wa_wal"
+          }
+        ],
+        "startTimeInSecs": 1791307385,
+        "endTimeInSecs": 1791309182
+      },
+      {
+        "caloriesCost": 49.0,
+        "moneyCost": -10000.0,
+        "moneyUSDCost": -10000.0,
+        "carbonCost": 0.4000000059604645,
+        "hassleCost": 3.700000047683716,
+        "weightedScore": 23.399999618530273,
+        "availability": "AVAILABLE",
+        "segments": [
+          {
+            "modeIdentifier": "wa_wal"
+          },
+          {
+            "modeIdentifier": "pt_pub"
+          },
+          {
+            "modeIdentifier": "wa_wal"
+          }
+        ],
+        "startTimeInSecs": 1791307209,
+        "endTimeInSecs": 1791309062
+      },
+      {
+        "caloriesCost": 50.0,
+        "moneyCost": -10000.0,
+        "moneyUSDCost": -10000.0,
+        "carbonCost": 0.30000001192092896,
+        "hassleCost": 3.5,
+        "weightedScore": 24.200000762939453,
+        "availability": "AVAILABLE",
+        "segments": [
+          {
+            "modeIdentifier": "wa_wal"
+          },
+          {
+            "modeIdentifier": "pt_pub"
+          },
+          {
+            "modeIdentifier": "wa_wal"
+          }
+        ],
+        "startTimeInSecs": 1791308224,
+        "endTimeInSecs": 1791310022
+      },
+      {
+        "caloriesCost": 50.0,
+        "moneyCost": -10000.0,
+        "moneyUSDCost": -10000.0,
+        "carbonCost": 0.30000001192092896,
+        "hassleCost": 3.700000047683716,
+        "weightedScore": 34.099998474121094,
+        "availability": "AVAILABLE",
+        "segments": [
+          {
+            "modeIdentifier": "wa_wal"
+          },
+          {
+            "modeIdentifier": "pt_pub"
+          },
+          {
+            "modeIdentifier": "wa_wal"
+          }
+        ],
+        "startTimeInSecs": 1791302585,
+        "endTimeInSecs": 1791304622
+      },
+      {
+        "caloriesCost": 49.0,
+        "moneyCost": -10000.0,
+        "moneyUSDCost": -10000.0,
+        "carbonCost": 0.4000000059604645,
+        "hassleCost": 3.700000047683716,
+        "weightedScore": 40.29999923706055,
+        "availability": "AVAILABLE",
+        "segments": [
+          {
+            "modeIdentifier": "wa_wal"
+          },
+          {
+            "modeIdentifier": "pt_pub"
+          },
+          {
+            "modeIdentifier": "wa_wal"
+          }
+        ],
+        "startTimeInSecs": 1791302289,
+        "endTimeInSecs": 1791304202
+      },
+      {
+        "caloriesCost": 50.0,
+        "moneyCost": -10000.0,
+        "moneyUSDCost": -10000.0,
+        "carbonCost": 0.30000001192092896,
+        "hassleCost": 3.700000047683716,
+        "weightedScore": 61.29999923706055,
+        "availability": "AVAILABLE",
+        "segments": [
+          {
+            "modeIdentifier": "wa_wal"
+          },
+          {
+            "modeIdentifier": "pt_pub"
+          },
+          {
+            "modeIdentifier": "wa_wal"
+          }
+        ],
+        "startTimeInSecs": 1791301385,
+        "endTimeInSecs": 1791303542
+      }
+    ]
+  },
+  {
+    "trips": [
+      {
+        "caloriesCost": 14.0,
+        "moneyCost": 1.2799999713897705,
+        "moneyUSDCost": 1.7200000286102295,
+        "carbonCost": 0.699999988079071,
+        "hassleCost": 0.0,
+        "weightedScore": 6.900000095367432,
+        "availability": "AVAILABLE",
+        "segments": [
+          {
+            "modeIdentifier": "me_car"
+          },
+          {
+            "modeIdentifier": "me_car"
+          }
+        ],
+        "startTimeInSecs": 1791303238,
+        "endTimeInSecs": 1791303888
+      }
+    ]
+  },
+  {
+    "trips": [
+      {
+        "caloriesCost": 28.0,
+        "moneyCost": -10000.0,
+        "moneyUSDCost": -10000.0,
+        "carbonCost": 0.30000001192092896,
+        "hassleCost": 2.5,
+        "weightedScore": 13.199999809265137,
+        "availability": "AVAILABLE",
+        "segments": [
+          {
+            "modeIdentifier": "wa_wal"
+          },
+          {
+            "modeIdentifier": "pt_pub"
+          },
+          {
+            "modeIdentifier": "wa_wal"
+          }
+        ],
+        "startTimeInSecs": 1791303390,
+        "endTimeInSecs": 1791304591
+      },
+      {
+        "caloriesCost": 28.0,
+        "moneyCost": -10000.0,
+        "moneyUSDCost": -10000.0,
+        "carbonCost": 0.30000001192092896,
+        "hassleCost": 2.5,
+        "weightedScore": 15.199999809265137,
+        "availability": "AVAILABLE",
+        "segments": [
+          {
+            "modeIdentifier": "wa_wal"
+          },
+          {
+            "modeIdentifier": "pt_pub"
+          },
+          {
+            "modeIdentifier": "wa_wal"
+          }
+        ],
+        "startTimeInSecs": 1791305190,
+        "endTimeInSecs": 1791306391
+      },
+      {
+        "caloriesCost": 28.0,
+        "moneyCost": -10000.0,
+        "moneyUSDCost": -10000.0,
+        "carbonCost": 0.30000001192092896,
+        "hassleCost": 2.5,
+        "weightedScore": 15.699999809265137,
+        "availability": "AVAILABLE",
+        "segments": [
+          {
+            "modeIdentifier": "wa_wal"
+          },
+          {
+            "modeIdentifier": "pt_pub"
+          },
+          {
+            "modeIdentifier": "wa_wal"
+          }
+        ],
+        "startTimeInSecs": 1791305790,
+        "endTimeInSecs": 1791306931
+      },
+      {
+        "caloriesCost": 28.0,
+        "moneyCost": -10000.0,
+        "moneyUSDCost": -10000.0,
+        "carbonCost": 0.30000001192092896,
+        "hassleCost": 2.5,
+        "weightedScore": 18.700000762939453,
+        "availability": "AVAILABLE",
+        "segments": [
+          {
+            "modeIdentifier": "wa_wal"
+          },
+          {
+            "modeIdentifier": "pt_pub"
+          },
+          {
+            "modeIdentifier": "wa_wal"
+          }
+        ],
+        "startTimeInSecs": 1791308490,
+        "endTimeInSecs": 1791309631
+      },
+      {
+        "caloriesCost": 28.0,
+        "moneyCost": -10000.0,
+        "moneyUSDCost": -10000.0,
+        "carbonCost": 0.30000001192092896,
+        "hassleCost": 2.5,
+        "weightedScore": 63.0,
+        "availability": "AVAILABLE",
+        "segments": [
+          {
+            "modeIdentifier": "wa_wal"
+          },
+          {
+            "modeIdentifier": "pt_pub"
+          },
+          {
+            "modeIdentifier": "wa_wal"
+          }
+        ],
+        "startTimeInSecs": 1791300990,
+        "endTimeInSecs": 1791302191
+      },
+      {
+        "caloriesCost": 28.0,
+        "moneyCost": -10000.0,
+        "moneyUSDCost": -10000.0,
+        "carbonCost": 0.30000001192092896,
+        "hassleCost": 2.5,
+        "weightedScore": 96.0999984741211,
+        "availability": "AVAILABLE",
+        "segments": [
+          {
+            "modeIdentifier": "wa_wal"
+          },
+          {
+            "modeIdentifier": "pt_pub"
+          },
+          {
+            "modeIdentifier": "wa_wal"
+          }
+        ],
+        "startTimeInSecs": 1791299490,
+        "endTimeInSecs": 1791300631
+      },
+      {
+        "caloriesCost": 28.0,
+        "moneyCost": -10000.0,
+        "moneyUSDCost": -10000.0,
+        "carbonCost": 0.30000001192092896,
+        "hassleCost": 2.5,
+        "weightedScore": 109.69999694824219,
+        "availability": "AVAILABLE",
+        "segments": [
+          {
+            "modeIdentifier": "wa_wal"
+          },
+          {
+            "modeIdentifier": "pt_pub"
+          },
+          {
+            "modeIdentifier": "wa_wal"
+          }
+        ],
+        "startTimeInSecs": 1791298890,
+        "endTimeInSecs": 1791300091
+      }
+    ]
+  },
+  {
+    "trips": [
+      {
+        "caloriesCost": 101.0,
+        "moneyCost": 0.0,
+        "moneyUSDCost": 0.0,
+        "carbonCost": 0.0,
+        "hassleCost": 2.4000000953674316,
+        "weightedScore": 21.399999618530273,
+        "availability": "AVAILABLE",
+        "segments": [
+          {
+            "modeIdentifier": "wa_wal"
+          }
+        ],
+        "startTimeInSecs": 1791303238,
+        "endTimeInSecs": 1791305663
+      }
+    ]
+  },
+  {
+    "trips": [
+      {
+        "caloriesCost": 62.0,
+        "moneyCost": -10000.0,
+        "moneyUSDCost": -10000.0,
+        "carbonCost": 0.20000000298023224,
+        "hassleCost": 3.700000047683716,
+        "weightedScore": 20.200000762939453,
+        "availability": "AVAILABLE",
+        "segments": [
+          {
+            "modeIdentifier": "wa_wal"
+          },
+          {
+            "modeIdentifier": "pt_pub"
+          },
+          {
+            "modeIdentifier": "wa_wal"
+          }
+        ],
+        "startTimeInSecs": 1791303588,
+        "endTimeInSecs": 1791305412
+      },
+      {
+        "caloriesCost": 62.0,
+        "moneyCost": -10000.0,
+        "moneyUSDCost": -10000.0,
+        "carbonCost": 0.20000000298023224,
+        "hassleCost": 3.700000047683716,
+        "weightedScore": 23.200000762939453,
+        "availability": "AVAILABLE",
+        "segments": [
+          {
+            "modeIdentifier": "wa_wal"
+          },
+          {
+            "modeIdentifier": "pt_pub"
+          },
+          {
+            "modeIdentifier": "wa_wal"
+          }
+        ],
+        "startTimeInSecs": 1791306288,
+        "endTimeInSecs": 1791308112
+      },
+      {
+        "caloriesCost": 62.0,
+        "moneyCost": -10000.0,
+        "moneyUSDCost": -10000.0,
+        "carbonCost": 0.20000000298023224,
+        "hassleCost": 3.700000047683716,
+        "weightedScore": 24.899999618530273,
+        "availability": "AVAILABLE",
+        "segments": [
+          {
+            "modeIdentifier": "wa_wal"
+          },
+          {
+            "modeIdentifier": "pt_pub"
+          },
+          {
+            "modeIdentifier": "wa_wal"
+          }
+        ],
+        "startTimeInSecs": 1791308028,
+        "endTimeInSecs": 1791309792
+      },
+      {
+        "caloriesCost": 63.0,
+        "moneyCost": -10000.0,
+        "moneyUSDCost": -10000.0,
+        "carbonCost": 0.10000000149011612,
+        "hassleCost": 3.700000047683716,
+        "weightedScore": 25.799999237060547,
+        "availability": "AVAILABLE",
+        "segments": [
+          {
+            "modeIdentifier": "wa_wal"
+          },
+          {
+            "modeIdentifier": "pt_pub"
+          },
+          {
+            "modeIdentifier": "wa_wal"
+          }
+        ],
+        "startTimeInSecs": 1791308490,
+        "endTimeInSecs": 1791310332
+      },
+      {
+        "caloriesCost": 62.0,
+        "moneyCost": -10000.0,
+        "moneyUSDCost": -10000.0,
+        "carbonCost": 0.20000000298023224,
+        "hassleCost": 3.700000047683716,
+        "weightedScore": 58.900001525878906,
+        "availability": "AVAILABLE",
+        "segments": [
+          {
+            "modeIdentifier": "wa_wal"
+          },
+          {
+            "modeIdentifier": "pt_pub"
+          },
+          {
+            "modeIdentifier": "wa_wal"
+          }
+        ],
+        "startTimeInSecs": 1791301488,
+        "endTimeInSecs": 1791303372
+      },
+      {
+        "caloriesCost": 63.0,
+        "moneyCost": -10000.0,
+        "moneyUSDCost": -10000.0,
+        "carbonCost": 0.10000000149011612,
+        "hassleCost": 3.700000047683716,
+        "weightedScore": 81.30000305175781,
+        "availability": "AVAILABLE",
+        "segments": [
+          {
+            "modeIdentifier": "wa_wal"
+          },
+          {
+            "modeIdentifier": "pt_pub"
+          },
+          {
+            "modeIdentifier": "wa_wal"
+          }
+        ],
+        "startTimeInSecs": 1791300510,
+        "endTimeInSecs": 1791302532
+      }
+    ]
+  },
+  {
+    "trips": [
+      {
+        "caloriesCost": 64.0,
+        "moneyCost": 0.0,
+        "moneyUSDCost": 0.0,
+        "carbonCost": 0.0,
+        "hassleCost": 2.799999952316284,
+        "weightedScore": 10.5,
+        "availability": "AVAILABLE",
+        "segments": [
+          {
+            "modeIdentifier": "cy_bic"
+          }
+        ],
+        "startTimeInSecs": 1791303238,
+        "endTimeInSecs": 1791303997
+      }
+    ]
+  },
+  {
+    "trips": [
+      {
+        "caloriesCost": 58.0,
+        "moneyCost": -10000.0,
+        "moneyUSDCost": -10000.0,
+        "carbonCost": 0.10000000149011612,
+        "hassleCost": 3.5999999046325684,
+        "weightedScore": 19.399999618530273,
+        "availability": "AVAILABLE",
+        "segments": [
+          {
+            "modeIdentifier": "wa_wal"
+          },
+          {
+            "modeIdentifier": "pt_pub"
+          },
+          {
+            "modeIdentifier": "wa_wal"
+          }
+        ],
+        "startTimeInSecs": 1791303728,
+        "endTimeInSecs": 1791305422
+      },
+      {
+        "caloriesCost": 58.0,
+        "moneyCost": -10000.0,
+        "moneyUSDCost": -10000.0,
+        "carbonCost": 0.10000000149011612,
+        "hassleCost": 3.5999999046325684,
+        "weightedScore": 20.200000762939453,
+        "availability": "AVAILABLE",
+        "segments": [
+          {
+            "modeIdentifier": "wa_wal"
+          },
+          {
+            "modeIdentifier": "pt_pub"
+          },
+          {
+            "modeIdentifier": "wa_wal"
+          }
+        ],
+        "startTimeInSecs": 1791304448,
+        "endTimeInSecs": 1791306142
+      },
+      {
+        "caloriesCost": 60.0,
+        "moneyCost": -10000.0,
+        "moneyUSDCost": -10000.0,
+        "carbonCost": 0.10000000149011612,
+        "hassleCost": 3.5999999046325684,
+        "weightedScore": 20.299999237060547,
+        "availability": "AVAILABLE",
+        "segments": [
+          {
+            "modeIdentifier": "wa_wal"
+          },
+          {
+            "modeIdentifier": "pt_pub"
+          },
+          {
+            "modeIdentifier": "wa_wal"
+          }
+        ],
+        "startTimeInSecs": 1791303737,
+        "endTimeInSecs": 1791305602
+      },
+      {
+        "caloriesCost": 60.0,
+        "moneyCost": -10000.0,
+        "moneyUSDCost": -10000.0,
+        "carbonCost": 0.10000000149011612,
+        "hassleCost": 3.5999999046325684,
+        "weightedScore": 20.600000381469727,
+        "availability": "AVAILABLE",
+        "segments": [
+          {
+            "modeIdentifier": "wa_wal"
+          },
+          {
+            "modeIdentifier": "pt_pub"
+          },
+          {
+            "modeIdentifier": "wa_wal"
+          }
+        ],
+        "startTimeInSecs": 1791303197,
+        "endTimeInSecs": 1791305062
+      },
+      {
+        "caloriesCost": 60.0,
+        "moneyCost": -10000.0,
+        "moneyUSDCost": -10000.0,
+        "carbonCost": 0.20000000298023224,
+        "hassleCost": 3.5999999046325684,
+        "weightedScore": 20.799999237060547,
+        "availability": "AVAILABLE",
+        "segments": [
+          {
+            "modeIdentifier": "wa_wal"
+          },
+          {
+            "modeIdentifier": "pt_pub"
+          },
+          {
+            "modeIdentifier": "wa_wal"
+          }
+        ],
+        "startTimeInSecs": 1791304217,
+        "endTimeInSecs": 1791306082
+      },
+      {
+        "caloriesCost": 58.0,
+        "moneyCost": -10000.0,
+        "moneyUSDCost": -10000.0,
+        "carbonCost": 0.10000000149011612,
+        "hassleCost": 3.5999999046325684,
+        "weightedScore": 21.0,
+        "availability": "AVAILABLE",
+        "segments": [
+          {
+            "modeIdentifier": "wa_wal"
+          },
+          {
+            "modeIdentifier": "pt_pub"
+          },
+          {
+            "modeIdentifier": "wa_wal"
+          }
+        ],
+        "startTimeInSecs": 1791305168,
+        "endTimeInSecs": 1791306862
+      },
+      {
+        "caloriesCost": 60.0,
+        "moneyCost": -10000.0,
+        "moneyUSDCost": -10000.0,
+        "carbonCost": 0.10000000149011612,
+        "hassleCost": 3.5999999046325684,
+        "weightedScore": 21.200000762939453,
+        "availability": "AVAILABLE",
+        "segments": [
+          {
+            "modeIdentifier": "wa_wal"
+          },
+          {
+            "modeIdentifier": "pt_pub"
+          },
+          {
+            "modeIdentifier": "wa_wal"
+          }
+        ],
+        "startTimeInSecs": 1791304817,
+        "endTimeInSecs": 1791306622
+      },
+      {
+        "caloriesCost": 58.0,
+        "moneyCost": -10000.0,
+        "moneyUSDCost": -10000.0,
+        "carbonCost": 0.10000000149011612,
+        "hassleCost": 3.5999999046325684,
+        "weightedScore": 21.600000381469727,
+        "availability": "AVAILABLE",
+        "segments": [
+          {
+            "modeIdentifier": "wa_wal"
+          },
+          {
+            "modeIdentifier": "pt_pub"
+          },
+          {
+            "modeIdentifier": "wa_wal"
+          }
+        ],
+        "startTimeInSecs": 1791305768,
+        "endTimeInSecs": 1791307462
+      },
+      {
+        "caloriesCost": 60.0,
+        "moneyCost": -10000.0,
+        "moneyUSDCost": -10000.0,
+        "carbonCost": 0.10000000149011612,
+        "hassleCost": 3.5999999046325684,
+        "weightedScore": 21.799999237060547,
+        "availability": "AVAILABLE",
+        "segments": [
+          {
+            "modeIdentifier": "wa_wal"
+          },
+          {
+            "modeIdentifier": "pt_pub"
+          },
+          {
+            "modeIdentifier": "wa_wal"
+          }
+        ],
+        "startTimeInSecs": 1791305357,
+        "endTimeInSecs": 1791307162
+      },
+      {
+        "caloriesCost": 58.0,
+        "moneyCost": -10000.0,
+        "moneyUSDCost": -10000.0,
+        "carbonCost": 0.10000000149011612,
+        "hassleCost": 3.5999999046325684,
+        "weightedScore": 22.299999237060547,
+        "availability": "AVAILABLE",
+        "segments": [
+          {
+            "modeIdentifier": "wa_wal"
+          },
+          {
+            "modeIdentifier": "pt_pub"
+          },
+          {
+            "modeIdentifier": "wa_wal"
+          }
+        ],
+        "startTimeInSecs": 1791306368,
+        "endTimeInSecs": 1791308062
+      },
+      {
+        "caloriesCost": 60.0,
+        "moneyCost": -10000.0,
+        "moneyUSDCost": -10000.0,
+        "carbonCost": 0.20000000298023224,
+        "hassleCost": 3.5999999046325684,
+        "weightedScore": 22.700000762939453,
+        "availability": "AVAILABLE",
+        "segments": [
+          {
+            "modeIdentifier": "wa_wal"
+          },
+          {
+            "modeIdentifier": "pt_pub"
+          },
+          {
+            "modeIdentifier": "wa_wal"
+          }
+        ],
+        "startTimeInSecs": 1791305897,
+        "endTimeInSecs": 1791307762
+      },
+      {
+        "caloriesCost": 58.0,
+        "moneyCost": -10000.0,
+        "moneyUSDCost": -10000.0,
+        "carbonCost": 0.10000000149011612,
+        "hassleCost": 3.5999999046325684,
+        "weightedScore": 23.0,
+        "availability": "AVAILABLE",
+        "segments": [
+          {
+            "modeIdentifier": "wa_wal"
+          },
+          {
+            "modeIdentifier": "pt_pub"
+          },
+          {
+            "modeIdentifier": "wa_wal"
+          }
+        ],
+        "startTimeInSecs": 1791306968,
+        "endTimeInSecs": 1791308662
+      },
+      {
+        "caloriesCost": 57.0,
+        "moneyCost": -10000.0,
+        "moneyUSDCost": -10000.0,
+        "carbonCost": 0.10000000149011612,
+        "hassleCost": 3.700000047683716,
+        "weightedScore": 23.100000381469727,
+        "availability": "AVAILABLE",
+        "segments": [
+          {
+            "modeIdentifier": "wa_wal"
+          },
+          {
+            "modeIdentifier": "pt_pub"
+          },
+          {
+            "modeIdentifier": "wa_wal"
+          }
+        ],
+        "startTimeInSecs": 1791306693,
+        "endTimeInSecs": 1791308487
+      },
+      {
+        "caloriesCost": 60.0,
+        "moneyCost": -10000.0,
+        "moneyUSDCost": -10000.0,
+        "carbonCost": 0.10000000149011612,
+        "hassleCost": 3.5999999046325684,
+        "weightedScore": 23.299999237060547,
+        "availability": "AVAILABLE",
+        "segments": [
+          {
+            "modeIdentifier": "wa_wal"
+          },
+          {
+            "modeIdentifier": "pt_pub"
+          },
+          {
+            "modeIdentifier": "wa_wal"
+          }
+        ],
+        "startTimeInSecs": 1791306497,
+        "endTimeInSecs": 1791308362
+      },
+      {
+        "caloriesCost": 58.0,
+        "moneyCost": -10000.0,
+        "moneyUSDCost": -10000.0,
+        "carbonCost": 0.10000000149011612,
+        "hassleCost": 3.5999999046325684,
+        "weightedScore": 23.899999618530273,
+        "availability": "AVAILABLE",
+        "segments": [
+          {
+            "modeIdentifier": "wa_wal"
+          },
+          {
+            "modeIdentifier": "pt_pub"
+          },
+          {
+            "modeIdentifier": "wa_wal"
+          }
+        ],
+        "startTimeInSecs": 1791303008,
+        "endTimeInSecs": 1791304702
+      },
+      {
+        "caloriesCost": 59.0,
+        "moneyCost": -10000.0,
+        "moneyUSDCost": -10000.0,
+        "carbonCost": 0.10000000149011612,
+        "hassleCost": 3.5999999046325684,
+        "weightedScore": 23.899999618530273,
+        "availability": "AVAILABLE",
+        "segments": [
+          {
+            "modeIdentifier": "wa_wal"
+          },
+          {
+            "modeIdentifier": "pt_pub"
+          },
+          {
+            "modeIdentifier": "wa_wal"
+          }
+        ],
+        "startTimeInSecs": 1791307568,
+        "endTimeInSecs": 1791309294
+      },
+      {
+        "caloriesCost": 58.0,
+        "moneyCost": -10000.0,
+        "moneyUSDCost": -10000.0,
+        "carbonCost": 0.10000000149011612,
+        "hassleCost": 3.5999999046325684,
+        "weightedScore": 24.399999618530273,
+        "availability": "AVAILABLE",
+        "segments": [
+          {
+            "modeIdentifier": "wa_wal"
+          },
+          {
+            "modeIdentifier": "pt_pub"
+          },
+          {
+            "modeIdentifier": "wa_wal"
+          }
+        ],
+        "startTimeInSecs": 1791308468,
+        "endTimeInSecs": 1791310103
+      },
+      {
+        "caloriesCost": 60.0,
+        "moneyCost": -10000.0,
+        "moneyUSDCost": -10000.0,
+        "carbonCost": 0.10000000149011612,
+        "hassleCost": 3.5999999046325684,
+        "weightedScore": 32.599998474121094,
+        "availability": "AVAILABLE",
+        "segments": [
+          {
+            "modeIdentifier": "wa_wal"
+          },
+          {
+            "modeIdentifier": "pt_pub"
+          },
+          {
+            "modeIdentifier": "wa_wal"
+          }
+        ],
+        "startTimeInSecs": 1791302657,
+        "endTimeInSecs": 1791304522
+      },
+      {
+        "caloriesCost": 58.0,
+        "moneyCost": -10000.0,
+        "moneyUSDCost": -10000.0,
+        "carbonCost": 0.10000000149011612,
+        "hassleCost": 3.5999999046325684,
+        "weightedScore": 39.900001525878906,
+        "availability": "AVAILABLE",
+        "segments": [
+          {
+            "modeIdentifier": "wa_wal"
+          },
+          {
+            "modeIdentifier": "pt_pub"
+          },
+          {
+            "modeIdentifier": "wa_wal"
+          }
+        ],
+        "startTimeInSecs": 1791302288,
+        "endTimeInSecs": 1791303982
+      }
+    ]
+  },
+  {
+    "trips": [
+      {
+        "caloriesCost": 8.0,
+        "moneyCost": 7.980000019073486,
+        "moneyUSDCost": 10.720000267028809,
+        "carbonCost": 0.5,
+        "hassleCost": 2.299999952316284,
+        "weightedScore": 28.399999618530273,
+        "availability": "AVAILABLE",
+        "segments": [
+          {
+            "modeIdentifier": "wa_wal"
+          },
+          {
+            "modeIdentifier": "ps_tax"
+          },
+          {
+            "modeIdentifier": "ps_tax"
+          }
+        ],
+        "startTimeInSecs": 1791303238,
+        "endTimeInSecs": 1791304288
+      }
+    ]
+  }
+]

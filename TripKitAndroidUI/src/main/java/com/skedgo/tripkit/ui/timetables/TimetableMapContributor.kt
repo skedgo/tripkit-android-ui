@@ -172,20 +172,32 @@ class TimetableMapContributor(val fragment: Fragment) : TripKitMapContributor {
             return
         }
 
+        autoDisposable.clear()
+
         //map.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(mStop!!.lat, mStop!!.lon), 15.0f))
 
         autoDisposable.add(
             viewModel.drawStops
                 .subscribeWithErrorHandling { (newMarkerOptions, removedStopIds) ->
                     for (id in removedStopIds) {
-                        stopCodesToMarkerMap[id]!!.remove()
-                        stopCodesToMarkerMap.remove(id)
+                        stopCodesToMarkerMap.remove(id)?.remove()
                     }
+                    var stopsAdded = false
                     for ((first, second) in newMarkerOptions) {
-                        val marker = map.addMarker(first)
-                        stopCodesToMarkerMap[second!!] = marker
+                        val existing = stopCodesToMarkerMap[second]
+                        if (existing == null) {
+                            stopCodesToMarkerMap[second!!] = map.addMarker(first)
+                            stopsAdded = true
+                        } else {
+                            existing.setIcon(first.icon)
+                            existing.title = first.title
+                            existing.snippet = first.snippet
+                            existing.setAnchor(first.anchorU, first.anchorV)
+                            existing.setInfoWindowAnchor(first.infoWindowAnchorU, first.infoWindowAnchorV)
+                            if (existing.isInfoWindowShown) existing.showInfoWindow()
+                        }
                     }
-                    fitAllMapElementsToBounds()
+                    if (stopsAdded || removedStopIds.isNotEmpty()) fitAllMapElementsToBounds()
                 }
         )
 
