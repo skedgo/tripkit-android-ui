@@ -425,8 +425,6 @@ Nous agrégeons les données anonymisées et les fournissons aux chercheurs, aux
     <string name="go">Allez</string>
     <!--Trip badge: Greenest-->
     <string name="greenest">Le plus vert</string>
-    <!--Trip badge: Healthiest-->
-    <string name="healthiest">Healthiest</string>
     <!--Text for vehicle of type: Kick Scooter-->
     <string name="kick_scooter">Trotinette</string>
     <!--Single line instruction to leave-->

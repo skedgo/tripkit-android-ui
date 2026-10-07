@@ -425,8 +425,6 @@
     <string name="go">الذهاب</string>
     <!--Trip badge: Greenest-->
     <string name="greenest">صديقة البيئة</string>
-    <!--Trip badge: Healthiest-->
-    <string name="healthiest">Healthiest</string>
     <!--Text for vehicle of type: Kick Scooter-->
     <string name="kick_scooter">دراجة تزلج</string>
     <!--Single line instruction to leave-->

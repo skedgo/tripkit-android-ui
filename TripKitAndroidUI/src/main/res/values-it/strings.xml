@@ -426,8 +426,6 @@ We aggregate the anonymised data and provide it to researchers, regulators, and 
     <string name="go">Vai</string>
     <!--Trip badge: Greenest-->
     <string name="greenest">Più verde</string>
-    <!--Trip badge: Healthiest-->
-    <string name="healthiest">Healthiest</string>
     <!--Text for vehicle of type: Kick Scooter-->
     <string name="kick_scooter">Monopattino</string>
     <!--Single line instruction to leave-->

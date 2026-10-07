@@ -1,5 +1,6 @@
 package com.skedgo.tripkit.ui.tripresults
 
+import com.skedgo.tripkit.routing.Availability
 import com.skedgo.tripkit.routing.Trip
 import com.skedgo.tripkit.routing.TripGroup
 import kotlin.math.max
@@ -34,20 +35,21 @@ class TripGroupClassifier constructor(tripGroups: List<TripGroup>) {
 
     init {
         var anyHaveUnknownCost = false
-        val trips = tripGroups.mapNotNull { it.displayTrip }
+        // Match iOS TKMetricClassifier: classify the best non-cancelled trip in each group.
+        val trips = tripGroups.mapNotNull { it.representativeTrip }
         trips.forEach { trip ->
-            if (trip.moneyCost == Trip.UNKNOWN_COST) {
+            if (trip.moneyUsdCost == Trip.UNKNOWN_COST) {
                 anyHaveUnknownCost = true
             } else {
-                prices.first = min(prices.first, trip.moneyCost)
-                prices.second = max(prices.second, trip.moneyCost)
+                prices.first = min(prices.first, trip.moneyUsdCost)
+                prices.second = max(prices.second, trip.moneyUsdCost)
             }
 
             weighted.first = min(weighted.first, trip.weightedScore)
             weighted.second = max(weighted.second, trip.weightedScore)
 
-            durations.first = min(durations.first, trip.durationInSeconds().toFloat())
-            durations.second = max(durations.second, trip.durationInSeconds().toFloat())
+            durations.first = min(durations.first, trip.classificationMinutes)
+            durations.second = max(durations.second, trip.classificationMinutes)
 
             hassles.first = min(hassles.first, trip.hassleCost)
             hassles.second = max(hassles.second, trip.hassleCost)
@@ -60,6 +62,15 @@ class TripGroupClassifier constructor(tripGroups: List<TripGroup>) {
             calories.second = max(calories.second, trip.caloriesCost * -1)
         }
 
+        // Other badges must improve on the recommended trip, not merely the worst result.
+        trips.minByOrNull { it.weightedScore }?.let { recommended ->
+            prices.second = recommended.moneyUsdCost
+            durations.second = recommended.classificationMinutes
+            hassles.second = recommended.hassleCost
+            carbons.second = recommended.carbonCost
+            calories.second = recommended.caloriesCost * -1
+        }
+
         if (anyHaveUnknownCost) {
             prices.first = 0.0f
             prices.second = 0.0f
@@ -67,7 +78,7 @@ class TripGroupClassifier constructor(tripGroups: List<TripGroup>) {
     }
 
     fun classify(tripGroup: TripGroup): Classification {
-        val trip = tripGroup.displayTrip ?: return Classification.NONE
+        val trip = tripGroup.representativeTrip ?: return Classification.NONE
         val classification = when {
             matches(
                 weighted.first,
@@ -77,22 +88,33 @@ class TripGroupClassifier constructor(tripGroups: List<TripGroup>) {
             matches(
                 durations.first,
                 durations.second,
-                trip.durationInSeconds().toFloat()
+                trip.classificationMinutes,
+                minimumDelta = 10f
             ) -> Classification.FASTEST
-            matches(prices.first, prices.second, trip.moneyCost) -> Classification.CHEAPEST
+            matches(prices.first, prices.second, trip.moneyUsdCost, minimumDelta = 5f) -> Classification.CHEAPEST
             matches(
                 calories.first,
                 calories.second,
-                trip.caloriesCost * -1
+                trip.caloriesCost * -1,
+                minimumDelta = 40f
             ) -> Classification.HEALTHIEST
-            matches(hassles.first, hassles.second, trip.hassleCost) -> Classification.EASIEST
+            matches(hassles.first, hassles.second, trip.hassleCost, minimumDelta = 5f) -> Classification.EASIEST
             matches(carbons.first, carbons.second, trip.carbonCost) -> Classification.GREENEST
             else -> Classification.NONE
         }
         return classification
     }
 
-    private fun matches(min: Float, max: Float, value: Float): Boolean =
-        (min == value && max > (min * 1.25))
+    private fun matches(min: Float, max: Float, value: Float, minimumDelta: Float? = null): Boolean =
+        min == value && max > min * 1.25f &&
+            (minimumDelta == null || max - min > minimumDelta)
+
+    private val TripGroup.representativeTrip: Trip?
+        get() = trips?.filter { it.getAvailability() != Availability.Cancelled }
+            ?.minByOrNull { it.weightedScore }
+
+    // iOS compares integer arrival/departure minutes rather than fractional duration.
+    private val Trip.classificationMinutes: Float
+        get() = (endTimeInSecs / 60 - startTimeInSecs / 60).toFloat()
 
 }

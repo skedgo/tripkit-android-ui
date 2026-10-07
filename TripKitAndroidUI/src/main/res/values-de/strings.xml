@@ -425,8 +425,6 @@ Diese Daten werden anonymisiert und wir stellen sie Forschern, Behörden und Tra
     <string name="go">Los</string>
     <!--Trip badge: Greenest-->
     <string name="greenest">Grün</string>
-    <!--Trip badge: Healthiest-->
-    <string name="healthiest">Healthiest</string>
     <!--Text for vehicle of type: Kick Scooter-->
     <string name="kick_scooter">Scooter</string>
     <!--Single line instruction to leave-->
