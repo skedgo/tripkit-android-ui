@@ -58,6 +58,7 @@ class ServiceDetailFragment : BaseTripKitFragment() {
     private var stop: ScheduledStop? = null
     private var timetableEntry: TimetableEntry? = null
 
+    private var stopMapFocus: ServiceStopMapFocus? = null
     private var mapContributor = TimetableMapContributor(this)
     fun contributor(): TripKitMapContributor = mapContributor
 
@@ -72,6 +73,12 @@ class ServiceDetailFragment : BaseTripKitFragment() {
         mapContributor.cleanup()
     }
 
+    override fun onDestroyView() {
+        stopMapFocus?.clear()
+        stopMapFocus = null
+        super.onDestroyView()
+    }
+
     override fun onResume() {
         super.onResume()
         viewModel.onItemClicked
@@ -80,7 +87,10 @@ class ServiceDetailFragment : BaseTripKitFragment() {
                 this.clickListener.forEach {
                     it.onScheduledStopClicked(stop)
                 }
-                mapContributor.serviceStopClick(stop)
+                val focus = stopMapFocus ?: ServiceStopMapFocus(requireView()).also {
+                    stopMapFocus = it
+                }
+                focus.select { mapContributor.serviceStopClick(stop) }
             }.addTo(autoDisposable)
     }
 
