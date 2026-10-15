@@ -34,7 +34,11 @@ import com.skedgo.tripkit.ui.routing.settings.RemindersRepository
 import com.skedgo.tripkit.ui.utils.removeQueryParamFromUrl
 import com.skedgo.tripkit.ui.utils.requestPermissionGently
 import com.skedgo.tripkit.ui.utils.showConfirmationPopUpDialog
+import io.reactivex.Observable
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
 import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.disposables.Disposable
 import io.reactivex.rxkotlin.addTo
 import kotlinx.coroutines.runBlocking
 import me.tatarka.bindingcollectionadapter2.BR
@@ -70,6 +74,9 @@ class TripSegmentGetOffAlertsViewModel @Inject internal constructor(
     internal var alertStateListener: (Boolean) -> Unit = { _ -> }
 
     private val disposable = CompositeDisposable()
+    private var enablingAlerts = false
+    private var disposed = false
+    private var pendingActivation: Disposable? = null
 
     internal var showGeofencesOnMap: (List<Pair<LatLng, Double>>) -> Unit = { _ -> }
 
@@ -98,7 +105,6 @@ class TripSegmentGetOffAlertsViewModel @Inject internal constructor(
     }
 
     fun setup(context: Context, details: List<TripSegmentGetOffAlertDetailViewModel>) {
-        items.clear()
         items.update(details)
     }
 
@@ -109,9 +115,10 @@ class TripSegmentGetOffAlertsViewModel @Inject internal constructor(
     }
 
     fun onAlertChange(context: Context, isOn: Boolean) {
+        if (disposed) return
         Timber.d("[GetOffAlerts] onAlertChange requested: isOn=%s currentState=%s tripUuid=%s", isOn, _getOffAlertStateOn.value, trip.getTripUuid())
 
-        if(_getOffAlertStateOn.value == isOn) {
+        if(_getOffAlertStateOn.value == isOn && !enablingAlerts) {
             Timber.d("[GetOffAlerts] Ignoring toggle request because state is unchanged.")
             return
         }
@@ -138,6 +145,51 @@ class TripSegmentGetOffAlertsViewModel @Inject internal constructor(
     }
 
     private fun enableAlerts(context: Context) {
+        if (disposed || enablingAlerts || _getOffAlertStateOn.value == true) return
+        val subscribeUrl = trip.subscribeURL?.takeIf { it.isNotBlank() }
+        if (subscribeUrl == null) {
+            activateLocalAlerts(context)
+            return
+        }
+
+        // A cached trip can still offer a server subscription after the user has signed out.
+        // Do not claim activation or fall back to local alerts if that operation cannot succeed.
+        enablingAlerts = true
+        Observable.fromCallable {
+            if (configs.userTokenProvider()?.call().isNullOrBlank()) {
+                throw SecurityException()
+            }
+            subscribeUrl
+        }
+            .subscribeOn(Schedulers.io())
+            .flatMap { tripUpdater.tripSubscription(it).firstOrError().toObservable() }
+            .observeOn(AndroidSchedulers.mainThread())
+            .doFinally { enablingAlerts = false }
+            .subscribe({
+                if (!enablingAlerts) return@subscribe
+                activateLocalAlerts(context)
+                // Refresh the unsubscribe URL after the server has acknowledged the subscription.
+                trip.updateURL?.takeIf { it.isNotBlank() }?.let { updateUrl ->
+                    tripUpdater.getUpdateAsync(updateUrl.removeQueryParamFromUrl(URL_PARAM_HASH))
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe({ this.trip = it }, { Timber.w("[GetOffAlerts] Subscription trip refresh failed") })
+                        .addTo(disposable)
+                }
+            }, { error ->
+                Timber.w("[GetOffAlerts] Server subscription failed; alerts remain off")
+                _getOffAlertStateOn.postValue(false)
+                context.showConfirmationPopUpDialog(
+                    title = context.getString(R.string.error_encountered),
+                    message = context.getString(
+                        if (error is SecurityException) R.string.authentication_error
+                        else R.string.an_unexpected_network_error_has_occurred_dot_please_retry_dot
+                    ),
+                    positiveLabel = context.getString(R.string.ok)
+                )
+            }).also { pendingActivation = it }.addTo(disposable)
+    }
+
+    private fun activateLocalAlerts(context: Context) {
         Timber.d("[GetOffAlerts] Permissions approved. Enabling alerts.")
         trip.let {
             GetOffAlertCache.setTripAlertOnState(
@@ -153,10 +205,12 @@ class TripSegmentGetOffAlertsViewModel @Inject internal constructor(
         GeoLocation.clearGeofences()
         showGeofencesOnMap.invoke(emptyList())
 
-        setupAlarmsGeofencesAndSubscription(context)
+        setupAlarmsAndGeofences(context)
     }
 
     private fun disableAlerts(context: Context) {
+        pendingActivation?.dispose()
+        enablingAlerts = false
         Timber.d("[GetOffAlerts] Disabling alerts.")
         trip.let {
             GetOffAlertCache.setTripAlertOnState(
@@ -351,7 +405,7 @@ class TripSegmentGetOffAlertsViewModel @Inject internal constructor(
         }
     }
 
-    private fun setupAlarmsGeofencesAndSubscription(context: Context) {
+    private fun setupAlarmsAndGeofences(context: Context) {
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         var pendingIntent: PendingIntent? = null
         var startSegmentStartTimeInSecs = 0L
@@ -378,25 +432,6 @@ class TripSegmentGetOffAlertsViewModel @Inject internal constructor(
                 alarmIntent,
                 0 or PendingIntent.FLAG_IMMUTABLE
             )
-        }
-
-        trip.subscribeURL?.let { url ->
-            tripUpdater.tripSubscription(url)
-                .flatMap {
-                    val updateUrl = trip.updateURL ?: ""
-                    // remove hash to force get updated trip for getting the unsubscribeURL
-                    if (updateUrl.contains(URL_PARAM_HASH)) {
-                        updateUrl.removeQueryParamFromUrl(URL_PARAM_HASH)
-                    }
-                    tripUpdater.getUpdateAsync(updateUrl)
-                }
-                .subscribe({
-                    this.trip = it
-                }, { e ->
-                    if (BuildConfig.DEBUG) {
-                        e.printStackTrace()
-                    }
-                }).addTo(disposable)
         }
 
         val reminder = TimeUnit.MINUTES.toSeconds(reminderInMinutes)
@@ -464,8 +499,14 @@ class TripSegmentGetOffAlertsViewModel @Inject internal constructor(
         context.cancelChannelNotifications(11111)
     }
 
+    internal fun disposeAlerts() {
+        disposed = true
+        enablingAlerts = false
+        disposable.dispose()
+    }
+
     override fun onCleared() {
-        disposable.clear()
+        disposeAlerts()
         super.onCleared()
     }
 }
