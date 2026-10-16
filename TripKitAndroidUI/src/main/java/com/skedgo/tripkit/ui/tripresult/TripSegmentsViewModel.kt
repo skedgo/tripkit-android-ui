@@ -18,6 +18,7 @@ import com.jakewharton.rxrelay2.BehaviorRelay
 import com.jakewharton.rxrelay2.PublishRelay
 import com.skedgo.rxtry.subscribeWithErrorHandling
 import com.skedgo.tripkit.TripUpdater
+import com.skedgo.tripkit.hasValidSubscribeUrl
 import com.skedgo.tripkit.booking.BookingForm
 import com.skedgo.tripkit.booking.quickbooking.QuickBookingRepository
 import com.skedgo.tripkit.common.model.location.Location
@@ -881,7 +882,7 @@ class TripSegmentsViewModel @Inject internal constructor(
 
             getOffAlertsViewModel.setup(
                 context,
-                listOfNotNull(
+                listOf(
                     TripSegmentGetOffAlertDetailViewModel(
                         ContextCompat.getDrawable(context, R.drawable.ic_navigation_start),
                         context.getString(R.string.get_off_alerts_trip_about_to_start),
@@ -889,8 +890,8 @@ class TripSegmentsViewModel @Inject internal constructor(
                     ), TripSegmentGetOffAlertDetailViewModel(
                         ContextCompat.getDrawable(context, R.drawable.ic_navigation_near),
                         context.getString(R.string.get_off_alerts_vehicle_is_approaching_your_boarding_stop),
-                        true
-                    ).takeIf { !trip.subscribeURL.isNullOrBlank() },
+                        hasValidSubscribeUrl(trip)
+                    ),
                     TripSegmentGetOffAlertDetailViewModel(
                         ContextCompat.getDrawable(context, R.drawable.ic_navigation_near),
                         context.getString(R.string.get_off_alerts_getting_within_disembarkation_point),

@@ -13,11 +13,13 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="@dimen/spacing_small">
+        android:padding="@dimen/spacing_small"
+        android:enabled="@{viewModel.enabled}">
 
 
         <ImageView
             android:id="@+id/ivIcon"
+            android:enabled="@{viewModel.enabled}"
             android:layout_width="@dimen/icon_small"
             android:layout_height="@dimen/icon_small"
             android:src="@{viewModel.icon}"
@@ -30,6 +32,7 @@
 
         <TextView
             android:id="@+id/tvTitle"
+            android:enabled="@{viewModel.enabled}"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/spacing_small"

@@ -59,8 +59,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/spacing_small"
-                android:checked="@{viewModel.getOffAlertStateOn}"
-                android:onCheckedChanged="@{(switch, checked) -> viewModel.setAlertState(context, checked)}"
+                app:tripAlertChecked="@{viewModel.getOffAlertStateOn}"
+                app:tripAlertOwner="@{viewModel}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 

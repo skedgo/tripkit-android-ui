@@ -156,9 +156,9 @@ class AnonymousTripAlertsTest : MockKTest() {
         method.isAccessible = true
         return (method.invoke(segments, TripGroup(), trip) as TripSegmentGetOffAlertsViewModel).items.toList()
     }
-    @Test fun `vehicle approach type is absent even with old geofence when subscribe URL is missing`() {
+    @Test fun `vehicle approach type is visibly disabled even with old geofence when subscribe URL is missing`() {
         trip.segmentList.first().geofences = listOf(Geofence("boarding", "circle", "ENTER", Coordinate(-35.28, 149.13), 100.0, "VEHICLE_IS_APPROACHING", "Board", "Board"))
-        assertThat(details().map { it.title }).doesNotContain(context.getString(com.skedgo.tripkit.ui.R.string.get_off_alerts_vehicle_is_approaching_your_boarding_stop))
+        assertThat(details().single { it.title == context.getString(com.skedgo.tripkit.ui.R.string.get_off_alerts_vehicle_is_approaching_your_boarding_stop) }.isEnabled).isFalse()
     }
     @Test fun `vehicle approach type is offered when subscribe URL is present`() {
         remote()
@@ -187,13 +187,13 @@ class AnonymousTripAlertsTest : MockKTest() {
         assertThat(vm.getOffAlertStateOn.value).isFalse()
         assertThat(alarms.scheduledAlarms).isEmpty()
     }
-    @Test fun `malformed server URL failure cannot claim success`() {
+    @Test fun `malformed subscribe URL offers only local alerts without a server request`() {
         remote()
         trip.subscribeURL = "not a URL"
-        every { updater.tripSubscription(any()) } returns Observable.error(IllegalArgumentException("Invalid URL"))
         enable()
-        assertThat(vm.getOffAlertStateOn.value).isFalse()
-        assertThat(alarms.scheduledAlarms).isEmpty()
+        verify(exactly = 0) { updater.tripSubscription(any()) }
+        assertThat(vm.getOffAlertStateOn.value).isTrue()
+        assertThat(alarms.scheduledAlarms).hasSize(1)
     }
 
 
@@ -276,6 +276,289 @@ class AnonymousTripAlertsTest : MockKTest() {
         assertThat(alarms.scheduledAlarms).hasSize(1)
         assertThat(alarms.scheduledAlarms.single().triggerAtTime)
             .isEqualTo((updatedTrip.segmentList.first().startTimeInSecs - 300) * 1000)
+    }
+
+    @Test fun `availability changes invalidate the row contents`() {
+        val enabled = TripSegmentGetOffAlertDetailViewModel(null, "Boarding", true)
+        val disabled = TripSegmentGetOffAlertDetailViewModel(null, "Boarding", false)
+        val diff = TripSegmentGetOffAlertDetailViewModel.diffCallback()
+        assertThat(diff.areItemsTheSame(enabled, disabled)).isTrue()
+        assertThat(diff.areContentsTheSame(enabled, disabled)).isFalse()
+    }
+
+    private fun activity(): org.robolectric.android.controller.ActivityController<androidx.appcompat.app.AppCompatActivity> {
+        val controller = org.robolectric.Robolectric.buildActivity(androidx.appcompat.app.AppCompatActivity::class.java)
+        controller.get().setTheme(androidx.appcompat.R.style.Theme_AppCompat)
+        controller.setup()
+        shadowOf(controller.get().application).grantPermissions(android.Manifest.permission.POST_NOTIFICATIONS,
+            android.Manifest.permission.ACCESS_FINE_LOCATION)
+        shadowOf(controller.get().application).denyPermissions(android.Manifest.permission.ACCESS_BACKGROUND_LOCATION)
+        val location = controller.get().getSystemService(Context.LOCATION_SERVICE) as android.location.LocationManager
+        shadowOf(location).setProviderEnabled(android.location.LocationManager.GPS_PROVIDER, true)
+        trip.segmentList.first().geofences = listOf(Geofence("arrival", "circle", "ENTER", Coordinate(-35.28,149.13),100.0,"TRIP_END","Arrive","Arrive"))
+        return controller
+    }
+    private fun positive(dialog: android.app.Dialog = org.robolectric.shadows.ShadowDialog.getLatestDialog()) {
+        dialog.findViewById<android.view.View>(com.afollestad.materialdialogs.R.id.md_button_positive).performClick()
+        shadowOf(android.os.Looper.getMainLooper()).idle()
+    }
+    @Test fun `repeated enable during disclosure shows only one prompt`() {
+        val c = activity()
+        vm.onAlertChange(c.get(), true)
+        val first = org.robolectric.shadows.ShadowDialog.getLatestDialog()
+        vm.onAlertChange(c.get(), true)
+        assertThat(org.robolectric.shadows.ShadowDialog.getLatestDialog()).isSameAs(first)
+        vm.disposeAlerts(); c.pause().stop().destroy()
+    }
+    @Test fun `mute during disclosure prevents late approval from activating`() {
+        val c = activity()
+        shadowOf(c.get().application).grantPermissions(android.Manifest.permission.ACCESS_BACKGROUND_LOCATION)
+        vm.onAlertChange(c.get(), true)
+        val dialog = org.robolectric.shadows.ShadowDialog.getLatestDialog()
+        vm.onAlertChange(c.get(), false)
+        positive(dialog)
+        assertThat(vm.getOffAlertStateOn.value).isFalse()
+        assertThat(alarms.scheduledAlarms).isEmpty()
+        c.pause().stop().destroy()
+    }
+    @Test fun `while in use shows background rationale before opening settings`() {
+        val c = activity()
+        vm.onAlertChange(c.get(), true)
+        positive()
+        val dialog = org.robolectric.shadows.ShadowDialog.getLatestDialog()
+        assertThat(dialog.isShowing).isTrue()
+        assertThat(dialog.findViewById<android.widget.TextView>(com.afollestad.materialdialogs.R.id.md_text_title).text.toString())
+            .isEqualTo(c.get().getString(com.skedgo.tripkit.ui.R.string.confirmation_allow_background_location_title))
+        assertThat(shadowOf(c.get()).nextStartedActivity).isNull()
+        dialog.cancel(); vm.disposeAlerts(); c.pause().stop().destroy()
+    }
+
+    @Test fun `disabled row binds grey text and disabled accessibility without click action`() {
+        val c = activity()
+        val binding = com.skedgo.tripkit.ui.databinding.ItemAlertDetailBinding.inflate(android.view.LayoutInflater.from(c.get()))
+        binding.viewModel = TripSegmentGetOffAlertDetailViewModel(null, "Boarding", false)
+        binding.executePendingBindings()
+        assertThat(binding.root.isEnabled).isFalse()
+        assertThat(binding.tvTitle.isEnabled).isFalse()
+        assertThat(binding.tvTitle.currentTextColor).isEqualTo(androidx.core.content.ContextCompat.getColor(c.get(), com.skedgo.tripkit.ui.R.color.disabled))
+        assertThat(binding.tvTitle.createAccessibilityNodeInfo().isEnabled).isFalse()
+        assertThat(binding.root.hasOnClickListeners()).isFalse()
+        assertThat(binding.root.isSelected).isFalse()
+        binding.viewModel = TripSegmentGetOffAlertDetailViewModel(null, "Boarding", true)
+        binding.executePendingBindings()
+        assertThat(binding.tvTitle.isEnabled).isTrue()
+        c.pause().stop().destroy()
+    }
+    @Test fun `absent present absent URL availability updates without affecting local rows`() {
+        val title = context.getString(com.skedgo.tripkit.ui.R.string.get_off_alerts_vehicle_is_approaching_your_boarding_stop)
+        assertThat(details().single { it.title == title }.isEnabled).isFalse()
+        remote()
+        assertThat(details().single { it.title == title }.isEnabled).isTrue()
+        trip.subscribeURL = null
+        assertThat(details().single { it.title == title }.isEnabled).isFalse()
+        assertThat(details().first().isEnabled).isTrue()
+    }
+    @Test fun `cancel background explanation aborts and explicit retry opens once`() {
+        val c = activity()
+        vm.onAlertChange(c.get(), true); positive()
+        val dialog = org.robolectric.shadows.ShadowDialog.getLatestDialog()
+        dialog.findViewById<android.view.View>(com.afollestad.materialdialogs.R.id.md_button_negative).performClick()
+        assertThat(vm.getOffAlertStateOn.value).isFalse()
+        assertThat(alarms.scheduledAlarms).isEmpty()
+        vm.validate()
+        assertThat(dialog.isShowing).isFalse()
+        vm.onAlertChange(c.get(), true)
+        assertThat(org.robolectric.shadows.ShadowDialog.getLatestDialog()).isNotSameAs(dialog)
+        vm.disposeAlerts(); c.pause().stop().destroy()
+    }
+    @Test fun `back during rationale cancels without reopening on resume`() {
+        val c = activity()
+        vm.onAlertChange(c.get(), true); positive()
+        val dialog = org.robolectric.shadows.ShadowDialog.getLatestDialog()
+        dialog.cancel()
+        c.pause().resume()
+        vm.validate()
+        assertThat(org.robolectric.shadows.ShadowDialog.getLatestDialog()).isSameAs(dialog)
+        assertThat(dialog.isShowing).isFalse()
+        assertThat(vm.getOffAlertStateOn.value).isFalse()
+        assertThat(alarms.scheduledAlarms).isEmpty()
+        vm.disposeAlerts(); c.pause().stop().destroy()
+    }
+    private fun openSettings(c: org.robolectric.android.controller.ActivityController<androidx.appcompat.app.AppCompatActivity>): org.robolectric.shadows.ShadowActivity.IntentForResult {
+        vm.onAlertChange(c.get(), true); positive(); positive()
+        return shadowOf(c.get()).nextStartedActivityForResult
+    }
+    @Test fun `return from settings unchanged consumes denial and does not reopen`() {
+        val c = activity()
+        val request = openSettings(c)
+        assertThat(request.intent.action).isEqualTo(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+        c.get().activityResultRegistry.dispatchResult(request.requestCode, android.app.Activity.RESULT_CANCELED, null)
+        val dialog = org.robolectric.shadows.ShadowDialog.getLatestDialog()
+        assertThat(dialog.isShowing).isFalse()
+        assertThat(vm.getOffAlertStateOn.value).isFalse()
+        assertThat(alarms.scheduledAlarms).isEmpty()
+        c.pause().resume(); vm.validate()
+        assertThat(org.robolectric.shadows.ShadowDialog.getLatestDialog()).isSameAs(dialog)
+        vm.onAlertChange(c.get(), true)
+        assertThat(org.robolectric.shadows.ShadowDialog.getLatestDialog()).isNotSameAs(dialog)
+        vm.disposeAlerts(); c.pause().stop().destroy()
+    }
+    @Test fun `settings grant continues exactly once and mute cancels alarm`() {
+        val c = activity(); val request = openSettings(c)
+        shadowOf(c.get().application).grantPermissions(android.Manifest.permission.ACCESS_BACKGROUND_LOCATION)
+        c.get().activityResultRegistry.dispatchResult(request.requestCode, android.app.Activity.RESULT_CANCELED, null)
+        assertThat(vm.getOffAlertStateOn.value).isTrue()
+        assertThat(alarms.scheduledAlarms).hasSize(1)
+        c.get().activityResultRegistry.dispatchResult(request.requestCode, android.app.Activity.RESULT_CANCELED, null)
+        assertThat(alarms.scheduledAlarms).hasSize(1)
+        vm.onAlertChange(c.get(), false)
+        assertThat(alarms.scheduledAlarms).isEmpty()
+        vm.disposeAlerts(); c.pause().stop().destroy()
+    }
+    @Test fun `settings grant after explicit cancellation cannot activate`() {
+        val c = activity(); val request = openSettings(c)
+        vm.onAlertChange(c.get(), false)
+        shadowOf(c.get().application).grantPermissions(android.Manifest.permission.ACCESS_BACKGROUND_LOCATION)
+        c.get().activityResultRegistry.dispatchResult(request.requestCode, android.app.Activity.RESULT_CANCELED, null)
+        assertThat(vm.getOffAlertStateOn.value).isFalse()
+        assertThat(alarms.scheduledAlarms).isEmpty()
+        verify(exactly = 0) { updater.tripSubscription(any()) }
+        vm.disposeAlerts(); c.pause().stop().destroy()
+    }
+    @Test fun `activity recreation invalidates outstanding settings activation`() {
+        val c = activity(); val request = openSettings(c)
+        c.pause().stop().destroy()
+        shadowOf(c.get().application).grantPermissions(android.Manifest.permission.ACCESS_BACKGROUND_LOCATION)
+        c.get().activityResultRegistry.dispatchResult(request.requestCode, android.app.Activity.RESULT_CANCELED, null)
+        assertThat(vm.getOffAlertStateOn.value).isFalse()
+        assertThat(alarms.scheduledAlarms).isEmpty()
+        vm.disposeAlerts()
+    }
+    @Test fun `alarm only trip does not request background location`() {
+        val c = activity()
+        trip.segmentList.first().geofences = emptyList()
+        vm.onAlertChange(c.get(), true); positive()
+        assertThat(vm.getOffAlertStateOn.value).isTrue()
+        assertThat(alarms.scheduledAlarms).hasSize(1)
+        assertThat(shadowOf(c.get()).nextStartedActivity).isNull()
+        vm.onAlertChange(c.get(), false); vm.disposeAlerts(); c.pause().stop().destroy()
+    }
+
+    @Test @Config(sdk = [28]) fun `pre Android ten geofences do not request separate background permission`() {
+        val c = activity()
+        vm.onAlertChange(c.get(), true); positive()
+        assertThat(vm.getOffAlertStateOn.value).isTrue()
+        assertThat(alarms.scheduledAlarms).hasSize(1)
+        vm.onAlertChange(c.get(), false); vm.disposeAlerts(); c.pause().stop().destroy()
+    }
+    @Test @Config(sdk = [29]) fun `Android ten background denial remains cancellable`() {
+        val c = activity()
+        vm.onAlertChange(c.get(), true); positive()
+        val dialog = org.robolectric.shadows.ShadowDialog.getLatestDialog()
+        assertThat(dialog.isShowing).isTrue()
+        dialog.cancel()
+        assertThat(vm.getOffAlertStateOn.value).isFalse()
+        assertThat(alarms.scheduledAlarms).isEmpty()
+        vm.disposeAlerts(); c.pause().stop().destroy()
+    }
+    @Test fun `trip A B A replaces capability and cancels pending previous trip permission`() {
+        val c = activity()
+        val segments = TripSegmentsViewModel(context, mockk(relaxed = true), mockk(relaxed = true),
+            mockk(relaxed = true), mockk(relaxed = true), mockk(relaxed = true),
+            mockk(relaxed = true), mockk(relaxed = true), updater, reminders,
+            mockk(relaxed = true), mockk(relaxed = true))
+        val setup = TripSegmentsViewModel::class.java.getDeclaredMethod("setupGetOffAlert", TripGroup::class.java, Trip::class.java).apply { isAccessible = true }
+        val owner = TripSegmentsViewModel::class.java.getDeclaredField("tripSegmentGetOffAlertsViewModel").apply { isAccessible = true }
+        val title = context.getString(com.skedgo.tripkit.ui.R.string.get_off_alerts_vehicle_is_approaching_your_boarding_stop)
+        remote()
+        val a = setup.invoke(segments, TripGroup(), trip) as TripSegmentGetOffAlertsViewModel
+        owner.set(segments, a)
+        a.onAlertChange(c.get(), true)
+        val disclosure = org.robolectric.shadows.ShadowDialog.getLatestDialog()
+        val bTrip = com.google.gson.Gson().fromJson(com.google.gson.Gson().toJson(trip), Trip::class.java).apply { tripId = 43; saveURL = "https://example.invalid/trip-b"; subscribeURL = null }
+        val b = setup.invoke(segments, TripGroup(), bTrip) as TripSegmentGetOffAlertsViewModel
+        owner.set(segments, b)
+        assertThat(b.items.single { it.title == title }.isEnabled).isFalse()
+        shadowOf(c.get().application).grantPermissions(android.Manifest.permission.ACCESS_BACKGROUND_LOCATION)
+        positive(disclosure)
+        assertThat(alarms.scheduledAlarms).isEmpty()
+        verify(exactly = 0) { updater.tripSubscription(any()) }
+        val restoredA = setup.invoke(segments, TripGroup(), trip) as TripSegmentGetOffAlertsViewModel
+        assertThat(restoredA.items.single { it.title == title }.isEnabled).isTrue()
+        assertThat(restoredA.getOffAlertStateOn.value).isFalse()
+        restoredA.disposeAlerts(); vm.disposeAlerts(); c.pause().stop().destroy()
+    }
+
+    @Test fun `dragging monitoring switch off cancels real alarm and cache`() {
+        val c = activity()
+        enable()
+        val binding = com.skedgo.tripkit.ui.databinding.TripSegmentGetOffAlertBinding.inflate(android.view.LayoutInflater.from(c.get()))
+        binding.viewModel = vm
+        binding.lifecycleOwner = c.get()
+        c.get().setContentView(binding.root)
+        binding.executePendingBindings()
+        binding.root.measure(android.view.View.MeasureSpec.makeMeasureSpec(1000, android.view.View.MeasureSpec.EXACTLY),
+            android.view.View.MeasureSpec.makeMeasureSpec(2000, android.view.View.MeasureSpec.EXACTLY))
+        binding.root.layout(0, 0, 1000, 2000)
+        val switch = binding.sAlertState
+        switch.draw(android.graphics.Canvas(android.graphics.Bitmap.createBitmap(300,200,android.graphics.Bitmap.Config.ARGB_8888)))
+        assertThat(switch.isChecked).isTrue()
+        val bounds = switch.thumbDrawable.bounds
+        val x = bounds.exactCenterX(); val y = bounds.exactCenterY()
+        val start = android.os.SystemClock.uptimeMillis()
+        listOf(Triple(0L, android.view.MotionEvent.ACTION_DOWN, x),
+            Triple(50L, android.view.MotionEvent.ACTION_MOVE, x - 100),
+            Triple(100L, android.view.MotionEvent.ACTION_MOVE, x - 200),
+            Triple(150L, android.view.MotionEvent.ACTION_UP, x - 250)).forEach { (dt, action, px) ->
+            val e = android.view.MotionEvent.obtain(start,start+dt,action,px,y,0)
+            switch.dispatchTouchEvent(e); e.recycle()
+        }
+        assertThat(switch.isChecked).isFalse()
+        assertThat(vm.getOffAlertStateOn.value).isFalse()
+        assertThat(GetOffAlertCache.isTripAlertStateOn(trip.getTripUuid())).isFalse()
+        assertThat(alarms.scheduledAlarms).isEmpty()
+        vm.disposeAlerts(); c.pause().stop().destroy()
+    }
+
+    @Test fun `rendering master switch state never replays activation but explicit tap does`() {
+        val c = activity()
+        val actions = mutableListOf<Boolean>()
+        vm.alertStateToggleCustomValidation = { _, checked -> actions.add(checked) }
+        val binding = com.skedgo.tripkit.ui.databinding.TripSegmentGetOffAlertBinding.inflate(android.view.LayoutInflater.from(c.get()))
+        binding.lifecycleOwner = c.get(); binding.viewModel = vm
+        binding.executePendingBindings()
+        vm.setGetOffAlertStateOn(true)
+        binding.executePendingBindings()
+        assertThat(binding.sAlertState.isChecked).isTrue()
+        assertThat(actions).isEmpty()
+        binding.sAlertState.performClick()
+        assertThat(actions).containsExactly(false)
+        vm.disposeAlerts(); c.pause().stop().destroy()
+    }
+
+    @Test fun `absent URL never registers stale boarding fence but preserves local arrival`() {
+        val board = Geofence("board", "circle", "ENTER", Coordinate(-35.28,149.13),100.0,"VEHICLE_IS_APPROACHING","Board","Board")
+        val arrival = Geofence("arrival", "circle", "ENTER", Coordinate(-35.28,149.13),100.0,"TRIP_END","Arrive","Arrive")
+        trip.segmentList.first().geofences = listOf(board, arrival)
+        enable()
+        verify { GeoLocation.createGeoFences(trip, match { it == listOf(arrival) }, any()) }
+        verify(exactly = 0) { updater.tripSubscription(any()) }
+    }
+    @Test fun `present URL preserves boarding fence after successful subscription`() {
+        val board = Geofence("board", "circle", "ENTER", Coordinate(-35.28,149.13),100.0,"VEHICLE_IS_APPROACHING","Board","Board")
+        trip.segmentList.first().geofences = listOf(board)
+        remote(); every { updater.tripSubscription(any()) } returns Observable.just(Any())
+        enable()
+        verify { GeoLocation.createGeoFences(trip, match { it == listOf(board) }, any()) }
+    }
+    @Test fun `stale boarding only fence without URL does not require background location`() {
+        val c = activity()
+        trip.segmentList.first().geofences = listOf(Geofence("board", "circle", "ENTER", Coordinate(-35.28,149.13),100.0,"VEHICLE_IS_APPROACHING","Board","Board"))
+        vm.onAlertChange(c.get(), true); positive()
+        assertThat(vm.getOffAlertStateOn.value).isTrue()
+        assertThat(alarms.scheduledAlarms).hasSize(1)
+        verify(exactly = 0) { GeoLocation.createGeoFences(any(), match { it.isNotEmpty() }, any()) }
+        vm.onAlertChange(c.get(), false); vm.disposeAlerts(); c.pause().stop().destroy()
     }
 
 }
