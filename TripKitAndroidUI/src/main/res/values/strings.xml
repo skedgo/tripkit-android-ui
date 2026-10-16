@@ -899,4 +899,5 @@ We aggregate the anonymised data and provide it to researchers, regulators, and 
     <string name="get_off_notificaitons_content">%s accesses your location in the background to enable notifications that alert you that you\'re about the approach your disembarkation stop. This is opt-in on a per trip basis.</string>
     <string name="my_tickets">My Tickets</string>
     <string name="remember_me">Remember Me</string>
+    <string name="trip_alert_background_location_explanation">To receive location-based trip alerts while the app is closed, allow location access all the time. In Android Settings, go to Permissions, then Location, and choose Allow all the time. You can cancel and continue using the app without enabling these alerts.</string>
 </resources>
