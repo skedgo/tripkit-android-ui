@@ -5,6 +5,8 @@ import android.content.DialogInterface
 import android.os.Bundle
 import android.view.View
 import android.view.ViewTreeObserver
+import android.view.Gravity
+import android.widget.FrameLayout
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
@@ -19,6 +21,7 @@ import com.skedgo.tripkit.ui.databinding.FragmentTripPreviewParentBinding
 import com.skedgo.tripkit.ui.utils.ITEM_QUICK_BOOKING
 import com.skedgo.tripkit.ui.utils.ITEM_SERVICE
 import com.skedgo.tripkit.ui.utils.observe
+import com.skedgo.tripkit.ui.utils.applyEdgeToEdgeSafeAreaPadding
 import javax.inject.Inject
 
 /**
@@ -119,6 +122,7 @@ open class TripPreviewParentFragment : BaseDialog<FragmentTripPreviewParentBindi
     private fun initViews() {
         binding.layoutBack.setOnClickListener { onBackPressed() }
         binding.tvSecondaryAction.setOnClickListener { onSecondaryActionClick(segment) }
+        binding.toolbar.applyEdgeToEdgeSafeAreaPadding(applyLeft = true, applyTop = true, applyRight = true)
         updateToolbarTitlePadding()
         val listener = ViewTreeObserver.OnGlobalLayoutListener { updateToolbarTitlePadding() }
         toolbarLayoutListener = listener
@@ -129,28 +133,35 @@ open class TripPreviewParentFragment : BaseDialog<FragmentTripPreviewParentBindi
     }
 
     /**
-     * Inset title with padding so it stays in the middle zone (between back and secondary).
-     * Title wraps within that area instead of overflowing. When secondary is hidden,
-     * equal left/right padding keeps the title centered in the full toolbar.
+     * Keep the centered title between actions when words fit. At larger fonts, give it
+     * a separate wrapping row instead of splitting words into the tiny middle zone.
      */
     private fun updateToolbarTitlePadding() {
         if (view == null) return
-        val toolbar = binding.toolbar
         val title = binding.toolbarTitle
         val back = binding.layoutBack
         val secondary = binding.tvSecondaryAction
-        if (toolbar.width == 0) return
+        val width = (title.parent as View).width
+        if (width == 0) return
         val backWidth = if (back.visibility == View.VISIBLE) back.width else 0
         val secondaryVisible = secondary.visibility == View.VISIBLE
         val endPadding = if (secondaryVisible) secondary.width else backWidth
-        val top = title.paddingTop
-        val bottom = title.paddingBottom
-        title.setPadding(
-            backWidth.coerceAtLeast(0),
-            top,
-            endPadding.coerceAtLeast(0),
-            bottom
-        )
+        val longestWord = title.text.toString().split(Regex("\\s+"))
+            .maxOfOrNull { title.paint.measureText(it) } ?: 0f
+        val belowActions = longestWord > width - backWidth - endPadding
+        val start = if (belowActions) 0 else backWidth.coerceAtLeast(0)
+        val end = if (belowActions) 0 else endPadding.coerceAtLeast(0)
+        if (title.paddingLeft != start || title.paddingRight != end) {
+            title.setPadding(start, title.paddingTop, end, title.paddingBottom)
+        }
+        val params = title.layoutParams as FrameLayout.LayoutParams
+        val margin = if (belowActions) binding.toolbarActions.height else 0
+        val gravity = if (belowActions) Gravity.TOP else Gravity.CENTER_VERTICAL
+        if (params.topMargin != margin || params.gravity != gravity) {
+            params.topMargin = margin
+            params.gravity = gravity
+            title.layoutParams = params
+        }
     }
 
     private fun handleItemType(type: Int) {

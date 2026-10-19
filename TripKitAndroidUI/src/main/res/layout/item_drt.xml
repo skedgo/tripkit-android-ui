@@ -38,7 +38,7 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:tint="@color/colorPrimary"
+                app:readableAppActionTint="@{@color/colorPrimary}"
                 tools:src="@drawable/ic_car" />
 
             <TextView
@@ -49,7 +49,7 @@
                 android:layout_marginStart="@dimen/spacing_normal"
                 android:layout_marginTop="@dimen/shadow_height"
                 android:text="@{viewModel.label}"
-                android:textColor="@color/black1"
+                android:textColor="@color/labelSecondary"
                 android:textSize="@dimen/font_size_small"
                 app:layout_constraintStart_toEndOf="@+id/itemDrt_ivIcon"
                 app:layout_constraintTop_toTopOf="parent"
@@ -67,7 +67,7 @@
                 android:paddingHorizontal="@dimen/spacing_small"
                 android:text="@string/lbl_required"
                 android:textAlignment="center"
-                android:textColor="@android:color/white"
+                app:readableBadgeTextColor="@{@color/tripKitError}"
                 android:textSize="@dimen/font_size_small"
                 android:visibility="@{viewModel.required &amp;&amp; !viewModel.viewMode}"
                 app:layout_constraintBottom_toBottomOf="@+id/itemDrt_tvLabel"

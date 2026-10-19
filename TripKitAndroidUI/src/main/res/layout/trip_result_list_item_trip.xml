@@ -48,7 +48,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="@{viewModel.subtitle}"
-            android:textColor="@color/black1"
+            android:textColor="@color/labelSecondary"
             android:maxLines="3"
             android:ellipsize="end"
             android:breakStrategy="balanced"

@@ -24,7 +24,7 @@
             android:gravity="center"
             android:text="@{item.label}"
             android:textAlignment="center"
-            android:textColor="@{ContextCompat.getColor(context, item.textColor)}"
+            app:readableActionTextColor="@{ContextCompat.getColor(context, item.textColor)}"
             android:textStyle="bold"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintTop_toTopOf="parent"

@@ -29,6 +29,8 @@
 
             <TextView
                 android:id="@+id/genericList_tv_title"
+                app:headerStartAction="@{genericListBClose}"
+                app:headerEndAction="@{genericListBDone}"
                 style="@style/TextAppearance.MaterialComponents.Headline6"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

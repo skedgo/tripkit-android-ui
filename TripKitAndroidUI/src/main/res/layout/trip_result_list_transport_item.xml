@@ -8,7 +8,7 @@
         android:layout_marginBottom="8dp"
         android:layout_marginEnd="16dp"
         android:background="@drawable/trip_result_transport_mode_selector_background"
-        android:checked="@{viewModel.checked}"
+        app:readableTransportChecked="@{viewModel.checked}"
         android:onClick="@{viewModel::onItemClick}"
         android:padding="4dp"
         app:modeIconId="@{viewModel.modeIconId}"
