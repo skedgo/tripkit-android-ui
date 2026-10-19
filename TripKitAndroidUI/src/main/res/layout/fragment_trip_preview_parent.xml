@@ -37,8 +37,6 @@
                     android:textColor="@android:color/white"
                     android:textSize="@dimen/font_size_medium"
                     android:text="@{viewModel.toolbarState.title}"
-                    android:maxLines="3"
-                    android:ellipsize="end"
                     android:gravity="center"
                     android:breakStrategy="balanced"
                     android:clickable="false"
@@ -47,6 +45,7 @@
 
                 <!-- Row on top so back/secondary stay clickable -->
                 <LinearLayout
+                    android:id="@+id/toolbarActions"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
