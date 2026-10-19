@@ -6,8 +6,11 @@ import com.skedgo.tripkit.ui.servicedetail.GetStopTimeDisplayText
 import com.skedgo.tripkit.ui.servicedetail.ServiceDetailItemViewModel
 import dagger.Module
 import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
 
 @Module
+@InstallIn(SingletonComponent::class)
 class ServiceDetailItemViewModelModule {
     @Provides
     internal fun provideServiceDetailItemViewModel(

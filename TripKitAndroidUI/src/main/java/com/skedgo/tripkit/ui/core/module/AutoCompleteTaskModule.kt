@@ -12,11 +12,14 @@ import com.skedgo.tripkit.ui.search.FetchGoogleLocations
 import com.skedgo.tripkit.ui.search.FetchLocalLocations
 import dagger.Binds
 import dagger.Module
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
 
 /**
  * Defines components for the search list
  */
 @Module
+@InstallIn(SingletonComponent::class)
 abstract class AutoCompleteTaskModule {
     @Binds
     abstract fun filterSupportedLocations(

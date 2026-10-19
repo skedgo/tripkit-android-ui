@@ -10,11 +10,14 @@ import com.skedgo.tripkit.ui.data.location.RxFusedLocationProviderClient
 import com.skedgo.tripkit.ui.data.location.UserGeoPointRepositoryImpl
 import dagger.Module
 import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
 import io.reactivex.Observable
 import java.util.concurrent.TimeUnit
 import javax.inject.Provider
 
 @Module
+@InstallIn(SingletonComponent::class)
 class LocationStuffModule {
     @Provides
     fun rxFusedLocationProviderClient(context: Context): RxFusedLocationProviderClient =
