@@ -130,7 +130,10 @@
             <LinearLayout
                 android:id="@+id/leaveNowLayout"
                 style="@style/Widget.TripKit.TripResultAction"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
+                app:layout_constrainedWidth="true"
+                app:layout_constraintHorizontal_chainStyle="packed"
+                app:layout_constraintHorizontal_bias="0"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="@dimen/spacing_small"
                 app:layout_constraintStart_toStartOf="parent"
@@ -156,6 +159,7 @@
                 android:layout_height="0dp"
                 android:onClick="@{viewModel::transportLayoutClicked}"
                 android:visibility="@{viewModel.showTransportModeSelection}"
+                app:layout_constraintStart_toEndOf="@id/leaveNowLayout"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="@id/leaveNowLayout"
                 app:layout_constraintBottom_toBottomOf="@id/leaveNowLayout">

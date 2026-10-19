@@ -73,4 +73,27 @@ class Ticket26294FollowupStyleTest {
             assertEquals(0,text.layout.getEllipsisCount(text.layout.lineCount-1))
         }
     }
+    @Test fun `short departure actions keep intrinsic width and stay adjacent`() {
+        for(night in listOf(false,true)) {
+            val b=binding(night)
+            val date=b.leaveNowLayout
+            val transport=b.transportsLayout
+            val label=date.getChildAt(0) as TextView
+            val icon=date.getChildAt(1) as ImageView
+            val header=b.leaveNowAndTransportsHeader
+            val width=(400*header.resources.displayMetrics.density).toInt()
+            for(text in listOf("Leave now","Leave Oct 22, 9:45")) {
+                label.text=text
+                header.measure(View.MeasureSpec.makeMeasureSpec(width,View.MeasureSpec.EXACTLY),View.MeasureSpec.makeMeasureSpec(0,View.MeasureSpec.UNSPECIFIED))
+                header.layout(0,0,width,header.measuredHeight)
+                val intrinsic=kotlin.math.ceil(android.text.Layout.getDesiredWidth(text,label.paint).toDouble()).toInt()+
+                    label.compoundPaddingLeft+label.compoundPaddingRight+icon.measuredWidth+date.paddingLeft+date.paddingRight
+                assertTrue("Leave must not consume unused row width: actual=${date.width}, intrinsic=$intrinsic",date.width<=intrinsic+1)
+                val gap=(date.layoutParams as android.view.ViewGroup.MarginLayoutParams).marginEnd
+                assertEquals("Transport stays adjacent",date.right+gap,transport.left)
+                assertTrue("Unused horizontal space remains unused",transport.right<width)
+            }
+        }
+    }
+
 }
