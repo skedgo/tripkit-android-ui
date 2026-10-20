@@ -52,6 +52,37 @@ private fun readableForeground(view: View, fallback: Int): Int {
     return foreground
 }
 
+/** Scoped return-picker switch colors; keeps enabled thumbs opaque on the containing card. */
+@BindingAdapter("oneWaySwitchTint")
+fun bindOneWaySwitchTint(view: androidx.appcompat.widget.SwitchCompat, fallback: Int) {
+    fun update() {
+        val surface = surfaceColor(view.parent as? View)
+            ?: ContextCompat.getColor(view.context, R.color.white)
+        val checked = readableForeground(view, fallback)
+        val unchecked = ContextCompat.getColor(view.context, R.color.labelSecondary)
+        val states = arrayOf(
+            intArrayOf(-android.R.attr.state_enabled, android.R.attr.state_checked),
+            intArrayOf(-android.R.attr.state_enabled),
+            intArrayOf(android.R.attr.state_checked),
+            intArrayOf(),
+        )
+        val checkedTrack = ColorUtils.blendARGB(surface, checked, 0.15f)
+        val uncheckedTrack = ColorUtils.blendARGB(surface, unchecked, 0.15f)
+        view.thumbTintList = ColorStateList(states, intArrayOf(
+            ColorUtils.blendARGB(surface, checked, 0.38f),
+            ColorUtils.blendARGB(surface, unchecked, 0.38f),
+            checked, unchecked,
+        ))
+        view.trackTintList = ColorStateList(states, intArrayOf(
+            ColorUtils.blendARGB(surface, checkedTrack, 0.38f),
+            ColorUtils.blendARGB(surface, uncheckedTrack, 0.38f),
+            checkedTrack, uncheckedTrack,
+        ))
+    }
+    update()
+    view.doOnAttach { update() }
+}
+
 /** Keeps configured action branding in light mode and gives dark-surface labels readable contrast. */
 @BindingAdapter("readableAppTextTint")
 fun bindReadableAppTextTint(view: TextView, fallback: Int) {
