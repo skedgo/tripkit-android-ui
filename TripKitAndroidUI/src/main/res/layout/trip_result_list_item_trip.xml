@@ -24,28 +24,50 @@
         android:padding="16dp"
         android:paddingBottom="12dp">
 
-        <TextView
-            android:id="@+id/title"
-            style="@style/TextAppearance.MaterialComponents.Body1"
+        <com.google.android.flexbox.FlexboxLayout
+            android:id="@+id/timeTitleContainer"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:alpha="@{viewModel.isMissedPreBooking() ? 0.3f : 1f}"
-            android:maxLines="3"
-            android:ellipsize="end"
-            android:breakStrategy="balanced"
             android:layout_marginEnd="8dp"
-            android:text="@{viewModel.title}"
+            app:flexWrap="wrap"
+            app:alignItems="center"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/subtitle"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintHorizontal_bias="0"
-            app:layout_constraintHorizontal_chainStyle="spread_inside"
-            tools:text="10:11" />
+            app:layout_constraintHorizontal_chainStyle="spread_inside">
+
+            <TextView
+                android:id="@+id/title"
+                style="@style/TextAppearance.MaterialComponents.Body1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:alpha="@{viewModel.isMissedPreBooking() ? 0.3f : 1f}"
+                android:maxLines="3"
+                android:ellipsize="end"
+                android:breakStrategy="balanced"
+                android:text="@{viewModel.title}"
+                tools:text="Mon, 07:03 - 07:55" />
+
+            <TextView
+                android:id="@+id/departureDayLabel"
+                style="@style/TextAppearance.MaterialComponents.Caption"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:paddingHorizontal="6dp"
+                android:paddingVertical="2dp"
+                android:background="@drawable/trip_departure_day_background"
+                android:textColor="@color/labelSecondary"
+                android:text="@{viewModel.departureDayLabel}"
+                android:visibility="@{viewModel.departureDayLabel != null}"
+                tools:text="+2 days" />
+        </com.google.android.flexbox.FlexboxLayout>
 
         <TextView
             android:id="@+id/subtitle"
             style="@style/TextAppearance.MaterialComponents.Body2"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@{viewModel.subtitle}"
             android:textColor="@color/labelSecondary"
@@ -55,7 +77,7 @@
             android:gravity="end"
             android:visibility="@{!viewModel.isHideExactTimes}"
             android:paddingBottom="@dimen/spacing_extra_small"
-            app:layout_constraintStart_toEndOf="@+id/title"
+            app:layout_constraintStart_toEndOf="@+id/timeTitleContainer"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintHorizontal_bias="1"
@@ -67,7 +89,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:barrierDirection="bottom"
-            app:constraint_referenced_ids="title,subtitle" />
+            app:constraint_referenced_ids="timeTitleContainer,subtitle" />
 
         <com.google.android.flexbox.FlexboxLayout
             android:id="@+id/segmentsLayout"
