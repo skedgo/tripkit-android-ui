@@ -118,7 +118,7 @@
                             app:layout_constraintTop_toTopOf="parent"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintEnd_toEndOf="parent"
-                            app:appSwitchTint="@{null}" />
+                            app:oneWaySwitchTint="@{@color/colorPrimary}" />
 
                     </androidx.constraintlayout.widget.ConstraintLayout>
 
