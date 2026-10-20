@@ -99,8 +99,15 @@ class RemoteMarkerIconFetcher @Inject constructor(
                     markerOptions
                 }
                 .onErrorResumeNext {
-                    // Fallback to local resource-based marker icon
-                    getMapIconFromResource(markerOptions, stop.type, densityDpiName)
+                    // Fallback to local resource-based marker icon, drawn in the current
+                    // circular style so it stays visually consistent (#25936).
+                    getMapIconFromResource(
+                        markerOptions,
+                        stop.type,
+                        densityDpiName,
+                        tintColor,
+                        circleColor
+                    )
                 }
         }.subscribeOn(AndroidSchedulers.mainThread())
     }
@@ -117,6 +124,24 @@ class RemoteMarkerIconFetcher @Inject constructor(
         iconUrl: String?,
         tintColor: Int,
         circleColor: Int
+    ): Single<BitmapDescriptor> = loadCircularDescriptor(
+        cacheKey = cacheKey,
+        tintColor = tintColor,
+        circleColor = circleColor,
+        picassoRequest = { picasso.load(iconUrl) }
+    )
+
+    /**
+     * Builds the current-style circular marker descriptor from whatever Picasso request
+     * [picassoRequest] supplies - a remote icon URL, or a bundled drawable when the remote icon is
+     * unavailable. Both go through [createCircularMarkerBitmap] so a fallback marker keeps the
+     * same size, border and service colour as every other marker (#25936).
+     */
+    private fun loadCircularDescriptor(
+        cacheKey: MarkerIconDescriptorCacheKey,
+        tintColor: Int,
+        circleColor: Int,
+        picassoRequest: () -> com.squareup.picasso.RequestCreator
     ): Single<BitmapDescriptor> {
         synchronized(inFlightLock) {
             getCachedDescriptor(cacheKey)?.let { return Single.just(it) }
@@ -165,8 +190,7 @@ class RemoteMarkerIconFetcher @Inject constructor(
                 synchronized(inFlightLock) {
                     inFlightTargets[cacheKey] = target
                 }
-                picasso.load(iconUrl)
-                    .into(target)
+                picassoRequest().into(target)
             }
                 .doFinally {
                     synchronized(inFlightLock) {
@@ -182,13 +206,56 @@ class RemoteMarkerIconFetcher @Inject constructor(
         }
     }
 
+    /**
+     * Fallback used when the remote mode icon cannot be loaded.
+     *
+     * The bundled drawable is rendered through the same circular-marker pipeline as the remote
+     * icon, so a stop whose icon failed to load still looks like every other marker - same
+     * size, same white border, same service colour - instead of reverting to the obsolete flat
+     * pin (#25936). Only if even the bundled glyph cannot be drawn do we fall back further.
+     */
     private fun getMapIconFromResource(
         markerOptions: MarkerOptions,
         type: StopType?,
+        densityDpiName: String,
+        tintColor: Int,
+        circleColor: Int
+    ): Single<MarkerOptions> {
+        val iconRes = BindingConversions.convertStopTypeToMapIconRes(type)
+        if (iconRes != 0) {
+            val circularKey = MarkerIconDescriptorCacheKey(
+                source = CACHE_SOURCE_RESOURCE,
+                sourceId = "circular:$iconRes",
+                densityDpiName = densityDpiName,
+                circleRadius = SIZE_CIRCULAR_BITMAP,
+                tintColor = tintColor,
+                circleColor = circleColor
+            )
+            getCachedDescriptor(circularKey)?.let { cachedIcon ->
+                markerOptions.icon(cachedIcon)
+                return Single.just(markerOptions)
+            }
+            return loadCircularDescriptor(
+                cacheKey = circularKey,
+                tintColor = tintColor,
+                circleColor = circleColor,
+                picassoRequest = { picasso.load(iconRes) }
+            )
+                .map { icon ->
+                    markerOptions.icon(icon)
+                    markerOptions
+                }
+                .onErrorResumeNext { rawResourceIcon(markerOptions, iconRes, densityDpiName) }
+        }
+        return rawResourceIcon(markerOptions, iconRes, densityDpiName)
+    }
+
+    private fun rawResourceIcon(
+        markerOptions: MarkerOptions,
+        iconRes: Int,
         densityDpiName: String
     ): Single<MarkerOptions> {
         return Single.fromCallable {
-            val iconRes = BindingConversions.convertStopTypeToMapIconRes(type)
             val cacheKey = MarkerIconDescriptorCacheKey(
                 source = if (iconRes == 0) CACHE_SOURCE_DEFAULT else CACHE_SOURCE_RESOURCE,
                 sourceId = iconRes.toString(),

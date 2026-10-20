@@ -18,6 +18,7 @@ import com.skedgo.tripkit.data.database.locations.facility.FacilityRepositoryImp
 import com.skedgo.tripkit.data.database.locations.freefloating.FreeFloatingRepository
 import com.skedgo.tripkit.data.database.locations.freefloating.FreeFloatingRepositoryImpl
 import com.skedgo.tripkit.data.locations.LocationsApi
+import com.skedgo.tripkit.data.locations.LocationsFetchCoordinator
 import com.skedgo.tripkit.data.locations.StopsFetcher
 import com.skedgo.tripkit.logging.ErrorLogger
 import com.skedgo.tripkit.ui.controller.ViewControllerEventBus
@@ -111,6 +112,21 @@ class TripKitUIModule {
 
     @Provides
     internal fun gson(): Gson = Gsons.createForLowercaseEnum()
+
+    /**
+     * Process-wide coordinator for the Nearby trip-preview radius query (#25936).
+     *
+     * Must be `@Singleton`: [com.skedgo.tripkit.ui.core.module.TripPreviewComponent] is rebuilt
+     * on every fragment `onAttach`, so anything scoped there would hand each preview page its
+     * own in-flight map and de-duplicate nothing. Only the in-flight guard is used here — see
+     * [com.skedgo.tripkit.ui.trippreview.nearby.SharedNearbyTripPreviewItemViewModel] for why
+     * TTL suppression is deliberately not applied to this endpoint.
+     */
+    @Provides
+    @Singleton
+    @NearbyLocationsFetch
+    internal fun nearbyLocationsFetchCoordinator(): LocationsFetchCoordinator =
+        LocationsFetchCoordinator()
 
     @Provides
     @Singleton
