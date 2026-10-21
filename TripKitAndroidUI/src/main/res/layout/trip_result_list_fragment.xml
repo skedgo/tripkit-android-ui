@@ -72,7 +72,7 @@
                 android:text="@string/from_with_colon"
                 android:paddingTop="@dimen/spacing_extra_small"
                 android:paddingBottom="@dimen/spacing_extra_small"
-                android:textColor="@color/colorPrimary"
+                android:textColor="@color/labelSecondary"
                 app:layout_constraintStart_toStartOf="@id/toLocation"
                 app:layout_constraintTop_toBottomOf="@+id/toLocation" />
 
@@ -94,7 +94,7 @@
                 app:layout_constraintStart_toEndOf="@+id/fromLabel"
                 app:layout_constraintTop_toTopOf="@+id/fromLabel"
                 tools:text="Current Location"
-                app:appTextTint="@{@color/colorPrimary}"/>
+                app:readableAppTextTint="@{@color/colorPrimary}"/>
             <!--            android:contentDescription="@{viewModel.fromContentDescription}"-->
 
             <ImageView
@@ -107,7 +107,7 @@
                 app:layout_constraintStart_toEndOf="@+id/from"
                 app:layout_constraintTop_toTopOf="@+id/from"
                 app:srcCompat="@drawable/chevron_right"
-                app:tint="@color/colorPrimary" />
+                app:readableAppActionTint="@{@color/colorPrimary}" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <!-- Leave Now & Transports header -->
@@ -143,27 +143,25 @@
                         android:id="@+id/leaveNowLayout"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:background="@drawable/bg_round_rect_primary_alpha"
-                        android:orientation="horizontal"
-                        android:paddingHorizontal="@dimen/spacing_small"
-                        android:paddingVertical="@dimen/spacing_small"
-                        app:appLayoutTint="@{@color/colorPrimary}">
+                        style="@style/Widget.TripKit.TripResultAction">
 
                         <TextView
                             style="@style/TextAppearance.MaterialComponents.Body2"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_gravity="center_vertical"
+                            android:duplicateParentState="true"
                             android:text="@{viewModel.timeLabel}"
-                            app:appTextTint="@{@color/colorPrimary}"
+                            app:readableAppActionTint="@{@color/colorPrimary}"
                             tools:text="Leave now"/>
 
                         <ImageView
                             android:layout_width="@dimen/icon_small"
                             android:layout_height="@dimen/icon_small"
                             android:layout_gravity="center_vertical"
+                            android:duplicateParentState="true"
                             app:srcCompat="@drawable/chevron_down"
-                            app:appTint="@{@color/colorPrimary}"/>
+                            app:readableAppActionTint="@{@color/colorPrimary}"/>
                     </LinearLayout>
 
                     <LinearLayout
@@ -171,11 +169,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="@dimen/spacing_small"
-                        android:background="@drawable/bg_round_rect_transparent_black_border"
                         android:onClick="@{viewModel::transportLayoutClicked}"
-                        android:orientation="horizontal"
-                        android:paddingHorizontal="@dimen/spacing_small"
-                        android:paddingVertical="@dimen/spacing_small"
+                        style="@style/Widget.TripKit.TripResultAction"
                         android:visibility="@{viewModel.showTransportModeSelection}">
 
                         <TextView
@@ -183,17 +178,18 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_gravity="center_vertical"
+                            android:duplicateParentState="true"
                             android:text="@string/transport"
-                            app:appTextTint="@{@color/colorPrimary}"
+                            app:readableAppActionTint="@{@color/colorPrimary}"
                             tools:text="Transports" />
 
                         <ImageView
                             android:layout_width="@dimen/icon_small"
                             android:layout_height="@dimen/icon_small"
                             android:layout_gravity="center_vertical"
+                            android:duplicateParentState="true"
                             android:src="@{viewModel.showTransport ? @drawable/chevron_up : @drawable/chevron_down}"
-                            app:tint="@color/colorPrimary"
-                            app:appTint="@{@color/colorPrimary}"
+                            app:readableAppActionTint="@{@color/colorPrimary}"
                             tools:src="@drawable/chevron_down" />
                     </LinearLayout>
 
@@ -260,8 +256,6 @@
                 android:layout_height="wrap_content"
                 android:paddingStart="@dimen/spacing_small"
                 android:paddingEnd="@dimen/spacing_small"
-                android:maxLines="2"
-                android:ellipsize="end"
                 app:layout_constrainedWidth="true"
                 app:layout_constraintEnd_toStartOf="@+id/tvLearnMore"
                 app:layout_constraintStart_toEndOf="@+id/ivHelpIcon"
@@ -282,7 +276,7 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
                 tools:textColor="@color/colorAccent"
-                app:appTextTint="@{@color/colorAccent}"/>
+                app:readableAppTextTint="@{@color/colorAccent}"/>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

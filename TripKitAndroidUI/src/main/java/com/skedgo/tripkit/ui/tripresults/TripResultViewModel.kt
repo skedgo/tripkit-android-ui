@@ -12,6 +12,7 @@ import com.skedgo.TripKit
 import com.skedgo.tripkit.common.util.TimeUtils
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.core.RxViewModel
+import org.joda.time.Days
 import org.joda.time.DateTime
 import com.skedgo.tripkit.datetime.PrintTime
 import com.skedgo.tripkit.routing.*
@@ -30,6 +31,8 @@ class TripResultTripViewModel : ViewModel() {
         }
     val title = MutableLiveData<String>()
     val subtitle = MutableLiveData<String>()
+    /** Calendar-day offset from the departure query; absent for same-day and arrival-by results. */
+    val departureDayLabel = MutableLiveData<String?>(null)
     val isMissedPreBooking = MutableLiveData<Boolean>()
     val isHideExactTimes = MutableLiveData<Boolean>()
     val contentDescription = MutableLiveData<String>()
@@ -163,6 +166,11 @@ class TripResultViewModel @Inject constructor(
             if (value.bookingHashCode != other.trip.segmentList[index].bookingHashCode) return false
         }
 
+        if (tripResults.value.orEmpty().map { it.title.value to it.departureDayLabel.value } !=
+            other.tripResults.value.orEmpty().map { it.title.value to it.departureDayLabel.value }) {
+            return false
+        }
+
         if (moreButtonText.value != other.moreButtonText.value) {
             return false
         }
@@ -243,6 +251,7 @@ class TripResultViewModel @Inject constructor(
         newVm.clickFlow = clickFlow
         newVm.quickBookingActionClickFlow = quickBookingActionClickFlow
         newVm.title.value = buildTitle(context, trip)
+        newVm.departureDayLabel.value = departureDayLabel(trip)
         newVm.weightedScore.value = trip.weightedScore.toString()
         newVm.subtitle.value = buildSubtitle(context, trip)
         newVm.contentDescription.value = buildContentDescription(trip)
@@ -284,6 +293,7 @@ class TripResultViewModel @Inject constructor(
                 contentDescBuilder.append(buildSubtitle(context, trip))
             }
         }
+        departureDayLabel(trip)?.let { contentDescBuilder.append(" ").append(it) }
         return contentDescBuilder.toString()
     }
 
@@ -346,11 +356,32 @@ class TripResultViewModel @Inject constructor(
 
 
     private fun buildTitle(context: Context, _trip: Trip): String {
-        return if (_trip.isDepartureTimeFixed()) {
+        val title = if (_trip.isDepartureTimeFixed()) {
             showTimeRange(_trip.startDateTime, _trip.endDateTime)
         } else {
             formatDuration(context, _trip.startTimeInSecs, _trip.endTimeInSecs)
         }
+        return if (laterDepartureDays(_trip) > 0) {
+            val weekday = _trip.startDateTime.dayOfWeek().getAsShortText(resources.configuration.locales[0])
+            "$weekday, $title"
+        } else {
+            title
+        }
+    }
+
+    private fun laterDepartureDays(trip: Trip): Int {
+        // Arrival-by has no requested departure date. Missing origin zones must not
+        // silently use the device timezone for the new calendar-day comparison.
+        if (!trip.queryIsLeaveAfter || trip.queryTime <= 0 ||
+            trip.from?.timeZone == null) return 0
+        return Days.daysBetween(
+            trip.queryDateTime.toLocalDate(), trip.startDateTime.toLocalDate()
+        ).days.coerceAtLeast(0)
+    }
+
+    private fun departureDayLabel(trip: Trip): String? {
+        val days = laterDepartureDays(trip)
+        return if (days > 0) resources.getQuantityString(R.plurals.trip_departure_days_later, days, days) else null
     }
 
     /**

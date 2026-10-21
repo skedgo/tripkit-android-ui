@@ -4,6 +4,7 @@ import android.util.Pair
 import com.google.android.gms.maps.model.LatLngBounds
 import com.skedgo.tripkit.common.model.region.Region
 import com.skedgo.tripkit.location.GeoPoint
+import kotlin.math.floor
 
 object StopLoaderArgs {
     /**
@@ -85,10 +86,23 @@ object StopLoaderArgs {
         latSpan: Double,
         lonSpan: Double
     ): ArrayList<String> {
-        val minLat = ((lat - (latSpan / 2)) * CELLS_PER_DEGREE - 1).toInt()
-        val minLng = ((lon - (lonSpan / 2)) * CELLS_PER_DEGREE - 1).toInt()
-        val maxLat = ((lat + (latSpan / 2)) * CELLS_PER_DEGREE).toInt()
-        val maxLng = ((lon + (lonSpan / 2)) * CELLS_PER_DEGREE).toInt()
+        // A cell id is the floor of coordinate * CELLS_PER_DEGREE, so the cells covering a
+        // viewport are exactly floor(edge) for each of its four edges.
+        //
+        // This used to truncate with toInt() and subtract 1 from the two lower bounds. Kotlin's
+        // toInt() rounds toward zero, which is floor() only for positive values - south of the
+        // equator it rounds the wrong way and would drop the southernmost cell, and the "- 1"
+        // was compensating for that. But the compensation also applied where truncation was
+        // already correct, so every request carried one extra row and one extra column beyond
+        // the visible area. For a typical Sydney street-level viewport that meant 18 cells
+        // requested where 10 are visible, and locations.json cost grows steeply with cell
+        // count: measured 10 cells = ~11s / 308KB versus 18 cells = ~16.5s / 765KB (#25936).
+        //
+        // floor() is correct in both hemispheres and needs no compensation.
+        val minLat = floor((lat - (latSpan / 2)) * CELLS_PER_DEGREE).toInt()
+        val minLng = floor((lon - (lonSpan / 2)) * CELLS_PER_DEGREE).toInt()
+        val maxLat = floor((lat + (latSpan / 2)) * CELLS_PER_DEGREE).toInt()
+        val maxLng = floor((lon + (lonSpan / 2)) * CELLS_PER_DEGREE).toInt()
 
         val sharp = "#"
         val ids = ArrayList<String>()

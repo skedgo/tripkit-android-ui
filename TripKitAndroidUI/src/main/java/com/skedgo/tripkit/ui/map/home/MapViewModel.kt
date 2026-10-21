@@ -8,6 +8,7 @@ import com.google.android.gms.maps.CameraUpdate
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.MarkerOptions
+import com.jakewharton.rxrelay2.BehaviorRelay
 import com.jakewharton.rxrelay2.PublishRelay
 import com.skedgo.rxtry.Failure
 import com.skedgo.rxtry.Success
@@ -66,7 +67,20 @@ class MapViewModel @Inject internal constructor(
 
     var notIncludedTransportModes: List<TransportMode>? = null
 
-    private val viewportChanged = PublishRelay.create<ViewPort>()
+    /**
+     * Holds the latest viewport rather than only forwarding new ones.
+     *
+     * `loadMarkers()` re-subscribes whenever the show-markers/transport-mode path runs, and the
+     * camera does not necessarily move again afterwards. With a `PublishRelay` that new
+     * subscriber received nothing at all, so on a fresh install - where region data arrives
+     * seconds after the first camera events - the map could sit empty until the user happened
+     * to pan or zoom. Replaying the current viewport lets the data dependency drive the retry
+     * instead of a user gesture (#25936).
+     *
+     * Downstream `debounce`, `distinctViewPortUntilChanged` and the LocationsFetchCoordinator
+     * TTL all still apply, so the replay costs no extra network call.
+     */
+    private val viewportChanged = BehaviorRelay.create<ViewPort>()
     private var lastViewPort: ViewPort? = null
 
     private data class VisibleCellState(
@@ -259,9 +273,30 @@ class MapViewModel @Inject internal constructor(
         // area + an immediate margin is loaded. Cache TTL + in-flight de-dup in
         // LocationsFetchCoordinator prevent duplicate calls if the camera-change listener
         // emits a near-identical viewport at the same time.
-        val primed = bounds.withBuffer(1.5)
-        val primedViewport = ViewPort.CloseEnough(zoom, primed)
-        viewportChanged.accept(primedViewport)
+        // Nudge the visible pipeline with the ACTUAL visible bounds, so marker rendering still
+        // refreshes even when the programmatic camera move landed where the camera already was
+        // and produced no camera event. These bounds are what onCameraChange would report, so
+        // distinctViewPortUntilChanged collapses the pair instead of treating them as two
+        // different viewports.
+        viewportChanged.accept(ViewPort.CloseEnough(zoom, bounds))
+
+        // Fetch the wider buffered area OFF the visible stream. Previously this buffered
+        // viewport went through `viewportChanged` too, and because the 1.5x buffer makes its
+        // cell set deliberately different, distinctViewPortUntilChanged could not collapse it -
+        // so `switchMapDelayError` cancelled the visible viewport's in-flight locations.json
+        // request in favour of the prefetch. A cancelled request records no cells as fresh, so
+        // the next event restarted the same work (#25936).
+        //
+        // The same cells are still requested, through the same FetchStopsByViewport /
+        // StopsFetcher / LocationsFetchCoordinator path, so TTL suppression and in-flight
+        // sharing still apply and the results are still persisted per cell. Markers are read
+        // back from the DB for the currently visible cells, so a prefetch finishing later
+        // cannot put stale markers on screen.
+        val primedViewport = ViewPort.CloseEnough(zoom, bounds.withBuffer(1.5))
+        fetchStopsByViewport.fetch(primedViewport)
+            .subscribeOn(Schedulers.io())
+            .subscribe({}, { errorLogger.logError(it) })
+            .autoClear()
     }
 
     private fun summarizeBounds(bounds: LatLngBounds): String {

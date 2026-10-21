@@ -18,6 +18,7 @@ import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Card
 import androidx.compose.material.Icon
+import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -58,12 +59,19 @@ import com.skedgo.tripkit.ui.utils.resolveComposeColor
 fun TripResultLegRowCompose(
     viewModel: TripResultTripViewModel
 ) {
+    val title by viewModel.title.observeAsState("")
+    val subtitle by viewModel.subtitle.observeAsState("")
+    val departureDayLabel by viewModel.departureDayLabel.observeAsState()
+    val hideExactTimes by viewModel.isHideExactTimes.observeAsState(false)
+    val missedPreBooking by viewModel.isMissedPreBooking.observeAsState(false)
+    val hasQuickBooking by viewModel.hasQuickBooking.observeAsState(false)
     TripResultLegRowContent(
-        title = viewModel.title.value.orEmpty(),
-        subtitle = viewModel.subtitle.value.orEmpty(),
-        hideExactTimes = viewModel.isHideExactTimes.value == true,
-        alpha = if (viewModel.isMissedPreBooking.value == true) 0.3f else 1f,
-        hasQuickBooking = viewModel.hasQuickBooking.value == true,
+        title = title.orEmpty(),
+        subtitle = subtitle.orEmpty(),
+        departureDayLabel = departureDayLabel,
+        hideExactTimes = hideExactTimes,
+        alpha = if (missedPreBooking) 0.3f else 1f,
+        hasQuickBooking = hasQuickBooking,
         quickBookingTitle = viewModel.trip?.quickBookingSegment?.booking?.title.orEmpty(),
         onRowClick = { viewModel.onItemClicked() },
         onQuickBookingClick = { viewModel.onQuickBookingActionClicked() }
@@ -88,6 +96,7 @@ fun TripResultLegRowCompose(
     TripResultLegRowContent(
         title = title,
         subtitle = subtitle,
+        departureDayLabel = null,
         hideExactTimes = hideExactTimes,
         alpha = 1f,
         hasQuickBooking = hasQuickBooking,
@@ -117,6 +126,7 @@ fun TripResultLegRowCompose(
 private fun TripResultLegRowContent(
     title: String,
     subtitle: String,
+    departureDayLabel: String?,
     hideExactTimes: Boolean,
     alpha: Float,
     hasQuickBooking: Boolean,
@@ -134,7 +144,7 @@ private fun TripResultLegRowContent(
 
     Card(
         shape = RoundedCornerShape(dimensionResource(R.dimen.cardview_corner_radius_medium)),
-        backgroundColor = Color.White,
+        backgroundColor = colorResource(R.color.white),
         elevation = 0.dp,
         modifier = Modifier
             .fillMaxWidth()
@@ -147,14 +157,31 @@ private fun TripResultLegRowContent(
             verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_12))
         ) {
             Row(verticalAlignment = Alignment.Top) {
-                Text(
-                    text = title,
-                    style = TripResultStyles.BodyLarge,
-                    color = colorResource(R.color.labelPrimary),
-                    maxLines = 3,
-                    overflow = TextOverflow.Ellipsis,
+                FlowRow(
+                    horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_extra_small)),
                     modifier = Modifier.weight(1f)
-                )
+                ) {
+                    Text(
+                        text = title,
+                        style = TripResultStyles.BodyLarge,
+                        color = colorResource(R.color.labelPrimary),
+                        maxLines = 3,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    departureDayLabel?.let { label ->
+                        Surface(
+                            shape = RoundedCornerShape(6.dp),
+                            color = colorResource(R.color.cardBackground)
+                        ) {
+                            Text(
+                                text = label,
+                                style = TripResultStyles.BodySmall,
+                                color = colorResource(R.color.labelSecondary),
+                                modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                            )
+                        }
+                    }
+                }
                 if (!hideExactTimes) {
                     Text(
                         text = subtitle,

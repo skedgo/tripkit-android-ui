@@ -18,6 +18,7 @@ import com.jakewharton.rxrelay2.BehaviorRelay
 import com.jakewharton.rxrelay2.PublishRelay
 import com.skedgo.rxtry.subscribeWithErrorHandling
 import com.skedgo.tripkit.TripUpdater
+import com.skedgo.tripkit.hasValidSubscribeUrl
 import com.skedgo.tripkit.booking.BookingForm
 import com.skedgo.tripkit.booking.quickbooking.QuickBookingRepository
 import com.skedgo.tripkit.common.model.location.Location
@@ -496,6 +497,7 @@ class TripSegmentsViewModel @Inject internal constructor(
     }
 
     override fun onCleared() {
+        tripSegmentGetOffAlertsViewModel?.disposeAlerts()
         super.onCleared()
         if (segmentViewModels.isNotEmpty()) {
             for (i in segmentViewModels.indices) {
@@ -852,8 +854,16 @@ class TripSegmentsViewModel @Inject internal constructor(
         try {
             val isOn = GetOffAlertCache.isTripAlertStateOn(trip.getTripUuid())
 
-            val getOffAlertsViewModel =
-                TripSegmentGetOffAlertsViewModel(trip, isOn, tripUpdater, remindersRepository)
+            // Realtime updates rebuild the rows while disclosure/permissions may be open.
+            // Keep that activation owned by the same trip; cancel only when selecting another trip.
+            val previous = tripSegmentGetOffAlertsViewModel
+            val getOffAlertsViewModel = previous
+                ?.takeIf { it.trip.getTripUuid() == trip.getTripUuid() }
+                ?.also { it.trip = trip }
+                ?: run {
+                    previous?.disposeAlerts()
+                    TripSegmentGetOffAlertsViewModel(trip, isOn, tripUpdater, remindersRepository)
+                }
 
             getOffAlertsViewModel.alertStateToggleCustomValidation = { context, isOn ->
                 // Only validate when enabling alerts; disabling/reset should always proceed.
@@ -908,8 +918,7 @@ class TripSegmentsViewModel @Inject internal constructor(
                     ), TripSegmentGetOffAlertDetailViewModel(
                         ContextCompat.getDrawable(context, R.drawable.ic_navigation_near),
                         context.getString(R.string.get_off_alerts_vehicle_is_approaching_your_boarding_stop),
-                        messageTypes.any { it == MessageType.VEHICLE_IS_APPROACHING.name }
-                            || trip.subscribeURL.isNullOrBlank().not()
+                        hasValidSubscribeUrl(trip)
                     ),
                     TripSegmentGetOffAlertDetailViewModel(
                         ContextCompat.getDrawable(context, R.drawable.ic_navigation_near),

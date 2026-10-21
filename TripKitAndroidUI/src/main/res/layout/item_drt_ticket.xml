@@ -72,7 +72,7 @@
                 android:layout_marginEnd="@dimen/spacing_small"
                 android:focusable="false"
                 android:text="@{viewModel.description}"
-                android:textColor="@color/black1"
+                android:textColor="@color/labelPrimary"
                 android:visibility="visible"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"

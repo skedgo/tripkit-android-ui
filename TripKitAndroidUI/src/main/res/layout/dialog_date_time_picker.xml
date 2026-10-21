@@ -33,6 +33,7 @@
                 android:onClick="@{handlers::onClickLeaveAfter}"
                 android:text="@{viewModel.leaveAtLabel}"
                 tools:text="@string/leave_at"
+                app:readablePickerRadioText="@{@color/v4_btn_radio_on_flat}"
                 app:appCheckedTint="@{null}"/>
 
             <RadioButton
@@ -42,6 +43,7 @@
                 android:onClick="@{handlers::onClickArriveBy}"
                 android:text="@{viewModel.arriveByLabel}"
                 tools:text="@string/arrive_by"
+                app:readablePickerRadioText="@{@color/v4_btn_radio_on_flat}"
                 app:appCheckedTint="@{null}"/>
         </RadioGroup>
 

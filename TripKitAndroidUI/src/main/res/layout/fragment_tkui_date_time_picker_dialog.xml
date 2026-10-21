@@ -58,8 +58,11 @@
             </LinearLayout>
 
             <TextView
-                android:layout_width="wrap_content"
+                android:id="@+id/pickerTitle"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:gravity="center"
+                app:headerStartAction="@{layoutBack}"
                 android:textColor="@android:color/white"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -115,7 +118,7 @@
                             app:layout_constraintTop_toTopOf="parent"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintEnd_toEndOf="parent"
-                            app:appSwitchTint="@{null}" />
+                            app:oneWaySwitchTint="@{@color/colorPrimary}" />
 
                     </androidx.constraintlayout.widget.ConstraintLayout>
 
