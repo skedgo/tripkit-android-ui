@@ -34,7 +34,7 @@ import androidx.compose.ui.unit.dp
 import android.util.Log
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.snapshotFlow
-import androidx.core.graphics.drawable.toBitmap
+import com.skedgo.tripkit.ui.compose.tripDrawableBitmap
 import com.skedgo.tripkit.booking.LinkFormField
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.compose.TripKitComposeTextStyles
@@ -84,7 +84,7 @@ fun StandardTripPreviewScreen(
             ) {
                 viewModel.icon.get()?.let { drawable ->
                     Image(
-                        bitmap = drawable.toBitmap().asImageBitmap(),
+                        bitmap = drawable.tripDrawableBitmap().asImageBitmap(),
                         contentDescription = null,
                         modifier = Modifier
                             .size(24.dp)

@@ -36,7 +36,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import android.util.Log
 import androidx.core.content.ContextCompat
-import androidx.core.graphics.drawable.toBitmap
+import com.skedgo.tripkit.ui.compose.tripDrawableBitmap
 import com.skedgo.tripkit.common.model.realtimealert.RealtimeAlert
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.compose.TripKitComposeTextStyles
@@ -436,7 +436,7 @@ fun ServiceTripPreviewItemScreen(
                 }
                 ContextCompat.getDrawable(context, lineDrawable)?.let { drawable ->
                     Image(
-                        bitmap = drawable.toBitmap().asImageBitmap(),
+                        bitmap = drawable.tripDrawableBitmap().asImageBitmap(),
                         contentDescription = null,
                         colorFilter = ColorFilter.tint(Color(stop.lineColor)),
                         modifier = Modifier

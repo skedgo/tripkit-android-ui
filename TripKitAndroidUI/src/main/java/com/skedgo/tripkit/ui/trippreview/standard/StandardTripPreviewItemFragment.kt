@@ -61,6 +61,7 @@ class StandardTripPreviewItemFragment : BaseFragment<TripPreviewPagerItemBinding
 
     override fun onResume() {
         super.onResume()
+        vm.refreshIcon(requireContext())
         vm.closeClicked.observable.observeOn(AndroidSchedulers.mainThread())
             .subscribeWithErrorHandling { onCloseButtonListener?.onClick(null) }.addTo(autoDisposable)
         sharedViewModel.bookingForm.observeOn(AndroidSchedulers.mainThread())

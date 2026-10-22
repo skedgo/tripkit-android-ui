@@ -61,6 +61,7 @@ class NearbyTripPreviewItemFragment : BaseFragment<TripPreviewPagerNearbyItemBin
 
     override fun onResume() {
         super.onResume()
+        sharedViewModel.refreshIcon(requireContext())
         viewModel.clearTransportModes()
 
         sharedViewModel.locationList

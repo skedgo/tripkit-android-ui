@@ -24,6 +24,7 @@ import com.skedgo.tripkit.ui.utils.getSegmentIconObservable
 import com.skedgo.tripkit.ui.utils.TapAction
 import com.skedgo.tripkit.ui.utils.TapStateFlow
 import com.skedgo.tripkit.ui.utils.checkDateForStringLabel
+import io.reactivex.disposables.Disposable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import org.joda.time.DateTime
@@ -34,6 +35,7 @@ import timber.log.Timber
 import java.util.concurrent.TimeUnit
 import android.text.format.DateFormat
 import com.skedgo.tripkit.ui.utils.SystemTimeFormatManager
+import com.skedgo.tripkit.ui.utils.tint
 
 open class TripPreviewPagerItemViewModel : RxViewModel() {
     var title = ObservableField<String>()
@@ -60,6 +62,7 @@ open class TripPreviewPagerItemViewModel : RxViewModel() {
     val modeIconUrl = ObservableField<String>()
 
     var segment: TripSegment? = null
+    private var iconSubscription: Disposable? = null
 
     val externalActionChosen = PublishRelay.create<Action>()
     val enableActionButtons = ObservableBoolean(true)
@@ -179,7 +182,19 @@ open class TripPreviewPagerItemViewModel : RxViewModel() {
         }
     }
 
+    fun refreshIcon(context: Context) {
+        segment?.let { setIconUsingHeaderPipeline(context, it) }
+    }
+
+    override fun onCleared() {
+        iconSubscription?.dispose()
+        iconSubscription = null
+        super.onCleared()
+    }
+
     private fun setIconUsingHeaderPipeline(context: Context, segment: TripSegment) {
+        iconSubscription?.dispose()
+        iconSubscription = null
         val canUseHeaderPipeline = segment.modeInfo?.localIconName != null && segment.darkVehicleIcon != 0
         Timber.tag("TripPreviewIconDebug").d(
             "segmentId=%s modeId=%s canUseHeader=%s darkVehicleIcon=%s localIconName=%s",
@@ -200,7 +215,7 @@ open class TripPreviewPagerItemViewModel : RxViewModel() {
             return
         }
 
-        segment.getSegmentIconObservable(
+        iconSubscription = segment.getSegmentIconObservable(
             context,
             GetTransportIconTintStrategy(context.resources)
         ).map { drawable ->
@@ -226,23 +241,23 @@ open class TripPreviewPagerItemViewModel : RxViewModel() {
                 fallback.describe()
             )
             icon.set(fallback)
-        }).autoClear()
+        })
     }
 
     private fun getLegacyFallbackIcon(context: Context, segment: TripSegment): Drawable? {
-        if (segment.getType() == SegmentType.ARRIVAL || segment.getType() == SegmentType.DEPARTURE) {
-            return ContextCompat.getDrawable(context, R.drawable.v4_ic_map_location)
+        val fallback = if (segment.getType() == SegmentType.ARRIVAL || segment.getType() == SegmentType.DEPARTURE) {
+            ContextCompat.getDrawable(context, R.drawable.v4_ic_map_location)
+        } else {
+            val localResource = TransportMode.getLocalIconResId(segment.transportModeId)
+            when {
+                localResource > 0 -> ContextCompat.getDrawable(context, localResource)
+                segment.action?.contains("<TIME>: Wait") == true -> ContextCompat.getDrawable(context, R.drawable.ic_wait)
+                else -> null
+            }
         }
-
-        val localResource = TransportMode.getLocalIconResId(segment.transportModeId)
-        return when {
-            localResource > 0 -> ContextCompat.getDrawable(context, localResource)
-            segment.action?.contains("<TIME>: Wait") == true -> ContextCompat.getDrawable(
-                context,
-                R.drawable.ic_wait
-            )
-            else -> null
-        }
+        // These are local template glyphs. Remote branding artwork uses the header
+        // pipeline above and retains its original colors.
+        return fallback?.tint(ContextCompat.getColor(context, R.color.labelPrimary))
     }
 
     private fun Drawable?.describe(): String {

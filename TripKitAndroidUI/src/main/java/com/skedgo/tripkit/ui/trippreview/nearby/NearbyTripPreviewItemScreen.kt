@@ -32,7 +32,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import android.util.Log
 import androidx.core.content.ContextCompat
-import androidx.core.graphics.drawable.toBitmap
+import com.skedgo.tripkit.ui.compose.tripDrawableBitmap
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.compose.TripKitComposeTextStyles
 import com.skedgo.tripkit.ui.compose.TripKitUITheme
@@ -94,7 +94,7 @@ fun NearbyTripPreviewItemScreen(
             ) {
                 viewModel.icon.get()?.let { drawable ->
                     Image(
-                        bitmap = drawable.toBitmap().asImageBitmap(),
+                        bitmap = drawable.tripDrawableBitmap().asImageBitmap(),
                         contentDescription = null,
                         modifier = Modifier
                             .size(24.dp)
@@ -151,7 +151,7 @@ fun NearbyTripPreviewItemScreen(
                         ) {
                             Image(
                                 bitmap = ContextCompat.getDrawable(context, mode.iconRes)
-                                    ?.toBitmap()
+                                    ?.tripDrawableBitmap()
                                     ?.asImageBitmap() ?: return@Surface,
                                 contentDescription = null,
                                 modifier = Modifier
@@ -217,7 +217,7 @@ fun NearbyTripPreviewItemScreen(
                         if (result.iconRes != 0) {
                             Image(
                                 bitmap = ContextCompat.getDrawable(context, result.iconRes)
-                                    ?.toBitmap()
+                                    ?.tripDrawableBitmap()
                                     ?.asImageBitmap() ?: return@Row,
                                 contentDescription = null,
                                 modifier = Modifier.size(24.dp)

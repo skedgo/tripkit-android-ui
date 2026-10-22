@@ -44,7 +44,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
-import androidx.core.graphics.drawable.toBitmap
+import com.skedgo.tripkit.ui.compose.tripDrawableBitmap
 import androidx.core.widget.TextViewCompat
 import androidx.databinding.Observable
 import androidx.databinding.ObservableField
@@ -210,7 +210,7 @@ private fun TripResultLegRowContent(
                         onClick = onQuickBookingClick,
                         colors = ButtonDefaults.buttonColors(
                             backgroundColor = accentColor,
-                            contentColor = colorResource(R.color.white)
+                            contentColor = Color(quickBookingForegroundColor(LocalContext.current, accentColor.toArgb()))
                         ),
                         modifier = Modifier.padding(start = dimensionResource(R.dimen.spacing_small))
                     ) {
@@ -270,7 +270,7 @@ private fun SegmentSummaryCompose(
     } else {
         colorResource(R.color.labelSecondary)
     }
-    val iconBitmap = remember(ui.iconDrawable) { ui.iconDrawable?.toBitmap()?.asImageBitmap() }
+    val iconBitmap = remember(ui.iconDrawable) { ui.iconDrawable?.tripDrawableBitmap()?.asImageBitmap() }
 
     Row(
         verticalAlignment = Alignment.Bottom,
@@ -438,3 +438,6 @@ private fun TripResultLegRowComposePreview() {
     }
 }
 
+
+internal fun quickBookingForegroundColor(context: android.content.Context, backgroundColor: Int): Int =
+    com.skedgo.tripkit.ui.tripresult.actionButtonForegroundColor(context, true, backgroundColor)

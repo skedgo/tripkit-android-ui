@@ -1,6 +1,10 @@
 package com.skedgo.tripkit.ui.tripresult
 
 import android.graphics.Color
+import android.content.Context
+import android.util.TypedValue
+import androidx.core.content.ContextCompat
+import androidx.core.graphics.ColorUtils
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -16,6 +20,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.CircularProgressIndicator
+import androidx.compose.material.ContentAlpha
+import androidx.compose.material.contentColorFor
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -26,6 +32,7 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.asImageBitmap
@@ -39,6 +46,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.core.graphics.drawable.toBitmap
+import com.skedgo.tripkit.ui.compose.tripDrawableBitmap
 import androidx.databinding.Observable
 import androidx.databinding.ObservableBoolean
 import androidx.databinding.ObservableField
@@ -69,16 +77,13 @@ fun TripSegmentActionButton(
         colorResource(R.color.colorPrimary).toArgb()
     ) ?: colorResource(R.color.colorPrimary).toArgb()
     val isPrimary = actionButton?.isPrimary == true
+    val originalPrimaryAppearance = isPrimary && usesOriginalActionButtonAppearance(context)
     val backgroundColor = if (isPrimary) {
         ComposeColor(if (primaryBackground != 0) primaryBackground else Color.WHITE)
     } else {
         colorResource(R.color.inputBackground)
     }
-    val contentColor = if (isPrimary) {
-        colorResource(R.color.white)
-    } else {
-        colorResource(R.color.labelPrimary)
-    }
+    val contentColor = ComposeColor(actionButtonForegroundColor(context, isPrimary, backgroundColor.toArgb()))
 
     val borderStroke = if (isPrimary) {
         null
@@ -96,6 +101,7 @@ fun TripSegmentActionButton(
         Surface(
             shape = RoundedCornerShape(dimensionResource(R.dimen.cardview_corner_radius_large)),
             color = backgroundColor,
+            contentColor = if (originalPrimaryAppearance) contentColorFor(backgroundColor) else contentColor,
             border = borderStroke,
             modifier = Modifier
                 .semantics { contentDescription = resolvedTitle }
@@ -104,6 +110,7 @@ fun TripSegmentActionButton(
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
+                    .alpha(if (enabled || originalPrimaryAppearance) 1f else ContentAlpha.disabled)
                     .clickable(enabled = enabled && !showSpinner) {
                         listener?.onItemClick(viewModel.tag, viewModel, context)
                     }
@@ -119,15 +126,16 @@ fun TripSegmentActionButton(
                         modifier = Modifier.size(dimensionResource(R.dimen.icon_size_20))
                     )
                 } else {
-                    val iconBitmap = remember(icon, iconTint) {
-                        val tint = iconTint
+                    val iconBitmap = remember(icon, iconTint, contentColor, isPrimary, actionButton?.useIconTint, originalPrimaryAppearance) {
+                        val tint = actionButtonIconTint(context, isPrimary, actionButton?.useIconTint == true, iconTint, contentColor.toArgb())
                         icon?.mutate()?.let { drawable ->
                             if (tint != null && tint != 0) {
                                 DrawableCompat.setTint(drawable, tint)
                             } else {
+                                DrawableCompat.setTintList(drawable, null)
                                 drawable.clearColorFilter()
                             }
-                            drawable.toBitmap().asImageBitmap()
+                            (if (originalPrimaryAppearance) drawable.toBitmap() else drawable.tripDrawableBitmap()).asImageBitmap()
                         }
                     }
                     iconBitmap?.let {
@@ -331,3 +339,20 @@ private fun <T> ObservableField<T>.observeAsState(): State<T?> {
     }
     return state
 }
+
+/** Foreground on a branded fill is independent of the DayNight surface alias named white. */
+internal fun actionButtonForegroundColor(context: Context, isPrimary: Boolean, backgroundColor: Int): Int {
+    if (!isPrimary) return ContextCompat.getColor(context, R.color.labelPrimary)
+    if (usesOriginalActionButtonAppearance(context)) return ContextCompat.getColor(context, R.color.white)
+    return if (ColorUtils.calculateContrast(Color.WHITE, backgroundColor) >=
+        ColorUtils.calculateContrast(Color.BLACK, backgroundColor)) Color.WHITE else Color.BLACK
+}
+
+private fun usesOriginalActionButtonAppearance(context: Context): Boolean {
+    val value = TypedValue()
+    return context.theme.resolveAttribute(R.attr.tripActionButtonAppearance, value, true) && value.data == 0
+}
+
+internal fun actionButtonIconTint(context: Context, isPrimary: Boolean, useIconTint: Boolean, iconTint: Int?, foreground: Int): Int? =
+    if (isPrimary && usesOriginalActionButtonAppearance(context)) iconTint
+    else if (isPrimary || useIconTint) foreground else iconTint

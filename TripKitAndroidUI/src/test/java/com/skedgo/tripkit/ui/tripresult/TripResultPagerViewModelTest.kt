@@ -117,4 +117,84 @@ class TripResultPagerViewModelTest: MockKTest() {
             )
         }
     }
+    @Test
+    fun `favorite recreation restores the displayed stored trip instead of rerouting its waypoints`() {
+        val group = TripGroup().apply { uuid("stored-group") }
+        val trip = Trip().apply { uuid = "selected-favorite"; tripId = 123L }
+        group.setTrips(arrayListOf(trip))
+        group.displayTripId = trip.tripId
+        val state = mockk<android.os.Bundle>(relaxed = true)
+        every { state.getString(ARG_TRIP_GROUP_ID) } returns group.uuid()
+        every { state.getLong("selectedTripId", -1L) } returns trip.tripId
+        every { selectedTripGroupRepository.getSelectedTripGroup() } returns Observable.just(group)
+        every { favoritesRepository.getFavoriteById(any()) } returns kotlinx.coroutines.flow.flowOf(null)
+        every { waypointsRepository.getTripGroup(any()) } returns kotlinx.coroutines.flow.flowOf(null)
+
+        viewModel.onCreate(state)
+        val groups = viewModel.observeTripGroups().test()
+        viewModel.getSortedTripGroups(FavoriteTrip("original-favorite"), emptyList()).test()
+
+        groups.assertValue(listOf(group))
+        Assert.assertSame(trip, viewModel.defaultTrip)
+        verify(exactly = 0) { favoritesRepository.getFavoriteById(any()) }
+        verify(exactly = 0) { waypointsRepository.getTripGroup(any()) }
+    }
+
+    @Test
+    fun `route list restoration applies the saved selected trip before publishing database results`() {
+        val group = TripGroup().apply { uuid("routed-group") }
+        val first = Trip().apply { uuid = "default-journey"; tripId = 1L }
+        val selected = Trip().apply { uuid = "favorited-journey"; tripId = 2L }
+        group.setTrips(arrayListOf(first, selected))
+        group.displayTripId = first.tripId
+        val state = mockk<android.os.Bundle>(relaxed = true)
+        every { state.getString(ARG_TRIP_GROUP_ID) } returns group.uuid()
+        every { state.getLong("selectedTripId", -1L) } returns selected.tripId
+        every { getSortedTripGroups.execute(any(), any(), any(), any()) } returns Observable.just(listOf(group))
+        viewModel.onCreate(state)
+        var publishedTrip: Trip? = null
+        val subscription = viewModel.observeTripGroups().subscribe { publishedTrip = it.single().displayTrip }
+        viewModel.getSortedTripGroups(FromRoutes(group.uuid(), first.tripId, 1, "request", 0L), emptyList()).test()
+        subscription.dispose()
+        Assert.assertSame(selected, publishedTrip)
+        Assert.assertSame(selected, viewModel.defaultTrip)
+    }
+
+    @Test
+    fun `resuming a resolved favorite reuses its trip instead of routing the pattern again`() {
+        val group = TripGroup().apply { uuid("resolved-group") }
+        val trip = Trip().apply { uuid = "resolved-trip"; tripId = 123L }
+        group.setTrips(arrayListOf(trip))
+        group.displayTripId = trip.tripId
+        every { favoritesRepository.getFavoriteById(any()) } returns kotlinx.coroutines.flow.flowOf(null)
+        every { waypointsRepository.getTripGroup(any()) } returns kotlinx.coroutines.flow.flowOf(group)
+        every { selectedTripGroupRepository.getSelectedTripGroup() } returns Observable.just(group)
+        val args = FavoriteTrip("persisted-pattern")
+        viewModel.getSortedTripGroups(args, emptyList()).blockingFirst()
+        viewModel.getSortedTripGroups(args, emptyList()).blockingFirst()
+        verify(exactly = 1) { waypointsRepository.getTripGroup(any()) }
+        verify(exactly = 1) { selectedTripGroupRepository.setSelectedTripGroupId(group.uuid()) }
+        Assert.assertSame(trip, viewModel.defaultTrip)
+    }
+
+    @Test
+    fun `opening a different favorite still resolves its own pattern`() {
+        val first = TripGroup().apply { uuid("first-group") }
+        first.setTrips(arrayListOf(Trip().apply { tripId = 123L }))
+        val second = TripGroup().apply { uuid("second-group") }
+        val selected = Trip().apply { tripId = 456L }
+        second.setTrips(arrayListOf(selected))
+        every { favoritesRepository.getFavoriteById(any()) } returns kotlinx.coroutines.flow.flowOf(null)
+        every { waypointsRepository.getTripGroup(any()) } returnsMany listOf(
+            kotlinx.coroutines.flow.flowOf(first), kotlinx.coroutines.flow.flowOf(second)
+        )
+        every { selectedTripGroupRepository.getSelectedTripGroup() } returns Observable.just(first)
+        viewModel.getSortedTripGroups(FavoriteTrip("first-pattern"), emptyList()).blockingFirst()
+        viewModel.getSortedTripGroups(FavoriteTrip("first-pattern"), emptyList()).blockingFirst()
+        viewModel.getSortedTripGroups(FavoriteTrip("different-pattern"), emptyList()).blockingFirst()
+        verify(exactly = 2) { waypointsRepository.getTripGroup(any()) }
+        verify(exactly = 1) { favoritesRepository.getFavoriteById("different-pattern") }
+        Assert.assertSame(selected, viewModel.defaultTrip)
+    }
+
 }
