@@ -11,6 +11,7 @@ import com.skedgo.tripkit.common.model.stop.ServiceStop
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.core.RxViewModel
 import com.skedgo.tripkit.ui.utils.TapAction
+import com.jakewharton.rxrelay2.BehaviorRelay
 import io.reactivex.android.schedulers.AndroidSchedulers
 import timber.log.Timber
 import javax.inject.Inject
@@ -24,6 +25,33 @@ class ServiceDetailItemViewModel @Inject constructor(val getStopTimeDisplayText:
 
     var stop: ServiceStop? = null
     val scheduledTime = ObservableField<String>()
+    internal var originalDepartureSecs: Long = 0
+        private set
+    internal var originalArrivalSecs: Long = 0
+        private set
+    internal var predictedTimeSecs: Long? = null
+        private set
+    private val timeSelections = BehaviorRelay.create<Pair<ServiceStop, Long?>>()
+
+    init {
+        timeSelections.switchMap { (original, prediction) ->
+            val presentation = if (prediction == null) original else ServiceStop().apply {
+                fillFrom(original)
+                setDepartureSecs(originalDepartureSecs)
+                arrivalTime = originalArrivalSecs
+                if (originalDepartureSecs != 0L) setDepartureSecs(prediction) else arrivalTime = prediction
+            }
+            getStopTimeDisplayText.execute(presentation)
+                .observeOn(AndroidSchedulers.mainThread())
+        }.subscribe({ scheduledTime.set(it) }, { Timber.e(it) }).autoClear()
+    }
+
+    internal fun updatePrediction(timeSecs: Long?) {
+        val prediction = timeSecs?.takeIf { it > 0 }
+        if (predictedTimeSecs == prediction) return
+        predictedTimeSecs = prediction
+        stop?.let { timeSelections.accept(it to prediction) }
+    }
     val scheduledTimeTextColor = ObservableInt()
     var lineColor = 0
     val lineDrawable = ObservableField<NinePatchDrawable>()
@@ -60,6 +88,9 @@ class ServiceDetailItemViewModel @Inject constructor(val getStopTimeDisplayText:
 
     fun setStop(context: Context, stop: ServiceStop, _lineColor: Int, travelled: Boolean) {
         this.stop = stop
+        originalDepartureSecs = stop.departureSecs()
+        originalArrivalSecs = stop.arrivalTime
+        predictedTimeSecs = null
         lineColor = _lineColor
         stopName.set(stop.name)
         isTravelled.postValue(travelled)
@@ -72,11 +103,7 @@ class ServiceDetailItemViewModel @Inject constructor(val getStopTimeDisplayText:
             stopNameColor.set(ContextCompat.getColor(context, R.color.black))
         }
         scheduledTimeTextColor.set(ContextCompat.getColor(context, R.color.black1))
-        getStopTimeDisplayText.execute(stop)
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe({ text ->
-                scheduledTime.set(text)
-            }, { Timber.e(it) }).autoClear()
+        timeSelections.accept(stop to null)
     }
 
 }

@@ -17,19 +17,33 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/white"
         tools:context=".timetables.TimetableFragment">
+
+        <ImageView
+            android:id="@+id/titleIcon"
+            android:layout_width="@dimen/icon_size_40"
+            android:layout_height="@dimen/icon_size_40"
+            android:layout_marginStart="@dimen/spacing_normal"
+            android:layout_marginTop="@dimen/spacing_small"
+            android:background="@drawable/bg_circle_transparent_black_border"
+            android:visibility="gone"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:src="@drawable/ic_walk"
+            tools:visibility="visible"/>
 
         <TextView
             android:id="@+id/nameOfStation"
-            style="@style/TextAppearance.MaterialComponents.Headline6"
+            style="@style/TimetableTitleLarge"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_margin="16dp"
+            android:layout_marginStart="@dimen/spacing_normal"
+            android:layout_marginEnd="@dimen/spacing_normal"
+            android:layout_marginTop="@dimen/spacing_small"
             android:text="@{viewModel.stationName}"
             app:addRtlSupport="@{true}"
             app:layout_constraintEnd_toStartOf="@+id/closeButton"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/titleIcon"
             app:layout_constraintTop_toTopOf="parent"
             tools:text="Town Hall Station" />
 
@@ -37,30 +51,31 @@
             android:id="@+id/closeButton"
             android:layout_width="@dimen/close_button_size"
             android:layout_height="@dimen/close_button_size"
-            android:layout_marginEnd="16dp"
+            android:layout_marginEnd="@dimen/spacing_normal"
+            android:layout_marginTop="@dimen/spacing_small"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="@string/desc_close"
             android:src="@drawable/close"
             android:visibility="@{viewModel.showCloseButton}"
-            app:layout_constraintBottom_toBottomOf="@+id/nameOfStation"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/nameOfStation" />
+            app:layout_constraintTop_toTopOf="parent" />
 
-        <androidx.recyclerview.widget.RecyclerView
+        <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/headerActionsBarrier"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:barrierDirection="bottom"
+            app:constraint_referenced_ids="titleIcon,closeButton, nameOfStation"/>
+
+        <androidx.compose.ui.platform.ComposeView
             android:id="@+id/serviceLineRecyclerView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="12dp"
-            android:layout_marginEnd="16dp"
-            android:paddingLeft="8dp"
-            android:paddingRight="8dp"
-            app:itemBinding="@{viewModel.serviceItemBinding}"
-            app:items="@{viewModel.serviceNumbers}"
-            app:layoutManager="com.google.android.flexbox.FlexboxLayoutManager"
+            android:layout_marginHorizontal="@dimen/spacing_small"
+            android:paddingHorizontal="@dimen/spacing_small"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="@+id/nameOfStation"
-            app:layout_constraintTop_toBottomOf="@+id/nameOfStation"
+            app:layout_constraintTop_toBottomOf="@+id/headerActionsBarrier"
             tools:listitem="@layout/timetable_header_line_item" />
 
         <LinearLayout
@@ -69,11 +84,10 @@
             android:layout_height="wrap_content"
             android:divider="@drawable/empty_space_narrow"
             android:orientation="horizontal"
-            android:paddingStart="8dp"
-            android:paddingEnd="8dp"
-            android:showDividers="middle"
+            android:showDividers="none"
+            android:paddingStart="@dimen/spacing_normal"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="@+id/nameOfStation"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/serviceLineRecyclerView" />
 
         <RelativeLayout
@@ -118,13 +132,12 @@
             android:id="@+id/contSearchBar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
+            android:layout_marginTop="@dimen/spacing_small"
+            android:paddingBottom="@dimen/spacing_normal"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/contBookingActionButton">
-
-            <include
-                android:id="@+id/departuresSearchSetTime"
-                layout="@layout/timetable_search_set_time"
+            <androidx.compose.ui.platform.ComposeView
+                android:id="@+id/departuresSearchSetTimeCompose"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:visibility="@{viewModel.showSearch}" />
@@ -139,14 +152,11 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/contSearchBar">
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/recyclerView"
+            <androidx.compose.ui.platform.ComposeView
+                android:id="@+id/composeServicesList"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:focusableInTouchMode="true"
-                app:itemBinding="@{viewModel.itemBinding}"
-                app:items="@{viewModel.services}"
-                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                android:layout_marginTop="@dimen/spacing_normal"
                 app:layout_behavior="@string/appbar_scrolling_view_behavior"
                 tools:listitem="@layout/timetable_fragment_list_item" />
 

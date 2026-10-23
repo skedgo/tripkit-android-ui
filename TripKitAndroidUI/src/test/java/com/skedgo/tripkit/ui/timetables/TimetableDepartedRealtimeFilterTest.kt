@@ -187,6 +187,7 @@ class TimetableDepartedRealtimeFilterTest : MockKTest() {
         override val showOccupancyInfo = MutableLiveData<Boolean>()
         override val showBicycleAccessible = MutableLiveData<Boolean>()
         override val isCurrentTrip = MutableLiveData<Boolean>()
+        override val isOnTime = MutableLiveData<Boolean>()
         override val wheelchairIcon = MutableLiveData<Drawable?>()
         override val wheelchairTint = MutableLiveData<Int>()
         override val wheelchairBackgroundTint = MutableLiveData<Drawable>()

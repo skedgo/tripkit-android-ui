@@ -49,6 +49,7 @@ internal class ServiceViewModelImpl @Inject constructor(
     override val countDownTimeText = MutableLiveData<String>()
     override val countDownTimeTextColor = MutableLiveData<Int>(R.color.tripKitSuccess)
     override val alpha = MutableLiveData(1f)
+    override val isOnTime = MutableLiveData<Boolean>()
 
     override val serviceColor: MutableLiveData<Int> = MutableLiveData()
     override val isCurrentTrip = MutableLiveData(false)
@@ -83,11 +84,12 @@ internal class ServiceViewModelImpl @Inject constructor(
         } else {
             serviceNumber.postValue(service.serviceNumber)
         }
-        val (secondaryMessage, color) = getRealtimeText.execute(
+        val (secondaryMessage, color, isOnTime) = getRealtimeText.getWithIsOnTime(
             dateTimeZone,
             service,
             service.realtimeVehicle
         )
+        this.isOnTime.postValue(isOnTime)
         secondaryText.postValue(secondaryMessage)
         secondaryTextColor.postValue(ContextCompat.getColor(context, color))
         tertiaryText.postValue(getServiceTertiaryText.execute(service))

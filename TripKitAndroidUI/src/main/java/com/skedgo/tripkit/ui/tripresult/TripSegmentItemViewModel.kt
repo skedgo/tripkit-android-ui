@@ -45,6 +45,7 @@ import com.skedgo.tripkit.ui.utils.TransportModeSharedPreference
 import com.skedgo.tripkit.ui.utils.correctItemType
 import com.skedgo.tripkit.ui.utils.groupConsecutiveBy
 import com.skedgo.tripkit.ui.utils.tint
+import com.skedgo.tripkit.ui.utils.getLocalSegmentIcon
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import timber.log.Timber
@@ -439,40 +440,28 @@ class TripSegmentItemViewModel @Inject internal constructor(
     }
 
     private fun showSegmentIcon(segment: TripSegment, tintWhite: Boolean) {
+        val foreground = if (tintWhite) Color.WHITE else ContextCompat.getColor(context, R.color.labelPrimary)
         if (segment.getType() == SegmentType.ARRIVAL || segment.getType() == SegmentType.DEPARTURE) {
-            icon.value = ContextCompat.getDrawable(context, R.drawable.v4_ic_map_location)
-        } else {
-            if (segment.modeInfo == null || segment.modeInfo!!.modeCompat == null) {
-                icon.value = null
-            } else {
-                val url =
-                    tripSegmentHelper.getIconUrlForModeInfo(context.resources, segment.modeInfo)
-                var remoteIcon = Observable.empty<Drawable>()
-                if (url != null) {
-                    remoteIcon = TripKitUI.getInstance().picasso().fetchAsync(url).toObservable()
-                        .map { bitmap -> BitmapDrawable(context.resources, bitmap) }
-                }
-                Observable
-                    .just(ContextCompat.getDrawable(context, segment.darkVehicleIcon))
-                    .concatWith(remoteIcon)
-                    .map {
-                        if (tintWhite) {
-                            it.tint(Color.WHITE)
-                        } else {
-                            it
-                        }
-                    }
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .doOnComplete {
-                        this.showTicketInfo.value = !segment.ticketURL.isNullOrEmpty()
-                    }
-                    .subscribe({ drawable:
-                                 Drawable ->
-                        icon.value = drawable
-                    }, { e -> Timber.e(e) }).autoClear()
-
-            }
+            icon.value = requireNotNull(ContextCompat.getDrawable(context, R.drawable.v4_ic_map_location)).tint(foreground)
+            return
         }
+        val localIcon = segment.getLocalSegmentIcon(context).tint(foreground)
+
+        val url = tripSegmentHelper.getIconUrlForModeInfo(context.resources, segment.modeInfo)
+        var remoteIcon = Observable.empty<Drawable>()
+        if (url != null) {
+            remoteIcon = TripKitUI.getInstance().picasso().fetchAsync(url).toObservable()
+                .map { bitmap ->
+                    val drawable = BitmapDrawable(context.resources, bitmap)
+                    if (tintWhite) drawable.tint(Color.WHITE) else drawable
+                }
+        }
+        // Local glyphs are templates; remote images retain the existing branding behavior.
+        Observable.just(localIcon)
+            .concatWith(remoteIcon)
+            .observeOn(AndroidSchedulers.mainThread())
+            .doOnComplete { showTicketInfo.value = !segment.ticketURL.isNullOrEmpty() }
+            .subscribe({ icon.value = it }, { Timber.e(it) }).autoClear()
     }
 
 }

@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.accessibility.AccessibilityEvent
+import android.view.accessibility.AccessibilityManager
 import android.view.accessibility.AccessibilityNodeInfo
 import androidx.annotation.LayoutRes
 import androidx.databinding.DataBindingUtil
@@ -41,6 +42,10 @@ abstract class BaseFragment<V : ViewDataBinding> : BaseTripKitPagerFragment() {
     open fun clearInstances() {}
 
     private var previouslyInitialized = false
+    private var registeredAccessibilityManager: AccessibilityManager? = null
+    private val accessibilityObserver = AccessibilityManager.AccessibilityStateChangeListener {
+        focusAccessibilityDefaultView(true)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -58,6 +63,8 @@ abstract class BaseFragment<V : ViewDataBinding> : BaseTripKitPagerFragment() {
     }
 
     override fun onDestroyView() {
+        registeredAccessibilityManager?.removeAccessibilityStateChangeListener(accessibilityObserver)
+        registeredAccessibilityManager = null
         super.onDestroyView()
     }
 
@@ -70,8 +77,9 @@ abstract class BaseFragment<V : ViewDataBinding> : BaseTripKitPagerFragment() {
         if (observeAccessibility) {
             try {
                 context?.getAccessibilityManager()?.let {
-                    it.addAccessibilityStateChangeListener {
-                        focusAccessibilityDefaultView(true)
+                    if (registeredAccessibilityManager == null) {
+                        it.addAccessibilityStateChangeListener(accessibilityObserver)
+                        registeredAccessibilityManager = it
                     }
                 }
             } catch (e: Exception) {
