@@ -312,7 +312,6 @@ class TimetableMapContributor(val fragment: Fragment) : TripKitMapContributor {
             }
         }
 
-        service?.realtimeVehicle = vehicles.firstOrNull()
     }
 
     private fun clearRealTimeVehicleMarkers() {

@@ -103,9 +103,9 @@ class ServiceStopMapViewModel @Inject constructor(
             .refCount()
 
     val realtimeVehicles = realtimeVehicleUpdates
-        .map { (service, vehicles) ->
+        .map { (_, vehicles) ->
             vehicles.filter { vehicle ->
-                vehicle.serviceTripId == service.serviceTripId && vehicle.hasLocationInformation()
+                vehicle.hasLocationInformation()
             }
         }
         .observeOn(AndroidSchedulers.mainThread())

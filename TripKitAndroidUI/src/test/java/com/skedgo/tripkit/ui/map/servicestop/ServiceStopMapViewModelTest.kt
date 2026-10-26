@@ -166,7 +166,7 @@ class ServiceStopMapViewModelTest: MockKTest() {
         every { service.realtimeVehicle } returns null
         every { firstVehicle.serviceTripId } returns "service-trip-id"
         every { firstVehicle.hasLocationInformation() } returns true
-        every { secondVehicle.serviceTripId } returns "service-trip-id"
+        every { secondVehicle.serviceTripId } returns "another-service"
         every { secondVehicle.hasLocationInformation() } returns true
         every { regionService.getRegionByLocationAsync(stop) } returns Observable.just(region)
         every {

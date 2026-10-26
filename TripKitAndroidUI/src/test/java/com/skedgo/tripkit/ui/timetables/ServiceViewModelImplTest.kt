@@ -5,6 +5,9 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.test.core.app.ApplicationProvider
 import com.skedgo.TripKit
 import com.skedgo.tripkit.DefaultTripPreferences
+import com.skedgo.tripkit.routing.RealTimeVehicle
+import com.skedgo.tripkit.ui.trip.details.viewmodel.OccupancyViewModel
+import com.google.gson.Gson
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.base.MockKTest
 import com.skedgo.tripkit.ui.model.TimetableEntry
@@ -33,7 +36,7 @@ class ServiceViewModelImplTest : MockKTest() {
         every { TripKit.getInstance() } returns mockk(relaxed = true)
         val realtime = mockk<GetRealtimeText>()
         every { realtime.execute(any(), any(), any()) } returns Pair("Scheduled", R.color.black1)
-        viewModel = ServiceViewModelImpl(context, mockk(relaxed = true),
+        viewModel = ServiceViewModelImpl(context, OccupancyViewModel(context),
             ServiceAlertViewModel(context), mockk(relaxed = true), mockk(relaxed = true),
             realtime, mockk(relaxed = true))
     }
@@ -50,6 +53,23 @@ class ServiceViewModelImplTest : MockKTest() {
             bicycleAccessible = bicycle
             frequency = 600
         }, DateTimeZone.UTC)
+    }
+
+    @Test fun `refresh and recycled rows clear occupancy when own vehicle disappears`() {
+        val entry = TimetableEntry().apply {
+            frequency = 600
+            realtimeVehicle = Gson().fromJson(
+                """{"components":[[{"occupancy":"MANY_SEATS_AVAILABLE"}]]}""",
+                RealTimeVehicle::class.java)
+        }
+        viewModel.setService("", entry, DateTimeZone.UTC)
+        Assert.assertEquals(true, viewModel.showOccupancyInfo.value)
+        entry.realtimeVehicle = null
+        viewModel.setService("", entry, DateTimeZone.UTC)
+        Assert.assertEquals(false, viewModel.showOccupancyInfo.value)
+        Assert.assertFalse(viewModel.occupancyViewModel.hasInformation())
+        bind(null)
+        Assert.assertEquals(false, viewModel.showOccupancyInfo.value)
     }
 
     @Test fun `recycled timetable rows obey all wheelchair information states`() {

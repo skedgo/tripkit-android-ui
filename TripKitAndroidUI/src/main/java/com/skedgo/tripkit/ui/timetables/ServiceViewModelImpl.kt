@@ -117,7 +117,16 @@ internal class ServiceViewModelImpl @Inject constructor(
     }
 
     private fun presentOccupancy() {
-        service.realtimeVehicle?.let { occupancyViewModel.setOccupancy(it, false) }
+        val vehicle = service.realtimeVehicle
+        if (vehicle == null) {
+            occupancyViewModel.hasOccupancyInformation.set(false)
+            occupancyViewModel.hasOccupancySingleInformation.set(false)
+            occupancyViewModel.occupancyText.set(null)
+            occupancyViewModel.drawableLeft.set(null)
+            occupancyViewModel.items.clear()
+        } else {
+            occupancyViewModel.setOccupancy(vehicle, false)
+        }
         showOccupancyInfo.postValue(occupancyViewModel.hasInformation())
     }
 

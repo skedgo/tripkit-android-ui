@@ -30,6 +30,15 @@ open class RealTimeChoreographer @Inject constructor(
         return getRealTimeResults(region, cleanSegments(elements))
     }
 
+    /** Poll all map locations without treating alternative vehicles as service assignments. */
+    open fun getMapRealTimeResults(
+        region: Region, elements: List<IRealTimeElement?>
+    ): Observable<List<RealTimeVehicle>> =
+        realTimeRepository.getMapUpdates(region.name!!, cleanSegments(elements))
+            .toObservable()
+            .onErrorResumeNext(Observable.empty<List<RealTimeVehicle>>())
+            .repeatWhen { observable -> observable.delay(UPDATE_INTERVAL, TimeUnit.MILLISECONDS) }
+
     private fun cleanSegments(elements: List<IRealTimeElement?>?): List<IRealTimeElement> {
         return elements.orEmpty()
             .filter { it != null }
