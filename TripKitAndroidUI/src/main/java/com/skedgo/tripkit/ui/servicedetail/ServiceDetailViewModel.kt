@@ -1,6 +1,7 @@
 package com.skedgo.tripkit.ui.servicedetail
 
 import android.content.Context
+import com.skedgo.tripkit.ui.utils.ServiceAccessibility
 import android.graphics.Color
 import android.graphics.drawable.Drawable
 import androidx.core.content.ContextCompat
@@ -46,6 +47,16 @@ class ServiceDetailViewModel @Inject constructor(
     private val getServiceTertiaryText: GetServiceTertiaryText,
     private val getRealtimeText: GetRealtimeText,
 ) : RxViewModel() {
+    private val accessibility by lazy {
+        ServiceAccessibility(context).also { policy ->
+            policy.changes.observeOn(AndroidSchedulers.mainThread())
+                .subscribe { updateAccessibility() }.autoClear()
+        }
+    }
+
+    private var serviceWheelchairAccessible: Boolean? = null
+    private var serviceBicycleAccessible: Boolean? = null
+
     val stationName = ObservableField<String>()
     val serviceColor: ObservableInt = ObservableInt()
     val serviceNumber = ObservableField<String>()
@@ -91,6 +102,18 @@ class ServiceDetailViewModel @Inject constructor(
     private val _isLoading = MutableLiveData(false)
     val isLoading: LiveData<Boolean> = _isLoading
 
+    private fun updateAccessibility() {
+        val icon = accessibility.wheelchairIcon(serviceWheelchairAccessible)
+        wheelchairIcon.set(icon?.let { ContextCompat.getDrawable(context, it) })
+        showWheelchairAccessible.set(icon != null)
+        wheelchairAccessibleText.set(if (icon == null) null else
+            context.getString(accessibility.wheelchairText(serviceWheelchairAccessible)))
+        val bicycleVisible = accessibility.showBicycle(serviceBicycleAccessible)
+        _showBicycleAccessible.value = bicycleVisible
+        showExpandableMenu.set(showOccupancyInfo.get() || icon != null || bicycleVisible)
+        if (!showExpandableMenu.get()) isExpandableMenuExpanded.set(false)
+    }
+
     fun setAlerts(alerts: List<RealtimeAlert>?) {
         _alerts.postValue(alerts.orEmpty())
     }
@@ -133,32 +156,9 @@ class ServiceDetailViewModel @Inject constructor(
         realTimeVehicle?.let { occupancyViewModel.setOccupancy(it, false) }
         showOccupancyInfo.set(occupancyViewModel.hasInformation())
 
-        showWheelchairAccessible.set(wheelchairAccessible == true)
-        wheelchairAccessible?.let {
-            if (it) {
-                wheelchairAccessibleText.set(context.getString(R.string.wheelchair_accessible))
-                wheelchairIcon.set(ContextCompat.getDrawable(context, R.drawable.ic_wheelchair))
-            } else {
-                wheelchairAccessibleText.set(context.getString(R.string.not_wheelchair_accessible))
-                wheelchairIcon.set(
-                    ContextCompat.getDrawable(
-                        context,
-                        R.drawable.ic_wheelchair_not_accessible
-                    )
-                )
-            }
-        }
-
-        _showBicycleAccessible.postValue(bicycleAccessible ?: false)
-
-        showExpandableMenu.set(
-            showOccupancyInfo.get() ||
-                showWheelchairAccessible.get() ||
-                (showBicycleAccessible.value ?: false)
-        )
-        if (!showExpandableMenu.get()) {
-            isExpandableMenuExpanded.set(false)
-        }
+        serviceWheelchairAccessible = wheelchairAccessible
+        serviceBicycleAccessible = bicycleAccessible
+        updateAccessibility()
 
         serviceColor?.let {
             when (it.color) {

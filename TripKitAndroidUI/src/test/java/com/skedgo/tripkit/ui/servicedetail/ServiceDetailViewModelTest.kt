@@ -1,6 +1,8 @@
 package com.skedgo.tripkit.ui.servicedetail
 
 import android.content.Context
+import android.content.SharedPreferences
+import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import android.graphics.Color
 import android.graphics.drawable.Drawable
 import androidx.core.content.ContextCompat
@@ -35,6 +37,12 @@ import javax.inject.Provider
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [33])
 class ServiceDetailViewModelTest: MockKTest() {
+    @get:org.junit.Rule
+    val instantExecutorRule = InstantTaskExecutorRule()
+    private var wheelchairInformation = true
+    private var bikeVisible = true
+    private val preferences: SharedPreferences = mockk(relaxed = true)
+
 
     private lateinit var viewModel: ServiceDetailViewModel
 
@@ -57,6 +65,12 @@ class ServiceDetailViewModelTest: MockKTest() {
     @Before
     fun setup() {
         initRx()
+        every { context.getSharedPreferences(any(), any()) } returns preferences
+        every { preferences.getBoolean(any(), any()) } answers {
+            if (firstArg<String>() == "isWheelchairPreferred") wheelchairInformation else bikeVisible
+        }
+        every { preferences.all } answers { mapOf("cy_bic" to bikeVisible) }
+
         mockkObject(TripKit.Companion)
         every { TripKit.getInstance() } returns tripKit
 
@@ -85,6 +99,42 @@ class ServiceDetailViewModelTest: MockKTest() {
     @After
     fun teardown() {
         tearDownRx()
+    }
+
+    private fun setupAccessibility(wheelchair: Boolean?, bicycle: Boolean?) {
+        viewModel.setup(
+            region = "AU_ACT_Canberra", serviceId = "service", serviceName = null,
+            serviceNumber = null, serviceColor = null, operator = null,
+            startStopCode = null, endStopCode = null, embarkation = 0,
+            realTimeVehicle = null, wheelchairAccessible = wheelchair,
+            bicycleAccessible = bicycle
+        )
+    }
+
+    @Test
+    fun `wheelchair information controls positive and unknown but never hides inaccessible`() {
+        for (information in listOf(false, true)) {
+            wheelchairInformation = information
+            for (status in listOf(true, false, null)) {
+                setupAccessibility(status, false)
+                assertEquals("information=$information status=$status",
+                    status == false || information, viewModel.showWheelchairAccessible.get())
+            }
+        }
+    }
+
+    @Test
+    fun `reused service clears wheelchair icon and bicycle when preferences hide them`() {
+        setupAccessibility(true, true)
+        assertTrue(viewModel.showWheelchairAccessible.get())
+        assertTrue(viewModel.showBicycleAccessible.value == true)
+        wheelchairInformation = false
+        bikeVisible = false
+        setupAccessibility(null, true)
+        assertFalse(viewModel.showWheelchairAccessible.get())
+        assertNull(viewModel.wheelchairIcon.get())
+        assertFalse(viewModel.showBicycleAccessible.value == true)
+        assertFalse(viewModel.showExpandableMenu.get())
     }
 
     @Test

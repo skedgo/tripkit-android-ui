@@ -904,4 +904,5 @@ We aggregate the anonymised data and provide it to researchers, regulators, and 
         <item quantity="one">+%d day</item>
         <item quantity="other">+%d days</item>
     </plurals>
+    <string name="wheelchair_accessibility_unknown">Wheelchair accessibility unknown</string>
 </resources>

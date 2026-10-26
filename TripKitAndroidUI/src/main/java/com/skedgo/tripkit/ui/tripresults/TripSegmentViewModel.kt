@@ -2,6 +2,7 @@ package com.skedgo.tripkit.ui.tripresults
 
 import android.annotation.SuppressLint
 import android.content.Context
+import com.skedgo.tripkit.ui.utils.ServiceAccessibility
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.LayerDrawable
@@ -41,11 +42,29 @@ class TripSegmentViewModel @Inject constructor(
     private val printTime: PrintTime,
     private val transportModeSharedPreference: TransportModeSharedPreference
 ) : RxViewModel() {
+    private val accessibility by lazy {
+        ServiceAccessibility(context).also { policy ->
+            policy.changes.observeOn(AndroidSchedulers.mainThread())
+                .subscribe { updateAccessibility() }.autoClear()
+        }
+    }
+
     @Inject
     lateinit var getTransportIconTintStrategy: GetTransportIconTintStrategy
 
     init {
         TripKitUI.getInstance().tripSegmentViewModelComponent().inject(this)
+    }
+
+    private var accessibilitySegment: TripSegment? = null
+    val wheelchairIcon = MutableLiveData<Drawable?>()
+
+    private fun updateAccessibility() {
+        val segment = accessibilitySegment
+        val icon = if (segment?.getType() == com.skedgo.tripkit.routing.SegmentType.SCHEDULED)
+            accessibility.wheelchairIcon(segment?.wheelchairAccessible) else null
+        wheelchairIcon.value = icon?.let { ContextCompat.getDrawable(context, it) }
+        isBicycleAccessible.value = segment != null && accessibility.showBicycle(segment.bicycleAccessible)
     }
 
     val icon = ObservableField<Drawable>()
@@ -65,9 +84,8 @@ class TripSegmentViewModel @Inject constructor(
         isCancelled.value = trip.getAvailability() == Cancelled
         isHideExactTimes.value = segment.isHideExactTimes
         isRealtime.value = segment.isRealTime
-        isBicycleAccessible.value =
-            transportModeSharedPreference.isTransportModeEnabled(TransportMode.ID_BICYCLE) &&
-                segment.bicycleAccessible
+        accessibilitySegment = segment
+        updateAccessibility()
 
         buildSubtitle(trip, segment)
 

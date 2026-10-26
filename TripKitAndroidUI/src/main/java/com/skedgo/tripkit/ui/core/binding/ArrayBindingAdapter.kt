@@ -6,6 +6,8 @@ import android.view.ViewGroup
 import androidx.databinding.BindingAdapter
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
+import androidx.core.view.doOnAttach
+import androidx.lifecycle.findViewTreeLifecycleOwner
 import com.skedgo.tripkit.common.model.realtimealert.RealtimeAlert
 import com.skedgo.tripkit.ui.BR
 import com.skedgo.tripkit.ui.views.TripSegmentAlertView
@@ -23,6 +25,10 @@ fun <T> setEntries(
         for (entry in entries) {
             val binding = DataBindingUtil
                 .inflate<ViewDataBinding>(inflater, layoutId, viewGroup, true)
+            binding.lifecycleOwner = viewGroup.findViewTreeLifecycleOwner()
+            binding.root.doOnAttach {
+                binding.lifecycleOwner = it.findViewTreeLifecycleOwner()
+            }
             binding.setVariable(BR.viewModel, entry)
         }
     }

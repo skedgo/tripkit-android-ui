@@ -60,6 +60,11 @@ class TransportModeSharedPreference @Inject constructor(private val context: Con
     fun isTransportModeEnabled(modeId: String) =
         sharedPreferences.getBoolean(modeId, getModeDefaultValue(modeId))
 
+    internal fun isBicycleOrMicromobilityEnabled(): Boolean =
+        (sharedPreferences.all.keys + TransportModeDefaults.getDefaultTransportModes())
+            .filter { it.startsWith("cy_") || it == "me_mic" || it.startsWith("me_mic_") || it.startsWith("me_mic-s") }
+            .any { isTransportModeEnabled(it) }
+
     fun saveTransportModeState(modeId: String, enabled: Boolean) {
         sharedPreferences.edit().putBoolean(modeId, enabled).apply()
     }

@@ -156,12 +156,41 @@
                 android:paddingEnd="@dimen/spacing_extra_small">
 
                 <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/layoutWheelchairAccessible"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:visibility="@{viewModel.wheelchairIcon != null}"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent">
+
+                    <ImageView
+                        android:id="@+id/ivWheelchairAccessible"
+                        android:layout_width="@dimen/service_detail_icon_size"
+                        android:layout_height="@dimen/service_detail_icon_size"
+                        android:importantForAccessibility="no"
+                        android:src="@{viewModel.wheelchairIcon}"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <TextView
+                        style="@style/TextAppearance.MaterialComponents.Caption"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/spacing_small"
+                        android:text="@{viewModel.wheelchairAccessibleText}"
+                        app:layout_constraintBottom_toBottomOf="@id/ivWheelchairAccessible"
+                        app:layout_constraintStart_toEndOf="@+id/ivWheelchairAccessible"
+                        app:layout_constraintTop_toTopOf="@id/ivWheelchairAccessible" />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+                <androidx.constraintlayout.widget.ConstraintLayout
                     android:id="@+id/layoutBicycleAccessible"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:visibility="@{viewModel.showBicycleAccessible}"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent">
+                    app:layout_constraintTop_toBottomOf="@id/layoutWheelchairAccessible">
 
                     <ImageView
                         android:id="@+id/ivBicycleAccessible"
