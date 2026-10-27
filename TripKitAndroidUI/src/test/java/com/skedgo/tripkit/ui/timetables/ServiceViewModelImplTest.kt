@@ -5,6 +5,8 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.test.core.app.ApplicationProvider
 import com.skedgo.TripKit
 import com.skedgo.tripkit.DefaultTripPreferences
+import com.skedgo.tripkit.common.model.TransportMode
+import com.skedgo.tripkit.ui.tripresults.PrefsBasedTransportViewFilter
 import com.skedgo.tripkit.routing.RealTimeVehicle
 import com.skedgo.tripkit.ui.trip.details.viewmodel.OccupancyViewModel
 import com.google.gson.Gson
@@ -81,6 +83,21 @@ class ServiceViewModelImplTest : MockKTest() {
                     status == false || information, viewModel.wheelchairIcon.value != null)
             }
         }
+    }
+
+    @Test fun `active unknown timetable row follows wheelchair mode without losing bicycle information`() {
+        val filter = PrefsBasedTransportViewFilter(context)
+        bind(null)
+        Assert.assertNull(viewModel.wheelchairIcon.value)
+        filter.setSelected(TransportMode.ID_WHEEL_CHAIR, true)
+        Assert.assertNotNull(viewModel.wheelchairIcon.value)
+        Assert.assertEquals(true, viewModel.showBicycleAccessible.value)
+        Assert.assertTrue(preferences.isWheelchairPreferred())
+        filter.setSelected(TransportMode.ID_WHEEL_CHAIR, false)
+        Assert.assertNull(viewModel.wheelchairIcon.value)
+        Assert.assertEquals(true, viewModel.showBicycleAccessible.value)
+        bind(false)
+        Assert.assertNotNull(viewModel.wheelchairIcon.value)
     }
 
     @Test fun `active timetable row refreshes icons on preference changes`() {

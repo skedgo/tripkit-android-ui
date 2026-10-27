@@ -5,6 +5,8 @@ import androidx.lifecycle.setViewTreeLifecycleOwner
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.test.core.app.ApplicationProvider
 import com.skedgo.tripkit.DefaultTripPreferences
+import com.skedgo.tripkit.common.model.TransportMode
+import com.skedgo.tripkit.ui.tripresults.PrefsBasedTransportViewFilter
 import com.skedgo.tripkit.routing.SegmentType
 import com.skedgo.tripkit.routing.Trip
 import com.skedgo.tripkit.routing.TripSegment
@@ -71,6 +73,14 @@ class ServiceAccessibilityViewsTest : MockKTest() {
 
     @Test fun `preference changes refresh both trip rows without rebinding`() {
         bind(null)
+        Assert.assertNull(summary.wheelchairIcon.value)
+        Assert.assertNull(detail.wheelchairIcon.value)
+        val filter = PrefsBasedTransportViewFilter(context)
+        filter.setSelected(TransportMode.ID_WALK, false)
+        Assert.assertNotNull(summary.wheelchairIcon.value)
+        Assert.assertNotNull(detail.wheelchairIcon.value)
+        Assert.assertTrue(preferences.isWheelchairPreferred())
+        filter.setSelected(TransportMode.ID_WHEEL_CHAIR, false)
         Assert.assertNull(summary.wheelchairIcon.value)
         Assert.assertNull(detail.wheelchairIcon.value)
         preferences.setWheelchairPreferred(true)

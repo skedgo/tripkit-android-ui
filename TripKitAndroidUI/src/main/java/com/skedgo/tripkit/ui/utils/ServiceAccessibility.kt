@@ -6,11 +6,19 @@ import com.skedgo.tripkit.data.util.onChanged
 import com.skedgo.tripkit.ui.R
 import io.reactivex.Observable
 
-/** Display-only service accessibility policy; never changes routing or stored preferences. */
+/** Repair an untouched legacy default without replacing a saved information preference. */
+internal fun wheelchairInformationPreferences(context: Context): DefaultTripPreferences {
+    val preferences = context.getSharedPreferences("TripPreferences", Context.MODE_PRIVATE)
+    return DefaultTripPreferences(preferences).also {
+        if (!preferences.contains("isWheelchairPreferred") && context.isWheelchairModeSelected()) {
+            it.setWheelchairPreferred(true)
+        }
+    }
+}
+
+/** Service icon policy with initialization of an untouched legacy information preference. */
 internal class ServiceAccessibility(context: Context) {
-    private val tripPreferences = DefaultTripPreferences(
-        context.getSharedPreferences("TripPreferences", Context.MODE_PRIVATE)
-    )
+    private val tripPreferences = wheelchairInformationPreferences(context)
     private val transportPreferences = TransportModeSharedPreference(context)
     private val modePreferences = context.getSharedPreferences(PREF_KEY_TRANSPORT_MODE, Context.MODE_PRIVATE)
 

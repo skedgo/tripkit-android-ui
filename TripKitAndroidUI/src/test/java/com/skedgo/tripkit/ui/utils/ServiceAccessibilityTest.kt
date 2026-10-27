@@ -3,6 +3,9 @@ package com.skedgo.tripkit.ui.utils
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
 import com.skedgo.tripkit.DefaultTripPreferences
+import com.skedgo.tripkit.common.model.TransportMode
+import com.skedgo.tripkit.ui.tripresults.PrefsBasedTransportViewFilter
+import com.skedgo.tripkit.ui.tripresults.PREF_KEY_IS_DEFAULT_CONFIG_SET
 import com.skedgo.tripkit.ui.R
 import org.junit.Assert.*
 import org.junit.Before
@@ -41,10 +44,76 @@ class ServiceAccessibilityTest {
         assertEquals(R.drawable.ic_wheelchair_not_accessible, policy.wheelchairIcon(false))
     }
 
-    @Test fun `wheelchair routing mode does not enable information`() {
-        modes.edit().putBoolean("wa_wal", false).commit()
+    @Test fun `wheelchair mode enables information and shows all accessibility states`() {
+        val filter = PrefsBasedTransportViewFilter(context)
+        filter.setSelected(TransportMode.ID_WHEEL_CHAIR, true)
+        assertTrue(tripPreferences.isWheelchairPreferred())
+        assertEquals(R.drawable.ic_wheelchair, policy.wheelchairIcon(true))
+        assertEquals(R.drawable.ic_wheelchair_not_accessible, policy.wheelchairIcon(false))
+        assertEquals(R.drawable.ic_wheelchair_unknown, policy.wheelchairIcon(null))
+        filter.setSelected(TransportMode.ID_WHEEL_CHAIR, false)
         assertNull(policy.wheelchairIcon(true))
         assertNull(policy.wheelchairIcon(null))
+        assertEquals(R.drawable.ic_wheelchair_not_accessible, policy.wheelchairIcon(false))
+    }
+
+    @Test fun `information preference still shows unknown when wheelchair routing is off`() {
+        val filter = PrefsBasedTransportViewFilter(context)
+        filter.setSelected(TransportMode.ID_WHEEL_CHAIR, false)
+        tripPreferences.setWheelchairPreferred(true)
+        assertFalse(filter.isSelected(TransportMode.ID_WHEEL_CHAIR))
+        assertEquals(R.drawable.ic_wheelchair_unknown, policy.wheelchairIcon(null))
+    }
+
+    @Test fun `deselecting walking selects wheelchair and enables information`() {
+        val filter = PrefsBasedTransportViewFilter(context)
+        filter.setSelected(TransportMode.ID_WALK, false)
+        assertTrue(filter.isSelected(TransportMode.ID_WHEEL_CHAIR))
+        assertTrue(tripPreferences.isWheelchairPreferred())
+        assertEquals(R.drawable.ic_wheelchair_unknown, policy.wheelchairIcon(null))
+    }
+
+    @Test fun `existing wheelchair selection initializes missing information when rows reopen`() {
+        modes.edit().putBoolean(PREF_KEY_IS_DEFAULT_CONFIG_SET, true)
+            .putBoolean(TransportMode.ID_WALK, false).putBoolean("cy_bic", true).commit()
+        val reopened = ServiceAccessibility(context)
+        assertTrue(tripPreferences.isWheelchairPreferred())
+        assertEquals(R.drawable.ic_wheelchair_unknown, reopened.wheelchairIcon(null))
+        assertTrue(reopened.showBicycle(true))
+    }
+
+    @Test fun `opening transport settings initializes missing information for existing wheelchair selection`() {
+        modes.edit().putBoolean(PREF_KEY_IS_DEFAULT_CONFIG_SET, true)
+            .putBoolean(TransportMode.ID_WALK, false).commit()
+        val filter = PrefsBasedTransportViewFilter(context)
+        assertTrue(filter.isSelected(TransportMode.ID_WHEEL_CHAIR))
+        assertTrue(tripPreferences.isWheelchairPreferred())
+    }
+
+    @Test fun `saved manual information off survives reopening with wheelchair selected`() {
+        val filter = PrefsBasedTransportViewFilter(context)
+        filter.setSelected(TransportMode.ID_WHEEL_CHAIR, true)
+        tripPreferences.setWheelchairPreferred(false)
+        val reopenedFilter = PrefsBasedTransportViewFilter(context)
+        val reopened = ServiceAccessibility(context)
+        assertTrue(reopenedFilter.isSelected(TransportMode.ID_WHEEL_CHAIR))
+        assertFalse(tripPreferences.isWheelchairPreferred())
+        assertNull(reopened.wheelchairIcon(null))
+        assertEquals(R.drawable.ic_wheelchair_not_accessible, reopened.wheelchairIcon(false))
+    }
+
+    @Test fun `information can be disabled after mode selection and walking clears it`() {
+        val filter = PrefsBasedTransportViewFilter(context)
+        filter.setSelected(TransportMode.ID_WHEEL_CHAIR, true)
+        tripPreferences.setWheelchairPreferred(false)
+        assertTrue(filter.isSelected(TransportMode.ID_WHEEL_CHAIR))
+        assertNull(policy.wheelchairIcon(null))
+        tripPreferences.setWheelchairPreferred(true)
+        filter.setSelected(TransportMode.ID_WALK, true)
+        assertFalse(tripPreferences.isWheelchairPreferred())
+        assertNull(policy.wheelchairIcon(null))
+        filter.setSelected("cy_bic", false)
+        assertFalse(tripPreferences.isWheelchairPreferred())
     }
 
     @Test fun `bike requires support even when a mode is visible`() {
