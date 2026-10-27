@@ -144,4 +144,46 @@ class ServiceAccessibilityViewsTest : MockKTest() {
         owner.registry.currentState = androidx.lifecycle.Lifecycle.State.DESTROYED
     }
 
+
+    @Test
+    @org.robolectric.annotation.GraphicsMode(org.robolectric.annotation.GraphicsMode.Mode.NATIVE)
+    fun `unknown and inaccessible wheelchair glyphs render visibly in light and dark trip rows`() {
+        preferences.setWheelchairPreferred(true)
+        for (night in listOf(false, true)) {
+            val configuration = android.content.res.Configuration(context.resources.configuration).apply {
+                uiMode = if (night) android.content.res.Configuration.UI_MODE_NIGHT_YES
+                    else android.content.res.Configuration.UI_MODE_NIGHT_NO
+            }
+            val themed = android.view.ContextThemeWrapper(context.createConfigurationContext(configuration), com.skedgo.tripkit.ui.R.style.AppTheme)
+            summary.onCleared()
+            detail.onCleared()
+            summary = TripSegmentViewModel(themed, mockk(relaxed = true), TransportModeSharedPreference(themed))
+            detail = TripSegmentItemViewModel(themed, mockk(relaxed = true), mockk(relaxed = true),
+                mockk(relaxed = true), com.skedgo.tripkit.ui.trip.details.viewmodel.OccupancyViewModel(themed), TransportModeSharedPreference(themed))
+            val surface = themed.getColor(com.skedgo.tripkit.ui.R.color.white)
+            for (status in listOf<Boolean?>(null, false)) {
+                bind(status)
+                detail.icon.value = null // The transport-image provider is mocked; test real accessibility drawables.
+                val summaryBinding = com.skedgo.tripkit.ui.databinding.TripResultSegmentItemBinding.inflate(android.view.LayoutInflater.from(themed))
+                summaryBinding.viewModel = summary
+                summaryBinding.executePendingBindings()
+                val detailBinding = com.skedgo.tripkit.ui.databinding.TripSegmentBinding.inflate(android.view.LayoutInflater.from(themed))
+                detailBinding.viewModel = detail
+                detailBinding.executePendingBindings()
+                val images = listOf(summaryBinding.root.findViewById<android.widget.ImageView>(com.skedgo.tripkit.ui.R.id.wheelchair),
+                    detailBinding.root.findViewById<android.widget.ImageView>(com.skedgo.tripkit.ui.R.id.ivWheelchairAccessible))
+                for (image in images) {
+                    val bitmap = android.graphics.Bitmap.createBitmap(160, 160, android.graphics.Bitmap.Config.ARGB_8888)
+                    bitmap.eraseColor(surface)
+                    image.measure(android.view.View.MeasureSpec.makeMeasureSpec(160, android.view.View.MeasureSpec.EXACTLY), android.view.View.MeasureSpec.makeMeasureSpec(160, android.view.View.MeasureSpec.EXACTLY))
+                    image.layout(0, 0, 160, 160)
+                    image.draw(android.graphics.Canvas(bitmap))
+                    val pixels = IntArray(160 * 160)
+                    bitmap.getPixels(pixels, 0, 160, 0, 0, 160, 160)
+                    val visible = pixels.count { androidx.core.graphics.ColorUtils.calculateContrast(it, surface) >= 3.0 }
+                    Assert.assertTrue("status=$status night=$night must render a readable glyph, visible pixels=$visible", visible > 500)
+                }
+            }
+        }
+    }
 }

@@ -6,20 +6,9 @@ import com.skedgo.tripkit.routing.VehicleComponent
 import com.skedgo.tripkit.routing.toOccupancy
 
 fun RealTimeVehicle.getAverageOccupancy(): Occupancy? {
-    return with(this.components) {
-        if (this.isNullOrEmpty()) {
-            null
-        } else {
-            this.flatten()
-                .map {
-                    it.getOccupancy()?.ordinal ?: 0
-                }
-                .average()
-                .toInt()
-                .let {
-                    Occupancy.values()[it]
-                }
-        }
+    val knownOccupancies = components.orEmpty().flatten().mapNotNull { it.getOccupancy()?.ordinal }
+    return knownOccupancies.takeIf { it.isNotEmpty() }?.average()?.toInt()?.let {
+        Occupancy.values()[it]
     }
 }
 

@@ -46,6 +46,7 @@ import com.skedgo.tripkit.ui.utils.TransportModeSharedPreference
 import com.skedgo.tripkit.ui.utils.correctItemType
 import com.skedgo.tripkit.ui.utils.groupConsecutiveBy
 import com.skedgo.tripkit.ui.utils.tint
+import com.skedgo.tripkit.ui.utils.isDarkMode
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import timber.log.Timber
@@ -457,7 +458,11 @@ class TripSegmentItemViewModel @Inject internal constructor(
 
     private fun showSegmentIcon(segment: TripSegment, tintWhite: Boolean) {
         if (segment.getType() == SegmentType.ARRIVAL || segment.getType() == SegmentType.DEPARTURE) {
-            icon.value = ContextCompat.getDrawable(context, R.drawable.v4_ic_map_location)
+            icon.value = ContextCompat.getDrawable(context, R.drawable.v4_ic_map_location)?.apply {
+                if (context.resources.isDarkMode()) {
+                    tint(ContextCompat.getColor(context, R.color.black))
+                }
+            }
         } else {
             if (segment.modeInfo == null || segment.modeInfo!!.modeCompat == null) {
                 icon.value = null
@@ -475,6 +480,8 @@ class TripSegmentItemViewModel @Inject internal constructor(
                     .map {
                         if (tintWhite) {
                             it.tint(Color.WHITE)
+                        } else if (context.resources.isDarkMode() && segment.modeInfo?.remoteIconIsBranding != true) {
+                            it.tint(ContextCompat.getColor(context, R.color.black))
                         } else {
                             it
                         }
