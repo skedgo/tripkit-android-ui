@@ -33,7 +33,8 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.junit.MockitoJUnitRunner
 
-@RunWith(MockitoJUnitRunner::class)
+@RunWith(org.robolectric.RobolectricTestRunner::class)
+@org.robolectric.annotation.Config(sdk = [33])
 class TripSegmentItemViewModelTest : MockKTest() {
 
     private lateinit var context: Context
@@ -136,4 +137,105 @@ class TripSegmentItemViewModelTest : MockKTest() {
         assertTrue(viewModel.alerts.value?.isEmpty() == true)
     }
 
+
+    private fun timelineContext(night: Boolean): Context {
+        val app = androidx.test.core.app.ApplicationProvider.getApplicationContext<Context>()
+        val configuration = android.content.res.Configuration(app.resources.configuration).apply {
+            uiMode = if (night) android.content.res.Configuration.UI_MODE_NIGHT_YES
+                else android.content.res.Configuration.UI_MODE_NIGHT_NO
+        }
+        return android.view.ContextThemeWrapper(app.createConfigurationContext(configuration), R.style.AppTheme)
+    }
+
+    private fun timelineModel(themed: Context): TripSegmentItemViewModel {
+        val helper = mockk<TripSegmentHelper>()
+        every { helper.getIconUrlForModeInfo(any(), any()) } returns null
+        return TripSegmentItemViewModel(themed, mockk(relaxed = true), helper, mockk(relaxed = true),
+            OccupancyViewModel(themed), TransportModeSharedPreference(themed))
+    }
+
+    private fun renderTimelineIcon(themed: Context, drawable: android.graphics.drawable.Drawable): android.graphics.Bitmap {
+        val image = android.widget.ImageView(themed).apply { setImageDrawable(drawable) }
+        image.measure(android.view.View.MeasureSpec.makeMeasureSpec(128, android.view.View.MeasureSpec.EXACTLY),
+            android.view.View.MeasureSpec.makeMeasureSpec(128, android.view.View.MeasureSpec.EXACTLY))
+        image.layout(0, 0, 128, 128)
+        return android.graphics.Bitmap.createBitmap(128, 128, android.graphics.Bitmap.Config.ARGB_8888).also {
+            it.eraseColor(themed.getColor(R.color.white))
+            image.draw(android.graphics.Canvas(it))
+        }
+    }
+
+    @Test
+    @org.robolectric.annotation.GraphicsMode(org.robolectric.annotation.GraphicsMode.Mode.NATIVE)
+    fun `standalone timeline travel and location icons are readable without changing light rendering`() {
+        initRx()
+        try {
+            for (night in listOf(false, true)) {
+                val themed = timelineContext(night)
+                val model = timelineModel(themed)
+                try {
+                    for (mode in listOf("wheelchair", "walk", "bicycle", "arrival", "departure")) {
+                        val segment = TripSegment().apply {
+                            setType(when (mode) {
+                                "arrival" -> com.skedgo.tripkit.routing.SegmentType.ARRIVAL
+                                "departure" -> com.skedgo.tripkit.routing.SegmentType.DEPARTURE
+                                else -> com.skedgo.tripkit.routing.SegmentType.UNSCHEDULED
+                            })
+                            modeInfo = com.skedgo.tripkit.routing.ModeInfo().apply { localIconName = mode }
+                        }
+                        model.tripSegment = segment
+                        for (cancelled in listOf(false, true)) {
+                            model.setupSegment(TripSegmentItemViewModel.SegmentViewType.MOVING, "Timeline", isCancelled = cancelled)
+                            val binding = com.skedgo.tripkit.ui.databinding.TripSegmentBinding.inflate(android.view.LayoutInflater.from(themed))
+                            binding.viewModel = model
+                            binding.executePendingBindings()
+                            val icon = binding.root.findViewById<android.widget.ImageView>(R.id.icon)
+                            assertEquals(1f, icon.alpha)
+                            assertTrue(icon.isEnabled)
+                            var parent = icon.parent as? android.view.View
+                            while (parent != null) { assertEquals(1f, parent.alpha); parent = parent.parent as? android.view.View }
+                            val rendered = renderTimelineIcon(themed, icon.drawable!!)
+                            val surface = themed.getColor(R.color.white)
+                            val pixels = IntArray(128 * 128)
+                            rendered.getPixels(pixels, 0, 128, 0, 0, 128, 128)
+                            assertTrue("$mode night=$night must render readable timeline pixels",
+                                pixels.count { androidx.core.graphics.ColorUtils.calculateContrast(it, surface) >= 3.0 } > 100)
+                            if (!night) {
+                                val source = ContextCompat.getDrawable(themed, if (mode == "arrival" || mode == "departure") R.drawable.v4_ic_map_location else segment.darkVehicleIcon)!!
+                                assertTrue("Light $mode must be unchanged", rendered.sameAs(renderTimelineIcon(themed, source)))
+                            }
+                        }
+                    }
+                } finally { model.onCleared() }
+            }
+        } finally { tearDownRx() }
+    }
+
+    @Test
+    @org.robolectric.annotation.GraphicsMode(org.robolectric.annotation.GraphicsMode.Mode.NATIVE)
+    fun `timeline keeps route circle white icons and standalone branding untinted`() {
+        initRx()
+        try {
+            for (night in listOf(false, true)) {
+                val themed = timelineContext(night)
+                val model = timelineModel(themed)
+                try {
+                    val segment = TripSegment().apply {
+                        setType(com.skedgo.tripkit.routing.SegmentType.UNSCHEDULED)
+                        modeInfo = com.skedgo.tripkit.routing.ModeInfo().apply { localIconName = "bus" }
+                    }
+                    model.tripSegment = segment
+                    model.setupSegment(TripSegmentItemViewModel.SegmentViewType.MOVING, "Bus", lineColor = android.graphics.Color.BLUE)
+                    val source = ContextCompat.getDrawable(themed, segment.darkVehicleIcon)!!.mutate()
+                    source.setColorFilter(android.graphics.Color.WHITE, android.graphics.PorterDuff.Mode.SRC_IN)
+                    assertTrue(renderTimelineIcon(themed, source).sameAs(renderTimelineIcon(themed, model.icon.value!!)))
+                    assertEquals(android.graphics.Color.BLUE, model.backgroundCircleTint.value)
+                    segment.modeInfo!!.remoteIconIsBranding = true
+                    model.setupSegment(TripSegmentItemViewModel.SegmentViewType.MOVING, "Brand")
+                    val original = ContextCompat.getDrawable(themed, segment.darkVehicleIcon)!!
+                    assertTrue(renderTimelineIcon(themed, original).sameAs(renderTimelineIcon(themed, model.icon.value!!)))
+                } finally { model.onCleared() }
+            }
+        } finally { tearDownRx() }
+    }
 }

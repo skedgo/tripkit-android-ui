@@ -89,4 +89,21 @@ class RealTimeChoreographerTest: MockKTest() {
         testObserver.assertValue(vehicles)
         testObserver.dispose()
     }
+    @Test
+    fun `map polling preserves alternatives while service polling returns only assigned vehicles`() {
+        val region = mockk<Region>(relaxed = true)
+        every { region.name } returns "AU_ACT_Canberra"
+        val elements = listOf(mockk<IRealTimeElement>(relaxed = true))
+        val own = RealTimeVehicle().apply { serviceTripId = "own" }
+        val alternative = RealTimeVehicle()
+        every { realTimeRepository.getUpdates("AU_ACT_Canberra", elements) } returns Single.just(listOf(own))
+        every { realTimeRepository.getMapUpdates("AU_ACT_Canberra", elements) } returns Single.just(listOf(own, alternative))
+        val services = realTimeChoreographer.getRealTimeResults(region, elements).test()
+        val map = realTimeChoreographer.getMapRealTimeResults(region, elements).test()
+        services.assertValue(listOf(own))
+        map.assertValue(listOf(own, alternative))
+        services.dispose()
+        map.dispose()
+    }
+
 }

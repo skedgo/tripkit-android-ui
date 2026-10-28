@@ -2,6 +2,7 @@ package com.skedgo.tripkit.ui.tripresult
 
 import android.annotation.SuppressLint
 import android.content.Context
+import com.skedgo.tripkit.ui.utils.ServiceAccessibility
 import android.graphics.Color
 import android.graphics.PorterDuff
 import android.graphics.Typeface.BOLD
@@ -45,6 +46,7 @@ import com.skedgo.tripkit.ui.utils.TransportModeSharedPreference
 import com.skedgo.tripkit.ui.utils.correctItemType
 import com.skedgo.tripkit.ui.utils.groupConsecutiveBy
 import com.skedgo.tripkit.ui.utils.tint
+import com.skedgo.tripkit.ui.utils.isDarkMode
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import timber.log.Timber
@@ -60,6 +62,13 @@ class TripSegmentItemViewModel @Inject internal constructor(
     val occupancyViewModel: OccupancyViewModel,
     private val transportModeSharedPreference: TransportModeSharedPreference
 ) : RxViewModel() {
+    private val accessibility by lazy {
+        ServiceAccessibility(context).also { policy ->
+            policy.changes.observeOn(AndroidSchedulers.mainThread())
+                .subscribe { updateAccessibility() }.autoClear()
+        }
+    }
+
     enum class SegmentViewType {
         TERMINAL,
         STATIONARY,
@@ -105,6 +114,20 @@ class TripSegmentItemViewModel @Inject internal constructor(
     private val _roadTagsCharItems = MutableLiveData<List<RoadTagChartItem>>()
     val roadTagChartItems: LiveData<List<RoadTagChartItem>> = _roadTagsCharItems
 
+    val wheelchairIcon = MutableLiveData<Drawable?>()
+    val wheelchairAccessibleText = MutableLiveData<String?>()
+
+    private fun updateAccessibility() {
+        val segment = tripSegment
+        val icon = if (segment?.getType() == com.skedgo.tripkit.routing.SegmentType.SCHEDULED && !isStationaryItem)
+            accessibility.wheelchairIcon(segment?.wheelchairAccessible) else null
+        wheelchairIcon.value = icon?.let { ContextCompat.getDrawable(context, it) }
+        wheelchairAccessibleText.value = if (icon == null) null else
+            context.getString(accessibility.wheelchairText(segment?.wheelchairAccessible))
+        _showBicycleAccessible.value = segment != null && !isStationaryItem &&
+            accessibility.showBicycle(segment.bicycleAccessible)
+    }
+
     private val _showBicycleAccessible = MutableLiveData(false)
     val showBicycleAccessible: LiveData<Boolean> = _showBicycleAccessible
 
@@ -132,6 +155,7 @@ class TripSegmentItemViewModel @Inject internal constructor(
         this.isCancelled.value = isCancelled
         this.cancelledMessage.value = "Service has been cancelled."
         this.isStationaryItem = isStationaryItem
+        updateAccessibility()
         tripSegment?.let { segment ->
             this.title.value = title
 
@@ -160,13 +184,7 @@ class TripSegmentItemViewModel @Inject internal constructor(
             if (!isStationaryItem) {
                 initOccupancy(segment)
             }
-            val isBicycleEnabled =
-                transportModeSharedPreference.isTransportModeEnabled(TransportMode.ID_BICYCLE)
-            _showBicycleAccessible.postValue(
-                isBicycleEnabled &&
-                    segment.bicycleAccessible &&
-                    !isStationaryItem
-            )
+
         }
     }
 
@@ -440,7 +458,11 @@ class TripSegmentItemViewModel @Inject internal constructor(
 
     private fun showSegmentIcon(segment: TripSegment, tintWhite: Boolean) {
         if (segment.getType() == SegmentType.ARRIVAL || segment.getType() == SegmentType.DEPARTURE) {
-            icon.value = ContextCompat.getDrawable(context, R.drawable.v4_ic_map_location)
+            icon.value = ContextCompat.getDrawable(context, R.drawable.v4_ic_map_location)?.apply {
+                if (context.resources.isDarkMode()) {
+                    tint(ContextCompat.getColor(context, R.color.black))
+                }
+            }
         } else {
             if (segment.modeInfo == null || segment.modeInfo!!.modeCompat == null) {
                 icon.value = null
@@ -458,6 +480,8 @@ class TripSegmentItemViewModel @Inject internal constructor(
                     .map {
                         if (tintWhite) {
                             it.tint(Color.WHITE)
+                        } else if (context.resources.isDarkMode() && segment.modeInfo?.remoteIconIsBranding != true) {
+                            it.tint(ContextCompat.getColor(context, R.color.black))
                         } else {
                             it
                         }

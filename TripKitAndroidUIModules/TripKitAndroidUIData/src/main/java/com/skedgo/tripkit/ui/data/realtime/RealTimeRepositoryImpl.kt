@@ -19,6 +19,17 @@ class RealTimeRepositoryImpl @Inject constructor(
     override fun getUpdates(
         region: String,
         elements: List<IRealTimeElement>
+    ): Single<List<RealTimeVehicle>> = requestUpdates(region, elements, false)
+
+    override fun getMapUpdates(
+        region: String,
+        elements: List<IRealTimeElement>
+    ): Single<List<RealTimeVehicle>> = requestUpdates(region, elements, true)
+
+    private fun requestUpdates(
+        region: String,
+        elements: List<IRealTimeElement>,
+        includeAlternatives: Boolean
     ): Single<List<RealTimeVehicle>> =
         regionService.getRegionByNameAsync(region)
             .flatMap {
@@ -54,7 +65,7 @@ class RealTimeRepositoryImpl @Inject constructor(
             .flatMap { it }
             .map { latestResponse ->
                 latestResponse.services().flatMap {
-                    it.toRealTimeVehicles()
+                    if (includeAlternatives) it.toMapRealTimeVehicles() else it.toRealTimeVehicles()
                 }
             }
 }

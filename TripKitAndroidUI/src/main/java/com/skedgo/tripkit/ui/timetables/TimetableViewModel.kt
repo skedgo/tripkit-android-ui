@@ -307,9 +307,7 @@ class TimetableViewModel @Inject constructor(
                 services.forEach { service: TimetableEntry ->
                     val vehicle =
                         vehicles.firstOrNull { service.serviceTripId == it.serviceTripId }
-                    vehicle?.let {
-                        service.realtimeVehicle = it
-                    }
+                    service.realtimeVehicle = vehicle
                 }
                 services
             }

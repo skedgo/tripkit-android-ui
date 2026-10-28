@@ -2,6 +2,7 @@ package com.skedgo.tripkit.ui.tripresults
 
 import android.content.Context
 import android.content.SharedPreferences
+import com.skedgo.tripkit.ui.utils.wheelchairInformationPreferences
 import com.skedgo.TripKit
 import com.skedgo.tripkit.common.model.TransportMode
 import com.skedgo.tripkit.ui.utils.PREF_KEY_TRANSPORT_MODE
@@ -35,7 +36,7 @@ class PrefsBasedTransportViewFilter(val context: Context) : TripResultTransportV
 
             prefs.edit().putBoolean(PREF_KEY_IS_DEFAULT_CONFIG_SET, true).apply()
         }
-
+        wheelchairInformationPreferences(context)
     }
 
     override fun isSelected(mode: String): Boolean {
@@ -55,6 +56,11 @@ class PrefsBasedTransportViewFilter(val context: Context) : TripResultTransportV
             prefs.edit().putBoolean(TransportMode.ID_WALK, !selected).apply()
         } else {
             prefs.edit().putBoolean(mode, selected).apply()
+        }
+        // Match iOS: mode changes update information; the information setting remains editable.
+        if (mode == TransportMode.ID_WHEEL_CHAIR || mode == TransportMode.ID_WALK) {
+            wheelchairInformationPreferences(context)
+                .setWheelchairPreferred(if (mode == TransportMode.ID_WHEEL_CHAIR) selected else !selected)
         }
     }
 
