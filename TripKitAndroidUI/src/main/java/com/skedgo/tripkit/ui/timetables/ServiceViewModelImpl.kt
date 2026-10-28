@@ -1,6 +1,7 @@
 package com.skedgo.tripkit.ui.timetables
 
 import android.content.Context
+import com.skedgo.tripkit.ui.utils.ServiceAccessibility
 import android.graphics.Color
 import android.graphics.drawable.Drawable
 import androidx.core.content.ContextCompat
@@ -31,6 +32,13 @@ internal class ServiceViewModelImpl @Inject constructor(
     private val errorLogger: ErrorLogger
 ) : ServiceViewModel() {
     //  override val wheelchairAccessible = ObservableBoolean(false)
+    private val accessibility by lazy {
+        ServiceAccessibility(context).also { policy ->
+            policy.changes.observeOn(AndroidSchedulers.mainThread())
+                .subscribe { updateAccessibility() }.autoClear()
+        }
+    }
+
     override val wheelchairIcon = MutableLiveData<Drawable?>()
     override val wheelchairTint = MutableLiveData<Int>(Color.BLACK)
     override val wheelchairBackgroundTint =
@@ -107,11 +115,20 @@ internal class ServiceViewModelImpl @Inject constructor(
     }
 
     private fun setBicycleAccessible() {
-        showBicycleAccessible.postValue(service.bicycleAccessible == true)
+        showBicycleAccessible.postValue(accessibility.showBicycle(service.bicycleAccessible))
     }
 
     private fun presentOccupancy() {
-        service.realtimeVehicle?.let { occupancyViewModel.setOccupancy(it, false) }
+        val vehicle = service.realtimeVehicle
+        if (vehicle == null) {
+            occupancyViewModel.hasOccupancyInformation.set(false)
+            occupancyViewModel.hasOccupancySingleInformation.set(false)
+            occupancyViewModel.occupancyText.set(null)
+            occupancyViewModel.drawableLeft.set(null)
+            occupancyViewModel.items.clear()
+        } else {
+            occupancyViewModel.setOccupancy(vehicle, false)
+        }
         showOccupancyInfo.postValue(occupancyViewModel.hasInformation())
     }
 
@@ -171,29 +188,21 @@ internal class ServiceViewModelImpl @Inject constructor(
     }
 
     private fun initHelpersVMs(service: TimetableEntry) {
-        wheelchairBackgroundTint.postValue(
-            ContextCompat.getDrawable(context, R.drawable.bg_round_corner_wheelchair)
-        )
-        service.wheelchairAccessible?.let {
-            if (it) {
-                wheelchairIcon.postValue(ContextCompat.getDrawable(context, R.drawable.ic_wheelchair))
-                wheelchairTint.postValue(ContextCompat.getColor(context, R.color.white))
-            } else {
-                wheelchairBackgroundTint.postValue(
-                    ContextCompat.getDrawable(context, R.drawable.bg_round_corner_no_wheelchair)
-                )
-                wheelchairIcon.postValue(
-                    ContextCompat.getDrawable(
-                        context,
-                        R.drawable.ic_wheelchair_not_accessible
-                    )
-                )
-                wheelchairTint.postValue(ContextCompat.getColor(context, R.color.divider))
-            }
-        }
+        updateAccessibility()
         serviceAlertViewModel.setAlerts(service.alerts)
         serviceAlertViewModel.showAlertsObservable
             .subscribeWithErrorHandling { onAlertsClick.perform() }
             .autoClear()
     }
+    private fun updateAccessibility() {
+        val icon = accessibility.wheelchairIcon(service.wheelchairAccessible)
+        wheelchairIcon.postValue(icon?.let { ContextCompat.getDrawable(context, it) })
+        wheelchairTint.postValue(ContextCompat.getColor(context,
+            if (service.wheelchairAccessible == false) R.color.divider else R.color.white))
+        wheelchairBackgroundTint.postValue(ContextCompat.getDrawable(context,
+            if (service.wheelchairAccessible == false) R.drawable.bg_round_corner_no_wheelchair
+            else R.drawable.bg_round_corner_wheelchair))
+        setBicycleAccessible()
+    }
+
 }

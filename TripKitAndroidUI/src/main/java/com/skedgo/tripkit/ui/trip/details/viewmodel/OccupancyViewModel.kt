@@ -30,14 +30,18 @@ open class OccupancyViewModel @Inject constructor(private val context: Context) 
     val items: ObservableList<TrainOccupancyItemViewModel> = ObservableArrayList()
 
     open fun setOccupancy(vehicle: RealTimeVehicle, showAverage: Boolean) {
-        hasOccupancyInformation.set(vehicle.hasVehiclesOccupancy())
-        val hasOccupancyInfo = vehicle.components.orEmpty().sumBy { it.size } > 0
+        val averageOccupancy = vehicle.getAverageOccupancy()
+        drawableLeft.set(null)
+        occupancyText.set(null)
+        items.clear()
+        hasOccupancyInformation.set(vehicle.hasVehiclesOccupancy() && averageOccupancy != null)
+        val hasOccupancyInfo = averageOccupancy != null
         hasOccupancySingleInformation.set(hasOccupancyInfo && (vehicle.hasSingleVehicleOccupancy() || showAverage))
-        if (vehicle.hasVehiclesOccupancy()) {
+        if (hasOccupancyInformation.get()) {
             showOccupancyForManyComponentsVehicle(vehicle.components!!)
         }
 
-        vehicle.getAverageOccupancy()?.let {
+        averageOccupancy?.let {
             occupancyText.set(context.getString(GetTextForOccupancy.execute(it)))
             drawableLeft.set(
                 ContextCompat.getDrawable(

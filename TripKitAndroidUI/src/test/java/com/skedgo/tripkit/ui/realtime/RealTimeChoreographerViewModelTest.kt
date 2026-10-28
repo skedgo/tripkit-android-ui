@@ -45,7 +45,7 @@ class RealTimeChoreographerViewModelTest : MockKTest() {
         val vehicles = listOf(mockk<RealTimeVehicle>(relaxed = true))
 
         every {
-            realTimeChoreographer.getRealTimeResultsFromCleanElements(
+            realTimeChoreographer.getMapRealTimeResults(
                 region,
                 elements
             )
@@ -71,7 +71,7 @@ class RealTimeChoreographerViewModelTest : MockKTest() {
         val region = mockk<Region>(relaxed = true)
 
         every {
-            realTimeChoreographer.getRealTimeResultsFromCleanElements(
+            realTimeChoreographer.getMapRealTimeResults(
                 region,
                 listOf(service)
             )
@@ -89,4 +89,18 @@ class RealTimeChoreographerViewModelTest : MockKTest() {
         testObserver.assertNoErrors()
         testObserver.dispose()
     }
+    @Test
+    fun `alternative only update does not emit an assigned vehicle or terminate tracking`() {
+        val service = mockk<IRealTimeElement>(relaxed = true)
+        every { service.serviceTripId } returns "scheduled"
+        val region = mockk<Region>(relaxed = true)
+        val alternative = RealTimeVehicle()
+        every { realTimeChoreographer.getMapRealTimeResults(region, listOf(service)) } returns
+            Observable.just(listOf(alternative))
+        val observer = viewModel.realTimeVehicleObservable(service).test()
+        viewModel.getRealTimeVehicles(region, listOf(service)).test().assertValue(listOf(alternative))
+        observer.assertNoErrors().assertNoValues().assertNotComplete()
+        observer.dispose()
+    }
+
 }

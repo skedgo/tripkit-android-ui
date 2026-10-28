@@ -19,7 +19,7 @@ class RealTimeChoreographerViewModel @Inject constructor(
         region: Region,
         services: List<IRealTimeElement>
     ): Observable<List<RealTimeVehicle>> =
-        realTimeChoreographer.getRealTimeResultsFromCleanElements(region, services)
+        realTimeChoreographer.getMapRealTimeResults(region, services)
             .doOnNext {
                 realTimeVehiclesPublisher.accept(it)
             }
@@ -27,7 +27,7 @@ class RealTimeChoreographerViewModel @Inject constructor(
     fun realTimeVehicleObservable(service: IRealTimeElement): Observable<RealTimeVehicle> =
         realTimeVehiclesPublisher.hide()
             .observeOn(Schedulers.io())
-            .map { it.find { it.serviceTripId == service.serviceTripId } }
-            .filter { it != null }
-            .map { it!! }
+            .flatMapIterable { vehicles ->
+                listOfNotNull(vehicles.find { it.serviceTripId == service.serviceTripId })
+            }
 }
