@@ -50,6 +50,46 @@ class GoogleAndTripGoSuggestionViewModelTest {
     }
 
     @Test
+    fun `retained place suggestions refresh title and subtitle colors across theme changes`() {
+        val app = org.robolectric.RuntimeEnvironment.getApplication()
+        val retained = GoogleAndTripGoSuggestionViewModel(
+            app, picasso, TripGoPOI(Location(42.33, -83.04).apply {
+                name = "Detroit destination"
+                address = "Detroit, Michigan"
+            }), false, iconProvider, "Detroit"
+        )
+        assertRetainedSuggestionContrast(retained)
+    }
+
+    @Test
+    fun `retained choose on map suggestion refreshes colors when search is reopened in another theme`() {
+        val app = org.robolectric.RuntimeEnvironment.getApplication()
+        val retained = FixedSuggestionViewModel(app, DefaultSearchSuggestion(
+            FixedSuggestions.CHOOSE_ON_MAP, "Choose on Map", "Location information",
+            R.color.title_text, R.color.description_text,
+            android.graphics.drawable.ColorDrawable(android.graphics.Color.GRAY)
+        ))
+        assertRetainedSuggestionContrast(retained)
+    }
+
+    private fun assertRetainedSuggestionContrast(retained: SuggestionViewModel) {
+        val app = org.robolectric.RuntimeEnvironment.getApplication()
+        try {
+            for (qualifiers in listOf("night", "notnight", "night", "notnight")) {
+                org.robolectric.RuntimeEnvironment.setQualifiers(qualifiers)
+                val row = com.skedgo.tripkit.ui.search.compose.mapSearchResultRows(listOf(retained)).single()
+                val surface = app.getColor(R.color.subCardBackground)
+                assertTrue("Title must remain readable in $qualifiers",
+                    androidx.core.graphics.ColorUtils.calculateContrast(row.titleTextColor, surface) >= 4.5)
+                assertTrue("Subtitle must remain readable in $qualifiers",
+                    androidx.core.graphics.ColorUtils.calculateContrast(row.subtitleTextColor, surface) >= 3.0)
+            }
+        } finally {
+            org.robolectric.RuntimeEnvironment.setQualifiers("")
+        }
+    }
+
+    @Test
     fun `title should return location name if available`() {
         val location: Location = mockk(relaxed = true) {
             every { name } returns "Test Place"

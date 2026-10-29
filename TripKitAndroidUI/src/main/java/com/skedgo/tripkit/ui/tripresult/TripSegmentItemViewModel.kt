@@ -46,6 +46,7 @@ import com.skedgo.tripkit.ui.utils.TransportModeSharedPreference
 import com.skedgo.tripkit.ui.utils.correctItemType
 import com.skedgo.tripkit.ui.utils.groupConsecutiveBy
 import com.skedgo.tripkit.ui.utils.tint
+import com.skedgo.tripkit.ui.utils.getLocalSegmentIcon
 import com.skedgo.tripkit.ui.utils.isDarkMode
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -457,46 +458,34 @@ class TripSegmentItemViewModel @Inject internal constructor(
     }
 
     private fun showSegmentIcon(segment: TripSegment, tintWhite: Boolean) {
+        val foreground = if (tintWhite) Color.WHITE else ContextCompat.getColor(context, R.color.labelPrimary)
         if (segment.getType() == SegmentType.ARRIVAL || segment.getType() == SegmentType.DEPARTURE) {
-            icon.value = ContextCompat.getDrawable(context, R.drawable.v4_ic_map_location)?.apply {
-                if (context.resources.isDarkMode()) {
-                    tint(ContextCompat.getColor(context, R.color.black))
-                }
-            }
-        } else {
-            if (segment.modeInfo == null || segment.modeInfo!!.modeCompat == null) {
-                icon.value = null
-            } else {
-                val url =
-                    tripSegmentHelper.getIconUrlForModeInfo(context.resources, segment.modeInfo)
-                var remoteIcon = Observable.empty<Drawable>()
-                if (url != null) {
-                    remoteIcon = TripKitUI.getInstance().picasso().fetchAsync(url).toObservable()
-                        .map { bitmap -> BitmapDrawable(context.resources, bitmap) }
-                }
-                Observable
-                    .just(ContextCompat.getDrawable(context, segment.darkVehicleIcon))
-                    .concatWith(remoteIcon)
-                    .map {
-                        if (tintWhite) {
-                            it.tint(Color.WHITE)
-                        } else if (context.resources.isDarkMode() && segment.modeInfo?.remoteIconIsBranding != true) {
-                            it.tint(ContextCompat.getColor(context, R.color.black))
-                        } else {
-                            it
-                        }
-                    }
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .doOnComplete {
-                        this.showTicketInfo.value = !segment.ticketURL.isNullOrEmpty()
-                    }
-                    .subscribe({ drawable:
-                                 Drawable ->
-                        icon.value = drawable
-                    }, { e -> Timber.e(e) }).autoClear()
-
-            }
+            icon.value = requireNotNull(ContextCompat.getDrawable(context, R.drawable.v4_ic_map_location)).tint(foreground)
+            return
         }
+        val tintColor = when {
+            tintWhite -> Color.WHITE
+            context.resources.isDarkMode() && segment.modeInfo?.remoteIconIsBranding != true -> foreground
+            else -> null
+        }
+        // Local glyphs are templates even when the remote image is branded.
+        val localIcon = segment.getLocalSegmentIcon(context).tint(foreground)
+
+        val url = tripSegmentHelper.getIconUrlForModeInfo(context.resources, segment.modeInfo)
+        var remoteIcon = Observable.empty<Drawable>()
+        if (url != null) {
+            remoteIcon = TripKitUI.getInstance().picasso().fetchAsync(url).toObservable()
+                .map { bitmap ->
+                    BitmapDrawable(context.resources, bitmap).apply {
+                        tintColor?.let { tint(it) }
+                    }
+                }
+        }
+        Observable.just(localIcon)
+            .concatWith(remoteIcon)
+            .observeOn(AndroidSchedulers.mainThread())
+            .doOnComplete { showTicketInfo.value = !segment.ticketURL.isNullOrEmpty() }
+            .subscribe({ icon.value = it }, { Timber.e(it) }).autoClear()
     }
 
 }

@@ -103,8 +103,13 @@ class TripResultViewModel @Inject constructor(
     val alternateTripVisible = MutableLiveData(false)
     val costVisible = MutableLiveData(true)
     val cost = MutableLiveData<String>()
+
     val moreButtonVisible = MutableLiveData(false)
     var moreButtonText = MutableLiveData<String>()
+
+    val actionButtonVisible = MutableLiveData(false)
+    var actionButtonText = MutableLiveData<String>()
+
     var accessibilityLabel = MutableLiveData<String>()
     var otherTripGroups: List<Trip>? = null
     var classification = TripGroupClassifier.Classification.NONE
@@ -210,6 +215,10 @@ class TripResultViewModel @Inject constructor(
                     actionButtonHandler?.getPrimaryAction(context, trip)
 
                 actionButtonText?.let {
+                    /*
+                    this@TripResultViewModel.actionButtonText = it
+                    actionButtonVisible.value = true
+                    */
                     moreButtonText = it
                     moreButtonVisible.value = true
                 }

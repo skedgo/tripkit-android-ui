@@ -22,8 +22,8 @@ sealed class SuggestionViewModel(
     abstract val title: String
     open val subtitle: String? = null
 
-    val titleTextColor: Int by lazy { ContextCompat.getColor(context, titleTextColorRes) }
-    val subtitleTextColor: Int by lazy { ContextCompat.getColor(context, subtitleTextColorRes) }
+    val titleTextColor: Int get() = ContextCompat.getColor(context, titleTextColorRes)
+    val subtitleTextColor: Int get() = ContextCompat.getColor(context, subtitleTextColorRes)
 
     protected abstract val titleTextColorRes: Int
     protected abstract val subtitleTextColorRes: Int

@@ -4,6 +4,7 @@
     <dimen name="spacing_3">3dp</dimen>
     <dimen name="spacing_extra_small">4dp</dimen>
     <dimen name="spacing_small">8dp</dimen>
+    <dimen name="spacing_10">10dp</dimen>
     <dimen name="spacing_12">12dp</dimen>
     <dimen name="spacing_14">14dp</dimen>
     <dimen name="spacing_normal">16dp</dimen>
@@ -39,10 +40,18 @@
 
     <dimen name="icon_x_small">12dp</dimen>
     <dimen name="icon_small">16dp</dimen>
+    <dimen name="icon_20">20dp</dimen>
     <dimen name="icon_regular">24dp</dimen>
     <dimen name="icon_medium">32dp</dimen>
     <dimen name="icon_large">64dp</dimen>
     <dimen name="icon_huge">120dp</dimen>
+    <dimen name="icon_size_10">10dp</dimen>
+    <dimen name="icon_size_14">14dp</dimen>
+    <dimen name="icon_size_20">20dp</dimen>
+    <dimen name="icon_size_22">22dp</dimen>
+    <dimen name="icon_size_24">24dp</dimen>
+    <dimen name="icon_size_36">36dp</dimen>
+    <dimen name="icon_size_40">40dp</dimen>
 
     <dimen name="fab_icon_my_location">40dp</dimen>
 
@@ -76,6 +85,7 @@
     <dimen name="cardview_corner_radius_medium">16dp</dimen>
     <dimen name="cardview_corner_radius">12dp</dimen>
     <dimen name="cardview_corner_radius_small">4dp</dimen>
+    <dimen name="cardview_corner_radius_8">8dp</dimen>
     <dimen name="button_radius_small">8dp</dimen>
 
     <dimen name="induction_detail_icon_size">40dp</dimen>
@@ -90,6 +100,7 @@
     <dimen name="drt_ticket_action_icon_size">24dp</dimen>
 
     <dimen name="button_size_normal">35dp</dimen>
+    <dimen name="button_size_40">40dp</dimen>
     <dimen name="button_size_48">48dp</dimen>
     <dimen name="button_size_medium">50dp</dimen>
     <dimen name="button_size_56">56dp</dimen>
@@ -97,12 +108,6 @@
     <dimen name="min_touch_target_size">48dp</dimen>
     <dimen name="image_size_small">120dp</dimen>
 
-    <dimen name="icon_size_10">10dp</dimen>
-    <dimen name="icon_size_14">14dp</dimen>
-    <dimen name="icon_size_20">20dp</dimen>
-    <dimen name="icon_size_24">24dp</dimen>
-    <dimen name="icon_size_36">36dp</dimen>
-    <dimen name="icon_size_40">40dp</dimen>
 
     <dimen name="divider_vertical_40">40dp</dimen>
 

@@ -167,7 +167,7 @@ class TripSegmentItemViewModelTest : MockKTest() {
 
     @Test
     @org.robolectric.annotation.GraphicsMode(org.robolectric.annotation.GraphicsMode.Mode.NATIVE)
-    fun `standalone timeline travel and location icons are readable without changing light rendering`() {
+    fun `standalone timeline travel and location icons retain the feature theme foreground`() {
         initRx()
         try {
             for (night in listOf(false, true)) {
@@ -202,7 +202,8 @@ class TripSegmentItemViewModelTest : MockKTest() {
                                 pixels.count { androidx.core.graphics.ColorUtils.calculateContrast(it, surface) >= 3.0 } > 100)
                             if (!night) {
                                 val source = ContextCompat.getDrawable(themed, if (mode == "arrival" || mode == "departure") R.drawable.v4_ic_map_location else segment.darkVehicleIcon)!!
-                                assertTrue("Light $mode must be unchanged", rendered.sameAs(renderTimelineIcon(themed, source)))
+                                source.setColorFilter(themed.getColor(R.color.labelPrimary), android.graphics.PorterDuff.Mode.SRC_IN)
+                                assertTrue("Light $mode must retain the feature foreground", rendered.sameAs(renderTimelineIcon(themed, source)))
                             }
                         }
                     }
@@ -213,7 +214,7 @@ class TripSegmentItemViewModelTest : MockKTest() {
 
     @Test
     @org.robolectric.annotation.GraphicsMode(org.robolectric.annotation.GraphicsMode.Mode.NATIVE)
-    fun `timeline keeps route circle white icons and standalone branding untinted`() {
+    fun `timeline keeps route circle white icons and local templates themed despite remote branding`() {
         initRx()
         try {
             for (night in listOf(false, true)) {
@@ -232,7 +233,8 @@ class TripSegmentItemViewModelTest : MockKTest() {
                     assertEquals(android.graphics.Color.BLUE, model.backgroundCircleTint.value)
                     segment.modeInfo!!.remoteIconIsBranding = true
                     model.setupSegment(TripSegmentItemViewModel.SegmentViewType.MOVING, "Brand")
-                    val original = ContextCompat.getDrawable(themed, segment.darkVehicleIcon)!!
+                    val original = ContextCompat.getDrawable(themed, segment.darkVehicleIcon)!!.mutate()
+                    original.setColorFilter(themed.getColor(R.color.labelPrimary), android.graphics.PorterDuff.Mode.SRC_IN)
                     assertTrue(renderTimelineIcon(themed, original).sameAs(renderTimelineIcon(themed, model.icon.value!!)))
                 } finally { model.onCleared() }
             }

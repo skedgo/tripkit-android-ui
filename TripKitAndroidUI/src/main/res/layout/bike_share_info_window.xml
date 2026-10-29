@@ -15,7 +15,7 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
         android:layout_marginBottom="8dp"
-        android:textColor="@android:color/black"
+        android:textColor="@color/labelPrimary"
         android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
         tools:text="Sydney Bike Share" />
 
@@ -27,6 +27,7 @@
         android:layout_below="@id/operatorName"
         android:layout_marginRight="8dp"
         android:layout_marginTop="16dp"
+        android:tint="@color/labelPrimary"
         android:src="@drawable/ic_bicycle_share" />
 
     <TextView
@@ -37,7 +38,7 @@
         android:layout_toRightOf="@id/bikeShareIcon"
         android:padding="8dp"
         android:text="@string/available_bikes"
-        android:textColor="@android:color/black"
+        android:textColor="@color/labelSecondary"
         android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
 
     <TextView
@@ -50,7 +51,7 @@
         android:gravity="center_horizontal"
         android:paddingLeft="8dp"
         android:paddingRight="8dp"
-        android:textColor="@android:color/black"
+        android:textColor="@color/labelPrimary"
         android:textAppearance="@style/TextAppearance.AppCompat.Medium"
         tools:text="24" />
 
@@ -62,7 +63,7 @@
         android:layout_toRightOf="@id/bikeShareIcon"
         android:padding="8dp"
         android:text="@string/empty_docks"
-        android:textColor="@android:color/black"
+        android:textColor="@color/labelSecondary"
         android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
 
     <TextView
@@ -75,7 +76,7 @@
         android:gravity="center_horizontal"
         android:paddingLeft="8dp"
         android:paddingRight="8dp"
-        android:textColor="@android:color/black"
+        android:textColor="@color/labelPrimary"
         android:textAppearance="@style/TextAppearance.AppCompat.Medium"
         tools:text="15" />
 
@@ -86,5 +87,6 @@
         android:layout_marginLeft="16dp"
 
         android:layout_toRightOf="@id/availableBikes"
+        android:tint="@color/labelPrimary"
         android:src="@drawable/ic_arrow_forward" />
 </RelativeLayout>

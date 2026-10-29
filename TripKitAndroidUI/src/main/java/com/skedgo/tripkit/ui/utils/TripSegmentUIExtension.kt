@@ -32,13 +32,6 @@ fun TripSegment.getSegmentIconObservable(
     context: Context,
     getTransportIconTintStrategy: GetTransportIconTintStrategy,
 ): Observable<Drawable?> {
-    if (this.modeInfo == null || this.modeInfo!!.localIconName == null) {
-        return Observable.just(null)
-    }
-    if (this.darkVehicleIcon == 0) {
-        return Observable.just(null)
-    }
-
     val url = TransportModeUtils.getIconUrlForModeInfo(context.resources, this.modeInfo)
     var remoteIcon = Observable.empty<Drawable>()
     if (url != null) {
@@ -47,7 +40,7 @@ fun TripSegment.getSegmentIconObservable(
     }
 
     return Observable
-        .just(ContextCompat.getDrawable(context, this.darkVehicleIcon))
+        .just(getLocalSegmentIcon(context))
         .concatWith(remoteIcon)
         .doOnError { e -> Timber.e(e) }
         .flatMap { drawable ->
@@ -62,6 +55,25 @@ fun TripSegment.getSegmentIconObservable(
                 }
                 .toObservable()
         }.observeOn(AndroidSchedulers.mainThread())
+}
+
+internal fun TripSegment.getLocalSegmentIcon(context: Context): Drawable {
+    // Persisted trips can contain an absent or no-longer-recognised local icon name.
+    // Their mode, times and instructions are still usable: show a real fallback icon
+    // rather than emitting null (RxJava forbids it) or dropping the summary entry.
+    val localIconResource = darkVehicleIcon.takeIf { it != 0 }
+        ?: TransportMode.getLocalIconResId(transportModeId).takeIf { it != 0 }
+        ?: if (getType() == com.skedgo.tripkit.routing.SegmentType.ARRIVAL ||
+            getType() == com.skedgo.tripkit.routing.SegmentType.DEPARTURE) {
+            R.drawable.v4_ic_map_location
+        } else TransportMode.getLocalIconResId(TransportMode.ID_PUBLIC_TRANSPORT)
+
+    if (darkVehicleIcon == 0) {
+        Timber.w("Segment icon fallback: mode=%s localIcon=%s type=%s",
+            transportModeId, modeInfo?.localIconName, getType())
+    }
+
+    return requireNotNull(ContextCompat.getDrawable(context, localIconResource))
 }
 
 fun TripSegment.createSummaryIcon(

@@ -39,6 +39,7 @@ class ExternalActionTripPreviewItemFragment : BaseTripKitFragment() {
 
     override fun onResume() {
         super.onResume()
+        viewModel.refreshIcon(requireContext())
         viewModel.closeClicked.observable
             .observeOn(AndroidSchedulers.mainThread())
             .subscribeWithErrorHandling {

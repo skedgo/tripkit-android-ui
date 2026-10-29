@@ -9,7 +9,8 @@
             type="com.skedgo.tripkit.ui.model.TimetableHeaderLineItem" />
     </data>
 
-    <androidx.cardview.widget.CardView xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    <androidx.cardview.widget.CardView
+        xmlns:card_view="http://schemas.android.com/apk/res-auto"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         card_view:cardBackgroundColor="@{data.serviceColor}"
@@ -26,7 +27,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/serviceLine"
-            android:textColor="@android:color/white"
+            card_view:readableBadgeTextColor="@{data.serviceColor}"
             android:paddingLeft="4dp"
             android:paddingRight="4dp"
             style="@style/TextAppearance.MaterialComponents.Caption" />
