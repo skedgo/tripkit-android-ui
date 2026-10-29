@@ -186,4 +186,31 @@ class ServiceAccessibilityViewsTest : MockKTest() {
             }
         }
     }
+    @Test
+    @org.robolectric.annotation.GraphicsMode(org.robolectric.annotation.GraphicsMode.Mode.NATIVE)
+    fun `collapsed and expanded service bicycle glyphs remain readable in both themes`() {
+        for (night in listOf(false, true)) {
+            val configuration = android.content.res.Configuration(context.resources.configuration).apply {
+                uiMode = if (night) android.content.res.Configuration.UI_MODE_NIGHT_YES
+                    else android.content.res.Configuration.UI_MODE_NIGHT_NO
+            }
+            val themed = android.view.ContextThemeWrapper(context.createConfigurationContext(configuration), com.skedgo.tripkit.ui.R.style.AppTheme)
+            val binding = com.skedgo.tripkit.ui.databinding.ServiceDetailFragmentContentBinding.inflate(android.view.LayoutInflater.from(themed))
+            val expanded = (binding.tvBicycleLabel.parent as android.view.ViewGroup).getChildAt(0) as android.widget.ImageView
+            val surface = themed.getColor(com.skedgo.tripkit.ui.R.color.subCardBackground)
+            for (image in listOf(binding.ivBicycle, expanded)) {
+                image.visibility = android.view.View.VISIBLE
+                val bitmap = android.graphics.Bitmap.createBitmap(160, 160, android.graphics.Bitmap.Config.ARGB_8888)
+                bitmap.eraseColor(surface)
+                image.measure(android.view.View.MeasureSpec.makeMeasureSpec(160, android.view.View.MeasureSpec.EXACTLY), android.view.View.MeasureSpec.makeMeasureSpec(160, android.view.View.MeasureSpec.EXACTLY))
+                image.layout(0, 0, 160, 160)
+                image.draw(android.graphics.Canvas(bitmap))
+                val pixels = IntArray(160 * 160)
+                bitmap.getPixels(pixels, 0, 160, 0, 0, 160, 160)
+                Assert.assertTrue("night=$night must render a readable bicycle glyph",
+                    pixels.count { androidx.core.graphics.ColorUtils.calculateContrast(it, surface) >= 3.0 } > 500)
+            }
+        }
+    }
+
 }

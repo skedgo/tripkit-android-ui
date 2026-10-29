@@ -14,6 +14,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
+import com.skedgo.tripkit.ui.utils.readableBadgeForeground
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -56,7 +58,7 @@ private fun TimetableServiceNumberChip(
     ) {
         Text(
             text = serviceNumber,
-            color = colorResource(R.color.white),
+            color = Color(readableBadgeForeground(serviceColor.toArgb(), colorResource(R.color.white).toArgb())),
             style = TripKitComposeTextStyles.current.labelLarge,
             modifier = Modifier.padding(
                 horizontal = dimensionResource(R.dimen.spacing_small),

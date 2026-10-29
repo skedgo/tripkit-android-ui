@@ -86,6 +86,40 @@ class LocationSearchViewModelTest : MockKTest() {
     }
 
     @Test
+    fun `retained search rows still select after fragment destruction until owner clears model`() {
+        val row = FixedSuggestionViewModel(
+            org.robolectric.RuntimeEnvironment.getApplication(),
+            DefaultSearchSuggestion(
+                FixedSuggestions.CHOOSE_ON_MAP, "Choose on Map", "",
+                com.skedgo.tripkit.ui.R.color.title_text,
+                com.skedgo.tripkit.ui.R.color.description_text,
+                android.graphics.drawable.ColorDrawable(android.graphics.Color.GRAY)
+            )
+        )
+        viewModel.fixedSuggestions.add(row)
+        val selections = viewModel.fixedLocationChosen.test()
+        row.onItemClicked.perform()
+        selections.assertValueCount(1)
+
+        val fragment = LocationSearchFragment()
+        LocationSearchFragment::class.java.getDeclaredField("viewModel").apply {
+            isAccessible = true
+            set(fragment, viewModel)
+        }
+        fragment.onDestroy()
+
+        row.onItemClicked.perform()
+        selections.assertValueCount(2)
+
+        // Permanent removal still releases subscriptions through the ViewModel owner.
+        val store = androidx.lifecycle.ViewModelStore()
+        store.put("search", viewModel)
+        store.clear()
+        row.onItemClicked.perform()
+        selections.assertValueCount(2)
+    }
+
+    @Test
     fun `onQueryTextChanged should update query and set showRefreshing to true`() {
         val query = "test location"
 

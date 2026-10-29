@@ -28,6 +28,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import com.skedgo.tripkit.ui.utils.readableBadgeForeground
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.platform.ViewCompositionStrategy
@@ -320,7 +321,7 @@ private fun RouteBadge(routeNumber: String, routeColor: Color) {
         Text(
             text = routeNumber,
             style = TripKitComposeTextStyles.current.labelLarge,
-            color = colorResource(R.color.white),
+            color = Color(readableBadgeForeground(routeColor.toArgb(), colorResource(R.color.subCardBackground).toArgb())),
             modifier = Modifier.padding(
                 horizontal = dimensionResource(R.dimen.spacing_small),
                 vertical = dimensionResource(R.dimen.spacing_xx_small)

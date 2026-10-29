@@ -82,7 +82,7 @@
                     android:paddingLeft="4dp"
                     android:paddingRight="4dp"
                     android:text="@{viewModel.serviceNumber}"
-                    android:textColor="@android:color/white"
+                    bind:readableBadgeTextColor="@{viewModel.serviceColor}"
                     tools:text="U1" />
             </androidx.cardview.widget.CardView>
 

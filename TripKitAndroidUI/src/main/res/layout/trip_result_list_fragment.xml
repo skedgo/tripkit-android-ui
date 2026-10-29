@@ -293,7 +293,7 @@
                 android:id="@+id/recyclerView"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="@color/grey2"
+                android:background="@color/cardBackground"
                 app:itemBinding="@{viewModel.itemBinding}"
                 app:items="@{viewModel.mergedList}"
                 app:adapter="@{viewModel.customAdapter}"
