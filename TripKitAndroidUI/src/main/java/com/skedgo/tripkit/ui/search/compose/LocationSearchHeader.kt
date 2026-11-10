@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -94,11 +95,13 @@ fun LocationSearchHeader(
             AndroidView(
                 modifier = Modifier
                     .weight(1f)
-                    .height(dimensionResource(R.dimen.input_height_40))
+                    // Minimum, not fixed: the field must grow when the hint/query wraps at large
+                    // font scales.
+                    .heightIn(min = dimensionResource(R.dimen.input_height_40))
                     .clip(RoundedCornerShape(dimensionResource(R.dimen.cardview_corner_radius)))
                     .background(inputBackground),
                 factory = {
-                    SearchView(context).apply {
+                    FontScaleAwareSearchView(context).apply {
                         isIconified = false
                         setIconifiedByDefault(false)
                         setQueryHint(queryHint)
@@ -134,6 +137,7 @@ fun LocationSearchHeader(
                         )
                         findViewById<SearchAutoComplete?>(androidx.appcompat.R.id.search_src_text)?.let { textView ->
                             applyBodyLargeTextStyle(textView, bodyLargeStyle)
+                            allowWrappingAtLargeFontScale(textView)
                             textView.setTextColor(ContextCompat.getColor(context, R.color.labelPrimary))
                             textView.setHintTextColor(ContextCompat.getColor(context, R.color.labelSecondary))
                         }
@@ -150,6 +154,46 @@ fun LocationSearchHeader(
             )
         }
     }
+}
+
+/**
+ * AppCompat's [SearchView.onMeasure] forces its preferred (48dp) height unless measured with an
+ * exact height, so a hint/query that wraps at large font scales is clipped. Re-measure with the
+ * height the text field actually needs when that is taller than the preferred height.
+ */
+private class FontScaleAwareSearchView(context: android.content.Context) : SearchView(context) {
+    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec)
+        val textView = findViewById<SearchAutoComplete?>(androidx.appcompat.R.id.search_src_text)
+            ?: return
+        if (textView.measuredWidth <= 0) return
+        textView.measure(
+            MeasureSpec.makeMeasureSpec(textView.measuredWidth, MeasureSpec.EXACTLY),
+            MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED)
+        )
+        val needed = textView.measuredHeight + paddingTop + paddingBottom
+        if (needed > measuredHeight) {
+            super.onMeasure(
+                widthMeasureSpec,
+                MeasureSpec.makeMeasureSpec(needed, MeasureSpec.EXACTLY)
+            )
+        }
+    }
+}
+
+/**
+ * AppCompat's search field is a fixed 36dp single line, which truncates the hint at large font
+ * scales. Let it wrap to two lines and grow vertically while keeping the single-line input type,
+ * so the IME search action is unchanged.
+ */
+private fun allowWrappingAtLargeFontScale(textView: SearchAutoComplete) {
+    textView.layoutParams = textView.layoutParams?.apply {
+        height = android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+    }
+    textView.minHeight = (36 * textView.resources.displayMetrics.density).toInt()
+    textView.setHorizontallyScrolling(false)
+    textView.maxLines = 2
+    textView.ellipsize = android.text.TextUtils.TruncateAt.END
 }
 
 private fun applyBodyLargeTextStyle(textView: SearchAutoComplete, style: TextStyle) {

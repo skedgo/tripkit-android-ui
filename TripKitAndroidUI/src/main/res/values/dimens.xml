@@ -43,6 +43,11 @@
     <dimen name="icon_medium">32dp</dimen>
     <dimen name="icon_large">64dp</dimen>
     <dimen name="icon_huge">120dp</dimen>
+    <!-- Inline status icons that sit next to text (realtime, wheelchair, bicycle, occupancy,
+         service mode). Same value as icon_x_small/icon_small at font scale 1.0, but in sp so
+         they stay proportionate to the adjacent text at large font scales. -->
+    <dimen name="icon_x_small_text_scaled">12sp</dimen>
+    <dimen name="icon_small_text_scaled">16sp</dimen>
 
     <dimen name="fab_icon_my_location">40dp</dimen>
 

@@ -10,10 +10,13 @@
 
     <!-- Having minWidth 120dp helps fixing truncated text, such as, 'Wed Oct...'. -->
     <!-- 120dp was calculated from Matt's mockup. -->
+    <!-- The days wheel takes the remaining width (weight) so the hour/minute/AM-PM wheels keep
+         their natural width and are never pushed out of the dialog at large font scales. -->
     <kankan.wheel.widget.WheelView
         android:id="@+id/daysView"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_weight="1"
         android:minWidth="120dp" />
 
     <kankan.wheel.widget.WheelView
