@@ -2,6 +2,7 @@ package com.skedgo.tripkit.ui.servicedetail
 
 import android.content.Context
 import android.graphics.PorterDuff
+import android.graphics.drawable.Drawable
 import android.graphics.drawable.NinePatchDrawable
 import androidx.core.content.ContextCompat
 import androidx.databinding.ObservableField
@@ -32,6 +33,8 @@ class ServiceDetailItemViewModel @Inject constructor(val getStopTimeDisplayText:
     val onItemClick = TapAction.create { stop }
     val isTravelled = MutableLiveData(false)
     val isWheelchairAccessible = MutableLiveData(false)
+    val wheelchairIcon = MutableLiveData<Drawable?>()
+    val wheelchairAccessibleText = MutableLiveData<String?>()
 
     fun setDrawable(context: Context, direction: LineDirection) {
         when (direction) {

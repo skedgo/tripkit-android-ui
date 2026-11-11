@@ -86,6 +86,7 @@ class DeparturesResponse {
 
     data class ServicesResponse(
         @SerializedName("stopCode") val stopCode: String,
-        @SerializedName("services") val serviceList: List<TimetableEntry>?
+        @SerializedName("services") val serviceList: List<TimetableEntry>?,
+        @SerializedName("wheelchairAccessible") val wheelchairAccessible: Boolean? = null
     )
 }
