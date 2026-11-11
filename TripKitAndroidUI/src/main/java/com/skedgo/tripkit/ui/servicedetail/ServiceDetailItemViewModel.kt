@@ -12,6 +12,7 @@ import com.skedgo.tripkit.common.model.stop.ServiceStop
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.core.RxViewModel
 import com.skedgo.tripkit.ui.utils.TapAction
+import com.skedgo.tripkit.ui.utils.ServiceAccessibility
 import io.reactivex.android.schedulers.AndroidSchedulers
 import timber.log.Timber
 import javax.inject.Inject
@@ -32,8 +33,9 @@ class ServiceDetailItemViewModel @Inject constructor(val getStopTimeDisplayText:
     val stopNameColor = ObservableInt()
     val onItemClick = TapAction.create { stop }
     val isTravelled = MutableLiveData(false)
-    val isWheelchairAccessible = MutableLiveData(false)
     val wheelchairIcon = MutableLiveData<Drawable?>()
+    val wheelchairTint = MutableLiveData<Int>()
+    val wheelchairBackground = MutableLiveData<Drawable?>()
     val wheelchairAccessibleText = MutableLiveData<String?>()
 
     fun setDrawable(context: Context, direction: LineDirection) {
@@ -61,12 +63,31 @@ class ServiceDetailItemViewModel @Inject constructor(val getStopTimeDisplayText:
         lineDrawable.get()?.setColorFilter(lineColor, PorterDuff.Mode.SRC_ATOP)
     }
 
+    private fun presentWheelchairAccessibility(context: Context, accessible: Boolean?) {
+        val accessibility = ServiceAccessibility(context)
+        val icon = accessibility.wheelchairIcon(accessible)
+        wheelchairIcon.postValue(icon?.let { ContextCompat.getDrawable(context, it) })
+        wheelchairAccessibleText.postValue(
+            if (icon == null) null else context.getString(accessibility.wheelchairText(accessible))
+        )
+        wheelchairTint.postValue(
+            ContextCompat.getColor(context, if (accessible == false) R.color.divider else R.color.white)
+        )
+        wheelchairBackground.postValue(
+            ContextCompat.getDrawable(
+                context,
+                if (accessible == false) R.drawable.bg_round_corner_no_wheelchair
+                else R.drawable.bg_round_corner_wheelchair
+            )
+        )
+    }
+
     fun setStop(context: Context, stop: ServiceStop, _lineColor: Int, travelled: Boolean) {
         this.stop = stop
         lineColor = _lineColor
         stopName.set(stop.name)
         isTravelled.postValue(travelled)
-        isWheelchairAccessible.postValue(stop.wheelchairAccessible)
+        presentWheelchairAccessibility(context, stop.wheelchairAccessible)
         if (travelled) {
             scheduledTimeTextColor.set(ContextCompat.getColor(context, R.color.black2))
             stopNameColor.set(ContextCompat.getColor(context, R.color.black2))

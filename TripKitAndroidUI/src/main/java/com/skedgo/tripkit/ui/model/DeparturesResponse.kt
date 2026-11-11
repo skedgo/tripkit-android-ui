@@ -3,6 +3,7 @@ package com.skedgo.tripkit.ui.model
 import com.google.gson.annotations.SerializedName
 import com.skedgo.tripkit.common.model.realtimealert.RealtimeAlert
 import com.skedgo.tripkit.common.model.stop.ScheduledStop
+import com.skedgo.tripkit.ui.utils.combineWheelchairAccessibility
 
 /**
  * @see [departures.json API](https://redmine.buzzhives.com/projects/buzzhives/wiki/RealTime_API.DepartureServlet-new-servlet-departuresjson)
@@ -44,15 +45,24 @@ class DeparturesResponse {
     private var mServiceList: List<TimetableEntry>? = null
 
     /**
-     * Assigns stop code into corresponding service
+     * Assigns stop code into corresponding service, and combines the service's wheelchair
+     * accessibility with its stops, as each departure in the response only covers the trip.
      *
      *
      * NOTE: Must call this method after parsing the response
      */
     fun processEmbarkationStopList() {
+        val stops = stopList.orEmpty()
+            .flatMap { listOf(it) + it.children.orEmpty() }
+            .associateBy { it.code }
         embarkationStopList?.forEach { servicesResponse ->
             servicesResponse.serviceList?.forEach { service ->
                 service.stopCode = servicesResponse.stopCode
+                service.wheelchairAccessible = combineWheelchairAccessibility(
+                    service.wheelchairAccessible,
+                    servicesResponse.wheelchairAccessible,
+                    stops[service.endStopCode]?.wheelchairAccessible
+                )
             }
         }
     }

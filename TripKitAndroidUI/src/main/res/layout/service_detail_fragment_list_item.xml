@@ -68,13 +68,14 @@
             android:layout_width="@dimen/icon_small"
             android:layout_height="@dimen/icon_small"
             android:layout_marginTop="@dimen/spacing_extra_small"
-            android:background="@drawable/bg_round_corner_wheelchair"
-            android:src="@drawable/ic_wheelchair"
-            android:visibility="@{viewModel.isWheelchairAccessible}"
+            android:contentDescription="@{viewModel.wheelchairAccessibleText}"
+            android:src="@{viewModel.wheelchairIcon}"
+            android:visibility="@{viewModel.wheelchairIcon != null}"
+            app:backgroundDrawable="@{viewModel.wheelchairBackground}"
             app:addRtlSupport="@{true}"
             app:layout_constraintStart_toStartOf="@+id/stopName"
             app:layout_constraintTop_toBottomOf="@+id/stopName"
-            app:tint="@color/white"
+            app:tint="@{viewModel.wheelchairTint}"
             tools:src="@drawable/ic_wheelchair"
             tools:tint="@color/white" />
 
