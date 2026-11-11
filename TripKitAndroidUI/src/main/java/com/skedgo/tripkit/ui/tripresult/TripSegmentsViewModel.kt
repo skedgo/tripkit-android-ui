@@ -18,7 +18,6 @@ import com.jakewharton.rxrelay2.BehaviorRelay
 import com.jakewharton.rxrelay2.PublishRelay
 import com.skedgo.rxtry.subscribeWithErrorHandling
 import com.skedgo.tripkit.TripUpdater
-import com.skedgo.tripkit.hasValidSubscribeUrl
 import com.skedgo.tripkit.booking.BookingForm
 import com.skedgo.tripkit.booking.quickbooking.QuickBookingRepository
 import com.skedgo.tripkit.common.model.location.Location
@@ -72,17 +71,14 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import me.tatarka.bindingcollectionadapter2.ItemBinding
 import me.tatarka.bindingcollectionadapter2.itembindings.OnItemBindClass
-import org.joda.time.DateTime
 import timber.log.Timber
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Collections.emptyList
 import java.util.TimeZone
-import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Provider
 
@@ -862,35 +858,17 @@ class TripSegmentsViewModel @Inject internal constructor(
             val messageTypes =
                 trip.segmentList.flatMap { it.geofences.orEmpty() }.map { it.messageType }
 
-            val startSegmentStartTimeInSecs =
-                trip.segmentList?.minByOrNull { it.startTimeInSecs }?.startTimeInSecs ?: 0
-
-            val reminderInMinutes =
-                runBlocking { remindersRepository.getTripNotificationReminderMinutes() }
-
-            val reminder = TimeUnit.MINUTES.toSeconds(reminderInMinutes)
-
-            val currentDateTimeInSeconds = TimeUnit.MILLISECONDS.toSeconds(
-                DateTime(System.currentTimeMillis(), trip.from?.dateTimeZone).millis
-            )
-
-            val isAboutToStart = if (startSegmentStartTimeInSecs > currentDateTimeInSeconds) {
-                (startSegmentStartTimeInSecs - currentDateTimeInSeconds) >= reminder
-            } else {
-                false
-            }
-
             getOffAlertsViewModel.setup(
                 context,
                 listOf(
                     TripSegmentGetOffAlertDetailViewModel(
                         ContextCompat.getDrawable(context, R.drawable.ic_navigation_start),
                         context.getString(R.string.get_off_alerts_trip_about_to_start),
-                        isAboutToStart
+                        getOffAlertsViewModel.hasTripStartReminder()
                     ), TripSegmentGetOffAlertDetailViewModel(
                         ContextCompat.getDrawable(context, R.drawable.ic_navigation_near),
                         context.getString(R.string.get_off_alerts_vehicle_is_approaching_your_boarding_stop),
-                        hasValidSubscribeUrl(trip)
+                        getOffAlertsViewModel.canUseServerSubscription()
                     ),
                     TripSegmentGetOffAlertDetailViewModel(
                         ContextCompat.getDrawable(context, R.drawable.ic_navigation_near),
