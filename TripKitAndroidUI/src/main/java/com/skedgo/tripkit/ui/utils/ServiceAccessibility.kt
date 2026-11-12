@@ -16,6 +16,16 @@ internal fun wheelchairInformationPreferences(context: Context): DefaultTripPref
     }
 }
 
+/**
+ * Merges what is known about a ride's trip and stops, matching iOS: one inaccessible part makes the
+ * whole ride inaccessible, and it is only unknown when nothing is known.
+ */
+internal fun combineWheelchairAccessibility(vararg values: Boolean?): Boolean? = when {
+    false in values -> false
+    true in values -> true
+    else -> null
+}
+
 /** Service icon policy with initialization of an untouched legacy information preference. */
 internal class ServiceAccessibility(context: Context) {
     private val tripPreferences = wheelchairInformationPreferences(context)
