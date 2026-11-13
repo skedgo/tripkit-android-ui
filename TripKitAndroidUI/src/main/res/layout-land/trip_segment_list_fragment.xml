@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Landscape variant of trip_segment_list_fragment (Redmine #19351).
+    In landscape, especially at large font scales, the stacked header (times, summary, action
+    buttons) used almost the whole height and left ~1 row for the segment list. Here the header
+    sits in a scrollable start column and the segment list uses the full height of the end
+    column. Ids, view types and bindings are identical to the portrait layout.
+-->
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="viewModel"
+            type="com.skedgo.tripkit.ui.tripresult.TripSegmentsViewModel" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/white"
+        android:focusable="false"
+        android:importantForAccessibility="no">
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/landscapeSplit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.45" />
+
+        <!-- Platform ScrollView (nested scrolling off by default) so the bottom sheet keeps tracking the segment list. -->
+        <ScrollView
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:fillViewport="true"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/landscapeSplit"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/duration"
+                    style="@style/TextAppearance.MaterialComponents.Headline6"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginEnd="16dp"
+                    android:contentDescription="@{`Duration` + viewModel.durationTitle}"
+                    android:focusable="true"
+                    android:importantForAccessibility="yes"
+                    android:text="@{viewModel.durationTitle}"
+                    app:layout_constraintEnd_toStartOf="@+id/closeButton"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:text="30 Minutes" />
+
+                <ImageButton
+                    android:id="@+id/closeButton"
+                    android:layout_width="@dimen/close_button_size"
+                    android:layout_height="@dimen/close_button_size"
+                    android:layout_marginEnd="16dp"
+                    android:accessibilityTraversalBefore="@id/duration"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="@string/desc_close"
+                    android:src="@drawable/close"
+                    android:visibility="@{viewModel.showCloseButton}"
+                    app:layout_constraintBottom_toBottomOf="@+id/duration"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="@+id/duration"
+                    app:tint="@color/icon_tint_default" />
+
+                <TextView
+                    android:id="@+id/arrive"
+                    style="@style/TextAppearance.MaterialComponents.Body2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginEnd="16dp"
+                    android:layout_marginBottom="16dp"
+                    android:text="@{viewModel.arriveAtTitle}"
+                    android:visibility="@{!viewModel.isHideExactTimes}"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/duration" />
+
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="1dp"
+                    android:background="@color/disabled"
+                    android:elevation="1dp"
+                    android:visibility="@{viewModel.isCancelled()}"
+                    app:layout_constraintBottom_toBottomOf="@+id/layoutTripSummary"
+                    app:layout_constraintEnd_toEndOf="@+id/layoutTripSummary"
+                    app:layout_constraintStart_toStartOf="@+id/layoutTripSummary"
+                    app:layout_constraintTop_toTopOf="@+id/layoutTripSummary" />
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/layoutTripSummary"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:nestedScrollingEnabled="false"
+                    android:orientation="horizontal"
+                    android:visibility="visible"
+                    app:itemBinding="@{viewModel.summaryItemsBinding}"
+                    app:items="@{viewModel.summaryItems}"
+                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/arrive"
+                    tools:itemCount="2"
+                    tools:listitem="@layout/item_trip_segment_summary" />
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/buttonLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:nestedScrollingEnabled="false"
+                    android:orientation="horizontal"
+                    app:itemBinding="@{viewModel.buttonsBinding}"
+                    app:items="@{viewModel.buttons}"
+                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/layoutTripSummary"
+                    tools:itemCount="2"
+                    tools:listitem="@layout/trip_segment_action_button" />
+
+                <View
+                    android:id="@+id/divider"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/black4"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/buttonLayout" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </ScrollView>
+
+        <View
+            android:layout_width="1dp"
+            android:layout_height="0dp"
+            android:background="@color/black4"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="@+id/landscapeSplit"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <!-- NOTE: This view MUST have a tag called "segmentList". For more information, see the TripGroupPagerAdapter's setPrimaryItem function -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/itemsView"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:nestedScrollingEnabled="false"
+            android:tag="segmentList"
+            app:adapter="@{viewModel.customAdapter}"
+            app:itemBinding="@{viewModel.itemBinding}"
+            app:items="@{viewModel.itemViewModels}"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/landscapeSplit"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Landscape variant of timetable_fragment (Redmine #19351).
+    In landscape, especially at large font scales, the stacked header (stop name, lines, actions,
+    search) used almost the whole height and left less than one departure row visible. Here the
+    header sits in a scrollable start column and the departures list uses the full height of the
+    end column. Ids, view types and bindings are identical to the portrait layout.
+-->
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="actioButtonText"
+            type="String" />
+
+        <variable
+            name="viewModel"
+            type="com.skedgo.tripkit.ui.timetables.TimetableViewModel" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/white"
+        tools:context=".timetables.TimetableFragment">
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/landscapeSplit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.45" />
+
+        <!-- Platform ScrollView (nested scrolling off by default) so the bottom sheet keeps tracking the departures list. -->
+        <ScrollView
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:fillViewport="true"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/landscapeSplit"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingBottom="12dp">
+
+                <TextView
+                    android:id="@+id/nameOfStation"
+                    style="@style/TextAppearance.MaterialComponents.Headline6"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="16dp"
+                    android:text="@{viewModel.stationName}"
+                    app:addRtlSupport="@{true}"
+                    app:layout_constraintEnd_toStartOf="@+id/closeButton"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:text="Town Hall Station" />
+
+                <ImageButton
+                    android:id="@+id/closeButton"
+                    android:layout_width="@dimen/close_button_size"
+                    android:layout_height="@dimen/close_button_size"
+                    android:layout_marginEnd="16dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="@string/desc_close"
+                    android:src="@drawable/close"
+                    android:visibility="@{viewModel.showCloseButton}"
+                    app:layout_constraintBottom_toBottomOf="@+id/nameOfStation"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="@+id/nameOfStation" />
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/serviceLineRecyclerView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="12dp"
+                    android:layout_marginEnd="16dp"
+                    android:nestedScrollingEnabled="false"
+                    android:paddingLeft="8dp"
+                    android:paddingRight="8dp"
+                    app:itemBinding="@{viewModel.serviceItemBinding}"
+                    app:items="@{viewModel.serviceNumbers}"
+                    app:layoutManager="com.google.android.flexbox.FlexboxLayoutManager"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="@+id/nameOfStation"
+                    app:layout_constraintTop_toBottomOf="@+id/nameOfStation"
+                    tools:listitem="@layout/timetable_header_line_item" />
+
+                <LinearLayout
+                    android:id="@+id/buttonLayout"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:divider="@drawable/empty_space_narrow"
+                    android:orientation="horizontal"
+                    android:paddingStart="8dp"
+                    android:paddingEnd="8dp"
+                    android:showDividers="middle"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="@+id/nameOfStation"
+                    app:layout_constraintTop_toBottomOf="@+id/serviceLineRecyclerView" />
+
+                <RelativeLayout
+                    android:id="@+id/contBookingActionButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintTop_toBottomOf="@id/buttonLayout">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnBook"
+                        style="?attr/materialButtonOutlinedStyle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginEnd="16dp"
+                        android:layout_marginBottom="6dp"
+                        android:enabled="@{viewModel.enableButton}"
+                        android:onClick="@{() -> viewModel.actionChosen.accept(viewModel.action)}"
+                        android:text="@{viewModel.buttonText}"
+                        android:visibility="@{viewModel.showButton}"
+                        app:icon="@drawable/ic_ticket"
+                        app:iconGravity="textStart" />
+
+                    <ProgressBar
+                        style="?android:attr/progressBarStyleHorizontal"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_alignStart="@id/btnBook"
+                        android:layout_alignEnd="@id/btnBook"
+                        android:layout_alignBottom="@id/btnBook"
+                        android:layout_gravity="center"
+                        android:layout_marginStart="5dp"
+                        android:layout_marginEnd="5dp"
+                        android:layout_marginBottom="-2dp"
+                        android:elevation="2dp"
+                        android:indeterminateOnly="true"
+                        android:visibility="@{!viewModel.enableButton}" />
+                </RelativeLayout>
+
+                <FrameLayout
+                    android:id="@+id/contSearchBar"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/contBookingActionButton">
+
+                    <include
+                        android:id="@+id/departuresSearchSetTime"
+                        layout="@layout/timetable_search_set_time"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:visibility="@{viewModel.showSearch}" />
+                </FrameLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </ScrollView>
+
+        <com.skedgo.tripkit.ui.views.MultiStateView
+            android:id="@+id/multiStateView"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/landscapeSplit"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:focusableInTouchMode="true"
+                app:itemBinding="@{viewModel.itemBinding}"
+                app:items="@{viewModel.services}"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                app:layout_behavior="@string/appbar_scrolling_view_behavior"
+                tools:listitem="@layout/timetable_fragment_list_item" />
+
+        </com.skedgo.tripkit.ui.views.MultiStateView>
+
+        <View
+            android:layout_width="1dp"
+            android:layout_height="0dp"
+            android:background="@color/black4"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="@+id/landscapeSplit"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            style="@style/Base.Widget.AppCompat.ProgressBar.Horizontal"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:indeterminate="true"
+            app:fadeVisible="@{viewModel.showLoading}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/landscapeSplit"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <Button
+            android:id="@+id/goToNowButton"
+            style="@style/ToNowButtonStyle"
+            android:layout_marginTop="16dp"
+            android:text="@string/go_to_now"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/landscapeSplit"
+            app:layout_constraintTop_toBottomOf="@+id/progressBar" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

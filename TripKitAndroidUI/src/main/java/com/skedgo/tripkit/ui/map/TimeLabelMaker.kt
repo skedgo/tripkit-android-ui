@@ -42,10 +42,11 @@ class TimeLabelMaker(private val timeTextView: TextView) {
             LayoutParams.WRAP_CONTENT,
             MeasureSpec.UNSPECIFIED
         )
-        val heightSpec = MeasureSpec.makeMeasureSpec(
-            timeTextView.context.resources.getDimensionPixelSize(R.dimen.time_label_height),
-            MeasureSpec.EXACTLY
-        )
+        // Let the label grow with the user's font scale; time_label_height is only a minimum so
+        // the pill keeps its normal size at default font scale but never clips enlarged text.
+        timeTextView.minHeight =
+            timeTextView.context.resources.getDimensionPixelSize(R.dimen.time_label_height)
+        val heightSpec = MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED)
         timeTextView.measure(widthSpec, heightSpec)
         timeTextView.layout(0, 0, timeTextView.measuredWidth, timeTextView.measuredHeight)
     }

@@ -169,6 +169,7 @@
                         android:layout_height="@dimen/service_detail_icon_size"
                         android:importantForAccessibility="no"
                         android:src="@{viewModel.wheelchairIcon}"
+                        app:tint="@color/black"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
 

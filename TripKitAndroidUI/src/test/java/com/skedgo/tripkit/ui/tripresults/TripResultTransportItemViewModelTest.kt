@@ -44,6 +44,20 @@ class TripResultTransportItemViewModelTest {
     }
 
     @Test
+    fun `setup should expose mode title as accessibility label`() {
+        viewModel.setup(TransportMode().apply { id = "pt_pub"; title = "Public transport" })
+
+        assertEquals("Public transport", viewModel.modeTitle.value)
+    }
+
+    @Test
+    fun `setup should fall back to mode id when title is missing`() {
+        viewModel.setup(TransportMode().apply { id = "me_car" })
+
+        assertEquals("me_car", viewModel.modeTitle.value)
+    }
+
+    @Test
     fun `onItemClick should toggle checked state and emit clicked event`() {
         // Arrange
         viewModel.modeId.value = "train"

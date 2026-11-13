@@ -18,6 +18,10 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
@@ -181,7 +185,8 @@ fun RouteCardContent(
                         onTextChange = model.onStartChange,
                         onFocus = model.onStartFocused,
                         backgroundColor = inputBackground,
-                        modifier = Modifier.height(routeInputHeight)
+                        // Minimum height so the text is never clipped at large font scales.
+                        modifier = Modifier.heightIn(min = routeInputHeight)
                     )
 
                     RouteInputField(
@@ -190,7 +195,8 @@ fun RouteCardContent(
                         onTextChange = model.onDestinationChange,
                         onFocus = model.onDestinationFocused,
                         backgroundColor = inputBackground,
-                        modifier = Modifier.height(routeInputHeight)
+                        // Minimum height so the text is never clipped at large font scales.
+                        modifier = Modifier.heightIn(min = routeInputHeight)
                     )
                 }
             }
@@ -222,7 +228,8 @@ private fun RouteInputField(
 ) {
     BasicTextField(
         value = text,
-        onValueChange = onTextChange,
+        // Multi-line display (below) must not allow actual newlines in a location query.
+        onValueChange = { onTextChange(it.replace('\n', ' ')) },
         modifier = modifier
             .fillMaxWidth()
             .onFocusChanged { if (it.isFocused) onFocus() }
@@ -235,16 +242,22 @@ private fun RouteInputField(
                 vertical = dimensionResource(R.dimen.spacing_small)
             )
             .semantics { contentDescription = hint },
-        singleLine = true,
+        // Wrap to two lines instead of scrolling horizontally, so long names stay readable at
+        // large font scales; the IME keeps its Done action.
+        singleLine = false,
+        maxLines = 2,
+        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
         textStyle = TripKitComposeTextStyles.current.bodyLarge.copy(
             color = colorResource(R.color.labelPrimary)
         ),
         cursorBrush = SolidColor(MaterialTheme.colors.primary),
         decorationBox = { innerTextField ->
-            Box {
+            Box(contentAlignment = Alignment.CenterStart) {
                 if (text.isEmpty()) {
                     Text(
                         text = hint,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
                         style = TripKitComposeTextStyles.current.bodyLarge,
                         color = colorResource(R.color.labelSecondary).copy(
                             alpha = 0.6f

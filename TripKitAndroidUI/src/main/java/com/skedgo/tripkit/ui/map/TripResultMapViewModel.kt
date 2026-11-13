@@ -15,6 +15,7 @@ import com.skedgo.tripkit.ui.routing.SegmentCameraUpdateMapper
 import com.skedgo.tripkit.ui.routing.SegmentCameraUpdateRepository
 import com.skedgo.tripkit.ui.routing.getVisibleGeoPointsOnMap
 import com.skedgo.tripkit.ui.routingresults.TripGroupRepository
+import com.skedgo.tripkit.ui.tripresult.findSelectedTrip
 import com.skedgo.tripkit.ui.tripresult.toCameraUpdate
 import dagger.Lazy
 import io.reactivex.Observable
@@ -54,6 +55,15 @@ class TripResultMapViewModel @Inject internal constructor(
     // then do the processing of the data for updating the map from there
     // and send updates to TripResultMapContributor via event bus (PublishSubject)
     val tripCameraUpdateStream = PublishSubject.create<CameraUpdate>()
+
+    /**
+     * Horizontal space (px) taken by time labels drawn beside trip markers, and the map size.
+     * Set by the map contributor; when known, the trip camera leaves room for those labels so
+     * they are not clipped at the screen edge (Redmine #19351). Zero keeps the previous framing.
+     */
+    var timeLabelExtentPx: Int = 0
+    var mapWidthPx: Int = 0
+    var mapHeightPx: Int = 0
     val segmentsStream = PublishSubject.create<List<TripSegment>>()
     val travelledStopMarkerViewModelsStream = PublishSubject.create<List<StopMarkerViewModel>>()
     val nonTravelledStopMarkerViewModelsStream = PublishSubject.create<List<StopMarkerViewModel>>()
@@ -100,7 +110,8 @@ class TripResultMapViewModel @Inject internal constructor(
             Observable.timer(DELAY_MAP_CAMERA_UPDATE, TimeUnit.MILLISECONDS, Schedulers.io())
                 .subscribe({
                     // Run after the delay to make sure markers and segments will be drawn first
-                    val cameraUpdate = tripSegments.getVisibleGeoPointsOnMap().toCameraUpdate()
+                    val cameraUpdate = tripSegments.getVisibleGeoPointsOnMap()
+                        .toCameraUpdate(timeLabelExtentPx, mapWidthPx, mapHeightPx)
                     tripCameraUpdateStream.onNext(cameraUpdate)
                 }, {
                     // Handle any potential error (although `timer` usually doesn't throw)
@@ -165,14 +176,22 @@ class TripResultMapViewModel @Inject internal constructor(
         mapTilesStream.onNext(segmentWithMapTiles?.mapTiles?.urlTemplates ?: emptyList())
     }
 
-    fun setTripGroupId(tripGroupId: String, tripId: Long? = null, skipCamera: Boolean = false) {
+    /**
+     * Shows a trip of the group on the map. [tripId] is often 0 for parsed trips, so [tripKey]
+     * (see [com.skedgo.tripkit.ui.tripresult.stableKey]) identifies the selected trip reliably;
+     * without either the group's display trip is shown.
+     */
+    fun setTripGroupId(
+        tripGroupId: String,
+        tripId: Long? = null,
+        skipCamera: Boolean = false,
+        tripKey: String? = null
+    ) {
         skipNextCameraUpdate = skipCamera
         tripGroupDisposable.clear()
         tripGroupRepository.getTripGroup(tripGroupId)
             .subscribeWithErrorHandling { tripGroup ->
-                val trip = tripId?.let { id ->
-                    tripGroup.trips?.firstOrNull { it.tripId == id } ?: tripGroup.displayTrip
-                } ?: tripGroup.displayTrip
+                val trip = tripGroup.findSelectedTrip(uuid = null, tripId = tripId, stableKey = tripKey)
                 trip?.let { selectedTrip.accept(it) }
             }.addTo(tripGroupDisposable)
     }

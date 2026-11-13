@@ -2,15 +2,18 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
+    <!-- 48dp touch target: the visible 32dp circle is drawn inset by 8dp, and the former
+         16dp end margin is now part of the touch area so the horizontal pitch is unchanged. -->
     <com.skedgo.tripkit.ui.views.CheckableImageButton
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:layout_marginEnd="16dp"
-        android:background="@drawable/trip_result_transport_mode_selector_background"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginEnd="0dp"
+        android:background="@drawable/trip_result_transport_mode_selector_background_inset"
+        android:contentDescription="@{viewModel.modeTitle}"
         app:readableTransportChecked="@{viewModel.checked}"
         android:onClick="@{viewModel::onItemClick}"
-        android:padding="4dp"
+        android:padding="12dp"
+        android:scaleType="fitCenter"
         app:modeIconId="@{viewModel.modeIconId}"
         app:modeId="@{viewModel.modeId}" />
 
