@@ -4,6 +4,9 @@ import com.google.android.gms.maps.CameraUpdate
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
 import com.skedgo.tripkit.location.GeoPoint
+import kotlin.math.atan
+import kotlin.math.exp
+import kotlin.math.max
 import kotlin.math.PI
 import kotlin.math.ln
 import kotlin.math.min
@@ -87,3 +90,101 @@ fun LatLngBounds.expandedForHorizontalLabels(
 
 private fun mercatorY(latitude: Double): Double =
     ln(tan(PI / 4 + Math.toRadians(latitude) / 2)) / (2 * PI)
+
+/** Bounds fit to the padded viewport while keeping bottom-anchored time markers visible. */
+internal fun LatLngBounds.expandedForTimeLabels(
+    labelExtentPx: Int,
+    markerHeightPx: Int,
+    mapWidthPx: Int,
+    mapHeightPx: Int,
+    systemInsets: android.graphics.Rect,
+    paddingPx: Int = CameraUpdatePadding
+): LatLngBounds {
+    if (mapWidthPx <= 2 * paddingPx || mapHeightPx <= 2 * paddingPx ||
+        northeast.longitude < southwest.longitude) return this
+    val left = max(paddingPx, labelExtentPx) + systemInsets.left
+    val right = max(paddingPx, labelExtentPx) + systemInsets.right
+    val top = max(paddingPx, markerHeightPx) + systemInsets.top
+    val bottom = paddingPx + systemInsets.bottom
+    val width = mapWidthPx - left - right
+    val height = mapHeightPx - top - bottom
+    if (width <= 0 || height <= 0) return this
+    val dx = (northeast.longitude - southwest.longitude) / 360.0
+    val north = mercatorY(northeast.latitude)
+    val south = mercatorY(southwest.latitude)
+    val scale = min(if (dx > 0) width / dx else Double.MAX_VALUE,
+        if (north > south) height / (north - south) else Double.MAX_VALUE)
+    if (scale == Double.MAX_VALUE) return this
+    // Use spare room before shifting the bounds: a width-limited portrait fit may already
+    // clear the full marker vertically. Moving its centre in that case regresses portrait framing.
+    val horizontalMargin = (mapWidthPx - dx * scale) / 2
+    val verticalMargin = (mapHeightPx - (north - south) * scale) / 2
+    val shiftX = when {
+        left > horizontalMargin -> -(left - horizontalMargin) / scale
+        right > horizontalMargin -> (right - horizontalMargin) / scale
+        else -> 0.0
+    }
+    val shiftY = when {
+        top > verticalMargin -> (top - verticalMargin) / scale
+        bottom > verticalMargin -> -(bottom - verticalMargin) / scale
+        else -> 0.0
+    }
+    val centerX = (southwest.longitude + northeast.longitude) / 720 + shiftX
+    val centerY = (north + south) / 2 + shiftY
+    val spanX = (mapWidthPx - 2 * paddingPx) / scale
+    val spanY = (mapHeightPx - 2 * paddingPx) / scale
+    fun latitude(y: Double) = Math.toDegrees(2 * atan(exp(y * 2 * PI)) - PI / 2)
+    return LatLngBounds(
+        LatLng(latitude(centerY - spanY / 2), ((centerX - spanX / 2) * 360).coerceAtLeast(-180.0)),
+        LatLng(latitude(centerY + spanY / 2), ((centerX + spanX / 2) * 360).coerceAtMost(180.0))
+    )
+}
+
+/** Home pads the map below its camera target; projection corners can include that hidden area. */
+internal fun android.graphics.Rect.bottomPaddedViewport(targetY: Int): android.graphics.Rect =
+    android.graphics.Rect(left, top, right, minOf(bottom, (2 * targetY - top).coerceAtLeast(top)))
+
+/** Chooses marker clearance inside the actual viewport without covering interactive overlays. */
+internal fun LatLngBounds.insetsAvoidingOverlays(
+    viewport: android.graphics.Rect,
+    systemInsets: android.graphics.Rect,
+    overlays: List<android.graphics.Rect>,
+    labelExtentPx: Int,
+    markerHeightPx: Int,
+    paddingPx: Int = CameraUpdatePadding
+): android.graphics.Rect? {
+    val safe = android.graphics.Rect(viewport.left + systemInsets.left,
+        viewport.top + systemInsets.top, viewport.right - systemInsets.right,
+        viewport.bottom - systemInsets.bottom)
+    var candidates = listOf(safe).filter { it.width() > 0 && it.height() > 0 }
+    overlays.filterNot { it.isEmpty }.forEach { overlay ->
+        candidates = candidates.flatMap { area ->
+            if (!android.graphics.Rect.intersects(area, overlay)) listOf(area)
+            else listOf(
+                android.graphics.Rect(area.left, area.top, minOf(area.right, overlay.left), area.bottom),
+                android.graphics.Rect(maxOf(area.left, overlay.right), area.top, area.right, area.bottom),
+                android.graphics.Rect(area.left, area.top, area.right, minOf(area.bottom, overlay.top)),
+                android.graphics.Rect(area.left, maxOf(area.top, overlay.bottom), area.right, area.bottom)
+            ).filter { it.width() > 0 && it.height() > 0 }
+        }.distinct()
+    }
+    val dx = (northeast.longitude - southwest.longitude) / 360.0
+    val dy = mercatorY(northeast.latitude) - mercatorY(southwest.latitude)
+    fun scale(area: android.graphics.Rect): Double {
+        val width = area.width() - 2 * max(paddingPx, labelExtentPx)
+        val height = area.height() - max(paddingPx, markerHeightPx) - paddingPx
+        if (width <= 0 || height <= 0) return -1.0
+        return min(if (dx > 0) width / dx else Double.MAX_VALUE,
+            if (dy > 0) height / dy else Double.MAX_VALUE)
+    }
+    // The greatest feasible scale avoids needless zoom-out. At equal scale prefer the least
+    // displacement, preserving portrait centring when several free rectangles are equivalent.
+    val best = candidates.filter { scale(it) > 0 }.maxWithOrNull(
+        compareBy<android.graphics.Rect> { scale(it) }.thenBy {
+            -kotlin.math.abs(it.centerX() - viewport.centerX()) -
+                kotlin.math.abs(it.centerY() - viewport.centerY())
+        }
+    ) ?: return null
+    return android.graphics.Rect(best.left - viewport.left, best.top - viewport.top,
+        viewport.right - best.right, viewport.bottom - best.bottom)
+}

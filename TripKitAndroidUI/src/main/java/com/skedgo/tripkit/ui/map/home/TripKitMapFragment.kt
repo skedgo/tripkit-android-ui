@@ -334,6 +334,10 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
             map.uiSettings.isCompassEnabled = true
             initMarkerCollections(map)
             initMap(map)
+            (contributor as? TripResultMapContributor)?.apply {
+                mapViewportView = view
+                cameraObstructionViews = { settingsCameraObstructions() + cameraObstructions }
+            }
             contributor?.safeToUseMap(requireContext(), map)
         })
         initStuff()
@@ -357,6 +361,8 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
             when (contributor) {
                 is TripResultMapContributor -> {
                     contributor.markerManager = this.markerManager
+                    contributor.mapViewportView = view
+                    contributor.cameraObstructionViews = { settingsCameraObstructions() + cameraObstructions }
                     Timber.d("[StateRestore] TripKitMapFragment - TripResultMapContributor detected, shared MarkerManager")
                 }
             }
@@ -373,6 +379,13 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
                 })
             }
         }
+    }
+
+    private var cameraObstructions: List<View> = emptyList()
+
+    /** Supplies host overlays (e.g. sheet/location control) to the trip camera's measured fit. */
+    fun setCameraObstructions(vararg views: View) {
+        cameraObstructions = views.toList()
     }
 
     fun getContributor(): TripKitMapContributor? = contributor
