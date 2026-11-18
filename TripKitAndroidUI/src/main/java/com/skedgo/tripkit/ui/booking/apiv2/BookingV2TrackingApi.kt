@@ -5,6 +5,7 @@ import com.skedgo.tripkit.ApiError
 import com.skedgo.tripkit.routing.RoutingResponse
 import retrofit2.http.DELETE
 import retrofit2.http.GET
+import retrofit2.http.Headers
 import retrofit2.http.Path
 import retrofit2.http.Query
 import retrofit2.http.QueryMap
@@ -37,6 +38,7 @@ interface BookingV2TrackingApi {
     suspend fun deleteBooking(@Path("id") bookingId: String): NetworkResponse<Unit, Unit>
 
     @GET
+    @Headers("Accept: application/json")
     suspend fun getTripGroup(
         @Url tripUrl: String,
         @QueryMap config: Map<String, String>
