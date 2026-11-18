@@ -32,6 +32,46 @@ class DrtTicketViewModelTest: MockKTest() {
     }
 
     @Test
+    fun `select starts at supplied minimum and decrement deselects`() = runTest {
+        val fare = com.google.gson.Gson().fromJson(
+            """{"id":"companion","min":2,"max":5}""",
+            com.skedgo.tripkit.booking.quickbooking.Fare::class.java
+        )
+        viewModel.setTicket(fare)
+        viewModel.onSelect()
+        assertEquals(2L, viewModel.value.value)
+        assertEquals(2L, fare.value)
+        viewModel.onDecrementValue()
+        assertEquals(0L, viewModel.value.value)
+        assertEquals(0L, fare.value)
+    }
+
+    @Test
+    fun `quantity controls disable at maximum and allow optional deselection`() = runTest {
+        val fare = com.google.gson.Gson().fromJson(
+            """{"id":"companion","min":1,"max":3}""",
+            com.skedgo.tripkit.booking.quickbooking.Fare::class.java
+        )
+        viewModel.setTicket(fare)
+        viewModel.setValue(0)
+        assertEquals(0L, viewModel.value.value)
+        assertEquals(false, viewModel.enableDecrement.value)
+        viewModel.onSelect()
+        viewModel.onIncrementValue()
+        viewModel.onIncrementValue()
+        assertEquals(3L, viewModel.value.value)
+        assertEquals(false, viewModel.enableIncrement.value)
+        viewModel.onIncrementValue()
+        assertEquals(3L, fare.value)
+        viewModel.onDecrementValue()
+        assertEquals(true, viewModel.enableIncrement.value)
+        viewModel.onDecrementValue()
+        viewModel.onDecrementValue()
+        assertEquals(0L, fare.value)
+        assertEquals(false, viewModel.enableDecrement.value)
+    }
+
+    @Test
     fun `test onChange emits correct event`() = runTest {
         val mockFlow = mockk<MutableSharedFlow<DrtTicketViewModel>>(relaxed = true)
         viewModel.onChangeStream = mockFlow
