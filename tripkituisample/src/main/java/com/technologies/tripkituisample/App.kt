@@ -25,6 +25,7 @@ class App : Application(), HasAndroidInjector {
 
     override fun onCreate() {
         super.onCreate()
+        SampleAppearance.apply(this)
 
         RxDogTag.install()
         RxJavaPlugins.setErrorHandler { e ->

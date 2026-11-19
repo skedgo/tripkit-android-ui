@@ -300,7 +300,7 @@ class LocationSearchFragment : BaseTripKitFragment() {
 
     private fun submitSearchRows() {
         val source = ArrayList<SuggestionViewModel>().apply { addAll(viewModel.allSuggestions) }
-        searchResultsAdapter?.submitList(mapSearchResultRows(source))
+        searchResultsAdapter?.submitList(mapSearchResultRows(source, requireContext()))
     }
 
     private fun setupSearchHeaderCompose(composeView: ComposeView) {

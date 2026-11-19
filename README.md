@@ -131,3 +131,24 @@ metadata, a separate Maven consumer, R8, and runtime functionality. The current
 checkout has unresolved native-library 16 KB compatibility and validation gaps;
 a successful debug build alone is not a release signoff. JitPack uses the
 repository's nested core revision; release and test both repositories together.
+
+### Host appearance and branding
+
+Use a Material Components DayNight theme on the host Activity and select its appearance with
+AppCompat's normal night-mode APIs. The SDK does not set the application's night mode.
+The public controller surfaces and Compose palette read the host's `colorSurface`,
+`colorOnSurface`, `colorPrimary`, `colorOnPrimary`, `colorSecondary` and related attributes.
+Existing `RouteUiStyle` and TripKit typography customization remain available.
+
+Shared legacy XML rows, transport indicators and map styling also use the SDK's named color
+resources and `values-night` variants. Override those resources in both configurations when
+customizing these surfaces; keep `white`/`black` as semantic background/text aliases rather than
+using them as fixed icon colors. Use `colorOnPrimary` for foregrounds on a branded button.
+Explicit AppCompat light/dark selection propagates through the Activity configuration to those
+resources and the map. An in-place, custom theme change without Activity recreation is not a
+supported refresh mechanism for cached legacy Views.
+
+The sample feature menu includes System, Light and Dark appearance choices. Its purple host
+brand demonstrates that SDK route actions need not use TripGo's green. When recreating a host,
+call the public Home `load` method again to reconnect host callbacks to the restored controller;
+re-supply application-owned providers after process recreation.

@@ -77,7 +77,7 @@ class HomeViewControllerActivity : AppCompatActivity() {
 
         favoriteProvider.saveFavorite(
             Location(-27.4750639, 152.9844771),
-            1,
+            2,
             SampleFavoritesSuggestionProvider.SampleAdditionalData(
                 "Sample Favorite 3", "Favorite's Address 3"
             )

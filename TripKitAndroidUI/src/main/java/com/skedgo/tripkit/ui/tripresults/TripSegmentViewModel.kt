@@ -67,6 +67,18 @@ class TripSegmentViewModel @Inject constructor(
         isBicycleAccessible.value = segment != null && accessibility.showBicycle(segment.bicycleAccessible)
     }
 
+    internal var iconNightMode: Int? = null
+        private set
+    private var usesDefaultThemeTint = true
+
+    internal val preservesTransportIconColor: Boolean
+        get() = !usesDefaultThemeTint || accessibilitySegment?.modeInfo?.remoteIconIsBranding == true
+
+    internal val hasTransportAlertOverlay: Boolean
+        get() = accessibilitySegment?.let {
+            !CollectionUtils.isEmpty(it.alerts) && !shouldAttachAlertIconToSubtitle(it)
+        } == true
+
     val icon = ObservableField<Drawable>()
 
     val showPrimary = MutableLiveData(false)
@@ -79,6 +91,7 @@ class TripSegmentViewModel @Inject constructor(
     val isCancelled = MutableLiveData(false)
 
     fun setSegment(trip: Trip, segment: TripSegment) {
+        iconNightMode = context.resources.configuration.uiMode and android.content.res.Configuration.UI_MODE_NIGHT_MASK
         showTitle(segment)
 
         isCancelled.value = trip.getAvailability() == Cancelled
@@ -108,6 +121,7 @@ class TripSegmentViewModel @Inject constructor(
             .flatMap { drawable ->
                 getTransportIconTintStrategy.invoke()
                     .map { transportTintStrategy ->
+                        usesDefaultThemeTint = transportTintStrategy is ThemeAwareApplyTintStrategy
                         transportTintStrategy.apply(
                             segment.modeInfo!!.remoteIconIsTemplate,
                             segment.modeInfo!!.remoteIconIsBranding,

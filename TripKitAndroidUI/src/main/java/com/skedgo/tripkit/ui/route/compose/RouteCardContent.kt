@@ -34,6 +34,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
@@ -57,18 +58,19 @@ fun RouteCardContent(
     modifier: Modifier = Modifier,
     style: RouteUiStyle = RouteUiStyle()
 ) {
-    val primaryColor = style.primaryColor ?: colorResource(R.color.colorPrimary)
+    val confirmDescription = stringResource(R.string.confirm_route)
+    val primaryColor = style.primaryColor ?: MaterialTheme.colors.primary
     val confirmBackground = style.confirmButtonBackground ?: primaryColor
-    val titleColor = style.titleColor ?: colorResource(R.color.labelPrimary)
+    val titleColor = style.titleColor ?: MaterialTheme.colors.onSurface
     val inputBackground = style.inputBackground ?: colorResource(R.color.inputBackground)
-    val iconTint = style.iconTint ?: colorResource(R.color.labelSecondary)
+    val iconTint = style.iconTint ?: MaterialTheme.colors.onSurface.copy(alpha = 0.74f)
     val horizontalPadding = style.horizontalPadding ?: DefaultHorizontalPadding
     val verticalSpacing = style.verticalSpacing ?: DefaultTopPadding
 
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .background(colorResource(R.color.cardBackground))
+            .background(MaterialTheme.colors.surface)
     ) {
         Row(
             modifier = Modifier
@@ -79,7 +81,7 @@ fun RouteCardContent(
         ) {
             IconButton(
                 onClick = model.onClose,
-                modifier = Modifier.size(dimensionResource(R.dimen.icon_size_40))
+                modifier = Modifier.size(48.dp)
             ) {
                 Icon(
                     painter = painterResource(id = R.drawable.close),
@@ -97,7 +99,7 @@ fun RouteCardContent(
 
             Box(
                 modifier = Modifier
-                    .size(dimensionResource(R.dimen.icon_size_40))
+                    .size(48.dp)
                     .clip(CircleShape)
                     .background(confirmBackground)
                     .clickable(
@@ -106,13 +108,15 @@ fun RouteCardContent(
                         indication = rememberRipple(color = MaterialTheme.colors.onPrimary),
                         onClick = model.onConfirm
                     )
-                    .semantics { contentDescription = "Confirm route" },
+                    .semantics { contentDescription = confirmDescription },
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_route_check),
                     contentDescription = null,
-                    tint = colorResource(R.color.white),
+                    tint = if (style.confirmButtonBackground != null || style.primaryColor != null)
+                        if (confirmBackground.luminance() > 0.179f) Color.Black else Color.White
+                        else MaterialTheme.colors.onPrimary,
                     modifier = Modifier.size(dimensionResource(R.dimen.icon_size_20))
                 )
             }
@@ -205,12 +209,13 @@ fun RouteCardContent(
                 onClick = model.onSwap,
                 modifier = Modifier
                     .padding(start = dimensionResource(R.dimen.spacing_small))
-                    .size(dimensionResource(R.dimen.icon_size_24))
+                    .size(48.dp)
             ) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_swap_vert),
-                    contentDescription = "Swap locations",
+                    contentDescription = stringResource(R.string.swap_locations),
                     tint = iconTint,
+                    modifier = Modifier.size(dimensionResource(R.dimen.icon_size_24)),
                 )
             }
         }
@@ -270,6 +275,7 @@ private fun RouteInputField(
     )
 }
 
+@Preview(name = "Dark", showBackground = true, uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES)
 @Preview(showBackground = true, backgroundColor = 0xFFF0F0F0)
 @Composable
 private fun RouteCardContentPreview() {

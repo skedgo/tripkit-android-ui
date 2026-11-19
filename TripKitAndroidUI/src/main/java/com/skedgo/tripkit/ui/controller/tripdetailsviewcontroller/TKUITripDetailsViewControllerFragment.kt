@@ -3,6 +3,7 @@ package com.skedgo.tripkit.ui.controller.tripdetailsviewcontroller
 import android.content.Context
 import android.os.Bundle
 import android.view.View
+import androidx.lifecycle.lifecycleScope
 import androidx.core.view.isVisible
 import com.jakewharton.rxrelay2.PublishRelay
 import com.skedgo.tripkit.model.ViewTrip
@@ -23,8 +24,6 @@ import com.skedgo.tripkit.ui.routingresults.TripGroupRepository
 import com.skedgo.tripkit.ui.tripresult.TripResultPagerFragment
 import com.skedgo.tripkit.ui.tripresult.TripSegmentListFragment
 import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButtonHandlerFactory
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.rx2.awaitFirstOrNull
 import javax.inject.Inject
@@ -71,6 +70,24 @@ class TKUITripDetailsViewControllerFragment :
         super.onAttach(context)
     }
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        (savedInstanceState ?: arguments)?.let {
+            trip = it.getParcelable("tkui_trip")
+            tripGroupId = it.getString("tkui_group")
+            favoriteTripId = it.getString("tkui_favorite")
+            tripId = it.getLong("tkui_trip_id", -1)
+        }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putParcelable("tkui_trip", trip)
+        outState.putString("tkui_group", tripGroupId)
+        outState.putString("tkui_favorite", favoriteTripId)
+        outState.putLong("tkui_trip_id", tripId ?: -1)
+    }
+
     override fun clearInstances() {
         super.clearInstances()
         trip = null
@@ -103,15 +120,26 @@ class TKUITripDetailsViewControllerFragment :
         tripKitMapFragment?.restorePoiMarkersState()
     }
 
+    /** The shared pager keeps these argument objects in memory, not its saved Bundle. */
+    internal fun configureRestoredPager(pager: TripResultPagerFragment) {
+        when {
+            trip != null -> trip!!.let { selected ->
+                pager.setArgs(com.skedgo.tripkit.ui.tripresult.FromRoutes(
+                    selected.tripGroupUUID, selected.displayTripID, selected.sortOrder,
+                    selected.query.uuid(), selected.query.arriveBy))
+                pager.setQueryLocations(selected.query.fromLocation, selected.query.toLocation)
+            }
+            tripGroupId != null -> pager.setArgs(com.skedgo.tripkit.ui.tripresult.SingleTrip(tripGroupId.orEmpty(), tripId))
+            favoriteTripId != null -> pager.setArgs(com.skedgo.tripkit.ui.tripresult.FavoriteTrip(favoriteTripId.orEmpty()))
+        }
+    }
+
     private fun initPagerFragment() {
 
+        pagerFragment = pagerFragment ?: childFragmentManager.findFragmentById(R.id.container) as? TripResultPagerFragment
+        actionButtonHandlerFactory = actionButtonHandlerFactory ?: ControllerDataProvider.actionButtonHandlerFactory
+            ?: tkuiActionButtonHandlerFactory
         if (pagerFragment == null) {
-
-            actionButtonHandlerFactory = ControllerDataProvider.actionButtonHandlerFactory
-
-            if (actionButtonHandlerFactory == null) {
-                actionButtonHandlerFactory = tkuiActionButtonHandlerFactory
-            }
 
             val pagerFragmentBuilder = TripResultPagerFragment.Builder()
                 .showCloseButton()
@@ -143,31 +171,34 @@ class TKUITripDetailsViewControllerFragment :
             pagerFragmentBuilder.withInitialTripGroupList(sortedList)
 
             pagerFragment = pagerFragmentBuilder.build()
-            pagerFragment?.setOnCloseButtonListener {
-                eventBus.publish(ViewControllerEvent.OnCloseAction())
+        }
+        pagerFragment?.let(::configureRestoredPager)
+        pagerFragment?.setActionButtonHandlerFactory(actionButtonHandlerFactory)
+        pagerFragment?.setOnCloseButtonListener {
+            eventBus.publish(ViewControllerEvent.OnCloseAction())
+        }
+        pagerFragment?.setOnTripUpdatedListener(object : TripResultPagerFragment.OnTripUpdatedListener {
+            override fun onTripUpdated(trip: Trip?) {
+                trip?.group?.let {
+                    val list = ArrayList<TripGroup>()
+                    list.add(it)
+                    eventBus.publish(ViewControllerEvent.OnReportPlannedTrip(list, trip))
+                }
+
+                binding.layoutLoading.isVisible = trip == null
             }
-            pagerFragment?.setOnTripUpdatedListener(object : TripResultPagerFragment.OnTripUpdatedListener {
-                override fun onTripUpdated(trip: Trip?) {
-                    trip?.group?.let {
-                        val list = ArrayList<TripGroup>()
-                        list.add(it)
-                        eventBus.publish(ViewControllerEvent.OnReportPlannedTrip(list, trip))
-                    }
-
-                    binding.layoutLoading.isVisible = trip == null
+        })
+        pagerFragment?.tripSegmentClickListener =
+            object : TripSegmentListFragment.OnTripSegmentClickListener {
+                override fun tripSegmentClicked(tripSegment: TripSegment) {
+                    eventBus.publish(ViewControllerEvent.OnTripSegmentClicked(tripSegment))
                 }
-            })
-            pagerFragment?.tripSegmentClickListener =
-                object : TripSegmentListFragment.OnTripSegmentClickListener {
-                    override fun tripSegmentClicked(tripSegment: TripSegment) {
-                        eventBus.publish(ViewControllerEvent.OnTripSegmentClicked(tripSegment))
-                    }
-                }
+            }
 
+        if (pagerFragment?.isAdded == false) {
             childFragmentManager
                 .beginTransaction()
                 .replace(R.id.container, pagerFragment!!)
-                .addToBackStack(null)
                 .commitAllowingStateLoss()
 
         }
@@ -183,7 +214,7 @@ class TKUITripDetailsViewControllerFragment :
     }
 
     private fun viewTripSegment(tripGroupId: String) {
-        CoroutineScope(Dispatchers.IO).launch {
+        viewLifecycleOwner.lifecycleScope.launch {
             val tripGroup = tripGroupRepository.getTripGroup(tripGroupId).awaitFirstOrNull()
             tripGroup?.trips?.first()?.segmentList?.first()?.let {
                 eventBus.publish(ViewControllerEvent.OnTripSegmentClicked(it))
@@ -219,6 +250,7 @@ class TKUITripDetailsViewControllerFragment :
             tripGroupList: List<TripGroup>? = null,
             factory: ActionButtonHandlerFactory?
         ) = TKUITripDetailsViewControllerFragment().apply {
+            arguments = Bundle().apply { putString("tkui_favorite", favoriteTrip.uuid) }
             this.favoriteTripId = favoriteTrip.uuid
             this.tripGroupList = tripGroupList
             this.actionButtonHandlerFactory = factory
@@ -229,6 +261,7 @@ class TKUITripDetailsViewControllerFragment :
             tripGroupList: List<TripGroup>? = null,
             factory: ActionButtonHandlerFactory? = null
         ) = TKUITripDetailsViewControllerFragment().apply {
+            arguments = Bundle().apply { putParcelable("tkui_trip", trip) }
             this.trip = trip
             this.tripGroupList = tripGroupList
             this.actionButtonHandlerFactory = factory
@@ -239,6 +272,7 @@ class TKUITripDetailsViewControllerFragment :
             tripGroupList: List<TripGroup>? = null,
             factory: ActionButtonHandlerFactory?
         ) = TKUITripDetailsViewControllerFragment().apply {
+            arguments = Bundle().apply { putString("tkui_group", tripGroupId) }
             this.tripGroupId = tripGroupId
             this.tripGroupList = tripGroupList
             this.actionButtonHandlerFactory = factory

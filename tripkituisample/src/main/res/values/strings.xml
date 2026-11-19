@@ -4,4 +4,7 @@
     <string name="feature_autocompleter">Autocompleter</string>
     <string name="lbl_location_search">Location Search</string>
     <string name="lbl_tripkit_map">TripKit Map</string>
+    <string name="appearance_system">Appearance: follow system</string>
+    <string name="appearance_light">Appearance: light</string>
+    <string name="appearance_dark">Appearance: dark</string>
 </resources>

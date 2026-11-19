@@ -66,11 +66,27 @@ class TKUITripResultsFragment : BaseFragment<FragmentTkuiTripResultsBinding>() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        initData()
+        val state = savedInstanceState ?: arguments
+        state?.let {
+            origin = it.getParcelable("tkui_origin")
+            destination = it.getParcelable("tkui_destination")
+            fromRouteCard = it.getBoolean("tkui_from_route", true)
+        }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putParcelable("tkui_origin", origin)
+        outState.putParcelable("tkui_destination", destination)
+        outState.putBoolean("tkui_from_route", fromRouteCard)
     }
 
     override fun onCreated(savedInstance: Bundle?) {
         binding.lifecycleOwner = viewLifecycleOwner
+        tripResultsCardFragment = childFragmentManager.findFragmentById(R.id.container) as? TripResultListFragment
+        if (tripResultsCardFragment == null) initData()
+        tripResultsCardFragment?.actionButtonHandlerFactory =
+            ControllerDataProvider.actionButtonHandlerFactory ?: tkuiActionButtonHandlerFactory
         initTripResults()
     }
 
@@ -106,9 +122,11 @@ class TKUITripResultsFragment : BaseFragment<FragmentTkuiTripResultsBinding>() {
 
     private fun initTripResults() {
         tripResultsCardFragment?.apply {
-            this@TKUITripResultsFragment.childFragmentManager
-                .beginTransaction()
-                .replace(R.id.container, this).commit()
+            if (!isAdded) {
+                this@TKUITripResultsFragment.childFragmentManager
+                    .beginTransaction()
+                    .replace(R.id.container, this).commit()
+            }
 
             setOnCloseButtonListener {
                 eventBus.publish(ViewControllerEvent.OnCloseAction())
@@ -140,6 +158,11 @@ class TKUITripResultsFragment : BaseFragment<FragmentTkuiTripResultsBinding>() {
             destination: Location,
             fromRouteCard: Boolean
         ) = TKUITripResultsFragment().apply {
+            arguments = Bundle().apply {
+                putParcelable("tkui_origin", origin)
+                putParcelable("tkui_destination", destination)
+                putBoolean("tkui_from_route", fromRouteCard)
+            }
             this.origin = origin
             this.destination = destination
             this.fromRouteCard = fromRouteCard

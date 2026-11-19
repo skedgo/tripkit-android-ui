@@ -107,4 +107,30 @@ class TKUIRouteViewModelTest: MockKTest() {
         verify { destinationObserver.onChanged(destinationValue) }
         assertEquals(destinationValue, viewModel.destination.value)
     }
+    @Test
+    fun `editing selected origin invalidates old coordinates until a suggestion is selected`() {
+        viewModel.startLocation = Location(12.34, 56.78).apply { name = "Old origin" }
+        viewModel.destinationLocation = Location(23.45, 67.89).apply { name = "Destination" }
+        viewModel.setStart("Different origin")
+        assertNull(viewModel.startLocation)
+        assertEquals("Different origin", viewModel.start.value)
+        assertFalse(viewModel.bothLocationsAreValid())
+    }
+
+    @Test
+    fun `editing selected destination invalidates old coordinates`() {
+        viewModel.destinationLocation = Location(23.45, 67.89).apply { name = "Old destination" }
+        viewModel.setDestination("New destination")
+        assertNull(viewModel.destinationLocation)
+        assertEquals("New destination", viewModel.destination.value)
+    }
+
+    @Test
+    fun `unchanged selected label keeps its coordinates`() {
+        val selected = Location(12.34, 56.78).apply { name = "Station" }
+        viewModel.startLocation = selected
+        viewModel.setStart("Station")
+        assertSame(selected, viewModel.startLocation)
+    }
+
 }

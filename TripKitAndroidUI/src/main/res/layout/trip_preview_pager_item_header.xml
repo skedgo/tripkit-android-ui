@@ -18,7 +18,8 @@
             android:layout_height="24dp"
             android:layout_marginTop="@dimen/spacing_normal"
             android:layout_marginStart="16dp"
-            android:src="@{viewModel.icon}"
+            app:hostPreviewIcon="@{viewModel.icon}"
+            app:hostPreviewIconModel="@{viewModel}"
             app:layout_constraintBottom_toBottomOf="@+id/textBarrier"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />

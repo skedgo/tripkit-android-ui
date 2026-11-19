@@ -39,6 +39,10 @@ class TKUIHomeBottomSheetFragment : BaseFragment<FragmentTkuiHomeBottomSheetBind
 
     override fun getDefaultViewForAccessibility(): View? = null
 
+    internal fun reconnectListener(value: TKUIHomeBottomSheetListener) {
+        listener = value
+    }
+
     fun update(fragment: Fragment, tag: String? = null) {
         currentFragmentTag = tag
         childFragmentManager

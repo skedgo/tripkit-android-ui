@@ -12,8 +12,14 @@ internal fun AppCompatActivity.applySampleWindowInsets() {
     val top = content.paddingTop
     val right = content.paddingRight
     val bottom = content.paddingBottom
+    val night = resources.configuration.uiMode and android.content.res.Configuration.UI_MODE_NIGHT_MASK ==
+        android.content.res.Configuration.UI_MODE_NIGHT_YES
+    androidx.core.view.WindowCompat.getInsetsController(window, window.decorView).apply {
+        isAppearanceLightStatusBars = !night
+        isAppearanceLightNavigationBars = !night
+    }
     ViewCompat.setOnApplyWindowInsetsListener(content) { view, insets ->
-        val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+        val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.ime())
         view.setPadding(left + bars.left, top + bars.top, right + bars.right, bottom + bars.bottom)
         insets
     }

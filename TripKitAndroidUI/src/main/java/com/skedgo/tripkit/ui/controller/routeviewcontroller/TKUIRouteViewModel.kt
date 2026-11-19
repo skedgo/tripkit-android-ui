@@ -54,10 +54,12 @@ class TKUIRouteViewModel : RxViewModel() {
     }
 
     fun setStart(value: String) {
+        if (value != startLocation?.displayName) startLocation = null
         start.postValue(value)
     }
 
     fun setDestination(value: String) {
+        if (value != destinationLocation?.displayName) destinationLocation = null
         destination.postValue(value)
     }
 }
