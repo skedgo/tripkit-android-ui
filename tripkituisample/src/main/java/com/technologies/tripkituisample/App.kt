@@ -31,7 +31,7 @@ class App : Application(), HasAndroidInjector {
             Timber.e(e)
         }
 
-        val tripGoApiKey = Key.ApiKey("YOUR_TRIPGO_API_KEY_HERE") //BuildConfig.tripgo_api_key
+        val tripGoApiKey = Key.ApiKey(BuildConfig.TRIPGO_API_KEY)
 
         val baseUrlAdapterFactory: Callable<String> = Callable {
             // Your code here to generate the custom base URL
@@ -47,8 +47,7 @@ class App : Application(), HasAndroidInjector {
         val httpClientModule = HttpClientModule(
             null,
             BuildConfig.VERSION_NAME,
-            baseConfig,
-            getSharedPreferences("MyPersonalData", MODE_PRIVATE)
+            baseConfig
         )
 
         HttpClientCustomDataStore.apply {
@@ -77,8 +76,7 @@ class App : Application(), HasAndroidInjector {
             tripGoApiKey,
             appConfigs,
             httpClientModule,
-            //BuildConfig.google_map_key
-            "YOUR_GOOGLE_API_KEY" //Adding your google api key here to initialize google Places API
+            BuildConfig.GOOGLE_PLACES_KEY
         )
 
     }
