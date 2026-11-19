@@ -52,7 +52,7 @@ class TKUITripDetailsViewControllerFragment :
     var tripKitMapFragment: TripKitMapFragment? = null
         set(value) {
             field = value
-            value?.setContributor(pagerFragment?.contributor())
+            if (pagerFragment?.isAdded == true) settled()
         }
 
     var initialTripSegment: TripSegment? = null
@@ -105,9 +105,15 @@ class TKUITripDetailsViewControllerFragment :
         initPagerFragment()
     }
 
+    override fun onResume() {
+        super.onResume()
+        settled()
+    }
+
     fun settled() {
+        val pager = pagerFragment?.takeIf { it.isAdded } ?: return
         tripKitMapFragment?.apply {
-            setContributor(pagerFragment?.contributor())
+            setContributor(pager.contributor())
             // Only disable POI markers temporarily while in trip details mode
             setShowMarkers(false, null)
         }

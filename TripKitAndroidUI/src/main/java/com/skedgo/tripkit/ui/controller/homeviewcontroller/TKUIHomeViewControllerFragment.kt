@@ -60,6 +60,8 @@ import com.skedgo.tripkit.ui.payment.PaymentData
 import com.skedgo.tripkit.ui.search.FixedSuggestions
 import com.skedgo.tripkit.ui.tripresult.TripResultMapContributor
 import com.skedgo.tripkit.ui.tripresult.stableKey
+import com.skedgo.tripkit.ui.trippreview.TripPreviewSharedViewModel
+import com.skedgo.tripkit.ui.utils.observe
 import com.skedgo.tripkit.ui.trippreview.TripPreviewHeaderFragment
 import com.skedgo.tripkit.ui.trippreview.TripPreviewPagerListener
 import com.skedgo.tripkit.ui.utils.deFocusAndHideKeyboard
@@ -108,6 +110,7 @@ class TKUIHomeViewControllerFragment :
     private val bottomSheetOffset = MutableLiveData(0)
 
     private var poiDetailsMapContributor: PoiDetailsMapContributor? = null
+    private val previewSelection: TripPreviewSharedViewModel by viewModels()
     private var previewMapContributor: TripResultMapContributor? = null
     private var previewMapTripKey: String? = null
 
@@ -127,6 +130,20 @@ class TKUIHomeViewControllerFragment :
         contributor.setTripGroupId(group.uuid(), trip.tripId,
             skipCamera = attached && previewMapTripKey == key, tripKey = trip.stableKey)
         previewMapTripKey = key
+        previewSelection.pageIndex.value?.let { selection ->
+            trip.segmentList.firstOrNull { it.segmentId == selection.first }?.let(contributor::focusTripLine)
+        }
+    }
+
+    internal fun focusPreviewSegment(segmentId: Long) {
+        if (!::bottomSheetFragment.isInitialized) return
+        val preview = bottomSheetFragment.getFragmentByTag(TKUITripPreviewFragment.TAG) as? TKUITripPreviewFragment ?: return
+        if (!preview.isVisible) return
+        preview.latestTrip?.segmentList?.firstOrNull { it.segmentId == segmentId }
+            ?.let {
+                previewMapContributor?.focusTripLine(it)
+                adjustHalfExpandedMapRoom()
+            }
     }
 
     private fun clearPreviewMapContributor() {
@@ -139,6 +156,9 @@ class TKUIHomeViewControllerFragment :
     }
 
     override fun onDestroyView() {
+        mapViewportLayoutHost?.viewTreeObserver?.takeIf { it.isAlive }
+            ?.removeOnGlobalLayoutListener(mapViewportLayoutListener)
+        mapViewportLayoutHost = null
         clearPreviewMapContributor()
         super.onDestroyView()
     }
@@ -209,6 +229,7 @@ class TKUIHomeViewControllerFragment :
     override fun onResume() {
         super.onResume()
         initObservers()
+        observeMapViewport()
         if (::map.isInitialized) reconnectRestoredCards()
         if (::bottomSheetFragment.isInitialized) {
             bottomSheetVisibilityCallback?.invoke(if (bottomSheetFragment.childFragmentManager.backStackEntryCount > 0) 1 else 0)
@@ -323,6 +344,47 @@ class TKUIHomeViewControllerFragment :
     }
 
 
+    private var mapViewportLayoutHost: View? = null
+    private val mapViewportLayoutListener = android.view.ViewTreeObserver.OnGlobalLayoutListener {
+        adjustHalfExpandedMapRoom()
+        applyMapPadding(binding.standardBottomSheet)
+        if (::mapFragment.isInitialized)
+            (mapFragment.getContributor() as? TripResultMapContributor)?.onViewportChanged()
+    }
+
+    internal fun observeMapViewport() {
+        val host = binding.mainLayout
+        if (mapViewportLayoutHost === host) return
+        mapViewportLayoutHost?.viewTreeObserver?.takeIf { it.isAlive }
+            ?.removeOnGlobalLayoutListener(mapViewportLayoutListener)
+        mapViewportLayoutHost = host
+        // Child layout callbacks run before BottomSheetBehavior applies its final offset.
+        // Measure after the whole traversal, including same-state card replacements.
+        host.viewTreeObserver.addOnGlobalLayoutListener(mapViewportLayoutListener)
+    }
+
+    private fun adjustHalfExpandedMapRoom() {
+        if (!::bottomSheetBehavior.isInitialized ||
+            bottomSheetBehavior.state != BottomSheetBehavior.STATE_HALF_EXPANDED) return
+        val height = binding.mainLayout.height
+        if (height < 2) return
+        val contributor = if (::mapFragment.isInitialized)
+            mapFragment.getContributor() as? TripResultMapContributor else null
+        val requiredMapHeight = if (contributor != null && binding.topSheet.isVisible)
+            binding.topSheet.bottom + 2 * binding.mainLayout.resources.getDimensionPixelSize(R.dimen.spacing_normal) + contributor.minimumViewportHeight
+            else 0
+        // Match the fitter clearance around both header and sheet, plus marker/camera margins.
+        // Keep the normal half sheet whenever it fits, and never shrink below its existing peek.
+        // One extra pixel avoids rounding the behavior offset above the required map boundary.
+        val sheetHeight = maxOf(bottomSheetBehavior.peekHeight, height - requiredMapHeight - 1)
+            .coerceIn(1, height / 2)
+        val ratio = sheetHeight.toFloat() / height
+        if (bottomSheetBehavior.halfExpandedRatio != ratio) {
+            bottomSheetBehavior.halfExpandedRatio = ratio
+            binding.standardBottomSheet.requestLayout()
+        }
+    }
+
     private fun applyMapPadding(sheet: View): Boolean {
         if (!::map.isInitialized) return false
         val bottom = if (sheet.isVisible) controllerMapBottomPadding(binding.mainLayout.height, sheet.top) else 0
@@ -338,8 +400,10 @@ class TKUIHomeViewControllerFragment :
             when (card) {
                 is TKUILocationSearchViewControllerFragment -> card.reconnectListener(searchCardListener)
                 is TKUITripDetailsViewControllerFragment -> {
-                    card.tripKitMapFragment = mapFragment
-                    if (card.isVisible) card.settled()
+                    if (card.isVisible) {
+                        card.tripKitMapFragment = mapFragment
+                        card.settled()
+                    }
                 }
                 is TKUITripPreviewFragment -> if (card.isVisible) {
                     card.setOnCloseButtonListener { handleCloseAction() }
@@ -492,6 +556,7 @@ class TKUIHomeViewControllerFragment :
         initBottomSheet()
         binding.topSheet.addOnLayoutChangeListener { header, _, _, _, _, _, _, _, _ ->
             if (header.isVisible) bottomSheetBehavior.expandedOffset = header.bottom
+            (mapFragment.getContributor() as? TripResultMapContributor)?.onViewportChanged()
         }
         binding.ivMyLocation.setOnClickListener {
             mapFragment.animateToMyLocation()
@@ -605,9 +670,6 @@ class TKUIHomeViewControllerFragment :
         }
 
         binding.standardBottomSheet.isVisible = hasCards
-        binding.standardBottomSheet.addOnLayoutChangeListener { sheet, _, _, _, _, _, _, _, _ ->
-            applyMapPadding(sheet)
-        }
         addBottomSheetCallback()
     }
 
@@ -618,6 +680,7 @@ class TKUIHomeViewControllerFragment :
                 if (::map.isInitialized && newState != BottomSheetBehavior.STATE_DRAGGING && newState != BottomSheetBehavior.STATE_SETTLING) {
                     val center = map.cameraPosition.target
                     if (applyMapPadding(bottomSheet)) map.moveCamera(CameraUpdateFactory.newLatLng(center))
+                    (mapFragment.getContributor() as? TripResultMapContributor)?.onViewportChanged()
                 }
             }
 
@@ -633,6 +696,9 @@ class TKUIHomeViewControllerFragment :
     }
 
     private fun initObservers() {
+        viewLifecycleOwner.observe(previewSelection.pageIndex) { selection ->
+            if (selection != null) focusPreviewSegment(selection.first)
+        }
         eventBus.apply {
             listen(
                 ViewControllerEvent.OnLocationSuggestionSelected::class.java
@@ -903,8 +969,8 @@ class TKUIHomeViewControllerFragment :
             override fun onStateChanged(bottomSheet: View, newState: Int) {
                 if (newState == BottomSheetBehavior.STATE_HALF_EXPANDED) {
                     fragment.settled()
+                    bottomSheetBehavior.removeBottomSheetCallback(this)
                 }
-                bottomSheetBehavior.removeBottomSheetCallback(this)
             }
 
             override fun onSlide(bottomSheet: View, slideOffset: Float) {}
