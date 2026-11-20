@@ -416,7 +416,7 @@ class LocationSearchFragment : BaseTripKitFragment() {
                 }
             }, errorLogger::trackError).addTo(autoDisposable)
 
-        if (!requireContext().isTalkBackOn()) {
+        if (viewModel.showSearchBox.get() && !requireContext().isTalkBackOn()) {
             lifecycleScope.launch(Dispatchers.Main) {
                 delay(800)
                 searchView?.requestFocus()

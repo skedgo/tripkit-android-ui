@@ -22,13 +22,13 @@ class TKUIRouteViewModel : RxViewModel() {
     var destinationLocation: Location? = null
         set(value) {
             field = value
-            destination.postValue(destinationLocation?.displayName ?: "")
+            destination.value = value?.displayName ?: ""
         }
 
     var startLocation: Location? = null
         set(value) {
             field = value
-            start.postValue(startLocation?.displayName ?: "")
+            start.value = value?.displayName ?: ""
         }
 
     var swap = PublishRelay.create<Unit>()
@@ -54,12 +54,12 @@ class TKUIRouteViewModel : RxViewModel() {
     }
 
     fun setStart(value: String) {
-        if (value != startLocation?.displayName) startLocation = null
-        start.postValue(value)
+        if (startLocation != null && value != startLocation?.displayName) startLocation = null
+        start.value = value
     }
 
     fun setDestination(value: String) {
-        if (value != destinationLocation?.displayName) destinationLocation = null
-        destination.postValue(value)
+        if (destinationLocation != null && value != destinationLocation?.displayName) destinationLocation = null
+        destination.value = value
     }
 }

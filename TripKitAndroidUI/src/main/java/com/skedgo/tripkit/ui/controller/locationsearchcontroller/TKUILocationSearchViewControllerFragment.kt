@@ -130,7 +130,7 @@ class TKUILocationSearchViewControllerFragment :
                 onFixedSuggestionSelected = { suggestion -> listener?.onFixedSuggestionSelected(suggestion) },
                 onCitySelected = { city -> listener?.onCitySelected(city) },
                 onAttachFragment = {
-                    pendingQuery?.let { locationSearchFragment?.setQuery(it, pendingRoutingQuery) }
+                    deliverPendingQuery()
                 },
                 onInfoClick = { infoLocation -> listener?.onInfoSelected(infoLocation) },
                 onSuggestionActionClick = { suggestionLocation ->
@@ -167,7 +167,15 @@ class TKUILocationSearchViewControllerFragment :
     fun setQuery(query: String, isRouting: Boolean = false) {
         pendingQuery = query
         pendingRoutingQuery = isRouting
-        locationSearchFragment?.takeIf { it.isAdded }?.setQuery(query, isRouting)
+        deliverPendingQuery()
+    }
+
+    private fun deliverPendingQuery() {
+        val child = locationSearchFragment?.takeIf { it.isAdded } ?: return
+        val query = pendingQuery ?: return
+        // Result-list updates also invoke the attachment callback. Consume before dispatching.
+        pendingQuery = null
+        child.setQuery(query, pendingRoutingQuery)
     }
 
     companion object {

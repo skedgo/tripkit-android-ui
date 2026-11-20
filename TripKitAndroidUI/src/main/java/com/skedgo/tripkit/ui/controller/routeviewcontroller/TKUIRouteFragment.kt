@@ -159,7 +159,7 @@ class TKUIRouteFragment : BaseFragment<FragmentTkuiRouteComposeBinding>() {
         super.onResume()
         initObservers()
         // BaseFragment can reuse binding.root on back stack return.
-        // Re-attach a fresh composition for the compose header shell.
+        // Recreate the header only if detachment disposed its composition.
         setupRouteCompose()
     }
 
@@ -183,8 +183,8 @@ class TKUIRouteFragment : BaseFragment<FragmentTkuiRouteComposeBinding>() {
     private fun setupRouteCompose() {
         val composeView = binding.routeCompose
 
-        // In a reused-view setup, clear stale composition before setting fresh content.
-        composeView.disposeComposition()
+        // Preserve the active text editor; detached cached views recreate their composition.
+        if (composeView.hasComposition) return
         composeView.setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnDetachedFromWindow)
         composeView.setContent {
             TKUIRouteCardCompose(
