@@ -70,7 +70,7 @@ fun RouteCardContent(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .background(MaterialTheme.colors.surface)
+            .background(colorResource(R.color.cardBackground))
     ) {
         Row(
             modifier = Modifier

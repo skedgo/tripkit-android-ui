@@ -6,7 +6,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="?attr/colorSurface"
+        android:background="@color/cardBackground"
         android:orientation="vertical"
         tools:context=".controller.routeviewcontroller.TKUIRouteFragment">
 

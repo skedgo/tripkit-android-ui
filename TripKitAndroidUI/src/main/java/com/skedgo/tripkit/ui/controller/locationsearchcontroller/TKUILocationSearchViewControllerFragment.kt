@@ -83,6 +83,7 @@ class TKUILocationSearchViewControllerFragment :
         binding.lifecycleOwner = viewLifecycleOwner
         binding.viewModel = viewModel
         viewModel.setWithHeaders(withHeaders)
+        if (!withHeaders) binding.root.setBackgroundResource(R.color.cardBackground)
         initViews()
         initSearchFragment()
         if (withHeaders) updateSuggestionProviderCurrentLocation(false)
