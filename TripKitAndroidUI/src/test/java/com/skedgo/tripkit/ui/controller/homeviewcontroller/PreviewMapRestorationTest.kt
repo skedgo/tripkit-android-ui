@@ -1,5 +1,8 @@
 package com.skedgo.tripkit.ui.controller.homeviewcontroller
 
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelStore
+import androidx.lifecycle.viewmodel.CreationExtras
 import com.skedgo.tripkit.routing.Trip
 import com.skedgo.tripkit.routing.TripGroup
 import com.skedgo.tripkit.ui.controller.ViewControllerEventBus
@@ -18,6 +21,7 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [33])
 class PreviewMapRestorationTest {
+    private val previewSelectionStore = ViewModelStore()
     private lateinit var home: TKUIHomeViewControllerFragment
     private lateinit var listener: TripPreviewPagerListener
     private lateinit var map: TripKitMapFragment
@@ -42,12 +46,20 @@ class PreviewMapRestorationTest {
             mapFragment = this@PreviewMapRestorationTest.map
             eventBus = ViewControllerEventBus
         }
+        mockkObject(home)
+        // Exercise the real Home-scoped selection model without attaching the full map UI.
+        every { home.viewModelStore } returns previewSelectionStore
+        every { home.defaultViewModelProviderFactory } returns ViewModelProvider.NewInstanceFactory()
+        every { home.defaultViewModelCreationExtras } returns CreationExtras.Empty
         val factory = home.javaClass.getDeclaredMethod("initTripPreviewPagerFragmentListener")
         factory.isAccessible = true
         listener = factory.invoke(home) as TripPreviewPagerListener
     }
 
-    @After fun tearDown() { unmockkAll() }
+    @After fun tearDown() {
+        previewSelectionStore.clear()
+        unmockkAll()
+    }
 
     @Test fun `restored preview trip is attached to the shared SDK map contributor`() {
         listener.reportPlannedTrip(trip, listOf(group))
