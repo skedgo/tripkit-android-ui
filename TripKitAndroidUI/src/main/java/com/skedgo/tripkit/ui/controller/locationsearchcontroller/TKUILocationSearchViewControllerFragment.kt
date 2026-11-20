@@ -38,6 +38,22 @@ class TKUILocationSearchViewControllerFragment :
     private var mapBounds: LatLngBounds? = null
     private var nearLatLng: LatLng? = null
     private var withHeaders: Boolean = true
+    private var pendingQuery: String? = null
+    private var pendingRoutingQuery = false
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        arguments?.let {
+            mapBounds = it.getParcelable("tkui_bounds")
+            nearLatLng = it.getParcelable("tkui_near")
+            withHeaders = it.getBoolean("tkui_headers", true)
+        }
+        fixedSuggestionsProvider = fixedSuggestionsProvider ?: ControllerDataProvider.suggestionProvider
+    }
+
+    internal fun reconnectListener(value: TKUILocationSearchViewControllerListener) {
+        listener = value
+    }
 
     private var locationSearchFragment: LocationSearchFragment? = null
 
@@ -67,9 +83,10 @@ class TKUILocationSearchViewControllerFragment :
         binding.lifecycleOwner = viewLifecycleOwner
         binding.viewModel = viewModel
         viewModel.setWithHeaders(withHeaders)
+        if (!withHeaders) binding.root.setBackgroundResource(R.color.cardBackground)
         initViews()
         initSearchFragment()
-        updateSuggestionProviderCurrentLocation(false)
+        if (withHeaders) updateSuggestionProviderCurrentLocation(false)
         checkConfigs()
     }
 
@@ -96,7 +113,8 @@ class TKUILocationSearchViewControllerFragment :
 
     private fun initSearchFragment() {
         val searchProvider = ControllerDataProvider.favoriteProvider ?: TKUIFavoritesSuggestionProvider()
-        locationSearchFragment = LocationSearchCore.createFragment(
+        val restored = childFragmentManager.findFragmentById(R.id.content) as? LocationSearchFragment
+        locationSearchFragment = restored ?: LocationSearchCore.createFragment(
             config = LocationSearchCoreConfig(
                 bounds = mapBounds,
                 near = nearLatLng,
@@ -112,7 +130,9 @@ class TKUILocationSearchViewControllerFragment :
                 onLocationSelected = { location -> listener?.onLocationSelected(location) },
                 onFixedSuggestionSelected = { suggestion -> listener?.onFixedSuggestionSelected(suggestion) },
                 onCitySelected = { city -> listener?.onCitySelected(city) },
-                onAttachFragment = { /* no-op to preserve previous behavior */ },
+                onAttachFragment = {
+                    deliverPendingQuery()
+                },
                 onInfoClick = { infoLocation -> listener?.onInfoSelected(infoLocation) },
                 onSuggestionActionClick = { suggestionLocation ->
                     // Preserve current controller behavior: no timetable action here.
@@ -123,21 +143,40 @@ class TKUILocationSearchViewControllerFragment :
             )
         )
 
+        locationSearchFragment?.apply {
+            this.fixedSuggestionsProvider = this@TKUILocationSearchViewControllerFragment.fixedSuggestionsProvider
+            searchSuggestionProvider = searchProvider
+            locationSearchIconProvider = TKUILocationSearchIconProvider()
+        }
+        // FragmentManager restores children; reconnect callbacks instead of replacing their query/list state.
+        locationSearchFragment?.setOnLocationSelectedListener { listener?.onLocationSelected(it) }
+        locationSearchFragment?.setOnFixedSuggestionSelectedListener { listener?.onFixedSuggestionSelected(it) }
+        locationSearchFragment?.setOnCitySelectedListener { listener?.onCitySelected(it) }
+        locationSearchFragment?.setOnItemActionClickListener(object : LocationSearchFragment.OnItemActionClickListener {
+            override fun onInfoClick(location: Location) { listener?.onInfoSelected(location) }
+            override fun onSuggestionActionClick(location: Location) { }
+        })
+        if (restored != null) return
         locationSearchFragment?.let {
             childFragmentManager
                 .beginTransaction()
                 .replace(R.id.content, it, tag)
-                .addToBackStack(tag)
                 .commit()
         }
     }
 
     fun setQuery(query: String, isRouting: Boolean = false) {
-        locationSearchFragment?.let { fragment ->
-            if (fragment.isAdded && fragment.isVisible) {
-                fragment.setQuery(query, isRouting)
-            }
-        }
+        pendingQuery = query
+        pendingRoutingQuery = isRouting
+        deliverPendingQuery()
+    }
+
+    private fun deliverPendingQuery() {
+        val child = locationSearchFragment?.takeIf { it.isAdded } ?: return
+        val query = pendingQuery ?: return
+        // Result-list updates also invoke the attachment callback. Consume before dispatching.
+        pendingQuery = null
+        child.setQuery(query, pendingRoutingQuery)
     }
 
     companion object {
@@ -152,6 +191,11 @@ class TKUILocationSearchViewControllerFragment :
             withHeaders: Boolean = true
         ): TKUILocationSearchViewControllerFragment =
             TKUILocationSearchViewControllerFragment().apply {
+                arguments = Bundle().apply {
+                    putParcelable("tkui_bounds", bounds)
+                    putParcelable("tkui_near", near)
+                    putBoolean("tkui_headers", withHeaders)
+                }
                 this.mapBounds = bounds
                 this.nearLatLng = near
                 this.fixedSuggestionsProvider = suggestionsProvider

@@ -112,6 +112,36 @@ class TKUIRouteFragment : BaseFragment<FragmentTkuiRouteComposeBinding>() {
         super.onAttach(context)
     }
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        val state = savedInstanceState ?: arguments
+        state?.let {
+            it.getParcelable<LatLngBounds>("tkui_bounds")?.let { bounds = it }
+            it.getParcelable<LatLng>("tkui_near")?.let { near = it }
+            origin = it.getParcelable("tkui_origin")
+            destination = it.getParcelable("tkui_destination")
+        }
+        if (savedInstanceState != null) {
+            viewModel.startLocation = origin
+            viewModel.destinationLocation = destination
+            viewModel.setStart(savedInstanceState.getString("tkui_start_text").orEmpty())
+            viewModel.setDestination(savedInstanceState.getString("tkui_dest_text").orEmpty())
+            viewModel.focusedField = TKUIRouteViewModel.FocusedField.values()
+                .getOrElse(savedInstanceState.getInt("tkui_focus")) { TKUIRouteViewModel.FocusedField.NONE }
+        }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putParcelable("tkui_bounds", bounds)
+        outState.putParcelable("tkui_near", near)
+        outState.putParcelable("tkui_origin", viewModel.startLocation)
+        outState.putParcelable("tkui_destination", viewModel.destinationLocation)
+        outState.putString("tkui_start_text", viewModel.start.value)
+        outState.putString("tkui_dest_text", viewModel.destination.value)
+        outState.putInt("tkui_focus", viewModel.focusedField.ordinal)
+    }
+
     override fun clearInstances() {
         origin = null
         destination = null
@@ -122,26 +152,29 @@ class TKUIRouteFragment : BaseFragment<FragmentTkuiRouteComposeBinding>() {
     override fun onCreated(savedInstance: Bundle?) {
         initSearchCard()
         setupRouteCompose()
-        initObservers()
-        setupLocations()
+        if (savedInstance == null) setupLocations()
     }
 
     override fun onResume() {
         super.onResume()
+        initObservers()
         // BaseFragment can reuse binding.root on back stack return.
-        // Re-attach a fresh composition for the compose header shell.
+        // Recreate the header only if detachment disposed its composition.
         setupRouteCompose()
     }
 
     private fun initSearchCard() {
-        locationSearchFragment = TKUILocationSearchViewControllerFragment.newInstance(
+        val restored = childFragmentManager.findFragmentById(R.id.content) as? TKUILocationSearchViewControllerFragment
+        locationSearchFragment = restored ?: TKUILocationSearchViewControllerFragment.newInstance(
             bounds, near, suggestionProvider, searchCardListener, false
         )
+        locationSearchFragment?.reconnectListener(searchCardListener)
 
         locationSearchFragment?.updateSuggestionProviderCurrentLocation(true)
 
+        if (restored != null) return
         locationSearchFragment?.let {
-            childFragmentManager.beginTransaction().replace(R.id.content, it).addToBackStack(null)
+            childFragmentManager.beginTransaction().replace(R.id.content, it)
                 .commitAllowingStateLoss()
         }
 
@@ -150,8 +183,8 @@ class TKUIRouteFragment : BaseFragment<FragmentTkuiRouteComposeBinding>() {
     private fun setupRouteCompose() {
         val composeView = binding.routeCompose
 
-        // In a reused-view setup, clear stale composition before setting fresh content.
-        composeView.disposeComposition()
+        // Preserve the active text editor; detached cached views recreate their composition.
+        if (composeView.hasComposition) return
         composeView.setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnDetachedFromWindow)
         composeView.setContent {
             TKUIRouteCardCompose(
@@ -215,10 +248,6 @@ class TKUIRouteFragment : BaseFragment<FragmentTkuiRouteComposeBinding>() {
 
     private fun initObservers() {
         viewModel.swap.observeOn(AndroidSchedulers.mainThread()).subscribe {
-            val startText = viewModel.start.value
-            val destText = viewModel.destination.value
-            viewModel.setStart(destText ?: "")
-            viewModel.setDestination(startText ?: "")
             viewModel.swapLocations()
         }.addTo(autoDisposable)
 
@@ -266,6 +295,7 @@ class TKUIRouteFragment : BaseFragment<FragmentTkuiRouteComposeBinding>() {
                 .permissionFor(android.Manifest.permission.ACCESS_FINE_LOCATION)
         ) {
             currentGeoPointAsLocation.value
+                .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({
                     when (it) {
                         is Success -> {
@@ -421,6 +451,12 @@ class TKUIRouteFragment : BaseFragment<FragmentTkuiRouteComposeBinding>() {
             destination: Location? = null
         ): TKUIRouteFragment =
             TKUIRouteFragment().apply {
+                arguments = Bundle().apply {
+                    putParcelable("tkui_bounds", bounds)
+                    putParcelable("tkui_near", near)
+                    putParcelable("tkui_origin", origin)
+                    putParcelable("tkui_destination", destination)
+                }
                 this.bounds = bounds
                 this.near = near
                 this.origin = origin

@@ -98,6 +98,16 @@ class TripResultMapViewModel @Inject internal constructor(
             ).autoClear()
     }
 
+    /** A map may attach after publish streams emitted; replay content after subscriptions exist. */
+    internal fun replayMapContent() {
+        selectedTrip.value?.apply {
+            processSegments()
+            processTravelledStopMarkerViewModels()
+            processMarkerViewModels()
+            processMapTiles()
+        }
+    }
+
     @VisibleForTesting
     fun Trip.processCameraUpdate() {
         // Check if camera update should be skipped (e.g., during restoration)

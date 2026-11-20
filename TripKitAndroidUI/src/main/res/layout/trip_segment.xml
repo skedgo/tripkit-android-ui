@@ -122,7 +122,8 @@
                 android:layout_width="@dimen/segment_item_icon_size"
                 android:layout_height="@dimen/segment_item_icon_size"
                 android:layoutDirection="ltr"
-                android:src="@{viewModel.icon}"
+                app:hostDetailIcon="@{viewModel.icon}"
+                app:hostDetailIconModel="@{viewModel}"
                 tools:src="@drawable/ic_train"
                 tools:tint="@android:color/white" />
         </LinearLayout>

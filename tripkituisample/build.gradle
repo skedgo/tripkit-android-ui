@@ -4,6 +4,21 @@ apply plugin: 'kotlin-kapt'
 apply plugin: 'kotlin-parcelize'
 //apply plugin: 'com.google.android.libraries.mapsplatform.secrets-gradle-plugin'
 
+// Keep credentials in untracked local.properties or environment variables.
+def sampleProperties = new Properties()
+def samplePropertiesFile = rootProject.file('local.properties')
+if (samplePropertiesFile.exists()) {
+    samplePropertiesFile.withInputStream { sampleProperties.load(it) }
+}
+def sampleKey = { String name, String fallback ->
+    providers.environmentVariable(name.toUpperCase(java.util.Locale.ROOT))
+        .orElse(providers.gradleProperty(name))
+        .getOrElse(sampleProperties.getProperty(name, fallback))
+}
+def tripGoKey = sampleKey('tripgo_api_key', 'YOUR_TRIPGO_API_KEY_HERE')
+def mapsKey = sampleKey('google_map_key', 'GOOGLE_MAP_API_KEY_HERE')
+def placesKey = sampleKey('google_places_key', mapsKey)
+
 android {
 
     namespace 'com.technologies.tripkituisample'
@@ -11,12 +26,16 @@ android {
     compileSdkVersion versions.compileSdkVersion
 
     buildFeatures {
+        buildConfig true
         viewBinding true
         dataBinding true
     }
 
     defaultConfig {
         applicationId "com.technologies.tripkituisample"
+        buildConfigField 'String', 'TRIPGO_API_KEY', groovy.json.JsonOutput.toJson(tripGoKey)
+        buildConfigField 'String', 'GOOGLE_PLACES_KEY', groovy.json.JsonOutput.toJson(placesKey)
+        manifestPlaceholders = [google_map_key: mapsKey]
         minSdkVersion versions.proMinSdkVersion
         targetSdkVersion versions.targetSdkVersion
         versionCode 1
@@ -95,7 +114,6 @@ dependencies {
     kapt libs.value
     compileOnly libs.valueAnnotations
     compileOnly libs.builderAnnotations
-    compileOnly libs.immutablesAndroidStub
 
     implementation libs.retrofit
     implementation libs.retrofitAdapterRxJava

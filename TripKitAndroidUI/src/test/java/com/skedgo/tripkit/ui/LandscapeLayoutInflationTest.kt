@@ -46,4 +46,25 @@ class LandscapeLayoutInflationTest {
         assertNotNull(root.findViewById(R.id.itemsView))
         assertNotNull(root.findViewById(R.id.buttonLayout))
     }
+    @Test
+    fun `large preview header cannot consume the directions scrolling viewport`() {
+        val root = inflate(R.layout.trip_preview_pager_directions_item)
+        root.findViewById<android.widget.TextView>(R.id.actionText).apply {
+            text = "Long journey description ".repeat(20)
+            textSize = 32f
+        }
+        root.measure(View.MeasureSpec.makeMeasureSpec(800, View.MeasureSpec.EXACTLY),
+            View.MeasureSpec.makeMeasureSpec(300, View.MeasureSpec.EXACTLY))
+        root.layout(0, 0, 800, 300)
+        fun findList(view: View): androidx.recyclerview.widget.RecyclerView? {
+            if (view is androidx.recyclerview.widget.RecyclerView) return view
+            if (view is android.view.ViewGroup) for (index in 0 until view.childCount) {
+                findList(view.getChildAt(index))?.let { return it }
+            }
+            return null
+        }
+        org.junit.Assert.assertTrue("Directions must retain a usable viewport beside a growing header",
+            (findList(root)?.measuredHeight ?: 0) >= 150)
+    }
+
 }

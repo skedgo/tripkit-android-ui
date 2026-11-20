@@ -1,12 +1,13 @@
 package com.technologies.tripkituisample.homeviewcontroller
 
+import com.technologies.tripkituisample.applySampleWindowInsets
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import android.widget.EditText
 import androidx.databinding.DataBindingUtil
 import com.skedgo.geocoding.LatLng
-import com.skedgo.tripkit.common.model.Location
+import com.skedgo.tripkit.common.model.location.Location
 import com.skedgo.tripkit.ui.controller.ViewControllerEventBus
 import com.skedgo.tripkit.ui.controller.homeviewcontroller.TKUIHomeViewControllerFragment
 import com.skedgo.tripkit.ui.controller.utils.actionhandler.TKUIActionButtonHandler
@@ -25,6 +26,7 @@ class HomeViewControllerActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         binding = DataBindingUtil.setContentView(this, R.layout.activity_home_view_controller)
+        applySampleWindowInsets()
 
         val actionButtonHandler = SampleActionButtonHandler(ViewControllerEventBus)
         val actionButtonHandlerFactory = TKUIActionButtonHandlerFactory { actionButtonHandler }
@@ -75,7 +77,7 @@ class HomeViewControllerActivity : AppCompatActivity() {
 
         favoriteProvider.saveFavorite(
             Location(-27.4750639, 152.9844771),
-            1,
+            2,
             SampleFavoritesSuggestionProvider.SampleAdditionalData(
                 "Sample Favorite 3", "Favorite's Address 3"
             )
