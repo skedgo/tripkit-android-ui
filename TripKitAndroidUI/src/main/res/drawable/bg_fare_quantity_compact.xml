@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Paint the original compact surface inside the larger, invisible click area. -->
+<inset xmlns:android="http://schemas.android.com/apk/res/android"
+    android:insetLeft="30dp"
+    android:insetRight="30dp"
+    android:insetTop="15dp"
+    android:insetBottom="15dp"
+    android:drawable="@drawable/bg_round_rect_primary_dark" />

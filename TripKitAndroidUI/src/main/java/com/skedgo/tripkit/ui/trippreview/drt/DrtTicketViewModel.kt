@@ -94,18 +94,20 @@ class DrtTicketViewModel : ViewModel() {
 
     fun setTicket(value: Fare) {
         _fare.value = value
-        updateQuantityControls()
+        setValue(value.value ?: _value.value ?: 0L)
     }
 
     fun setValue(value: Long) {
-        _value.value = value
+        val quantity = _fare.value?.quantityAtLeastMinimum(value) ?: value
+        _value.value = quantity
+        updateTicket(quantity)
         updateQuantityControls()
     }
 
     private fun updateQuantityControls() {
         val quantity = _value.value ?: 0L
         _enableIncrement.value = _fare.value?.canIncreaseQuantity(quantity) ?: (quantity < Long.MAX_VALUE)
-        _enableDecrement.value = quantity > 0L
+        _enableDecrement.value = _fare.value?.let { it.decreasedQuantity(quantity) < quantity } ?: (quantity > 0L)
     }
 
     fun setItemId(value: String) {
