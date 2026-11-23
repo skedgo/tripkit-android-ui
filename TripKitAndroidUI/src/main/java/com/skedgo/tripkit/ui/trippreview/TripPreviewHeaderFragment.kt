@@ -212,6 +212,11 @@ class TripPreviewHeaderFragment : Fragment() {
         }
     }
 
+    /** Reattaches booking navigation when FragmentManager recreates this header. */
+    fun setOnQuickBookingClickListener(listener: (TripSegment?) -> Unit) {
+        loadQuickBookingCallback = listener
+    }
+
     fun setHeaderItems(data: TripSegmentsSummaryData) {
         if (!this@TripPreviewHeaderFragment.isDetached) {
             viewModel.setup(requireContext(), data)

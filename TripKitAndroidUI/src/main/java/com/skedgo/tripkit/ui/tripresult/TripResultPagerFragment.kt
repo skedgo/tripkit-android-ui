@@ -109,6 +109,10 @@ class TripResultPagerFragment : BaseFragment<TripResultPagerBinding>(), OnPageCh
         var groupId: String? = null
         tripGroupsPagerAdapter = TripGroupsPagerAdapter(this, mapContributor)
         tripGroupsPagerAdapter?.tripGroups = emptyList()
+        // The selected trip of each group (args are not retained across recreation): without it
+        // the pages and the map fall back to the group's display trip after rotation or a
+        // font-size change (Redmine #19351).
+        savedInstance?.let { restoreSelectedTripIds(it) }
 
         if (savedInstance == null) {
             if (args is HasInitialTripGroupId) {
@@ -282,6 +286,17 @@ class TripResultPagerFragment : BaseFragment<TripResultPagerBinding>(), OnPageCh
             }
         }
         viewModel.onSavedInstanceState(outState)
+        tripGroupsPagerAdapter?.tripIds?.takeIf { it.isNotEmpty() }?.let { tripIds ->
+            outState.putBundle(KEY_SELECTED_TRIP_IDS, Bundle().apply {
+                tripIds.forEach { (groupId, tripId) -> putLong(groupId, tripId) }
+            })
+        }
+    }
+
+    private fun restoreSelectedTripIds(savedInstance: Bundle) {
+        val saved = savedInstance.getBundle(KEY_SELECTED_TRIP_IDS) ?: return
+        val tripIds = tripGroupsPagerAdapter?.tripIds ?: return
+        saved.keySet().forEach { groupId -> tripIds[groupId] = saved.getLong(groupId) }
     }
 
     override fun onAttach(context: Context) {
@@ -302,7 +317,11 @@ class TripResultPagerFragment : BaseFragment<TripResultPagerBinding>(), OnPageCh
         Timber.d("$LOG_TAG - Page swiped to position $position, tripGroupId=${group?.uuid()}")
         // Update the field so onStop can save it
         currentPage = position
-        mapContributor.setTripGroupId(group?.uuid(), null)
+        // Show the selected trip of this group, not the group's display trip.
+        mapContributor.setTripGroupId(
+            group?.uuid(),
+            group?.uuid()?.let { tripGroupsPagerAdapter?.tripIds?.get(it) }
+        )
         viewModel.currentPage.set(position)
         // Update current trip when page changes
         viewModel.updateCurrentTripForPage(position)
@@ -455,6 +474,7 @@ class TripResultPagerFragment : BaseFragment<TripResultPagerBinding>(), OnPageCh
         private const val LOG_TAG = "[StateRestore] TripResultPagerFragment"
         
         private const val KEY_CURRENT_PAGE = "currentPage"
+        private const val KEY_SELECTED_TRIP_IDS = "selectedTripIds"
         private const val KEY_SHOW_CLOSE_BUTTON = "showCloseButton"
     }
 }

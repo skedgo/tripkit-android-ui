@@ -90,6 +90,7 @@ class TripSegmentGetOffAlertsViewModel @Inject internal constructor(
     private var pendingActivation: Disposable? = null
     private var pendingSubscriptionUrl: String? = null
     private var lastSubscriptionUrl = validatedSubscriptionUrl(trip.subscribeURL)
+    private var lastServerCapability = canUseServerSubscription()
     private val permissionRequests = CompositeDisposable()
     private var permissionPending = false
     private var activationGeneration = 0L
@@ -127,23 +128,30 @@ class TripSegmentGetOffAlertsViewModel @Inject internal constructor(
 
     private fun refreshSubscriptionCapability(context: Context) {
         val endpoint = validatedSubscriptionUrl(trip.subscribeURL)
-        val restoringLocalAlerts = items.isEmpty() && endpoint == null && _getOffAlertStateOn.value == true
-        if (endpoint == lastSubscriptionUrl && !restoringLocalAlerts) return
-        val hadServerCapability = lastSubscriptionUrl != null
+        val serverCapability = canUseServerSubscription()
+        val restoringLocalAlerts = items.isEmpty() && !serverCapability && _getOffAlertStateOn.value == true
+        if (endpoint == lastSubscriptionUrl && serverCapability == lastServerCapability && !restoringLocalAlerts) return
+        val hadServerCapability = lastServerCapability
         lastSubscriptionUrl = endpoint
+        lastServerCapability = serverCapability
         // An acknowledgement belongs to the endpoint requested, never a refreshed capability.
-        if (enablingAlerts && endpoint != pendingSubscriptionUrl) {
+        if (enablingAlerts && (endpoint != pendingSubscriptionUrl || !serverCapability)) {
             pendingActivation?.dispose()
             enablingAlerts = false
         }
         val boardingTitle = context.getString(R.string.get_off_alerts_vehicle_is_approaching_your_boarding_stop)
         items.update(items.map { detail ->
             if (detail.title == boardingTitle) {
-                TripSegmentGetOffAlertDetailViewModel(detail.icon, detail.title, hasValidSubscribeUrl(trip))
+                TripSegmentGetOffAlertDetailViewModel(detail.icon, detail.title, serverCapability)
             } else detail
         })
-        if ((hadServerCapability || restoringLocalAlerts) && endpoint == null && _getOffAlertStateOn.value == true) {
-            // Replace the alarm too: its serialized trip must not retain the previous URL.
+        if ((hadServerCapability || restoringLocalAlerts) && !serverCapability && _getOffAlertStateOn.value == true) {
+            // A former server-only activation cannot remain on with no usable local work.
+            if (!hasLocalAlertCapabilities()) {
+                disableAlerts(context)
+                return
+            }
+            // Re-register only currently usable local capabilities, including after logout.
             cancelStartTripAlarms(context)
             GeoLocation.clearGeofences()
             showGeofencesOnMap.invoke(emptyList())
@@ -165,6 +173,7 @@ class TripSegmentGetOffAlertsViewModel @Inject internal constructor(
             return
         }
         if (permissionPending || enablingAlerts || _getOffAlertStateOn.value == true) return
+        if (!canUseServerSubscription() && !hasLocalAlertCapabilities()) return
 
         permissionPending = true
         val generation = ++activationGeneration
@@ -209,13 +218,13 @@ class TripSegmentGetOffAlertsViewModel @Inject internal constructor(
     private fun enableAlerts(context: Context) {
         if (disposed || enablingAlerts || _getOffAlertStateOn.value == true) return
         val subscribeUrl = validatedSubscriptionUrl(trip.subscribeURL)
-        if (subscribeUrl == null) {
-            activateLocalAlerts(context)
+        if (subscribeUrl == null || !hasUserToken()) {
+            // Cached server URLs do not make local alarms/geofences require authentication.
+            if (hasLocalAlertCapabilities()) activateLocalAlerts(context)
             return
         }
 
-        // A cached trip can still offer a server subscription after the user has signed out.
-        // Do not claim activation or fall back to local alerts if that operation cannot succeed.
+        // Authenticated server failures must still leave activation off; no generic fallback.
         enablingAlerts = true
         pendingSubscriptionUrl = subscribeUrl
         Observable.fromCallable {
@@ -233,7 +242,7 @@ class TripSegmentGetOffAlertsViewModel @Inject internal constructor(
             }
             .subscribe({
                 if (!enablingAlerts) return@subscribe
-                if (validatedSubscriptionUrl(trip.subscribeURL) != subscribeUrl) return@subscribe
+                if (validatedSubscriptionUrl(trip.subscribeURL) != subscribeUrl || !hasUserToken()) return@subscribe
                 activateLocalAlerts(context)
                 // Refresh the unsubscribe URL after the server has acknowledged the subscription.
                 trip.updateURL?.takeIf { it.isNotBlank() }?.let { updateUrl ->
@@ -293,7 +302,9 @@ class TripSegmentGetOffAlertsViewModel @Inject internal constructor(
         GeoLocation.clearGeofences()
         showGeofencesOnMap.invoke(emptyList())
 
-        trip.unsubscribeURL?.let { unsubscribeUrl ->
+        // Logout removes the token; cancel locally without sending an unauthenticated request.
+        // Keep the cached remote state: skipping this call is not a remote acknowledgement.
+        trip.unsubscribeURL?.takeIf { hasUserToken() }?.let { unsubscribeUrl ->
             tripUpdater.tripSubscription(unsubscribeUrl)
                 .subscribe({
                     // Do nothing
@@ -499,8 +510,21 @@ class TripSegmentGetOffAlertsViewModel @Inject internal constructor(
         }
     }
 
+    private fun hasUserToken() = !configs.userTokenProvider()?.call().isNullOrBlank()
+
+    internal fun canUseServerSubscription() = hasValidSubscribeUrl(trip) && hasUserToken()
+
+    internal fun hasTripStartReminder(): Boolean {
+        val start = trip.segmentList.minOfOrNull { it.startTimeInSecs } ?: return false
+        val reminder = TimeUnit.MINUTES.toSeconds(runBlocking { remindersRepository.getTripNotificationReminderMinutes() })
+        val now = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis())
+        return start > now && start - now >= reminder
+    }
+
+    private fun hasLocalAlertCapabilities() = hasTripStartReminder() || eligibleGeofences().isNotEmpty()
+
     private fun eligibleGeofences() = trip.segmentList.orEmpty().flatMap { it.geofences.orEmpty() }
-        .filter { hasValidSubscribeUrl(trip) || it.messageType != MessageType.VEHICLE_IS_APPROACHING.name }
+        .filter { canUseServerSubscription() || it.messageType != MessageType.VEHICLE_IS_APPROACHING.name }
 
     private fun setupAlarmsAndGeofences(context: Context) {
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager

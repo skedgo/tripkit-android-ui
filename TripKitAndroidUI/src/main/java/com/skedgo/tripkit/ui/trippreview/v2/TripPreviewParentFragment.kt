@@ -4,12 +4,15 @@ import android.content.Context
 import android.content.DialogInterface
 import android.os.Bundle
 import android.view.View
+import android.view.LayoutInflater
+import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import android.view.Gravity
 import android.widget.FrameLayout
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.FragmentFactory
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import com.skedgo.tripkit.routing.TripSegment
@@ -22,6 +25,7 @@ import com.skedgo.tripkit.ui.utils.ITEM_QUICK_BOOKING
 import com.skedgo.tripkit.ui.utils.ITEM_SERVICE
 import com.skedgo.tripkit.ui.utils.observe
 import com.skedgo.tripkit.ui.utils.applyEdgeToEdgeSafeAreaPadding
+import java.util.UUID
 import javax.inject.Inject
 
 /**
@@ -44,9 +48,12 @@ open class TripPreviewParentFragment : BaseDialog<FragmentTripPreviewParentBindi
 
     protected lateinit var segment: TripSegment
 
+    private var segmentStateKey: String? = null
+
     private var toolbarLayoutListener: ViewTreeObserver.OnGlobalLayoutListener? = null
 
     companion object {
+        private const val STATE_SEGMENT = "trip_preview_segment_state"
         fun newInstance(segment: TripSegment): TripPreviewParentFragment =
             TripPreviewParentFragment().apply {
                 this.segment = segment
@@ -56,6 +63,9 @@ open class TripPreviewParentFragment : BaseDialog<FragmentTripPreviewParentBindi
     override fun onDismiss(dialog: DialogInterface) {
         onDismissed()
         super.onDismiss(dialog)
+        if (activity?.isChangingConfigurations == false && !parentFragmentManager.isStateSaved) {
+            segmentStateKey?.let { TripPreviewSegmentState(requireContext()).delete(it) }
+        }
     }
 
     override fun onAttach(context: Context) {
@@ -67,8 +77,50 @@ open class TripPreviewParentFragment : BaseDialog<FragmentTripPreviewParentBindi
         get() = R.layout.fragment_trip_preview_parent
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        segmentStateKey = savedInstanceState?.getString(STATE_SEGMENT)
+        if (!::segment.isInitialized) {
+            segmentStateKey?.let { key ->
+                TripPreviewSegmentState(requireContext()).restore(key)?.let { segment = it }
+            }
+        }
+        if (!::segment.isInitialized) {
+            // Discard the invalid dialog's children too: they can depend on transient
+            // booking data. Fragment restores children from its own internal saved state.
+            childFragmentManager.fragmentFactory = object : FragmentFactory() {
+                override fun instantiate(classLoader: ClassLoader, className: String): Fragment = Fragment()
+            }
+        }
         super.onCreate(savedInstanceState)
+        if (!::segment.isInitialized) {
+            // Remove restored children while they are still CREATED. Otherwise nested
+            // containers can reach view creation before this dialog is dismissed.
+            childFragmentManager.beginTransaction().apply {
+                childFragmentManager.fragments.forEach { remove(it) }
+            }.commitNowAllowingStateLoss()
+        }
         setStyle(STYLE_NORMAL, R.style.FullScreenDialog)
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        if (::segment.isInitialized) {
+            val key = segmentStateKey ?: UUID.randomUUID().toString()
+            if (TripPreviewSegmentState(requireContext()).save(key, segment)) {
+                segmentStateKey = key
+                outState.putString(STATE_SEGMENT, key)
+            }
+        }
+    }
+
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
+    ): View? = if (::segment.isInitialized) {
+        super.onCreateView(inflater, container, savedInstanceState)
+    } else null
+
+    override fun onStart() {
+        super.onStart()
+        if (!::segment.isInitialized) dismissAllowingStateLoss()
     }
 
     override fun onCreated(savedInstance: Bundle?) {
@@ -167,7 +219,10 @@ open class TripPreviewParentFragment : BaseDialog<FragmentTripPreviewParentBindi
     private fun handleItemType(type: Int) {
         when(type) {
             ITEM_QUICK_BOOKING, ITEM_SERVICE -> {
-                showQuickBooking()
+                // FragmentManager already restored the active booking/navigation screen.
+                if (childFragmentManager.findFragmentById(getContainerResourceId()) == null) {
+                    showQuickBooking()
+                }
             }
             else -> {
                 // Do nothing for now, just navigate back

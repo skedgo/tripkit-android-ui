@@ -32,6 +32,8 @@ open class LocationEnhancedMapFragment : BaseMapFragment() {
 
     private var settingsButton: MaterialButton? = null
 
+    internal fun settingsCameraObstructions(): List<View> = listOfNotNull(settingsButton)
+
     fun setSettingsIconOnClickListener(listener: View.OnClickListener?) {
         settingsButton?.setOnClickListener(listener)
         settingsButton?.visibility = View.VISIBLE

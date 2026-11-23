@@ -4,7 +4,11 @@
 
     <style name="ToNowButtonStyle">
         <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">40dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <!-- Keeps the 40dp pill at normal font scale but lets it grow with large fonts. -->
+        <item name="android:minHeight">40dp</item>
+        <item name="android:paddingTop">4dp</item>
+        <item name="android:paddingBottom">4dp</item>
         <item name="android:background">@drawable/v4_selector_back_to_top</item>
         <item name="android:paddingLeft">24dp</item>
         <item name="android:paddingRight">24dp</item>

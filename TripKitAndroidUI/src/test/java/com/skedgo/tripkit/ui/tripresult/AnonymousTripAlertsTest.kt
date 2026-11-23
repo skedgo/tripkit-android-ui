@@ -114,14 +114,74 @@ class AnonymousTripAlertsTest : MockKTest() {
         assertThat(vm.getOffAlertStateOn.value).isTrue()
         assertThat(alarms.scheduledAlarms).hasSize(1)
     }
-    @Test fun `cached subscribe URL without token cannot claim successful activation`() {
+    @Test fun `cached subscribe URL without token activates supported local alerts through disclosure`() {
         remote("")
-        every { updater.tripSubscription(any()) } returns Observable.error(IllegalStateException("missing token"))
+        val c = activity()
+        shadowOf(c.get().application).grantPermissions(android.Manifest.permission.ACCESS_BACKGROUND_LOCATION)
+        val local = trip.segmentList.first().geofences!!.single()
+        val boarding = local.copy(id = "boarding", messageType = "VEHICLE_IS_APPROACHING")
+        trip.segmentList.first().geofences = listOf(boarding, local)
+        vm.onAlertChange(c.get(), true)
+        positive()
+        assertThat(vm.getOffAlertStateOn.value).isTrue()
+        assertThat(GetOffAlertCache.isTripAlertStateOn(trip.getTripUuid())).isTrue()
+        assertThat(alarms.scheduledAlarms).hasSize(1)
+        verify(exactly = 0) { updater.tripSubscription(any()) }
+        verify { GeoLocation.createGeoFences(trip, match { it == listOf(local) }, any()) }
+        vm.onAlertChange(c.get(), false)
+        assertThat(vm.getOffAlertStateOn.value).isFalse()
+        assertThat(GetOffAlertCache.getTripId()).isEmpty()
+        assertThat(alarms.scheduledAlarms).isEmpty()
+        c.pause().stop().destroy()
+    }
+    @Test fun `cached subscribe URL without token disables boarding and retains local row`() {
+        remote("")
+        val c = activity()
+        val rows = details()
+        assertThat(rows.single { it.title == context.getString(com.skedgo.tripkit.ui.R.string.get_off_alerts_vehicle_is_approaching_your_boarding_stop) }.isEnabled).isFalse()
+        assertThat(rows.single { it.title == context.getString(com.skedgo.tripkit.ui.R.string.get_off_alerts_about_to_arrive_final_destination) }.isEnabled).isTrue()
+        c.pause().stop().destroy()
+    }
+    @Test fun `cached URL with no token and only server events cannot claim activation`() {
+        remote("")
+        trip.segmentList.first().startTimeInSecs = 1
+        trip.segmentList.first().geofences = listOf(Geofence("boarding", "circle", "ENTER", Coordinate(-35.28,149.13),100.0,"VEHICLE_IS_APPROACHING","Board","Board"))
         enable()
         assertThat(vm.getOffAlertStateOn.value).isFalse()
-        assertThat(GetOffAlertCache.isTripAlertStateOn(trip.getTripUuid())).isFalse()
+        assertThat(GetOffAlertCache.getTripId()).isEmpty()
         assertThat(alarms.scheduledAlarms).isEmpty()
         verify(exactly = 0) { updater.tripSubscription(any()) }
+        verify(exactly = 0) { GeoLocation.createGeoFences(any(), any(), any()) }
+    }
+    @Test fun `no URL and no supported local capabilities cannot claim activation`() {
+        trip.segmentList.first().startTimeInSecs = 1
+        enable()
+        assertThat(vm.getOffAlertStateOn.value).isFalse()
+        assertThat(GetOffAlertCache.getTripId()).isEmpty()
+        assertThat(alarms.scheduledAlarms).isEmpty()
+    }
+    @Test fun `cached signed out local activation mute skips stale remote unsubscribe`() {
+        remote("")
+        trip.unsubscribeURL = "https://example.invalid/unsubscribe"
+        enable()
+        assertThat(vm.getOffAlertStateOn.value).isTrue()
+        vm.onAlertChange(context, false)
+        assertThat(vm.getOffAlertStateOn.value).isFalse()
+        assertThat(GetOffAlertCache.getTripId()).isEmpty()
+        assertThat(alarms.scheduledAlarms).isEmpty()
+        verify(exactly = 0) { updater.tripSubscription(any()) }
+        verify(atLeast = 1) { GeoLocation.clearGeofences() }
+        assertThat(trip.unsubscribeURL).isEqualTo("https://example.invalid/unsubscribe")
+    }
+    @Test fun `authenticated mute still sends remote unsubscribe and cancels local alerts`() {
+        remote()
+        trip.unsubscribeURL = "https://example.invalid/unsubscribe"
+        every { updater.tripSubscription(any()) } returns Observable.just(Unit)
+        enable()
+        vm.onAlertChange(context, false)
+        verify(exactly = 1) { updater.tripSubscription(trip.unsubscribeURL!!) }
+        assertThat(vm.getOffAlertStateOn.value).isFalse()
+        assertThat(alarms.scheduledAlarms).isEmpty()
     }
     @Test fun `server failure does not fall back to local activation`() {
         remote()

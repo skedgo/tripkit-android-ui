@@ -8,6 +8,7 @@
     android:layout_gravity="center"
     android:padding="@dimen/v4_half_content_padding"
     android:singleLine="true"
+    android:ellipsize="end"
     android:textColor="@color/v4_title_text"
     android:textSize="16sp"
     tools:text="Tue May 20" />

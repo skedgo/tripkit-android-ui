@@ -103,9 +103,13 @@ class BearingMarkerIconBuilder(
 
     private fun plusTimeLabel(vehiclePointerPinBitmap: Bitmap): Pair<Bitmap, Float> {
         val timeLabelBitmap = mTimeLabelMaker!!.create(mMillis, mTimezone!!)
+        // At large font scales the label can be taller than the pin head. Grow the bitmap upwards
+        // (never downwards) so the pin bottom stays at the marker's anchor (v = 1f).
+        val centeredLabelTop = (vehiclePointerPinBitmap.width - timeLabelBitmap.height) / 2f
+        val extraTop = if (centeredLabelTop < 0f) -centeredLabelTop else 0f
         val finalBitmap = Bitmap.createBitmap(
             vehiclePointerPinBitmap.width + timeLabelBitmap.width,
-            vehiclePointerPinBitmap.height,
+            vehiclePointerPinBitmap.height + Math.ceil(extraTop.toDouble()).toInt(),
             ARGB_8888
         )
 
@@ -117,7 +121,7 @@ class BearingMarkerIconBuilder(
         val timeLabelLeft = if (bearingToWesternSide
         ) vehiclePointerPinBitmap.width - offset
         else offset
-        val timeLabelTop = (vehiclePointerPinBitmap.width - timeLabelBitmap.height) / 2f
+        val timeLabelTop = centeredLabelTop + extraTop
 
         val timeLabelBackgroundDrawable =
             ContextCompat.getDrawable(mContext, R.drawable.v4_shape_map_time_label)
@@ -145,7 +149,12 @@ class BearingMarkerIconBuilder(
         val vehiclePointerPinBitmapLeft = if (!bearingToWesternSide
         ) finalBitmap.width - vehiclePointerPinBitmap.width
         else 0
-        canvas.drawBitmap(vehiclePointerPinBitmap, vehiclePointerPinBitmapLeft.toFloat(), 0f, null)
+        canvas.drawBitmap(
+            vehiclePointerPinBitmap,
+            vehiclePointerPinBitmapLeft.toFloat(),
+            (finalBitmap.height - vehiclePointerPinBitmap.height).toFloat(),
+            null
+        )
 
         val anchor = vehiclePointerPinBitmap.width / (2f * finalBitmap.width)
         val anchorU = if (bearingToWesternSide) anchor else 1.0f - anchor

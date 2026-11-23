@@ -197,12 +197,10 @@
                 tools:text="ButtonText" />
 
             <!--
-                Might not look good, but this is to constraint the
-                availability info layout to the 0.25 start of the button.
-                Since the button's touch target is quite large, there's
-                a lot of extra space between availability info and the
-                button, so constraining it to 1/4 of the button is to
-                lessen those space.
+                End of the footer text chain (cost, money cost, availability info).
+                Anchored at the start of the action button: the button has no background
+                and wraps its text, so anchoring inside it (previously 1/4 of its width)
+                let long cost text overlap the label at large font scales (Redmine #19351).
             -->
             <TextView
                 android:id="@+id/tvActionButtonCenter"
@@ -211,7 +209,7 @@
                 app:layout_constraintTop_toTopOf="@+id/moreButton"
                 app:layout_constraintEnd_toEndOf="@+id/moreButton"
                 app:layout_constraintStart_toStartOf="@+id/moreButton"
-                app:layout_constraintHorizontal_bias="0.25" />
+                app:layout_constraintHorizontal_bias="0" />
 
 
         </androidx.constraintlayout.widget.ConstraintLayout>

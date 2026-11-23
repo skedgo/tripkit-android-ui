@@ -40,6 +40,7 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -114,7 +115,10 @@ fun SearchResultRow(
                     style = SearchTextStyles.Title.copy(
                         color = Color(ui.titleTextColor)
                     ),
-                    maxLines = 1
+                    // Two lines + ellipsis keep similar names (e.g. "... Station" vs "...,
+                    // Oxford St") distinguishable at large font scales.
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
                 )
                 if (!ui.subtitle.isNullOrBlank()) {
                     Text(
@@ -123,7 +127,8 @@ fun SearchResultRow(
                             color = Color(ui.subtitleTextColor)
                         ),
                         modifier = Modifier.padding(top = dimensionResource(id = R.dimen.spacing_xx_small)),
-                        maxLines = 1
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
                     )
                 }
             }

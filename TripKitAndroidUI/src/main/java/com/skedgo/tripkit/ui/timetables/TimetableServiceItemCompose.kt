@@ -30,6 +30,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import com.skedgo.tripkit.ui.utils.readableBadgeForeground
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.res.colorResource
@@ -38,6 +39,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.core.widget.ImageViewCompat
@@ -210,7 +212,7 @@ private fun TimetableServiceItemCard(
                                 painter = painterResource(R.drawable.ic_action_warning),
                                 contentDescription = null,
                                 tint = colorResource(R.color.tripKitWarning),
-                                modifier = Modifier.size(dimensionResource(R.dimen.icon_20))
+                                modifier = Modifier.size(textScaledTimetableIconSize(R.dimen.icon_20))
                             )
                         }
                         if (wheelchairIcon != null) {
@@ -225,7 +227,7 @@ private fun TimetableServiceItemCard(
                                 painter = painterResource(R.drawable.ic_bike_accessible),
                                 contentDescription = null,
                                 tint = Color.Unspecified,
-                                modifier = Modifier.size(dimensionResource(R.dimen.icon_20))
+                                modifier = Modifier.size(textScaledTimetableIconSize(R.dimen.icon_20))
                             )
                         }
                         if (showOccupancyInfo && occupancyIcon != null) {
@@ -241,7 +243,7 @@ private fun TimetableServiceItemCard(
                                 painter = painterResource(R.drawable.ic_check_circle),
                                 contentDescription = null,
                                 tint = statusColor,
-                                modifier = Modifier.size(dimensionResource(R.dimen.icon_small))
+                                modifier = Modifier.size(textScaledTimetableIconSize(R.dimen.icon_small))
                             )
                             Spacer(modifier = Modifier.width(dimensionResource(R.dimen.spacing_extra_small)))
                         }
@@ -285,6 +287,10 @@ private fun TimetableServiceItemCard(
 }
 
 @Composable
+private fun textScaledTimetableIconSize(resource: Int): Dp =
+    dimensionResource(resource) * LocalDensity.current.fontScale
+
+@Composable
 private fun ModeIcon(modeInfo: ModeInfo?) {
     val isInPreview = LocalInspectionMode.current
     if (isInPreview) {
@@ -292,7 +298,7 @@ private fun ModeIcon(modeInfo: ModeInfo?) {
             painter = painterResource(R.drawable.ic_public_transport),
             contentDescription = null,
             tint = colorResource(R.color.black2),
-            modifier = Modifier.size(dimensionResource(R.dimen.icon_regular))
+            modifier = Modifier.size(textScaledTimetableIconSize(R.dimen.icon_regular))
         )
         return
     }
@@ -308,7 +314,7 @@ private fun ModeIcon(modeInfo: ModeInfo?) {
                 )
             )
         },
-        modifier = Modifier.size(dimensionResource(R.dimen.icon_size_24))
+        modifier = Modifier.size(textScaledTimetableIconSize(R.dimen.icon_size_24))
     )
 }
 
@@ -344,7 +350,7 @@ private fun AccessibilityIcon(icon: Drawable, tint: Int, background: Drawable?) 
                 android.content.res.ColorStateList.valueOf(tint)
             )
         },
-        modifier = Modifier.size(dimensionResource(R.dimen.icon_20))
+        modifier = Modifier.size(textScaledTimetableIconSize(R.dimen.icon_20))
     )
 }
 
@@ -355,7 +361,7 @@ private fun DrawableIcon(icon: Drawable) {
         update = { imageView ->
             imageView.setImageDrawable(icon)
         },
-        modifier = Modifier.size(dimensionResource(R.dimen.icon_20))
+        modifier = Modifier.size(textScaledTimetableIconSize(R.dimen.icon_20))
     )
 }
 

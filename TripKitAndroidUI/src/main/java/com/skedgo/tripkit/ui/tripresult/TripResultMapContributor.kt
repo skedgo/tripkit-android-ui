@@ -1,6 +1,18 @@
 package com.skedgo.tripkit.ui.tripresult
 
 import android.content.Context
+import java.util.TimeZone
+import java.util.Calendar
+import com.skedgo.tripkit.ui.map.TimeLabelMaker
+import com.skedgo.tripkit.ui.R
+import androidx.core.content.ContextCompat
+import android.widget.TextView
+import android.view.LayoutInflater
+import android.graphics.Rect
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.doOnLayout
+import com.skedgo.tripkit.ui.map.BearingMarkerIconBuilder
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.drawable.BitmapDrawable
@@ -23,6 +35,9 @@ import com.google.maps.android.collections.MarkerManager
 import com.skedgo.rxtry.toTrySingle
 import com.skedgo.tripkit.common.util.TransportModeUtils
 import com.skedgo.tripkit.logging.ErrorLogger
+import com.skedgo.tripkit.routing.Trip
+import com.skedgo.tripkit.ui.routing.getVisibleGeoPointsOnMap
+import java.util.concurrent.TimeUnit
 import com.skedgo.tripkit.routing.TripSegment
 import com.skedgo.tripkit.ui.TripKitUI
 import com.skedgo.tripkit.ui.core.UnableToFetchBitmapError
@@ -135,6 +150,16 @@ class TripResultMapContributor : TripKitMapContributor {
     private var isSafeToUse = false
     private var observersSetUp = false  // Guard to prevent duplicate subscriptions
 
+    /**
+     * Trip + map size + font scale this contributor last framed the camera for. A new value
+     * (another trip, or a recreated map after rotation / font-size change) triggers one refit;
+     * an unchanged one (e.g. returning from background) keeps the user's own map position.
+     */
+    private var lastTripCameraFitKey: String? = null
+    internal var mapViewportView: View? = null
+    internal var cameraObstructionViews: () -> List<View> = { emptyList() }
+    private var timeMarkerHeightPx: Int = 0
+
     fun setTileProvide(url: String) {
         tileProvider = object : UrlTileProvider(256, 256) {
             override fun getTileUrl(x: Int, y: Int, zoom: Int): URL? {
@@ -202,9 +227,123 @@ class TripResultMapContributor : TripKitMapContributor {
         this.context = context
         this.map = map
         isSafeToUse = true
+        updateTimeLabelCameraRoom(context)
         serviceStopCalloutAdapter.setShowRightImage(false)
         setup()
     }
+
+    /**
+     * Measures how far a trip time label (pin + time pill) extends sideways from its marker at the
+     * current font scale, so camera fits can keep it on screen (Redmine #19351).
+     */
+    private fun updateTimeLabelCameraRoom(context: Context) {
+        val metrics = context.resources.displayMetrics
+        viewModel.mapWidthPx = metrics.widthPixels
+        viewModel.mapHeightPx = metrics.heightPixels
+        viewModel.timeLabelExtentPx = try {
+            val timeTextView = LayoutInflater.from(context)
+                .inflate(R.layout.view_time_label, null) as TextView
+            // A wide, representative time such as "12:58 PM" in the user's time format.
+            val sampleMillis = Calendar.getInstance().apply {
+                set(Calendar.HOUR_OF_DAY, 12)
+                set(Calendar.MINUTE, 58)
+            }.timeInMillis
+            val labelMaker = TimeLabelMaker(timeTextView)
+            val sizes = listOf(R.drawable.ic_map_pin_pointer, R.drawable.ic_map_pin_arrival).map { pointer ->
+                val bitmap = BearingMarkerIconBuilder(context, labelMaker)
+                    .pointerIcon(pointer)
+                    .baseIcon(R.drawable.ic_map_pin_base)
+                    .vehicleIcon(ContextCompat.getDrawable(context, pointer))
+                    .hasTime(true)
+                    .time(sampleMillis, TimeZone.getDefault().id)
+                    .build()
+                val extent = kotlin.math.ceil(maxOf(bitmap.first.width * bitmap.second,
+                    bitmap.first.width * (1f - bitmap.second)).toDouble()).toInt()
+                (extent to bitmap.first.height).also { bitmap.first.recycle() }
+            }
+            timeMarkerHeightPx = sizes.maxOf { it.second }
+            // Either bearing can put the pill on the left or right of its anchor.
+            sizes.maxOf { it.first }
+        } catch (e: Exception) {
+            Timber.e(e, "Unable to measure time label; using default camera padding")
+            0
+        }
+    }
+
+    private fun tripCameraFitKey(trip: Trip): String {
+        val configuration = context?.resources?.configuration
+        return listOf(
+            trip.group?.uuid(),
+            trip.tripId,
+            viewModel.mapWidthPx,
+            viewModel.mapHeightPx,
+            configuration?.fontScale
+        ).joinToString("|")
+    }
+
+    private fun refitCameraIfStale(trip: Trip) {
+        val host = mapViewportView ?: return
+        if (host.width == 0 || host.height == 0) {
+            host.doOnLayout { refitCameraIfStale(trip) }
+            return
+        }
+        viewModel.mapWidthPx = host.width
+        viewModel.mapHeightPx = host.height
+        val key = tripCameraFitKey(trip)
+        if (key == lastTripCameraFitKey) return
+        val points = trip.segmentList?.getVisibleGeoPointsOnMap().orEmpty()
+        if (points.isEmpty()) return
+        try {
+            // Home applies bottom-only map padding. The target is the padded viewport centre;
+            // cap projection corners at its symmetric bottom so renderer/full-view corners cannot
+            // include the area obscured by the sheet. No guessed screen-height fraction.
+            val projection = map.projection
+            val region = projection.visibleRegion
+            val corners = listOf(region.farLeft, region.farRight, region.nearLeft, region.nearRight)
+                .map(projection::toScreenLocation)
+            val viewport = Rect(corners.minOf { it.x }, corners.minOf { it.y },
+                corners.maxOf { it.x }, corners.maxOf { it.y })
+                .bottomPaddedViewport(projection.toScreenLocation(map.cameraPosition.target).y)
+            if (viewport.width() <= 2 * CameraUpdatePadding || viewport.height() <= 2 * CameraUpdatePadding) return
+            val location = IntArray(2).also(host::getLocationOnScreen)
+            val bars = ViewCompat.getRootWindowInsets(host)?.getInsets(
+                WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout()
+            )
+            val insets = Rect(
+                ((bars?.left ?: 0) - location[0] - viewport.left).coerceAtLeast(0),
+                ((bars?.top ?: 0) - location[1] - viewport.top).coerceAtLeast(0),
+                (location[0] + viewport.right - host.rootView.width + (bars?.right ?: 0)).coerceAtLeast(0),
+                (location[1] + viewport.bottom - host.rootView.height + (bars?.bottom ?: 0)).coerceAtLeast(0)
+            )
+            val routeBounds = LatLngBounds.builder().apply {
+                points.forEach { include(com.google.android.gms.maps.model.LatLng(it.latitude, it.longitude)) }
+            }.build()
+            val controlGap = host.resources.getDimensionPixelSize(R.dimen.spacing_normal)
+            val overlays = cameraObstructionViews().filter { it.isShown }.mapNotNull { control ->
+                Rect().takeIf(control::getGlobalVisibleRect)?.apply {
+                    offset(-location[0], -location[1])
+                    // Keep the existing UI spacing between labels/route and interactive controls.
+                    inset(-controlGap, -controlGap)
+                }
+            }
+            val clearInsets = routeBounds.insetsAvoidingOverlays(viewport, insets, overlays,
+                viewModel.timeLabelExtentPx, timeMarkerHeightPx) ?: return
+            val bounds = routeBounds.expandedForTimeLabels(viewModel.timeLabelExtentPx, timeMarkerHeightPx,
+                viewport.width(), viewport.height(), clearInsets)
+            map.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, CameraUpdatePadding))
+            lastTripCameraFitKey = key
+        } catch (e: IllegalStateException) {
+            Timber.w(e, "Unable to refit trip camera yet")
+        }
+    }
+
+    private fun boundsWithTimeLabelRoom(bounds: LatLngBounds, paddingPx: Int): LatLngBounds =
+        bounds.expandedForHorizontalLabels(
+            viewModel.timeLabelExtentPx,
+            viewModel.mapWidthPx,
+            viewModel.mapHeightPx,
+            paddingPx
+        )
 
     private fun setupManagers(context: Context) {
         // Only create a new MarkerManager if we don't already have one from TripKitMapFragment
@@ -331,9 +470,19 @@ class TripResultMapContributor : TripKitMapContributor {
         autoDisposable.add(
             viewModel.tripCameraUpdateStream
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({ cameraUpdate ->
-                    map.animateCamera(cameraUpdate)
+                .subscribe({ _ ->
+                    viewModel.selectedTrip.value?.let { refitCameraIfStale(it) }
                 }, { Timber.e(it) })
+        )
+        // The view model's trip camera update can be skipped (state restoration) or emitted
+        // before this contributor subscribed, leaving the previous camera after rotation or a
+        // font-size change and clipping the time labels (Redmine #19351). Refit once whenever
+        // the framing is stale for the selected trip.
+        autoDisposable.add(
+            viewModel.selectedTrip
+                .delay(TripResultMapViewModel.DELAY_MAP_CAMERA_UPDATE, TimeUnit.MILLISECONDS)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe({ trip -> refitCameraIfStale(trip) }, { Timber.e(it) })
         )
         autoDisposable.add(
             viewModel.mapTilesStream
@@ -398,10 +547,19 @@ class TripResultMapContributor : TripKitMapContributor {
         context = null
     }
 
-    fun setTripGroupId(tripGroupId: String?, tripId: Long? = null, skipCamera: Boolean = false) {
+    /**
+     * Shows a trip of [tripGroupId] on the map. Pass [tripKey] (the trip's
+     * [stableKey]) to show the selected trip rather than the group's display trip.
+     */
+    fun setTripGroupId(
+        tripGroupId: String?,
+        tripId: Long? = null,
+        skipCamera: Boolean = false,
+        tripKey: String? = null
+    ) {
         tripGroupId?.let {
             removeTileOverlay()
-            viewModel.setTripGroupId(it, tripId, skipCamera)
+            viewModel.setTripGroupId(it, tripId, skipCamera, tripKey)
         }
     }
 
@@ -458,7 +616,8 @@ class TripResultMapContributor : TripKitMapContributor {
             }
 
         if (bounds != null) {
-            val cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, 50)
+            val cameraUpdate =
+                CameraUpdateFactory.newLatLngBounds(boundsWithTimeLabelRoom(bounds, 50), 50)
             map.animateCamera(cameraUpdate)
         } else {
             Timber.e("resetTripLineTravelled: No points available for LatLngBounds.")
@@ -480,7 +639,8 @@ class TripResultMapContributor : TripKitMapContributor {
             } ?: segment.getFallbackBounds()
 
         if (bounds != null) {
-            val cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, 50)
+            val cameraUpdate =
+                CameraUpdateFactory.newLatLngBounds(boundsWithTimeLabelRoom(bounds, 50), 50)
             map.animateCamera(cameraUpdate)
         } else if (segment.singleLocation != null) {
             val cameraUpdate =

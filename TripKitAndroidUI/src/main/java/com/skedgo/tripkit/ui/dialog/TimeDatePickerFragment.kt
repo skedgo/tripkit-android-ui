@@ -60,6 +60,19 @@ class TimeDatePickerFragment : DialogFragment(), OnClickListener {
         mInitiatorId = arguments?.getString(ARG_INITIATOR_ID)
     }
 
+    override fun onStart() {
+        super.onStart()
+        // At enlarged font scales the four wheels don't fit the default dialog width and the day
+        // labels truncate (e.g. "Sun…"). Use almost the full screen width only in that case so
+        // the normal-size dialog is unchanged.
+        if (resources.configuration.fontScale > 1f) {
+            dialog?.window?.setLayout(
+                (resources.displayMetrics.widthPixels * 0.95f).toInt(),
+                android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+            )
+        }
+    }
+
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val dialogBuilder = FlatAlertDialogBuilder(requireActivity())
         val dialog = dialogBuilder

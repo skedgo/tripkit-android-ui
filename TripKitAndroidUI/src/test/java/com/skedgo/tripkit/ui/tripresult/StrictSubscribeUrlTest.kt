@@ -42,7 +42,7 @@ class StrictSubscribeUrlTest : MockKTest() {
         configs = mockk(relaxed = true)
         every { configs.context() } returns context
         every { configs.hasGetOffAlerts() } returns true
-        every { configs.userTokenProvider() } returns Callable { "" }
+        every { configs.userTokenProvider() } returns Callable { "test-token" }
         TripKit.initialize(configs)
         val kit = mockk<TripKit>()
         every { kit.configs() } returns configs
@@ -241,4 +241,51 @@ class StrictSubscribeUrlTest : MockKTest() {
         assertThat(alarms.scheduledAlarms).hasSize(1)
         reopened.onAlertChange(context,false)
     }
+    @Test fun `logout refresh removes boarding fence and disables existing row without changing URL`() {
+        val segments = segments()
+        trip.subscribeURL = "https://valid.example/path"
+        every { updater.tripSubscription(any()) } returns Observable.just(Unit)
+        val board = Geofence("board", "circle", "ENTER", Coordinate(-35.28,149.13),100.0,"VEHICLE_IS_APPROACHING","Board","Board")
+        val local = board.copy(id = "arrival", messageType = "TRIP_END")
+        trip.segmentList.first().geofences = listOf(board,local)
+        val owner = details(segments)
+        TripSegmentGetOffAlertsViewModel::class.java.getDeclaredMethod("enableAlerts", Context::class.java).apply { isAccessible = true }.invoke(owner,context)
+        clearMocks(GeoLocation, answers = false)
+        every { configs.userTokenProvider() } returns Callable { "" }
+        val refreshed = details(segments)
+        assertThat(refreshed).isSameAs(owner)
+        assertThat(row(owner).isEnabled).isFalse(); checkBinding(row(owner), false)
+        assertThat(owner.getOffAlertStateOn.value).isTrue()
+        verify { GeoLocation.createGeoFences(trip, match { it == listOf(local) }, any()) }
+        assertThat(trip.subscribeURL).isEqualTo("https://valid.example/path")
+        owner.onAlertChange(context,false)
+    }
+
+    @Test fun `logout with no local capability clears active state instead of false mute`() {
+        val segments = segments()
+        trip.subscribeURL = "https://valid.example/path"
+        trip.segmentList.first().startTimeInSecs = 1
+        trip.segmentList.first().geofences = listOf(Geofence("board", "circle", "ENTER", Coordinate(-35.28,149.13),100.0,"VEHICLE_IS_APPROACHING","Board","Board"))
+        every { updater.tripSubscription(any()) } returns Observable.just(Unit)
+        val owner = details(segments)
+        TripSegmentGetOffAlertsViewModel::class.java.getDeclaredMethod("enableAlerts", Context::class.java).apply { isAccessible = true }.invoke(owner,context)
+        assertThat(owner.getOffAlertStateOn.value).isTrue()
+        every { configs.userTokenProvider() } returns Callable { "" }
+        details(segments)
+        assertThat(owner.getOffAlertStateOn.value).isFalse()
+        assertThat(GetOffAlertCache.getTripId()).isEmpty()
+        assertThat(alarms.scheduledAlarms).isEmpty()
+    }
+    @Test fun `logout while subscription pending cannot activate from late acknowledgement`() {
+        trip.subscribeURL = "https://valid.example/path"
+        val response = PublishSubject.create<Any>()
+        every { updater.tripSubscription(any()) } returns response
+        enable()
+        every { configs.userTokenProvider() } returns Callable { "" }
+        response.onNext(Unit)
+        assertThat(vm.getOffAlertStateOn.value).isFalse()
+        assertThat(GetOffAlertCache.getTripId()).isEmpty()
+        assertThat(alarms.scheduledAlarms).isEmpty()
+    }
+
 }

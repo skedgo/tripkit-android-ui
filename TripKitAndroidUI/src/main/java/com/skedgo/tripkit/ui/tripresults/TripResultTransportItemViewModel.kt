@@ -11,6 +11,9 @@ import javax.inject.Inject
 class TripResultTransportItemViewModel @Inject constructor() : RxViewModel() {
     val modeId = MutableLiveData<String>()
     val modeIconId = MutableLiveData<String?>()
+
+    /** Human-readable mode name, used as the toggle's accessibility label. */
+    val modeTitle = MutableLiveData<String?>()
     val checked = MutableLiveData(false)
 
     val clicked: PublishRelay<Pair<String, Boolean>> = PublishRelay.create()
@@ -23,5 +26,6 @@ class TripResultTransportItemViewModel @Inject constructor() : RxViewModel() {
     fun setup(mode: TransportMode) {
         modeId.value = mode.id
         modeIconId.value = mode.iconId
+        modeTitle.value = mode.title ?: mode.id
     }
 }
