@@ -18,8 +18,10 @@ import com.skedgo.tripkit.ui.databinding.TripPreviewPagerItemBinding
 import com.skedgo.tripkit.ui.trippreview.TripPreviewPagerItemViewModel
 import com.skedgo.tripkit.ui.trippreview.nearby.SharedNearbyTripPreviewItemViewModel
 import com.skedgo.tripkit.ui.trippreview.nearby.SharedNearbyTripPreviewItemViewModelFactory
+import com.skedgo.tripkit.ui.trippreview.v2.TripPreviewSegmentState
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
+import java.util.UUID
 import javax.inject.Inject
 import kotlin.getValue
 
@@ -38,6 +40,9 @@ class StandardTripPreviewItemFragment : BaseFragment<TripPreviewPagerItemBinding
     lateinit var bookingService: BookingService
 
     var segment: TripSegment? = null
+    // Fields assigned by newInstance and retained ViewModels do not survive process recreation.
+    // Keep the route graph in the existing private snapshot format, and only its key in the Bundle.
+    private var segmentStateKey = UUID.randomUUID().toString()
 
     override val layoutRes: Int
         get() = R.layout.trip_preview_pager_item
@@ -49,6 +54,23 @@ class StandardTripPreviewItemFragment : BaseFragment<TripPreviewPagerItemBinding
     override fun onAttach(context: Context) {
         TripKitUI.getInstance().tripPreviewComponent().inject(this)
         super.onAttach(context)
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        savedInstanceState?.getString(STATE_SEGMENT_KEY)?.let { key ->
+            segmentStateKey = key
+            if (segment == null) segment = TripPreviewSegmentState(requireContext(), persistAcrossCacheEviction = true).restore(key)
+        }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        segment?.let {
+            if (TripPreviewSegmentState(requireContext(), persistAcrossCacheEviction = true).save(segmentStateKey, it)) {
+                outState.putString(STATE_SEGMENT_KEY, segmentStateKey)
+            }
+        }
+        super.onSaveInstanceState(outState)
     }
 
     override fun onCreated(savedInstance: Bundle?) {
@@ -107,6 +129,8 @@ class StandardTripPreviewItemFragment : BaseFragment<TripPreviewPagerItemBinding
     }
 
     companion object {
+        private const val STATE_SEGMENT_KEY = "walk_segment_state_key"
+
         fun newInstance(segment: TripSegment): StandardTripPreviewItemFragment {
             val fragment = StandardTripPreviewItemFragment()
             fragment.segment = segment

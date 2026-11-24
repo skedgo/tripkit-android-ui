@@ -12,6 +12,8 @@ import com.skedgo.tripkit.common.model.region.Region
 import com.skedgo.tripkit.common.model.stop.ScheduledStop
 import com.skedgo.tripkit.common.model.stop.ServiceStop
 import com.skedgo.tripkit.data.regions.RegionService
+import com.skedgo.tripkit.routing.TripSegment
+import com.skedgo.tripkit.common.model.location.Location
 import com.skedgo.tripkit.routing.ModeInfo
 import com.skedgo.tripkit.routing.RealTimeVehicle
 import com.skedgo.tripkit.routing.ServiceColor
@@ -135,6 +137,63 @@ class ServiceDetailViewModelTest: MockKTest() {
         assertNull(viewModel.wheelchairIcon.get())
         assertFalse(viewModel.showBicycleAccessible.value == true)
         assertFalse(viewModel.showExpandableMenu.get())
+    }
+
+    @Test
+    fun `preview retains supplied service name when optional direction is absent or blank`() {
+        val region = mockk<Region>()
+        every { region.name } returns "AU_NSW_Sydney"
+        every { region.getURLs() } returns arrayListOf("https://api.example.test/")
+        every { regionService.getRegionByLocationAsync(any()) } returns Observable.just(region)
+        for (direction in listOf(null, "", "   ", "City Circular Quay")) {
+            viewModel.setup(TripSegment().apply {
+                from = Location(-33.89, 151.27)
+                serviceTripId = "333-service"
+                serviceNumber = "333"
+                serviceName = "North Bondi to City Circular Quay via Bondi Junction"
+                serviceDirection = direction
+            })
+            assertEquals("direction=$direction",
+                if (direction == "City Circular Quay") "City Circular Quay"
+                else "North Bondi to City Circular Quay via Bondi Junction",
+                viewModel.stationName.get())
+            assertEquals("333", viewModel.serviceNumber.get())
+        }
+    }
+
+    @Test
+    fun `timetable service retains supplied name without a direction`() {
+        val region = mockk<Region>()
+        every { region.name } returns "AU_NSW_Sydney"
+        every { region.getURLs() } returns arrayListOf("https://api.example.test/")
+        every { region.timezone } returns "UTC"
+        every { regionService.getRegionByLocationAsync(stop) } returns Observable.just(region)
+        every { getRealtimeText.execute(any(), any(), any()) } returns Pair("Scheduled", R.color.black1)
+        for (direction in listOf(null, "", "   ", "Town Hall")) {
+            viewModel.setup(stop, TimetableEntry().apply {
+                serviceTripId = "333-service"
+                serviceName = "Bondi Beach to City"
+                serviceDirection = direction
+                serviceNumber = "333"
+            })
+            assertEquals(if (direction == "Town Hall") "Town Hall" else "Bondi Beach to City",
+                viewModel.stationName.get())
+        }
+    }
+
+    @Test
+    fun `preview does not invent a title when neither service name nor direction is supplied`() {
+        val region = mockk<Region>()
+        every { region.name } returns "AU_NSW_Sydney"
+        every { region.getURLs() } returns arrayListOf("https://api.example.test/")
+        every { regionService.getRegionByLocationAsync(any()) } returns Observable.just(region)
+        viewModel.setup(TripSegment().apply {
+            from = Location(-33.89, 151.27)
+            serviceTripId = "333-service"
+            serviceNumber = "333"
+        })
+        assertNull(viewModel.stationName.get())
+        assertEquals("333", viewModel.serviceNumber.get())
     }
 
     @Test

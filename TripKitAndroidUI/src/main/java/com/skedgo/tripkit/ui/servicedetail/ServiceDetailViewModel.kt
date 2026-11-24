@@ -313,11 +313,8 @@ class ServiceDetailViewModel @Inject constructor(
         regionService.getRegionByLocationAsync(segment.from)
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({
-                val serviceName = if (segment.serviceName != segment.serviceDirection) {
-                    segment.serviceDirection
-                } else {
-                    segment.serviceName
-                }
+                val serviceName = segment.serviceDirection?.takeIf { it.isNotBlank() }
+                    ?: segment.serviceName
                 setup(
                     region = it.name.orEmpty(),
                     regionUrls = it.getURLs(),
@@ -355,10 +352,8 @@ class ServiceDetailViewModel @Inject constructor(
             .subscribe({
                 val serviceName = if (_entry.serviceName.isNullOrEmpty()) {
                     getServiceTertiaryText.execute(_entry)
-                } else if (_entry.serviceName != _entry.serviceDirection) {
-                    _entry.serviceDirection
                 } else {
-                    _entry.serviceName
+                    _entry.serviceDirection?.takeIf { it.isNotBlank() } ?: _entry.serviceName
                 }
                 setup(
                     region = it.name.orEmpty(),

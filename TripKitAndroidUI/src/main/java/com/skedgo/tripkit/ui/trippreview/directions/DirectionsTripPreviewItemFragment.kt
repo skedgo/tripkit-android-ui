@@ -18,9 +18,11 @@ import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.core.BaseFragment
 import com.skedgo.tripkit.ui.core.addTo
 import com.skedgo.tripkit.ui.databinding.TripPreviewPagerDirectionsItemBinding
+import com.skedgo.tripkit.ui.trippreview.v2.TripPreviewSegmentState
 import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import java.util.UUID
 
 
 class DirectionsTripPreviewItemFragment : BaseFragment<TripPreviewPagerDirectionsItemBinding>() {
@@ -28,6 +30,9 @@ class DirectionsTripPreviewItemFragment : BaseFragment<TripPreviewPagerDirection
     private val viewModel: DirectionsTripPreviewItemViewModel by viewModels()
 
     private var segment: TripSegment? = null
+    // Fields assigned by newInstance and retained ViewModels do not survive process recreation.
+    // Keep the route graph in the existing private snapshot format, and only its key in the Bundle.
+    private var segmentStateKey = UUID.randomUUID().toString()
 
     override val layoutRes: Int
         get() = R.layout.trip_preview_pager_directions_item
@@ -39,6 +44,10 @@ class DirectionsTripPreviewItemFragment : BaseFragment<TripPreviewPagerDirection
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        savedInstanceState?.getString(STATE_SEGMENT_KEY)?.let { key ->
+            segmentStateKey = key
+            if (segment == null) segment = TripPreviewSegmentState(requireContext(), persistAcrossCacheEviction = true).restore(key)
+        }
         segment?.let {
             viewModel.setSegment(requireContext(), it)
         } ?: kotlin.run {
@@ -87,8 +96,12 @@ class DirectionsTripPreviewItemFragment : BaseFragment<TripPreviewPagerDirection
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
+        segment?.let {
+            if (TripPreviewSegmentState(requireContext(), persistAcrossCacheEviction = true).save(segmentStateKey, it)) {
+                outState.putString(STATE_SEGMENT_KEY, segmentStateKey)
+            }
+        }
         super.onSaveInstanceState(outState)
-        //outState.putString(ARGS_SEGMENT, Gson().toJson(segment))
     }
 
     override fun onCreated(savedInstance: Bundle?) {
@@ -140,6 +153,8 @@ class DirectionsTripPreviewItemFragment : BaseFragment<TripPreviewPagerDirection
     }
 
     companion object {
+
+        private const val STATE_SEGMENT_KEY = "walk_segment_state_key"
 
         const val ARGS_SEGMENT = "args_segment"
 
