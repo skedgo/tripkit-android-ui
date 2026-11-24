@@ -63,7 +63,11 @@ data class ServiceStopUiState(
     val lineColor: Int,
     val lineDirection: ServiceStopLineUiDirection,
     val isTravelled: Boolean,
-    val isWheelchairAccessible: Boolean
+    val isWheelchairAccessible: Boolean,
+    val wheelchairIcon: android.graphics.drawable.Drawable? = null,
+    val wheelchairTint: Int? = null,
+    val wheelchairBackground: android.graphics.drawable.Drawable? = null,
+    val wheelchairAccessibleText: String? = null
 )
 
 data class ServiceOccupancyCarriageUiState(
@@ -455,7 +459,20 @@ fun ServiceTripPreviewItemScreen(
                         color = stop.stopNameColor?.let { Color(it) }
                             ?: if (stop.isTravelled) colorResource(id = R.color.black2) else colorResource(id = R.color.black)
                     )
-                    if (stop.isWheelchairAccessible) {
+                    if (stop.wheelchairIcon != null) {
+                        androidx.compose.ui.viewinterop.AndroidView(
+                            factory = { context -> android.widget.ImageView(context) },
+                            update = { image ->
+                                image.setImageDrawable(stop.wheelchairIcon)
+                                image.background = stop.wheelchairBackground
+                                image.imageTintList = stop.wheelchairTint?.let {
+                                    android.content.res.ColorStateList.valueOf(it)
+                                }
+                                image.contentDescription = stop.wheelchairAccessibleText
+                            },
+                            modifier = Modifier.size(dimensionResource(R.dimen.icon_small_text_scaled))
+                        )
+                    } else if (stop.isWheelchairAccessible) {
                         Spacer(modifier = Modifier.size(dimensionResource(id = R.dimen.spacing_extra_small)))
                         Image(
                             painter = painterResource(id = R.drawable.ic_wheelchair),
