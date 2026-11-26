@@ -46,48 +46,6 @@
                 app:layout_constraintTop_toBottomOf="@+id/details">
 
                 <LinearLayout
-                    android:id="@+id/collapsedIconRow"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginEnd="@dimen/spacing_small"
-                    android:orientation="horizontal"
-                    android:visibility="@{viewModel.isExpandableMenuExpanded ? View.GONE : View.VISIBLE}"
-                    app:layout_constraintBottom_toBottomOf="@+id/expandButton"
-                    app:layout_constraintEnd_toStartOf="@+id/expandButton"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="@+id/expandButton">
-
-                    <ImageView
-                        android:id="@+id/wheelchair"
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:layout_marginEnd="8dp"
-                        android:background="@drawable/bg_round_corner_wheelchair"
-                        android:src="@{viewModel.wheelchairIcon}"
-                        android:visibility="@{viewModel.showWheelchairAccessible ? View.VISIBLE : View.GONE}"
-                        app:tint="@color/white"
-                        tools:src="@drawable/ic_wheelchair" />
-
-                    <ImageView
-                        android:id="@+id/ivBicycle"
-                        android:layout_width="@dimen/service_detail_icon_size"
-                        android:layout_height="@dimen/service_detail_icon_size"
-                        android:layout_marginStart="@dimen/spacing_small"
-                        android:src="@drawable/ic_bike"
-                        android:visibility="@{viewModel.showBicycleAccessible}" />
-
-                    <ImageView
-                        android:id="@+id/occupancyView"
-                        android:layout_width="@dimen/service_detail_icon_size"
-                        android:layout_height="@dimen/service_detail_icon_size"
-                        android:layout_marginStart="@dimen/spacing_small"
-                        android:src="@{viewModel.occupancyViewModel.drawableLeft}"
-                        android:visibility="@{viewModel.showOccupancyInfo}"
-                        tools:src="@drawable/ic_occupancy_25" />
-                </LinearLayout>
-
-                <LinearLayout
                     android:id="@+id/expandedDetailsColumn"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -95,8 +53,7 @@
                     android:layout_marginEnd="@dimen/spacing_small"
                     android:layout_marginTop="@dimen/spacing_xx_small"
                     android:orientation="vertical"
-                    android:visibility="@{viewModel.isExpandableMenuExpanded ? View.VISIBLE : View.GONE}"
-                    app:layout_constraintEnd_toStartOf="@+id/expandButton"
+                    app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent">
 
@@ -136,6 +93,7 @@
                         <ImageView
                             android:layout_width="@dimen/service_detail_icon_size"
                             android:layout_height="@dimen/service_detail_icon_size"
+                            android:id="@+id/ivBicycle"
                             android:src="@drawable/ic_bike" />
 
                         <TextView
@@ -180,7 +138,7 @@
                         android:layout_marginTop="4dp"
                         android:text="@{viewModel.lastUpdatedText}"
                         android:textColor="@color/black1"
-                        android:visibility="@{viewModel.showOccupancyInfo}"
+                        android:visibility="@{viewModel.lastUpdatedText != null &amp;&amp; !viewModel.lastUpdatedText.isEmpty() ? View.VISIBLE : View.GONE}"
                         tools:text="Label O" />
 
                     <androidx.recyclerview.widget.RecyclerView
@@ -193,18 +151,6 @@
                         app:itemBinding="@{viewModel.occupancyViewModel.itemBinding}"
                         app:items="@{viewModel.occupancyViewModel.items}" />
                 </LinearLayout>
-
-                <ImageView
-                    android:id="@+id/expandButton"
-                    android:layout_width="@dimen/icon_medium"
-                    android:layout_height="@dimen/icon_medium"
-                    android:padding="@dimen/spacing_small"
-                    android:layout_marginEnd="@dimen/spacing_normal"
-                    android:src="@drawable/chevron_down"
-                    android:rotation="@{viewModel.isExpandableMenuExpanded ? 180f : 0f}"
-                    android:onClick="@{() -> viewModel.onExpandMenuClick.perform()}"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 

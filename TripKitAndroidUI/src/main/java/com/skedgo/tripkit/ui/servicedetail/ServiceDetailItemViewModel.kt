@@ -25,6 +25,10 @@ class ServiceDetailItemViewModel @Inject constructor(val getStopTimeDisplayText:
         START, MIDDLE, END
     }
 
+    private var rowContext: Context? = null
+    private var travelled = false
+    private var cancelled = false
+    private var realtimeAvailable = false
     var stop: ServiceStop? = null
     val scheduledTime = ObservableField<String>()
     internal var originalDepartureSecs: Long = 0
@@ -52,8 +56,31 @@ class ServiceDetailItemViewModel @Inject constructor(val getStopTimeDisplayText:
         val prediction = timeSecs?.takeIf { it > 0 }
         if (predictedTimeSecs == prediction) return
         predictedTimeSecs = prediction
+        updateTimeColor()
         stop?.let { timeSelections.accept(it to prediction) }
     }
+    internal fun updateRealtimeStatus(available: Boolean, cancelled: Boolean) {
+        realtimeAvailable = available
+        this.cancelled = cancelled
+        updateTimeColor()
+    }
+
+    private fun updateTimeColor() {
+        val context = rowContext ?: return
+        val original = if (originalDepartureSecs != 0L) originalDepartureSecs else originalArrivalSecs
+        val prediction = predictedTimeSecs
+        val color = when {
+            // The row container already halves opacity outside the selected journey.
+            travelled -> R.color.black1
+            cancelled -> R.color.tripKitError
+            prediction == null && !realtimeAvailable -> R.color.black1
+            prediction == null || original <= 0 -> R.color.tripKitSuccess
+            kotlin.math.abs(prediction / 60 - original / 60) <= 1 -> R.color.tripKitSuccess
+            else -> R.color.tripKitWarning
+        }
+        scheduledTimeTextColor.set(ContextCompat.getColor(context, color))
+    }
+
     val scheduledTimeTextColor = ObservableInt()
     var lineColor = 0
     val lineDrawable = ObservableField<NinePatchDrawable>()
@@ -112,6 +139,10 @@ class ServiceDetailItemViewModel @Inject constructor(val getStopTimeDisplayText:
 
     fun setStop(context: Context, stop: ServiceStop, _lineColor: Int, travelled: Boolean) {
         this.stop = stop
+        rowContext = context
+        this.travelled = travelled
+        cancelled = false
+        realtimeAvailable = false
         originalDepartureSecs = stop.departureSecs()
         originalArrivalSecs = stop.arrivalTime
         predictedTimeSecs = null
@@ -126,7 +157,7 @@ class ServiceDetailItemViewModel @Inject constructor(val getStopTimeDisplayText:
             scheduledTimeTextColor.set(ContextCompat.getColor(context, R.color.black1))
             stopNameColor.set(ContextCompat.getColor(context, R.color.black))
         }
-        scheduledTimeTextColor.set(ContextCompat.getColor(context, R.color.black1))
+        updateTimeColor()
         timeSelections.accept(stop to null)
     }
 

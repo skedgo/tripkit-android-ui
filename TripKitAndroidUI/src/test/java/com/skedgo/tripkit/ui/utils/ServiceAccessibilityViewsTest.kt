@@ -196,8 +196,8 @@ class ServiceAccessibilityViewsTest : MockKTest() {
             }
             val themed = android.view.ContextThemeWrapper(context.createConfigurationContext(configuration), com.skedgo.tripkit.ui.R.style.AppTheme)
             val binding = com.skedgo.tripkit.ui.databinding.ServiceDetailFragmentContentBinding.inflate(android.view.LayoutInflater.from(themed))
-            val expanded = (binding.tvBicycleLabel.parent as android.view.ViewGroup).getChildAt(0) as android.widget.ImageView
-            for (image in listOf(binding.ivBicycle, expanded)) {
+            // Service information is always expanded; there is one bicycle ImageView.
+            for (image in listOf(binding.ivBicycle)) {
                 image.visibility = android.view.View.VISIBLE
                 Assert.assertNull("night=$night must preserve provider artwork", image.imageTintList)
                 Assert.assertNull("night=$night must not apply a color filter", image.colorFilter)

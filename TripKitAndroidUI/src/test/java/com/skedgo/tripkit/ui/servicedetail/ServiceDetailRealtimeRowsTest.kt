@@ -1,6 +1,7 @@
 package com.skedgo.tripkit.ui.servicedetail
 
 import android.provider.Settings
+import com.skedgo.tripkit.ui.R
 import com.skedgo.TripKit
 import com.skedgo.tripkit.ServiceResponse
 import com.skedgo.tripkit.common.model.realtimealert.RealTimeStatus
@@ -61,7 +62,7 @@ class ServiceDetailRealtimeRowsTest : MockKTest() {
         val printer: PrintTime = mockk()
         every { printer.execute(any()) } answers { Flowable.just(firstArg<DateTime>().toString("HH:mm")) }
         val formatter = GetStopTimeDisplayText(regions, printer)
-        viewModel = ServiceDetailViewModel(context, regions, repository, mockk(relaxed = true),
+        viewModel = ServiceDetailViewModel(context, regions, repository, com.skedgo.tripkit.ui.trip.details.viewmodel.OccupancyViewModel(context),
             Provider { ServiceDetailItemViewModel(formatter) }, mockk(relaxed = true),
             GetRealtimeText(context, mockk(relaxed = true)))
         selected = entry()
@@ -326,6 +327,136 @@ class ServiceDetailRealtimeRowsTest : MockKTest() {
         assertEquals("23:47", row().scheduledTime.get())
         emit()
         assertEquals("23:45", row().scheduledTime.get())
+    }
+
+    @Test fun `stop times use iOS rounded minute tolerance and service realtime availability`() {
+        rows(stop(), stop("intermediate", scheduled + 300))
+        val nameColor = row().stopNameColor.get()
+        for (delta in listOf(-119L, -60L, 0L, 59L, 119L, 120L, 180L, -120L)) {
+            emit(vehicle(scheduled + delta))
+            val minuteDelta = (scheduled + delta) / 60 - scheduled / 60
+            val expected = if (kotlin.math.abs(minuteDelta) <= 1) R.color.tripKitSuccess else R.color.tripKitWarning
+            assertEquals("delta=$delta", androidx.core.content.ContextCompat.getColor(context, expected), row().scheduledTimeTextColor.get())
+            assertEquals(nameColor, row().stopNameColor.get())
+            assertEquals(androidx.core.content.ContextCompat.getColor(context, R.color.tripKitSuccess), row(1).scheduledTimeTextColor.get())
+            assertEquals("12:50", row(1).scheduledTime.get())
+        }
+        emit()
+        assertEquals(androidx.core.content.ContextCompat.getColor(context, R.color.tripKitSuccess), row().scheduledTimeTextColor.get())
+        selected.realTimeStatus = RealTimeStatus.CAPABLE
+        emit()
+        assertEquals(androidx.core.content.ContextCompat.getColor(context, R.color.black1), row().scheduledTimeTextColor.get())
+        assertEquals(androidx.core.content.ContextCompat.getColor(context, R.color.black1), row(1).scheduledTimeTextColor.get())
+    }
+
+    @Test fun `incoming stop stays muted even with an identified prediction`() {
+        rows(stop("before", scheduled - 300), stop())
+        assertEquals(androidx.core.content.ContextCompat.getColor(context, R.color.black1), row().scheduledTimeTextColor.get())
+        emit(vehicle(scheduled + 120))
+        assertEquals(androidx.core.content.ContextCompat.getColor(context, R.color.black1), row().scheduledTimeTextColor.get())
+    }
+
+    @Test fun `information is always expanded and cannot be collapsed`() {
+        assertTrue(viewModel.isExpandableMenuExpanded.get())
+        viewModel.onExpandMenuClick.perform()
+        assertTrue(viewModel.isExpandableMenuExpanded.get())
+    }
+
+    @Test fun `vehicle timestamp is shown without location or occupancy and clears with missing data`() {
+        emit(vehicle().apply { lastUpdateTime = System.currentTimeMillis() / 1000 - 55 })
+        assertTrue(viewModel.showExpandableMenu.get())
+        assertTrue(viewModel.lastUpdatedText.get().orEmpty().contains("55"))
+        emit()
+        assertTrue(viewModel.lastUpdatedText.get().isNullOrEmpty())
+    }
+
+    @Test fun `age ticks once while active resets on fresh data and resumes from clock`() {
+        val scheduler = TestScheduler()
+        var now = 1_700_000_000_000L
+        viewModel.startInformationAge(scheduler) { now }
+        viewModel.startInformationAge(scheduler) { now }
+        emit(vehicle().apply { lastUpdateTime = now / 1000 - 55 })
+        scheduler.triggerActions()
+        assertTrue(viewModel.lastUpdatedText.get()!!.contains("55 seconds ago"))
+        now += 1000
+        scheduler.advanceTimeBy(1, java.util.concurrent.TimeUnit.SECONDS)
+        assertTrue(viewModel.lastUpdatedText.get()!!.contains("56 seconds ago"))
+        emit(vehicle().apply { lastUpdateTime = now / 1000 - 2 })
+        scheduler.triggerActions()
+        assertTrue(viewModel.lastUpdatedText.get()!!.contains("2 seconds ago"))
+        viewModel.stopInformationAge()
+        now += 10_000
+        scheduler.advanceTimeBy(10, java.util.concurrent.TimeUnit.SECONDS)
+        assertTrue(viewModel.lastUpdatedText.get()!!.contains("2 seconds ago"))
+        viewModel.startInformationAge(scheduler) { now }
+        scheduler.triggerActions()
+        assertTrue(viewModel.lastUpdatedText.get()!!.contains("12 seconds ago"))
+        emit()
+        scheduler.triggerActions()
+        assertEquals("", viewModel.lastUpdatedText.get())
+        viewModel.onCleared()
+        now += 1000
+        scheduler.advanceTimeBy(1, java.util.concurrent.TimeUnit.SECONDS)
+        assertEquals("", viewModel.lastUpdatedText.get())
+    }
+
+    @Test fun `age formatting handles missing future timestamp units and locale`() {
+        val now = 1_700_000_000_000L
+        assertEquals("", ServiceInformationAge.format(context, 0, now))
+        assertEquals("", ServiceInformationAge.format(context, -1, now))
+        assertTrue(ServiceInformationAge.format(context, now / 1000 + 10, now).contains("0 seconds ago"))
+        assertEquals(ServiceInformationAge.format(context, now / 1000 - 55, now), ServiceInformationAge.format(context, now - 55_000, now))
+        assertTrue(ServiceInformationAge.format(context, now / 1000 - 60, now).contains("1 minute ago"))
+        assertTrue(ServiceInformationAge.format(context, now / 1000 - 3600, now).contains("1 hour ago"))
+        val config = android.content.res.Configuration(context.resources.configuration)
+        config.setLocale(java.util.Locale.FRENCH)
+        val french = context.createConfigurationContext(config)
+        assertTrue(ServiceInformationAge.format(french, now / 1000 - 55, now).contains("il y a 55 secondes"))
+    }
+
+    @Test fun `cancelled stop time is error colour while incoming stays muted`() {
+        rows(stop("before", scheduled - 300), stop())
+        selected.isCancelled = true
+        emit(vehicle())
+        assertEquals(androidx.core.content.ContextCompat.getColor(context, R.color.tripKitError), row(1).scheduledTimeTextColor.get())
+        assertEquals(androidx.core.content.ContextCompat.getColor(context, R.color.black1), row().scheduledTimeTextColor.get())
+    }
+
+    @Test fun `rendered information has no empty container and displays timestamp without occupancy`() {
+        val themed = android.view.ContextThemeWrapper(context, R.style.AppTheme)
+        val binding = com.skedgo.tripkit.ui.databinding.ServiceDetailFragmentContentBinding.inflate(android.view.LayoutInflater.from(themed))
+        binding.viewModel = viewModel
+        binding.executePendingBindings()
+        assertEquals(android.view.View.GONE, binding.motionLayout.visibility)
+        emit(vehicle().apply { lastUpdateTime = System.currentTimeMillis() / 1000 - 55 })
+        binding.executePendingBindings()
+        assertEquals(android.view.View.VISIBLE, binding.motionLayout.visibility)
+        assertEquals(android.view.View.VISIBLE, binding.expandedDetailsColumn.visibility)
+        assertEquals(android.view.View.VISIBLE, binding.tvLastUpdatedLabel.visibility)
+        emit()
+        binding.executePendingBindings()
+        assertEquals(android.view.View.GONE, binding.motionLayout.visibility)
+        assertEquals(android.view.View.GONE, binding.tvLastUpdatedLabel.visibility)
+    }
+
+    @Test fun `fresh realtime occupancy replaces previous data and missing vehicle clears it`() {
+        emit(vehicle().apply { components = listOf(listOf(com.skedgo.tripkit.routing.ImmutableVehicleComponent.builder().occupancy("MANY_SEATS_AVAILABLE").build())) })
+        assertTrue(viewModel.showOccupancyInfo.get())
+        val before = viewModel.occupancyViewModel.occupancyText.get()
+        emit(vehicle().apply { components = listOf(listOf(com.skedgo.tripkit.routing.ImmutableVehicleComponent.builder().occupancy("STANDING_ROOM_ONLY").build())) })
+        assertTrue(viewModel.showOccupancyInfo.get())
+        assertNotEquals(before, viewModel.occupancyViewModel.occupancyText.get())
+        emit()
+        assertFalse(viewModel.showOccupancyInfo.get())
+        assertNull(viewModel.occupancyViewModel.occupancyText.get())
+    }
+
+    @Test
+    @Config(sdk = [23])
+    fun `vehicle age remains supported at the published UI SDK minimum API`() {
+        val now = 1_700_000_000_000L
+        assertTrue(ServiceInformationAge.format(context, now / 1000 - 55, now).contains("55 seconds ago"))
+        assertEquals("", ServiceInformationAge.format(context, 0, now))
     }
 
 }

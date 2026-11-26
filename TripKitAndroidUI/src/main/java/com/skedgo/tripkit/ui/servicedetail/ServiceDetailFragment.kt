@@ -80,6 +80,7 @@ class ServiceDetailFragment : BaseFragment<ServiceDetailFragmentBinding>() {
 
     override fun onStart() {
         super.onStart()
+        viewModel.startInformationAge()
         if (stop != null && timetableEntry != null) {
             viewModel.bindRealtimeHeader(mapContributor.viewModel.realtimeServiceUpdates)
         }
@@ -87,11 +88,13 @@ class ServiceDetailFragment : BaseFragment<ServiceDetailFragmentBinding>() {
 
     override fun onStop() {
         viewModel.unbindRealtimeHeader()
+        viewModel.stopInformationAge()
         super.onStop()
     }
 
     override fun onDestroyView() {
         viewModel.unbindRealtimeHeader()
+        viewModel.stopInformationAge()
         stopMapFocus?.clear()
         stopMapFocus = null
         super.onDestroyView()
@@ -134,18 +137,6 @@ class ServiceDetailFragment : BaseFragment<ServiceDetailFragmentBinding>() {
             mapContributor.setService(timetableEntry)
         }
 
-        (mapContributor as? TimetableMapContributor)?.let { contributor ->
-            contributor.formattedElapsedTime.observe(viewLifecycleOwner) { formattedTime ->
-                // Handle the formatted time in the fragment
-                handleFormattedElapsedTime(formattedTime)
-            }
-        }
-    }
-
-    private fun handleFormattedElapsedTime(formattedTime: String) {
-        viewModel.apply {
-            lastUpdatedText.set(formattedTime)
-        }
     }
 
     class Builder {

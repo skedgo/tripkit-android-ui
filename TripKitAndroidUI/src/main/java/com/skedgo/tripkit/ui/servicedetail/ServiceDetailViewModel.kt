@@ -112,7 +112,13 @@ class ServiceDetailViewModel @Inject constructor(
         predict(entry.endStopCode, entry.endTimeInSecs, false,
             endVehicle?.arriveAtEndStopTime?.takeIf { it > 0 }
                 ?: entry.realTimeArrival.toLong().takeIf { it > 0 })
-        rows.forEach { it.updatePrediction(predictions[it]) }
+        rows.forEach {
+            it.updateRealtimeStatus(
+                entry.realTimeStatus == com.skedgo.tripkit.common.model.realtimealert.RealTimeStatus.IS_REAL_TIME,
+                entry.isCancelled || entry.realTimeStatus == com.skedgo.tripkit.common.model.realtimealert.RealTimeStatus.CANCELLED
+            )
+            it.updatePrediction(predictions[it])
+        }
     }
 
     internal fun bindRealtimeHeader(updates: Observable<Pair<TimetableEntry, List<RealTimeVehicle>>>) {
@@ -145,6 +151,7 @@ class ServiceDetailViewModel @Inject constructor(
                     val (text, color) = getRealtimeText.execute(selection.second, presentation, vehicle)
                     secondaryText.set(text)
                     secondaryTextColor.set(ContextCompat.getColor(context, color))
+                    updateVehicleInformation(vehicle)
                     rowVehicles = update.second
                     updateRowPredictions()
                 }, { Timber.e(it, "Error updating service detail realtime header") })
@@ -159,9 +166,9 @@ class ServiceDetailViewModel @Inject constructor(
 
     val wheelchairAccessibleText = ObservableField<String>()
     val showExpandableMenu = ObservableBoolean(false)
-    val isExpandableMenuExpanded = ObservableBoolean(false)
+    val isExpandableMenuExpanded = ObservableBoolean(true)
     val onExpandMenuClick = TapAction.create {
-        isExpandableMenuExpanded.set(!isExpandableMenuExpanded.get())
+        isExpandableMenuExpanded.set(true)
     }
     val modeInfo = ObservableField<ModeInfo>()
 
@@ -170,6 +177,37 @@ class ServiceDetailViewModel @Inject constructor(
     val showOccupancyInfo = ObservableBoolean(false)
 
     val lastUpdatedText = ObservableField<String>()
+    private val informationTimestamp = BehaviorRelay.createDefault(0L)
+    private val informationAgeSubscription = SerialDisposable().apply { autoClear() }
+
+    internal fun startInformationAge(
+        scheduler: io.reactivex.Scheduler = io.reactivex.schedulers.Schedulers.computation(),
+        nowMillis: () -> Long = System::currentTimeMillis
+    ) {
+        informationAgeSubscription.set(null)
+        informationAgeSubscription.set(
+            informationTimestamp.switchMap { timestamp ->
+                if (timestamp <= 0) Observable.just("") else
+                    Observable.interval(0, 1, java.util.concurrent.TimeUnit.SECONDS, scheduler)
+                        .map { ServiceInformationAge.format(context, timestamp, nowMillis()) }
+            }.distinctUntilChanged().observeOn(AndroidSchedulers.mainThread())
+                .subscribe({ lastUpdatedText.set(it) }, { Timber.e(it) })
+        )
+    }
+
+    internal fun stopInformationAge() {
+        informationAgeSubscription.set(null)
+    }
+
+    private fun updateVehicleInformation(vehicle: RealTimeVehicle?) {
+        // Clear the previous service's occupancy when an update has no usable vehicle.
+        occupancyViewModel.setOccupancy(vehicle ?: RealTimeVehicle(), false)
+        showOccupancyInfo.set(occupancyViewModel.hasInformation())
+        val timestamp = vehicle?.lastUpdateTime?.takeIf { it > 0 } ?: 0L
+        informationTimestamp.accept(timestamp)
+        lastUpdatedText.set(ServiceInformationAge.format(context, timestamp, System.currentTimeMillis()))
+        updateAccessibility()
+    }
 
     val itemBinding: ItemBinding<ServiceDetailItemViewModel> by lazy {
         ItemBinding.of<ServiceDetailItemViewModel>(
@@ -201,8 +239,8 @@ class ServiceDetailViewModel @Inject constructor(
             context.getString(accessibility.wheelchairText(serviceWheelchairAccessible)))
         val bicycleVisible = accessibility.showBicycle(serviceBicycleAccessible)
         _showBicycleAccessible.value = bicycleVisible
-        showExpandableMenu.set(showOccupancyInfo.get() || icon != null || bicycleVisible)
-        if (!showExpandableMenu.get()) isExpandableMenuExpanded.set(false)
+        showExpandableMenu.set(showOccupancyInfo.get() || icon != null || bicycleVisible || informationTimestamp.value!! > 0)
+        isExpandableMenuExpanded.set(true)
     }
 
     fun setAlerts(alerts: List<RealtimeAlert>?) {
@@ -250,12 +288,9 @@ class ServiceDetailViewModel @Inject constructor(
             tertiaryText.set(operator)
         }
 
-        realTimeVehicle?.let { occupancyViewModel.setOccupancy(it, false) }
-        showOccupancyInfo.set(occupancyViewModel.hasInformation())
-
         serviceWheelchairAccessible = wheelchairAccessible
         serviceBicycleAccessible = bicycleAccessible
-        updateAccessibility()
+        updateVehicleInformation(realTimeVehicle)
 
         serviceColor?.let {
             when (it.color) {

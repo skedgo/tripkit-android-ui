@@ -128,6 +128,21 @@ class ServiceTripPreviewItemFragment : BaseFragment<TripPreviewServiceItemBindin
         }
     }
 
+    override fun onStart() {
+        super.onStart()
+        viewModel.startInformationAge()
+    }
+
+    override fun onStop() {
+        viewModel.stopInformationAge()
+        super.onStop()
+    }
+
+    override fun onDestroyView() {
+        viewModel.stopInformationAge()
+        super.onDestroyView()
+    }
+
     private fun handleSegment() {
         segment?.let {
             viewModel.setup(it)
