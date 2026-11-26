@@ -297,3 +297,5 @@ Thumbs.db
 ### AndroidStudio Patch ###
 
 !/gradle/wrapper/gradle-wrapper.jar
+
+.ai-brain/

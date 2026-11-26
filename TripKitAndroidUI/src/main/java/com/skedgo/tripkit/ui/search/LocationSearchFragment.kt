@@ -300,7 +300,7 @@ class LocationSearchFragment : BaseTripKitFragment() {
 
     private fun submitSearchRows() {
         val source = ArrayList<SuggestionViewModel>().apply { addAll(viewModel.allSuggestions) }
-        searchResultsAdapter?.submitList(mapSearchResultRows(source))
+        searchResultsAdapter?.submitList(mapSearchResultRows(source, requireContext()))
     }
 
     private fun setupSearchHeaderCompose(composeView: ComposeView) {
@@ -416,7 +416,7 @@ class LocationSearchFragment : BaseTripKitFragment() {
                 }
             }, errorLogger::trackError).addTo(autoDisposable)
 
-        if (!requireContext().isTalkBackOn()) {
+        if (viewModel.showSearchBox.get() && !requireContext().isTalkBackOn()) {
             lifecycleScope.launch(Dispatchers.Main) {
                 delay(800)
                 searchView?.requestFocus()

@@ -43,6 +43,7 @@ import io.reactivex.rxkotlin.Observables
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.schedulers.Schedulers.io
 import io.reactivex.subjects.PublishSubject
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import me.tatarka.bindingcollectionadapter2.ItemBinding
 import me.tatarka.bindingcollectionadapter2.collections.MergeObservableList
@@ -115,8 +116,8 @@ class LocationSearchViewModel @Inject constructor(
         PublishRelay.create<FetchLocationsParameters>()
 
     private val _unableToFindPlaceCoordinatesError: PublishRelay<Throwable> = PublishRelay.create()
-    private lateinit var bounds: LatLngBounds
-    private lateinit var center: LatLng
+    private lateinit var searchBounds: LatLngBounds
+    private lateinit var searchCenter: LatLng
     var canOpenTimetable: Boolean = false
     var showCurrentLocation: Boolean = false
     var showDropPin: Boolean = false
@@ -125,6 +126,15 @@ class LocationSearchViewModel @Inject constructor(
     private val isFetchingPlaceDetails = ObservableBoolean(false)
     private val isSearchingSuggestion = ObservableBoolean(false)
     private val queryCache = mutableMapOf<String, AutoCompleteResult>()
+    private data class QueryInput(
+        val term: String,
+        val routing: Boolean,
+        val bounds: LatLngBounds?,
+        val center: LatLng?
+    )
+    private var latestQuery: QueryInput? = null
+    @Volatile private var queryVersion = 0L
+    private var providedSuggestionsJob: Job? = null
     private val globalConfigs by lazy {
         TripKit.getInstance().configs()
     }
@@ -143,8 +153,9 @@ class LocationSearchViewModel @Inject constructor(
 
         val suggestionFetcher = queries.hide()
             .switchMap { query ->
+                val version = queryVersion
                 // TODO MIKE Everything dealing with getting results, including this caching, needs to be refactored
-                if (queryCache.containsKey(query.term())) {
+                val results = if (queryCache.containsKey(query.term())) {
                     Observable.just(queryCache[query.term()]!!)
                 } else {
                     fetchSuggestions.query(query)
@@ -157,10 +168,13 @@ class LocationSearchViewModel @Inject constructor(
                         .isExecuting { isSearchingSuggestion.set(it) }
                         .repeatWhen { errorViewModel.retryObservable }
                 }
+                results.debounce(500, TimeUnit.MILLISECONDS)
+                    .observeOn(mainThread())
+                    // Invalidate old responses as soon as typing changes, before the next debounce.
+                    .filter { version == queryVersion }
             }
             .subscribeOn(schedulerFactory.ioScheduler)
             .share()
-            .debounce(500, TimeUnit.MILLISECONDS)
 
 
         Observables.combineLatest(
@@ -278,22 +292,19 @@ class LocationSearchViewModel @Inject constructor(
                 } else if (params.term().isEmpty()) {
                     citiesSuggestions.clear()
                 }
-                providedSuggestions.clear()
-                viewModelScope.launch {
-                    locationSearchProvider?.query(
+                val version = queryVersion
+                providedSuggestionsJob?.cancel()
+                providedSuggestionsJob = viewModelScope.launch {
+                    val suggestions = locationSearchProvider?.query(
                         context,
                         iconProvider(),
                         params.term()
-                    )
-                        ?.forEach { suggestion ->
-                            providedSuggestions.add(
-                                SearchProviderSuggestionViewModel(
-                                    context,
-                                    suggestion,
-                                    params.term()
-                                )
-                            )
-                        }
+                    ).orEmpty()
+                    if (version != queryVersion) return@launch
+                    providedSuggestions.clear()
+                    providedSuggestions.addAll(suggestions.map { suggestion ->
+                        SearchProviderSuggestionViewModel(context, suggestion, params.term())
+                    })
                 }
 
             }, errorLogger::trackError)
@@ -514,7 +525,7 @@ class LocationSearchViewModel @Inject constructor(
             .map { Unit }
 
     fun loadCity() {
-        val center = this.center
+        val center = this.searchCenter
         val location = Location(
             center.latitude,
             center.longitude
@@ -539,10 +550,18 @@ class LocationSearchViewModel @Inject constructor(
     }
 
     fun onQueryTextChanged(query: String, isRouting: Boolean = false) {
+        val term = if (query == SearchResultItemSource.CurrentLocation.value) "" else query
+        val input = QueryInput(term, isRouting,
+            if (this::searchBounds.isInitialized) searchBounds else null,
+            if (this::searchCenter.isInitialized) searchCenter else null)
+        if (input == latestQuery) return
+        latestQuery = input
+        queryVersion++
+        providedSuggestionsJob?.cancel()
         this.isRouting = isRouting
         showRefreshing.set(true)
-        onQueryTextChangeEventThrottle.onNext(query)
-        if (query.isBlank()) {
+        onQueryTextChangeEventThrottle.onNext(term)
+        if (term.isBlank()) {
             scrollResultsOfQuery = true
         }
     }
@@ -639,11 +658,11 @@ class LocationSearchViewModel @Inject constructor(
     fun handleArgs(args: Bundle?) {
         args?.let {
             if (it.containsKey(KEY_BOUNDS)) {
-                bounds = it.getParcelable(KEY_BOUNDS)!!
+                searchBounds = it.getParcelable(KEY_BOUNDS)!!
             }
 
             if (it.containsKey(KEY_CENTER)) {
-                center = it.getParcelable(KEY_CENTER)!!
+                searchCenter = it.getParcelable(KEY_CENTER)!!
             }
             canOpenTimetable = it.getBoolean(ARG_CAN_OPEN_TIMETABLE, false)
             showCurrentLocation = it.getBoolean(ARG_WITH_CURRENT_LOCATION, false)
@@ -653,9 +672,9 @@ class LocationSearchViewModel @Inject constructor(
         }
     }
 
-    fun bounds(): LatLngBounds = bounds
+    fun bounds(): LatLngBounds = searchBounds
 
-    fun center(): LatLng = center
+    fun center(): LatLng = searchCenter
 
     fun saveLocationToHistory(location: Location) {
         if (location.name != context.getString(R.string.home) && location.name != context.getString(

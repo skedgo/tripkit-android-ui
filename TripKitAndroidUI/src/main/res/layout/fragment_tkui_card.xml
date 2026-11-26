@@ -13,7 +13,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical"
-            android:background="@color/white"
+            android:background="?attr/colorSurface"
             android:padding="16dp">
 
             <FrameLayout
@@ -37,7 +37,7 @@
                 android:layout_height="24dp"
                 android:layout_gravity="end"
                 android:src="@android:drawable/ic_menu_close_clear_cancel"
-                app:tint="@color/icon_tint_default"
+                app:tint="?attr/colorOnSurface"
                 android:visibility="gone"
                 android:contentDescription="Close" />
 

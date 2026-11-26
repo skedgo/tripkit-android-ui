@@ -53,7 +53,11 @@ fun TripSegment.getSegmentIconObservable(
         .flatMap { drawable ->
             getTransportIconTintStrategy.invoke()
                 .map { transportTintStrategy ->
-                    transportTintStrategy.apply(
+                    // This path already has the displaying host Context (e.g. preview headers).
+                    val strategy = if (transportTintStrategy is com.skedgo.tripkit.ui.tripresults.ThemeAwareApplyTintStrategy)
+                        com.skedgo.tripkit.ui.tripresults.ThemeAwareApplyTintStrategy(context.resources)
+                    else transportTintStrategy
+                    strategy.apply(
                         this.modeInfo?.remoteIconIsTemplate ?: false,
                         this.modeInfo?.remoteIconIsBranding ?: false,
                         this.serviceColor,

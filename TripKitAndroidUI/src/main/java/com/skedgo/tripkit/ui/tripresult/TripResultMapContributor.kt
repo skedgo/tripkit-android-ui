@@ -156,6 +156,9 @@ class TripResultMapContributor : TripKitMapContributor {
      * an unchanged one (e.g. returning from background) keeps the user's own map position.
      */
     private var lastTripCameraFitKey: String? = null
+    private var focusedSegment: TripSegment? = null
+    private var layoutHost: View? = null
+    private val cameraLayoutListener = android.view.ViewTreeObserver.OnGlobalLayoutListener { onViewportChanged() }
     internal var mapViewportView: View? = null
     internal var cameraObstructionViews: () -> List<View> = { emptyList() }
     private var timeMarkerHeightPx: Int = 0
@@ -230,6 +233,12 @@ class TripResultMapContributor : TripKitMapContributor {
         updateTimeLabelCameraRoom(context)
         serviceStopCalloutAdapter.setShowRightImage(false)
         setup()
+        if (layoutHost !== mapViewportView) {
+            layoutHost?.viewTreeObserver?.takeIf { it.isAlive }?.removeOnGlobalLayoutListener(cameraLayoutListener)
+            layoutHost = mapViewportView
+            layoutHost?.viewTreeObserver?.addOnGlobalLayoutListener(cameraLayoutListener)
+        }
+        onViewportChanged()
     }
 
     /**
@@ -270,28 +279,37 @@ class TripResultMapContributor : TripKitMapContributor {
         }
     }
 
-    private fun tripCameraFitKey(trip: Trip): String {
-        val configuration = context?.resources?.configuration
-        return listOf(
-            trip.group?.uuid(),
-            trip.tripId,
-            viewModel.mapWidthPx,
-            viewModel.mapHeightPx,
-            configuration?.fontScale
-        ).joinToString("|")
+    private val cameraFitPadding: Int get() = if (focusedSegment != null) 50 else CameraUpdatePadding
+    internal val minimumViewportHeight: Int get() = timeMarkerHeightPx + 2 * cameraFitPadding
+
+    /** Re-evaluate only the current selection when map/layout/sheet/geometry becomes ready. */
+    internal fun onViewportChanged() {
+        if (!isSafeToUse) return
+        val movingSheet = cameraObstructionViews().any { view ->
+            val behavior = (view.layoutParams as? androidx.coordinatorlayout.widget.CoordinatorLayout.LayoutParams)?.behavior
+                as? com.google.android.material.bottomsheet.BottomSheetBehavior<*>
+            behavior?.state == com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_DRAGGING ||
+                behavior?.state == com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_SETTLING
+        }
+        if (movingSheet) return
+        if (viewModel.selectedTrip.value != null || focusedSegment != null)
+            refitCameraIfStale(viewModel.selectedTrip.value)
     }
 
-    private fun refitCameraIfStale(trip: Trip) {
+    private fun refitCameraIfStale(trip: Trip?) {
         val host = mapViewportView ?: return
         if (host.width == 0 || host.height == 0) {
-            host.doOnLayout { refitCameraIfStale(trip) }
+            host.doOnLayout { onViewportChanged() }
             return
         }
         viewModel.mapWidthPx = host.width
         viewModel.mapHeightPx = host.height
-        val key = tripCameraFitKey(trip)
-        if (key == lastTripCameraFitKey) return
-        val points = trip.segmentList?.getVisibleGeoPointsOnMap().orEmpty()
+        val segment = focusedSegment
+        val padding = cameraFitPadding
+        if (segment != null && trip != null && trip.segmentList.none { it.segmentId == segment.segmentId }) return
+        val points = if (segment == null) trip?.segmentList?.getVisibleGeoPointsOnMap().orEmpty()
+            else listOf(segment).getVisibleGeoPointsOnMap() + listOfNotNull(segment.from, segment.to, segment.singleLocation)
+                .map { com.skedgo.tripkit.location.GeoPoint(it.lat, it.lon) }
         if (points.isEmpty()) return
         try {
             // Home applies bottom-only map padding. The target is the padded viewport centre;
@@ -304,7 +322,7 @@ class TripResultMapContributor : TripKitMapContributor {
             val viewport = Rect(corners.minOf { it.x }, corners.minOf { it.y },
                 corners.maxOf { it.x }, corners.maxOf { it.y })
                 .bottomPaddedViewport(projection.toScreenLocation(map.cameraPosition.target).y)
-            if (viewport.width() <= 2 * CameraUpdatePadding || viewport.height() <= 2 * CameraUpdatePadding) return
+            if (viewport.width() <= 2 * padding || viewport.height() <= 2 * padding) return
             val location = IntArray(2).also(host::getLocationOnScreen)
             val bars = ViewCompat.getRootWindowInsets(host)?.getInsets(
                 WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout()
@@ -327,10 +345,16 @@ class TripResultMapContributor : TripKitMapContributor {
                 }
             }
             val clearInsets = routeBounds.insetsAvoidingOverlays(viewport, insets, overlays,
-                viewModel.timeLabelExtentPx, timeMarkerHeightPx) ?: return
+                viewModel.timeLabelExtentPx, timeMarkerHeightPx, padding)
+            if (clearInsets == null) return
             val bounds = routeBounds.expandedForTimeLabels(viewModel.timeLabelExtentPx, timeMarkerHeightPx,
-                viewport.width(), viewport.height(), clearInsets)
-            map.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, CameraUpdatePadding))
+                viewport.width(), viewport.height(), clearInsets, padding)
+            val key = listOf(trip?.stableKey ?: trip?.uuid, segment?.segmentId, points.hashCode(),
+                host.width, host.height, viewport.toShortString(), clearInsets.toShortString(),
+                context?.resources?.configuration?.fontScale).joinToString("|")
+            if (key == lastTripCameraFitKey) return
+            map.stopAnimation()
+            map.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, padding))
             lastTripCameraFitKey = key
         } catch (e: IllegalStateException) {
             Timber.w(e, "Unable to refit trip camera yet")
@@ -471,7 +495,7 @@ class TripResultMapContributor : TripKitMapContributor {
             viewModel.tripCameraUpdateStream
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({ _ ->
-                    viewModel.selectedTrip.value?.let { refitCameraIfStale(it) }
+                    onViewportChanged()
                 }, { Timber.e(it) })
         )
         // The view model's trip camera update can be skipped (state restoration) or emitted
@@ -480,9 +504,8 @@ class TripResultMapContributor : TripKitMapContributor {
         // the framing is stale for the selected trip.
         autoDisposable.add(
             viewModel.selectedTrip
-                .delay(TripResultMapViewModel.DELAY_MAP_CAMERA_UPDATE, TimeUnit.MILLISECONDS)
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({ trip -> refitCameraIfStale(trip) }, { Timber.e(it) })
+                .subscribe({ onViewportChanged() }, { Timber.e(it) })
         )
         autoDisposable.add(
             viewModel.mapTilesStream
@@ -492,6 +515,7 @@ class TripResultMapContributor : TripKitMapContributor {
                 }, { Timber.e(it) })
         )
         drawSegmentMarkers(context)
+        viewModel.replayMapContent()
     }
 
     fun processMapTiles(tripKitMapTiles: List<String>) {
@@ -522,6 +546,11 @@ class TripResultMapContributor : TripKitMapContributor {
     }
 
     override fun cleanup() {
+        isSafeToUse = false
+        layoutHost?.viewTreeObserver?.takeIf { it.isAlive }?.removeOnGlobalLayoutListener(cameraLayoutListener)
+        layoutHost = null
+        lastTripCameraFitKey = null
+        focusedSegment = null
         // Reset observer flag to allow re-setup if contributor is reused
         observersSetUp = false
         
@@ -588,6 +617,11 @@ class TripResultMapContributor : TripKitMapContributor {
                 }
             }
         }
+        focusedSegment?.let { segment ->
+            val lines = tripLinesBySegmentId[segment.segmentId].orEmpty()
+            if (lines.isNotEmpty() && shouldHighlightTravelledPolyLines()) updateTravelledPolyLinesHighlight(lines)
+        }
+        onViewportChanged()
     }
 
     @Synchronized
@@ -625,30 +659,11 @@ class TripResultMapContributor : TripKitMapContributor {
     }
 
     fun focusTripLine(segment: TripSegment) {
-        val segmentPolyLines = tripLinesBySegmentId[segment.segmentId].orEmpty()
-
-        if (segmentPolyLines.isNotEmpty() && shouldHighlightTravelledPolyLines()) {
-            updateTravelledPolyLinesHighlight(segmentPolyLines)
-        }
-
-        val bounds = segmentPolyLines
-            .flatMap { it.points }
-            .takeIf { it.isNotEmpty() }
-            ?.let { points ->
-                LatLngBounds.builder().apply { points.forEach(::include) }.build()
-            } ?: segment.getFallbackBounds()
-
-        if (bounds != null) {
-            val cameraUpdate =
-                CameraUpdateFactory.newLatLngBounds(boundsWithTimeLabelRoom(bounds, 50), 50)
-            map.animateCamera(cameraUpdate)
-        } else if (segment.singleLocation != null) {
-            val cameraUpdate =
-                CameraUpdateFactory.newLatLngZoom(segment.singleLocation?.toLatLng(), 20f)
-            map.animateCamera(cameraUpdate)
-        } else {
-            Timber.e("focusTripLine: No polyline points or single location available.")
-        }
+        focusedSegment = segment
+        val lines = tripLinesBySegmentId[segment.segmentId].orEmpty()
+        if (lines.isNotEmpty() && shouldHighlightTravelledPolyLines()) updateTravelledPolyLinesHighlight(lines)
+        // The latest segment wins even if selected before map/geometry/layout readiness.
+        onViewportChanged()
     }
 
     private fun shouldHighlightTravelledPolyLines(): Boolean {

@@ -2,7 +2,7 @@ package com.technologies.tripkituisample.homeviewcontroller
 
 import android.content.Context
 import androidx.core.content.ContextCompat
-import com.skedgo.tripkit.common.model.Location
+import com.skedgo.tripkit.common.model.location.Location
 import com.skedgo.tripkit.ui.controller.locationsearchcontroller.TKUIFavoritesSuggestionProvider
 import com.skedgo.tripkit.ui.search.DefaultSearchSuggestion
 import com.skedgo.tripkit.ui.search.LocationSearchIconProvider
@@ -70,7 +70,7 @@ class SampleFavoritesSuggestionProvider : TKUIFavoritesSuggestionProvider() {
     override fun getHome(): Location? {
         //return super.getHome()
         return homeFavorite?.run {
-            location.id = id.toLong()
+            location.id = id.toString()
             location.address = (additionalData as SampleAdditionalData).address
             location
         }
@@ -91,7 +91,7 @@ class SampleFavoritesSuggestionProvider : TKUIFavoritesSuggestionProvider() {
     override fun getWork(): Location? {
         //return super.getWork()
         return workFavorite?.run {
-            location.id = id.toLong()
+            location.id = id.toString()
             location.address = (additionalData as SampleAdditionalData).address
             location
         }
@@ -99,7 +99,7 @@ class SampleFavoritesSuggestionProvider : TKUIFavoritesSuggestionProvider() {
 
     override fun getFavorite(id: Any): Location? {
         return sampleFavorites.firstOrNull { it.id == id }?.run {
-            location.id = this.id.toLong()
+            location.id = this.id.toString()
             location.address = (additionalData as SampleAdditionalData).address
             location
         }

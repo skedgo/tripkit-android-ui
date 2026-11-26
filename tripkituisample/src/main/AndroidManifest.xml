@@ -19,10 +19,10 @@
             android:name=".homeviewcontroller.HomeViewControllerActivity"
             android:exported="false" />
 
-        <!-- replace with ${google_map_key} to get key from local.properties -->
+        <!-- Supplied by local.properties, Gradle properties, or environment variables. -->
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="GOOGLE_MAP_API_KEY_HERE" />
+            android:value="${google_map_key}" />
 
         <activity
             android:name=".map.MapActivity"

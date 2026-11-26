@@ -220,6 +220,7 @@ class TripPreviewHeaderFragment : Fragment() {
     fun setHeaderItems(data: TripSegmentsSummaryData) {
         if (!this@TripPreviewHeaderFragment.isDetached) {
             viewModel.setup(requireContext(), data)
+            sharedViewModel.pageIndex.value?.let { viewModel.setSelectedById(it.first, it.second) }
         }
     }
 

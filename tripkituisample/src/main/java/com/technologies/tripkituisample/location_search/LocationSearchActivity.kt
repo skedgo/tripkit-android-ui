@@ -1,5 +1,6 @@
 package com.technologies.tripkituisample.location_search
 
+import com.technologies.tripkituisample.applySampleWindowInsets
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.databinding.DataBindingUtil
@@ -16,6 +17,7 @@ class LocationSearchActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_location_search)
+        applySampleWindowInsets()
 
         binding.ibBack.setOnClickListener {
             this@LocationSearchActivity.finish()

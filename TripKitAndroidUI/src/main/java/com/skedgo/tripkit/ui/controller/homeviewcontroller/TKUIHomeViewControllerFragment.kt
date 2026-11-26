@@ -20,8 +20,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import com.araujo.jordan.excuseme.ExcuseMe
-import com.bumptech.glide.load.resource.bitmap.CircleCrop
-import com.bumptech.glide.request.RequestOptions
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -34,7 +32,6 @@ import com.skedgo.tripkit.model.ViewTrip
 import com.skedgo.tripkit.routing.Trip
 import com.skedgo.tripkit.routing.TripGroup
 import com.skedgo.tripkit.routing.TripSegment
-import com.skedgo.tripkit.ui.GlideApp
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.TripKitUI
 import com.skedgo.tripkit.ui.controller.ControllerDataProvider
@@ -61,6 +58,10 @@ import com.skedgo.tripkit.ui.map.home.TripKitMapFragment
 import com.skedgo.tripkit.ui.model.TimetableEntry
 import com.skedgo.tripkit.ui.payment.PaymentData
 import com.skedgo.tripkit.ui.search.FixedSuggestions
+import com.skedgo.tripkit.ui.tripresult.TripResultMapContributor
+import com.skedgo.tripkit.ui.tripresult.stableKey
+import com.skedgo.tripkit.ui.trippreview.TripPreviewSharedViewModel
+import com.skedgo.tripkit.ui.utils.observe
 import com.skedgo.tripkit.ui.trippreview.TripPreviewHeaderFragment
 import com.skedgo.tripkit.ui.trippreview.TripPreviewPagerListener
 import com.skedgo.tripkit.ui.utils.deFocusAndHideKeyboard
@@ -78,8 +79,6 @@ import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
-import kotlin.math.max
-import kotlin.math.roundToInt
 
 class TKUIHomeViewControllerFragment :
     BaseFragment<FragmentTkuiHomeViewControllerBinding>() {
@@ -99,7 +98,8 @@ class TKUIHomeViewControllerFragment :
     lateinit var bottomSheetBehavior: BottomSheetBehavior<FrameLayout>
 
     private var bottomSheetVisibilityCallback: ((Int) -> Unit)? = null
-    private var maxSheetHeight = 0
+    private var lastMapBottomPadding: Int? = null
+    private var restoredSheetState: Int? = null
     var defaultLocation: LatLng? = null
 
     private var fixedSuggestionsProvider = TKUIHomeViewFixedSuggestionsProvider()
@@ -110,6 +110,58 @@ class TKUIHomeViewControllerFragment :
     private val bottomSheetOffset = MutableLiveData(0)
 
     private var poiDetailsMapContributor: PoiDetailsMapContributor? = null
+    private val previewSelection: TripPreviewSharedViewModel by viewModels()
+    private var previewMapContributor: TripResultMapContributor? = null
+    private var previewMapTripKey: String? = null
+
+    private fun showPreviewTripOnMap(trip: Trip, groups: List<TripGroup>) {
+        if (!::mapFragment.isInitialized) return
+        val group = trip.group ?: groups.firstOrNull { group -> group.trips?.any { it.uuid == trip.uuid } == true } ?: return
+        val contributor = previewMapContributor ?: TripResultMapContributor().also {
+            it.initialize()
+            previewMapContributor = it
+        }
+        val attached = mapFragment.getContributor() === contributor
+        if (!attached) {
+            mapFragment.setShowMarkers(false, null)
+            mapFragment.setContributor(contributor)
+        }
+        val key = "${group.uuid()}:${trip.stableKey ?: trip.uuid}"
+        contributor.setTripGroupId(group.uuid(), trip.tripId,
+            skipCamera = attached && previewMapTripKey == key, tripKey = trip.stableKey)
+        previewMapTripKey = key
+        previewSelection.pageIndex.value?.let { selection ->
+            trip.segmentList.firstOrNull { it.segmentId == selection.first }?.let(contributor::focusTripLine)
+        }
+    }
+
+    internal fun focusPreviewSegment(segmentId: Long) {
+        if (!::bottomSheetFragment.isInitialized) return
+        val preview = bottomSheetFragment.getFragmentByTag(TKUITripPreviewFragment.TAG) as? TKUITripPreviewFragment ?: return
+        if (!preview.isVisible) return
+        preview.latestTrip?.segmentList?.firstOrNull { it.segmentId == segmentId }
+            ?.let {
+                previewMapContributor?.focusTripLine(it)
+                adjustHalfExpandedMapRoom()
+            }
+    }
+
+    private fun clearPreviewMapContributor() {
+        val contributor = previewMapContributor ?: return
+        if (::mapFragment.isInitialized && mapFragment.getContributor() === contributor) {
+            mapFragment.setContributor(null)
+        }
+        previewMapContributor = null
+        previewMapTripKey = null
+    }
+
+    override fun onDestroyView() {
+        mapViewportLayoutHost?.viewTreeObserver?.takeIf { it.isAlive }
+            ?.removeOnGlobalLayoutListener(mapViewportLayoutListener)
+        mapViewportLayoutHost = null
+        clearPreviewMapContributor()
+        super.onDestroyView()
+    }
 
     private var showMyLocationButtonWithoutPermission = false
 
@@ -150,11 +202,21 @@ class TKUIHomeViewControllerFragment :
         super.onAttach(context)
     }
 
-    override fun onCreated(savedInstance: Bundle?) {
-
-        binding.mainLayout.post {
-            maxSheetHeight = binding.mainLayout.height
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        arguments?.let {
+            if (it.containsKey("tkui_lat")) defaultLocation = LatLng(it.getDouble("tkui_lat"), it.getDouble("tkui_lon"))
+            showMyLocationButtonWithoutPermission = it.getBoolean("tkui_show_location")
         }
+        restoredSheetState = savedInstanceState?.getInt("tkui_sheet_state")
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        if (::bottomSheetBehavior.isInitialized) outState.putInt("tkui_sheet_state", bottomSheetBehavior.state)
+    }
+
+    override fun onCreated(savedInstance: Bundle?) {
 
         ControllerDataProvider.suggestionProvider = fixedSuggestionsProvider
 
@@ -167,6 +229,11 @@ class TKUIHomeViewControllerFragment :
     override fun onResume() {
         super.onResume()
         initObservers()
+        observeMapViewport()
+        if (::map.isInitialized) reconnectRestoredCards()
+        if (::bottomSheetFragment.isInitialized) {
+            bottomSheetVisibilityCallback?.invoke(if (bottomSheetFragment.childFragmentManager.backStackEntryCount > 0) 1 else 0)
+        }
     }
 
     private fun handleBackPress() {
@@ -177,7 +244,7 @@ class TKUIHomeViewControllerFragment :
                     if (viewModel.state.value?.isChooseOnMap == true) {
                         viewModel.toggleChooseOnMap(false)
                     } else if (bottomSheetFragment.childFragmentManager.backStackEntryCount > 0) {
-                        bottomSheetFragment.popActiveFragment()
+                        handleCloseAction()
                     } else {
                         onBackPressOnEmptyBottomSheetCallback?.invoke(this)
                     }
@@ -198,14 +265,17 @@ class TKUIHomeViewControllerFragment :
      */
     private fun initMap() {
         mapFragment = childFragmentManager.findFragmentById(R.id.mapFragment) as TripKitMapFragment
+        mapFragment.setCameraObstructions(binding.topSheet, binding.standardBottomSheet, binding.ivMyLocation)
         mapFragment.getMapAsync {
             map = it
-            bottomSheetBehavior.let { bottomSheet ->
-                // We need to always show the Google logo
-                map.setPadding(0, 0, 0, bottomSheet.peekHeight)
-            }
+            lastMapBottomPadding = null
+            applyMapPadding(binding.standardBottomSheet)
+            reconnectRestoredCards()
 
-            if (requireContext().isPermissionGranted(Manifest.permission.ACCESS_FINE_LOCATION)) {
+            if (restoredSheetState != null) {
+                viewModel.setMyLocationButtonVisible(showMyLocationButtonWithoutPermission ||
+                    requireContext().isPermissionGranted(Manifest.permission.ACCESS_FINE_LOCATION))
+            } else if (requireContext().isPermissionGranted(Manifest.permission.ACCESS_FINE_LOCATION)) {
                 mapFragment.animateToMyLocation()
                 viewModel.setMyLocationButtonVisible(true)
             } else {
@@ -274,11 +344,77 @@ class TKUIHomeViewControllerFragment :
     }
 
 
-    private fun setMapPadding(offset: Float) {
-        val peekHeight = bottomSheetBehavior.peekHeight
-        val maxPadding = maxSheetHeight - peekHeight
-        val calculatedPadding = (offset * maxPadding).roundToInt() + peekHeight
-        map.setPadding(0, 0, 0, max(calculatedPadding, peekHeight))
+    private var mapViewportLayoutHost: View? = null
+    private val mapViewportLayoutListener = android.view.ViewTreeObserver.OnGlobalLayoutListener {
+        adjustHalfExpandedMapRoom()
+        applyMapPadding(binding.standardBottomSheet)
+        if (::mapFragment.isInitialized)
+            (mapFragment.getContributor() as? TripResultMapContributor)?.onViewportChanged()
+    }
+
+    internal fun observeMapViewport() {
+        val host = binding.mainLayout
+        if (mapViewportLayoutHost === host) return
+        mapViewportLayoutHost?.viewTreeObserver?.takeIf { it.isAlive }
+            ?.removeOnGlobalLayoutListener(mapViewportLayoutListener)
+        mapViewportLayoutHost = host
+        // Child layout callbacks run before BottomSheetBehavior applies its final offset.
+        // Measure after the whole traversal, including same-state card replacements.
+        host.viewTreeObserver.addOnGlobalLayoutListener(mapViewportLayoutListener)
+    }
+
+    private fun adjustHalfExpandedMapRoom() {
+        if (!::bottomSheetBehavior.isInitialized ||
+            bottomSheetBehavior.state != BottomSheetBehavior.STATE_HALF_EXPANDED) return
+        val height = binding.mainLayout.height
+        if (height < 2) return
+        val contributor = if (::mapFragment.isInitialized)
+            mapFragment.getContributor() as? TripResultMapContributor else null
+        val requiredMapHeight = if (contributor != null && binding.topSheet.isVisible)
+            binding.topSheet.bottom + 2 * binding.mainLayout.resources.getDimensionPixelSize(R.dimen.spacing_normal) + contributor.minimumViewportHeight
+            else 0
+        // Match the fitter clearance around both header and sheet, plus marker/camera margins.
+        // Keep the normal half sheet whenever it fits, and never shrink below its existing peek.
+        // One extra pixel avoids rounding the behavior offset above the required map boundary.
+        val sheetHeight = maxOf(bottomSheetBehavior.peekHeight, height - requiredMapHeight - 1)
+            .coerceIn(1, height / 2)
+        val ratio = sheetHeight.toFloat() / height
+        if (bottomSheetBehavior.halfExpandedRatio != ratio) {
+            bottomSheetBehavior.halfExpandedRatio = ratio
+            binding.standardBottomSheet.requestLayout()
+        }
+    }
+
+    private fun applyMapPadding(sheet: View): Boolean {
+        if (!::map.isInitialized) return false
+        val bottom = if (sheet.isVisible) controllerMapBottomPadding(binding.mainLayout.height, sheet.top) else 0
+        if (lastMapBottomPadding == bottom) return false
+        lastMapBottomPadding = bottom
+        map.setPadding(0, 0, 0, bottom)
+        return true
+    }
+
+    private fun reconnectRestoredCards() {
+        if (!bottomSheetFragment.isAdded) return
+        bottomSheetFragment.childFragmentManager.fragments.forEach { card ->
+            when (card) {
+                is TKUILocationSearchViewControllerFragment -> card.reconnectListener(searchCardListener)
+                is TKUITripDetailsViewControllerFragment -> {
+                    if (card.isVisible) {
+                        card.tripKitMapFragment = mapFragment
+                        card.settled()
+                    }
+                }
+                is TKUITripPreviewFragment -> if (card.isVisible) {
+                    card.setOnCloseButtonListener { handleCloseAction() }
+                    card.reconnectHost(initTripPreviewPagerFragmentListener()) { headers ->
+                        (childFragmentManager.findFragmentByTag(TripPreviewHeaderFragment.TAG) as? TripPreviewHeaderFragment)
+                            ?.setHeaderItems(headers)
+                        binding.topSheet.visibility = View.VISIBLE
+                    }
+                }
+            }
+        }
     }
 
     private fun ensurePoiDetailsMapContributor(): PoiDetailsMapContributor {
@@ -407,8 +543,8 @@ class TKUIHomeViewControllerFragment :
         val routeFragment = TKUIRouteFragment.newInstance(
             map.projection.visibleRegion.latLngBounds,
             map.cameraPosition.target,
-            origin,
-            destination
+            origin = if (destination == null) null else origin,
+            destination = destination ?: origin
         )
 
         updateBottomSheetFragment(
@@ -418,15 +554,15 @@ class TKUIHomeViewControllerFragment :
 
     private fun initViews() {
         initBottomSheet()
+        binding.topSheet.addOnLayoutChangeListener { header, _, _, _, _, _, _, _, _ ->
+            if (header.isVisible) bottomSheetBehavior.expandedOffset = header.bottom
+            (mapFragment.getContributor() as? TripResultMapContributor)?.onViewportChanged()
+        }
         binding.ivMyLocation.setOnClickListener {
             mapFragment.animateToMyLocation()
         }
 
-        val requestOptions = RequestOptions().transform(CircleCrop())
-        GlideApp.with(requireContext())
-            .load(R.drawable.ic_my_location)
-            .apply(requestOptions)
-            .into(binding.ivMyLocation)
+
     }
 
     fun loadSearchCardFragment() {
@@ -467,7 +603,7 @@ class TKUIHomeViewControllerFragment :
 
     private fun initBottomSheet() {
 
-        bottomSheetFragment = TKUIHomeBottomSheetFragment.newInstance(object :
+        val sheetListener = object :
             TKUIHomeBottomSheetFragment.TKUIHomeBottomSheetListener {
             override fun refreshMap() {
                 clearPoiDetailsContributor()
@@ -493,6 +629,8 @@ class TKUIHomeViewControllerFragment :
             }
 
             override fun onFragmentPopped() {
+                (bottomSheetFragment.getFragmentByTag(TKUITripDetailsViewControllerFragment.TAG) as? TKUITripDetailsViewControllerFragment)
+                    ?.takeIf { it.isVisible }?.settled()
                 val searchFragment = bottomSheetFragment
                     .getFragmentByTag(
                         TKUILocationSearchViewControllerFragment.TAG
@@ -510,26 +648,28 @@ class TKUIHomeViewControllerFragment :
                     else -> false
                 }
             }
-        })
-
-        childFragmentManager
-            .beginTransaction()
-            .replace(R.id.standardBottomSheet, bottomSheetFragment, tag)
-            .addToBackStack(tag)
-            .commit()
+        }
+        bottomSheetFragment = childFragmentManager.findFragmentById(R.id.standardBottomSheet) as? TKUIHomeBottomSheetFragment
+            ?: TKUIHomeBottomSheetFragment.newInstance(sheetListener).also {
+                childFragmentManager.beginTransaction().replace(R.id.standardBottomSheet, it).commit()
+            }
+        bottomSheetFragment.reconnectListener(sheetListener)
 
         bottomSheetBehavior = BottomSheetBehavior.from(binding.standardBottomSheet)
         bottomSheetBehavior.isFitToContents = false
         bottomSheetBehavior.isDraggable = true
-        bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+        val hasCards = bottomSheetFragment.isAdded && bottomSheetFragment.childFragmentManager.backStackEntryCount > 0
+        bottomSheetBehavior.peekHeight = if (hasCards) resources.getDimensionPixelSize(R.dimen.bottom_sheet_peek_height) else 0
+        bottomSheetBehavior.state = restoredSheetState?.takeIf {
+            it == BottomSheetBehavior.STATE_EXPANDED || it == BottomSheetBehavior.STATE_HALF_EXPANDED || it == BottomSheetBehavior.STATE_COLLAPSED
+        } ?: BottomSheetBehavior.STATE_COLLAPSED
         binding.standardBottomSheet.let { frameLayout ->
             frameLayout.layoutParams = frameLayout.layoutParams.apply {
                 height = ViewGroup.LayoutParams.MATCH_PARENT
             }
         }
 
-        binding.standardBottomSheet.visibility = View.GONE
-
+        binding.standardBottomSheet.isVisible = hasCards
         addBottomSheetCallback()
     }
 
@@ -537,35 +677,28 @@ class TKUIHomeViewControllerFragment :
         bottomSheetBehavior.addBottomSheetCallback(object :
             BottomSheetBehavior.BottomSheetCallback() {
             override fun onStateChanged(bottomSheet: View, newState: Int) {
-
+                if (::map.isInitialized && newState != BottomSheetBehavior.STATE_DRAGGING && newState != BottomSheetBehavior.STATE_SETTLING) {
+                    val center = map.cameraPosition.target
+                    if (applyMapPadding(bottomSheet)) map.moveCamera(CameraUpdateFactory.newLatLng(center))
+                    (mapFragment.getContributor() as? TripResultMapContributor)?.onViewportChanged()
+                }
             }
 
             override fun onSlide(bottomSheet: View, slideOffset: Float) {
-                lifecycleScope.launch {
-                    bottomSheetOffset.value = (binding.mainLayout.bottom) - bottomSheet.top
+                bottomSheetOffset.value = binding.mainLayout.bottom - bottomSheet.top
+                if (bottomSheetBehavior.state == BottomSheetBehavior.STATE_DRAGGING) {
+                    requireContext().deFocusAndHideKeyboard(requireActivity().currentFocus ?: view?.rootView)
                 }
-
-                requireContext().deFocusAndHideKeyboard(
-                    requireActivity().currentFocus
-                        ?: view?.rootView
-                )
-
-                if (this@TKUIHomeViewControllerFragment::map.isInitialized) {
-                    val currentCenter = map.cameraPosition.target
-                    if (bottomSheetBehavior.state == BottomSheetBehavior.STATE_DRAGGING) {
-                        setMapPadding(slideOffset)
-                        map.moveCamera(CameraUpdateFactory.newLatLng(currentCenter))
-                    } else if (bottomSheetBehavior.state == BottomSheetBehavior.STATE_SETTLING) {
-                        setMapPadding(slideOffset)
-                        map.moveCamera(CameraUpdateFactory.newLatLng(currentCenter))
-                        hideKeyboard(requireContext(), bottomSheet)
-                    }
-                }
+                // Moving the camera on every frame cancels viewport requests and overrides manual pan.
+                applyMapPadding(bottomSheet)
             }
         })
     }
 
     private fun initObservers() {
+        viewLifecycleOwner.observe(previewSelection.pageIndex) { selection ->
+            if (selection != null) focusPreviewSegment(selection.first)
+        }
         eventBus.apply {
             listen(
                 ViewControllerEvent.OnLocationSuggestionSelected::class.java
@@ -692,6 +825,7 @@ class TKUIHomeViewControllerFragment :
     }
 
     private fun handleCloseAction() {
+        clearPreviewMapContributor()
         clearPoiDetailsContributor()
 
         if (isFromChooseOnMap) {
@@ -756,6 +890,7 @@ class TKUIHomeViewControllerFragment :
         destination: Location,
         fromRouteCard: Boolean = true
     ) {
+        requireContext().deFocusAndHideKeyboard(requireActivity().currentFocus ?: view?.rootView)
         val tripResultsFragment =
             TKUITripResultsFragment.newInstance(
                 origin,
@@ -834,8 +969,8 @@ class TKUIHomeViewControllerFragment :
             override fun onStateChanged(bottomSheet: View, newState: Int) {
                 if (newState == BottomSheetBehavior.STATE_HALF_EXPANDED) {
                     fragment.settled()
+                    bottomSheetBehavior.removeBottomSheetCallback(this)
                 }
-                bottomSheetBehavior.removeBottomSheetCallback(this)
             }
 
             override fun onSlide(bottomSheet: View, slideOffset: Float) {}
@@ -864,7 +999,7 @@ class TKUIHomeViewControllerFragment :
         val fragment = TKUITripPreviewFragment.newInstance(
             tripSegment.trip?.group!!.uuid(),
             tripSegment.trip!!.uuid, segmentId,
-            initTripPreviewPagerFragmentListener(tripSegment),
+            initTripPreviewPagerFragmentListener(),
             fromTripAction,
             paymentDataStream,
             ticketActionStream
@@ -874,18 +1009,17 @@ class TKUIHomeViewControllerFragment :
             mapFragment.setSettingsButtonVisibility(false)
         }
 
+        fragment.arguments?.apply {
+            putString("tkui_trip_key", tripSegment.trip?.stableKey)
+            putLong("tkui_trip_numeric", tripSegment.trip?.tripId ?: 0L)
+        }
         fragment.setOnCloseButtonListener { handleCloseAction() }
         updateBottomSheetFragment(fragment, TKUITripPreviewFragment.TAG)
 
-        binding.topSheet.addOnLayoutChangeListener { view, _, _, _, _, _, _, _, _ ->
-            if (view.isVisible) {
-                bottomSheetBehavior.expandedOffset = binding.topSheet.height + 100
-            }
-        }
     }
 
     //TODO breakdown the function and move all the logic to the viewmodel
-    private fun initTripPreviewPagerFragmentListener(tripSegment: TripSegment): TripPreviewPagerListener {
+    private fun initTripPreviewPagerFragmentListener(): TripPreviewPagerListener {
         return object : TripPreviewPagerListener {
             override fun onServiceActionButtonClicked(
                 _tripSegment: TripSegment?,
@@ -918,6 +1052,7 @@ class TKUIHomeViewControllerFragment :
 
             override fun reportPlannedTrip(trip: Trip?, tripGroups: List<TripGroup>) {
                 trip?.let {
+                    showPreviewTripOnMap(it, tripGroups)
                     eventBus.publish(ViewControllerEvent.OnReportPlannedTrip(tripGroups, it))
                 }
             }
@@ -938,7 +1073,7 @@ class TKUIHomeViewControllerFragment :
             }
 
             override fun getCurrentPagerItemType(): Int {
-                val fragment = childFragmentManager.findFragmentByTag(TKUITripPreviewFragment.TAG)
+                val fragment = bottomSheetFragment.getFragmentByTag(TKUITripPreviewFragment.TAG)
                 if (fragment?.isVisible == true) {
                     return (fragment as TKUITripPreviewFragment).getCurrentPagerItemType()
                 }
@@ -946,7 +1081,7 @@ class TKUIHomeViewControllerFragment :
             }
 
             override fun getLatestTrip(): Trip? {
-                val fragment = childFragmentManager.findFragmentByTag(TKUITripPreviewFragment.TAG)
+                val fragment = bottomSheetFragment.getFragmentByTag(TKUITripPreviewFragment.TAG)
                 if (fragment?.isVisible == true) {
                     return (fragment as TKUITripPreviewFragment).latestTrip
                 }
@@ -984,7 +1119,7 @@ class TKUIHomeViewControllerFragment :
             val tripPreviewPagerFragment = fragment as TKUITripPreviewFragment
             tripPreviewPagerFragment.setTripSegment(tripSegment, trip.segmentList)
             tripPreviewPagerFragment.updateTripSegment(trip.segmentList)
-            tripPreviewPagerFragment.updateListener(initTripPreviewPagerFragmentListener(tripSegment))
+            tripPreviewPagerFragment.updateListener(initTripPreviewPagerFragmentListener())
         }
     }
 
@@ -1003,22 +1138,18 @@ class TKUIHomeViewControllerFragment :
             ControllerDataProvider.favoriteProvider = favoriteSuggestionProvider
             ControllerDataProvider.actionButtonHandlerFactory = actionButtonHandlerFactory
 
-            val fragment =
-                newInstance(
-                    defaultLocation = defaultLocation,
-                    bottomSheetVisibilityCallback = bottomSheetVisibilityCallback,
-                    showMyLocationButtonWithoutPermission = showMyLocationButtonWithoutPermission,
-                    onBackPressOnEmptyBottomSheetCallback = onBackPressOnEmptyBottomSheetCallback,
-                )
-
-            activity.supportFragmentManager
-                .beginTransaction()
-                .replace(
-                    containerId,
-                    fragment
-                )
-                .addToBackStack(null)
-                .commit()
+            val restored = activity.supportFragmentManager.findFragmentById(containerId) as? TKUIHomeViewControllerFragment
+            val fragment = restored ?: newInstance(
+                defaultLocation = defaultLocation,
+                bottomSheetVisibilityCallback = bottomSheetVisibilityCallback,
+                showMyLocationButtonWithoutPermission = showMyLocationButtonWithoutPermission,
+                onBackPressOnEmptyBottomSheetCallback = onBackPressOnEmptyBottomSheetCallback,
+            )
+            fragment.bottomSheetVisibilityCallback = bottomSheetVisibilityCallback
+            fragment.onBackPressOnEmptyBottomSheetCallback = onBackPressOnEmptyBottomSheetCallback
+            if (restored == null) {
+                activity.supportFragmentManager.beginTransaction().replace(containerId, fragment).addToBackStack(null).commit()
+            }
 
             return fragment
         }
@@ -1045,6 +1176,13 @@ class TKUIHomeViewControllerFragment :
             showMyLocationButtonWithoutPermission: Boolean = false,
             onBackPressOnEmptyBottomSheetCallback: ((OnBackPressedCallback) -> Unit)? = null,
         ) = TKUIHomeViewControllerFragment().apply {
+            arguments = Bundle().apply {
+                defaultLocation?.let {
+                    putDouble("tkui_lat", it.lat)
+                    putDouble("tkui_lon", it.lng)
+                }
+                putBoolean("tkui_show_location", showMyLocationButtonWithoutPermission)
+            }
             this.defaultLocation = defaultLocation
             this.bottomSheetVisibilityCallback = bottomSheetVisibilityCallback
             this.showMyLocationButtonWithoutPermission = showMyLocationButtonWithoutPermission

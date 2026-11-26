@@ -18,6 +18,19 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
+        applySampleWindowInsets()
+        binding.appearanceGroup.check(when (SampleAppearance.mode(this)) {
+            androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO -> R.id.appearanceLight
+            androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES -> R.id.appearanceDark
+            else -> R.id.appearanceSystem
+        })
+        binding.appearanceGroup.setOnCheckedChangeListener { _, id ->
+            SampleAppearance.select(this, when (id) {
+                R.id.appearanceLight -> androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO
+                R.id.appearanceDark -> androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES
+                else -> androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+            })
+        }
 
         binding.bAutocompleter.setOnClickListener {
             startActivity(
