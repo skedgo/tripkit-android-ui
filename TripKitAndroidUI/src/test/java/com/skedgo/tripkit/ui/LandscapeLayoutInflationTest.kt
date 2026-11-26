@@ -56,15 +56,10 @@ class LandscapeLayoutInflationTest {
         root.measure(View.MeasureSpec.makeMeasureSpec(800, View.MeasureSpec.EXACTLY),
             View.MeasureSpec.makeMeasureSpec(300, View.MeasureSpec.EXACTLY))
         root.layout(0, 0, 800, 300)
-        fun findList(view: View): androidx.recyclerview.widget.RecyclerView? {
-            if (view is androidx.recyclerview.widget.RecyclerView) return view
-            if (view is android.view.ViewGroup) for (index in 0 until view.childCount) {
-                findList(view.getChildAt(index))?.let { return it }
-            }
-            return null
-        }
+        val directions = root.findViewById<androidx.recyclerview.widget.RecyclerView>(R.id.rvDirections)
+        assertNotNull("Directions list must expose the ID used by the preview fragment", directions)
         org.junit.Assert.assertTrue("Directions must retain a usable viewport beside a growing header",
-            (findList(root)?.measuredHeight ?: 0) >= 150)
+            directions.measuredHeight >= 150)
     }
 
 }
