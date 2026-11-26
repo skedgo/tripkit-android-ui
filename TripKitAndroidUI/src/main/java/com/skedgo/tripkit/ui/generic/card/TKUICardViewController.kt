@@ -93,7 +93,7 @@ class TKUICardViewController : BaseBottomSheetDialogFragment<FragmentTkuiCardBin
         }
     }
 
-    override fun getTheme(): Int = com.google.android.material.R.style.Theme_MaterialComponents_BottomSheetDialog
+    override fun getTheme(): Int = super.getTheme()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         val showClose = arguments?.getBoolean(ARG_SHOW_CLOSE) ?: true

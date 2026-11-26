@@ -243,6 +243,8 @@ class TripSegmentItemViewModel @Inject internal constructor(
             drawable?.let {
                 val d = it.mutate()
                 d.setColorFilter(segmentCircleColor, PorterDuff.Mode.ADD)
+                iconNightMode = context.resources.configuration.uiMode and android.content.res.Configuration.UI_MODE_NIGHT_MASK
+                iconPreservesColor = true
                 icon.value = d
             }
         }
@@ -457,8 +459,15 @@ class TripSegmentItemViewModel @Inject internal constructor(
         }
     }
 
+    internal var iconNightMode: Int? = null
+        private set
+    internal var iconPreservesColor: Boolean = false
+        private set
+
     private fun showSegmentIcon(segment: TripSegment, tintWhite: Boolean) {
         val foreground = if (tintWhite) Color.WHITE else ContextCompat.getColor(context, R.color.labelPrimary)
+        iconNightMode = context.resources.configuration.uiMode and android.content.res.Configuration.UI_MODE_NIGHT_MASK
+        iconPreservesColor = tintWhite || segment.modeInfo?.remoteIconIsBranding == true
         if (segment.getType() == SegmentType.ARRIVAL || segment.getType() == SegmentType.DEPARTURE) {
             icon.value = requireNotNull(ContextCompat.getDrawable(context, R.drawable.v4_ic_map_location)).tint(foreground)
             return

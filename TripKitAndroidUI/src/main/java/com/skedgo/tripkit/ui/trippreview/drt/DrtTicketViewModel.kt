@@ -94,10 +94,20 @@ class DrtTicketViewModel : ViewModel() {
 
     fun setTicket(value: Fare) {
         _fare.value = value
+        setValue(value.value ?: _value.value ?: 0L)
     }
 
     fun setValue(value: Long) {
-        _value.value = value
+        val quantity = _fare.value?.quantityAtLeastMinimum(value) ?: value
+        _value.value = quantity
+        updateTicket(quantity)
+        updateQuantityControls()
+    }
+
+    private fun updateQuantityControls() {
+        val quantity = _value.value ?: 0L
+        _enableIncrement.value = _fare.value?.canIncreaseQuantity(quantity) ?: (quantity < Long.MAX_VALUE)
+        _enableDecrement.value = _fare.value?.let { it.decreasedQuantity(quantity) < quantity } ?: (quantity > 0L)
     }
 
     fun setItemId(value: String) {
@@ -110,22 +120,17 @@ class DrtTicketViewModel : ViewModel() {
 
     fun onIncrementValue() {
         _accessibilityFocusIncrementAction.postValue(false)
-        var result = ((value.value)?.toLong() ?: 0) + 1
-
-        _fare.value?.max?.let {
-            if (result > it) result = it.toLong()
-        }
-
-        _value.value = result
+        val current = value.value ?: 0L
+        val result = _fare.value?.increasedQuantity(current)
+            ?: if (current == Long.MAX_VALUE) current else current + 1
+        setValue(result)
         updateTicket(result)
         onChange()
     }
 
     fun onDecrementValue() {
-        val result = ((value.value)?.toLong() ?: 0) - 1
-
-        if (result >= 0) _value.value = result
-        else _value.value = 0
+        val current = value.value ?: 0L
+        setValue(_fare.value?.decreasedQuantity(current) ?: (current - 1).coerceAtLeast(0))
 
         _accessibilityFocusSelectAction.postValue((_value.value ?: 0) == 0L)
 
@@ -142,7 +147,9 @@ class DrtTicketViewModel : ViewModel() {
     }
 
     fun onSelect() {
-        _value.value = 1
+        if (_fare.value?.hasValidQuantityBounds() == false) return
+        setValue(_fare.value?.minimumSelectedQuantity ?: 1L)
+        updateTicket(_value.value ?: 0L)
         _accessibilityFocusSelectAction.postValue(false)
         _accessibilityFocusIncrementAction.postValue(true)
         onChange()

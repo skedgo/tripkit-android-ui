@@ -25,6 +25,11 @@ sealed class SuggestionViewModel(
     val titleTextColor: Int get() = ContextCompat.getColor(context, titleTextColorRes)
     val subtitleTextColor: Int get() = ContextCompat.getColor(context, subtitleTextColorRes)
 
+    // Resolve at the View boundary: injected application resources may follow a different night
+    // configuration from an Activity that explicitly chooses its appearance. Do not retain it.
+    internal fun resolveTitleTextColor(hostContext: Context): Int = ContextCompat.getColor(hostContext, titleTextColorRes)
+    internal fun resolveSubtitleTextColor(hostContext: Context): Int = ContextCompat.getColor(hostContext, subtitleTextColorRes)
+
     protected abstract val titleTextColorRes: Int
     protected abstract val subtitleTextColorRes: Int
 

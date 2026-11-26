@@ -85,7 +85,7 @@ class DeveloperPreferenceRepositoryImpl constructor(
     private fun serverType() = preferences.getString(
         serverTypeKey,
         if (BuildConfig.DEBUG && BuildConfig.BUILD_TYPE != "staging") {
-            context.getString(R.string.pref_beta_server)
+            context.getString(R.string.pref_production_server)
         } else {
             context.getString(R.string.pref_production_server)
         }

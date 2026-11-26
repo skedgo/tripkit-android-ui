@@ -11,7 +11,6 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.colorResource
 import androidx.core.content.res.ResourcesCompat
 import com.skedgo.tripkit.ui.R
 import com.skedgo.tripkit.ui.core.TripKitUITypography
@@ -20,9 +19,8 @@ import androidx.compose.ui.text.font.FontFamily
 /**
  * Compose theme that mirrors the existing XML DayNight setup.
  *
- * It intentionally reads from `R.color.*` so:
- * - `values-night/` overrides work automatically
- * - host app white-labels overriding the same resource names keep working
+ * Host AppCompat/Material attributes supply the palette. Named SDK resources remain fallbacks
+ * for legacy hosts; DayNight resources and public typography/style overrides remain supported.
  */
 @Composable
 fun TripKitUITheme(
@@ -33,21 +31,19 @@ fun TripKitUITheme(
 ) {
     val context = LocalContext.current
 
-    val primary = colorResource(id = R.color.colorPrimary)
-    val primaryVariant = colorResource(id = R.color.colorPrimaryDark)
-    val secondary = colorResource(id = R.color.colorAccent)
-
-    // In this project "white"/"black" are DayNight-aware resource aliases:
-    // - values/white = #FFFFFF, values-night/white = dark surface
-    // - values/black = dark text, values-night/black = #FFFFFF
-    val background = colorResource(id = R.color.white)
-    val surface = colorResource(id = R.color.searchBarBackground)
-    val onBackground = colorResource(id = R.color.black)
-    val onSurface = colorResource(id = R.color.black)
-
-    val error = colorResource(id = R.color.tripKitError)
-
-    val labelPrimary = colorResource(id = R.color.labelPrimary)
+    // Resolve through the Activity/overlay context so explicit host appearance and branding win.
+    // LocalConfiguration is read by isSystemInDarkTheme, so recreation/recomposition follows it.
+    val primary = Color(context.hostThemeColor(androidx.appcompat.R.attr.colorPrimary, R.color.colorPrimary))
+    val primaryVariant = Color(context.hostThemeColor(androidx.appcompat.R.attr.colorPrimaryDark, R.color.colorPrimaryDark))
+    val secondary = Color(context.hostThemeColor(com.google.android.material.R.attr.colorSecondary, R.color.colorAccent))
+    val background = Color(context.hostThemeColor(android.R.attr.colorBackground, R.color.white))
+    val surface = Color(context.hostThemeColor(com.google.android.material.R.attr.colorSurface, R.color.searchBarBackground))
+    val onBackground = Color(context.hostThemeColor(android.R.attr.textColorPrimary, R.color.black))
+    val onSurface = Color(context.hostThemeColor(com.google.android.material.R.attr.colorOnSurface, R.color.black))
+    val error = Color(context.hostThemeColor(androidx.appcompat.R.attr.colorError, R.color.tripKitError))
+    val onPrimary = Color(context.hostThemeColor(com.google.android.material.R.attr.colorOnPrimary, R.color.labelPrimary))
+    val onSecondary = Color(context.hostThemeColor(com.google.android.material.R.attr.colorOnSecondary, R.color.labelPrimary))
+    val onError = Color(context.hostThemeColor(com.google.android.material.R.attr.colorOnError, R.color.labelPrimary))
 
     val fontFamily: FontFamily = remember(TripKitUITypography.getFontResId(), TripKitUITypography.getFontFamilyName()) {
         val fontResId = TripKitUITypography.getFontResId()
@@ -72,12 +68,12 @@ fun TripKitUITheme(
             secondary = secondary,
             background = background,
             surface = surface,
-            onPrimary = labelPrimary,
-            onSecondary = Color.White,
+            onPrimary = onPrimary,
+            onSecondary = onSecondary,
             onBackground = onBackground,
             onSurface = onSurface,
             error = error,
-            onError = Color.White
+            onError = onError
         )
     } else {
         lightColors(
@@ -86,12 +82,12 @@ fun TripKitUITheme(
             secondary = secondary,
             background = background,
             surface = surface,
-            onPrimary = labelPrimary,
-            onSecondary = Color.White,
+            onPrimary = onPrimary,
+            onSecondary = onSecondary,
             onBackground = onBackground,
             onSurface = onSurface,
             error = error,
-            onError = Color.White
+            onError = onError
         )
     }
 

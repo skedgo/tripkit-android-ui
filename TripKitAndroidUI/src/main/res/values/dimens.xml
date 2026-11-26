@@ -119,4 +119,10 @@
     <dimen name="input_height_40">40dp</dimen>
 
     <dimen name="elevation_6">6dp</dimen>
+    <!-- Keep compact quantity surfaces/glyphs inside separate 48dp click areas. -->
+    <dimen name="fare_quantity_action_padding">18dp</dimen>
+    <dimen name="ticket_quantity_action_padding">20dp</dimen>
+    <dimen name="fare_quantity_outer_padding">33dp</dimen>
+    <dimen name="fare_quantity_background_height">26dp</dimen>
+    <dimen name="ticket_quantity_outer_padding">32dp</dimen>
 </resources>

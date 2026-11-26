@@ -1,5 +1,6 @@
 package com.technologies.tripkituisample.autocompleter
 
+import com.technologies.tripkituisample.applySampleWindowInsets
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -20,6 +21,7 @@ class AutocompleterActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         binding = DataBindingUtil.setContentView(this, R.layout.activity_auto_completer)
+        applySampleWindowInsets()
         autocompleterViewModel = ViewModelProvider(this).get(AutocompleterViewModel::class.java)
 
         binding.ibBack.setOnClickListener {

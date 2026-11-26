@@ -29,7 +29,7 @@ class TKUICardDialog(
             .inflate(R.layout.dialog_tkui_card_container, null, false)
         val container = contentView.findViewById<FrameLayout>(R.id.contentFrame)
 
-        dialog = BottomSheetDialog(context, R.style.Theme_MaterialComponents_BottomSheetDialog).apply {
+        dialog = BottomSheetDialog(context).apply {
             setContentView(contentView)
 
             setOnShowListener {

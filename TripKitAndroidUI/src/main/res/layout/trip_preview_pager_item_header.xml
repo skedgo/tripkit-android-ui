@@ -23,7 +23,8 @@
             android:background="@drawable/bg_circle_transparent_black_border"
             android:layout_marginStart="@dimen/spacing_normal"
             android:layout_marginTop="@dimen/spacing_small"
-            android:src="@{viewModel.icon}"
+            app:hostPreviewIcon="@{viewModel.icon}"
+            app:hostPreviewIconModel="@{viewModel}"
             tools:src="@drawable/ic_walk" />
 
         <LinearLayout

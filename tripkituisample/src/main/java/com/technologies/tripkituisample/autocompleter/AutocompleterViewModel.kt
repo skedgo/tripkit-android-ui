@@ -2,7 +2,7 @@ package com.technologies.tripkituisample.autocompleter
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.skedgo.tripkit.common.model.Location
+import com.skedgo.tripkit.common.model.location.Location
 import com.skedgo.tripkit.regionrouting.RegionRoutingAutoCompleter
 import com.skedgo.tripkit.regionrouting.data.RegionRoute
 import com.skedgo.tripkit.ui.TripKitUI
