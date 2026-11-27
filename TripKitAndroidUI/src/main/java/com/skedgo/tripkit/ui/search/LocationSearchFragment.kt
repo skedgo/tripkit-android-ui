@@ -434,7 +434,6 @@ class LocationSearchFragment : BaseTripKitFragment() {
         }
         searchResultsAdapter = null
         super.onDestroy()
-        viewModel.onCleared()
     }
 
     /**

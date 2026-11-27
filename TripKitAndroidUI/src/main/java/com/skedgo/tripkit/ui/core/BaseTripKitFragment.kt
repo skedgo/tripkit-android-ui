@@ -62,6 +62,7 @@ open class BaseTripKitFragment : Fragment() {
     }
 
     override fun onDestroyView() {
+        accessibilityDefaultViewManager.removeAccessibilityObserver()
         loadingDialog.dismiss()
         super.onDestroyView()
     }

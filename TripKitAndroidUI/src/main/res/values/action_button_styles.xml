@@ -1,0 +1,9 @@
+<resources>
+    <attr name="tripActionButtonAppearance">
+        <enum name="original" value="0" />
+        <enum name="brandContrast" value="1" />
+    </attr>
+    <style name="TripActionButtonOriginal">
+        <item name="tripActionButtonAppearance">original</item>
+    </style>
+</resources>

@@ -7,10 +7,10 @@ import com.google.android.gms.maps.model.MarkerOptions
 import com.jakewharton.rxrelay2.BehaviorRelay
 import com.jakewharton.rxrelay2.PublishRelay
 import com.skedgo.tripkit.common.model.region.Region
+import com.skedgo.tripkit.common.model.stop.ServiceStop
 import com.skedgo.tripkit.common.model.stop.ScheduledStop
 import com.skedgo.tripkit.data.regions.RegionService
 import com.skedgo.tripkit.routing.RealTimeVehicle
-import com.skedgo.tripkit.tripplanner.DiffTransformer
 import com.skedgo.tripkit.ui.core.RxViewModel
 import com.skedgo.tripkit.ui.data.location.toLatLng
 import com.skedgo.tripkit.ui.model.StopInfo
@@ -21,7 +21,6 @@ import com.skedgo.tripkit.ui.servicedetail.GetStopDisplayText
 import com.skedgo.tripkit.ui.utils.ServiceLineOverlayTask
 import com.skedgo.tripkit.utils.OptionalCompat
 import io.reactivex.Observable
-import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.functions.BiFunction
 import io.reactivex.rxkotlin.Observables
@@ -89,7 +88,10 @@ class ServiceStopMapViewModel @Inject constructor(
         .replay(1)
         .refCount()
 
-    private val serviceStopsAndLines =
+    // Share the existing request with detail presentation, including predictions without locations.
+    internal val realtimeServiceUpdates = realtimeVehicleUpdates.autoClear()
+
+    private val scopedServiceStopsAndLines =
         Observable.combineLatest(
             service,
             serviceStop,
@@ -97,7 +99,7 @@ class ServiceStopMapViewModel @Inject constructor(
             .distinctUntilChanged()
             .observeOn(Schedulers.io())
             .switchMap { (service, stop) ->
-                fetchAndLoadServices.load(service, stop).toObservable()
+                fetchAndLoadServices.load(service, stop).map { (service to stop) to it }.toObservable()
             }
             .replay(1)
             .refCount()
@@ -122,26 +124,78 @@ class ServiceStopMapViewModel @Inject constructor(
             .autoConnect()
     }
 
-    val drawStops = serviceStopsAndLines
-        .map { it.first }
-        .compose(DiffTransformer<StopInfo, MarkerOptions>({ it.stop.code }, { stopInfo ->
-            getStopDisplayText.execute(stopInfo.stop)
-                .withLatestFrom(
-                    region,
-                    BiFunction { text: String, region: Region -> text to region })
-                .firstOrError()
-                .flatMap {
-                    Single.just(
-                        serviceStopMarkerCreator.toMarkerOptions(
-                            stopInfo,
-                            it.first,
-                            it.second.timezone
-                        )
-                    )
+    private val serviceStopsAndLines = scopedServiceStopsAndLines.map { it.second }
+
+    private data class StopMarkerState(val entry: TimetableEntry, val info: StopInfo)
+    private data class StopMarkerDiff(
+        val selection: Pair<TimetableEntry, ScheduledStop>?,
+        val current: Map<String, StopMarkerState>,
+        val changed: List<StopInfo>,
+        val removed: Set<String>
+    )
+
+    private fun effectiveSelectedStop(
+        info: StopInfo, entry: TimetableEntry, selected: ScheduledStop, vehicles: List<RealTimeVehicle>
+    ): StopInfo {
+        if (info.stop.code != selected.code || entry.startStopCode != selected.code) return info
+        val vehicle = vehicles.firstOrNull {
+            it.serviceTripId == entry.serviceTripId &&
+                (it.startStopCode == null || it.startStopCode == selected.code)
+        }
+        val departure = vehicle?.arriveAtStartStopTime?.takeIf { it > 0 }
+            ?: entry.realTimeDeparture.toLong().takeIf { it > 0 }
+            ?: info.stop.departureSecs()
+        // Keep service.json schedule and coordinates intact; only the selected pin's presentation changes.
+        val presentation = ServiceStop().apply {
+            fillFrom(info.stop)
+            setDepartureSecs(departure)
+        }
+        return info.copy(stop = presentation)
+    }
+
+    val drawStops = scopedServiceStopsAndLines
+        .switchMap { (selection, details) ->
+            val (entry, selected) = selection
+            realtimeServiceUpdates
+                .filter { it.first === entry }
+                .map { it.second }
+                .startWith(entry.realtimeVehicle?.let(::listOf).orEmpty())
+                .map { vehicles ->
+                    selection to details.first.map { effectiveSelectedStop(it, entry, selected, vehicles) }
                 }
-        }))
-        .map { it.first.map { it.first to it.second.stop.code } to it.second }
+        }
+        .scan(StopMarkerDiff(null, emptyMap(), emptyList(), emptySet())) { previous, (selection, stops) ->
+            val current = stops.associate { it.stop.code to StopMarkerState(selection.first, it) }
+            val changed = current.filter { (code, state) ->
+                val old = previous.current[code]
+                old == null || old.entry !== state.entry || old.info.id != state.info.id ||
+                    old.info.stop.departureSecs() != state.info.stop.departureSecs()
+            }.values.map { it.info }
+            StopMarkerDiff(selection, current, changed, previous.current.keys - current.keys)
+        }
+        .filter { it.selection != null && (it.changed.isNotEmpty() || it.removed.isNotEmpty()) }
+        .concatMap { diff ->
+            Observable.fromIterable(diff.changed)
+                .flatMapSingle { stopInfo ->
+                    Observable.combineLatest(
+                        getStopDisplayText.execute(stopInfo.stop), region,
+                        BiFunction { text: String, region: Region -> text to region }
+                    )
+                        .firstOrError()
+                        .map { (text, region) ->
+                            serviceStopMarkerCreator.toMarkerOptions(stopInfo, text, region.timezone) to stopInfo.stop.code
+                        }
+                }
+                .toList().toObservable()
+                .map { diff.selection!! to (it to diff.removed) }
+        }
         .observeOn(AndroidSchedulers.mainThread())
+        .filter { (selection, _) ->
+            service.value === selection.first && stop.value?.let {
+                getStopForService(it, selection.first).code == selection.second.code
+            } == true
+        }
+        .map { it.second }
         .autoClear()
 
     val drawServiceLine = serviceStopsAndLines.map {

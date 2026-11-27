@@ -134,6 +134,10 @@ class TimetableMapContributor(val fragment: Fragment) : TripKitMapContributor {
         val serviceStopMarkerCreator =
             ServiceStopMarkerCreator(fragment.requireContext(), timeLabelMaker)
         viewModel.serviceStopMarkerCreator = serviceStopMarkerCreator
+        mStop?.let { viewModel.stop.accept(it) }
+        service?.let { viewModel.service.accept(it) }
+        // The parent may supply its ready map before this child is attached/injected.
+        googleMap?.let { safeToUseMap(fragment.requireContext(), it) }
     }
 
     override fun setup() {
@@ -150,6 +154,8 @@ class TimetableMapContributor(val fragment: Fragment) : TripKitMapContributor {
 
     override fun safeToUseMap(context: Context, map: GoogleMap) {
 
+        if (googleMap === map && autoDisposable.size() > 0) return
+        if (googleMap != null && googleMap !== map) clearMap()
         googleMap = map
         previousCameraPosition = map.cameraPosition
 
@@ -172,20 +178,32 @@ class TimetableMapContributor(val fragment: Fragment) : TripKitMapContributor {
             return
         }
 
+        autoDisposable.clear()
+
         //map.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(mStop!!.lat, mStop!!.lon), 15.0f))
 
         autoDisposable.add(
             viewModel.drawStops
                 .subscribeWithErrorHandling { (newMarkerOptions, removedStopIds) ->
                     for (id in removedStopIds) {
-                        stopCodesToMarkerMap[id]!!.remove()
-                        stopCodesToMarkerMap.remove(id)
+                        stopCodesToMarkerMap.remove(id)?.remove()
                     }
+                    var stopsAdded = false
                     for ((first, second) in newMarkerOptions) {
-                        val marker = map.addMarker(first)
-                        stopCodesToMarkerMap[second!!] = marker
+                        val existing = stopCodesToMarkerMap[second]
+                        if (existing == null) {
+                            stopCodesToMarkerMap[second!!] = map.addMarker(first)
+                            stopsAdded = true
+                        } else {
+                            existing.setIcon(first.icon)
+                            existing.title = first.title
+                            existing.snippet = first.snippet
+                            existing.setAnchor(first.anchorU, first.anchorV)
+                            existing.setInfoWindowAnchor(first.infoWindowAnchorU, first.infoWindowAnchorV)
+                            if (existing.isInfoWindowShown) existing.showInfoWindow()
+                        }
                     }
-                    fitAllMapElementsToBounds()
+                    if (stopsAdded || removedStopIds.isNotEmpty()) fitAllMapElementsToBounds()
                 }
         )
 
@@ -226,6 +244,11 @@ class TimetableMapContributor(val fragment: Fragment) : TripKitMapContributor {
     }
 
     override fun cleanup() {
+        clearMap()
+        cleanupServiceDetailVehicleUpdates()
+    }
+
+    private fun clearMap() {
         stopMarkerUpdateInterval()
         googleMap?.setOnCameraIdleListener(null)
         googleMap = null
@@ -234,7 +257,7 @@ class TimetableMapContributor(val fragment: Fragment) : TripKitMapContributor {
         serviceLines.forEach { it.remove() }
         serviceLines.clear()
         autoDisposable.clear()
-        cleanupServiceDetailVehicleUpdates()
+        clearRealTimeVehicleMarkers()
     }
 
     private fun cleanupServiceDetailVehicleUpdates() {

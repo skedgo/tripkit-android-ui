@@ -5,6 +5,7 @@ import android.os.Handler
 import android.os.Looper
 import android.view.View
 import android.view.accessibility.AccessibilityEvent
+import android.view.accessibility.AccessibilityManager
 import android.view.accessibility.AccessibilityNodeInfo
 
 open class AccessibilityDefaultViewManager constructor(
@@ -19,19 +20,32 @@ open class AccessibilityDefaultViewManager constructor(
         viewForAccessibility = view
     }
 
+    private val handler = Handler(Looper.getMainLooper())
+    private var registeredManager: AccessibilityManager? = null
+    private val observer = AccessibilityManager.AccessibilityStateChangeListener {
+        accessibilityListener.invoke()
+        focusAccessibilityDefaultView(true)
+    }
+
     fun setAccessibilityObserver() {
-        if (observeAccessibility) {
-            context?.getAccessibilityManager()?.let {
-                it.addAccessibilityStateChangeListener {
-                    accessibilityListener.invoke()
-                    focusAccessibilityDefaultView(true)
-                }
+        if (observeAccessibility && registeredManager == null) {
+            context?.getAccessibilityManager()?.let { manager ->
+                manager.addAccessibilityStateChangeListener(observer)
+                registeredManager = manager
             }
         }
     }
 
+    fun removeAccessibilityObserver() {
+        registeredManager?.removeAccessibilityStateChangeListener(observer)
+        registeredManager = null
+        handler.removeCallbacksAndMessages(null)
+        viewForAccessibility = null
+        accessibilityListener = {}
+    }
+
     fun focusAccessibilityDefaultView(withDelay: Boolean, customDelay: Long? = null) {
-        Handler(Looper.getMainLooper()).postDelayed({
+        handler.postDelayed({
             if (context?.isTalkBackOn() == true) {
                 viewForAccessibility?.apply {
                     performAccessibilityAction(

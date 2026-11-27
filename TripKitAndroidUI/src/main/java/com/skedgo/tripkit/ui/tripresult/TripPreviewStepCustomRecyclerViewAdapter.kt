@@ -5,6 +5,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.annotation.LayoutRes
+import androidx.core.view.isVisible
 import androidx.databinding.ViewDataBinding
 import androidx.recyclerview.widget.GridLayoutManager
 import com.skedgo.tripkit.ui.databinding.TripPreviewPagerDirectionsItemBinding
@@ -39,9 +40,11 @@ class TripPreviewStepCustomRecyclerViewAdapter<T> : BindingRecyclerViewAdapter<T
 
         if (item is DirectionsTripPreviewItemStepViewModel) {
             with(binding as TripPreviewStepBinding) {
+                val roadTagItems = item.generateRoadTagItems()
                 val adapter = RoadTagLabelListAdapter()
                 binding.rvTags.adapter = adapter
-                adapter.collection = item.generateRoadTagItems()
+                adapter.collection = roadTagItems
+                binding.rvTags.isVisible = roadTagItems.isNotEmpty()
             }
         }
     }

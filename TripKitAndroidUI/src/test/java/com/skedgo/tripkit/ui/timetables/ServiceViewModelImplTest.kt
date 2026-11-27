@@ -37,7 +37,7 @@ class ServiceViewModelImplTest : MockKTest() {
         mockkObject(TripKit.Companion)
         every { TripKit.getInstance() } returns mockk(relaxed = true)
         val realtime = mockk<GetRealtimeText>()
-        every { realtime.execute(any(), any(), any()) } returns Pair("Scheduled", R.color.black1)
+        every { realtime.getWithIsOnTime(any(), any(), any()) } returns Triple("Scheduled", R.color.black1, false)
         viewModel = ServiceViewModelImpl(context, OccupancyViewModel(context),
             ServiceAlertViewModel(context), mockk(relaxed = true), mockk(relaxed = true),
             realtime, mockk(relaxed = true))

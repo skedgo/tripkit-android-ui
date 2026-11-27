@@ -89,7 +89,7 @@ class Ticket26294FollowupStyleTest {
                 val intrinsic=kotlin.math.ceil(android.text.Layout.getDesiredWidth(text,label.paint).toDouble()).toInt()+
                     label.compoundPaddingLeft+label.compoundPaddingRight+icon.measuredWidth+date.paddingLeft+date.paddingRight
                 assertTrue("Leave must not consume unused row width: actual=${date.width}, intrinsic=$intrinsic",date.width<=intrinsic+1)
-                val gap=(date.layoutParams as android.view.ViewGroup.MarginLayoutParams).marginEnd
+                val gap=header.resources.getDimensionPixelSize(R.dimen.spacing_small)
                 assertEquals("Transport stays adjacent",date.right+gap,transport.left)
                 assertTrue("Unused horizontal space remains unused",transport.right<width)
             }

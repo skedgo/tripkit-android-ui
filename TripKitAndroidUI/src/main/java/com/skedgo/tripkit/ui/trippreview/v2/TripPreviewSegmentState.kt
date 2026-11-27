@@ -12,8 +12,13 @@ import java.io.IOException
 import java.security.MessageDigest
 
 /** Private cache snapshots keep large route graphs out of FragmentManager's state Bundle. */
-internal class TripPreviewSegmentState(context: Context) {
-    private val directory = File(context.cacheDir, "trip-preview-segments")
+internal class TripPreviewSegmentState(context: Context, persistAcrossCacheEviction: Boolean = false) {
+    // Walk pages are part of a saved task, so Android cache reclamation must not erase them.
+    // noBackupFilesDir also prevents transient route snapshots from entering device backups.
+    private val directory = File(
+        if (persistAcrossCacheEviction) context.noBackupFilesDir else context.cacheDir,
+        "trip-preview-segments"
+    )
     private val gson = Gson()
 
     private data class Snapshot(

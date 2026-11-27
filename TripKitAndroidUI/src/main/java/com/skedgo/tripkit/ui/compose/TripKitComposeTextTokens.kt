@@ -22,7 +22,9 @@ data class TripKitComposeTextTokens(
 
     val valueLg: TextStyle,
     val labelLg: TextStyle,
-    val countXl: TextStyle
+    val countXl: TextStyle,
+
+    val headlineSmall: TextStyle
 )
 @Immutable
 data class TripKitComposeTextTokensOverride(
@@ -35,7 +37,8 @@ data class TripKitComposeTextTokensOverride(
     val actionMd: TextStyle? = null,
     val valueLg: TextStyle? = null,
     val labelLg: TextStyle? = null,
-    val countXl: TextStyle? = null
+    val countXl: TextStyle? = null,
+    val headlineSmall: TextStyle? = null
 )
 
 internal val LocalTripKitComposeTextTokens = staticCompositionLocalOf {
@@ -103,6 +106,12 @@ object TripKitComposeTextTokensDefaults {
         countXl = TextStyle(
             fontWeight = FontWeight.Bold,
             fontSize = 28.sp
+        ),
+        headlineSmall = TextStyle(
+            fontWeight = FontWeight.Normal,
+            fontSize = 24.sp,
+            lineHeight = 32.sp,
+            letterSpacing = 0.sp
         )
     )
 }
@@ -126,5 +135,6 @@ internal fun TripKitComposeTextTokens.withOverride(
         valueLg = override.valueLg ?: valueLg,
         labelLg = override.labelLg ?: labelLg,
         countXl = override.countXl ?: countXl,
+        headlineSmall = override.headlineSmall ?: headlineSmall,
     )
 }

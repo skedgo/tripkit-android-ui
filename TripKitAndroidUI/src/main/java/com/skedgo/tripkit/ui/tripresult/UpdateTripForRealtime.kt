@@ -36,7 +36,7 @@ open class UpdateTripForRealtime @Inject internal constructor(
             .subscribe({
                 tripGroupRepository.updateTrip(
                     it.second.uuid(),
-                    it.second.displayTrip?.uuid.orEmpty(),
+                    it.first.uuid,
                     it.first
                 )
                     .subscribe({}, errorLogger::trackError)
@@ -55,7 +55,7 @@ open class UpdateTripForRealtime @Inject internal constructor(
             .subscribe({
                 tripGroupRepository.updateTrip(
                     it.second.uuid(),
-                    it.second.displayTrip?.uuid.orEmpty(),
+                    it.first.uuid,
                     it.first
                 )
                     .subscribe({}, errorLogger::trackError)
@@ -66,6 +66,7 @@ open class UpdateTripForRealtime @Inject internal constructor(
     }
 
     private fun startAsync(group: TripGroup): Observable<Pair<Trip, TripGroup>> {
+        val originalTrip = group.displayTrip ?: return Observable.empty()
         return Observable.just(group)
             .observeOn(Schedulers.io())
             .filter { group.displayTrip?.hasQuickBooking() != true }
@@ -91,7 +92,13 @@ open class UpdateTripForRealtime @Inject internal constructor(
                     }
                     .doOnNext { trip -> nextUrlToFetch.set(trip.updateURL) }
             }
-            .map { trip -> Pair(trip, group) }
+            .map { trip ->
+                // Polling replaces live data, not the persisted journey. Favorites and
+                // restored navigation refer to these local identifiers across refreshes.
+                trip.uuid = originalTrip.uuid
+                trip.tripId = originalTrip.tripId
+                Pair(trip, group)
+            }
     }
 
     fun stop() {

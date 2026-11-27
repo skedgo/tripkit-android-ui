@@ -531,6 +531,8 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
     }
 
     override fun onDestroyView() {
+        markersDisposable?.dispose()
+        markersDisposable = null
         infoWindowHandler.removeCallbacksAndMessages(null)
         markerHideCallbacks.clear()
         super.onDestroyView()
@@ -1273,6 +1275,10 @@ class TripKitMapFragment : LocationEnhancedMapFragment(), OnInfoWindowClickListe
             }
             loadMarkers()
         } else {
+            // Cancel the cold diff/render chain as well as gating late main-thread emissions.
+            // Home re-subscribes with the latest replayed viewport when markers are restored.
+            markersDisposable?.dispose()
+            markersDisposable = null
             if (fromTripList) {
                 tripLocationMarkers?.clear()
                 poiMarkers?.clear()

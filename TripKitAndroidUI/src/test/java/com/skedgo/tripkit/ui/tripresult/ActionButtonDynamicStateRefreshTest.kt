@@ -65,9 +65,20 @@ class ActionButtonDynamicStateRefreshTest {
         text = text,
         tag = alertTag,
         icon = icon,
-        isPrimary = false,
-        useIconTint = false
+        isPrimary = text == "Alert Me",
+        useIconTint = true
     )
+
+    @Test
+    fun `restored placeholder accepts current alert state and styling`() {
+        val placeholder = ActionButton("Mute", alertTag, 0, isPrimary = false, useIconTint = true)
+        val viewModel = ActionButtonViewModel(context, placeholder)
+        viewModel.update(context, alertButton("Alert Me", R.drawable.ic_launcher), preserveDynamicState = true)
+        assertThat(viewModel.title.get()).isEqualTo("Alert Me")
+        assertThat(viewModel.icon.get()).isSameAs(alertMeIcon)
+        assertThat(viewModel.actionButton.value!!.isPrimary).isTrue()
+        assertThat(viewModel.iconTint.get()).isEqualTo(Color.WHITE)
+    }
 
     // --- the preservation decision -------------------------------------------------------
 
@@ -118,6 +129,8 @@ class ActionButtonDynamicStateRefreshTest {
 
         assertThat(viewModel.title.get()).isEqualTo("Mute")
         assertThat(viewModel.icon.get()).isSameAs(muteIcon)
+        assertThat(viewModel.actionButton.value!!.isPrimary).isFalse()
+        assertThat(viewModel.iconTint.get()).isEqualTo(Color.BLACK)
     }
 
     @Test
@@ -135,6 +148,18 @@ class ActionButtonDynamicStateRefreshTest {
 
         assertThat(viewModel.title.get()).isEqualTo("Alert Me")
         assertThat(viewModel.icon.get()).isSameAs(alertMeIcon)
+        assertThat(viewModel.actionButton.value!!.isPrimary).isTrue()
+        assertThat(viewModel.iconTint.get()).isEqualTo(Color.WHITE)
+    }
+
+    @Test
+    fun `a stale Mute refresh keeps Alert Me bold after disabling`() {
+        val viewModel = ActionButtonViewModel(context, alertButton("Alert Me", R.drawable.ic_launcher))
+        viewModel.update(context, alertButton("Mute", R.drawable.ic_share), preserveDynamicState = true)
+        assertThat(viewModel.title.get()).isEqualTo("Alert Me")
+        assertThat(viewModel.icon.get()).isSameAs(alertMeIcon)
+        assertThat(viewModel.actionButton.value!!.isPrimary).isTrue()
+        assertThat(viewModel.iconTint.get()).isEqualTo(Color.WHITE)
     }
 
     @Test
@@ -153,5 +178,7 @@ class ActionButtonDynamicStateRefreshTest {
 
         assertThat(viewModel.title.get()).isEqualTo("Mute")
         assertThat(viewModel.icon.get()).isSameAs(muteIcon)
+        assertThat(viewModel.actionButton.value!!.isPrimary).isFalse()
+        assertThat(viewModel.iconTint.get()).isEqualTo(Color.BLACK)
     }
 }

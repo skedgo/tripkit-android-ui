@@ -72,11 +72,14 @@ class TripResultPagerViewModel @Inject internal constructor(
 
     var defaultTrip: Trip? = null
     private var savedTripGroupUuid: String? = null
+    private var restoredTripGroupId: String? = null
+    private var restoredTripId: Long? = null
+    private var resolvedFavoriteId: String? = null
 
     fun onCreate(savedInstanceState: Bundle?) {
-        savedInstanceState?.getString(ARG_TRIP_GROUP_ID)?.let {
-            setInitialSelectedTripGroupId(it)
-        }
+        restoredTripGroupId = savedInstanceState?.getString(ARG_TRIP_GROUP_ID)
+        restoredTripId = savedInstanceState?.getLong("selectedTripId", -1L)?.takeIf { it != -1L }
+        restoredTripGroupId?.let { setInitialSelectedTripGroupId(it) }
     }
 
     fun onSavedInstanceState(outState: Bundle) {
@@ -95,6 +98,7 @@ class TripResultPagerViewModel @Inject internal constructor(
                 val currentTrip = currentTripGroup.displayTrip
                 if (currentTrip != null) {
                     saveTripUuidToSharedPrefs(currentTrip.uuid)
+                    outState.putLong("selectedTripId", currentTrip.tripId)
                 }
             }
         }
@@ -105,19 +109,25 @@ class TripResultPagerViewModel @Inject internal constructor(
         args: PagerFragmentArguments,
         initialList: List<TripGroup>
     ): Observable<Unit> {
+        // Resolve a Favorite pattern once per screen. onResume runs again after Preview,
+        // permission dialogs and backgrounding, even when there is no saved-state Bundle.
+        if (args is FavoriteTrip) {
+            val groupId = if (restoredTripGroupId != null || resolvedFavoriteId == args.favoriteTripId) {
+                currentTripGroupId.get() ?: restoredTripGroupId
+            } else null
+            if (groupId != null) {
+                resolvedFavoriteId = args.favoriteTripId
+                restoredTripGroupId = null
+                restoredTripId = currentTrip.value?.tripId ?: restoredTripId
+                return getSortedTripGroups(SingleTrip(groupId, restoredTripId), initialList)
+            }
+        }
         isLoading.set(true)
         when (args) {
             is FromRoutes -> {
                 return if (!initialList.isNullOrEmpty()) {
                     // Set the correct displayTripId for the selected trip
-                    args.tripId?.let { selectedTripId ->
-                        initialList.forEach { group ->
-                            group.trips?.find { it.tripId == selectedTripId }?.let { selectedTrip ->
-                                group.displayTripId = selectedTripId
-                                defaultTrip = selectedTrip
-                            }
-                        }
-                    }
+                    selectDisplayTrip(initialList, restoredTripId ?: args.tripId)
                     tripGroups.accept(initialList)
                     isLoading.set(false)
                     tripGroups.map {
@@ -132,6 +142,7 @@ class TripResultPagerViewModel @Inject internal constructor(
                     )
                         .subscribeOn(Schedulers.io())
                         .doOnNext {
+                            selectDisplayTrip(it, restoredTripId ?: args.tripId)
                             tripGroups.accept(it)
                             isLoading.set(false)
                         }
@@ -143,12 +154,7 @@ class TripResultPagerViewModel @Inject internal constructor(
                 selectedTripGroupRepository.setSelectedTripGroupId(args.tripGroupId)
                 return selectedTripGroupRepository.getSelectedTripGroup().map { listOf(it) }
                     .doOnNext { groups ->
-                        args.tripId?.let { tripId ->
-                            groups.firstOrNull { it.trips?.any { it.tripId == tripId } == true }
-                                ?.let { group ->
-                                    defaultTrip = group.trips?.firstOrNull { it.tripId == tripId }
-                                }
-                        }
+                        selectDisplayTrip(groups, restoredTripId ?: args.tripId)
                         tripGroups.accept(groups)
                         isLoading.set(false)
                     }
@@ -166,14 +172,19 @@ class TripResultPagerViewModel @Inject internal constructor(
                                 ?.let { trip ->
                                     it.displayTripId = trip.tripId
                                 }
-                            it?.let { group -> setInitialSelectedTripGroupId(group.uuid()) }
+                            it?.let { group ->
+                                resolvedFavoriteId = args.favoriteTripId
+                                defaultTrip = group.displayTrip
+                                restoredTripId = defaultTrip?.tripId
+                                setInitialSelectedTripGroupId(group.uuid())
+                            }
                         }.map {
                             it?.let { listOf(it) } ?: emptyList()
                         }.onEach {
                             currentTrip.postValue(
                                 it.firstOrNull {
                                     it.trips?.isNotEmpty() == true
-                                }?.trips?.firstOrNull()
+                                }?.displayTrip
                             )
                             tripGroups.accept(it)
                             isLoading.set(false)
@@ -184,6 +195,18 @@ class TripResultPagerViewModel @Inject internal constructor(
             }
             else -> {
                 throw IllegalArgumentException("Unknown Argument: $args")
+            }
+        }
+    }
+
+    private fun selectDisplayTrip(groups: List<TripGroup>, tripId: Long?) {
+        if (tripId == null) return
+        groups.forEach { group ->
+            group.trips?.firstOrNull { it.tripId == tripId }?.let { selected ->
+                // Select before publishing: the pager creates child fragments synchronously
+                // from displayTrip, so changing it afterwards is already too late.
+                group.displayTripId = selected.tripId
+                defaultTrip = selected
             }
         }
     }

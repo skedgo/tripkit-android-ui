@@ -151,8 +151,24 @@ fun bindReadableActionTextColor(view: TextView, color: Int) {
     view.doOnAttach { update() }
 }
 
-/** Keeps white badge text where readable and uses black on lighter opaque badge fills. */
+/** Selects a literal foreground against the rendered fill, independent of DayNight aliases. */
+internal fun readableBadgeForeground(background: Int, surface: Int): Int {
+    val opaqueSurface = ColorUtils.compositeColors(surface, Color.WHITE)
+    val rendered = ColorUtils.compositeColors(background, opaqueSurface)
+    return if (ColorUtils.calculateContrast(Color.WHITE, rendered) >=
+        ColorUtils.calculateContrast(Color.BLACK, rendered)) Color.WHITE else Color.BLACK
+}
+
 @BindingAdapter("readableBadgeTextColor")
 fun bindReadableBadgeTextColor(view: TextView, background: Int) {
-    view.setTextColor(if (ColorUtils.calculateContrast(Color.WHITE, background) >= 4.5) Color.WHITE else Color.BLACK)
+    fun update() {
+        val parent = view.parent as? View
+        // A CardView owns the badge fill; composite it only once over its containing surface.
+        val beneath = if (parent is CardView) parent.parent as? View else parent
+        val surface = surfaceColor(beneath)
+            ?: ContextCompat.getColor(view.context, R.color.white)
+        view.setTextColor(readableBadgeForeground(background, surface))
+    }
+    update()
+    view.doOnAttach { update() }
 }

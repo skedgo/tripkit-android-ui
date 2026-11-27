@@ -12,6 +12,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.google.gson.Gson
 import com.jakewharton.rxrelay2.PublishRelay
+import com.jakewharton.rxrelay2.BehaviorRelay
 import com.skedgo.TripKit
 import com.skedgo.tripkit.ServiceResponse
 import com.skedgo.tripkit.common.model.realtimealert.RealtimeAlert
@@ -32,6 +33,9 @@ import com.skedgo.tripkit.ui.trip.details.viewmodel.OccupancyViewModel
 import com.skedgo.tripkit.ui.trip.details.viewmodel.ServiceAlertViewModel
 import com.skedgo.tripkit.ui.utils.TapAction
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.Observable
+import io.reactivex.disposables.SerialDisposable
+import io.reactivex.rxkotlin.Observables
 import me.tatarka.bindingcollectionadapter2.ItemBinding
 import org.joda.time.DateTimeZone
 import timber.log.Timber
@@ -63,14 +67,108 @@ class ServiceDetailViewModel @Inject constructor(
 
     val secondaryText = ObservableField<String>()
     val secondaryTextColor: ObservableInt = ObservableInt()
+    private var headerEntry: TimetableEntry? = null
+    private val headerSelection = BehaviorRelay.create<Pair<TimetableEntry, DateTimeZone>>()
+    private val headerSubscription = SerialDisposable().apply { autoClear() }
+    private val serviceRequest = SerialDisposable().apply { autoClear() }
+    private var requestGeneration = 0
+    private var rowsEntry: TimetableEntry? = null
+    private var rowVehicles: List<RealTimeVehicle> = emptyList()
+
+    private fun resetRowSelection() {
+        requestGeneration++
+        serviceRequest.set(null)
+        rowsEntry = null
+        rowVehicles = emptyList()
+    }
+
+    private fun updateRowPredictions() {
+        val entry = headerEntry ?: return
+        if (rowsEntry !== entry) return
+        val rows = items.get().orEmpty()
+        val predictions = mutableMapOf<ServiceDetailItemViewModel, Long>()
+        fun predict(code: String?, scheduled: Long, departure: Boolean, time: Long?) {
+            if (code.isNullOrEmpty() || time == null || time <= 0) return
+            val matches = rows.filter {
+                it.stop?.code == code && (it.originalDepartureSecs != 0L) == departure
+            }
+            // Stop code identifies the platform, not a visit on a looping service. Never
+            // guess between repeated visits; use the original scheduled endpoint time.
+            val row = matches.singleOrNull() ?: matches.filter {
+                (if (departure) it.originalDepartureSecs else it.originalArrivalSecs) == scheduled
+            }.singleOrNull()
+            row?.let { predictions[it] = time }
+        }
+        val startVehicle = rowVehicles.firstOrNull {
+            it.serviceTripId == entry.serviceTripId &&
+                (it.startStopCode == null || it.startStopCode == entry.startStopCode)
+        }
+        predict(entry.startStopCode, entry.serviceTime.takeIf { it > 0 } ?: entry.startTimeInSecs,
+            true, startVehicle?.arriveAtStartStopTime?.takeIf { it > 0 }
+                ?: entry.realTimeDeparture.toLong().takeIf { it > 0 })
+        val endVehicle = rowVehicles.firstOrNull {
+            it.serviceTripId == entry.serviceTripId && it.endStopCode == entry.endStopCode
+        }
+        predict(entry.endStopCode, entry.endTimeInSecs, false,
+            endVehicle?.arriveAtEndStopTime?.takeIf { it > 0 }
+                ?: entry.realTimeArrival.toLong().takeIf { it > 0 })
+        rows.forEach {
+            it.updateRealtimeStatus(
+                entry.realTimeStatus == com.skedgo.tripkit.common.model.realtimealert.RealTimeStatus.IS_REAL_TIME,
+                entry.isCancelled || entry.realTimeStatus == com.skedgo.tripkit.common.model.realtimealert.RealTimeStatus.CANCELLED
+            )
+            it.updatePrediction(predictions[it])
+        }
+    }
+
+    internal fun bindRealtimeHeader(updates: Observable<Pair<TimetableEntry, List<RealTimeVehicle>>>) {
+        headerSubscription.set(null)
+        headerSubscription.set(
+            Observables.combineLatest(headerSelection, updates) { selection, update -> selection to update }
+                .observeOn(AndroidSchedulers.mainThread())
+                .filter { (selection, update) ->
+                    selection.first === headerEntry && update.first === selection.first
+                }
+                .subscribe({ (selection, update) ->
+                    val entry = selection.first
+                    val vehicle = update.second.firstOrNull {
+                        it.serviceTripId == entry.serviceTripId &&
+                            (it.startStopCode == null || it.startStopCode == entry.startStopCode)
+                    }
+                    // The map also writes entry.realtimeVehicle. Use this emission directly so
+                    // presentation does not depend on subscriber order or mutate the selection.
+                    val presentation = TimetableEntry().apply {
+                        serviceTripId = entry.serviceTripId
+                        startTimeInSecs = entry.startTimeInSecs
+                        endTimeInSecs = entry.endTimeInSecs
+                        serviceTime = entry.serviceTime
+                        realTimeDeparture = entry.realTimeDeparture
+                        realTimeArrival = entry.realTimeArrival
+                        realTimeStatus = entry.realTimeStatus
+                        isCancelled = entry.isCancelled
+                        realtimeVehicle = vehicle
+                    }
+                    val (text, color) = getRealtimeText.execute(selection.second, presentation, vehicle)
+                    secondaryText.set(text)
+                    secondaryTextColor.set(ContextCompat.getColor(context, color))
+                    updateVehicleInformation(vehicle)
+                    rowVehicles = update.second
+                    updateRowPredictions()
+                }, { Timber.e(it, "Error updating service detail realtime header") })
+        )
+    }
+
+    internal fun unbindRealtimeHeader() {
+        headerSubscription.set(null)
+    }
     val tertiaryText = ObservableField<String>()
     val showWheelchairAccessible = ObservableBoolean(false)
 
     val wheelchairAccessibleText = ObservableField<String>()
     val showExpandableMenu = ObservableBoolean(false)
-    val isExpandableMenuExpanded = ObservableBoolean(false)
+    val isExpandableMenuExpanded = ObservableBoolean(true)
     val onExpandMenuClick = TapAction.create {
-        isExpandableMenuExpanded.set(!isExpandableMenuExpanded.get())
+        isExpandableMenuExpanded.set(true)
     }
     val modeInfo = ObservableField<ModeInfo>()
 
@@ -79,6 +177,37 @@ class ServiceDetailViewModel @Inject constructor(
     val showOccupancyInfo = ObservableBoolean(false)
 
     val lastUpdatedText = ObservableField<String>()
+    private val informationTimestamp = BehaviorRelay.createDefault(0L)
+    private val informationAgeSubscription = SerialDisposable().apply { autoClear() }
+
+    internal fun startInformationAge(
+        scheduler: io.reactivex.Scheduler = io.reactivex.schedulers.Schedulers.computation(),
+        nowMillis: () -> Long = System::currentTimeMillis
+    ) {
+        informationAgeSubscription.set(null)
+        informationAgeSubscription.set(
+            informationTimestamp.switchMap { timestamp ->
+                if (timestamp <= 0) Observable.just("") else
+                    Observable.interval(0, 1, java.util.concurrent.TimeUnit.SECONDS, scheduler)
+                        .map { ServiceInformationAge.format(context, timestamp, nowMillis()) }
+            }.distinctUntilChanged().observeOn(AndroidSchedulers.mainThread())
+                .subscribe({ lastUpdatedText.set(it) }, { Timber.e(it) })
+        )
+    }
+
+    internal fun stopInformationAge() {
+        informationAgeSubscription.set(null)
+    }
+
+    private fun updateVehicleInformation(vehicle: RealTimeVehicle?) {
+        // Clear the previous service's occupancy when an update has no usable vehicle.
+        occupancyViewModel.setOccupancy(vehicle ?: RealTimeVehicle(), false)
+        showOccupancyInfo.set(occupancyViewModel.hasInformation())
+        val timestamp = vehicle?.lastUpdateTime?.takeIf { it > 0 } ?: 0L
+        informationTimestamp.accept(timestamp)
+        lastUpdatedText.set(ServiceInformationAge.format(context, timestamp, System.currentTimeMillis()))
+        updateAccessibility()
+    }
 
     val itemBinding: ItemBinding<ServiceDetailItemViewModel> by lazy {
         ItemBinding.of<ServiceDetailItemViewModel>(
@@ -110,8 +239,8 @@ class ServiceDetailViewModel @Inject constructor(
             context.getString(accessibility.wheelchairText(serviceWheelchairAccessible)))
         val bicycleVisible = accessibility.showBicycle(serviceBicycleAccessible)
         _showBicycleAccessible.value = bicycleVisible
-        showExpandableMenu.set(showOccupancyInfo.get() || icon != null || bicycleVisible)
-        if (!showExpandableMenu.get()) isExpandableMenuExpanded.set(false)
+        showExpandableMenu.set(showOccupancyInfo.get() || icon != null || bicycleVisible || informationTimestamp.value!! > 0)
+        isExpandableMenuExpanded.set(true)
     }
 
     fun setAlerts(alerts: List<RealtimeAlert>?) {
@@ -136,6 +265,12 @@ class ServiceDetailViewModel @Inject constructor(
         modeInfo: ModeInfo? = null,
         travelledBoundaryStopCode: String? = null
     ) {
+        if (headerEntry?.serviceTripId != serviceId) {
+            headerEntry = null
+            resetRowSelection()
+        }
+        val generation = ++requestGeneration
+        val requestEntry = headerEntry
         this.stationName.set(serviceName)
         this.serviceNumber.set(serviceNumber)
 
@@ -153,12 +288,9 @@ class ServiceDetailViewModel @Inject constructor(
             tertiaryText.set(operator)
         }
 
-        realTimeVehicle?.let { occupancyViewModel.setOccupancy(it, false) }
-        showOccupancyInfo.set(occupancyViewModel.hasInformation())
-
         serviceWheelchairAccessible = wheelchairAccessible
         serviceBicycleAccessible = bicycleAccessible
-        updateAccessibility()
+        updateVehicleInformation(realTimeVehicle)
 
         serviceColor?.let {
             when (it.color) {
@@ -195,9 +327,11 @@ class ServiceDetailViewModel @Inject constructor(
             )
         }
 
-        request.doOnSubscribe {
+        serviceRequest.set(request.doOnSubscribe {
             _isLoading.postValue(true)
-        }.subscribe(
+        }.observeOn(AndroidSchedulers.mainThread())
+            .filter { generation == requestGeneration && requestEntry === headerEntry }
+            .subscribe(
             {
                 _isLoading.postValue(false)
                 processResponse(it, travelledBoundaryStopCode)
@@ -205,19 +339,17 @@ class ServiceDetailViewModel @Inject constructor(
                 _isLoading.postValue(false)
                 Timber.e(it)
             }
-        )
-            .autoClear()
+        ))
     }
 
     fun setup(segment: TripSegment) {
+        headerEntry = null
+        resetRowSelection()
         regionService.getRegionByLocationAsync(segment.from)
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({
-                val serviceName = if (segment.serviceName != segment.serviceDirection) {
-                    segment.serviceDirection
-                } else {
-                    segment.serviceName
-                }
+                val serviceName = segment.serviceDirection?.takeIf { it.isNotBlank() }
+                    ?: segment.serviceName
                 setup(
                     region = it.name.orEmpty(),
                     regionUrls = it.getURLs(),
@@ -246,15 +378,17 @@ class ServiceDetailViewModel @Inject constructor(
     }
 
     fun setup(_stop: ScheduledStop, _entry: TimetableEntry) {
+        resetRowSelection()
+        headerEntry = _entry
+        rowVehicles = _entry.realtimeVehicle?.let(::listOf).orEmpty()
         regionService.getRegionByLocationAsync(_stop)
             .observeOn(AndroidSchedulers.mainThread())
+            .filter { headerEntry === _entry }
             .subscribe({
                 val serviceName = if (_entry.serviceName.isNullOrEmpty()) {
                     getServiceTertiaryText.execute(_entry)
-                } else if (_entry.serviceName != _entry.serviceDirection) {
-                    _entry.serviceDirection
                 } else {
-                    _entry.serviceName
+                    _entry.serviceDirection?.takeIf { it.isNotBlank() } ?: _entry.serviceName
                 }
                 setup(
                     region = it.name.orEmpty(),
@@ -280,6 +414,7 @@ class ServiceDetailViewModel @Inject constructor(
                     modeInfo = _entry.modeInfo,
                     travelledBoundaryStopCode = _entry.startStopCode
                 )
+                headerSelection.accept(_entry to (it.timezone?.let(DateTimeZone::forID) ?: _stop.dateTimeZone))
             }, {
                 it.printStackTrace()
             }).autoClear()
@@ -312,6 +447,8 @@ class ServiceDetailViewModel @Inject constructor(
         list.firstOrNull()?.setDrawable(context, ServiceDetailItemViewModel.LineDirection.START)
         list.lastOrNull()?.setDrawable(context, ServiceDetailItemViewModel.LineDirection.END)
         items.set(list)
+        rowsEntry = headerEntry
+        updateRowPredictions()
     }
 
     override fun onCleared() {

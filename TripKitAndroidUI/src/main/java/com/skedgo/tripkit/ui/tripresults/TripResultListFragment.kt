@@ -2,6 +2,10 @@ package com.skedgo.tripkit.ui.tripresults
 
 import android.content.Context
 import android.os.Bundle
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.core.view.isVisible
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -29,7 +33,10 @@ import com.skedgo.tripkit.ui.databinding.TripResultListFragmentBinding
 import com.skedgo.tripkit.ui.dialog.TripKitDateTimePickerDialogFragment
 import com.skedgo.tripkit.ui.map.home.TripKitMapFragment
 import com.skedgo.tripkit.ui.model.UserMode
+import com.skedgo.tripkit.ui.compose.TripKitUITheme
 import com.skedgo.tripkit.ui.tripresults.actionbutton.ActionButtonHandlerFactory
+import com.skedgo.tripkit.ui.tripresults.compose.TripResultsHeaderActions
+import com.skedgo.tripkit.ui.tripresults.compose.observeAsState
 import com.skedgo.tripkit.ui.tripresults.map_contributor.TripResultListMapContributor
 import com.skedgo.tripkit.ui.utils.TripSearchUtils
 import com.skedgo.tripkit.ui.utils.highlightTexts
@@ -214,6 +221,7 @@ class TripResultListFragment : BaseTripKitFragment() {
             locationClickListener?.onDestinationLocationClicked()
         }
         binding.leaveNowLayout.setOnClickListener { showDateTimePicker() }
+        setupHeaderActionsCompose()
         binding.leaveNowLayout.accessibilityDelegate = object : View.AccessibilityDelegate() {
             override fun sendAccessibilityEvent(host: View, eventType: Int) {
                 region?.let {
@@ -240,6 +248,31 @@ class TripResultListFragment : BaseTripKitFragment() {
         accessibilityDefaultViewManager.setDefaultViewForAccessibility(binding.toLocation)
 
         return binding.root
+    }
+
+    private fun setupHeaderActionsCompose() {
+        val useComposeHeader = TripResultsDesignFlags.USE_NEW_TRIP_RESULTS_DESIGN_DEV_FLAG
+        binding.legacyHeaderActions.isVisible = !useComposeHeader
+        binding.composeHeaderActions.isVisible = useComposeHeader
+        if (!useComposeHeader) return
+
+        binding.composeHeaderActions.setViewCompositionStrategy(
+            ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed
+        )
+        binding.composeHeaderActions.setContent {
+            TripKitUITheme {
+                val timeLabel by viewModel.timeLabel.observeAsState(getString(R.string.leave_now))
+                val showTransportModeSelection by viewModel.showTransportModeSelection.observeAsState()
+                TripResultsHeaderActions(
+                    timeLabel = timeLabel.orEmpty(),
+                    showTransportModeSelection = showTransportModeSelection,
+                    onLeaveNowClick = ::showDateTimePicker,
+                    onTransportsClick = {
+                        viewModel.transportLayoutClicked(binding.transportsLayout)
+                    }
+                )
+            }
+        }
     }
 
     override fun onStart() {
